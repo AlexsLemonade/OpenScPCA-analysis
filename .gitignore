@@ -1,14 +1,11 @@
 # -----------------------
-# Data and results directories
+# Data and results
 # -----------------------
 
 # root data directory
 /data/
 
-# ------------------------
 # Data files (may be added if needed for a specific module)
-# ------------------------
-
 *.rds
 *.RDS
 *.RData
