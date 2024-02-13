@@ -1,46 +1,85 @@
 # Contributing to OpenScPCA
 
 **Table of Contents**
-- [Pre-commit hooks](#pre-commit-hooks)
+- [Setting up pre-commit](#setting-up-pre-commit)
   - [Additional optional hooks](#additional-optional-hooks)
+    - [Code formatting and linting](#code-formatting-and-linting)
+    - [Spelling](#spelling)
 
 ## Setting up pre-commit
 
-We have set up pre-commit hooks to manage basic code security and other common errors using the [pre-commit framework](https://pre-commit.com).
-We **strongly** encourage all contributors to use the included hooks as part of their workflow.
+[`pre-commit`](https://pre-commit.com) is small software package that makes it easy to manage and run code quality checks.
+It does this by defining a set of "hooks" that will run every time you commit changes to a repository.
+We have used it in this project to set up some pre-commit hooks to manage basic code security and other common errors.
+All contributors should use the included hooks as part of their workflow, installing the package as described below.
+
 The included hooks check for things like the following:
 
+- Large data files that should not be committed to the repository
+- Credential files and other sensitive information
+- Merge conflicts that have not yet been resolved
+
 To install pre-commit, follow the instructions in the [pre-commit documentation](https://pre-commit.com/#install).
-Once pre-commit is installed, you can install the hooks by running `pre-commit install` in the root directory of the repository.
+Once pre-commit is installed, you can install the hooks by running the following command in the root directory of the repository:
+
+```bash
+# run in the root directory of the repository
+pre-commit install
+```
+
 
 After that point, any time you commit a change to the repository, the hooks will run and check for errors.
 If any errors are found, the commit will be aborted and you will be prompted to fix the errors, after which you can retry the commit.
+For some hooks, the errors will be automatically fixed, and you will only need to stage the updated files and retry the commit.
 
 Note that the first time you commit after installing `pre-commit` or updating the hooks, the hooks may take a while to complete, as software may need to be downloaded and installed, but the hooks will run much faster on subsequent commits.
 
 ### Additional optional hooks
 
-Code formatters and linters may help you write error-free, consistent, and readable code.
-We have not included any code formatting or linting checks in the pre-commit hooks, but you may find it helpful to use these tools in your copy of the repository.
-You can add to the pre-commit hooks by editing the `.pre-commit-config.yaml` file in the root directory of the repository.
-Some formatters that we recommend are [`ruff-format`](https://docs.astral.sh/ruff/formatter/) for Python and the [`style-files` hook from the precommit package](https://lorenzwalthert.github.io/precommit/articles/available-hooks.html#style-files) for R.
+While we have taken a limited approach to the required pre-commit hooks in this project, there are a number of other pre-commit hooks that you might find useful for your own development.
 
+You can add your own pre-commit hooks by editing the `.pre-commit-config.yaml` file in the root directory of the repository.
+Changes to the `.pre-commit-config.yaml` file will be ignored by Git based on our `.gitignore` file, so you are free to modify it as you wish without affecting other users.
+
+#### Code formatting and linting
+
+One example is code formatting and linting tools, which can help you write error-free, consistent, and readable code.
+For more on the value of these tools, see [this article about linters and formatters](https://www.freecodecamp.org/news/using-prettier-and-jslint/).
+While the article focuses on JavaScript, the same principles apply to other languages.
+
+We have not included any code formatting or linting checks in the pre-commit hooks we require, but you may find it helpful to use these tools in your own copy of the repository.
+
+Note that these tools will often directly modify your files when run.
+If they are run as a pre-commit hook the initial commit will fail, and you will then need to check and stage the changes that were made by the tool before re-trying the commit.
+
+
+Some formatters that we recommend are [`ruff-format`](https://docs.astral.sh/ruff/formatter/) for Python and the [`style-files` hook from the precommit package](https://lorenzwalthert.github.io/precommit/articles/available-hooks.html#style-files) for R.
 You can add those with the following code added to the `.pre-commit-config.yaml` file:
 
 ```yaml
 # ruff formatter for Python
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.1.13
+  rev: v0.2.1
   hooks:
     - id: ruff-format
 # code styling with the {styler} package for R
 - repo: https://github.com/lorenzwalthert/precommit
-  rev: v0.3.2
+  rev: v0.4.0
   hooks:
     - id: style-files
+# prettier formatter for many other languages
+- repo: https://github.com/pre-commit/mirrors-prettier
+  rev: v3.1.0
+  hooks:
+    - id: prettier
 ```
 
-Note that these packages will modify the files in place when run, so you may need to add the changes they made to your commit after running the hooks.
+Code linting tools are often more intrusive, enforcing not only general formatting but also particular style standards and "best" practices.
+This can make them more likely to find errors and inconsistencies, but also more likely to require manual intervention to fix those errors.
+They also might complain about things that are not actually errors, but are simply not to the linter's taste.
+For python, we recommend [`ruff`](https://docs.astral.sh/ruff/) (which goes along with `ruff-format`, above), and for R we recommend the [`lintr`](https://lintr.r-lib.org) package.
 
-Changes to the `.pre-commit-config.yaml` file will be ignored by Git based on our `.gitignore` file, so you are free to modify it as you wish without affecting other users.
 
+#### Spelling
+
+We expect to choose a standard spelling checker for the project in the future, but we have not yet done so.
