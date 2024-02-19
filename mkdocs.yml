@@ -1,0 +1,10 @@
+site_name: OpenScPCA Documentation
+theme:
+  name: material
+  features:
+    - content.code.copy   # code copy button in code blocks
+    - navigation.tabs     # persistent navbar on the top
+    - search.suggest      # displays in light gray how you might complete the word
+
+plugins:
+  - search  # search bar
