@@ -1,4 +1,8 @@
 site_name: OpenScPCA Documentation
+
+nav:
+  - index.md
+
 theme:
   name: material
   features:
@@ -8,8 +12,4 @@ theme:
 
 plugins:
   - search  # search bar
-  - exclude: # https://github.com/apenwarr/mkdocs-exclude
-      glob:
-        - CONTRIBUTING.md
-        - requirements.txt
 
