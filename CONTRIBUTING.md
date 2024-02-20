@@ -8,13 +8,10 @@
 
 ## Setting up pre-commit
 
-[`pre-commit`](https://pre-commit.com) is small software package that makes it easy to manage and run code quality checks.
-It does this by defining a set of "hooks" that will run every time you commit changes to a repository.
-We have used it in this project to set up some pre-commit hooks to manage basic code security and other common errors.
-All contributors should use the included hooks as part of their workflow, installing the package as described below.
-
-The included hooks check for things like the following:
-
+[`pre-commit`](https://pre-commit.com) is a small software package that makes it easy to manage and run code quality checks.
+All contributors should use pre-commit as part of their workflow, installing the package as described below.
+`pre-commit` checks code quality by defining a set of "hooks" that will run every time you commit changes to a repository.
+We have used it in this project to set up some pre-commit hooks to manage basic code security and other common errors, such as the following:
 - Large data files that should not be committed to the repository
 - Credential files and other sensitive information
 - Merge conflicts that have not yet been resolved
