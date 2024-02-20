@@ -16,3 +16,4 @@ repos:
       - id: gitleaks
 ci:
   autofix_prs: false
+  autoupdate_schedule: quarterly
