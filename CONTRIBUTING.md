@@ -18,13 +18,14 @@ We have used it in this project to set up some pre-commit hooks to manage basic 
 - Merge conflicts that have not yet been resolved
 
 To install pre-commit, follow the instructions in the [pre-commit documentation](https://pre-commit.com/#install).
-Once pre-commit is installed, you can install the hooks by running the following command in the root directory of the repository:
+Once the `pre-commit` software is installed, copy our base pre-commit configuration file to `.pre-commit-config.yaml` and
+activate the hooks by running the following commands in the root directory of the repository:
 
 ```bash
 # run in the root directory of the repository
+cp pre-commit-base.yaml .pre-commit-config.yaml
 pre-commit install
 ```
-
 
 After that point, any time you commit a change to the repository, the hooks will run and check for errors.
 If any errors are found, the commit will be aborted and you will be prompted to fix the errors, after which you can retry the commit.
