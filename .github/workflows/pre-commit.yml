@@ -17,4 +17,4 @@ jobs:
       - name: Rename pre-commit base file
         run: mv pre-commit-base.yaml .pre-commit-config.yaml
       - name: Run pre-commit
-        uses: pre-commit/action@v3
+        uses: pre-commit/action@v3.0.1
