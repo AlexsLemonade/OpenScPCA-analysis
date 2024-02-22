@@ -4,7 +4,7 @@ nav:
   - index.md
 
 exclude_docs: | # syntax: https://www.mkdocs.org/user-guide/configuration/#exclude_docs
-  /CONTRIBUTING.md # docs contribution guidelines
+  /contributing.md # docs contribution guidelines
   /requirements.txt  # docs requirements file.
 
 theme:
