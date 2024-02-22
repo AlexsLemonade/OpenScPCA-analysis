@@ -1,4 +1,4 @@
-This file contains information about contributing docs development.
+This file contains information about contributing to docs development.
 
 `OpenScPCA-analysis` documentation is written in markdown with [`Material for MkDocs`](https://squidfunk.github.io/mkdocs-material/).
 The [`mkdocs.yml`](../mkdocs.yml) is the documentation configuration file, and documentation pages are stored in the `docs` directory.
