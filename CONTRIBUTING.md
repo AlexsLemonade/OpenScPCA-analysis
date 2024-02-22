@@ -4,7 +4,10 @@
 - [Conda environment setup](#conda-environment-setup)
   - [Installing Miniconda](#installing-miniconda)
   - [Creating and activating the base OpenScPCA environment](#creating-and-activating-the-base-openscpca-environment)
-  - [Adding software to the environment](#adding-software-to-the-environment)
+  - [Module-specific environments](#module-specific-environments)
+  - [Adding software to the environment and tracking installed software](#adding-software-to-the-environment-and-tracking-installed-software)
+  - [Finding available software](#finding-available-software)
+    - [Note for ARM (Apple Silicon) computers](#note-for-arm-apple-silicon-computers)
 - [Setting up pre-commit](#setting-up-pre-commit)
   - [Additional optional hooks](#additional-optional-hooks)
     - [Code formatting and linting](#code-formatting-and-linting)
@@ -26,7 +29,7 @@ The software included in this file includes:
 If you do not already have a working conda installation, we encourage you to install Miniconda, which includes only the conda package manager and its dependencies, rather than the full Anaconda distribution.
 This will save disk space and make it easier to manage your conda installation.
 
-Install Miniconda by following the instructions in the [conda documentation](https://docs.anaconda.com/free/miniconda/#quick-command-line-install).
+Install Miniconda by following the instructions in the [Miniconda documentation](https://docs.anaconda.com/free/miniconda/#quick-command-line-install).
 Note that the installation instructions differ by operating system and architecture, so be sure to select the correct installation instructions for your system.
 
 Once you have completed the basic installation, define the default conda channels and priorities by running the following commands in your terminal:
@@ -44,21 +47,66 @@ conda config --set channel_priority strict
 Once Miniconda is installed on your system, you can create an environment named `openscpca` from our base installation with the following commands run in the root directory of the repository:
 
 ```bash
-conda create --name openscpca --file environment.yml
+conda env create --file environment.yml --name openscpca
 conda activate openscpca
 ```
 
-If you would like to use a different name for the environment, you can change `openscpca` to the name you would like to use.
+### Module-specific environments
 
+When you are working on an analysis module, you should create and/or use a conda environment specific to that module, with the same name as the module folder.
+This will help track the required software dependencies for each module and make it easier to reproduce the analysis in the future.
+You can create a new environment for a module and activate it by running the following commands in the root directory of the repository, replacing `{module_name}` with the name of the module you are working on:
 
+```bash
+conda env create --file environment.yaml --name {module_name}
+conda activate {module_name}
+```
 
+If a module already has an `environment.yaml` file, you can create the environment from that file by running the following command:
 
-### Adding software to the environment
+```bash
+conda env create --file {module_name}/environment.yml --name {module_name}
+conda activate {module_name}
+```
 
-If there is additional software you intend to use for a module
+### Adding software to the environment and tracking installed software
 
+If there is additional software you intend to use for a module, you can add it with the `conda install` command when the environment is activated.
+When you install new software into your environment, you will also want to update the `environment.yml` file with that package and the dependencies that were installed.
+For example, to install the `pandas` package and record it in the `environment.yml` file, you would run the following commands:
 
+```bash
+cd {module_name}
+conda activate {module_name}
+conda install pandas
+conda env export --no-builds | grep -v "^prefix:" > environment.yml
+```
 
+(The `grep` command in the final line is there to remove user-specific paths that `conda` includes in its export.)
+
+### Finding available software
+
+To find software available through conda, you can search the conda repositories with the following command:
+
+```bash
+conda search {package_name}
+```
+
+Alternatively, you can search [anaconda.org](https://anaconda.org) for packages and channels.
+
+#### Note for ARM (Apple Silicon) computers
+
+While most conda packages are available for ARM-based computers (such as macOS computers with M-series processors), some software is only available for Intel architectures.
+However, it is still usually possible to run an Intel-based package on macOS, but you will need to create an environment that uses the `osx-64` architecture for all of its software.
+To do this, you can slightly modify the creation command for the environment and add a setting to the environment, as shown below:
+
+```bash
+CONDA_SUBDIR=osx-64 conda env create --file environment.yaml --name {module_name}
+conda activate {module_name}
+conda config --env --set subdir osx-64
+```
+
+After that point, you should be able to install any Intel-based package into the environment as usual.
 
 ## Setting up pre-commit
 
