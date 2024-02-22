@@ -4,7 +4,7 @@
 - [Conda environment setup](#conda-environment-setup)
   - [Installing Miniconda](#installing-miniconda)
   - [Creating and activating the base OpenScPCA environment](#creating-and-activating-the-base-openscpca-environment)
-  - [Installing conda](#installing-conda)
+  - [Adding software to the environment](#adding-software-to-the-environment)
 - [Setting up pre-commit](#setting-up-pre-commit)
   - [Additional optional hooks](#additional-optional-hooks)
     - [Code formatting and linting](#code-formatting-and-linting)
@@ -14,6 +14,12 @@
 ## Conda environment setup
 
 To facilitate software setup and reproducibility, we have provided a basic conda environment file, `environment.yml`, that you can use to create a virtual environment with all the necessary dependencies.
+The software included in this file includes:
+
+- Python 3.10
+- `pre-commit` for managing code quality checks
+- `aws` command line tool for interacting with AWS
+- `jq` for parsing JSON files (useful with `aws`)
 
 ### Installing Miniconda
 
@@ -35,7 +41,7 @@ conda config --set channel_priority strict
 
 ### Creating and activating the base OpenScPCA environment
 
-Once Miniconda is installed on your system, you can create an environment named `openscpca` from our base installation with the following commands:
+Once Miniconda is installed on your system, you can create an environment named `openscpca` from our base installation with the following commands run in the root directory of the repository:
 
 ```bash
 conda create --name openscpca --file environment.yml
@@ -45,7 +51,14 @@ conda activate openscpca
 If you would like to use a different name for the environment, you can change `openscpca` to the name you would like to use.
 
 
-### Installing conda
+
+
+### Adding software to the environment
+
+If there is additional software you intend to use for a module
+
+
+
 
 ## Setting up pre-commit
 
@@ -53,12 +66,13 @@ If you would like to use a different name for the environment, you can change `o
 All contributors should use pre-commit as part of their workflow, installing the package as described below.
 `pre-commit` checks code quality by defining a set of "hooks" that will run every time you commit changes to a repository.
 We have used it in this project to set up some pre-commit hooks to manage basic code security and other common errors, such as the following:
+
 - Large data files that should not be committed to the repository
 - Credential files and other sensitive information
 - Merge conflicts that have not yet been resolved
 
-To install pre-commit, follow the instructions in the [pre-commit documentation](https://pre-commit.com/#install).
-Once pre-commit is installed, you can install the hooks by running the following command in the root directory of the repository:
+Pre-commit is installed via the conda environment file, so you should already have it installed if you have followed the instructions above.
+Once pre-commit is installed, you can activate the hooks by running the following command in the root directory of the repository:
 
 ```bash
 # run in the root directory of the repository
