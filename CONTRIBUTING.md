@@ -1,11 +1,51 @@
 # Contributing to OpenScPCA
 
 **Table of Contents**
+- [Conda environment setup](#conda-environment-setup)
+  - [Installing Miniconda](#installing-miniconda)
+  - [Creating and activating the base OpenScPCA environment](#creating-and-activating-the-base-openscpca-environment)
+  - [Installing conda](#installing-conda)
 - [Setting up pre-commit](#setting-up-pre-commit)
   - [Additional optional hooks](#additional-optional-hooks)
     - [Code formatting and linting](#code-formatting-and-linting)
     - [Spell checking](#spell-checking)
     - [Other pre-commit hooks](#other-pre-commit-hooks)
+
+## Conda environment setup
+
+To facilitate software setup and reproducibility, we have provided a basic conda environment file, `environment.yml`, that you can use to create a virtual environment with all the necessary dependencies.
+
+### Installing Miniconda
+
+If you do not already have a working conda installation, we encourage you to install Miniconda, which includes only the conda package manager and its dependencies, rather than the full Anaconda distribution.
+This will save disk space and make it easier to manage your conda installation.
+
+Install Miniconda by following the instructions in the [conda documentation](https://docs.anaconda.com/free/miniconda/#quick-command-line-install).
+Note that the installation instructions differ by operating system and architecture, so be sure to select the correct installation instructions for your system.
+
+Once you have completed the basic installation, define the default conda channels and priorities by running the following commands in your terminal:
+
+```bash
+conda config --add channels defaults
+conda config --add channels bioconda
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+```
+
+
+### Creating and activating the base OpenScPCA environment
+
+Once Miniconda is installed on your system, you can create an environment named `openscpca` from our base installation with the following commands:
+
+```bash
+conda create --name openscpca --file environment.yml
+conda activate openscpca
+```
+
+If you would like to use a different name for the environment, you can change `openscpca` to the name you would like to use.
+
+
+### Installing conda
 
 ## Setting up pre-commit
 
