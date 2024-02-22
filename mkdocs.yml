@@ -1,0 +1,18 @@
+site_name: OpenScPCA Documentation
+
+nav:
+  - index.md
+
+exclude_docs: | # syntax: https://www.mkdocs.org/user-guide/configuration/#exclude_docs
+  /contributing.md # docs contribution guidelines
+  /requirements.txt  # docs requirements file.
+
+theme:
+  name: material
+  features:
+    - content.code.copy   # code copy button in code blocks
+    - navigation.tabs     # persistent navbar on the top
+    - search.suggest      # displays in light gray how you might complete the word
+
+plugins:
+  - search  # search bar
