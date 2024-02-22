@@ -1,0 +1,20 @@
+name: pre-commit
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - jashapiro/
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+      - name: Rename pre-commit base file
+        run: mv pre-commit-base.yaml .pre-commit-config.yaml
+      - name: Run pre-commit
+        uses: pre-commit/action@v3
