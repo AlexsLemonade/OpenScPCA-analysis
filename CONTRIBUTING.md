@@ -53,7 +53,7 @@ conda activate openscpca
 
 ### Module-specific environments
 
-When you are working on an analysis module, you should create and/or use a conda environment specific to that module, with the same name as the module folder.
+When you are working on an analysis module, you can create and/or use a conda environment specific to that module, with the same name as the module folder.
 This will help track the required software dependencies for each module and make it easier to reproduce the analysis in the future.
 You can create a new environment for a module and activate it by running the following commands in the root directory of the repository, replacing `{module_name}` with the name of the module you are working on:
 
@@ -120,11 +120,10 @@ We have used it in this project to set up some pre-commit hooks to manage basic 
 - Merge conflicts that have not yet been resolved
 
 Pre-commit is installed via the conda environment file, so you should already have it installed if you have followed the instructions above.
-Once the `pre-commit` software is installed, copy our base pre-commit configuration file to `.pre-commit-config.yaml` and activate the hooks by running the following commands in the root directory of the repository:
+With pre-commit installed, you can activate the hooks by running the following command in the root directory of the repository:
 
 ```bash
 # run in the root directory of the repository
-cp pre-commit-base.yaml .pre-commit-config.yaml
 pre-commit install
 ```
 
