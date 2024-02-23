@@ -2,7 +2,7 @@
 
 **Table of Contents**
 - [Setting up pre-commit](#setting-up-pre-commit)
-  - [Additional optional hooks](#additional-optional-hooks)
+  - [Adding additional local hooks](#adding-additional-local-hooks)
     - [Code formatting and linting](#code-formatting-and-linting)
     - [Spell checking](#spell-checking)
     - [Other pre-commit hooks](#other-pre-commit-hooks)
@@ -32,12 +32,22 @@ For some hooks, the errors will be automatically fixed, and you will only need t
 
 Note that the first time you commit after installing `pre-commit` or updating the hooks, the hooks may take a while to complete, as software may need to be downloaded and installed, but the hooks will run much faster on subsequent commits.
 
-### Additional optional hooks
+### Adding additional local hooks
 
 While we have taken a limited approach to the required pre-commit hooks in this project, there are a number of other pre-commit hooks that you might find useful for your own development.
 
-You can add your own pre-commit hooks by editing the `.pre-commit-config.yaml` file in the root directory of the repository.
-Changes to the `.pre-commit-config.yaml` file will be ignored by Git based on our `.gitignore` file, so you are free to modify it as you wish without affecting other users.
+Because the `.pre-commit-config.yaml` file is shared by all repository users, it should not be modified.
+Instead, you should make a copy of this file in the root directory of the repository named `.pre-commit-local.yaml`.
+We have configured Git to ignore this file in the repository `.gitignore` file, so you are free to modify it as you wish without affecting other users.
+To switch your local activation of `pre-commit` to use this file, you will need to re-activate `pre-commit` using the the following code:
+
+```bash
+# make and activate a local pre-commit configuration
+cp .pre-commit-config.yaml .pre-commit-local.yaml
+pre-commit install --config .pre-commit-local.yaml
+```
+
+You can then add your own pre-commit hooks by editing the `.pre-commit-local.yaml` file.
 
 #### Code formatting and linting
 
