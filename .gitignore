@@ -15,10 +15,10 @@
 *.sqlite
 
 # ------------------------
-# Ignore changes to customizable config files (in repo, but not tracked)
+# Ignore local config files
 # ------------------------
 
-/.pre-commit-config.yaml
+/.pre-commit-local.yaml
 
 # ------------------------
 # Log files and caches
