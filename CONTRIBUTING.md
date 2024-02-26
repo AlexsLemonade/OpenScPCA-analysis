@@ -44,18 +44,18 @@ conda config --set channel_priority strict
 
 ### Creating and activating the base OpenScPCA environment
 
-Once Miniconda is installed on your system, you can create an environment named `openscpca` from our base installation with the following commands run in the root directory of the repository:
+Once Miniconda is installed on your system, you can update your base environment to include the packages that you will need for OpenScPCA development.
+These packages are listed in the repository `environment.yml` file, and you can install them into your current environment by running the following command in the root directory of the repository:
 
 ```bash
-conda env create --file environment.yml --name openscpca
-conda activate openscpca
+conda env update --file environment.yml
 ```
 
 ### Module-specific environments
 
 When you are working on an analysis module, you can create and/or use a conda environment specific to that module, with the same name as the module folder.
 This will help track the required software dependencies for each module and make it easier to reproduce the analysis in the future.
-You can create a new environment for a module and activate it by running the following commands in the root directory of the repository, replacing `{module_name}` with the name of the module you are working on:
+You can create a new environment for a module that includes the required packages and activate it by running the following commands in the root directory of the repository, replacing `{module_name}` with the name of the module you are working on:
 
 ```bash
 conda env create --file environment.yaml --name {module_name}
@@ -65,7 +65,7 @@ conda activate {module_name}
 If a module already has an `environment.yaml` file, you can create the environment from that file by running the following command:
 
 ```bash
-conda env create --file {module_name}/environment.yml --name {module_name}
+conda env create --file analyses/{module_name}/environment.yml --name {module_name}
 conda activate {module_name}
 ```
 
@@ -76,7 +76,7 @@ When you install new software into your environment, you will also want to updat
 For example, to install the `pandas` package and record it in the `environment.yml` file, you would run the following commands:
 
 ```bash
-cd {module_name}
+cd analyses/{module_name}
 conda activate {module_name}
 conda install pandas
 conda env export --no-builds | grep -v "^prefix:" > environment.yml
