@@ -20,6 +20,7 @@
 
 /.pre-commit-local.yaml
 
+
 # ------------------------
 # Log files and caches
 # ------------------------
@@ -289,3 +290,4 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
