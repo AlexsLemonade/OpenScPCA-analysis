@@ -3,20 +3,21 @@
 """ Script to create a new analysis module for OpenScPCA """
 
 import argparse
-import os
 import pathlib
+import re
 import shutil
 import subprocess
+import sys
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
         prog="new-analysis", description="Create a new analysis module for OpenScPCA."
     )
     parser.add_argument(
         "name",
         help=(
-            "Name of the analysis module."
+            "Name of the analysis module to create."
             " This will be used for the directory name and must not already exist within the `analyses` directory."
         ),
     )
@@ -47,32 +48,30 @@ def main():
     template_dir = base_dir / "templates" / "analysis-module"
     module_dir = base_dir / "analyses" / args.name
 
+    # complain if there are spaces in the module name
+    if re.search(r"\s", args.name):
+        sys.exit("Module name should not contain spaces.\nExiting.")
+
     # exit if the module directory already exists
     if module_dir.exists():
-        print(
-            f"Analysis module `{args.name}` already exists at `{module_dir}`.",
-            "Exiting.",
-            sep=os.linesep,
+        sys.exit(
+            f"Analysis module `{args.name}` already exists at `{module_dir}`."
+            "\nExiting."
         )
-        return 1
 
     # if use_conda is requested, check that conda is available
     if args.use_conda and not shutil.which("conda"):
-        print(
-            "Setup with conda was requested, but conda is not available on the system.",
-            "Please install conda (Miniconda) and try again.",
-            sep=os.linesep,
+        sys.exit(
+            "Setup with conda was requested, but conda is not available on the system."
+            "\nPlease install conda (Miniconda) and try again."
         )
-        return 1
 
     # if use_renv is requested, check that R is available
     if args.use_renv and not shutil.which("Rscript"):
-        print(
-            "Setup with renv was requested, but Rscript is not available on the system.",
-            "Please install R and try again.",
-            sep=os.linesep,
+        sys.exit(
+            "Setup with renv was requested, but Rscript is not available on the system."
+            "\nPlease install R and try again."
         )
-        return 1
 
     # create the new module directory from the template
     try:
@@ -80,9 +79,10 @@ def main():
     except FileNotFoundError:
         # just in case the template directory is missing
         if not template_dir.exists():
-            print("Expected template directory does not exist at `{template_dir}`.")
-            print("Exiting.")
-            return 1
+            sys.exit(
+                "Expected template directory does not exist at `{template_dir}`."
+                "\nExiting."
+            )
         else:
             raise
 
