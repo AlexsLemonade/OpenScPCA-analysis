@@ -1,0 +1,6 @@
+# Ignore the scratch directory
+/scratch
+
+# Results should not be committed
+/results/*
+!/results/README.md
