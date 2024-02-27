@@ -1,4 +1,4 @@
-#!/usr/env/bin python3
+#!/usr/bin/env python3
 
 """ Script to create a new analysis module for OpenScPCA """
 
@@ -106,9 +106,11 @@ def main() -> None:
         # if we do, we need to check that the environment name does not already exist
 
         # subprocess.run(
-        #     ["conda", "env", "create", "-f", "environment.yml"],
+        #     ["conda", "env", "create", "-f", "environment.yml", "--prefix", "env"],
         #     cwd=module_dir,
         # )
+        # with open(module_dir / "env" / ".gitignore", "w") as f:
+        #     f.writelines("# ignore all environment files\n*\n")
 
     if args.use_renv:
         # initialize a new renv environment
