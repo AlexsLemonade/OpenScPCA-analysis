@@ -113,7 +113,8 @@ Please be advised that if you report anonymously, we may be limited in taking ce
 For example, we will be unable to follow up for further information or to report on the status of the investigation. 
 Please fill out the entire report with as much detail as possible.
 
-[Submit an anonymous report here](https://forms.gle/qpm1syjYK8cjqYM46)
+ | [Submit an anonymous report here](https://forms.gle/qpm1syjYK8cjqYM46) |
+ |-------|
 
 ### What if my report is about a Data Lab staff member?
 
