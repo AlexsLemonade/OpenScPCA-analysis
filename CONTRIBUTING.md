@@ -1,11 +1,112 @@
 # Contributing to OpenScPCA
 
 **Table of Contents**
+- [Conda environment setup](#conda-environment-setup)
+  - [Installing Miniconda](#installing-miniconda)
+  - [Creating and activating the base OpenScPCA environment](#creating-and-activating-the-base-openscpca-environment)
+  - [Module-specific environments](#module-specific-environments)
+  - [Adding software to the environment and tracking installed software](#adding-software-to-the-environment-and-tracking-installed-software)
+  - [Finding available software](#finding-available-software)
+    - [Note for ARM (Apple Silicon) computers](#note-for-arm-apple-silicon-computers)
 - [Setting up pre-commit](#setting-up-pre-commit)
   - [Adding additional local hooks](#adding-additional-local-hooks)
     - [Code formatting and linting](#code-formatting-and-linting)
     - [Spell checking](#spell-checking)
     - [Other pre-commit hooks](#other-pre-commit-hooks)
+
+## Conda environment setup
+
+To facilitate software setup and reproducibility, we have provided a basic conda environment file, `environment.yml`, that you can use to create a virtual environment with all the necessary dependencies.
+The software included in this file includes:
+
+- Python 3.10
+- `pre-commit` for managing code quality checks
+- `aws` command line tool for interacting with AWS
+- `jq` for parsing JSON files (useful with `aws`)
+
+### Installing Miniconda
+
+If you do not already have a working conda installation, we encourage you to install Miniconda, which includes only the conda package manager and its dependencies, rather than the full Anaconda distribution.
+This will save disk space and make it easier to manage your conda installation.
+
+Install Miniconda by following the instructions in the [Miniconda documentation](https://docs.anaconda.com/free/miniconda/#quick-command-line-install).
+Note that the installation instructions differ by operating system and architecture, so be sure to select the correct installation instructions for your system.
+
+Once you have completed the basic installation, define the default conda channels and priorities by running the following commands in your terminal:
+
+```bash
+conda config --add channels defaults
+conda config --add channels bioconda
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+```
+
+
+### Creating and activating the base OpenScPCA environment
+
+Once Miniconda is installed on your system, you can update your base environment to include the packages that you will need for OpenScPCA development.
+These packages are listed in the repository `environment.yml` file, and you can install them into your current environment by running the following command in the root directory of the repository:
+
+```bash
+conda env update --file environment.yml
+```
+
+### Module-specific environments
+
+When you are working on an analysis module, you can create and/or use a conda environment specific to that module, with the same name as the module folder.
+This will help track the required software dependencies for each module and make it easier to reproduce the analysis in the future.
+You can create a new environment for a module that includes the required packages and activate it by running the following commands in the root directory of the repository, replacing `{module_name}` with the name of the module you are working on:
+
+```bash
+conda env create --file environment.yaml --name {module_name}
+conda activate {module_name}
+```
+
+If a module already has an `environment.yaml` file, you can create the environment from that file by running the following command:
+
+```bash
+conda env create --file analyses/{module_name}/environment.yml --name {module_name}
+conda activate {module_name}
+```
+
+### Adding software to the environment and tracking installed software
+
+If there is additional software you intend to use for a module, you can add it with the `conda install` command when the environment is activated.
+When you install new software into your environment, you will also want to update the `environment.yml` file with that package and the dependencies that were installed.
+For example, to install the `pandas` package and record it in the `environment.yml` file, you would run the following commands:
+
+```bash
+cd analyses/{module_name}
+conda activate {module_name}
+conda install pandas
+conda env export --no-builds | grep -v "^prefix:" > environment.yml
+```
+
+(The `grep` command in the final line is there to remove user-specific paths that `conda` includes in its export.)
+
+### Finding available software
+
+To find software available through conda, you can search the conda repositories with the following command:
+
+```bash
+conda search {package_name}
+```
+
+Alternatively, you can search [anaconda.org](https://anaconda.org) for packages and channels.
+
+#### Note for ARM (Apple Silicon) computers
+
+While most conda packages are available for ARM-based computers (such as macOS computers with M-series processors), some software is only available for Intel architectures.
+However, it is still usually possible to run an Intel-based package on macOS, but you will need to create an environment that uses the `osx-64` architecture for all of its software.
+To do this, you can slightly modify the creation command for the environment and add a setting to the environment, as shown below:
+
+```bash
+CONDA_SUBDIR=osx-64 conda env create --file environment.yaml --name {module_name}
+conda activate {module_name}
+conda config --env --set subdir osx-64
+```
+
+After that point, you should be able to install any Intel-based package into the environment as usual.
 
 ## Setting up pre-commit
 
@@ -13,18 +114,18 @@
 All contributors should use pre-commit as part of their workflow, installing the package as described below.
 `pre-commit` checks code quality by defining a set of "hooks" that will run every time you commit changes to a repository.
 We have used it in this project to set up some pre-commit hooks to manage basic code security and other common errors, such as the following:
+
 - Large data files that should not be committed to the repository
 - Credential files and other sensitive information
 - Merge conflicts that have not yet been resolved
 
-To install pre-commit, follow the instructions in the [pre-commit documentation](https://pre-commit.com/#install).
-Once pre-commit is installed, you can install the hooks by running the following command in the root directory of the repository:
+Pre-commit is installed via the conda environment file, so you should already have it installed if you have followed the instructions above.
+With pre-commit installed, you can activate the hooks by running the following command in the root directory of the repository:
 
 ```bash
 # run in the root directory of the repository
 pre-commit install
 ```
-
 
 After that point, any time you commit a change to the repository, the hooks will run and check for errors.
 If any errors are found, the commit will be aborted and you will be prompted to fix the errors, after which you can retry the commit.
@@ -62,7 +163,7 @@ If they are run as a pre-commit hook the initial commit will fail, and you will 
 
 
 Some formatters that we recommend are [`ruff-format`](https://docs.astral.sh/ruff/formatter/) for Python and the [`style-files` hook from the precommit package](https://lorenzwalthert.github.io/precommit/articles/available-hooks.html#style-files) for R.
-You can add those with the following code added to the `.pre-commit-config.yaml` file:
+You can add those with the following code added to the `.pre-commit-config.yaml` file in the `repos:` section:
 
 ```yaml
   # ruff formatter for Python
