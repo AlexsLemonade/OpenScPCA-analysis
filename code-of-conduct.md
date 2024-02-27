@@ -119,7 +119,7 @@ Please fill out the entire report with as much detail as possible.
 ### What if my report is about a Data Lab staff member?
 
 If you are reporting an incident that involves the Director or Scientific Community Manager of the Data Lab, do not use the email address for reporting. 
-Please submit your report via Slack DM to another Data Lab staff member (Josh Shapiro, Ally Hawkins, or Stephanie Spielman).
+Please submit your report via Slack DM to another Data Lab staff member (https://github.com/orgs/AlexsLemonade/people).
 The person you are reporting about will not be allowed to investigate your claim, and the report will be handled discreetly. 
 
 ## What happens after a report is filed?
