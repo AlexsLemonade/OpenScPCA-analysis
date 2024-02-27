@@ -1,5 +1,7 @@
 #!/usr/env/bin python3
 
+""" Script to create a new analysis module for OpenScPCA """
+
 import argparse
 import os
 import pathlib
@@ -9,26 +11,33 @@ import subprocess
 
 def main():
     parser = argparse.ArgumentParser(
-        prog="new-analysis", description="Create a new analysis module for OpenScPCA"
+        prog="new-analysis", description="Create a new analysis module for OpenScPCA."
     )
     parser.add_argument(
         "name",
         help=(
             "Name of the analysis module."
-            " This will be used for the directory name and must not already exists within the `analyses` directory."
+            " This will be used for the directory name and must not already exist within the `analyses` directory."
         ),
     )
     parser.add_argument(
         "--use-conda",
         action="store_true",
         default=False,
-        help="Set up a new conda environment file for the module",
+        help="Set up a new conda environment file for the module.",
     )
     parser.add_argument(
         "--use-renv",
         action="store_true",
         default=False,
-        help="Initialize a new renv environment for the module",
+        help="Initialize a new renv environment for the module.",
+    )
+    parser.add_argument(
+        "--condaenv-name",
+        help=(
+            "Name of the conda environment to create for the module."
+            " The default name is `openscpca_<name>` where <name> is the module name."
+        ),
     )
 
     args = parser.parse_args()
@@ -47,6 +56,15 @@ def main():
         )
         return 1
 
+    # if use_conda is requested, check that conda is available
+    if args.use_conda and not shutil.which("conda"):
+        print(
+            "Setup with conda was requested, but conda is not available on the system.",
+            "Please install conda (Miniconda) and try again.",
+            sep=os.linesep,
+        )
+        return 1
+
     # if use_renv is requested, check that R is available
     if args.use_renv and not shutil.which("Rscript"):
         print(
@@ -60,17 +78,28 @@ def main():
     shutil.copytree(template_dir, module_dir)
 
     if args.use_conda:
-        # add an environment.yml file copied from base but with the new name
+        # add an environment.yml file copied from base but with a new name based on the module name
+        if args.condaenv_name:
+            env_name = args.condaenv_name
+        else:
+            env_name = f"openscpca_{args.name}"
+
         with open(base_dir / "environment.yml", "r") as f:
             lines = f.readlines()
         with open(module_dir / "environment.yml", "w") as f:
             for line in lines:
                 if line.startswith("name:"):
-                    f.write(f"name: {args.name}\n")
+                    f.write(f"name: {env_name}\n")
                 else:
                     f.write(line)
 
         # should we run conda env create -f environment.yml here?
+        # if we do, we need to check that the environment name does not already exist
+
+        # subprocess.run(
+        #     ["conda", "env", "create", "-f", "environment.yml"],
+        #     cwd=module_dir,
+        # )
 
     if args.use_renv:
         # initialize a new renv environment
