@@ -44,7 +44,7 @@ def main():
 
     # get the paths relative to this script file
     base_dir = pathlib.Path(__file__).parent
-    template_dir = base_dir / "analyses" / "_template"
+    template_dir = base_dir / "analyses" / "z_module-template"
     module_dir = base_dir / "analyses" / args.name
 
     # exit if the directory already exists
