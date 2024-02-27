@@ -47,7 +47,7 @@ def main():
     template_dir = base_dir / "templates" / "analysis-module"
     module_dir = base_dir / "analyses" / args.name
 
-    # exit if the directory already exists
+    # exit if the module directory already exists
     if module_dir.exists():
         print(
             f"Analysis module `{args.name}` already exists at `{module_dir}`.",
@@ -75,7 +75,16 @@ def main():
         return 1
 
     # create the new module directory from the template
-    shutil.copytree(template_dir, module_dir)
+    try:
+        shutil.copytree(template_dir, module_dir)
+    except FileNotFoundError:
+        # just in case the template directory is missing
+        if not template_dir.exists():
+            print("Expected template directory does not exist at `{template_dir}`.")
+            print("Exiting.")
+            return 1
+        else:
+            raise
 
     if args.use_conda:
         # add an environment.yml file copied from base but with a new name based on the module name
