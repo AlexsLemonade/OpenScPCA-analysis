@@ -163,7 +163,7 @@ If they are run as a pre-commit hook the initial commit will fail, and you will 
 
 
 Some formatters that we recommend are [`ruff-format`](https://docs.astral.sh/ruff/formatter/) for Python and the [`style-files` hook from the precommit package](https://lorenzwalthert.github.io/precommit/articles/available-hooks.html#style-files) for R.
-You can add those with the following code added to the `.pre-commit-config.yaml` file:
+You can add those with the following code added to the `.pre-commit-config.yaml` file in the `repos:` section:
 
 ```yaml
   # ruff formatter for Python
