@@ -103,7 +103,8 @@ def main() -> None:
                     f.write(line)
 
         # should we run conda env create -f environment.yml here?
-        # if we do, we need to check that the environment name does not already exist
+        # if we do, we need to check that the environment name does not already exist, 
+        # or use a prefix as in the example below
 
         # subprocess.run(
         #     ["conda", "env", "create", "-f", "environment.yml", "--prefix", "env"],
