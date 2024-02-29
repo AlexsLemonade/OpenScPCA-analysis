@@ -9,11 +9,11 @@ theme:
   name: material
   features:
     - content.code.copy      # code copy button in code blocks
+    - search.suggest         # displays in light gray how you might complete the word
     - navigation.tabs        # persistent navbar on the top
     - navigation.tabs.sticky # sticky navbar
     - navigation.sections    # enables sections along the left side bar via nested directories in docs/
     - navigation.indexes     # do the thing we want
-    - search.suggest         # displays in light gray how you might complete the word
 
 plugins:
   - search  # search bar
@@ -30,7 +30,7 @@ plugins:
 # Currently, we have templated out the follow navbar items (specific names TBD)
 nav:
   - Welcome to OpenScPCA:      # welcome, familiarizing yourself with the project
-    - landing-page/index.md
+    - welcome/index.md
   - Technical setup:           # Fork/clone, local environment setup
     - technical-setup/index.md
   - Tools for communication:   # Slack, issues, discussions

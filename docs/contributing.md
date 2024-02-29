@@ -20,12 +20,14 @@ To serve the documentation during local development, run `mkdocs serve` from the
 
 Documentation is written as a series of markdown files nested by topic in directories.
 
-- All directories at the top-level inside `docs` will represent **navbar sections.**
+- All directories at the top-level inside `docs` will represent navbar sections.
   - Each top-level directory should contain an `index.md` file with an overall description of what that section contains.
+  - The `index.md` should have an L1 header with the same title as the navbar section.
 - Nested directories within each navbar section represent a given overall topic.
-  - Markdown files in each directory represent documentation section.
-  - As needed, there can be additional nested directories here.
-- Any visual aids using in your docs should be placed in the `img` directory, in the top-level inside `docs`.
+  - Markdown files in each directory represent sections shown along the left sidebar.
+  - We also expect additional nested directories within navbar directories.
+    - Nested directories should be used to add an additional bold header on the left sidebar.
+- Any visual aids used in the docs should be placed in `docs/img`.
 
 ### Adding new documentation
 
