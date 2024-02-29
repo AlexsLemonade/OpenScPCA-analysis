@@ -13,6 +13,7 @@
     - [Code formatting and linting](#code-formatting-and-linting)
     - [Spell checking](#spell-checking)
     - [Other pre-commit hooks](#other-pre-commit-hooks)
+- [Creating a new analysis module](#creating-a-new-analysis-module)
 
 ## Conda environment setup
 
@@ -53,20 +54,27 @@ conda env update --file environment.yml
 
 ### Module-specific environments
 
-When you are working on an analysis module, you can create and/or use a conda environment specific to that module, with the same name as the module folder.
-This will help track the required software dependencies for each module and make it easier to reproduce the analysis in the future.
-You can create a new environment for a module that includes the required packages and activate it by running the following commands in the root directory of the repository, replacing `{module_name}` with the name of the module you are working on:
+When you are working on an analysis module, you can create and/or use a conda environment specific to that module.
+If you used the `create-analysis-module.py` script to create the module with the `--use-conda` option, a basic `environment.yaml` file should already be present in the module's directory and the conda environment will exist.
+See the [Creating a new analysis module](#creating-a-new-analysis-module) section for more information on creating a new module.
+You can activate the environment by running the following command:
 
 ```bash
-conda env create --file environment.yaml --name {module_name}
-conda activate {module_name}
+conda activate openscpca-{module_name}
 ```
 
-If a module already has an `environment.yaml` file, you can create the environment from that file by running the following command:
+If no `environment.yaml` file is present, you can create and activate a new environment for the module by running the following command from the repository root directory, replacing `{module_name}` with the name of the module you are working on:
 
 ```bash
-conda env create --file analyses/{module_name}/environment.yml --name {module_name}
-conda activate {module_name}
+conda create --file environment.yml --name openscpca-{module_name}
+conda activate openscpca-{module_name}
+```
+
+If you are working with a pre-existing module that already has an  `environment.yaml` file, you can create and activate the environment from that file by running the following commands:
+
+```bash
+conda env create --file analyses/{module_name}/environment.yml --name openscpca-{module_name}
+conda activate openscpca-{module_name}
 ```
 
 ### Adding software to the environment and tracking installed software
@@ -77,7 +85,7 @@ For example, to install the `pandas` package and record it in the `environment.y
 
 ```bash
 cd analyses/{module_name}
-conda activate {module_name}
+conda activate openscpca-{module_name}
 conda install pandas
 conda env export --no-builds | grep -v "^prefix:" > environment.yml
 ```
@@ -207,3 +215,34 @@ One such tool is [`typos`](https://github.com/crate-ci/typos), which runs quickl
 
 There are many other pre-commit hooks available, and you can find a fairly extensive list of them at the pre-commit ["Supported hooks" page](https://pre-commit.com/hooks.html).
 Just note that the more hooks you add, the longer each commit to your repository will take!
+
+
+## Creating a new analysis module
+
+To facilitate creating new analysis modules with recommended file structure and documentation, we have provided a script, `create-analysis-module.py`, that you can use to create a new module.
+This script will create a new directory within the `analyses` directory for the new module and populate it with a recommended file structure and some template files.
+
+If you plan to use `conda` or `renv` for package management, you can also use the script to create a conda environment file or initialize an renv project.
+To use the script, run one of the following commands in the root directory of the repository:
+
+```bash
+# a basic module with no environment setup
+./create-analysis-module.py {module_name}
+
+# a module with a conda environment
+./create-analysis-module.py {module_name} --use-conda
+
+# a module with an renv environment
+./create-analysis-module.py {module_name} --use-renv
+```
+
+If you have created a module with a conda environment, the conda environment created will be named `openscpca-{module_name} and you can then activate it with the following command:
+
+```bash
+conda activate openscpca-{module_name}
+```
+
+See the [Conda environment setup](#conda-environment-setup) section for more information on managing conda environments.
+
+If you have created a module with an renv environment, that environment will automatically be activated when you open `R` in the module directory.
+
