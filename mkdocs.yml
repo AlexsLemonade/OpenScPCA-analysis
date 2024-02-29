@@ -1,18 +1,45 @@
 site_name: OpenScPCA Documentation
 
-nav:
-  - index.md
-
 exclude_docs: | # syntax: https://www.mkdocs.org/user-guide/configuration/#exclude_docs
-  /contributing.md # docs contribution guidelines
-  /requirements.txt  # docs requirements file.
+  /contributing.md   # docs contribution guidelines
+  /requirements.txt  # docs requirements file
+
 
 theme:
   name: material
   features:
-    - content.code.copy   # code copy button in code blocks
-    - navigation.tabs     # persistent navbar on the top
-    - search.suggest      # displays in light gray how you might complete the word
+    - content.code.copy      # code copy button in code blocks
+    - navigation.tabs        # persistent navbar on the top
+    - navigation.tabs.sticky # sticky navbar
+    - navigation.sections    # enables sections along the left side bar via nested directories in docs/
+    - navigation.indexes     # do the thing we want
+    - search.suggest         # displays in light gray how you might complete the word
 
 plugins:
   - search  # search bar
+
+# Here is the basic structure of our navigation setup.
+#nav:
+#  - Navbar section: <!-- Contents for this navbar section are stored in the directory called `section-path` -->
+#    - section-path/index.md
+#    - section-path/markdown-1.md <!-- left sidebar will display H1 title from the markdown file itself -->
+#    - section-path/markdown-2.md
+#    - Subsection name: <!-- This title appears as bold item in left sidebar -->
+#      - section-path/subsection-path/markdown-3.md
+
+# Currently, we have templated out the follow navbar items (specific names TBD)
+nav:
+  - Welcome to OpenScPCA:      # welcome, familiarizing yourself with the project
+    - landing-page/index.md
+  - Technical setup:           # Fork/clone, local environment setup
+    - technical-setup/index.md
+  - Tools for communication:   # Slack, issues, discussions
+    - communications-tools/index.md
+  - Contributing to analyses:  # Setting up an analysis, all the git stuff
+    - contributing-to-analyses/index.md
+  - Software platforms:            # LSfR, AWS, Docker, etc
+    - software-platforms/index.md
+  - Getting Help and FAQ:      # troubleshooting and FAQ
+    - troubleshooting-faq/index.md
+
+
