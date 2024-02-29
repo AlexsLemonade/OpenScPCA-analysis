@@ -40,7 +40,7 @@ def main() -> None:
         action="store_true",
         help=(
             "Only make the conda `environment.yml` file."
-            " Create a new conda environment is skipped."
+            " Creating a new conda environment is skipped."
         ),
     )
 

@@ -55,7 +55,7 @@ conda env update --file environment.yml
 ### Module-specific environments
 
 When you are working on an analysis module, you can create and/or use a conda environment specific to that module.
-If you used the `create-analysis-module.py` script to create the module with the `--use-conda` option, a basic `environment.yaml` file should already be present in the module's directory and the conda environment will exist.
+If you used the `create-analysis-module.py` script to create the module with the `--use-conda` option, a basic `environment.yaml` file should already be present in the module's directory and a conda environment named `openscpca-{module_name}` should already exist.
 See the [Creating a new analysis module](#creating-a-new-analysis-module) section for more information on creating a new module.
 You can activate the environment by running the following command:
 
