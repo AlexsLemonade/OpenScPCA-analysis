@@ -52,9 +52,9 @@ def main() -> None:
     module_dir = base_dir / "analyses" / args.name
 
     # fail if the module name is not a simple directory name
-    if not re.search(r"^[A-Za-z0-9_\-]$", args.name):
+    if not re.search(r"^[A-Za-z0-9_\-]+$", args.name):
         sys.exit(
-            "Module name should not contain spaces or special characters.\nExiting."
+            f"Module name should not contain spaces or special characters.\nExiting."
         )
 
     # exit if the module directory already exists
@@ -83,13 +83,13 @@ def main() -> None:
         existing_envs = [env.split()[0] for env in existing_envs.splitlines() if env]
         if env_name in existing_envs:
             sys.exit(
-                f"Conda environment `{env_name}` already exists."
+                f"\nConda environment `{env_name}` already exists."
                 "\nYou may use the `--conda_file_only` option to create the environment file only and manually create your environment with:"
                 "\n`conda env create --f analyses/<module>/environment.yml --name <env_name>`"
-                "\n\n Alternatively, you can remove the existing environment with:"
+                "\n\nAlternatively, you can remove the existing environment with:"
                 f"\n`conda env remove --name {env_name}`"
                 "\nor rename the existing environment:"
-                f"\n`conda rename --name {env_name} <new_name>`"
+                f"\n\n`conda rename --name {env_name} <new_name>`"
                 "\n\nExiting."
             )
 
@@ -103,6 +103,7 @@ def main() -> None:
     # create the new module directory from the template
     try:
         shutil.copytree(template_dir, module_dir)
+        print(f"\nCreated new analysis module in `{module_dir}`.")
     except FileNotFoundError:
         # just in case the template directory is missing
         if not template_dir.exists():
@@ -112,8 +113,6 @@ def main() -> None:
             )
         else:
             raise
-
-    print(f"Created new analysis module `{args.name}` at `{module_dir}`.")
 
     if args.use_conda or args.conda_file_only:
         # add an environment.yml file copied from base but with a new name based on the module name
@@ -125,7 +124,9 @@ def main() -> None:
                     f.write(f"name: {env_name}\n")
                 else:
                     f.write(line)
-        print(f"Created a conda environment file `environment.yml` ind `{module_dir}`.")
+        print(
+            f"\nCreated a conda environment file `environment.yml` in `{module_dir}`."
+        )
 
         # create the conda environment
         if not args.conda_file_only:
@@ -155,7 +156,7 @@ def main() -> None:
             ["Rscript", "-e", renv_script],
             cwd=module_dir,
         )
-        print(f"Initialized new renv environment in {module_dir}.")
+        print(f"\nInitialized new renv environment in `{module_dir}`.")
 
 
 if __name__ == "__main__":
