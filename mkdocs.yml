@@ -3,6 +3,8 @@ site_name: OpenScPCA Documentation
 exclude_docs: | # syntax: https://www.mkdocs.org/user-guide/configuration/#exclude_docs
   /contributing.md   # docs contribution guidelines
   /requirements.txt  # docs requirements file
+  /general-style-guide.md  # docs style guide
+  /style-guide-images      # images used in the style guide
 
 
 theme:

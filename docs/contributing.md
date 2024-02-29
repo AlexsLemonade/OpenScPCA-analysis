@@ -33,4 +33,4 @@ Documentation is written as a series of markdown files nested by topic in direct
 _Instructions forthcoming on how to find the right place to add your docs._
 
 Files and directories should be named with all lowercase letters using `-`, not `_`, where needed.
-**Be sure to consult the [style guide](https://github.com/AlexsLemonade/OpenScPCA-admin/blob/main/writing-style-guide/general-style-guide.md) when writing your documentation.**
+**Be sure to consult the [style guide](./general-style-guide.md) when writing your documentation.**
