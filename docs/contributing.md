@@ -21,8 +21,7 @@ To serve the documentation during local development, run `mkdocs serve` from the
 Documentation is written as a series of markdown files nested by topic in directories.
 
 - All directories at the top-level inside `docs` will represent **navbar sections.**
-  - These directories will be determined later  once we accumulate a critical mass of docs.
-  - During initial development, all "nested directories" (described next) will be at the top-level inside `docs`.
+  - Each top-level directory should contain an `index.md` file with an overall description of what that section contains.
 - Nested directories within each navbar section represent a given overall topic.
   - Markdown files in each directory represent documentation section.
   - As needed, there can be additional nested directories here.
@@ -30,9 +29,7 @@ Documentation is written as a series of markdown files nested by topic in direct
 
 ### Adding new documentation
 
-To identify the proper place to add your docs, use directions in its parent docs tree issue (e.g., [#9: Starting Analysis with Git](https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/9)).
-Nodes in the tree image will be annotated with `(D)` and `(F)` indicating if the item is a directory or a file, respectively.
-Any unannotated nodes represent headers within a markdown file.
+_Instructions forthcoming on how to find the right place to add your docs._
 
 Files and directories should be named with all lowercase letters using `-`, not `_`, where needed.
 **Be sure to consult the [style guide](https://github.com/AlexsLemonade/OpenScPCA-admin/blob/main/writing-style-guide/general-style-guide.md) when writing your documentation.**
