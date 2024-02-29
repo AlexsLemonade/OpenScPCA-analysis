@@ -16,7 +16,7 @@ conda install --file requirements.txt
 To serve the documentation during local development, run `mkdocs serve` from the root directory of this repository.
 
 
-### Docs organization
+## Docs organization
 
 Documentation is written as a series of markdown files nested by topic in directories.
 
@@ -28,7 +28,7 @@ Documentation is written as a series of markdown files nested by topic in direct
   - Markdown files within each nested directory will fall under this additional bold (gray) header.
 - Any visual aids used in the docs should be placed in `docs/img`.
 
-### Adding new documentation
+## Adding new documentation
 
 _Instructions forthcoming on how to find the right place to add your docs._
 
