@@ -12,7 +12,13 @@
 ### Will you need additional visual aids for these docs?
 
 
+
+### Has the docs page been added to the `nav` section in `mkdocs.yml`?
+
+
+
 ### Any other comments for reviewers?
+
 
 
 ### Reviewer checklist
@@ -22,4 +28,4 @@ Please refer to the [docs style guide](https://github.com/AlexsLemonade/OpenScPC
 - [ ] Do the docs adhere to the style guide [**structure directions**](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/general-style-guide.md#structure)?
 - [ ] Do the docs adhere to the style guide [**language directions**](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/general-style-guide.md#structure)?
 - [ ] Do the docs adhere to the style guide [**tone directions**](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/general-style-guide.md#tone)?
-- [ ] Has the docs page been added to the `nav` section in `mkdocs.yml`?
+
