@@ -17,6 +17,7 @@ Everyone participating in the Open Single-cell Pediatric Cancer Atlas (OpenScPCA
 - [Retaliation](#retaliation)
 - [Consequences](#consequences)
 - [Attribution](#attribution)
+- [Modifications to these guidelines](#modifications-to-these-guidelines)
 
 ## Code of Conduct
 
@@ -157,7 +158,7 @@ These guidelines are based on the code of conduct written by [The Carpentries](h
 These guidelines are also influenced by [Mozilla’s Community Participation Guidelines](https://www.mozilla.org/en-US/about/governance/policies/participation/), which has been adapted from Mozilla’s original Community Participation Guidelines, the [Ubuntu Code of Conduct](https://www.ubuntu.com/about/about-ubuntu/conduct), [Mozilla’s View Source Conference Code of Conduct](https://viewsourceconf.org/berlin-2016/code-of-conduct/), and the [Rust Language Code of Conduct](https://www.rust-lang.org/conduct.html), which are based on Stumptown Syndicate’s [Citizen Code of Conduct](http://citizencodeofconduct.org/). 
 Additional text from the [Bioinformatics Research Network Code of Conduct](https://docs.google.com/document/d/1q06RJbIsyIzLC828A7rBEhtfkujkj9kx7Y118AaWASA/edit), [R-ladies Code of Conduct](https://rladies.org/code-of-conduct/), the [LGBTQ in Technology Code of Conduct](http://lgbtq.technology/coc.html), and the [WisCon Code of Conduct](http://wiscon.net/policies/anti-harassment/code-of-conduct/). 
 
-### Modifications to these guidelines
+## Modifications to these guidelines
 
 The Data Lab may amend the guidelines from time to time and may also vary the procedures it sets out where appropriate in a particular case. 
 Your agreement to comply with the guidelines will be deemed agreement to any changes to it.
