@@ -36,14 +36,6 @@ def main() -> None:
         help="Initialize a new conda environment for the module.",
     )
     parser.add_argument(
-        "--conda-envname",
-        metavar="ENV_NAME",
-        help=(
-            "Name of the conda environment to create for the module."
-            " The default name is `openscpca-<name>` where <name> is the module name."
-        ),
-    )
-    parser.add_argument(
         "--conda-file-only",
         action="store_true",
         help=(
@@ -73,10 +65,7 @@ def main() -> None:
         )
 
     # set the conda environment name
-    if args.conda_envname:
-        env_name = args.conda_envname
-    else:
-        env_name = f"openscpca-{args.name}"
+    env_name = f"openscpca-{args.name}"
 
     # if use_conda is requested, check that conda is available
     if args.use_conda and not args.conda_file_only:
@@ -95,8 +84,13 @@ def main() -> None:
         if env_name in existing_envs:
             sys.exit(
                 f"Conda environment `{env_name}` already exists."
-                "\nPlease choose a different module name or use the `--condaenv-name` option."
-                "\nExiting."
+                "\nYou may use the `--conda_file_only` option to create the environment file only and manually create your environment with:"
+                "\n`conda env create --f analyses/<module>/environment.yml --name <env_name>`"
+                "\n\n Alternatively, you can remove the existing environment with:"
+                f"\n`conda env remove --name {env_name}`"
+                "\nor rename the existing environment:"
+                f"\n`conda rename --name {env_name} <new_name>`"
+                "\n\nExiting."
             )
 
     # if use_renv is requested, check that R is available
@@ -119,6 +113,8 @@ def main() -> None:
         else:
             raise
 
+    print(f"Created new analysis module `{args.name}` at `{module_dir}`.")
+
     if args.use_conda or args.conda_file_only:
         # add an environment.yml file copied from base but with a new name based on the module name
         with open(base_dir / "environment.yml", "r") as f:
@@ -129,12 +125,15 @@ def main() -> None:
                     f.write(f"name: {env_name}\n")
                 else:
                     f.write(line)
+        print(f"Created a conda environment file `environment.yml` ind `{module_dir}`.")
+
         # create the conda environment
         if not args.conda_file_only:
             subprocess.run(
                 ["conda", "env", "create", "-f", "environment.yml"],
                 cwd=module_dir,
             )
+            print(f"Created conda environment `{env_name}`.")
 
             # alternatively, we could create the environment in a module subdirectory with the `--prefix` option
             # subprocess.run(
@@ -156,6 +155,7 @@ def main() -> None:
             ["Rscript", "-e", renv_script],
             cwd=module_dir,
         )
+        print(f"Initialized new renv environment in {module_dir}.")
 
 
 if __name__ == "__main__":
