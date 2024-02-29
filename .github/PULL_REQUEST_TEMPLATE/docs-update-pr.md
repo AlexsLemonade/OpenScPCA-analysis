@@ -17,8 +17,8 @@
 
 ### Reviewer checklist
 
-Please refer to the [docs style guide](https://github.com/AlexsLemonade/OpenScPCA-admin/blob/main/writing-style-guide/general-style-guide.md) while reviewing this pull request.
+Please refer to the [docs style guide](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/general-style-guide.md) while reviewing this pull request.
 
-- [ ] Do the docs adhere to the style guide [**structure directions**](https://github.com/AlexsLemonade/OpenScPCA-admin/blob/main/writing-style-guide/general-style-guide.md#structure)?
-- [ ] Do the docs adhere to the style guide [**language directions**](https://github.com/AlexsLemonade/OpenScPCA-admin/blob/main/writing-style-guide/general-style-guide.md#structure)?
-- [ ] Do the docs adhere to the style guide [**tone directions**](https://github.com/AlexsLemonade/OpenScPCA-admin/blob/main/writing-style-guide/general-style-guide.md#tone)?
+- [ ] Do the docs adhere to the style guide [**structure directions**](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/general-style-guide.md#structure)?
+- [ ] Do the docs adhere to the style guide [**language directions**](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/general-style-guide.md#structure)?
+- [ ] Do the docs adhere to the style guide [**tone directions**](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/general-style-guide.md#tone)?
