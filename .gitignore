@@ -28,8 +28,7 @@
 *.log
 *_cache/
 cache/
-scratch/
-
+scratch/*
 
 # ------------------------
 # MacOS files from https://github.com/github/gitignore/blob/main/Global/macOS.gitignore
