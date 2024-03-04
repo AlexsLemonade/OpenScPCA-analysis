@@ -49,5 +49,5 @@ jobs:
         with:
           activate-environment: openscpca-MODULE_NAME
 
-      - name: Run analyses
+      - name: Run analysis
         run: | # placeholder
