@@ -40,6 +40,7 @@ Consult the IA issue and this directory structure to determine where to place ne
 If the IA indicates this file should be in an even more nested directory, don't worry about it for now; later, we will add additional nested directores as more documentation comes together.
 
 Files and directories should be named with all lowercase letters and use `-`, not `_`, where needed.
+If you are adding new images/visual aids for documentation, place them in the `img` directory (not shown in the diagram below).
 **Be sure to consult the [style guide](./general-style-guide.md) when writing your documentation.**
 
 ```
@@ -64,4 +65,3 @@ Files and directories should be named with all lowercase letters and use `-`, no
 │   └── lsfr
 └── troubleshooting-faq (Getting help & FAQ)
 ```
-
