@@ -31,7 +31,7 @@ Documentation is written as a series of markdown files nested by topic in direct
 ## Adding new documentation
 
 As outlined in [this IA issue](https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/61), we have several sections of documentation.
-The diagram below shows the directory structure for the docs, for now considering only the top three directory levels.
+The diagram below shows the directory structure for the docs.
 The directory names as written in the IA issue are shown in parentheses.
 
 Each bold bullet point in the IA issue is a directory, and each plain-text bullet is a markdown file.
@@ -50,7 +50,6 @@ If you are adding new images/visual aids for documentation, place them in the `i
 ├── technical-setup (Setting up)
 │   └── environment-setup (Getting access to resources)
 ├── communications-tools (Communicating within the Project)
-│   ├── github-discussions (Github Discussions)
 │   └── github-issues (Github Issues)
 │       └── writing-issues (Writing good issues)
 ├── contributing-to-analyses (Contributing to an analysis)
@@ -58,7 +57,12 @@ If you are adding new images/visual aids for documentation, place them in the `i
 │   ├── doing-analyses (Doing an analysis)
 │   │   └── working-with-git (Working with git)
 │   ├── planning-analyses (Planning your analysis)
-│   └── pull-requests (Creating Pull Requests)
+│   ├── pull-requests (Creating Pull Requests)
+│   │   └── filing-pull-requests (Filing a PR)
+│   │       ├── before-filing (Before filing a PR)
+│   │       └── creating-pull-requests (Creating the PR)
+│   ├── pr-review-process (PR Review Process)
+│   └── merging-prs (Merging a PR)
 ├── software-platforms (Software tools)
 │   ├── aws
 │   ├── docker
