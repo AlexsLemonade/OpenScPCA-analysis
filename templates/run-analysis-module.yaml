@@ -21,25 +21,15 @@ on:
 jobs:
   run-module:
     runs-on: ubuntu-latest
-    # will we need this for accessing test data?
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # likely to help for renv dependencies?
-      # https://github.com/AlexsLemonade/scpcaTools/blob/cec26960ed3fbfc852146e801f7c82c42c50d1b2/.github/workflows/R-CMD-check-renv.yaml#L33
-      - name: Install system dependencies
-        run: |
-          sudo apt-get install -y libcurl4-openssl-dev libglpk40
-
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
         with:
-          r-version: "renv"
+          r-version: 4.3.3
           use-public-rspm: true
 
       - name: Set up renv
@@ -55,6 +45,6 @@ jobs:
           use-only-tar-bz2: true # we want this for caching
 
       - name: Run analysis
-        run: | 
+        run: |
           cd $MODULE_PATH
           # run module script once here
