@@ -5,16 +5,17 @@
 # - As a reusable workflow called from a separate workflow which periodically runs all modules
 
 name: Run MODULE_NAME analysis module
-
+env:
+  MODULE_PATH: analyses/MODULE_NAME
 
 on:
   workflow_dispatch:
   workflow_call:
   pull_request:
+    branches:
+      - main
     paths:
-      - 'analyses/MODULE_NAME/environment.yaml'
-      - 'analyses/MODULE_NAME/renv.lock'
-      - 'analyses/MODULE_NAME/scripts/*'
+      - "${{ env.MODULE_PATH }}/*"
 
 
 jobs:
@@ -43,11 +44,17 @@ jobs:
 
       - name: Set up renv
         uses: r-lib/actions/setup-renv@v2
+        with:
+          working-directory: env.MODULE_PATH
 
       - name: Set up conda environment
         uses: conda-incubator/setup-miniconda@v3
         with:
-          activate-environment: openscpca-MODULE_NAME
+          channel-priority: strict
+          environment-file: ${{ env.MODULE_PATH }}/environment.yml
+          use-only-tar-bz2: true # we want this for caching
 
       - name: Run analysis
-        run: | # placeholder
+        run: | 
+          cd $MODULE_PATH
+          # run module script once here
