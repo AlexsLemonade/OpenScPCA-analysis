@@ -20,6 +20,9 @@ theme:
 plugins:
   - search  # search bar
 
+markdown_extensions:
+  - attr_list # https://github.com/squidfunk/mkdocs-material/blob/master/docs/setup/extensions/python-markdown.md#attribute-lists
+
 # Here is the basic structure of our navigation setup.
 #nav:
 #  - Navbar section: <!-- Contents for this navbar section are stored in the directory called `section-path` -->
@@ -35,6 +38,7 @@ nav:
     - welcome/index.md
   - Technical setup:           # Fork/clone, local environment setup
     - technical-setup/index.md
+    - technical-setup/fork-the-repo.md
   - Tools for communication:   # Slack, issues, discussions
     - communications-tools/index.md
   - Contributing to analyses:  # Setting up an analysis, all the git stuff
