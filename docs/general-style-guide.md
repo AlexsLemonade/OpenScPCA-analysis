@@ -138,13 +138,13 @@ Examples:
 - We have provided an example analysis notebook.
 You will need to make a copy the example notebook and create your analysis.
 
-- After you file a PR, it will be reviewed by us or other contributors to the project.
+- After you file a PR, either we or other contributors to the project will review it.
 
 # Tone
 
 ## Instructive
 
-We must ensure that our instructions are clear about what the user is expected to do vs what will done for them by the Data Lab or other contributors.
+We must ensure that our instructions are clear about what the user is expected to do vs what the Data Lab or other contributors will do for them.
 
 It is especially important to use active voice and present tense when writing instructions.
 
@@ -165,7 +165,7 @@ For example, if the user can set configurations either with a file or with a com
 
 When describing exceptions, be clear about the case and what actions users need to take for that case.
 
-Avoid things like 'Depending on the functions, you can do Y."
+Avoid things like "Depending on the functions, you can do Y."
 
 Instead say, "When you use function X, do Y and when you use function A, do B."
 
@@ -173,8 +173,8 @@ Instead say, "When you use function X, do Y and when you use function A, do B."
 
 Examples are a good way to solidify your instructions.
 
-Instead of just describing a configuration file, providing an example file will enhance users' understanding of the fields and how they are expected to be structured.
-It will also give them file they can re-use when trying to do the task on their own.
+Instead of just describing a configuration file, providing an example file will enhance users' understanding of the fields and their expected structure.
+It will also give them files they can re-use when trying to do the task on their own.
 
 Here are some examples you provide:
 
