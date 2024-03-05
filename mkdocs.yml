@@ -35,6 +35,7 @@ nav:
     - welcome/index.md
   - Technical setup:           # Fork/clone, local environment setup
     - technical-setup/index.md
+    - technical-setup/install-a-github-client.md
   - Tools for communication:   # Slack, issues, discussions
     - communications-tools/index.md
   - Contributing to analyses:  # Setting up an analysis, all the git stuff
