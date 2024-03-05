@@ -1,0 +1,11 @@
+# Results should not be committed
+/results/*
+!/results/README.md
+
+# Ignore the scratch directory (but keep it present)
+/scratch/*
+!/scratch/.gitkeep
+
+# no rendered notebooks (large files)
+/scripts/*html  # 01_plot-iris.html is 708K
+

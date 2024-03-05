@@ -1,0 +1,30 @@
+---
+title: "Test notebook"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+
+```{r}
+output_file <- file.path("../plots/plot-R.png")
+
+
+iris_plot <- ggplot(iris) + 
+  aes(x = Sepal.Length) + 
+  geom_density(fill = "violet")
+iris_plot
+
+ggsave(output_file, 
+       iris_plot,
+       width = 5, height = 5)
+
+```
+
+
+```{r}
+sessionInfo()
+```
