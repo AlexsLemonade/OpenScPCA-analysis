@@ -6,7 +6,8 @@ There are many platforms you can choose, but we recommend using either [**GitKra
 
 ## Why use GitKraken?
 
-> This option is best for contributors who are new to Git.
+!!! note
+    This option is best for contributors who are new to Git.
 
 GitKraken is a GUI (graphical-user interface) which lets you "point-and-click" to run all Git commands.
 GitKraken is a more user-friendly option which does not require you to use the command line (aka, terminal) or memorize Git commands.
@@ -24,7 +25,8 @@ Follow [these instructions](https://www.gitkraken.com/learn/git/problems/github-
 
 ## Why use the Git command line interface?
 
-> This option is best for contributors who have previous Git and command-line experience.
+!!! note
+    This option is best for contributors who have previous Git and command-line experience.
 
 The UNIX command-line interface is the classic way of running Git commands.
 We specifically recommend this option for contributors who have previous experience working with Git on the command line.

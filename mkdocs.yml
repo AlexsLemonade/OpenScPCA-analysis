@@ -20,6 +20,9 @@ theme:
 plugins:
   - search  # search bar
 
+markdown_extensions:
+    - admonition  # https://squidfunk.github.io/mkdocs-material/setup/extensions/python-markdown/#admonition
+
 # Here is the basic structure of our navigation setup.
 #nav:
 #  - Navbar section: <!-- Contents for this navbar section are stored in the directory called `section-path` -->
