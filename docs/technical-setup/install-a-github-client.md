@@ -20,8 +20,6 @@ GitKraken is also free to use with public repositories like `OpenScPCA-analysis`
 When setting up GitKraken on your machine, we recommend [directly signing in with your GitHub account](https://help.gitkraken.com/gitkraken-client/github-gitkraken-client/#sign-in-with-github).
 This will automatically provide you with the credentials you need to interact with GitHub without further setup.
 
-If you choose not to link your GitHub account, you will need to [set up a GitHub SSH key separately](https://www.gitkraken.com/learn/git/tutorials/how-git-ssh-works); this provides the credentials you need to interact with GitHub.
-Follow [these instructions](https://www.gitkraken.com/learn/git/problems/github-add-ssh-key) to set up an SSH key using GitKraken.
 
 ## Why use the Git command line interface?
 
