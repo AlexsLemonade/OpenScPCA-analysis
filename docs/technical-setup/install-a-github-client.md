@@ -28,11 +28,10 @@ This will automatically provide you with the credentials you need to interact wi
 !!! note
     This option is best for contributors who have previous Git and command-line experience.
     The OpenScPCA documentation will generally not present how to use Git via the command line.
-
+    If you are new to Git or have limited command-line experience, we do not recommend using Git via the command line.
 
 The UNIX command-line interface is the classic way of running Git commands.
 We specifically recommend this option for contributors who have previous experience working with Git on the command line.
-_If you are new to Git or have limited command-line experience, we do not recommend this option._
 
 If you choose this option, you will need to install Git itself if you do not already have it.
 The instructions for this depend on your operating system, as described below.
