@@ -2,7 +2,7 @@
 
 You will need a platform on your computer to run Git commands and interact with [GitHub.com](https://github.com).
 
-There are many platforms you can choose, but we recommend using either [**GitKraken**](https://www.gitkraken.com/) or the [Git **command line interface**](https://git-scm.com/book/en/v2/Getting-Started-The-Command-Line):
+There are many platforms you can choose, but we recommend using either [**GitKraken**](https://www.gitkraken.com/) or the [Git **command line interface**](https://git-scm.com/book/en/v2/Getting-Started-The-Command-Line).
 
 ## Why use GitKraken?
 
@@ -27,8 +27,8 @@ This will automatically provide you with the credentials you need to interact wi
 
 !!! note
     This option is best for contributors who have previous Git and command-line experience.
-    The OpenScPCA documentation will generally not present how to use Git via the command line.
-    If you are new to Git or have limited command-line experience, we do not recommend using Git via the command line.
+    The OpenScPCA documentation will generally not present how to use Git via the command line.<br><br>
+    If you are new to Git or have limited command-line experience, we do not recommend this option.
 
 The UNIX command-line interface is the classic way of running Git commands.
 We specifically recommend this option for contributors who have previous experience working with Git on the command line.
