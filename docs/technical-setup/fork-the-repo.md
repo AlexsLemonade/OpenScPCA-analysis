@@ -5,10 +5,9 @@ You will need to create a [_fork_](https://docs.github.com/en/pull-requests/coll
 A fork is a copy of an _upstream_ repository (here, `AlexsLemonade/OpenScPCA-analysis` is the _upstream_) that you will own and will be in your GitHub account.
 As a contributor, you will perform analyses in your fork.
 
-<!-- Is this too much? -->
 One benefit of using a fork is that changes you make will not affect the upstream project in `AlexsLemonade/OpenScPCA-analysis`.
 This means you can safely work on your analyses without worrying about messing anything up in the upstream repository.
-Periodically, you will request to add your analysis code to the upstream repository through a _pull request_ process.
+Periodically, you will request to add your analysis code to the upstream repository through a [_pull request_](STUB_LINK) process.
 
 
 ## Create your fork
@@ -18,7 +17,7 @@ Follow these steps to create your fork:
 1. In your browser, navigate to the `OpenScPCA-analysis` repository: [https://github.com/AlexsLemonade/OpenScPCA-analysis/](https://github.com/AlexsLemonade/OpenScPCA-analysis/).
 
 
-2. At the top right corner, click the "Fork" button:
+1. At the top right corner, click the "Fork" button:
 (The numbers you see in this screenshot may differ from the numbers on the website - that's ok!)
 ![Button on GitHub.com to fork a repository.](../img/fork-button.png){width="400"} <!-- No new line above, to keep tabbed in -->
 
