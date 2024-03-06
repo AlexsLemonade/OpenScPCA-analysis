@@ -58,7 +58,7 @@ We always aim for a ratio of one issue to one pull request.
 * How we use GitHub issues 
 * Writing good issues 
   
-⚠️ Please engage with project maintainers via Discussions, email, or Slack before filing your first issue in the `OpenScPCA-Analysis` repository. 
+⚠️ Please engage with project maintainers via [Discussions](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions) before filing your first issue in the `OpenScPCA-Analysis` repository. 
 We will provide you with further guidance!
 
 ### How and When to Use Issues

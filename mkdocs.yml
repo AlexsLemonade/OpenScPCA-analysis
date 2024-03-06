@@ -37,6 +37,7 @@ nav:
     - technical-setup/index.md
   - Tools for communication:   # Slack, issues, discussions
     - communications-tools/index.md
+    - communications-tools/tools-for-communication.md
   - Contributing to analyses:  # Setting up an analysis, all the git stuff
     - contributing-to-analyses/index.md
   - Software platforms:            # LSfR, AWS, Docker, etc
