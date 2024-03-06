@@ -8,7 +8,7 @@ As a contributor, you will perform analyses in your fork.
 <!-- Is this too much? -->
 One benefit of using a fork is that changes you make will not affect the upstream project in `AlexsLemonade/OpenScPCA-analysis`.
 This means you can safely work on your analyses without worrying about messing anything up in the upstream repository.
-Periodically, you will request to add your analysis code to the upstream repository through a _pull request_ process.
+Periodically, you will request to add your analysis code to the upstream repository through a [_pull request_](STUB_LINK) process.
 
 
 ## Create your fork
