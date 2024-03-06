@@ -21,7 +21,7 @@ More on categories below!
 
 **Participate in community conversations.** 
 
-* Discuss big picture ideas, brainstorm, and develop plans for analyses before implementing them.
+* In general, use this forum to ask questions, discuss big picture ideas, brainstorm, and develop plans for analyses before implementing them.
 
 **Propose a new analysis.** 
 
@@ -57,6 +57,7 @@ We always aim for a ratio of one issue to one pull request.
 
 * How we use GitHub issues 
 * Writing good issues 
+* Issue templates
   
 ⚠️ Please engage with project maintainers via [Discussions](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions) before filing your first issue in the `OpenScPCA-Analysis` repository. 
 We will provide you with further guidance!
