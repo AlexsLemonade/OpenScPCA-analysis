@@ -8,6 +8,7 @@ There are many platforms you can choose, but we recommend using either [**GitKra
 
 !!! note
     This option is best for contributors who are new to Git.
+    The OpenScPCA documentation will primarily present how to use Git via GitKraken.
 
 GitKraken is a GUI (graphical-user interface) which lets you "point-and-click" to run all Git commands.
 GitKraken is a more user-friendly option which does not require you to use the command line (aka, terminal) or memorize Git commands.
@@ -25,6 +26,8 @@ This will automatically provide you with the credentials you need to interact wi
 
 !!! note
     This option is best for contributors who have previous Git and command-line experience.
+    The OpenScPCA documentation will generally not present how to use Git via the command line.
+
 
 The UNIX command-line interface is the classic way of running Git commands.
 We specifically recommend this option for contributors who have previous experience working with Git on the command line.
