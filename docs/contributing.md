@@ -15,6 +15,11 @@ conda install --file requirements.txt
 
 To serve the documentation during local development, run `mkdocs serve` from the root directory of this repository.
 
+**Table of contents**
+- [Docs organization](#docs-organization)
+- [Adding new documentation](#adding-new-documentation)
+- [Linking to other pages](#linking-to-other-pages)
+
 
 ## Docs organization
 
@@ -37,7 +42,7 @@ The directory names as written in the IA issue are shown in parentheses.
 Each bold bullet point in the IA issue is a directory, and each plain-text bullet is a markdown file.
 Consult the IA issue and this directory structure to determine where to place new markdown file.
 
-If the IA indicates this file should be in an even more nested directory, don't worry about it for now; later, we will add additional nested directores as more documentation comes together.
+If the IA indicates this file should be in an even more nested directory, don't worry about it for now; later, we will add additional nested directories as more documentation comes together.
 
 Files and directories should be named with all lowercase letters and use `-`, not `_`, where needed.
 If you are adding new images/visual aids for documentation, place them in the `img` directory (not shown in the diagram below).
@@ -68,4 +73,15 @@ If you are adding new images/visual aids for documentation, place them in the `i
 │   ├── docker
 │   └── lsfr
 └── troubleshooting-faq (Getting help & FAQ)
+```
+
+## Linking to other pages
+
+It is helpful to include relative link to other docs pages when discussing additional concepts beyond the scope of the given docs page.
+In many circumstances during docs development, those pages will not yet have been written.
+In those circumstances, use the phrase `STUB_LINK` where you would otherwise add a relative link.
+For example:
+
+```
+This sentence should link to the [pull request documentation](STUB_LINK).
 ```
