@@ -54,6 +54,12 @@ xcode-select --install
 ### Install Git on Windows
 
 We recommend installing the [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/install) with the default Ubuntu Linux distribution.
-You can then [install Git](https://git-scm.com/download/linux) into your Ubuntu system.
+You can then install Git into your Ubuntu system:
 
+```
+# You may need to update first:
+# apt-get update
 
+# Install git
+apt-get install git
+```
