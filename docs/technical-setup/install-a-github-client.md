@@ -57,7 +57,7 @@ We recommend installing the [Windows Subsystem for Linux (WSL)](https://learn.mi
 You can then install Git into your Ubuntu system:
 
 ```
-# You may need to update first:
+# You may need to update the package list first:
 # apt-get update
 
 # Install git
