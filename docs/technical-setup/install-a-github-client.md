@@ -12,8 +12,8 @@ There are many platforms you can choose, but we recommend using either [**GitKra
 
 GitKraken is a GUI (graphical-user interface) which lets you "point-and-click" to run all Git commands.
 GitKraken is a more user-friendly option which does not require you to use the command line (aka, terminal) or memorize Git commands.
-It also provides a more streamlined approach to using Git when working on a Windows machine, v.s. using Gitcommand line interface.
-GitKraken is also free to use with public repositories like `OpenScPCA-analysis`; you do not need to upgrade to a paid plan.
+It also provides a more streamlined approach to using Git when working on a Windows machine, vs. using the Git command line interface.
+GitKraken is free to use with public repositories like `OpenScPCA-analysis`; you do not need to upgrade to a paid plan.
 
 ### Install GitKraken
 
@@ -26,11 +26,11 @@ This will automatically provide you with the credentials you need to interact wi
 ## Why use the Git command line interface?
 
 !!! note
-    This option is best for contributors who have previous Git and command-line experience.
+    This option is best for contributors who have previous experience with Git and the command line.
     The OpenScPCA documentation will generally not present how to use Git via the command line.<br><br>
-    If you are new to Git or have limited command-line experience, we do not recommend this option.
+    If you are new to Git, we do not recommend this option.
 
-The UNIX command-line interface is the classic way of running Git commands.
+The command line interface is the classic way of interacting with Git.
 We specifically recommend this option for contributors who have previous experience working with Git on the command line.
 
 If you choose this option, you will need to install Git itself if you do not already have it.
@@ -53,7 +53,7 @@ xcode-select --install
 
 ### Install Git on Windows
 
-We recommend installing the [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/install) for a full UNIX command-line experience via Ubuntu.
+We recommend installing the [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/install) with the default Ubuntu Linux distribution.
 You can then [install Git](https://git-scm.com/download/linux) into your Ubuntu system.
 
 
