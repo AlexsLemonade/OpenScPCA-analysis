@@ -4,6 +4,7 @@ You will need to create a [_fork_](https://docs.github.com/en/pull-requests/coll
 
 A fork is a copy of an _upstream_ repository (here, `AlexsLemonade/OpenScPCA-analysis` is the _upstream_) that you will own and will be in your GitHub account.
 As a contributor, you will perform analyses in your fork.
+Just like the upstream `AlexsLemonade/OpenScPCA-analysis` repository, your fork will also be a public repository.
 
 One benefit of using a fork is that changes you make will not affect the upstream project in `AlexsLemonade/OpenScPCA-analysis`.
 This means you can safely work on your analyses without worrying about messing anything up in the upstream repository.
