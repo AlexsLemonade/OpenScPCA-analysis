@@ -31,6 +31,7 @@ markdown_extensions:
 #    - section-path/markdown-1.md <!-- left sidebar will display H1 title from the markdown file itself -->
 #    - section-path/markdown-2.md
 #    - Subsection name: <!-- This title appears as bold item in left sidebar -->
+#      - section-path/subsection-path/index.md <!-- summary page for this subsection -->
 #      - section-path/subsection-path/markdown-3.md
 
 # Currently, we have templated out the follow navbar items (specific names TBD)
@@ -42,7 +43,9 @@ nav:
     - technical-setup/install-a-github-client.md
     - technical-setup/fork-the-repo.md
     - technical-setup/clone-the-repo.md
-    - technical-setup/setup-conda.md
+    - Environment setup:
+      - technical-setup/environment-setup/index.md
+      - technical-setup/environment-setup/setup-conda.md
   - Tools for communication:   # Slack, issues, discussions
     - communications-tools/index.md
   - Contributing to analyses:  # Setting up an analysis, all the git stuff

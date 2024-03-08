@@ -29,8 +29,9 @@ Documentation is written as a series of markdown files nested by topic in direct
   - Each top-level directory should contain an `index.md` file with an overall description of what that section contains.
   - The `index.md` should have an L1 header with the same title as the navbar section.
   - Markdown files in each directory represent sections shown along the left sidebar.
-- Nested directories within each navbar section should be used to add an additional bold (gray) header on the left sidebar.
-  - Markdown files within each nested directory will fall under this additional bold (gray) header.
+- Nested directories within each navbar section should be used to add an additional bold header on the left sidebar.
+  - Markdown files within each nested directory will fall under this additional bold header.
+  - These nested directories will also have `index.md` files with an overall description of what that section contains.
 - Any visual aids used in the docs should be placed in `docs/img`.
 
 ## Adding new documentation
