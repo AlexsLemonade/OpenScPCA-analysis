@@ -42,6 +42,7 @@ nav:
     - technical-setup/install-a-github-client.md
     - technical-setup/fork-the-repo.md
     - technical-setup/clone-the-repo.md
+    - technical-setup/setup-conda.md
   - Tools for communication:   # Slack, issues, discussions
     - communications-tools/index.md
   - Contributing to analyses:  # Setting up an analysis, all the git stuff
