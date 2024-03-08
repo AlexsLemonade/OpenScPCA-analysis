@@ -1,7 +1,7 @@
 - type: textarea
   attributes:
     label: Summary
-    description: What do you need help with?
+    description: What problem or error do you need help with?
   validations:
     required: true
 - type: textarea
