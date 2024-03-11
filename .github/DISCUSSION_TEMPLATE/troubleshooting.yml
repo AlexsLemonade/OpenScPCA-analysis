@@ -19,7 +19,7 @@
 - type: textarea
   attributes:
     label: Observed outcome or error message
-    description: What was the observed outcome and/or error message?
+    description: What was the observed outcome and/or error message? Include screenshots as needed. 
   validations:
     required: true
 - type: textarea
