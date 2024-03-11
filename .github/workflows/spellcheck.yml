@@ -1,0 +1,96 @@
+name: Check Spelling
+on:
+  pull_request: # TEMPORARY
+    branches:
+     - main
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 1" # every Monday at midnight
+
+# From https://medium.com/@VeselyCodes/bi-weekly-github-actions-7bea6be7bd96
+env:
+  # The date of the first run of the action.
+  FIRST_RUN_DATE: 2024-03-18
+
+jobs:
+  weekindex:
+    if: ${{ github.event_name == 'schedule' }}
+    runs-on: ubuntu-latest
+    outputs:
+      weekindex: ${{ steps.calculate.outputs.weekindex }}
+    steps:
+      - name: Calculate weekdiff
+        id: calculate
+        run: |
+          current_date=$(date +%Y-%m-%d)
+          start=$(date -d ${{ env.FIRST_RUN_DATE }} +%s)
+          end=$(date -d $current_date +%s)
+          weekdiff=$(((end-start) / 60 / 60 / 24 / 7))
+          weekindex=$((weekdiff % 4))        # We want to run every 4 weeks
+          echo "weekindex=$weekindex" >> "$GITHUB_OUTPUT"
+          echo "FIRST_RUN_DATE: ${{ env.FIRST_RUN_DATE }}" >> $GITHUB_STEP_SUMMARY
+          echo "current_date: $current_date" >> $GITHUB_STEP_SUMMARY
+          echo "weekdiff: $weekdiff" >> $GITHUB_STEP_SUMMARY
+          echo "weekindex: $weekindex" >> $GITHUB_STEP_SUMMARY
+
+  spellcheck:
+    if: ${{ needs.weekindex.outputs.weekindex == 0 || github.event_name != 'schedule' }}
+    runs-on: ubuntu-latest
+    name: Spell check files
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Spell check action
+        uses: alexslemonade/spellcheck@v0.1.0
+        id: spell
+        with:
+          dictionary: .github/components/dictionary.txt
+
+      - name: Upload spell check errors
+        uses: actions/upload-artifact@v4
+        id: artifact-upload-step
+        with:
+          name: spell_check_errors
+          path: spell_check_errors.tsv
+
+### This step is temporary for use during OpenScPCA launch prep. Comment out when below steps ae uncommented.
+      - name: Post errors to PR if failed
+        if: ${{ github.event_name == 'pull_request' && steps.spell.outputs.error_count > 0 }}
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            **Spellcheck failed!**
+            [Here are the errors.](${{ steps.artifact-upload-step.outputs.artifact-url }})
+
+      # Uncomment these jobs at OpenScPCA Launch. They have been tested.
+      - name: Post issue with spellcheck results
+        id: spellissue
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: Monthly spellcheck results
+          content-filepath: .github/cron-issue-templates/spellcheck-issue-template.md
+          labels: |
+            OpenScPCA admin
+            spelling
+
+      - name: Comment artifact on issue
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ steps.spellissue.outputs.issue-number }}
+          body: |
+            The spellchecker found **${{ steps.spell.outputs.error_count }} errors**.
+
+            [Click to download the spelling errors TSV.](${{ steps.artifact-upload-step.outputs.artifact-url }})
+
+
+      - name: Fail if there are spelling errors
+        if: steps.spell.outputs.error_count > 0
+        run: |
+          echo "There were ${{ steps.spell.outputs.error_count }} errors"
+          exit 1
