@@ -1,0 +1,55 @@
+body:
+- type: textarea
+  attributes:
+    label: Proposed analysis
+    description: Briefly explain the analysis you are proposing.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Scientific goals
+    description: Describe the scientific goals of the analysis.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Methods or approach
+    description: What methods or approach do you plan to use?
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Computational resources
+    description: What computational resources do you anticipate using? 
+  validations:
+    required: false
+- type: textarea
+  attributes:
+    label: Existing modules
+    description: Does this directly depend on output from any existing modules? Or similarly, is this related to any existing analysis modules? 
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Input data
+    description: What input data are required?
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Timeline
+    description: Provide a general timeline.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Assignee 
+    description: Who will complete the analysis? Please add a GitHub handle here if relevant.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Scientific literature
+    description: Share any scientific literature that relates to the analysis.
+  validations:
+    required: false
