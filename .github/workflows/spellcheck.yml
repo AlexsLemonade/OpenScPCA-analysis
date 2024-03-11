@@ -64,7 +64,7 @@ jobs:
           name: spell_check_errors
           path: spell_check_errors.tsv
 
-    # This step is temporary for use during OpenScPCA launch prep.
+      # This step is temporary for use during OpenScPCA launch prep.
       - name: Post errors to PR if failed
         if: ${{ github.event_name == 'pull_request' && steps.spell.outputs.error_count > 0 }}
         uses: peter-evans/create-or-update-comment@v4
@@ -75,26 +75,26 @@ jobs:
             **Spellcheck failed!**
             [Here are the errors.](${{ steps.artifact-upload-step.outputs.artifact-url }})
 
-      # Uncomment this job at OpenScPCA Launch
-      - name: Post issue with spellcheck results
-        id: spellissue
-        uses: peter-evans/create-issue-from-file@v5
-        with:
-          title: Monthly spellcheck results
-          content-filepath: .github/cron-issue-templates/spellcheck-issue-template.md
-          labels: |
-            OpenScPCA admin
-            spelling
-
-      # Uncomment this job at OpenScPCA Launch
-      - name: Comment artifact on issue
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          issue-number: ${{ steps.spellissue.outputs.issue-number }}
-          body: |
-            The spellchecker found **${{ steps.spell.outputs.error_count }} errors**.
-
-            [Click to download the spelling errors TSV.](${{ steps.artifact-upload-step.outputs.artifact-url }})
+#      # Uncomment this job at OpenScPCA Launch
+#      - name: Post issue with spellcheck results
+#        id: spellissue
+#        uses: peter-evans/create-issue-from-file@v5
+#        with:
+#          title: Monthly spellcheck results
+#          content-filepath: .github/cron-issue-templates/spellcheck-issue-template.md
+#          labels: |
+#            OpenScPCA admin
+#            spelling
+#
+#      # Uncomment this job at OpenScPCA Launch
+#      - name: Comment artifact on issue
+#        uses: peter-evans/create-or-update-comment@v4
+#        with:
+#          issue-number: ${{ steps.spellissue.outputs.issue-number }}
+#          body: |
+#            The spellchecker found **${{ steps.spell.outputs.error_count }} errors**.
+#
+#            [Click to download the spelling errors TSV.](${{ steps.artifact-upload-step.outputs.artifact-url }})
 
 
       - name: Fail if there are spelling errors
