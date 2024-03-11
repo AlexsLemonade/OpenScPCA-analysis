@@ -43,6 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Spell check files
     permissions:
+      contents: read
       issues: write
       pull-requests: write
 
