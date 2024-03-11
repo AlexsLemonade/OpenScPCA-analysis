@@ -1,3 +1,5 @@
+name: "Troubleshooting"
+body:
 - type: textarea
   attributes:
     label: Summary
