@@ -1,3 +1,3 @@
 # OpenScPCA-analysis
 
-Speeling.
+Speeling is aparently a real word.
