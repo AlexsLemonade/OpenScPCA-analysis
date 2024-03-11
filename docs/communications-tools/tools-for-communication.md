@@ -23,17 +23,19 @@ More on categories below!
 
 * In general, use this forum to ask questions, discuss big picture ideas, brainstorm, and develop plans for analyses before implementing them.
 
-**Propose a new analysis.** 
+**Propose a new analysis or a modification to an existing analysis.**
 
-* Propose a new analysis in the [`Analysis Ideas` category](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/categories/analysis-ideas), before committing it to an issue. 
-* Create a post to explain why you are proposing an analysis and an overview of your planned methods. 
-* Project maintainers will ask clarifying questions, raise any concerns, and come to a decision about proceeding.
+* Discuss your ideas for:
+	* A new analysis in the [`Propose a new analysis` category](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/categories/propose-a-new-analysis).
+	* An update to an existing analysis in the [`Modify an existing analysis` category](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/categories/modify-an-existing-analysis). 
+* Each of these categories have built-in templates to guide you.
+* Project maintainers will further discuss your ideas with you before you file an issue.
 
 **Ask questions.**
 
 * Get help from project maintainers and/or community members. 
 * Use the [`Q&A` category](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/categories/q-a) to ask non-urgent questions. For example, where to find information.
-* Use the [`Troubleshooting` category](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/categories/troubleshooting) to get help from project maintainers. For example, challenges with setting up your local environment or trouble running an analysis.
+* Use the [`Troubleshooting` category](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/categories/troubleshooting) to get help from project maintainers. For example, challenges with setting up your local environment or trouble running an analysis. This category has a built-in template to guide you.
 
 **View announcements related to the project.** 
 
