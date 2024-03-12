@@ -1,13 +1,13 @@
 ableist
 ALSF
-Bioinformatics
+bioinformatics
 Carpentries
 conda
 config
 DM
 doxxing
 formatters
-Github
+GitHub
 GitKraken
 JSON
 LGBTQ
@@ -17,9 +17,8 @@ linter's
 linters
 LSfR
 macOS
-MacOS
 Miniconda
-Nonconsensual
+nonconsensual
 OpenScPCA
 openscpca
 pre
