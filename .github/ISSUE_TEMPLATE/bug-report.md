@@ -6,7 +6,8 @@ labels: bug
 ---
 
 <!-- This issue template should be used to report a bug.
-If you are experiencing a different kind of problem working while with the codebase or OpenScPCA software tools, please make a Troubleshooting post in GitHub Discussions instead. -->
+If you are experiencing a different kind of problem working while with the codebase or OpenScPCA software tools, please make a Troubleshooting post in GitHub Discussions instead:
+https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/categories/troubleshooting -->
 
 #### Describe the bug
 
