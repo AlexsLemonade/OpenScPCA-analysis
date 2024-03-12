@@ -64,24 +64,6 @@ jobs:
           name: spell_check_errors
           path: spell_check_errors.tsv
 
-      - name: Get the typo contents
-        id: get-typos
-        run: |
-          {
-            echo 'typos<<EOF'
-            cat spell_check_errors.tsv
-            echo EOF
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Post errors to PR if failed
-        if: ${{ github.event_name == 'pull_request' && steps.spell.outputs.error_count > 0 }}
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            **Spellcheck failed!**
-            Errors:
-            ${{ steps.get-typos.output.typos }}
 
       # This step is temporary for use during OpenScPCA launch prep.
       - name: Post errors to PR if failed
@@ -120,5 +102,5 @@ jobs:
         if: steps.spell.outputs.error_count > 0
         run: |
           echo "There were ${{ steps.spell.outputs.error_count }} errors"
-          cat
+          column -t spell_check_errors.tsv
           exit 1
