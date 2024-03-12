@@ -1,6 +1,6 @@
 # Install a GitHub client
 
-You will need a platform on your computer to run Git commands and interact with [GitHub.com](https://github.com).
+You will need a platform on your computer to run Git commands and interact with [GitHub](https://github.com).
 
 There are many platforms you can choose, but we recommend using either [**GitKraken**](https://www.gitkraken.com/) or the [Git **command line interface**](https://git-scm.com/book/en/v2/Getting-Started-The-Command-Line).
 
