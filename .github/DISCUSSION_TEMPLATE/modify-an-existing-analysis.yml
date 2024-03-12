@@ -38,7 +38,7 @@ body:
 - type: textarea
   attributes:
     label: Assignee 
-    description: Who will complete the analysis? Please add a GitHub handle here if relevant.
+    description: Who will complete the analysis? Please add a GitHub handle here.
   validations:
     required: true
 - type: textarea
