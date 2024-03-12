@@ -45,7 +45,6 @@ jobs:
     permissions:
       contents: read
       issues: write
-      pull-requests: write
 
     steps:
       - name: Checkout
@@ -63,18 +62,6 @@ jobs:
         with:
           name: spell_check_errors
           path: spell_check_errors.tsv
-
-
-      # This step is temporary for use during OpenScPCA launch prep.
-      - name: Post errors to PR if failed
-        if: ${{ github.event_name == 'pull_request' && steps.spell.outputs.error_count > 0 }}
-        uses: peter-evans/create-or-update-comment@v4
-        id: post-to-pr
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            **Spellcheck failed!**
-            To see the errors, either you can [download this zip file](${{ steps.artifact-upload-step.outputs.artifact-url }}) or click `Details` in the failed action check.
 
 #      # Uncomment this job at OpenScPCA Launch
 #      - name: Post issue with spellcheck results
