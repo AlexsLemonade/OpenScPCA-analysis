@@ -92,6 +92,8 @@ This sentence should link to the [pull request documentation](STUB_LINK).
 ## Adding images
 
 All image files should be placed in `docs/img`.
+Try to size images to roughly 2X the display size; this will allow the images to look ok on high-res displays without the files being too large.
+
 To include an image in a docs file, use the following syntax to center the image on the page:
 
 ```
