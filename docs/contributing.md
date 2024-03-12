@@ -92,4 +92,4 @@ This sentence should link to the [pull request documentation](STUB_LINK).
 
 For consistency, please use the following:
 
-- Refer to github.com as `GitHub`
+- Refer to `github.com` as `GitHub`
