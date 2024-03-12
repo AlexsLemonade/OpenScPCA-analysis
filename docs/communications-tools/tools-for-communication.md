@@ -57,9 +57,9 @@ We always aim for a ratio of one issue to one pull request.
 
 **Please read the Data Lab's documentation on:**
 
-* How we use GitHub issues 
-* Writing good issues 
-* Issue templates
+* `What are Github issues and how do we use them? (STUB_LINK)`
+* `Examples of good and bad issues (STUB_LINK)`
+* `Issue templates (STUB_LINK)`
   
 ⚠️ Please engage with project maintainers via [Discussions](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions) before filing your first issue in the `OpenScPCA-Analysis` repository. 
 We will provide you with further guidance!
