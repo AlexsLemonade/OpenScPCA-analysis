@@ -5,7 +5,7 @@ Cloning provides you with a local copy of the repository to work with.
 You will need to clone the repository to every computer (or remote server) you want to use to contribute to the project.
 
 !!! note
-    You should clone your forked repository, _not_ `AlexsLemonade/OpenScPCA-analysis`.
+    You should clone your forked repository from `<username>/OpenScPCA-analysis`, _not_ `AlexsLemonade/OpenScPCA-analysis`.
 
 
 ## Clone your forked repository
@@ -22,13 +22,17 @@ You should retain the folder name `OpenScPCA-analysis`.
 - You can feel free to ignore all references to `LFS` ("large file storage") in this video.
 This does not apply to `OpenScPCA-analysis`.
 
-## Add the upstream repository as a remote
+## Add the project repository as a remote repository
 
 The next step is to link the upstream repository (`AlexsLemonade/OpenScPCA-analysis`) as a remote.
 A _remote_ is a repository on GitHub.com that you are connected to.
-For example, your forked repository on GitHub.com is your _origin remote_.
+Each remote repository is given a name to make referring to them easier.
+For example, your forked repository on GitHub.com is called `origin` because it is where your local repository was cloned from.
 
-Adding the `AlexsLemonade` _upstream remote_ will allow you to interact with it from your computer which can you keep your fork in sync with the `OpenScPCA` project.
+We will add another remote repository named `upstream` that refers to the original `AlexsLemonade/OpenScPCA-analysis` repository on GitHub.com.
+This will be called `upstream` because it was the source that your fork came from.
+
+Adding the `AlexsLemonade` _upstream remote_ will allow you to interact with it from your computer which can help you keep your fork in sync with the `OpenScPCA` project.
 But, you will still be working in your fork when writing analysis code.
 
 Follow these steps to add the upstream remote:
@@ -42,7 +46,7 @@ Click that icon.
 Select `AlexsLemonade/OpenScPCA-analysis` from the dropdown menu, and click the button `Add remote`.
 ![Add the upstream remote.](../img/add-upstream-remote-2.png){width="400"} <!-- No new line above, to keep tabbed in -->
 
-3. You should then see a second remote called `AlexsLemonade` on the left-hand side `Remote` menu.
+3. You should then see a second remote called `AlexsLemonade` on the left-hand side `Remote` panel.
 The specific listed items under this remote that you see will look different from the screenshot below; this is expected.
 As long as you see that `AlexsLemonade` is listed in the menu, you have successfully added the upstream remote.
 ![View the added remote.](../img/add-upstream-remote-3.png){width="325"} <!-- No new line above, to keep tabbed in. Width needs to be >=325 for proper spacing, it seems. -->
