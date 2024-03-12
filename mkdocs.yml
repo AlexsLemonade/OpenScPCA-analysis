@@ -22,8 +22,8 @@ plugins:
 
 markdown_extensions:
   - admonition  # https://squidfunk.github.io/mkdocs-material/setup/extensions/python-markdown/#admonition
-  - attr_list # https://github.com/squidfunk/mkdocs-material/blob/master/docs/setup/extensions/python-markdown.md#attribute-lists
-
+  - attr_list   # https://github.com/squidfunk/mkdocs-material/blob/master/docs/setup/extensions/python-markdown.md#attribute-lists
+  - md_in_html  # https://squidfunk.github.io/mkdocs-material/setup/extensions/python-markdown/#markdown-in-html
 # Here is the basic structure of our navigation setup.
 #nav:
 #  - Navbar section: <!-- Contents for this navbar section are stored in the directory called `section-path` -->
@@ -41,6 +41,7 @@ nav:
     - technical-setup/index.md
     - technical-setup/install-a-github-client.md
     - technical-setup/fork-the-repo.md
+    - technical-setup/clone-the-repo.md
   - Tools for communication:   # Slack, issues, discussions
     - communications-tools/index.md
   - Contributing to analyses:  # Setting up an analysis, all the git stuff
