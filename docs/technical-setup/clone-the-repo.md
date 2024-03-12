@@ -12,7 +12,7 @@ You will need to clone the repository to every computer (or remote server) you w
 
 Please follow the [instructions in this GitKraken video](https://help.gitkraken.com/gitkraken-client/open-clone-init/#cloning-an-existing-project) to clone your repository.
 
-This video presents two approaches to cloning: `Clone with URL`, and Clone based on your integrated `GitHub.com` account.
+This video presents two approaches to cloning: `Clone with URL`, and Clone based on your integrated `GitHub` account.
 Either approach is fine to take!
 
 While watching these instructions, please bear in mind the following:
@@ -25,11 +25,11 @@ This does not apply to `OpenScPCA-analysis`.
 ## Add the project repository as a remote repository
 
 The next step is to link the upstream repository (`AlexsLemonade/OpenScPCA-analysis`) as a remote.
-A _remote_ is a repository on GitHub.com that you are connected to.
+A _remote_ is a repository on `GitHub` that you are connected to.
 Each remote repository is given a name to make referring to them easier.
-For example, your forked repository on GitHub.com is called `origin` because it is where your local repository was cloned from.
+For example, your forked repository on `GitHub` is called `origin` because it is where your local repository was cloned from.
 
-We will add another remote repository named `upstream` that refers to the original `AlexsLemonade/OpenScPCA-analysis` repository on GitHub.com.
+We will add another remote repository named `upstream` that refers to the original `AlexsLemonade/OpenScPCA-analysis` repository on `GitHub`.
 This will be called `upstream` because it was the source that your fork came from.
 
 Adding the `AlexsLemonade` _upstream remote_ will allow you to interact with it from your computer which can help you keep your fork in sync with the `OpenScPCA` project.
@@ -42,11 +42,11 @@ This text will then turn into a plus-sign icon.
 Click that icon.
 ![Click button to add the remote.](../img/add-upstream-remote-1.png){width="600"} <!-- No new line above, to keep tabbed in -->
 
-2. The following screen will prompt you to add a remote.
+1. The following screen will prompt you to add a remote.
 Select `AlexsLemonade/OpenScPCA-analysis` from the dropdown menu, and click the button `Add remote`.
 ![Add the upstream remote.](../img/add-upstream-remote-2.png){width="400"} <!-- No new line above, to keep tabbed in -->
 
-3. You should then see a second remote called `AlexsLemonade` on the left-hand side `Remote` panel.
+1. You should then see a second remote called `AlexsLemonade` on the left-hand side `Remote` panel.
 The specific listed items under this remote that you see will look different from the screenshot below; this is expected.
 As long as you see that `AlexsLemonade` is listed in the menu, you have successfully added the upstream remote.
 ![View the added remote.](../img/add-upstream-remote-3.png){width="325"} <!-- No new line above, to keep tabbed in. Width needs to be >=325 for proper spacing, it seems. -->

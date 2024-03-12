@@ -19,6 +19,7 @@ To serve the documentation during local development, run `mkdocs serve` from the
 - [Docs organization](#docs-organization)
 - [Adding new documentation](#adding-new-documentation)
 - [Linking to other pages](#linking-to-other-pages)
+- [Phrasing](#phrasing)
 
 
 ## Docs organization
@@ -85,3 +86,10 @@ For example:
 ```
 This sentence should link to the [pull request documentation](STUB_LINK).
 ```
+
+
+## Phrasing
+
+For consistency, please use the following:
+
+- Refer to github.com as `GitHub`

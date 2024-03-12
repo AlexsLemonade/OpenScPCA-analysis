@@ -1,6 +1,6 @@
 # Install a GitHub client
 
-You will need a platform on your computer to run Git commands and interact with [GitHub.com](https://github.com).
+You will need a platform on your computer to run Git commands and interact with [GitHub.com](https://github.com) (`GitHub`).
 
 There are many platforms you can choose, but we recommend using either [**GitKraken**](https://www.gitkraken.com/) or the [Git **command line interface**](https://git-scm.com/book/en/v2/Getting-Started-The-Command-Line).
 
@@ -19,8 +19,8 @@ GitKraken is free to use with public repositories like `OpenScPCA-analysis`; you
 
 1. Install GitKraken [using this link](https://www.gitkraken.com/download).
 
-2. Set up GitKraken on your machine by [directly signing in with your GitHub account](https://help.gitkraken.com/gitkraken-client/github-gitkraken-client/#sign-in-with-github).
-This will automatically provide you with the credentials you need to interact with GitHub without further setup.
+2. Set up GitKraken on your machine by [directly signing in with your `GitHub` account](https://help.gitkraken.com/gitkraken-client/github-gitkraken-client/#sign-in-with-github).
+This will automatically provide you with the credentials you need to interact with `GitHub` without further setup.
 
 
 ## Why use the Git command line interface?
@@ -38,7 +38,7 @@ The instructions for this depend on your operating system, as described below.
 
 After installing Git, you will also need take these steps:
 
-- [Set up an SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh) to interact with GitHub
+- [Set up an SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh) to interact with `GitHub`
 - [Set up your Git config file](https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup)
 
 ### Install Git on MacOS
