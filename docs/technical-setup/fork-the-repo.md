@@ -33,7 +33,7 @@ Make sure that these conditions are met, and then click the "Create fork" button
     - The box "Copy the `main` branch only" is checked
     - You can add a description if you want, but it is not necessary
     <figure markdown="span">
-        ![Screen to set up new fork, showing .](../img/create-fork.png){width="600"}
+        ![Screen to set up new fork.](../img/create-fork.png){width="600"}
     </figure>
 
 
