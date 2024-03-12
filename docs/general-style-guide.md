@@ -53,7 +53,7 @@ Use it for describing:
 
 ## Using buttons
 
-Use [Github buttons](https://gist.github.com/apaskulin/1ad686e42c7165cb9c22f9fe1e389558#buttons) to draw attention to important links.
+Use [GitHub buttons](https://gist.github.com/apaskulin/1ad686e42c7165cb9c22f9fe1e389558#buttons) to draw attention to important links.
 Use buttons sparingly.
 
 Use the buttons for links critical for users to continue on to the next stage like:

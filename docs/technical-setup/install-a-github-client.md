@@ -41,7 +41,7 @@ After installing Git, you will also need take these steps:
 - [Set up an SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh) to interact with `GitHub`
 - [Set up your Git config file](https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup)
 
-### Install Git on MacOS
+### Install Git on macOS
 
 We recommend installing Git via Apple's developer command line tools.
 For this, launch a Terminal window, enter the command shown below, and follow the instructions.
