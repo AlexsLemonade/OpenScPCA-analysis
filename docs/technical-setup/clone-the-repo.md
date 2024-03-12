@@ -17,7 +17,7 @@ Either approach is fine to take, but please bear in mind the following:
 
 In the `Clone with URL` option, the video presents cloning with an `https` link, vs. an `SSH` link.
 If you have already set up a [GitHub SSH connection](https://docs.github.com/en/authentication/connecting-to-github-with-ssh), you are welcome to use the `SSH` link version instead.
-If you do not have SSH set up for GitHub, you will want to stay with the `https` link as shown.
+If you do not have SSH set up for GitHub, you will want to use with the `https` link as shown.
 Note that an SSH connection is _not required_ to contribute to OpenScPCA.
 
 While watching this video, you can feel free to ignore all references to `LFS` ("large file storage"); this does not apply to `OpenScPCA-analysis`.
