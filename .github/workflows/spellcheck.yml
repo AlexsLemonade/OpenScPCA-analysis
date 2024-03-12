@@ -33,10 +33,6 @@ jobs:
           weekdiff=$(((end-start) / 60 / 60 / 24 / 7))
           weekindex=$((weekdiff % 4))  ##################### We want to run every 4 weeks!
           echo "weekindex=$weekindex" >> "$GITHUB_OUTPUT"
-          echo "FIRST_RUN_DATE: ${{ env.FIRST_RUN_DATE }}" >> $GITHUB_STEP_SUMMARY
-          echo "current_date: $current_date" >> $GITHUB_STEP_SUMMARY
-          echo "weekdiff: $weekdiff" >> $GITHUB_STEP_SUMMARY
-          echo "weekindex: $weekindex" >> $GITHUB_STEP_SUMMARY
 
   spellcheck:
     if: ${{ needs.weekindex.outputs.weekindex == 0 || github.event_name != 'schedule' }}
