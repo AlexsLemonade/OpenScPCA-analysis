@@ -22,7 +22,6 @@ nonconsensual
 OpenScPCA
 openscpca
 pre
-Pre
 precommit
 README
 renv
