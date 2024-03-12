@@ -103,6 +103,12 @@ def main() -> None:
         default="analysis-s3-992382809252-us-east-2",  # TODO: change to correct bucket
     )
     parser.add_argument(
+        "--profile",
+        type=str,
+        default=None,
+        help="The AWS profile to use for the download. Uses the current default profile if undefined.",
+    )
+    parser.add_argument(
         "--quiet",
         action="store_true",
         help="Suppress output except errors.",
@@ -155,6 +161,8 @@ def main() -> None:
 
     ### List the available releases ###
     ls_cmd = ["aws", "s3", "ls", f"s3://{args.bucket}/"]
+    if args.profile:
+        ls_cmd += ["--profile", args.profile]
     ls_result = subprocess.run(ls_cmd, capture_output=True, text=True)
     if ls_result.returncode:
         print(
@@ -238,11 +246,14 @@ def main() -> None:
     if args.quiet:
         sync_cmd += ["--only-show-errors"]
 
+    if args.profile:
+        sync_cmd += ["--profile", args.profile]
+
     subprocess.run(sync_cmd, check=True)
 
     ### Print summary messages ###
     if not args.quiet:
-        print("\033[1mDownload Summary\033[0m")  # bold
+        print("\n\n\033[1mDownload Summary\033[0m")  # bold
         print("Release:", release)
         print("Data Format:", ", ".join(formats))
         print("Processing levels:", ", ".join(includes))
