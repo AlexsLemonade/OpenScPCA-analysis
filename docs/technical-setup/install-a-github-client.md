@@ -1,6 +1,6 @@
 # Install a GitHub client
 
-You will need a platform on your computer to run Git commands and interact with [GitHub.com](https://github.com).
+You will need a platform on your computer to run Git commands and interact with [GitHub](https://github.com).
 
 There are many platforms you can choose, but we recommend using either [**GitKraken**](https://www.gitkraken.com/) or the [Git **command line interface**](https://git-scm.com/book/en/v2/Getting-Started-The-Command-Line).
 
@@ -41,7 +41,7 @@ After installing Git, you will also need take these steps:
 - [Set up an SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh) to interact with GitHub
 - [Set up your Git config file](https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup)
 
-### Install Git on MacOS
+### Install Git on macOS
 
 We recommend installing Git via Apple's developer command line tools.
 For this, launch a Terminal window, enter the command shown below, and follow the instructions.

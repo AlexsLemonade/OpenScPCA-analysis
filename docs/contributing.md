@@ -19,20 +19,22 @@ To serve the documentation during local development, run `mkdocs serve` from the
 - [Docs organization](#docs-organization)
 - [Adding new documentation](#adding-new-documentation)
 - [Linking to other pages](#linking-to-other-pages)
+- [Adding images](#adding-images)
+- [Phrasing](#phrasing)
 
 
 ## Docs organization
 
 Documentation is written as a series of markdown files nested by topic in directories.
 
-- All directories at the top-level inside `docs` will represent navbar sections.
-  - Each top-level directory should contain an `index.md` file with an overall description of what that section contains.
-  - The `index.md` should have an L1 header with the same title as the navbar section.
+- All directories at the top-level inside `docs` will represent `navbar` sections.
+  - Each top-level directory should contain an `index.md` file with an overview of what that section contains.
+  - The `index.md` should have an L1 header with the same title as the `navbar` section.
   - Markdown files in each directory represent sections shown along the left sidebar.
-- Nested directories within each navbar section should be used to add an additional bold header on the left sidebar.
+- Nested directories within each `navbar` section should be used to add an additional bold header on the left sidebar and _may_ also have an `index.md` file.
   - Markdown files within each nested directory will fall under this additional bold header.
-  - These nested directories will also have `index.md` files with an overall description of what that section contains.
-- Any visual aids used in the docs should be placed in `docs/img`.
+  - These nested directories will also have `index.md` files with an overview of what that section contains.
+- Any visual aids used in the docs should be placed in `docs/img` (see the [adding images section](#adding-images)).
 
 ## Adding new documentation
 
@@ -86,3 +88,23 @@ For example:
 ```
 This sentence should link to the [pull request documentation](STUB_LINK).
 ```
+
+
+## Adding images
+
+All image files should be placed in `docs/img`.
+Try to size images to roughly 2X the display size; this will allow the images to look ok on high-res displays without the files being too large.
+
+To include an image in a docs file, use the following syntax to center the image on the page:
+
+```
+    <figure markdown="span">
+      ![alt text](relative link to image file){width="number of pixels"}
+    </figure>
+```
+
+## Phrasing
+
+For consistency, please use the following:
+
+- Refer to `github.com` as "GitHub" (but without quotes) except when providing specific links.

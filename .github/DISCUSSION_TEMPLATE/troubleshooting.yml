@@ -1,0 +1,32 @@
+body:
+- type: textarea
+  attributes:
+    label: Summary
+    description: What problem or error do you need help with?
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Code or step
+    description: What code or step did you try?
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Desired outcome
+    description: What was the desired outcome?
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Observed outcome or error message
+    description: What was the observed outcome and/or error message? Include screenshots as needed. 
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Example
+    description: Please provide any example code or links that will help reproduce the problem. For example, link the code in your branch that caused the error. 
+  validations:
+    required: true
+    
