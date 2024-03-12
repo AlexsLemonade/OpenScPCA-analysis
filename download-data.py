@@ -64,6 +64,11 @@ def main() -> None:
         ),
     )
     parser.add_argument(
+        "--include-reports",
+        action="store_true",
+        help="Include html report files in the download.",
+    )
+    parser.add_argument(
         "--projects",
         type=str,
         default=None,
@@ -212,8 +217,11 @@ def main() -> None:
         "*",  # exclude everything by default
     ]
 
-    # Always include report files
-    patterns = ["*.html", "*.json"]
+    # Always include json files
+    patterns = ["*.json"]
+
+    if args.include_reports:
+        patterns += ["*.html"]
 
     if "sce" in formats:
         patterns += [f"*_{level}.rds" for level in includes]
