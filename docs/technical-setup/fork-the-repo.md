@@ -19,7 +19,7 @@ Follow these steps to create your fork:
 
 
 1. At the top right corner, click the "Fork" button:
-(The numbers you see in this screenshot may differ from the numbers on the website - that's expected.)
+(The numbers you see in this screenshot may differ from the numbers on the website – that's expected.)
     <!-- keep this tabbed in to enable numbered list -->
     <figure markdown="span">
         ![Button on GitHub to fork a repository.](../img/fork-button.png){width="400"}
