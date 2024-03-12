@@ -49,6 +49,25 @@ def main() -> None:
         ),
     )
     parser.add_argument(
+        "--projects",
+        type=str,
+        default=None,
+        help=(
+            "The project(s) to download."
+            " A comma separated list of Project IDs to download."
+            " Defaults to all. Can not be combined with `--samples`."
+        ),
+    )
+    parser.add_argument(
+        "--samples",
+        type=str,
+        default=None,
+        help="The sample(s) to download."
+        " A comma separated list of Sample IDs to download."
+        " Defaults to all. Can not be combined with `--projects`."
+        " If specified, bulk files are always excluded.",
+    )
+    parser.add_argument(
         "--data-dir",
         type=pathlib.Path,
         help=(
@@ -66,8 +85,9 @@ def main() -> None:
     formats = {f.lower() for f in args.format.split(",")}
     if not all(f in sce_formats | anndata_formats for f in formats):
         print(
-            f"Format '{args.format}' not available."
-            " Must be 'SCE', 'AnnData', or a comma separated list of those options."
+            f"Format '{args.format}' not available.",
+            "Must be 'SCE', 'AnnData', or a comma separated list of those options.",
+            file=sys.stderr,
         )
         sys.exit(1)
 
@@ -76,10 +96,26 @@ def main() -> None:
     includes = {x.lower() for x in args.include.split(",")}
     if not all(x in include_levels for x in includes):
         print(
-            f"Include option '{args.include}' is not valid."
-            " Must be 'processed', 'filtered','unfiltered', 'filtered', 'bulk', or a comma separated list of those."
+            f"Include option '{args.include}' is not valid.",
+            "Must be 'processed', 'filtered','unfiltered', 'filtered', 'bulk', or a comma separated list of those.",
+            file=sys.stderr,
         )
         sys.exit(1)
+
+    # Check that projects and samples are not requested together
+    if args.projects and args.samples:
+        print(
+            "Using both `--projects` and `--samples` options together is not supported.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    if args.samples and "bulk" in includes:
+        print(
+            "Bulk data is not available for individual samples, so bulk data will be skipped.",
+            file=sys.stderr,
+        )
+
     # pull bulk to its own variable and remove from includes
     include_bulk = "bulk" in includes
     includes = includes - {"bulk"}
@@ -96,8 +132,9 @@ def main() -> None:
     ]
 
     if args.list_releases:
-        print("Available release dates:")
-        print("\n".join(releases))
+        print(
+            "Available release dates:", "\n".join(releases), sep="\n", file=sys.stderr
+        )
         return
 
     # get the release to use
@@ -107,9 +144,11 @@ def main() -> None:
         release = args.release
     else:
         print(
-            f"Release dated '{args.release}' is not available. Available release dates are:"
+            f"Release dated '{args.release}' is not available. Available release dates are:",
+            "\n".join(releases),
+            sep="\n",
+            file=sys.stderr,
         )
-        print("\n".join(releases))
         sys.exit(1)
 
     # download the data
@@ -122,27 +161,44 @@ def main() -> None:
         f"{args.data_dir}/{release}/",
         "--exact-timestamps",  # replace if the files has changed
         "--exclude",
-        "*",  # exclude everything
-        "--include",
-        "*.html",  # always include html reports
-        "--include",
-        "*.json",  # always include json metadata
+        "*",  # exclude everything by default
     ]
 
+    # Always include report files
+    patterns = ["*.html", "*.json"]
+
     if "sce" in formats:
-        for level in includes:
-            sync_cmd.extend(["--include", f"*_{level}.rds"])
+        patterns.extend([f"*_{level}.rds" for level in includes])
 
     if "anndata" in formats:
-        for level in includes:
-            sync_cmd.extend(["--include", f"*_{level}_*.hdf5"])
+        patterns.extend([f"*_{level}_*.hdf5" for level in includes])
 
-    if include_bulk:
-        sync_cmd.extend(["--include", "*_bulk_*.tsv"])
+    if args.projects:
+        project_patterns = []
+        for project in args.projects.split(","):
+            project_patterns.extend([f"*/{project}/*/{p}" for p in patterns])
+        patterns = project_patterns
+
+    if args.samples:
+        sample_patterns = []
+        for sample in args.samples.split(","):
+            sample_patterns.extend([f"*/{sample}/{p}" for p in patterns])
+        patterns = sample_patterns
+
+    if include_bulk and not args.samples:
+        # if samples are specified, bulk is excluded, as it is not associated with samples
+        if args.projects:
+            patterns.extend(
+                [f"*/{project}/*_bulk_*.tsv" for project in args.projects.split(",")]
+            )
+        else:
+            patterns.extend(["*_bulk_*.tsv"])
+
+    for p in patterns:
+        sync_cmd.extend(["--include", p])
 
     sync_cmd.append("--dryrun")
-    subprocess.run(sync_cmd)
-
+    print(" ".join(sync_cmd))
     ## TODO: add report about what was done
 
 
