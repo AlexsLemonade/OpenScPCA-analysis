@@ -33,4 +33,4 @@ Make sure that these conditions are met, and then click the "Create fork" button
 
 
 1. That's it! 🎉
-In a few moments, `GitHub` will redirect to your newly forked repository at `https://github.com/YOUR_USERNAME/OpenScPCA-analysis`, and you're ready to proceed to the next step of [cloning your repository](./clone-the-repo.md).
+In a few moments, GitHub will redirect to your newly forked repository at `https://github.com/YOUR_USERNAME/OpenScPCA-analysis`, and you're ready to proceed to the next step of [cloning your repository](./clone-the-repo.md).
