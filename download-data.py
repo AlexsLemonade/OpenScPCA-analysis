@@ -3,13 +3,28 @@
 # Script for downloading data from an OpenScPCA data release
 
 import argparse
+import os
 import pathlib
 import re
 import subprocess
 import sys
 
-# TODO: change to correct bucket
-aws_bucket = "analysis-s3-992382809252-us-east-2"
+# enable text formatting on Windows
+os.system("")
+
+
+def add_parent_dirs(patterns: list[str], dirs: list[str]) -> list[str]:
+    """
+    Add parent directories to each AWS include pattern.
+    """
+    parent_patterns = []
+    for pattern in patterns:
+        # Prepend only if the pattern starts with a wildcard
+        if pattern.startswith("*"):
+            parent_patterns += [f"*{d}/{pattern}" for d in dirs]
+        else:
+            parent_patterns += [pattern]
+    return parent_patterns
 
 
 def main() -> None:
@@ -68,6 +83,11 @@ def main() -> None:
         " If specified, bulk files are always excluded.",
     )
     parser.add_argument(
+        "--dryrun",
+        action="store_true",
+        help="Perform a dry run of the download: show what would be done but do not download anything.",
+    )
+    parser.add_argument(
         "--data-dir",
         type=pathlib.Path,
         help=(
@@ -76,10 +96,23 @@ def main() -> None:
         ),
         default=pathlib.Path(__file__).parent / "data",
     )
+    parser.add_argument(
+        "--bucket",
+        type=str,
+        help="The S3 bucket to download the data from. Default is OpenScPCA data release bucket.",
+        default="analysis-s3-992382809252-us-east-2",  # TODO: change to correct bucket
+    )
+    parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Suppress output except errors.",
+    )
 
     args = parser.parse_args()
 
-    # Check formats are valid
+    ### Validate the arguments ###
+
+    # Check formats are valid and make a set
     sce_formats = {"sce", "rds"}
     anndata_formats = {"anndata", "hdf5", "h5ad"}
     formats = {f.lower() for f in args.format.split(",")}
@@ -91,7 +124,7 @@ def main() -> None:
         )
         sys.exit(1)
 
-    # Check include levels are valid
+    # Check include levels are valid & make a set
     include_levels = {"unfiltered", "filtered", "processed", "bulk"}
     includes = {x.lower() for x in args.include.split(",")}
     if not all(x in include_levels for x in includes):
@@ -116,13 +149,21 @@ def main() -> None:
             file=sys.stderr,
         )
 
-    # pull bulk to its own variable and remove from includes
+    # pull bulk to its own variable and remove from includes set
     include_bulk = "bulk" in includes
     includes = includes - {"bulk"}
 
-    ls_cmd = ["aws", "s3", "ls", f"s3://{aws_bucket}/"]
+    ### List the available releases ###
+    ls_cmd = ["aws", "s3", "ls", f"s3://{args.bucket}/"]
     ls_result = subprocess.run(ls_cmd, capture_output=True, text=True)
-    ls_result.check_returncode()
+    if ls_result.returncode:
+        print(
+            f"Error listing releases from S3 bucket '{args.bucket}'.",
+            "Ensure you have the correct permissions and the bucket exists.",
+            file=sys.stderr,
+        )
+        print(ls_result.stderr, file=sys.stderr)
+        sys.exit(1)
     # get only date-based versions and remove the trailing slash
     date_re = re.compile(r"(\d{4}-\d{2}-\d{2})/?")
     releases = [
@@ -131,13 +172,12 @@ def main() -> None:
         if m
     ]
 
+    # list the releases and exit if that was what was requested
     if args.list_releases:
-        print(
-            "Available release dates:", "\n".join(releases), sep="\n", file=sys.stderr
-        )
+        print("Available release dates:", "\n".join(releases), sep="\n")
         return
 
-    # get the release to use
+    # get the release to use or exit if it is not available
     if args.release.lower() in ["current", "latest"]:
         release = max(releases)
     elif args.release in releases:
@@ -151,15 +191,15 @@ def main() -> None:
         )
         sys.exit(1)
 
-    # download the data
-    # always include the metadata
+    ### Download the data ###
+    # Build the basic sync command
     sync_cmd = [
         "aws",
         "s3",
         "sync",
-        f"s3://{aws_bucket}/{release}/",
+        f"s3://{args.bucket}/{release}/",
         f"{args.data_dir}/{release}/",
-        "--exact-timestamps",  # replace if the files has changed
+        "--exact-timestamps",  # replace if a file has changed at all
         "--exclude",
         "*",  # exclude everything by default
     ]
@@ -168,38 +208,55 @@ def main() -> None:
     patterns = ["*.html", "*.json"]
 
     if "sce" in formats:
-        patterns.extend([f"*_{level}.rds" for level in includes])
+        patterns += [f"*_{level}.rds" for level in includes]
 
     if "anndata" in formats:
-        patterns.extend([f"*_{level}_*.hdf5" for level in includes])
+        patterns += [f"*_{level}_*.hdf5" for level in includes]
 
+    # If projects or samples are specified, extend the file-only patterns to specify parent directories
     if args.projects:
-        project_patterns = []
-        for project in args.projects.split(","):
-            project_patterns.extend([f"*/{project}/*/{p}" for p in patterns])
-        patterns = project_patterns
+        patterns = add_parent_dirs(patterns, args.projects.split(","))
+    elif args.samples:
+        patterns = add_parent_dirs(patterns, args.samples.split(","))
 
-    if args.samples:
-        sample_patterns = []
-        for sample in args.samples.split(","):
-            sample_patterns.extend([f"*/{sample}/{p}" for p in patterns])
-        patterns = sample_patterns
-
+    # if samples are specified, bulk is excluded, as it is not associated with individual samples
     if include_bulk and not args.samples:
-        # if samples are specified, bulk is excluded, as it is not associated with samples
         if args.projects:
-            patterns.extend(
-                [f"*/{project}/*_bulk_*.tsv" for project in args.projects.split(",")]
-            )
+            patterns += [
+                f"{project}/*_bulk_*.tsv" for project in args.projects.split(",")
+            ]
         else:
-            patterns.extend(["*_bulk_*.tsv"])
+            patterns += ["*_bulk_*.tsv"]
 
+    ### Add patterns to the sync command and run it! ###
     for p in patterns:
-        sync_cmd.extend(["--include", p])
+        sync_cmd += ["--include", p]
 
-    sync_cmd.append("--dryrun")
-    print(" ".join(sync_cmd))
-    ## TODO: add report about what was done
+    if args.dryrun:
+        sync_cmd += ["--dryrun"]
+
+    if args.quiet:
+        sync_cmd += ["--only-show-errors"]
+
+    subprocess.run(sync_cmd, check=True)
+
+    ### Print summary messages ###
+    if not args.quiet:
+        print("\033[1mDownload Summary\033[0m")  # bold
+        print("Release:", release)
+        print("Data Format:", ", ".join(formats))
+        print("Processing levels:", ", ".join(includes))
+        print("Downloaded data to:", args.data_dir / release)
+
+    ### Update current link to point to the new data release ###
+    # only do this if the specified release is "current" or "latest", not for specific dates
+    if args.release.lower() in ["current", "latest"] and not args.dryrun:
+        # update the current symlink
+        current_symlink = args.data_dir / "current"
+        current_symlink.unlink(missing_ok=True)
+        current_symlink.symlink_to(args.data_dir / release)
+        if not args.quiet:
+            print(f"Updated 'current' symlink to point to '{release}'.")
 
 
 if __name__ == "__main__":
