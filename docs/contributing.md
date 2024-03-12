@@ -104,4 +104,4 @@ To include an image in a docs file, use the following syntax to center the image
 
 For consistency, please use the following:
 
-- Refer to `github.com` as "GitHub" except when providing specific links.
+- Refer to `github.com` as "GitHub" (but without quotes) except when providing specific links.

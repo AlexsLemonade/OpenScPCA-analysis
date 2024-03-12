@@ -12,11 +12,11 @@ You will need to clone the repository to every computer (or remote server) you w
 
 Please follow the [instructions in this GitKraken video](https://help.gitkraken.com/gitkraken-client/open-clone-init/#cloning-an-existing-project) to clone your repository.
 
-This video presents two approaches to cloning: `Clone with URL`, and Clone based on your integrated `GitHub` account.
+This video presents two approaches to cloning: `Clone with URL`, and Clone based on your integrated GitHub account.
 Either approach is fine to take, but please bear in mind the following:
 
 In the `Clone with URL` option, the video presents cloning with an `https` link, vs. an `SSH` link.
-If you have already set up a [`GitHub` SSH connection](https://docs.github.com/en/authentication/connecting-to-github-with-ssh), you are welcome to use the `SSH` link version instead.
+If you have already set up a [GitHub SSH connection](https://docs.github.com/en/authentication/connecting-to-github-with-ssh), you are welcome to use the `SSH` link version instead.
 Otherwise, you can feel free to use the regular `https` link.
 Note that an SSH connection is _not required_ to contribute to OpenScPCA.
 
@@ -25,11 +25,11 @@ While watching this video, you can feel free to ignore all references to `LFS` (
 ## Add the project repository as a remote repository
 
 The next step is to link the upstream repository (`AlexsLemonade/OpenScPCA-analysis`) as a remote.
-A _remote_ is a repository on `GitHub` that you are connected to.
+A _remote_ is a repository on GitHub that you are connected to.
 Each remote repository is given a name to make referring to them easier.
-For example, your forked repository on `GitHub` is called `origin` because it is where your local repository was cloned from.
+For example, your forked repository on GitHub is called `origin` because it is where your local repository was cloned from.
 
-We will add another remote repository named `upstream` that refers to the original `AlexsLemonade/OpenScPCA-analysis` repository on `GitHub`.
+We will add another remote repository named `upstream` that refers to the original `AlexsLemonade/OpenScPCA-analysis` repository on GitHub.
 This will be called `upstream` because it was the source that your fork came from.
 
 Adding the `AlexsLemonade` _upstream remote_ will allow you to interact with it from your computer which can help you keep your fork in sync with the `OpenScPCA` project.
