@@ -74,7 +74,7 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
             **Spellcheck failed!**
-            [Here are the errors.](${{ steps.artifact-upload-step.outputs.artifact-url }})
+            To see the errors, either you can [download this zip file](${{ steps.artifact-upload-step.outputs.artifact-url }}) or click `Details` in the failed action check.
 
 #      # Uncomment this job at OpenScPCA Launch
 #      - name: Post issue with spellcheck results
