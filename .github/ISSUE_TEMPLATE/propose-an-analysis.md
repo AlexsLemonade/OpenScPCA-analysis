@@ -14,12 +14,12 @@ TODO: Insert docs link about how to do this? ^^
 You can use the conclusions from your discussion to help answer the questions in this issue template.
 -->
 
-#### Please link to the GitHub Discussion for this proposed analysis.
+### Please link to the GitHub Discussion for this proposed analysis.
 
 <!-- Copy/paste the link to the GitHub Discussion you have previously had about this analysis. -->
 
 
-#### Will this analysis be a new analysis module, or will you be modifying an existing analysis module?
+### Will this analysis be a new analysis module, or will you be modifying an existing analysis module?
 
 <!-- If you will be modifying an existing module, please include its name here. -->
 
