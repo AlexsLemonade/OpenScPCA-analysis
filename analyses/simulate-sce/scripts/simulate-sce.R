@@ -4,12 +4,6 @@
 
 # Works on a single sample directory at a time, processing all SCE objects within that directory.
 
-# Load libraries (squashing DelayedArray warnings)
-suppressPackageStartupMessages({
-  library(optparse)
-  suppressWarnings(library(SingleCellExperiment))
-})
-
 # Functions ---------------------------------------------------
 
 #' Randomize labels
@@ -168,6 +162,8 @@ simulate_sce <- function(sce, ncells, processed){
   return(sce_sim)
 }
 
+library(optparse)
+
 # Define and parse the command line arguments
 option_list = list(
   make_option(
@@ -197,6 +193,11 @@ option_list = list(
 )
 
 opts <- parse_args(OptionParser(option_list = option_list))
+
+# loading this library later to speed option parsing/help
+suppressPackageStartupMessages({
+  suppressWarnings(library(SingleCellExperiment)) #
+})
 
 set.seed(opts$seed)
 
