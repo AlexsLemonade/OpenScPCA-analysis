@@ -20,7 +20,7 @@ To serve the documentation during local development, run `mkdocs serve` from the
 - [Adding new documentation](#adding-new-documentation)
 - [Linking to other pages](#linking-to-other-pages)
 - [Adding images](#adding-images)
-- [Phrasing](#phrasing)
+- [Phrasing and other syntax](#phrasing-and-other-syntax)
 
 
 ## Docs organization
@@ -102,8 +102,14 @@ To include an image in a docs file, use the following syntax to center the image
     </figure>
 ```
 
-## Phrasing
+## Phrasing and other syntax
+
+Only these items should be in backticks:
+- Actual code
+- References to a specific repository, e.g. `OpenScPCA-analysis`
 
 For consistency, please use the following:
 
 - Refer to `github.com` as "GitHub" (but without quotes) except when providing specific links.
+- Refer to git as "Git" (without quotes), not "git"
+  - If you are actually referring to a git command, you should use `git <command>`
