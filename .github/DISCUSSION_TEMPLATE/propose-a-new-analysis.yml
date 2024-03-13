@@ -19,12 +19,6 @@ body:
     required: true
 - type: textarea
   attributes:
-    label: Computational resources
-    description: What computational resources do you anticipate using? 
-  validations:
-    required: false
-- type: textarea
-  attributes:
     label: Existing modules
     description: Is this module related to existing analysis modules? For example, will it analysis consume results or output from any existing modules?
   validations:
@@ -32,7 +26,7 @@ body:
 - type: textarea
   attributes:
     label: Input data
-    description: What input data are required?
+    description: What input data might this analysis use? If you are not sure, please indicate this.
   validations:
     required: true
 - type: textarea
@@ -51,5 +45,8 @@ body:
   attributes:
     label: Other details
     description: Please add any other relevant details.
+	Examples of information that would be helpful:
+        * What computational resources do you anticipate using?
+        * Provide a general timeline, if possible.
   validations:
     required: false
