@@ -82,3 +82,86 @@ To do so, use the following command ([reference](https://rstudio.github.io/renv/
 ```r
 renv::restore()
 ```
+
+## Managing software dependencies in Python with conda
+
+We strongly recommend using conda to manage dependencies for any module written primarily in Python.
+These instructions assume you have already [installed conda and set up your base environment](STUB_LINK conda technical setup).
+
+### Module-specific conda environments
+
+#### Creating environments
+
+When [creating a Python module using `create-analysis-module.py`](STUB_LINK module creation), a conda environment will be created for that module by default with two effects:
+
+* A basic `environment.yaml` file will already be present in the module's directory
+* A conda environment named `openscpca-{module_name}` will already exist
+
+You can activate the environment by running the following command:
+
+```bash
+conda activate openscpca-{module_name}
+```
+
+If no `environment.yaml` file is present, you can create and activate a new environment for the module by running the following command from the module's root directory, replacing `{module_name}` with the name of the module you are working on:
+
+```bash
+conda create --file environment.yml --name openscpca-{module_name}
+conda activate openscpca-{module_name}
+```
+
+#### Activating existing environments
+
+If you are working with an existing module that already has an  `environment.yaml` file or have switched computers, you can create and activate the environment on the computer you are working on by running the following commands:
+
+```bash
+# Navigate to the module's root directory
+cd analyses/{module_name}/
+conda env create --file environment.yml --name openscpca-{module_name}
+conda activate openscpca-{module_name}
+```
+
+#### Note for ARM (Apple Silicon) computers
+
+While most conda packages are available for ARM-based computers (such as macOS computers with M-series processors), some software is only available for Intel architectures.
+However, it is still usually possible to run an Intel-based package on macOS, but you will need to create an environment that uses the `osx-64` architecture for all of its software.
+To do this, modify the creation command for the environment and add a setting to the environment, as shown below:
+
+```bash
+cd analyses/{module_name}/
+CONDA_SUBDIR=osx-64 conda env create --file environment.yaml --name openscpca-{module_name}
+conda activate openscpca-{module_name}
+conda config --env --set subdir osx-64
+```
+
+Moving forward, you should be able to install any Intel-based package into the environment as usual.
+
+### Adding software to the environment and tracking installed software
+
+If there is additional software you intend to use for a module or discover is required, you can add it with the `conda install` command when the environment is activated.
+Follow installing with an update to the `environment.yml` file with that package and the dependencies that were installed.
+
+For example, to install the `pandas` package and record it in the `environment.yml` file, you would run the following commands:
+
+```bash
+# Navigate to the module's root directory
+cd analyses/{module_name}
+# Activate that module's envirionment
+conda activate openscpca-{module_name}
+# Install the package
+conda install pandas
+# Update environment.yml
+conda env export --no-builds | grep -v "^prefix:" > environment.yml
+```
+
+(The `grep` command in the final line is there to remove user-specific paths that `conda` includes in its export.)
+
+### Finding available software
+
+To find software available through conda, you can search the conda repositories with the following command:
+
+```bash
+conda search {package_name}
+```
+
+Alternatively, you can search [anaconda.org](https://anaconda.org) for packages and channels.
