@@ -3,7 +3,7 @@
 A branch in GitHub refers to an isolated copy of the repository contents.
 For example, the `main` branch of the `OpenScPCA-analysis` repository contains the main copy of all items in the repository.
 Before making any changes to the `main` branch, we can create a feature branch containing a copy of the code in the `main` branch in an isolated space.
-This allows you to make changes to the code on the feature branch without affecting the code in the `main` branch or interfering with others as they make changes.
+This allows you to make changes to the code on the feature branch without affecting the code in the `main` branch or interfering with other contributors as they make changes.
 
 !!! note
     For more details on branches, see [GitHub's documentation describing branches](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches).
