@@ -47,6 +47,7 @@ nav:
   - Contributing to analyses:  # Setting up an analysis, all the git stuff
     - contributing-to-analyses/index.md
     - contributing-to-analyses/determining-and-managing-requirements/index.md
+    - contributing-to-analyses/determining-and-managing-requirements/software-requirements.md
   - Software platforms:            # LSfR, AWS, Docker, etc
     - software-platforms/index.md
   - Getting Help and FAQ:      # troubleshooting and FAQ
