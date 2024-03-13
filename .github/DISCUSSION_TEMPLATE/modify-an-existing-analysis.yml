@@ -25,12 +25,6 @@ body:
     required: true
 - type: textarea
   attributes:
-    label: Assignee
-    description: Who will complete the analysis? Please add a GitHub handle here.
-  validations:
-    required: true
-- type: textarea
-  attributes:
     label: Scientific literature
     description: Share any scientific literature that relates to the analysis.
   validations:
