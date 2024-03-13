@@ -42,7 +42,7 @@ body:
       Please add any other relevant details.
       Examples of information that would be helpful:
 
-            - What computational resources do you anticipate using?
-            - Provide a general timeline, if possible.
+      - What computational resources do you anticipate using?
+      - Provide a general timeline, if possible.
   validations:
     required: false
