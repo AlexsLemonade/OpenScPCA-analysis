@@ -50,5 +50,5 @@ nav:
     - software-platforms/index.md
   - Getting Help and FAQ:      # troubleshooting and FAQ
     - troubleshooting-faq/index.md
-
-
+  - Policies: # CoC, Authorship, other policies
+    - policies/index.md
