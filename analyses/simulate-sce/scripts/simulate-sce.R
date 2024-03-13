@@ -17,7 +17,7 @@
 #' @return a vector of length n
 #'
 #' @examples
-random_label <- function(label_set, n){
+random_label <- function(label_set, n) {
   # randomly select n labels from the label set, ensuring each label is included at least once
 
   # ensure labels are unique
@@ -45,7 +45,7 @@ random_label <- function(label_set, n){
 #' @import SingleCellExperiment
 #'
 #' @examples
-simulate_sce <- function(sce, ncells, processed){
+simulate_sce <- function(sce, ncells, processed) {
   # check parameters
   stopifnot(
     "sce must be a SingleCellExperiment" = is(sce, "SingleCellExperiment"),
@@ -66,10 +66,10 @@ simulate_sce <- function(sce, ncells, processed){
 
   # reduce the cell type data matrices, if present
   if (!is.null(metadata(sce_sim)$singler_results)) {
-    metadata(sce_sim)$singler_results <- metadata(sce_sim)$singler_results[cell_subset,]
+    metadata(sce_sim)$singler_results <- metadata(sce_sim)$singler_results[cell_subset, ]
   }
   if (!is.null(metadata(sce_sim)$cellassign_predictions)) {
-    metadata(sce_sim)$cellassign_predictions <- metadata(sce_sim)$cellassign_predictions[cell_subset,]
+    metadata(sce_sim)$cellassign_predictions <- metadata(sce_sim)$cellassign_predictions[cell_subset, ]
   }
 
   # Adjust cluster/cell type labels ----------------------------
@@ -109,7 +109,7 @@ simulate_sce <- function(sce, ncells, processed){
   # Perform simulation ---------------------------------
   sim_params <- splatter::simpleEstimate(as.matrix(counts(sce_sim)))
   # get spliced ratio
-  spliced_ratio = sum(assay(sce_sim, "spliced"))/sum(counts(sce))
+  spliced_ratio <- sum(assay(sce_sim, "spliced")) / sum(counts(sce))
   counts(sce_sim, withDimnames = FALSE) <- counts(
     splatter::simpleSimulate(sim_params, verbose = FALSE)
   )
@@ -125,19 +125,19 @@ simulate_sce <- function(sce, ncells, processed){
   }
 
   # Add any altExps -------------------------------------
-  altExpNames(sce_sim) |> purrr::walk(\(name){
+  altExpNames(sce_sim) |> purrr::walk(\(name) {
     alt_exp <- altExps(sce_sim, name)
     alt_params <- splatter::simpleEstimate(as.matrix(counts(alt_exp)))
-    counts(altExp, withDimnames = FALSE) <- counts(splatter::simpleSimulate(alt_params, verbose = FALSE))
+    counts(alt_exp, withDimnames = FALSE) <- counts(splatter::simpleSimulate(alt_params, verbose = FALSE))
     if (processed) {
       logcounts(alt_exp, withDimnames = FALSE) <- log1p(counts(alt_exp))
     }
-    altExps(sce_sim, name) <- altExp
+    altExps(sce_sim, name) <- alt_exp
   })
 
   # Replace and update column stats ---------------------
   # store column names to restore order later
-  colData_names <- names(colData(sce_sim))
+  coldata_names <- names(colData(sce_sim))
 
   mito_detected_factor <- colData(sce_sim)$subsets_mito_detected / colData(sce_sim)$detected
 
@@ -150,14 +150,14 @@ simulate_sce <- function(sce, ncells, processed){
     "subsets_mito_detected",
     names(colData(sce_sim))[grep("altexps_.*_(sum|detected|percent)", names(colData(sce_sim)))]
   )
-  colData(sce_sim)[,remove_stats] <- NULL
+  colData(sce_sim)[, remove_stats] <- NULL
 
   sce_sim <- scuttle::addPerCellQC(sce_sim)
   colData(sce_sim)$subsets_mito_sum <- colData(sce_sim)$sum * colData(sce_sim)$subsets_mito_percent / 100
   colData(sce_sim)$subsets_mito_detected <- round(colData(sce_sim)$detected * mito_detected_factor)
 
   # restore column order
-  colData(sce_sim) <- colData(sce_sim)[,colData_names]
+  colData(sce_sim) <- colData(sce_sim)[, coldata_names]
 
   return(sce_sim)
 }
@@ -167,7 +167,7 @@ simulate_sce <- function(sce, ncells, processed){
 library(optparse)
 
 # Define and parse the command line arguments
-option_list = list(
+option_list <- list(
   make_option(
     c("-s", "--sample_dir"),
     type = "character",
@@ -213,7 +213,7 @@ sce_files <- list.files(
 fs::dir_create(opts$output_dir)
 
 # perform simulations for each file
-purrr::walk(sce_files, \(sce_file){
+purrr::walk(sce_files, \(sce_file) {
   is_processed <- grepl("_processed.rds$", sce_file)
   # load the real data
   real_sce <- readr::read_rds(sce_file)
