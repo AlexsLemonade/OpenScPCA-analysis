@@ -14,7 +14,6 @@ theme:
     - search.suggest         # displays in light gray how you might complete the word
     - navigation.tabs        # persistent navbar on the top
     - navigation.tabs.sticky # sticky navbar
-    - navigation.sections    # enables sections along the left side bar via nested directories in docs/
     - navigation.indexes     # allow index pages to serve as overview pages for sections
 
 plugins:
