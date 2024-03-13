@@ -1,6 +1,6 @@
 # Clone the repository
 
-After [forking the `OpenScPCA` repository](./fork-the-repo.md), you will need to _clone_ your forked repository to your computer.
+After [forking the OpenScPCA repository](./fork-the-repo.md), you will need to _clone_ your forked repository to your computer.
 Cloning provides you with a local copy of the repository to work with.
 You will need to clone the repository to every computer (or remote server) you want to use to contribute to the project.
 
@@ -32,7 +32,7 @@ For example, your forked repository on GitHub is called `origin` because it is w
 We will add another remote repository named `upstream` that refers to the original `AlexsLemonade/OpenScPCA-analysis` repository on GitHub.
 This will be called `upstream` because it was the source that your fork came from.
 
-Adding the `AlexsLemonade` _upstream remote_ will allow you to interact with it from your computer which can help you keep your fork in sync with the `OpenScPCA` project.
+Adding the `AlexsLemonade` _upstream remote_ will allow you to interact with it from your computer which can help you keep your fork in sync with the OpenScPCA project.
 But, you will still be working in your fork when writing analysis code.
 
 Follow these steps to add the upstream remote:
