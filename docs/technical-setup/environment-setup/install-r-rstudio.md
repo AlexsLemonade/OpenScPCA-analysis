@@ -13,7 +13,7 @@ Please read these instructions carefully even if you already have any of these i
 
 ## Install R
 
-The official Terminal project version of R is 4.3.3, so we recommend that you have at least this version installed.
+The official Terminal project version of R is `4.3.3`, so we recommend that you have at least this version installed.
 Please be aware that if you install a different R version and run existing modules, you may get different results.
 
 The instructions provided here are suitable for the vast majority of contributors, but please refer to [this section](#advanced-considerations) for advanced considerations about R installation.

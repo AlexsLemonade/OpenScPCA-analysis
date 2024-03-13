@@ -108,6 +108,7 @@ To include an image in a docs file, use the following syntax to center the image
 Only these items should be in backticks:
 - Actual code
 - Names of packages, e.g. `renv`
+- SemVar software versions
 - References to a specific repository, e.g. `OpenScPCA-analysis`
 
 For consistency, please use the following:
