@@ -186,7 +186,11 @@ purrr::walk(sce_files, \(sce_file){
   # load the real data
   real_sce <- readr::read_rds(sce_file)
   # simulate the data
-  sim_sce <- simulate_sce(real_sce, opts$ncells)
+  sim_sce <- try(simulate_sce(real_sce, opts$ncells))
+  if (inherits(sim_sce, "try-error")) {
+    warning(paste0("Simulation error for ", basename(sce_file), ", retrying."))
+    sim_sce <- simulate_sce(real_sce, opts$ncells)
+  }
   # save the simulated data
   sim_file <- file.path(
     opts$output_dir,
