@@ -1,4 +1,4 @@
-# Doing an analyss
+# Doing an analyses
 
 _This content is a stub._
 
