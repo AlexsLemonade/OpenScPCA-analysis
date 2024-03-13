@@ -32,9 +32,10 @@ body:
 - type: textarea
   attributes:
     label: Other details
-    description: Please add any other relevant details.
-	Examples of information that would be helpful:
-        * Are the resource requirements different from what is already in place?
-        * Provide a general timeline, if possible.
+    description:  |
+      Please add any other relevant details.
+      Examples of information that would be helpful:
+            * Are the resource requirements different from what is already in place?
+            * Provide a general timeline, if possible.
   validations:
     required: false
