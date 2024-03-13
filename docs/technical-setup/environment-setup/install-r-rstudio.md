@@ -24,8 +24,8 @@ The instructions provided here are suitable for the vast majority of contributor
 1. Navigate to the [macOS download page on the CRAN website](https://cran.r-project.org/bin/macosx/).
 
 2. Download the R package that matches your computer's architecture, and follow all installation instructions.
-    - If you're on an Apple silicon (M1-3) Mac, install R from the link "R-X.Y.Z-arm64.pkg", where "X.Y.Z" is the specific R version.
-    - If you're on an Intel Mac, install R from the link "R-X.Y.Z-x86_64.pkg", where "X.Y.Z" is the specific R version.
+    - If you're on an Apple silicon (M1-3) Mac, install R from the link `R-X.Y.Z-arm64.pkg`, where `X.Y.Z` is the specific R version.
+    - If you're on an Intel Mac, install R from the link `R-X.Y.Z-x86_64.pkg`, where `X.Y.Z` is the specific R version.
 
 
 Next, you need to install additional tools that will let you build R packages that you are likely to encounter in Terminal.
@@ -54,7 +54,7 @@ Click the link to download the installer package and follow all installation ins
 2. Next, you need to install Rtools, which provides additional tools that will let you build R packages that you are likely to encounter in Terminal.
     - Navigate to the [Rtools download page](https://cran.r-project.org/bin/windows/Rtools/)
     - Click the Rtools version that matches the R version you just downloaded
-    - On the next page, click the link "RtoolsXY installer" (where "XY" is the specific version you clicked) to download Rtools, and follow all installation instructions
+    - On the next page, click the link `RtoolsXY installer` (where `XY` is the specific version you clicked) to download Rtools, and follow all installation instructions
 
 
 
