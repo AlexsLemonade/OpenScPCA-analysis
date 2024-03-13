@@ -104,7 +104,9 @@ To include an image in a docs file, use the following syntax to center the image
 
 ## Phrasing and other syntax
 
-We generally do not want to put items in `backticks` unless we are actually referring to code.
+Only these items should be in backticks:
+- Actual code
+- References to a specific repository, e.g. `OpenScPCA-analysis`
 
 For consistency, please use the following:
 
