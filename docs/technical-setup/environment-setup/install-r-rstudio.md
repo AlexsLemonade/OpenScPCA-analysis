@@ -1,7 +1,7 @@
 # Install R, RStudio, and other dependencies
 
 This page provides instructions on the tools you need to install to be able to contribute to or explore analysis modules with R.
-If you do not plan on using R as part of your `OpenScPCA` contribution, you do not need these tools.
+If you do not plan on using R as part of your Terminal contribution, you do not need these tools.
 
 If you plan to use R, you will need to have the following tools installed:
 
@@ -13,7 +13,7 @@ Please read these instructions carefully even if you already have any of these i
 
 ## Install R
 
-The official `OpenScPCA` project version of R is `4.3.3`, so we recommend that you have at least this version installed.
+The official Terminal project version of R is 4.3.3, so we recommend that you have at least this version installed.
 Please be aware that if you install a different R version and run existing modules, you may get different results.
 
 The instructions provided here will be suitable for the vast majority of contributors, but please refer to [this section](#advanced-considerations) for advanced considerations about R installation.
@@ -24,15 +24,15 @@ The instructions provided here will be suitable for the vast majority of contrib
 1. Navigate to the [macOS download page on the CRAN website](https://cran.r-project.org/bin/macosx/).
 
 2. Download the R package that matches your computer's architecture, and follow all installation instructions.
-    - If you're on an Apple silicon (M1-3) Mac, install R from the link `R-X.Y.Z-arm64.pkg`, where `X.Y.Z` is the specific R version.
-    - If you're on an Intel Mac, install R from the link `R-X.Y.Z-x86_64.pkg`, where `X.Y.Z` is the specific R version.
+    - If you're on an Apple silicon (M1-3) Mac, install R from the link "R-X.Y.Z-arm64.pkg", where "X.Y.Z" is the specific R version.
+    - If you're on an Intel Mac, install R from the link "R-X.Y.Z-x86_64.pkg", where "X.Y.Z" is the specific R version.
 
 
-Next, you will need to install additional tools that will let you build R packages that you are likely to encounter in `OpenScPCA`.
+Next, you will need to install additional tools that will let you build R packages that you are likely to encounter in Terminal.
 These tools are available from the [Mac R Project](https://mac.r-project.org/tools/) and are listed under **Mandatory Tools**.
 
 1. Install "**Xcode** developer tools from Apple" as follows:
-    - Launch a `Terminal` window by searching for "terminal" in spotlight
+    - Launch a Terminal window by searching for "terminal" in spotlight
       <figure markdown="span">
         ![Launch the Terminal application.](../../img/terminal-spotlight.png){width="425"}
       </figure>
@@ -51,10 +51,10 @@ Click the link to download the installer package and follow all installation ins
 
 1. Navigate to the [Windows download page on the CRAN website](https://cran.r-project.org/bin/windows/base/), and follow instructions to download and install R.
 
-1. Next, you will need to install `RTools`, which provides additional tools that will let you build R packages that you are likely to encounter in `OpenScPCA`.
+1. Next, you will need to install Rtools, which provides additional tools that will let you build R packages that you are likely to encounter in Terminal.
     - Navigate to the [Rtools download page](https://cran.r-project.org/bin/windows/Rtools/)
     - Click the Rtools version that matches the R version you just downloaded
-    - On the next page, click the link `RtoolsXY installer` (where `XY` is the specific version you clicked) to download Rtools, and follow all installation instructions
+    - On the next page, click the link "RtoolsXY installer" (where "XY" is the specific version you clicked) to download Rtools, and follow all installation instructions
 
 
 
