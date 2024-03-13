@@ -18,7 +18,7 @@ There are two main reasons we use `conda` for `OpenScPCA`:
 - `conda` allows you set up different software environments for different projects
     - For example, you may have two projects that require different versions of the same package.
     With `conda`, you can create separate, fully isolated software environments for each project with different package versions.
-    - `OpenScPCA` analysis modules will use different `conda` environments to prevent conflicts and improve reproducibility.
+    - Python-based `OpenScPCA` analysis modules will use different `conda` environments to prevent conflicts and improve reproducibility.
 
 
 ## Install `conda`
@@ -38,10 +38,14 @@ Next, you will need to set certain `conda` settings and install a few packages t
 The application to open depends on your operating system:
     - _If you are on a macOS machine_, open the `Terminal` application.
     To launch `Terminal`, search for "terminal" in spotlight and open the application.
+    <figure markdown="span">
+        ![Launch the Terminal application.](../../img/terminal-spotlight.png){width="425"}
+    </figure>
 
 
     - _If you are on a Windows machine_, open the `conda` prompt.
     To launch the prompt, SOMETHING SOMETHING START MENU.
+    TODO: Add screenshot.
 
 1. Copy and paste the following code into the prompt, and hit enter.
 These commands will set the [recommended channels](https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/channels.html) `conda` should use to search for software. <!-- For an indented code block, no backticks - just tab in twice -->
