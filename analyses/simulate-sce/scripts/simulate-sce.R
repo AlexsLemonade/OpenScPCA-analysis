@@ -29,7 +29,7 @@ random_label <- function(label_set, n){
   # ensure labels are unique
   label_set <- unique(label_set)
   if (length(label_set) > n) {
-    stop("The number of labels must not be greater than the number requested")
+    stop("The number of labels must not be greater than the number requested.")
   }
   r_labels <- sample(label_set, n, replace = TRUE)
   # add each label at least once
@@ -42,6 +42,8 @@ random_label <- function(label_set, n){
 #'
 #' @param sce a SingleCellExperiment object, with the formatted expected from ScPCA
 #' @param ncells The number of cells to simulate
+#' @param processed Boolean indicating whether the data is processed or not
+
 #'
 #' @return a SingleCellExperiment object
 #' @export
@@ -49,7 +51,13 @@ random_label <- function(label_set, n){
 #' @import SingleCellExperiment
 #'
 #' @examples
-simulate_sce <- function(sce, ncells){
+simulate_sce <- function(sce, ncells, processed){
+  # check parameters
+  stopifnot(
+    "sce must be a SingleCellExperiment" = is(sce, "SingleCellExperiment"),
+    "ncells must be a positive integer" = is.integer(ncells) && ncells > 0,
+    "processed must be a boolean" = is.logical(processed)
+  )
 
   # define a subset of cells to simulate
   cell_subset <- sample.int(ncol(sce), ncells)
@@ -88,8 +96,8 @@ simulate_sce <- function(sce, ncells){
   # singler cell types
   if (!is.null(colData(sce)$singler_celltype_ontology)) {
     # create a mapping for singler ontology and annotation
-    singler_df <- colData(sce)|>
-      data.frame()|>
+    singler_df <- colData(sce) |>
+      data.frame() |>
       dplyr::select(singler_celltype_ontology, singler_celltype_annotation) |>
       dplyr::distinct()
     singler_dict <- setNames(
@@ -106,14 +114,32 @@ simulate_sce <- function(sce, ncells){
 
   # Perform simulation ---------------------------------
   sim_params <- splatter::splatEstimate(as.matrix(counts(sce_sim)))
+  # get spliced ratio
+  spliced_ratio = sum(assay(sce_sim, "spliced"))/sum(counts(sce))
   counts(sce_sim, withDimnames = FALSE) <- counts(
     splatter::splatSimulate(sim_params, verbose = FALSE)
   )
-  # recalculate dimension reduction
-  sce_sim <- sce_sim |>
-    scater::logNormCounts()|>
-    scater::runPCA(10) |> # we don't need all the PCA components
-    scater::runUMAP(dimred = "PCA")
+  # make a spliced assay
+  assay(sce_sim, "spliced") <- round(counts(sce_sim) * spliced_ratio)
+
+  # recalculate dimension reduction for processed data
+  if (processed) {
+    logcounts(sce_sim, withDimnames = FALSE) <- log1p(counts(sce_sim)) # use log1p for speed
+    sce_sim <- sce_sim |>
+      scater::runPCA(10) |> # we don't need all the PCA components
+      scater::runUMAP(dimred = "PCA")
+  }
+
+  # Add any altExps -------------------------------------
+  altExpNames(sce_sim) |> purrr::walk(\(name){
+    alt_exp <- altExps(sce_sim, name)
+    alt_params <- splatter::splatEstimate(as.matrix(counts(alt_exp)))
+    counts(altExp, withDimnames = FALSE) <- counts(splatter::splatSimulate(alt_params, verbose = FALSE))
+    if (processed) {
+      logcounts(alt_exp, withDimnames = FALSE) <- log1p(counts(alt_exp))
+    }
+    altExps(sce_sim, name) <- altExp
+  })
 
   # Replace and update column stats ---------------------
   # store column names to restore order later
@@ -146,31 +172,31 @@ simulate_sce <- function(sce, ncells){
 option_list = list(
   make_option(
     c("-s", "--sample_dir"),
-    type="character",
-    default=NULL,
-    help="The sample directory for the real data to use for simulation"
+    type = "character",
+    default = NULL,
+    help = "The sample directory for the real data to use for simulation"
   ),
   make_option(
     c("-o", "--output_dir"),
-    type="character",
-    default=NULL,
-    help="The output directory. Output files will be given the same names as input"
+    type = "character",
+    default = NULL,
+    help = "The output directory. Output files will be given the same names as input"
   ),
   make_option(
     c("-n", "--ncells"),
-    type="integer",
-    default=100,
-    help="The number of cells to simulate."
+    type = "integer",
+    default = 100,
+    help = "The number of cells to simulate."
   ),
   make_option(
     c("--seed"),
-    type="integer",
-    default=2024,
-    help="Random number seed for simulation."
+    type = "integer",
+    default = 2024,
+    help = "Random number seed for simulation."
   )
 )
 
-opts = parse_args(OptionParser(option_list=option_list))
+opts <- parse_args(OptionParser(option_list = option_list))
 
 set.seed(opts$seed)
 
@@ -183,18 +209,15 @@ sce_files <- list.files(
 fs::dir_create(opts$output_dir)
 
 purrr::walk(sce_files, \(sce_file){
+  is_processed <- grepl("_processed.rds$", sce_file)
   # load the real data
   real_sce <- readr::read_rds(sce_file)
   # simulate the data
-  sim_sce <- try(simulate_sce(real_sce, opts$ncells))
-  if (inherits(sim_sce, "try-error")) {
-    warning(paste0("Simulation error for ", basename(sce_file), ", retrying."))
-    sim_sce <- simulate_sce(real_sce, opts$ncells)
-  }
+  sim_sce <- simulate_sce(real_sce, opts$ncells, processed = is_processed)
   # save the simulated data
   sim_file <- file.path(
     opts$output_dir,
     basename(sce_file)
   )
-  readr::write_rds(sim_sce, sim_file, compress = "bz")
+  readr::write_rds(sim_sce, sim_file, compress = "bz2")
 })
