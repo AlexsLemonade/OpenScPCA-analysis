@@ -37,12 +37,6 @@ body:
     required: true
 - type: textarea
   attributes:
-    label: Timeline
-    description: Provide a general timeline.
-  validations:
-    required: true
-- type: textarea
-  attributes:
     label: Assignee 
     description: Who will complete the analysis? Please add a GitHub handle here.
   validations:
@@ -51,5 +45,11 @@ body:
   attributes:
     label: Scientific literature
     description: Share any scientific literature that relates to the analysis.
+  validations:
+    required: false
+- type: textarea
+  attributes:
+    label: Other details
+    description: Please add any other relevant details.
   validations:
     required: false
