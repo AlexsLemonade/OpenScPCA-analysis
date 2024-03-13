@@ -19,12 +19,6 @@ body:
     required: true
 - type: textarea
   attributes:
-    label: Additional data
-    description: Is there additional data you will need besides the current module input data?
-  validations:
-    required: true
-- type: textarea
-  attributes:
     label: Scientific literature
     description: Share any scientific literature that relates to the analysis.
   validations:
