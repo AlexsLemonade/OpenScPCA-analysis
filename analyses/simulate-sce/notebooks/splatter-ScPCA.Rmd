@@ -1,0 +1,66 @@
+---
+title: "Simulating Single Cell experiments from ScPCA data"
+output: html_notebook
+---
+
+```{r setup}
+suppressMessages({
+  library(SingleCellExperiment)
+})
+```
+
+```{r}
+sample_id <- "SCPCS000430"
+library_id <- "SCPCL000750"
+suffixes <- c( "_processed.rds", "_filtered.rds", "_unfiltered.rds")
+
+infiles <- file.path("data", sample_id, paste0(library_id, suffixes))
+
+sce <- readRDS(infiles[1])
+```
+
+```{r}
+ncells <- 100
+sce_subset <- sce[, sample.int(ncol(sce), ncells)]
+sce_sim <- sce_subset
+# splatter doesn't know new matrix types?
+sim_params <- splatter::splatEstimate(as.matrix(counts(sce_subset)))
+counts(sce_sim, withDimnames = FALSE) <- counts(splatter::splatSimulate(sim_params))
+
+
+
+sce_sim <- sce_sim |>
+  scater::logNormCounts()|>
+  scater::runPCA(ncomponents = 10) |> # we don't need all the PCA components
+  scater::runUMAP()
+```
+
+Are the same genes zero counted as before? That would be ideal, but maybe isn't the case.
+
+
+```{r}
+sce_sim
+```
+
+```{r}
+metadata(sce_sim)$miQC_model <- NULL
+readr::write_rds(sce_sim, paste0(infiles[1], "_sim_gz.rds"), compress = "gz")
+readr::write_rds(sce_sim, paste0(infiles[1], "_sim_bz.rds"), compress = "bz2")
+```
+
+
+```{r}
+sce2 <- readRDS(infiles[2])
+ncells <- 100
+sce2_subset <- sce2[, sample.int(ncol(sce), ncells)]
+sce2_sim <- sce2_subset
+# splatter doesn't know new matrix types?
+sim_params <- splatter::splatEstimate(as.matrix(counts(sce_subset)))
+counts(sce2_sim, withDimnames = FALSE) <- counts(splatter::splatSimulate(sim_params))
+```
+
+```{r}
+metadata(sce2_sim)$miQC_model <- NULL
+readr::write_rds(sce2_sim, paste0(infiles[2], "_sim_gz.rds"), compress = "gz")
+readr::write_rds(sce2_sim, paste0(infiles[2], "_sim_bz.rds"), compress = "bz2")
+```
