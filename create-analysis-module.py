@@ -54,7 +54,7 @@ def main() -> None:
     # fail if the module name is not a simple directory name
     if not re.search(r"^[A-Za-z0-9_\-]+$", args.name):
         sys.exit(
-            f"Module name should not contain spaces or special characters.\nExiting."
+            "Module name should not contain spaces or special characters.\nExiting."
         )
 
     # exit if the module directory already exists
