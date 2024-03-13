@@ -12,7 +12,7 @@ When you are working on your own analyses or proposing a change to the main code
 Any changes that you make should then be incorporated or added to that feature branch (see [Making commits](STUB-LINK)).
 Once your analysis or changes are complete, then you will create and file a pull request to the `main` branch of `OpenScPCA-analysis` to request to incorporate your additions into the main code base (see [Creating pull requests](STUB-LINK)).
 
-### Creating a feature branch
+## Creating a feature branch
 
 Follow these steps to create your feature branch:
 
