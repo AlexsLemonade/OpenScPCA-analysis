@@ -153,6 +153,7 @@ def main() -> None:
                 repos = list(CRAN = "https://p3m.dev/cran/latest"),
                 settings = list(
                     ppm.enabled = TRUE,
+                    r.version = "4.3.3",
                     bioconductor.version = "3.18"
                 )
             )
