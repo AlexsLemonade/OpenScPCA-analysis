@@ -1,0 +1,35 @@
+body:
+- type: textarea
+  attributes:
+    label: Existing analysis
+    description: Which existing analysis do you want to modify or update?
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Details of modification
+    description: Which aspects of the existing analysis module do you propose modifying?
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Describe your goals
+    description: What needs to be done to accomplish your goals? Please provide enough detail that would allow another participant to make the modification or update.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Scientific literature
+    description: Share any scientific literature that relates to the analysis.
+  validations:
+    required: false
+- type: textarea
+  attributes:
+    label: Other details
+    description: |
+      Please add any other relevant details.
+      Examples of information that would be helpful:
+            * Are the resource requirements different from what is already in place?
+            * Provide a general timeline, if possible.
+  validations:
+    required: false
