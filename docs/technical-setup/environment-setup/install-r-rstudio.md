@@ -59,7 +59,29 @@ Click the link to download the installer package and follow all installation ins
 
 
 
+## Install the RStudio IDE
 
+If you do not already have RStudio installed, you will need to [install the free RStudio Desktop](https://posit.co/download/rstudio-desktop/).
+This website shows Step 1 as installing R itself, which you can skip and proceed straight to Step 2, Install RStudio.
+
+Click the download link and follow all instructions to complete the installation.
+
+## Install R package dependencies
+
+There are two R packages that OpenScPCA will use frequently that we recommend installing before getting started:
+
+- `renv`
+  - OpenScPCA uses [the `renv` package](https://rstudio.github.io/renv/articles/renv.html) to manage R packages in each analysis module.
+- `BiocManager`
+  - You will need to use [Bioconductor packages](https://bioconductor.org/) to interact with ScPCA data in R environments.
+  [The `BiocManager` package](https://cran.r-project.org/web/packages/BiocManager/vignettes/BiocManager.html) is used to install Bioconductor packages.
+
+
+To install these R packages, open RStudio and enter the following command into the Console:
+
+```
+install.packages(c("renv", "BiocManager"))
+```
 
 
 ## Advanced considerations
