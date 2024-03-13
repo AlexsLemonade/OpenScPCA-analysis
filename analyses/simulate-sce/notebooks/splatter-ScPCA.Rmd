@@ -3,64 +3,162 @@ title: "Simulating Single Cell experiments from ScPCA data"
 output: html_notebook
 ---
 
+The data used in this notebook was previously downloaded with the following command:
+
+```
+./download-data.py --include "filtered,unfiltered,processed" --format "sce,anndata"
+```
+
+Note that we will only use the SCE data, but having the AnnData is useful for comparison in the final output.
+
+
 ```{r setup}
 suppressMessages({
   library(SingleCellExperiment)
 })
+
+# get the current data directory (data/current), tracing from to the repo root
+data_dir <- file.path(rprojroot::find_root(rprojroot::is_git_root), "data", "current")
+results_dir <- here::here("results", "simulated") # starts from this modules root, since it is an r project.
 ```
 
+For now, we will pick a single library to work with.
 ```{r}
-sample_id <- "SCPCS000430"
-library_id <- "SCPCL000750"
+project_id <- "SCPCP000015"
+sample_id <- "SCPCS000490"
+library_id <- "SCPCL000822"
+
 suffixes <- c( "_processed.rds", "_filtered.rds", "_unfiltered.rds")
 
-infiles <- file.path("data", sample_id, paste0(library_id, suffixes))
+infiles <- file.path(data_dir, project_id, sample_id, paste0(library_id, suffixes))
+outfiles <- file.path(results_dir, project_id, sample_id, paste0(library_id, suffixes))
 
-sce <- readRDS(infiles[1])
+sce <- readRDS(infiles[1]) # start with the processed file
 ```
+
+
+Start by creating a subset of the original data set and adjusting the metadata.
 
 ```{r}
 ncells <- 100
-sce_subset <- sce[, sample.int(ncol(sce), ncells)]
-sce_sim <- sce_subset
-# splatter doesn't know new matrix types?
-sim_params <- splatter::splatEstimate(as.matrix(counts(sce_subset)))
-counts(sce_sim, withDimnames = FALSE) <- counts(splatter::splatSimulate(sim_params))
+
+# reduce the data set to a smaller number of cells
+cell_subset <- sample.int(ncol(sce), ncells)
+sce_sim <- sce[, cell_subset]
 
 
+# remove participant id, but leave it as a string
+metadata(sce_sim)$sample_metadata$participant_id <- ""
 
+# remove any miQC model
+metadata(sce_sim)$miQC_model <- NULL
+
+# reduce the cell type data matrices, if present
+if (!is.null(metadata(sce_sim)$singler_results)) {
+  metadata(sce_sim)$singler_results <- metadata(sce_sim)$singler_results[cell_subset,]
+}
+if (!is.null(metadata(sce_sim)$cellassign_predictions)) {
+  metadata(sce_sim)$cellassign_predictions <- metadata(sce_sim)$cellassign_predictions[cell_subset,]
+}
+```
+
+Create a function to randomly select labels from a set, ensuring each label is included at least once.
+
+```{r}
+random_label<- function(label_set, n){
+  # randomly select n labels from the label set, ensuring each label is included at least once
+  # ensure labels are unique
+  label_set <- unique(label_set)
+  if (length(label_set) > n) {
+    stop("The number of labels must not be greater than the number requested")
+  }
+  r_labels <- sample(label_set, n, replace = TRUE)
+  # add each label at least once
+  idx <- sample.int(n, length(label_set))
+  r_labels[idx] <- label_set
+  return(r_labels)
+}
+
+```
+
+Modify the cluster and cell type labels in the subest SCE to ensure they are all represented
+
+```{r}
+# Adjust cluster/cell type labels, using original label sets
+
+# get label sets
+cluster_set <- unique(colData(sce)$cluster)
+cellassign_set <- unique(colData(sce)$cellassign_celltype_annotation)
+
+# create a mapping for singler ontology and annotation
+singler_df <- colData(sce)|>
+  data.frame()|>
+  dplyr::select(singler_celltype_ontology, singler_celltype_annotation) |>
+  dplyr::distinct()
+
+singler_dict <- setNames(
+  singler_df$singler_celltype_annotation,
+  singler_df$singler_celltype_ontology
+)
+
+colData(sce_sim)$cluster <- random_label(cluster_set, ncells)
+colData(sce_sim)$singler_celltype_ontology <- random_label(names(singler_dict), ncells)
+colData(sce_sim)$singler_celltype_annotation <- unname(
+  singler_dict[colData(sce_sim)$singler_celltype_ontology]
+)
+colData(sce_sim)$cellassign_celltype_annotation <- random_label(cellassign_set, ncells)
+```
+
+
+Now we can do the simulation.
+We will use the `splatter` package to simulate the data.
+Not sure whether we want to do simulations with groups, but we probably don't need to.
+
+```{r}
+# for simulation, get probabilities of each cluster
+# cluster_probs <- c(table(colData(sce)$cluster)/ncol(sce))
+sim_params <- splatter::splatEstimate(as.matrix(counts(sce_sim)))
+
+# sim_params <- splatter::setParams(sim_params, group.prob = cluster_probs)
+
+counts(sce_sim, withDimnames = FALSE) <- splatter::splatSimulate(sim_params)|>
+  counts()
+# recalculate dimension reduction
 sce_sim <- sce_sim |>
   scater::logNormCounts()|>
-  scater::runPCA(ncomponents = 10) |> # we don't need all the PCA components
-  scater::runUMAP()
+  scater::runPCA(10) |> # we don't need all the PCA components
+  scater::runUMAP(dimred = "PCA")
 ```
 
-Are the same genes zero counted as before? That would be ideal, but maybe isn't the case.
-
+Replace and update column stats
 
 ```{r}
-sce_sim
+# store coldata column names to restore order later
+colData_names <- names(colData(sce_sim))
+
+mito_detected_factor <- colData(sce_sim)$subsets_mito_detected / colData(sce_sim)$detected
+
+# remove stats that will be recalculated
+remove_stats <- c(
+  "sum",
+  "detected",
+  "total",
+  "subsets_mito_sum",
+  "subsets_mito_detected",
+  names(colData(sce_sim))[grep("altExp_.*_(sum|detected|percent)", names(colData(sce_sim)))]
+)
+colData(sce_sim)[,remove_stats] <- NULL
+
+sce_sim <- scuttle::addPerCellQC(sce_sim)
+colData(sce_sim)$subsets_mito_sum <- colData(sce_sim)$sum * colData(sce_sim)$subsets_mito_percent / 100
+colData(sce_sim)$subsets_mito_detected <- round(colData(sce_sim)$detected * mito_detected_factor)
+
+# restore column order
+colData(sce_sim) <- colData(sce_sim)[,colData_names]
+
 ```
 
 ```{r}
-metadata(sce_sim)$miQC_model <- NULL
-readr::write_rds(sce_sim, paste0(infiles[1], "_sim_gz.rds"), compress = "gz")
-readr::write_rds(sce_sim, paste0(infiles[1], "_sim_bz.rds"), compress = "bz2")
-```
-
-
-```{r}
-sce2 <- readRDS(infiles[2])
-ncells <- 100
-sce2_subset <- sce2[, sample.int(ncol(sce), ncells)]
-sce2_sim <- sce2_subset
-# splatter doesn't know new matrix types?
-sim_params <- splatter::splatEstimate(as.matrix(counts(sce_subset)))
-counts(sce2_sim, withDimnames = FALSE) <- counts(splatter::splatSimulate(sim_params))
-```
-
-```{r}
-metadata(sce2_sim)$miQC_model <- NULL
-readr::write_rds(sce2_sim, paste0(infiles[2], "_sim_gz.rds"), compress = "gz")
-readr::write_rds(sce2_sim, paste0(infiles[2], "_sim_bz.rds"), compress = "bz2")
+fs::dir_create(dirname(outfiles[1]))
+readr::write_rds(sce_sim, paste0(outfiles[1]), compress = "bz2")
 ```
