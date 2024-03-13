@@ -4,12 +4,22 @@
 
 The `OpenScPCA` project uses [`conda`](https://docs.anaconda.com/free/miniconda/index.html) to setup your software environment.
 `conda` is a command-line software management tool which helps you install and track specific versions of software in many programming languages.
-We also use `conda` to handle [software dependencies for Python-based analysis modules](STUB_LINK).
+
 This page provides instructions on how to install `conda` and use it to install certain software you will need to contribute to `OpenScPCA`.
 
-With `conda`, you can also set up different software environments on your computer.
-For example, you may have one project that uses Python version 3.6, and another that uses Python version 3.12.
-You can use `conda` to set upip differe
+
+### Why use `conda`?
+
+There are two main reasons we use `conda` for `OpenScPCA`:
+
+- `conda` provides a "one stop shop" for installing lots of different software
+    - Rather than having to figure out how to install every new software on its own, `conda` can handle it all for you.
+    - You'll use `conda` to install the software dependencies you'll need to contribute to `OpenScPCA`.
+- `conda` allows you set up different software environments for different projects
+    - For example, you may have two projects that require different versions of the same package.
+    With `conda`, you can create separate, fully isolated software environments for each project with different package versions.
+    - `OpenScPCA` analysis modules will use different `conda` environments to prevent conflicts and improve reproducibility.
+
 
 ## Install `conda`
 
@@ -18,55 +28,43 @@ Miniconda is lightweight version of the full `conda` platform and includes the `
 
 To install Miniconda, [download the installer for your operating system](https://docs.anaconda.com/free/miniconda/miniconda-install/), and follow all instructions.
 
+If you already have `conda` on your system, you do not need to re-install it.
+
 ## Setup `conda`
 
-To setup `conda` after installation, follow the instructions based on your operating system:
+Next, you will need to set certain `conda` settings and install a few packages that will allow you to contribute to `OpenScPCA` in general.
 
-### Setup `conda` on MacOS
+1. Open a prompt to interact with `conda`.
+The application to open depends on your operating system:
+    - _If you are on a macOS machine_, open the `Terminal` application.
+    To launch `Terminal`, search for "terminal" in spotlight and open the application.
 
-1. You can use `conda` via the `Terminal` application.
-To launch `Terminal`, search for "terminal" in spotlight and open the application.
 
+    - _If you are on a Windows machine_, open the `conda` prompt.
+    To launch the prompt, SOMETHING SOMETHING START MENU.
 
+1. Copy and paste the following code into the prompt, and hit enter.
+These commands will set the [recommended channels](https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/channels.html) `conda` should use to search for software. <!-- For an indented code block, no backticks - just tab in twice -->
 
-1. Copy and paste the following code into `Terminal`, and hit enter.
-These commands will set the [recommended channels](https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/channels.html) `conda` should use to search for software.
-
+        conda config --add channels defaults
+        conda config --add channels bioconda
+        conda config --add channels conda-forge
+        conda config --set channel_priority strict
 
     !!! info
-        If you get an error `conda: command not found`, this means `conda` was not properly installed.
+        If you are on a macOS machine and get the error `conda: command not found`, this means `conda` was not properly installed.
         Please DO SOMETHING TO GET HELP? IS IT OPEN A DISCUSSION? IS IT DM US? IS IT SEE OTHER DOCS FOR WAYS TO GET HELP?
+        OR DO WE NOT EVEN NEED THIS NOTE?
 
-1. In `Terminal`, use `cd` to navigate to the `OpenScPCA-analysis` repository you cloned. To make this easier, you can take the following steps:
-    - Type into the `Terminal`
-    - Open a `Finder` window
-    - Navigate to the repository folder
-    - In `Terminal`, type `cd ` (don't forget the space!), but do not press enter yet
-    - Click and drag the folder from `Finder` into the `Terminal`
-    - Finally, hit enter
-    <!-- TODO: Insert movie/gif here!! -->
+1. The last step is to add the packages to your base `conda` environment that you will need to contribute to `OpenScPCA`.
+Copy and paste the following command into `Terminal`, and hit enter.
+
+        conda install awscli jq pre-commit
 
 
-1. To confirm you are in the correct folder in `Terminal`, type the `ls` command.
-You should see this output:
-<!-- img of ls output -->
+    - The [`awscli` package](https://pypi.org/project/awscli/) will allow you to interact with [data stored in the Amazon Web Services (AWS) S3 bucket](STUB_LINK)
+    - The [`jq` package](https://pypi.org/project/jq/) provides JSON parsing capabilities
+    - The [`pre-commit`](https://pypi.org/project/pre-commit/) package will allow you to use [pre-commit hooks when contributing to analysis modules](STUB_LINK)
 
-1. install environment packages to create `openscpca` environment
-
-1.
-
-
-
-### Setup `conda` on Windows
-
-!!! note
-    This option is best for contributors who have previous experience with Git and the command line.
-    The OpenScPCA documentation will generally not present how to use Git via the command line.<br><br>
-    If you are new to Git, we do not recommend this option.
-
-Follow these steps to install and setup `conda`:
-
-1.
-
-
-
+All set!
+You can now safely close the prompt.
