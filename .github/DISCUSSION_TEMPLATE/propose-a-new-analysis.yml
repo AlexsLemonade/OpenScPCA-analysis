@@ -26,9 +26,9 @@ body:
 - type: textarea
   attributes:
     label: Input data
-    description: What input data might this analysis use? If you are not sure, please indicate this.
+    description: What input data might this analysis use?
   validations:
-    required: true
+    required: false
 - type: textarea
   attributes:
     label: Scientific literature
