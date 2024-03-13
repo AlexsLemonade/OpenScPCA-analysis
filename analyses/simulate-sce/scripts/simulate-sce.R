@@ -162,6 +162,8 @@ simulate_sce <- function(sce, ncells, processed){
   return(sce_sim)
 }
 
+
+# Main Script body ------------------------------------------------
 library(optparse)
 
 # Define and parse the command line arguments
@@ -194,13 +196,14 @@ option_list = list(
 
 opts <- parse_args(OptionParser(option_list = option_list))
 
-# loading this library later to speed option parsing/help
+# loading this library later to speed option parsing/help display
 suppressPackageStartupMessages({
   suppressWarnings(library(SingleCellExperiment)) #
 })
 
 set.seed(opts$seed)
 
+# get file list
 sce_files <- list.files(
   opts$sample_dir,
   pattern = "_(processed|filtered|unfiltered).rds$",
@@ -209,6 +212,7 @@ sce_files <- list.files(
 
 fs::dir_create(opts$output_dir)
 
+# perform simulations for each file
 purrr::walk(sce_files, \(sce_file){
   is_processed <- grepl("_processed.rds$", sce_file)
   # load the real data
