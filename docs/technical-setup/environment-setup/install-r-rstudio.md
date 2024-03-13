@@ -16,7 +16,7 @@ Please read these instructions carefully even if you already have any of these i
 The official Terminal project version of R is 4.3.3, so we recommend that you have at least this version installed.
 Please be aware that if you install a different R version and run existing modules, you may get different results.
 
-The instructions provided here will be suitable for the vast majority of contributors, but please refer to [this section](#advanced-considerations) for advanced considerations about R installation.
+The instructions provided here are suitable for the vast majority of contributors, but please refer to [this section](#advanced-considerations) for advanced considerations about R installation.
 
 
 ### Install R on macOS
@@ -28,7 +28,7 @@ The instructions provided here will be suitable for the vast majority of contrib
     - If you're on an Intel Mac, install R from the link "R-X.Y.Z-x86_64.pkg", where "X.Y.Z" is the specific R version.
 
 
-Next, you will need to install additional tools that will let you build R packages that you are likely to encounter in Terminal.
+Next, you need to install additional tools that will let you build R packages that you are likely to encounter in Terminal.
 These tools are available from the [Mac R Project](https://mac.r-project.org/tools/) and are listed under **Mandatory Tools**.
 
 1. Install "**Xcode** developer tools from Apple" as follows:
@@ -51,7 +51,7 @@ Click the link to download the installer package and follow all installation ins
 
 1. Navigate to the [Windows download page on the CRAN website](https://cran.r-project.org/bin/windows/base/), and follow instructions to download and install R.
 
-1. Next, you will need to install Rtools, which provides additional tools that will let you build R packages that you are likely to encounter in Terminal.
+2. Next, you need to install Rtools, which provides additional tools that will let you build R packages that you are likely to encounter in Terminal.
     - Navigate to the [Rtools download page](https://cran.r-project.org/bin/windows/Rtools/)
     - Click the Rtools version that matches the R version you just downloaded
     - On the next page, click the link "RtoolsXY installer" (where "XY" is the specific version you clicked) to download Rtools, and follow all installation instructions
@@ -61,19 +61,19 @@ Click the link to download the installer package and follow all installation ins
 
 ## Install the RStudio IDE
 
-If you do not already have RStudio installed, you will need to [install the free RStudio Desktop](https://posit.co/download/rstudio-desktop/).
+If you do not already have RStudio installed, you need to [install the free RStudio Desktop](https://posit.co/download/rstudio-desktop/).
 This website shows Step 1 as installing R itself, which you can skip and proceed straight to Step 2, Install RStudio.
 
 Click the download link and follow all instructions to complete the installation.
 
 ## Install R package dependencies
 
-There are two R packages that OpenScPCA will use frequently that we recommend installing before getting started:
+There are two R packages that OpenScPCA frequently uses that we recommend installing before getting started:
 
 - `renv`
   - OpenScPCA uses [the `renv` package](https://rstudio.github.io/renv/articles/renv.html) to manage R packages in each analysis module.
 - `BiocManager`
-  - You will need to use [Bioconductor packages](https://bioconductor.org/) to interact with ScPCA data in R environments.
+  - You need to use [Bioconductor packages](https://bioconductor.org/) to interact with ScPCA data in R environments.
   [The `BiocManager` package](https://cran.r-project.org/web/packages/BiocManager/vignettes/BiocManager.html) is used to install Bioconductor packages.
 
 
