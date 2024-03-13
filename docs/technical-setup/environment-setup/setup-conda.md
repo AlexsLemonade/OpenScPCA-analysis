@@ -60,6 +60,10 @@ These commands will set the [recommended channels](https://docs.conda.io/project
         Please DO SOMETHING TO GET HELP? IS IT OPEN A DISCUSSION? IS IT DM US? IS IT SEE OTHER DOCS FOR WAYS TO GET HELP?
         OR DO WE NOT EVEN NEED THIS NOTE?
 
+    !!! note
+        You may be prompted to enter `y` or `n` (yes or no) during this setup.
+        If/when this prompt appears, you should hit `y` to give `conda` permissions to proceed.
+
 1. The last step is to add the packages to your base `conda` environment that you will need to contribute to `OpenScPCA`.
 Copy and paste the following command into `Terminal`, and hit enter.
 
