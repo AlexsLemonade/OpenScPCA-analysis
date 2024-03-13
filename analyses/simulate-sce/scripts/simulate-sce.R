@@ -107,11 +107,11 @@ simulate_sce <- function(sce, ncells, processed){
 
 
   # Perform simulation ---------------------------------
-  sim_params <- splatter::splatEstimate(as.matrix(counts(sce_sim)))
+  sim_params <- splatter::simpleEstimate(as.matrix(counts(sce_sim)))
   # get spliced ratio
   spliced_ratio = sum(assay(sce_sim, "spliced"))/sum(counts(sce))
   counts(sce_sim, withDimnames = FALSE) <- counts(
-    splatter::splatSimulate(sim_params, verbose = FALSE)
+    splatter::simpleSimulate(sim_params, verbose = FALSE)
   )
   # make a spliced assay
   assay(sce_sim, "spliced") <- round(counts(sce_sim) * spliced_ratio)
@@ -127,8 +127,8 @@ simulate_sce <- function(sce, ncells, processed){
   # Add any altExps -------------------------------------
   altExpNames(sce_sim) |> purrr::walk(\(name){
     alt_exp <- altExps(sce_sim, name)
-    alt_params <- splatter::splatEstimate(as.matrix(counts(alt_exp)))
-    counts(altExp, withDimnames = FALSE) <- counts(splatter::splatSimulate(alt_params, verbose = FALSE))
+    alt_params <- splatter::simpleEstimate(as.matrix(counts(alt_exp)))
+    counts(altExp, withDimnames = FALSE) <- counts(splatter::simpleSimulate(alt_params, verbose = FALSE))
     if (processed) {
       logcounts(alt_exp, withDimnames = FALSE) <- log1p(counts(alt_exp))
     }
