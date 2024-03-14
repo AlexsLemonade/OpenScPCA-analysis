@@ -3,6 +3,10 @@ title: "Simulating Single Cell experiments from ScPCA data"
 output: html_notebook
 ---
 
+This notebook was used as exploration for the `simulate-sce.R` script.
+The code here is not fully current with that script, but has been left here for reference about the development process and for future use.
+
+
 The data used in this notebook was previously downloaded with the following command:
 
 ```
