@@ -47,7 +47,7 @@ renv::init()
 
 You can commit any changes introduced by running `renv::init()` to the repository.
 
-The `.Rprofile` file created by `renv::init()` will result in `renv` to automatically load its library if you launch `R` or `Rscript` from your module's root directory.
+The `.Rprofile` file created by `renv::init()` will cause `renv` to automatically activate its library if you launch `R` or `Rscript` from your module's root directory.
 
 #### Using `renv` with RStudio Projects
 
@@ -83,11 +83,11 @@ You can make `renv` include a package by loading it in a file called `dependenci
 !!! note
     If you [used `--use-renv` when creating your analysis module](STUB LINK), `components/dependencies.R` was already created.
     
-For instance, if you wanted to make sure `renv` was keeping track of the `scuttle` and `scRNAseq` packages, your module's `components/dependencies.R` would include the following:
+For instance, if you wanted to make sure `renv` was keeping track of the `scuttle` and `svglite` packages, your module's `components/dependencies.R` would include the following:
 
 ```r
 library(scuttle)
-library(scRNAseq)
+library(svglite)
 ```
 
 #### Restoring dependencies
