@@ -37,41 +37,57 @@ Here, we will limit our discussion to the most common commands we expect you to 
 !!! note
     If you [used `--use-renv` when creating your analysis module](STUB LINK), this step has been taken care of.
 
-To start using `renv` in your analysis module, you can run the following from the root directory of your analysis module:
+To start using `renv` in your analysis module, you can run the following R command from the root directory of your analysis module:
 
 ```r
 renv::init()
 ```
 
-[Which will create and selectively ignore a series of files, including the lockfile `renv.lock` that keeps track of the packages and versions being used.](https://rstudio.github.io/renv/reference/init.html)
+[This command](https://rstudio.github.io/renv/reference/init.html) will create and selectively ignore a series of files, including the lockfile `renv.lock` that keeps track of the packages and versions being used.
+
+You can commit any changes introduced by running `renv::init()` to the repository.
+
+The `.Rprofile` file created by `renv::init()` will cause `renv` to automatically activate its library if you launch `R` or `Rscript` from your module's root directory.
+
+#### Using `renv` with RStudio Projects
+
+If you are using [the RStudio IDE](STUB_LINK our docs on RStudio install) for developing your module, you might find it helpful to use [an RStudio Project](https://docs.posit.co/ide/user/ide/guide/code/projects.html) for your module in conjunction with `renv`.
+
+Following the linked directions, we recommend creating an RStudio Project from an existing directory (your module).
+You can commit the `.Rproj` file that is created to the repository.
+
+When you open the Project in RStudio, it will automatically source the `.Rprofile` file created by `renv::init()` and activate `renv` in your R session.
 
 #### Taking snapshots
 
-As you develop your analysis, you may install packages using `install.packages()` or `renv::install()`.
-You should periodically update the lockfile to make sure all dependencies are captured by using the following command in the root directory of your module ([reference](https://rstudio.github.io/renv/reference/restore.html)):
+As you develop your analysis, you may install packages using `install.packages()`, `renv::install()`, or `BiocManager::install()`.
+You should periodically update the lockfile to make sure all dependencies are captured by using the following R command in the root directory of your module ([reference](https://rstudio.github.io/renv/reference/restore.html)):
 
 ```r
 renv::snapshot()
 ```
 
-Commit the changes to your lockfile.
+When prompted, respond `y` to save the new packages in your lockfile.
+Commit the changes to your lockfile to the repository.
 
-You can use [`renv::status()`](https://rstudio.github.io/renv/reference/status.html) to check if there are inconsistencies between the module dependencies and the lockfile.
+You can use [`renv::status()`](https://rstudio.github.io/renv/reference/status.html) at any time to check if there are inconsistencies between the module dependencies and the lockfile.
 
 #### Pinning dependencies that are not captured automatically
 
-Taking [a snapshot using the default arguments will only capture packages that are used in your module](https://rstudio.github.io/renv/reference/snapshot.html), but there may be some other recommended package that you want to pin to a specific version.
+Taking [a snapshot using the default arguments will only capture packages that are used in your module and their required dependencies](https://rstudio.github.io/renv/reference/snapshot.html), but there may be some other _recommended_ package that you want to include and pin to a specific version.
 
-You can make `renv` include a packages by loading it in a file called `dependencies.R` in a directory called `components` within your analysis.
+For example, `ggplot2` needs the `svglite` package to save `.svg` files, but that package is not listed as a _requirement_, so `renv` may not know to track it, even if you have the package installed. 
+
+You can make `renv` include a package by loading it in a file called `dependencies.R` in a directory called `components` within your analysis.
 
 !!! note
     If you [used `--use-renv` when creating your analysis module](STUB LINK), `components/dependencies.R` was already created.
-
-For instance, if you wanted to make sure `renv` was keeping track of the `scuttle` and `scRNAseq` packages, your module's `components/dependencies.R` would include the following:
+    
+For instance, if you wanted to make sure `renv` was keeping track of the `scuttle` and `svglite` packages, your module's `components/dependencies.R` would include the following:
 
 ```r
 library(scuttle)
-library(scRNAseq)
+library(svglite)
 ```
 
 #### Restoring dependencies
