@@ -121,7 +121,7 @@ See the [reporting section of the Code of Conduct](https://github.com/AlexsLemon
 
 ## Email
 
-You can email (email@email.email) with queries related to administration.
+You can email [report@ccdatalab.org](mailto:report@ccdatalab.org) with queries related to administration.
 
 You can email us to: 
 - Report security issues
@@ -129,5 +129,5 @@ You can email us to:
 - Copyright violations
 - Other such administration related items
 
-If you are not sure where to direct your question, please ask in Slack or Github Discussions.
+If you are not sure where to direct your question, please ask in [Slack](https://cancer-data-science.slack.com/) or [Github Discussions](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions).
 If it is a private matter, you may [direct message](#direct-messages) one of the Data Lab members on Slack.
