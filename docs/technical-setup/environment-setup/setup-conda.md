@@ -1,9 +1,10 @@
-# Install and setup conda
+# Install and set up conda
 
 ## What is conda?
 
 The OpenScPCA project uses [conda](https://docs.anaconda.com/free/miniconda/index.html) to set up your software environment.
-conda is a command-line software management tool which helps you install and track specific versions of software in many programming languages.
+conda is a command-line software management tool which helps you install and track specific versions of software.
+It also allows you to have multiple software environments with different sets of packages on the same computer.
 
 This page provides instructions on how to install conda and use it to install certain software you will need to contribute to OpenScPCA.
 
@@ -48,21 +49,22 @@ The application to open depends on your operating system:
     TODO: Add screenshot.
 
 1. Copy and paste the following code into the terminal, and hit enter.
-These commands will set the [recommended channels](https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/channels.html) conda should use to search for software. <!-- For an indented code block, no backticks - just tab in twice -->
+These commands will set the [recommended channels](https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/channels.html) conda should use to search for software.
+    - If you are on a macOS machine and get the error `conda: command not found`, you may need to try again in a new terminal window.
+    If this doesn't help, you can [get help here](STUB_LINK somewhere to get help).
 
-        conda config --add channels defaults
-        conda config --add channels bioconda
-        conda config --add channels conda-forge
-        conda config --set channel_priority strict
-
-    !!! info
-        If you are on a macOS machine and get the error `conda: command not found`, this means conda was not properly installed.
-        Please DO SOMETHING TO GET HELP? IS IT OPEN A DISCUSSION? IS IT DM US? IS IT SEE OTHER DOCS FOR WAYS TO GET HELP?
-        OR DO WE NOT EVEN NEED THIS NOTE?
+    ```sh
+    conda config --add channels defaults
+    conda config --add channels bioconda
+    conda config --add channels conda-forge
+    conda config --set channel_priority strict
+    ```
 
     !!! note
-        You may be prompted to enter `y` or `n` (yes or no) during this setup.
-        If/when this prompt appears, you should hit `y` to give conda permissions to proceed.
+        You may be prompted to enter **`y`** or **`n`** (yes or no) during this setup.
+        If/when this prompt appears, you should hit **`y`** to give conda permissions to proceed.
+
+
 
 1. The last step is to install the packages that you will need to contribute to OpenScPCA into your `base` conda environment.
 `base` is the default conda environment, the one that will be active when you first open your terminal.
@@ -75,4 +77,4 @@ Copy and paste the following command into the terminal, and hit enter.
     - The [`jq` package](https://pypi.org/project/jq/) provides JSON parsing capabilities
     - The [`pre-commit`](https://pypi.org/project/pre-commit/) package will allow you to use [pre-commit hooks when contributing to analysis modules](STUB_LINK)
 
-All set!
+All set! 🎉
