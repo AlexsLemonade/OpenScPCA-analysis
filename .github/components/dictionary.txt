@@ -36,6 +36,7 @@ precommit
 README
 redistribution
 renv
+repo
 reproducibility
 ScPCA
 socio
