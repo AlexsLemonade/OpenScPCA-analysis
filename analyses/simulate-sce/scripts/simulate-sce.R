@@ -185,7 +185,6 @@ simulate_sce <- function(sce, ncells, processed) {
   # store column names to restore order later
   coldata_names <- names(colData(sce_sim))
 
-  mito_detected_factor <- colData(sce_sim)$subsets_mito_detected / colData(sce_sim)$detected
 
   # remove stats that will be recalculated
   remove_stats <- c(
@@ -193,14 +192,12 @@ simulate_sce <- function(sce, ncells, processed) {
     "detected",
     "total",
     "subsets_mito_sum",
-    "subsets_mito_detected",
     names(colData(sce_sim))[grep("altexps_.*_(sum|detected|percent)", names(colData(sce_sim)))]
   )
   colData(sce_sim)[, remove_stats] <- NULL
 
   sce_sim <- scuttle::addPerCellQC(sce_sim)
   colData(sce_sim)$subsets_mito_sum <- colData(sce_sim)$sum * colData(sce_sim)$subsets_mito_percent / 100
-  colData(sce_sim)$subsets_mito_detected <- round(colData(sce_sim)$detected * mito_detected_factor)
 
   # restore column order
   colData(sce_sim) <- colData(sce_sim)[, coldata_names]
