@@ -11,7 +11,7 @@ OpenScPCA community members will use the following tools for communication and c
 [GitHub Discussions](https://docs.github.com/en/discussions/quickstart) is the community forum for the project, [which can be found here](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions) in the `OpenScPCA-Analysis` repository.
 You are most likely to engage with the project for the first time via Discussions.
 
-⚠️Please read this [pinned discussion](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/111) from the Data Lab before creating your first post!
+Please read this [pinned discussion](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/111) from the Data Lab before creating your first post!
 
 ### How and When to Use Discussions
 
@@ -61,7 +61,7 @@ We always aim for a ratio of one issue to one pull request.
 * `Examples of good and bad issues (STUB_LINK)`
 * `Issue templates (STUB_LINK)`
   
-⚠️ Please engage with project maintainers via [Discussions](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions) before filing your first issue in the `OpenScPCA-Analysis` repository. 
+Please engage with project maintainers via [Discussions](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions) before filing your first issue in the `OpenScPCA-Analysis` repository. 
 We will provide you with further guidance!
 
 ### How and When to Use Issues
@@ -84,9 +84,9 @@ We will provide you with further guidance!
 
 ## Slack
 
-### #open-scpca Slack channel
+### Open-ScPCA Slack channel
 
-As part of onboarding, we will add you to the `#open-scpca` channel in our [Cancer Data Science Slack](https://cancer-data-science.slack.com/). 
+We will add you to the `#open-scpca` channel in our [Cancer Data Science Slack](https://cancer-data-science.slack.com/). 
 After joining, please feel free to send a message on `#open-scpca` to  introduce yourself to the community!
 
 ### When to Use the Slack Channel
@@ -129,5 +129,5 @@ You can email us to:
 - Copyright violations
 - Other such administration related items
 
-If you are not sure where to direct your question, please ask in [Slack](https://cancer-data-science.slack.com/) or [Github Discussions](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions).
+If you are not sure where to direct your question, please ask in [Slack](https://cancer-data-science.slack.com/) or [GitHub Discussions](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions).
 If it is a private matter, you may [direct message](#direct-messages) one of the Data Lab members on Slack.
