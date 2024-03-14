@@ -17,18 +17,14 @@ Any files that are in the `Staged Files` section will be included in your commit
 If you wish to include all changes to all files, use the `Stage all changes` button.
 
 <figure markdown="span">
-    ![Unstaged files](../../../../img/making-commits-1.png){width="600"}
-</figure>
-
-<figure markdown="span">
-    ![Staged files](../../../../img/making-commits-2.png){width="600"}
+    ![Unstaged files](../../../../img/making-commits-1.png){width="1200"}
 </figure>
 
 2. Write a commit message by filling in the `Summary` box.
 This should be a short message that describes what changes are being made with that commit.
 
 <figure markdown="span">
-    ![Commit message](../../../../img/making-commits-3.png){width="600"}
+    ![Commit message](../../../../img/making-commits-2.png){width="450"}
 </figure>
 
 3. Click on `Stage files/changes to commit` to make the commit.
@@ -36,7 +32,7 @@ This action ensures that your commit, and any changes associated with that commi
 You should now see a new line with your commit message connected to your branch name in GitKraken.
 
 <figure markdown="span">
-    ![Commit change](../../../../img/making-commits-4.png){width="600"}
+    ![Commit change](../../../../img/making-commits-3.png){width="1000"}
 </figure>
 
 You have now successfully committed your changes to your feature branch!
