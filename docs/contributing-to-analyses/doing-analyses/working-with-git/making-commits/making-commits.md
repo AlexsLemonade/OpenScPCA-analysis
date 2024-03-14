@@ -1,8 +1,8 @@
 # Making commits
 
-Once you have added code for your analyses (or made changes to existing code) that you are happy with, you will need to commit your changes to your feature branch.
-A commit in Git ensures that the new file or changes to an existing file are saved.
-For each commit, a unique ID, or hash, will be assigned to identify that commit, allowing you to easily track changes.
+Once you have added or modified code for your analyses that you are happy with, you will need to commit your changes to your feature branch.
+A Git commit ensures that the new file or changes to an existing file are saved under version control.
+For each commit, a unique ID (also known as a hash) will be assigned to identify that commit, allowing you to easily track changes.
 
 !!! note
     For more information on commits, see [GitHub's documentation on commits](https://docs.github.com/en/pull-requests/committing-changes-to-your-project/creating-and-editing-commits/about-commits).
