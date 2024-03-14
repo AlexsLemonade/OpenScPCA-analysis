@@ -45,6 +45,18 @@ renv::init()
 
 [This command](https://rstudio.github.io/renv/reference/init.html) will create and selectively ignore a series of files, including the lockfile `renv.lock` that keeps track of the packages and versions being used.
 
+You can commit any changes introduced by running `renv::init()` to the repository.
+
+#### Using `renv` with RStudio Projects
+
+If you are using [the RStudio IDE](STUB_LINK our docs on RStudio install) for developing your module, you might find it helpful to use [an RStudio Project](https://docs.posit.co/ide/user/ide/guide/code/projects.html) for your module in conjunction with `renv`.
+
+Following the linked directions, we recommend creating an RStudio Project from an existing directory (your module).
+You can commit the `.Rproj` file that is created to the repository.
+
+When you open the Project in RStudio, it will automatically source the `.Rprofile` file created by `renv::init()` and activate `renv` in your R session.
+
+
 #### Taking snapshots
 
 As you develop your analysis, you may install packages using `install.packages()`, `renv::install()`, or `BiocManager::install()`.
