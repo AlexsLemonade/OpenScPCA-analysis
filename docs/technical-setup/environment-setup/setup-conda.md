@@ -38,11 +38,7 @@ Next, you will need to set certain conda settings and install a few packages tha
 1. Open a terminal (command line prompt) to interact with conda.
 The application to open depends on your operating system:
     - _If you are on a macOS machine_, open the Terminal application.
-    To launch Terminal, search for "terminal" in spotlight and open the application.
-    <figure markdown="span">
-        ![Launch the Terminal application.](../../img/terminal-spotlight.png){width="425"}
-    </figure>
-
+    Please refer to [this documentation](STUB_LINK) about how to open and use the Terminal.
 
     - _If you are on a Windows machine_, open the conda prompt.
     To launch the prompt, SOMETHING SOMETHING START MENU.
