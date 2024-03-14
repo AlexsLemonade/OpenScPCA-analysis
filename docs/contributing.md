@@ -93,8 +93,6 @@ This sentence should link to the [pull request documentation](STUB_LINK).
 ## Adding images
 
 All image files should be placed in `docs/img`.
-Try to size images to roughly 2X the display size; this will allow the images to look ok on high-res displays without the files being too large.
-
 To include an image in a docs file, use the following syntax to center the image on the page:
 
 ```
@@ -102,6 +100,14 @@ To include an image in a docs file, use the following syntax to center the image
       ![alt text](relative link to image file){width="number of pixels"}
     </figure>
 ```
+
+When adding the image file itself, try to make sure that its width is roughly 2X the number of pixels you specify in the docs.
+For example, you might follow this procedure:
+
+- Create an image file (don't worry about the size yet)
+- Add the image to your docs file and determine a good pixel width for the embedded figure with some trial/error
+- If needed, resize the image file itself to be 2X the pixel width you specified in the embedded figure
+
 
 ## Phrasing and other syntax
 
