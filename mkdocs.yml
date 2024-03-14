@@ -45,7 +45,7 @@ nav:
     - technical-setup/fork-the-repo.md
     - technical-setup/clone-the-repo.md
   - Tools for communication:   # Slack, issues, discussions
-    - communications-tools/index.md
+    - communications-tools/tools-for-communication.md
   - Contributing to analyses:  # Setting up an analysis, all the git stuff
     - contributing-to-analyses/index.md
     - Doing an analysis:
