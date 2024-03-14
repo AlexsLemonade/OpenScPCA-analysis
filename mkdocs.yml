@@ -45,15 +45,13 @@ nav:
     - technical-setup/fork-the-repo.md
     - technical-setup/clone-the-repo.md
   - Tools for communication:   # Slack, issues, discussions
-    - communications-tools/index.md
+    - communications-tools/tools-for-communication.md
   - Contributing to analyses:  # Setting up an analysis, all the git stuff
     - contributing-to-analyses/index.md
     - Doing an analysis:
       - contributing-to-analyses/doing-analyses/index.md
-      - Working with Git: # Creating branches, adding commits, all git interactions
-        - contributing-to-analyses/doing-analyses/working-with-git/index.md
-        - contributing-to-analyses/doing-analyses/working-with-git/working-with-branches.md
-        - Making commits: # making a commit and troubleshooting
+    - Working with Git: # Creating branches, adding commits, all git interactions
+      - contributing-to-analyses/working-with-git/working-with-branches.md
           - contributing-to-analyses/doing-analyses/working-with-git/making-commits/index.md
   - Software platforms:            # LSfR, AWS, Docker, etc
     - software-platforms/index.md
