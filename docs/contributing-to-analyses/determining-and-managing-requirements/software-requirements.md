@@ -37,7 +37,7 @@ Here, we will limit our discussion to the most common commands we expect you to 
 !!! note
     If you [used `--use-renv` when creating your analysis module](STUB LINK), this step has been taken care of.
 
-To start using `renv` in your analysis module, you can run the following from the root directory of your analysis module:
+To start using `renv` in your analysis module, you can run the following R command from the root directory of your analysis module:
 
 ```r
 renv::init()
@@ -48,7 +48,7 @@ renv::init()
 #### Taking snapshots
 
 As you develop your analysis, you may install packages using `install.packages()`, `renv::install()`, or `BiocManager::install()`.
-You should periodically update the lockfile to make sure all dependencies are captured by using the following command in the root directory of your module ([reference](https://rstudio.github.io/renv/reference/restore.html)):
+You should periodically update the lockfile to make sure all dependencies are captured by using the following R command in the root directory of your module ([reference](https://rstudio.github.io/renv/reference/restore.html)):
 
 ```r
 renv::snapshot()
@@ -62,14 +62,14 @@ You can use [`renv::status()`](https://rstudio.github.io/renv/reference/status.h
 #### Pinning dependencies that are not captured automatically
 
 Taking [a snapshot using the default arguments will only capture packages that are used in your module and their required dependencies](https://rstudio.github.io/renv/reference/snapshot.html), but there may be some other _recommended_ package that you want to include and pin to a specific version.
-For example, `ggplot2` needs the `svglite` package to save `.svg` files, but that package is not listed as a _requirement_, so `renv` may not know to track it, even if you have the package installed. 
-If your code outputs `.svg` files, you might need to add `library(svglite)` to dependences.)
 
-You can make `renv` include a packages by loading it in a file called `dependencies.R` in a directory called `components` within your analysis.
+For example, `ggplot2` needs the `svglite` package to save `.svg` files, but that package is not listed as a _requirement_, so `renv` may not know to track it, even if you have the package installed. 
+
+You can make `renv` include a package by loading it in a file called `dependencies.R` in a directory called `components` within your analysis.
 
 !!! note
     If you [used `--use-renv` when creating your analysis module](STUB LINK), `components/dependencies.R` was already created.
-
+    
 For instance, if you wanted to make sure `renv` was keeping track of the `scuttle` and `scRNAseq` packages, your module's `components/dependencies.R` would include the following:
 
 ```r
