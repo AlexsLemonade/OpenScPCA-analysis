@@ -29,7 +29,7 @@ Miniconda is lightweight version of the full conda platform and includes the con
 
 To install Miniconda, [download the installer for your operating system](https://docs.anaconda.com/free/miniconda/), and follow all instructions.
 
-  - If you are on a macOS computer, be sure to downlod one of the links ending in `pkg`, _not `bash`_:
+  - If you are on a macOS computer, be sure to download one of the links ending in `pkg`, _not `bash`_:
     - If you are on an Apple Silicon (M1-3) mac, download `Miniconda3 macOS Apple M1 64-bit pkg`
     - If you are on an Intel mac, download `Miniconda3 macOS Intel x86 64-bit pkg`
 
