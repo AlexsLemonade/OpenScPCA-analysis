@@ -28,17 +28,17 @@ Most contents are preserved in original form, but some are recalculated from the
 | `alevinfry_version`            | string                          | keep                                    |
 | `af_permit_type`               | string                          | keep                                    |
 | `af_resolution`                | string                          | keep                                    |
-| `usa_mode`                     | bool                            | keep                                    |
+| `usa_mode`                     | boolean                         | keep                                    |
 | `af_num_cells`                 | string                          | keep                                    |
 | `tech_version`                 | string                          | keep                                    |
 | `assay_ontology_term_id`       | string                          | keep                                    |
 | `seq_unit`                     | string                          | keep                                    |
 | `transcript_type`              | vector (string)                 | keep                                    |
-| `include_unspliced`            | bool                            | keep                                    |
+| `include_unspliced`            | boolean                         | keep                                    |
 | `sample_metadata`              | data frame of metadata          | mostly keep, see below                  |
 | `sample_type`                  | string                          | keep                                    |
 | `filtering_method`             | string                          | keep                                    |
-| `miQC_model`                   | flexmix model object            | remove                                  |
+| `miQC_model`                   | `flexmix` model object          | remove                                  |
 | `prob_compromised_cutoff`      | float                           | keep                                    |
 | `scpca_filter_method`          | string                          | keep                                    |
 | `min_gene_cutoff`              | integer                         | keep                                    |
@@ -47,13 +47,13 @@ Most contents are preserved in original form, but some are recalculated from the
 | `cluster_algorithm`            | string                          | keep                                    |
 | `cluster_weighting`            | string                          | keep                                    |
 | `cluster_nn`                   | integer                         | keep                                    |
-| `singler_results`              | DataFrame of singleR statistics | reduce rows to simulated cell count     |
+| `singler_results`              | DataFrame of SingleR results    | reduce rows to simulated cell count     |
 | `singler_reference`            | string                          | keep                                    |
 | `singler_reference_label`      | string                          | keep                                    |
 | `singler_reference_source`     | string                          | keep                                    |
 | `singler_reference_version`    | string                          | keep                                    |
 | `celltype_methods`             | vector(string)                  | keep                                    |
-| `cellassign_predictions`       | dataframe of cellassign probs   | reduce rows to simulated cell count     |
+| `cellassign_predictions`       | dataframe of CellAssign results | reduce rows to simulated cell count     |
 | `cellassign_reference`         | string                          | keep                                    |
 | `cellassign_reference_source`  | string                          | keep                                    |
 | `cellassign_reference_version` | string                          | keep                                    |
@@ -76,8 +76,8 @@ Most contents are preserved in original form, but some are recalculated from the
 | `tissue_location`                          | string   | keep            |
 | `disease_timing`                           | string   | keep            |
 | `organism`                                 | string   | keep            |
-| `is_xenograft`                             | bool     | keep            |
-| `is_cell_line`                             | bool     | keep            |
+| `is_xenograft`                             | boolean  | keep            |
+| `is_cell_line`                             | boolean  | keep            |
 | `development_stage_ontology_term_id`       | string   | keep            |
 | `sex_ontology_term_id`                     | string   | keep            |
 | `organism_ontology_id`                     | string   | keep            |

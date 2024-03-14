@@ -1,9 +1,11 @@
 ableist
 al
 ALSF
+altExp
 AnnData
 bioinformatics
 Carpentries
+CellAssign
 conda
 config
 discoverable
@@ -42,12 +44,14 @@ renv
 reproducibility
 SCE
 ScPCA
+SingleR
 socio
 Stumptown
 synched
 trainings
 transphobic
 triaged
+UMAP
 WIPO
 WisCon
 WSL
