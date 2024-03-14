@@ -118,3 +118,16 @@ We may direct you back to the `#open-scpca` channel or to another staff member w
 
 In some cases, you may use Slack to report a concern to a Data Lab staff member.
 See the [reporting section of the Code of Conduct](https://github.com/AlexsLemonade/OpenScPCA-admin/blob/main/code-of-conduct/code-of-conduct.md#report-an-incident) to learn more about when to use Slack for reporting.
+
+## Email
+
+You can email (email@email.email) with queries related to administration.
+
+You can email us to: 
+- Report security issues
+- Make a non-anonymous code of conduct violation report
+- Copyright violations
+- Other such administration related items
+
+If you are not sure where to direct your question, please ask in slack or Github Discussions.
+If it is a private matter, you may [direct message](#direct-messages) one of the Data Lab members on Slack.
