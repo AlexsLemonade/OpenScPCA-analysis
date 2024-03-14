@@ -31,6 +31,7 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+  - pymdownx.details     # https://squidfunk.github.io/mkdocs-material/setup/extensions/python-markdown-extensions/#details
 
 
 # Here is the basic structure of our navigation setup.

@@ -40,13 +40,18 @@ If you already have conda on your system, you do not need to re-install it.
 Next, you will need to set certain conda settings and install a few packages that will allow you to contribute to OpenScPCA in general.
 
 1. Open a terminal (command line prompt) to interact with conda.
-The application to open depends on your operating system:
-    - _If you are on a macOS machine_, open the Terminal application.
-    Please refer to [this documentation](STUB_LINK) about how to open and use the Terminal.
 
-    - _If you are on a Windows machine_, open the conda prompt.
-    To launch the prompt, SOMETHING SOMETHING START MENU.
-    TODO: Add screenshot.
+    ??? info "New to the terminal?"
+
+        If you are new to the terminal, we recommend you start with a general introduction.
+        Here are a few we resources we suggest:
+
+        - macOS
+            - [How to Use Terminal on a Mac: A Beginner's Guide](https://www.makeuseof.com/tag/beginners-guide-mac-terminal/)
+            - [Video: Using the Terminal on macOS for beginners](https://www.youtube.com/watch?v=dWFMRp6KtlQ)
+        - Windows
+            - PENDING: [Getting Started with Powershell](https://learn.microsoft.com/en-us/powershell/scripting/learn/ps101/01-getting-started?view=powershell-7.4)
+
 
 1. Copy and paste the following code into the terminal, and hit enter.
 These commands will set the [recommended channels](https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/channels.html) conda should use to search for software.
