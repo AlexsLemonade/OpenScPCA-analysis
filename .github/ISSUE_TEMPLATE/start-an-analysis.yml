@@ -22,7 +22,8 @@ body:
       label: Describe the goals of this analysis module.
       description: |
         Summarize the overall scientific goals of the analysis from the discussion.
-        Tell us about what the code in the module will do to help guide code review.
+        Tell us about what the code in the module will do. 
+        This will help guide code review when you file your pull request(s).
     validations:
       required: true
 
@@ -48,7 +49,11 @@ body:
       label: What computational resources will be required?
       description: |
         Please provide any information about the required computational resources for the module to help us prepare or allocate resources.
-        For example, does this analysis require a GPU? Is a certain amount of memory required? Can this be accomplished on a laptop?
+        For example:
+        
+        - Does this analysis require a GPU? 
+        - Is a certain amount of memory required? 
+        - Can this be accomplished on a laptop?
     validations:
       required: false
 
