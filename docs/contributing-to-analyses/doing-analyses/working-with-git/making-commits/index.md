@@ -5,7 +5,7 @@ A Git commit ensures that the new file or changes to an existing file are saved 
 For each commit, a unique ID (also known as a hash) will be assigned to identify that commit, allowing you to easily track changes.
 
 !!! note
-    For more information on commits, see [GitHub's documentation on commits](https://docs.github.com/en/pull-requests/committing-changes-to-your-project/creating-and-editing-commits/about-commits).
+    For more information on commits, see [GitHub's documentation on commits](https://docs.github.com/en/pull-requests/committing-changes-to-your-project/creating-and-editing-commits/about-commits) or this helpful [video describing commits with GitKraken](https://www.youtube.com/watch?v=XfDbGgSwa5I).
 
 ## How to make a commit
 
@@ -40,4 +40,3 @@ You should now see a new line with your commit message connected to your branch 
 </figure>
 
 You have now successfully committed your changes to your feature branch!
-If you still have questions, check out [this tutorial on making commits with GitKraken](https://www.gitkraken.com/learn/git/tutorials/how-to-git-commit).
