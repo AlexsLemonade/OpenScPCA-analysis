@@ -27,7 +27,11 @@ There are two main reasons we use conda for OpenScPCA:
 We recommend installing [Miniconda](https://docs.anaconda.com/free/miniconda/index.html) to obtain conda.
 Miniconda is lightweight version of the full conda platform and includes the conda tool itself, Python, and a few other commonly-used packages.
 
-To install Miniconda, [download the installer for your operating system](https://docs.anaconda.com/free/miniconda/miniconda-install/), and follow all instructions.
+To install Miniconda, [download the installer for your operating system](https://docs.anaconda.com/free/miniconda/), and follow all instructions.
+
+  - If you are on a macOS computer, be sure to downlod one of the links ending in `pkg`, _not `bash`_:
+    - If you are on an Apple Silicon (M1-3) mac, download `Miniconda3 macOS Apple M1 64-bit pkg`
+    - If you are on an Intel mac, download `Miniconda3 macOS Intel x86 64-bit pkg`
 
 If you already have conda on your system, you do not need to re-install it.
 
@@ -56,21 +60,29 @@ These commands will set the [recommended channels](https://docs.conda.io/project
     conda config --set channel_priority strict
     ```
 
-    !!! note
-        You may be prompted to enter **`y`** or **`n`** (yes or no) during this setup.
-        If/when this prompt appears, you should hit **`y`** to give conda permissions to proceed.
-
-
 
 1. The last step is to install the packages that you will need to contribute to OpenScPCA into your `base` conda environment.
 `base` is the default conda environment, the one that will be active when you first open your terminal.
 Copy and paste the following command into the terminal, and hit enter.
 
-        conda install awscli jq pre-commit
-
+    ```sh
+    conda install awscli jq pre-commit
+    ```
 
     - The [`awscli` package](https://pypi.org/project/awscli/) will allow you to interact with [data stored in the Amazon Web Services (AWS) S3 bucket](STUB_LINK)
     - The [`jq` package](https://pypi.org/project/jq/) provides JSON parsing capabilities
     - The [`pre-commit`](https://pypi.org/project/pre-commit/) package will allow you to use [pre-commit hooks when contributing to analysis modules](STUB_LINK)
+
+    !!! note
+        You may be prompted to enter **`y`** or **`n`** (yes or no) during this setup.
+        If/when this prompt appears, you should hit **`y`** to give conda permissions to proceed.
+
+
+1. At the end of the installation, you should see these messages in the terminal which indicate successful installation:
+
+    <figure markdown="span">
+        ![Conda completed install output.](../../img/conda-success.png){width="275"}
+    </figure>
+
 
 All set! 🎉
