@@ -53,6 +53,8 @@ nav:
       - Working with Git: # Creating branches, adding commits, all git interactions
         - contributing-to-analyses/doing-analyses/working-with-git/index.md
         - contributing-to-analyses/doing-analyses/working-with-git/working-with-branches.md
+        - Making commits: # making a commit and troubleshooting
+          - contributing-to-analyses/doing-analyses/working-with-git/making-commits/making-commits.md
   - Software platforms:            # LSfR, AWS, Docker, etc
     - software-platforms/index.md
   - Getting Help and FAQ:      # troubleshooting and FAQ
