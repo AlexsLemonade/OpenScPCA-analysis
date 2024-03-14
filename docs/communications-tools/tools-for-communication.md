@@ -129,5 +129,5 @@ You can email us to:
 - Copyright violations
 - Other such administration related items
 
-If you are not sure where to direct your question, please ask in slack or Github Discussions.
+If you are not sure where to direct your question, please ask in Slack or Github Discussions.
 If it is a private matter, you may [direct message](#direct-messages) one of the Data Lab members on Slack.
