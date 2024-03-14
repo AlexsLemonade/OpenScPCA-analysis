@@ -138,7 +138,7 @@ Moving forward, you should be able to install any Intel-based package into the e
 
 ### Adding software to the environment and tracking installed software
 
-If there is additional software you intend to use for a module or discover is required, you can add it with the `conda install` command when the environment is activated.
+If there is additional software you intend to use or discover is required for a module, you can add it with the `conda install` command when the environment is activated.
 Follow installing with an update to the `environment.yml` file with that package and the dependencies that were installed.
 
 For example, to install the `pandas` package and record it in the `environment.yml` file, you would run the following commands:
