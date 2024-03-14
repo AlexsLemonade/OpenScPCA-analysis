@@ -87,7 +87,7 @@ We will provide you with further guidance!
 ### #open-scpca Slack channel
 
 As part of onboarding, we will add you to the `#open-scpca` channel in our [Cancer Data Science Slack](https://cancer-data-science.slack.com/). 
-After joining, please feel free to send a message to  introduce yourself to the community!
+After joining, please feel free to send a message on `#open-scpca` to  introduce yourself to the community!
 
 ### When to Use the Slack Channel
 
