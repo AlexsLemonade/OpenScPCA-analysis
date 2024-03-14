@@ -14,8 +14,8 @@ theme:
     - search.suggest         # displays in light gray how you might complete the word
     - navigation.tabs        # persistent navbar on the top
     - navigation.tabs.sticky # sticky navbar
-    - navigation.sections    # enables sections along the left side bar via nested directories in docs/
     - navigation.indexes     # allow index pages to serve as overview pages for sections
+    - navigation.expand      # collapsible sections are expanded by default
 
 plugins:
   - search  # search bar
@@ -24,6 +24,8 @@ markdown_extensions:
   - admonition  # https://squidfunk.github.io/mkdocs-material/setup/extensions/python-markdown/#admonition
   - attr_list   # https://github.com/squidfunk/mkdocs-material/blob/master/docs/setup/extensions/python-markdown.md#attribute-lists
   - md_in_html  # https://squidfunk.github.io/mkdocs-material/setup/extensions/python-markdown/#markdown-in-html
+
+
 # Here is the basic structure of our navigation setup.
 #nav:
 #  - Navbar section: <!-- Contents for this navbar section are stored in the directory called `section-path` -->
@@ -46,6 +48,10 @@ nav:
     - communications-tools/index.md
   - Contributing to analyses:  # Setting up an analysis, all the git stuff
     - contributing-to-analyses/index.md
+    - Doing an analysis:
+      - contributing-to-analyses/doing-analyses/index.md
+      - Working with Git: # Creating branches, adding commits, all git interactions
+        - contributing-to-analyses/doing-analyses/working-with-git/index.md
     - contributing-to-analyses/determining-and-managing-requirements/index.md
   - Software platforms:            # LSfR, AWS, Docker, etc
     - software-platforms/index.md
