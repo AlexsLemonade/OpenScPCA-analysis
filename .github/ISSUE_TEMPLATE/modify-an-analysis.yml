@@ -44,7 +44,7 @@ body:
 
   - type: textarea
     attributes:
-      label: What will your first pull request contain?
+      label: What will your pull request contain?
       description: |
         Tell us what code and documentation to expect in the pull request to update the module.
         Remember [that smaller, more focused pull requests get through review faster](STUB_LINK docs on PRs).
@@ -67,6 +67,6 @@ body:
 
   - type: textarea
     attributes:
-      label: If known, when do you expect to file the first pull request?
+      label: If known, when do you expect to file the pull request?
     validations:
       required: false
