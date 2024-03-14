@@ -43,11 +43,11 @@ To start using `renv` in your analysis module, you can run the following from th
 renv::init()
 ```
 
-[Which will create and selectively ignore a series of files, including the lockfile `renv.lock` that keeps track of the packages and versions being used.](https://rstudio.github.io/renv/reference/init.html)
+[This command](https://rstudio.github.io/renv/reference/init.html) will create and selectively ignore a series of files, including the lockfile `renv.lock` that keeps track of the packages and versions being used.
 
 #### Taking snapshots
 
-As you develop your analysis, you may install packages using `install.packages()` or `renv::install()`.
+As you develop your analysis, you may install packages using `install.packages()`, `renv::install()`, or `BiocManager::install()`.
 You should periodically update the lockfile to make sure all dependencies are captured by using the following command in the root directory of your module ([reference](https://rstudio.github.io/renv/reference/restore.html)):
 
 ```r
@@ -56,11 +56,13 @@ renv::snapshot()
 
 Commit the changes to your lockfile.
 
-You can use [`renv::status()`](https://rstudio.github.io/renv/reference/status.html) to check if there are inconsistencies between the module dependencies and the lockfile.
+You can use [`renv::status()`](https://rstudio.github.io/renv/reference/status.html) at any time to check if there are inconsistencies between the module dependencies and the lockfile.
 
 #### Pinning dependencies that are not captured automatically
 
-Taking [a snapshot using the default arguments will only capture packages that are used in your module](https://rstudio.github.io/renv/reference/snapshot.html), but there may be some other recommended package that you want to pin to a specific version.
+Taking [a snapshot using the default arguments will only capture packages that are used in your module and their required dependencies](https://rstudio.github.io/renv/reference/snapshot.html), but there may be some other _recommended_ package that you want to include and pin to a specific version.
+For example, `ggplot2` needs the `svglite` package to save `.svg` files, but that package is not listed as a _requirement_, so `renv` may not know to track it, even if you have the package installed. 
+If your code outputs `.svg` files, you might need to add `library(svglite)` to dependences.)
 
 You can make `renv` include a packages by loading it in a file called `dependencies.R` in a directory called `components` within your analysis.
 
