@@ -2,7 +2,53 @@
 
 # Script to generate simulated single-cell data from a real dataset
 
-# Works on a single sample directory at a time, processing all SCE objects within that directory.
+# Works on a single sample directory at a time, processing all SCE files within that directory.
+
+
+# Parse arguments ---------------------------------------------
+
+library(optparse)
+
+# Define and parse the command line arguments
+option_list <- list(
+  make_option(
+    c("-s", "--sample_dir"),
+    type = "character",
+    default = NULL,
+    help = "The sample directory for the real data to use for simulation"
+  ),
+  make_option(
+    c("-o", "--output_dir"),
+    type = "character",
+    default = NULL,
+    help = "The output directory. Output files will be given the same names as input"
+  ),
+  make_option(
+    c("-n", "--ncells"),
+    type = "integer",
+    default = 100,
+    help = "The number of cells to simulate."
+  ),
+  make_option(
+    c("--seed"),
+    type = "integer",
+    default = 2024,
+    help = "Random number seed for simulation."
+  )
+)
+
+opts <- parse_args(OptionParser(option_list = option_list))
+
+# Load libraries ----------------------------------------------
+
+# wait to load these until after the command line arguments are parsed
+# Some take a while to load, and we'd rather have the script be responsive
+
+# There are some annoying warning here, let's suppress them
+suppressPackageStartupMessages({
+  suppressWarnings(library(SingleCellExperiment))
+})
+
 
 # Functions ---------------------------------------------------
 
@@ -39,7 +85,7 @@ random_label <- function(label_set, n) {
 #' @param processed Boolean indicating whether the data is processed or not
 
 #'
-#' @return a SingleCellExperiment object
+#' @return a simulated SingleCellExperiment object with metadata matching the input
 #' @export
 #'
 #' @import SingleCellExperiment
@@ -164,42 +210,6 @@ simulate_sce <- function(sce, ncells, processed) {
 
 
 # Main Script body ------------------------------------------------
-library(optparse)
-
-# Define and parse the command line arguments
-option_list <- list(
-  make_option(
-    c("-s", "--sample_dir"),
-    type = "character",
-    default = NULL,
-    help = "The sample directory for the real data to use for simulation"
-  ),
-  make_option(
-    c("-o", "--output_dir"),
-    type = "character",
-    default = NULL,
-    help = "The output directory. Output files will be given the same names as input"
-  ),
-  make_option(
-    c("-n", "--ncells"),
-    type = "integer",
-    default = 100,
-    help = "The number of cells to simulate."
-  ),
-  make_option(
-    c("--seed"),
-    type = "integer",
-    default = 2024,
-    help = "Random number seed for simulation."
-  )
-)
-
-opts <- parse_args(OptionParser(option_list = option_list))
-
-# loading this library later to speed option parsing/help display
-suppressPackageStartupMessages({
-  suppressWarnings(library(SingleCellExperiment)) #
-})
 
 set.seed(opts$seed)
 
