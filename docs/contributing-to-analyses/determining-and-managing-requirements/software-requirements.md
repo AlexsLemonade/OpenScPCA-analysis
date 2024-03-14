@@ -47,6 +47,8 @@ renv::init()
 
 You can commit any changes introduced by running `renv::init()` to the repository.
 
+The `.Rprofile` file created by `renv::init()` will result in `renv` to automatically load its library if you launch `R` or `Rscript` from your module's root directory.
+
 #### Using `renv` with RStudio Projects
 
 If you are using [the RStudio IDE](STUB_LINK our docs on RStudio install) for developing your module, you might find it helpful to use [an RStudio Project](https://docs.posit.co/ide/user/ide/guide/code/projects.html) for your module in conjunction with `renv`.
@@ -55,7 +57,6 @@ Following the linked directions, we recommend creating an RStudio Project from a
 You can commit the `.Rproj` file that is created to the repository.
 
 When you open the Project in RStudio, it will automatically source the `.Rprofile` file created by `renv::init()` and activate `renv` in your R session.
-
 
 #### Taking snapshots
 
