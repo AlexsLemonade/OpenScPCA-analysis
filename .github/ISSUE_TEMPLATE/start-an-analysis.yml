@@ -50,7 +50,8 @@ body:
     attributes:
       label: What computational resources will be required?
       description: |
-        Please provide any information about the required computational resources for the module to help us prepare or allocate resources.
+        Please provide any information about the required computational resources for the module.
+        This will help us prepare or allocate resources for your analysis.
         For example:
 
         - Does this analysis require a GPU?
