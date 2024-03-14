@@ -15,6 +15,7 @@ theme:
     - navigation.tabs        # persistent navbar on the top
     - navigation.tabs.sticky # sticky navbar
     - navigation.indexes     # allow index pages to serve as overview pages for sections
+    - navigation.expand      # collapsible sections are expanded by default
 
 plugins:
   - search  # search bar
@@ -23,6 +24,8 @@ markdown_extensions:
   - admonition  # https://squidfunk.github.io/mkdocs-material/setup/extensions/python-markdown/#admonition
   - attr_list   # https://github.com/squidfunk/mkdocs-material/blob/master/docs/setup/extensions/python-markdown.md#attribute-lists
   - md_in_html  # https://squidfunk.github.io/mkdocs-material/setup/extensions/python-markdown/#markdown-in-html
+
+
 # Here is the basic structure of our navigation setup.
 #nav:
 #  - Navbar section: <!-- Contents for this navbar section are stored in the directory called `section-path` -->
