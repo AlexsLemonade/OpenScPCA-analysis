@@ -1,5 +1,6 @@
 ableist
 ALSF
+AnnData
 bioinformatics
 Carpentries
 conda
@@ -37,6 +38,7 @@ README
 redistribution
 renv
 reproducibility
+SCE
 ScPCA
 socio
 Stumptown
@@ -47,4 +49,3 @@ triaged
 WIPO
 WisCon
 WSL
-

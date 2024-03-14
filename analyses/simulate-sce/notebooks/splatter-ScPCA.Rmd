@@ -81,7 +81,7 @@ random_label<- function(label_set, n){
 
 ```
 
-Modify the cluster and cell type labels in the subest SCE to ensure they are all represented
+Modify the cluster and cell type labels in the subset SCE to ensure they are all represented
 
 ```{r}
 # Adjust cluster/cell type labels, using original label sets
