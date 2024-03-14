@@ -20,7 +20,7 @@ To serve the documentation during local development, run `mkdocs serve` from the
 - [Adding new documentation](#adding-new-documentation)
 - [Linking to other pages](#linking-to-other-pages)
 - [Adding images](#adding-images)
-- [Phrasing](#phrasing)
+- [Phrasing and other syntax](#phrasing-and-other-syntax)
 
 
 ## Docs organization
@@ -31,8 +31,9 @@ Documentation is written as a series of markdown files nested by topic in direct
   - Each top-level directory should contain an `index.md` file with an overall description of what that section contains.
   - The `index.md` should have an L1 header with the same title as the `navbar` section.
   - Markdown files in each directory represent sections shown along the left sidebar.
-- Nested directories within each `navbar` section should be used to add an additional bold header on the left sidebar and _may_ also have an `index.md` file.
-  - Markdown files within each nested directory will fall under this additional bold header.
+- Nested directories within each `navbar` section should be used to add an sections along the left sidebar.
+  - We can have multiple levels of nested directories.
+  - Nested directories may also have an `index.md` file with an L1 header and an overall description of what that section contains.
 - Any visual aids used in the docs should be placed in `docs/img` (see the [adding images section](#adding-images)).
 
 ## Adding new documentation
@@ -102,8 +103,14 @@ To include an image in a docs file, use the following syntax to center the image
     </figure>
 ```
 
-## Phrasing
+## Phrasing and other syntax
+
+Only these items should be in backticks:
+- Actual code
+- References to a specific repository, e.g. `OpenScPCA-analysis`
 
 For consistency, please use the following:
 
 - Refer to `github.com` as "GitHub" (but without quotes) except when providing specific links.
+- Refer to git as "Git" (without quotes), not "git"
+  - If you are actually referring to a git command, you should use `git <command>`
