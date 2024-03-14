@@ -55,7 +55,7 @@ Next, you will need to set certain conda settings and install a few packages tha
 
 1. Copy and paste the following code into the terminal, and hit enter.
 These commands will set the [recommended channels](https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/channels.html) conda should use to search for software.
-    - If you are on a macOS machine and get the error `conda: command not found`, you may need to try again in a new terminal window.
+    - If you get the error `conda: command not found`, you may need to try again in a new terminal window.
     If this doesn't help, you can [get help here](STUB_LINK somewhere to get help).
 
     ```sh
