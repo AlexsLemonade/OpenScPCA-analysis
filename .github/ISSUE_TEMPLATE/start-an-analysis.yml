@@ -8,7 +8,9 @@ body:
         **This issue form should be used when you are ready to create a module and write analytical code.**
         It tracks the first steps you will take toward implementing your module.
 
-        You should only file this issue _after_ you have discussed this analysis on GitHub Discussions. Then, you can link to that thread and use it to help complete this issue.
+        You should only file this issue _after_ you have discussed this analysis on GitHub Discussions.
+        Then, you can link to that thread and use it to help complete this issue.
+
         If you have not yet had a GitHub Discussion about this analysis, please instead file a Discussion here: https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=propose-a-new-analysis.
 
   - type: textarea
@@ -22,7 +24,7 @@ body:
       label: Describe the goals of this analysis module.
       description: |
         Summarize the overall scientific goals of the analysis from the discussion.
-        Tell us about what the code in the module will do. 
+        Tell us about what the code in the module will do.
         This will help guide code review when you file your pull request(s).
     validations:
       required: true
@@ -50,9 +52,9 @@ body:
       description: |
         Please provide any information about the required computational resources for the module to help us prepare or allocate resources.
         For example:
-        
-        - Does this analysis require a GPU? 
-        - Is a certain amount of memory required? 
+
+        - Does this analysis require a GPU?
+        - Is a certain amount of memory required?
         - Can this be accomplished on a laptop?
     validations:
       required: false
