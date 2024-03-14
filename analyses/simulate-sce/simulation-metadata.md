@@ -47,7 +47,7 @@ Most contents are preserved in original form, but some are recalculated from the
 | `cluster_algorithm`            | string                          | keep                                    |
 | `cluster_weighting`            | string                          | keep                                    |
 | `cluster_nn`                   | integer                         | keep                                    |
-| `singler_results`              | DataFrame of SingleR results    | reduce rows to simulated cell count     |
+| `singler_results`              | `DataFrame` of SingleR results  | reduce rows to simulated cell count     |
 | `singler_reference`            | string                          | keep                                    |
 | `singler_reference_label`      | string                          | keep                                    |
 | `singler_reference_source`     | string                          | keep                                    |
