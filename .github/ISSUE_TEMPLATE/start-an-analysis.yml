@@ -31,7 +31,7 @@ body:
 
   - type: textarea
     attributes:
-      label: What software will be required?
+      label: What software will you require?
       description: |
         Tell us about the programming language you will use and any required packages (if known).
     validations:
@@ -48,7 +48,7 @@ body:
 
   - type: textarea
     attributes:
-      label: What computational resources will be required?
+      label: What computational resources will you require?
       description: |
         Please provide any information about the required computational resources for the module.
         This will help us prepare or allocate resources for your analysis.
@@ -62,6 +62,6 @@ body:
 
   - type: textarea
     attributes:
-      label: If known, when is the first pull request expected?
+      label: If known, when do you expect to file the first pull request?
     validations:
       required: false
