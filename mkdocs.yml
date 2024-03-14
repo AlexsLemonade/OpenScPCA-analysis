@@ -56,7 +56,7 @@ nav:
       - technical-setup/environment-setup/index.md
       - technical-setup/environment-setup/setup-conda.md
   - Tools for communication:   # Slack, issues, discussions
-    - communications-tools/index.md
+    - communications-tools/tools-for-communication.md
   - Contributing to analyses:  # Setting up an analysis, all the git stuff
     - contributing-to-analyses/index.md
     - Doing an analysis:
