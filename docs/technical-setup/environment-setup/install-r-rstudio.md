@@ -29,7 +29,7 @@ The instructions provided here are suitable for the vast majority of contributor
 
 
 Next, you need to install additional tools that will let you build R packages that you are likely to encounter in OpenScPCA.
-These tools are available from the [Mac R Project](https://mac.r-project.org/tools/) and are listed under **Mandatory Tools**.
+These tools are available from the [R for macOS website](https://mac.r-project.org/tools/) and are listed under **Mandatory Tools**.
 
 1. Install "**Xcode** developer tools from Apple" as follows:
     - Launch a Terminal window by searching for "terminal" in spotlight
