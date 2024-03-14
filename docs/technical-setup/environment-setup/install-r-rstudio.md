@@ -43,7 +43,7 @@ These tools are available from the [Mac R Project](https://mac.r-project.org/too
         - If you receive a message that begins with `xcode-select: note: Command line tools are already installed.`, then you have previously installed this on your system and are all set.
 
 1. Install the **GNU Fortran compiler**.
-Click the link to download the installer package and follow all installation instructions.
+Click the link on the [Tools - R for Mac OS](https://mac.r-project.org/tools/) page to download the installer package and follow all installation instructions.
 
 
 ### Install R on Windows
