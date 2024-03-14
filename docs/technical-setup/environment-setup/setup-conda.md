@@ -14,7 +14,7 @@ This page provides instructions on how to install conda and use it to install ce
 There are two main reasons we use conda for OpenScPCA:
 
 - conda provides a "one stop shop" for installing lots of different software
-    - Rather than having to figure out how to install every new program and its dependencies on its own, conda can handle it all for you.
+    - Rather than having to figure out how to install every new program and its dependencies, conda can handle it all for you.
     - You'll use conda to install the software dependencies you'll need to contribute to OpenScPCA.
 - conda allows you set up different software environments for different projects
     - For example, you may have two projects that require different versions of the same package.
