@@ -54,7 +54,7 @@ def main() -> None:
     # fail if the module name is not a simple directory name
     if not re.search(r"^[A-Za-z0-9_\-]+$", args.name):
         sys.exit(
-            f"Module name should not contain spaces or special characters.\nExiting."
+            "Module name should not contain spaces or special characters.\nExiting."
         )
 
     # exit if the module directory already exists
@@ -149,7 +149,14 @@ def main() -> None:
         renv_script = """
             if (!requireNamespace("renv", quietly = TRUE))
                 install.packages("renv")
-            renv::scaffold()
+            renv::scaffold(
+                repos = list(CRAN = "https://p3m.dev/cran/latest"),
+                settings = list(
+                    ppm.enabled = TRUE,
+                    r.version = "4.3.3",
+                    bioconductor.version = "3.18"
+                )
+            )
         """
 
         subprocess.run(
