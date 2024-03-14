@@ -54,7 +54,8 @@ You should periodically update the lockfile to make sure all dependencies are ca
 renv::snapshot()
 ```
 
-Commit the changes to your lockfile.
+When prompted, respond `y` to save the new packages in your lockfile.
+Commit the changes to your lockfile to the repository.
 
 You can use [`renv::status()`](https://rstudio.github.io/renv/reference/status.html) at any time to check if there are inconsistencies between the module dependencies and the lockfile.
 
