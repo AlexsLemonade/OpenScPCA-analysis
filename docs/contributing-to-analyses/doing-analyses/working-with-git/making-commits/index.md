@@ -32,7 +32,7 @@ This action ensures that your commit, and any changes associated with that commi
 You should now see a new line with your commit message connected to your branch name in GitKraken.
 
 <figure markdown="span">
-    ![Commit change](../../../../img/making-commits-3.png){width="600"}
+    ![Commit change](../../../../img/making-commits-3.png){width="450"}
 </figure>
 
 You have now successfully committed your changes to your feature branch!
