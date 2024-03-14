@@ -23,7 +23,7 @@ You will want all types of data for this module, so you can run the following co
 
 ## Running the scripts
 
-The main entrypoint is the `simulate-project.sh` script.
+The main entry point is the `simulate-project.sh` script.
 This takes a single argument, the id of a project that is present in the `data/current` directory.
 
 All files for the project will be simulated and saved to the `results/simulated` directory.
