@@ -15,6 +15,7 @@ theme:
     - navigation.tabs        # persistent navbar on the top
     - navigation.tabs.sticky # sticky navbar
     - navigation.indexes     # allow index pages to serve as overview pages for sections
+    - navigation.expand      # collapsible sections are expanded by default
 
 plugins:
   - search  # search bar
