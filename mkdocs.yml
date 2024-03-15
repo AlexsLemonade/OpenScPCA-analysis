@@ -31,6 +31,7 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+  - pymdownx.details     # https://squidfunk.github.io/mkdocs-material/setup/extensions/python-markdown-extensions/#details
 
 
 # Here is the basic structure of our navigation setup.
@@ -57,7 +58,7 @@ nav:
       - technical-setup/environment-setup/setup-conda.md
       - technical-setup/environment-setup/install-r-rstudio.md
   - Tools for communication:   # Slack, issues, discussions
-    - communications-tools/index.md
+    - communications-tools/tools-for-communication.md
   - Contributing to analyses:  # Setting up an analysis, all the git stuff
     - contributing-to-analyses/index.md
     - Doing an analysis:
