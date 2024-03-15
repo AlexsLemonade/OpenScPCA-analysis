@@ -27,11 +27,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Configure AWS
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: us-east-1
-
       - name: Download test data
         run: aws s3 ls s3://openscpca-temp-simdata --no-sign-request
 
