@@ -9,6 +9,11 @@ env:
   MODULE_PATH: analyses/hello-R
   AWS_DEFAULT_REGION: us-east-1
 
+concurrency:
+  # only one run per branch at a time
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
   workflow_call:
@@ -40,7 +45,7 @@ jobs:
       - name: Set up renv
         uses: r-lib/actions/setup-renv@v2
         with:
-          working-directory: ${{env.MODULE_PATH}}
+          working-directory: ${{ env.MODULE_PATH }}
 
       - name: Run analysis
         run: |
