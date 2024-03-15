@@ -1,0 +1,12 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Propose an analysis
+    url: https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=propose-a-new-analysis
+    about: Discuss your idea for a new analysis.
+   - name: Ask a question
+    url: https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=q-a
+    about: Ask the community a question.
+  - name: Get help with an error
+    url: https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=troubleshooting
+    about: Request help with a specific error or problem. 
+
