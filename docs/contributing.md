@@ -108,6 +108,9 @@ For example, you might follow this procedure:
 - Add the image to your docs file and determine a good pixel width for the embedded figure with some trial/error
 - If needed, resize the image file itself to be 2X the pixel width you specified in the embedded figure
 
+We have found that an embedded figure size of ~400-600 pixels seems to work well.
+In this case, the associated image file would be ~800-1200 pixels.
+
 
 ## Phrasing and other syntax
 
