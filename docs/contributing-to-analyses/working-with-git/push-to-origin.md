@@ -29,7 +29,7 @@ The first time that you push to origin for a feature branch, you will be prompte
 
 - The first box should say `origin`, telling GitKraken to push your changes to a branch to your remote fork of `OpenScPCA-analysis`.
 - The second box tells GitKraken what to name the remote copy of the branch.
-    - This field will be autopulated with the same name used for the local branch.
+    - This field will be automatically populated with the same name used for the local branch.
     - It is recommended to keep this and use the same branch name for the local and remote branch.
 - Press `Submit` to confirm your choices and push to origin.
 
