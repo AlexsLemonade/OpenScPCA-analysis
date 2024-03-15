@@ -118,6 +118,11 @@ def main() -> None:
         action="store_true",
         help="Suppress output except errors.",
     )
+    parser.add_argument(
+        "--anonymous",
+        action="store_true",
+        help="Download the data anonymously, without using AWS credentials. Only works if the bucket is public.",
+    )
 
     args = parser.parse_args()
 
@@ -168,6 +173,8 @@ def main() -> None:
     ls_cmd = ["aws", "s3", "ls", f"s3://{args.bucket}/"]
     if args.profile:
         ls_cmd += ["--profile", args.profile]
+    if args.anonymous:
+        ls_cmd += ["--no-sign-request"]
     ls_result = subprocess.run(ls_cmd, capture_output=True, text=True)
     if ls_result.returncode:
         print(
@@ -256,6 +263,9 @@ def main() -> None:
 
     if args.profile:
         sync_cmd += ["--profile", args.profile]
+
+    if args.anonymous:
+        ls_cmd += ["--no-sign-request"]
 
     subprocess.run(sync_cmd, check=True)
 
