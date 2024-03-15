@@ -14,10 +14,11 @@ on:
   pull_request:
     branches:
       - main
-      - jashapiro/hello_R
     paths:
       - "${{ env.MODULE_PATH }}/*"
-
+  push:
+    branches:
+      - jashapiro/hello_R
 jobs:
   run-module:
     runs-on: ubuntu-latest
