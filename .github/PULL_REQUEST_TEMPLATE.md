@@ -72,20 +72,21 @@ _In this section, tell reviewers what kind of feedback you are looking for to he
 ### Author checklists
 
 _Check all those that apply._
-
-#### Reproducibility checklist
-
 _Note that you may find it easier to check off these items after the pull request is actually filed._
 
-- [ ] The dependencies required to run the code in this pull request have been added to the analysis module conda `environment.yml` file.
-  - This item is most relevant for Python-based analysis modules, but may be relevant for additional modules as well.
-- [ ] The R package dependencies required to run the code in this pull request have been added to the analysis module `renv.lock` file
-  - This item is specific to R-based analysis modules.
-- [ ] Any results this code produces have been added to S3 for reviewers to see. TODO: IS THIS THE IDEA RIGHT?
 
-#### Documentation Checklist
+#### Analysis module
 
 - [ ] This analysis module [uses the analysis template and has the expected directory structure](STUB_LINK for analysis structure doc).
 - [ ] The analysis module `README.md` has been updated to reflect code changes in this pull request.
 - [ ] The analytical code is documented and contains comments.
 
+#### Reproducibility checklist
+
+- [ ] Code in this pull request has been added to the GitHub Action workflow that runs this module.
+- [ ] dependencies required to run the code in this pull request have been added to the analysis module `Dockerfile`.
+- [ ] The dependencies required to run the code in this pull request have been added to the analysis module conda `environment.yml` file.
+  - This item is most relevant for Python-based analysis modules, but may be relevant for additional modules as well.
+- [ ] The R package dependencies required to run the code in this pull request have been added to the analysis module `renv.lock` file
+  - This item is specific to R-based analysis modules.
+- [ ] Any results this code produces have been added to S3 for reviewers to see. TODO: IS THIS THE IDEA RIGHT?
