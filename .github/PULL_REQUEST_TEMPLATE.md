@@ -8,13 +8,12 @@ Use the 'Preview' view to click the link below:
 
 
 _Hi there, thanks for your contribution!_
-
 _Please fill out this template to help us review your code._
-_The more context you provide, the faster review will go._
 
+_Remember, the more context you provide, the faster review will go._
 _For more information about filling out this template, please see the [OpenScPCA documentation on filing pull requests](STUB_LINK docs on PRs)._
-_You can also feel free to delete the italicized lines in this template that provide instructions before filing the pull request._
 
+_Before filing the pull request, you can also feel free to delete the italicized instruction lines in this template._
 
 
 
@@ -55,7 +54,8 @@ _In this section, tell reviewers about what kinds of results (if any) your code 
 
 ### Provide directions for reviewers
 
-_In this section, tell reviewers what kind of feedback you are looking for to help guide their review._
+_In this section, tell reviewers what kind of feedback you are looking for._
+_This information will help guide their review._
 
 #### Are there particularly areas you'd like reviewers to have a close look at?
 
