@@ -17,7 +17,7 @@ By using feature branch, you can make code changes without affecting the code in
 
 ## When should you use a feature branch?
 
-Everytime you make a new addition or modify existing code, you will want to create a _new_ feature branch.
+Every time you make a new addition or modify existing code, you will want to create a _new_ feature branch.
 Every pull request should contain changes made in a _single_ feature branch.
 
 ## Overview of working with branches in OpenScPCA
