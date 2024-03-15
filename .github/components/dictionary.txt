@@ -37,7 +37,10 @@ README
 redistribution
 renv
 reproducibility
+RStudio
+Rtools
 ScPCA
+SemVar
 socio
 Stumptown
 synched
@@ -47,4 +50,5 @@ triaged
 WIPO
 WisCon
 WSL
+Xcode
 

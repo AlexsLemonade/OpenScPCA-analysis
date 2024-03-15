@@ -56,6 +56,7 @@ nav:
     - Environment setup:
       - technical-setup/environment-setup/index.md
       - technical-setup/environment-setup/setup-conda.md
+      - technical-setup/environment-setup/install-r-rstudio.md
   - Tools for communication:   # Slack, issues, discussions
     - communications-tools/tools-for-communication.md
   - Contributing to analyses:  # Setting up an analysis, all the git stuff
