@@ -1,0 +1,105 @@
+---
+title: "Hello OpenScPCA"
+output: html_notebook
+---
+
+
+## Introduction
+
+This notebook presents a simple example of an analysis in the OpenScPCA project, using R/Bioconductor.
+
+We will go through the processed SCE objects in the project `data` library and and count the number of cells in each object, plotting the results.
+
+
+### Setup
+
+Load libraries and set initial paths.
+
+```{r setup}
+# load required libraries
+suppressPackageStartupMessages({
+  library("SingleCellExperiment")
+  library("ggplot2")
+})
+
+# Find the repository root
+repo_root <- rprojroot::find_root(rprojroot::is_git_root)
+
+# set current data dir
+data_dir = file.path(repo_root, "data", "current")
+
+# set results dir (using the analysis project file to find root)
+results_dir <- here::here("results")
+```
+
+
+## Functions
+
+First, we will define a function to load and count the cells in a SCE object, returning a one line data frame with the project ID, sample ID, library ID, and number of cells.
+
+```{r}
+# function to count cells in an sce file
+# returns a data frame with ids and cell count
+count_sce <- function(sce_file) {
+  # load the SCE object
+  sce <- readRDS(sce_file)
+
+  # get stats and count the cells
+  result_df <- data.frame(
+      project_id = metadata(sce)$project_id,
+      sample_id = metadata(sce)$sample_id,
+      library_id = metadata(sce)$library_id,
+      n_cells = ncol(sce)
+    )
+  return(result_df)
+}
+```
+
+I think that is it! Now we can get the list of SCE objects and count the cells.
+
+
+## Count cells and plot
+
+First we will list all of the processed RDS files in the data directory.
+We will use `list.files()` to do this all in one shot, using the option to search recursively.
+
+```{r}
+# get the list of processed SCE files
+sce_files <- list.files(
+  data_dir,
+  pattern = "_processed.rds$",
+  full.names = TRUE,
+  recursive = TRUE
+)
+```
+
+Now we will use the `purrr` package to apply our counting function to each of the files, and then combine all of the results into a single data frame.
+
+```{r}
+# count the cells in each file
+cell_counts <- sce_files |>
+  purrr::map(count_sce) |>
+  purrr::list_rbind() # combine results into a single data frame
+```
+
+Let's look at the table of results.
+
+```{r}
+cell_counts
+```
+
+
+Finally, we will plot the results, faceted and colored by project ID.
+
+```{r}
+ggplot(cell_counts, aes(x = n_cells, fill = project_id)) +
+  geom_histogram(bins = 20) +
+  labs(x = "Number of cells") +
+  facet_wrap(facets = vars(project_id)) +
+  guides(fill = "none") + # don't show the legend
+  theme_bw()
+
+```
+
+
+Excellent!
