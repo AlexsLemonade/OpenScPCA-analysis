@@ -2,8 +2,9 @@
 
 A branch in GitHub refers to an isolated copy of the repository contents.
 For example, the `main` branch of the `OpenScPCA-analysis` repository contains the main copy of all items in the repository.
-Before making any changes to the `main` branch, we can create a feature branch containing a copy of the code in the `main` branch in an isolated space.
-This allows you to make changes to the code on the feature branch without affecting the code in the `main` branch or interfering with other contributors as they make changes.
+Instead of directly making code changes in the `main` branch, we write code in a _feature branch_ created off of the `main` branch. 
+A feature branch contains a copy of in an isolated space.
+By using feature branch, you can make code changes without affecting the code in the `main` branch or interfering with other contributors as they make changes.
 
 !!! note
     For more details on branches, see [GitHub's documentation describing branches](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches).
@@ -23,7 +24,7 @@ You can do this by checking the `main` box listed under the `Local` menu.
     ![Click button to checkout main](../../../img/working-with-branches-1.png){width="600"}
 </figure>
 
-2. Create a and checkout a new branch by right-clicking on the `main` branch and selecting `Create branch here`.
+2. Create and checkout a new branch by right-clicking on the `main` branch and selecting `Create branch here`.
 
 <figure markdown="span">
     ![Create branch](../../../img/working-with-branches-2.png){width="600"}
