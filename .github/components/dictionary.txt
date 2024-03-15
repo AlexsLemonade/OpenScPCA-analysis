@@ -42,8 +42,11 @@ README
 redistribution
 renv
 reproducibility
+RStudio
+Rtools
 SCE
 ScPCA
+SemVar
 SingleR
 socio
 Stumptown
@@ -55,4 +58,5 @@ UMAP
 WIPO
 WisCon
 WSL
+Xcode
 Zappia
