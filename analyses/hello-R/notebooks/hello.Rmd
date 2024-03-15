@@ -28,8 +28,17 @@ repo_root <- rprojroot::find_root(rprojroot::is_git_root)
 # set current data dir
 data_dir = file.path(repo_root, "data", "current")
 
-# set results dir (using the analysis project file to find root)
+# set results and plots directories (using the analysis project file to find root)
 results_dir <- here::here("results")
+plots_dir <- here::here("plots")
+```
+
+We will be creating two output files: a table and a plot.
+Defining their locations here will make it easy for later users to know what to expect.
+
+```{r}
+count_file <- file.path(results_dir, "cell_counts.csv")
+plot_file <- file.path(plots_dir, "cell_counts.pdf")
 ```
 
 
@@ -88,8 +97,13 @@ Let's look at the table of results.
 cell_counts
 ```
 
+And save it to our results directory.
 
-Finally, we will plot the results, faceted and colored by project ID.
+```{r}
+readr::write_csv(cell_counts, count_file)
+```
+
+Finally, we will plot the results as a histogram, faceted and colored by project ID.
 
 ```{r}
 ggplot(cell_counts, aes(x = n_cells, fill = project_id)) +
@@ -103,3 +117,8 @@ ggplot(cell_counts, aes(x = n_cells, fill = project_id)) +
 
 
 Excellent!
+
+Now let's save the plot.
+```{r}
+ggsave(plot_file, width = 8, height = 6)
+```
