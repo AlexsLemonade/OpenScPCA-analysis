@@ -20,6 +20,7 @@ There are two main reasons we use conda for OpenScPCA:
     - For example, you may have two projects that require different versions of the same package.
     With conda, you can create separate, fully isolated software environments for each project with different package versions.
     - Python-based OpenScPCA analysis modules will use different conda environments to prevent conflicts and improve reproducibility.
+    Therefore, installing conda is also part of setting up your computer to be able to contribute to Python-based modules.
 
 
 ## Install conda
