@@ -1,7 +1,7 @@
 # Making commits
 
 Once you have added or modified code for your analyses that you are happy with, you will need to commit your changes to your feature branch.
-A Git commit ensures that the new file or changes to an existing file are saved under version control.
+A Git commit saves your code changes to version control.
 For each commit, a unique ID (also known as a hash) will be assigned to identify that commit, allowing you to easily track changes.
 
 !!! note
@@ -21,14 +21,14 @@ If you wish to include all changes to all files, use the `Stage all changes` but
 </figure>
 
 2. Write a commit message by filling in the `Summary` box.
-This should be a short message that describes what changes are being made with that commit.
+This should be a short message that describes what changes are associated with that commit.
 
 <figure markdown="span">
     ![Commit message](../../img/making-commits-2.png){width="450"}
 </figure>
 
 3. Click on `Stage files/changes to commit` to make the commit.
-This action ensures that your commit, and any changes associated with that commit, is saved to your branch.
+This action ensures the code changes in your commit are saved in your branch's history.
 You should now see a new line with your commit message connected to your branch name in GitKraken.
 
 <figure markdown="span">
