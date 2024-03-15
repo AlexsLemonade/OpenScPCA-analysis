@@ -265,7 +265,7 @@ def main() -> None:
         sync_cmd += ["--profile", args.profile]
 
     if args.anonymous:
-        ls_cmd += ["--no-sign-request"]
+        sync_cmd += ["--no-sign-request"]
 
     subprocess.run(sync_cmd, check=True)
 
