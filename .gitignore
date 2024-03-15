@@ -31,6 +31,18 @@ cache/
 scratch/*
 
 # ------------------------
+# renv directories
+# ------------------------
+
+**/renv/library/*
+**/renv/local/*
+**/renv/cellar/*
+**/renv/lock/*
+**/renv/python/*
+**/renv/sandbox/*
+**/renv/staging/*
+
+# ------------------------
 # MacOS files from https://github.com/github/gitignore/blob/main/Global/macOS.gitignore
 # ------------------------
 
@@ -289,4 +301,3 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-
