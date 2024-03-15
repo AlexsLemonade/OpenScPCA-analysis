@@ -14,7 +14,8 @@ For each commit, a unique ID (also known as a hash) will be assigned to identify
 ### Step 1: Make sure you are in the right branch
 
 Before making your commit, be sure you are working in the correct [feature branch](./working-with-branches.md).
-In GitKraken, you will see a check mark next to the branch name you have checked out in both the side menu under `Local` and in the branch diagram.
+In GitKraken, you will see a check mark next to the branch name in both the side menu under `Local` and in the branch diagram.
+The checkmark next to the branch name indicates that you have that branch checked out.
 
 <figure markdown="span">
     ![Branch checkout](../../img/making-commits-1.png){width="600"}
@@ -26,12 +27,12 @@ For more on branches see [Working with branches](./working-with-branches.md).
 
 - On the right-hand panel, you will see a list of files that you have modified under "Unstaged Files".
     - These are changes which you could include in your commit.
-- Choose the changes you want to include in your commit and move then from the `Unstaged Files` area to the `Staged Files` area:
+- Choose the changes you want to include in your commit and move them from the `Unstaged Files` area to the `Staged Files` area:
     - To include all changes, click the `Stage all changes` button.
     - To include only some changes, hover over individual files and click the `Stage File` button one at a time.
-This will move that file from the `Unstaged Files` area to the `Staged Files` area.
-- ⚠️ Any files that you move into the `Staged Files` section will be included in your commit.
-- Only select files that you wish to be included in this commit!
+    This will move that file from the `Unstaged Files` area to the `Staged Files` area.
+    - ⚠️ Any files that you move into the `Staged Files` section will be included in your commit.
+
 Each commit should correspond to a single change or group of related changes.
 For example, when updating both code and documentation, commit your code changes and your documentation changes separately.
 
@@ -60,7 +61,7 @@ You should now see a new line with your commit message connected to your branch 
     ![Commit change](../../img/making-commits-4.png){width="600"}
 </figure>
 
-#### Pre-commit
+#### Pre-commit checks
 
 - Every time you make a commit, you will see a banner showing the status of [the pre-commit checks](STUB_LINK for precommit).
 - Files will only be committed if the pre-commit checks pass.
@@ -79,7 +80,7 @@ If you are making your first commit, the pre-commit checks may take longer and y
     ![Set up pre-commit](../../img/making-commits-6.png){width="600"}
 </figure>
 
-Having trouble getting pre-commit to pass?
-See [Troubleshooting commit fails](STUB-LINK).
+Having trouble getting pre-commit checks to pass?
+Please see the [documentation for troubleshooting commit failures](STUB-LINK).
 
 You have now successfully committed your changes to your feature branch!
