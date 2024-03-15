@@ -34,7 +34,7 @@ plots_dir <- here::here("plots")
 ```
 
 We will be creating two output files: a table and a plot.
-Defining their locations here will make it easy for later users to know what to expect.
+Defining their locations in the `Setup` section will make it easy for future notebook users to know what to expect.
 
 ```{r}
 count_file <- file.path(results_dir, "cell_counts.csv")
@@ -103,7 +103,7 @@ And save it to our results directory.
 readr::write_csv(cell_counts, count_file)
 ```
 
-Finally, we will plot the results as a histogram, faceted and colored by project ID.
+Finally, we will plot the results as a faceted histogram, colored by project ID.
 
 ```{r}
 count_plot <- ggplot(cell_counts, aes(x = n_cells, fill = project_id)) +
@@ -119,6 +119,7 @@ count_plot # show the plot
 Excellent!
 
 Now let's save the plot.
+
 ```{r}
-ggsave(count_plot, plot_file, width = 8, height = 6)
+ggsave(plot_file, count_plot, width = 8, height = 6)
 ```
