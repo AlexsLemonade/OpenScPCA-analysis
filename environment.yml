@@ -4,7 +4,7 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - python=3.10
-  - awscli=2.15.21
-  - jq=1.7.1
-  - pre-commit=3.6.2
+  - python=3.11
+  - awscli=2.15
+  - jq=1.7
+  - pre-commit=3.6
