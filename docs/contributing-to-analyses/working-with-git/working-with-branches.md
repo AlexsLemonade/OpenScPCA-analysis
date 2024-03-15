@@ -6,15 +6,17 @@ A branch in GitHub refers to an isolated copy of the repository contents.
 For example, the `main` branch of the `OpenScPCA-analysis` repository contains the main copy of all items in the repository.
 
 !!! note "Learn more about branches"
-    For more details on branches, see [GitHub's documentation describing branches](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches) and [this tutorial on creating branches with GitKraken](https://www.gitkraken.com/learn/git/problems/create-git-branch).
+    For more details on branches see:
 
+    - [GitHub's documentation describing branches](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches)
+    - Tutorial on creating branches with GitKraken](https://www.gitkraken.com/learn/git/problems/create-git-branch).
 
 ## What is a feature branch?
 
 Instead of directly making code changes in the `main` branch, we write code in a _feature branch_ created off of the `main` branch.
 A feature branch contains a copy of the code in an isolated space.
 
-By using feature branch, you can make code changes without affecting the code in the `main` branch or interfering with other contributors as they make changes.
+By using a feature branch, you can make code changes without affecting the code in the `main` branch or interfering with other contributors as they make changes.
 
 ## When should you use a feature branch?
 
@@ -36,17 +38,17 @@ This means you will create a new feature branch for every new pull request you p
 
 Follow these steps to create your feature branch:
 
-1. Ensure your fork's `main` branch is up-to-date with the `AlexsLemonade/OpenScPCA-analysis` repository's main branch. 
-    - Refer to [this documentation about how to keep your `main` branch in sync](STUB_LINK stay in sync). 
-    
+1. Ensure your fork's `main` branch is up-to-date with the `AlexsLemonade/OpenScPCA-analysis` repository's main branch.
+    - Refer to [this documentation about how to keep your `main` branch in sync](STUB_LINK stay in sync).
+
 2. Open GitKraken and make sure you are on the `main` branch of your fork of `OpenScPCA-analysis`.
-You can do this by checking the `main` box listed under the `Local` menu.
+You can do this by checking the `main` box listed under the `Local` menu or double-clicking on the `main` branch in the branch graph.
 
 <figure markdown="span">
     ![Click button to checkout main](../../img/working-with-branches-1.png){width="600"}
 </figure>
 
-2.Create and checkout a new branch by right-clicking on the `main` branch and selecting `Create branch here`.
+2.Create and checkout a new branch by right-clicking on the `main` branch (either under the `Local` menu or in the branch graph) and selecting `Create branch here`.
 
 <figure markdown="span">
     ![Create branch](../../img/working-with-branches-2.png){width="600"}
@@ -66,6 +68,5 @@ For example, if you are adding an analysis to add cell type annotations to Ewing
     - Names should not contain any special symbols besides `_` and `-`.
     - It can be extra helpful to include the issue number in your branch name, e.g., `username/42-celltype-ewings`.
 
-
-You have now successfully created your new feature branch!
+You have now successfully created your new feature branch.
 You can now proceed to make changes to the code and continue with your analysis!
