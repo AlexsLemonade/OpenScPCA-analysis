@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-""" Script to create a new analysis module for OpenScPCA """
+"""Script to create a new analysis module for OpenScPCA"""
 
 import argparse
 import pathlib
@@ -163,6 +163,13 @@ def main() -> None:
             ["Rscript", "-e", renv_script],
             cwd=module_dir,
         )
+        # make the components directory and add a dependencies.R file
+        component_dir = module_dir / "components"
+        component_dir.mkdir(exist_ok=True)
+        (component_dir / "dependencies.R").write_text(
+            "# R dependencies not captured by `renv`\n" '# library("missing_package")\n'
+        )
+
         print(f"\nInitialized new renv environment in `{module_dir}`.")
 
 
