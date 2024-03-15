@@ -15,7 +15,7 @@ on:
     branches:
       - main
     paths:
-      - "${{ env.MODULE_PATH }}/*"
+      - analyses/hello-R/**
   push:
     branches:
       - jashapiro/hello_R
