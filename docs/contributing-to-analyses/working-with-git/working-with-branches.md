@@ -32,7 +32,7 @@ This means you will create a new feature branch for every new pull request you p
 - [Commit](STUB_LINK to making commits) any changes that you make to that feature branch.
 - [Push](STUB_LINK for pushing to origin) your commits to your origin repository, i.e. your fork on GitHub.com
 - File a pull request to the `main` branch of the upstream `AlexsLemonade/OpenScPCA-analysis` repository.
-  - A [pull request](STUB_LINK for section on PRs) is a request to add code in your feature branch to the main code base.
+  - A [pull request](STUB_LINK for section on pull request) is a request to add code in your feature branch to the main code base.
 
 ## Creating a feature branch in GitKraken
 
