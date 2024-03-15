@@ -7,16 +7,18 @@ body:
       value: |
         **This issue form should be used when you are adding to or updating an existing analysis module.**
 
-        - If you are adding to an existing analysis module that you are actively working on, please proceed to fill out this issue form.
-          - If you are looking for more feedback about how to take your next analysis steps, please instead file a Discussion here: <link to general "id like to discuss something" template?">
+        You should use this issue form if:
 
-        - If you are proposing an update to existing analysis module, you should first have a discussion about your proposed update in GitHub Discussions.
-        Then, you can link to that thread and use it to help complete this issue.
-          - If you have not yet had a GitHub Discussion about this proposed update, please instead file a Discussion here: https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=propose-a-new-analysis.
+        - You are adding to an existing analysis module that you are actively working on
+        - You are proposing an update to existing analysis module
+
+        If you have not already had a Discussion about contributing to this analysis module, please instead post to GitHub Discussions:
+        - If you are looking for more feedback about how to take your next analysis steps, you can re-post in your original GitHub Discussion about this analysis
+        - Or, you can [use this Discussion template](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=modify-an-existing-analysis) to propose to modify an existing analysis
 
   - type: textarea
     attributes:
-      label: If you are filing this issue based on a specific Discussion, please link to the relevant GitHub Discussion.
+      label: If you are filing this issue based on a specific GitHub Discussion, please link to the relevant Discussion.
       description: |
         This does not apply if:
         - You are adding to an existing module that you are the author of
@@ -36,20 +38,20 @@ body:
 
   - type: textarea
     attributes:
-      label: Will you require additional software beyond what is already in the analysis module?
-      description: |
-        Tell us about any new programming language(s) you will use and any new required packages (if known).
-    validations:
-      required: false
-
-  - type: textarea
-    attributes:
       label: What will your pull request contain?
       description: |
         Tell us what code and documentation to expect in the pull request to update the module.
         Remember [that smaller, more focused pull requests get through review faster](STUB_LINK docs on PRs).
     validations:
       required: true
+
+  - type: textarea
+    attributes:
+      label: Will you require additional software beyond what is already in the analysis module?
+      description: |
+        Tell us about any new programming language(s) you will use and any new required packages (if known).
+    validations:
+      required: false
 
   - type: textarea
     attributes:
