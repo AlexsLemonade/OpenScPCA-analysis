@@ -4,17 +4,16 @@ Once you have added or modified code for your analyses that you are happy with, 
 A Git commit saves your code changes to version control.
 For each commit, a unique ID (also known as a hash) will be assigned to identify that commit, allowing you to easily track changes.
 
-!!! note
-    For more information on commits, see:
+!!! note "Learn more about commits"
 
     - [GitHub's documentation on commits](https://docs.github.com/en/pull-requests/committing-changes-to-your-project/creating-and-editing-commits/about-commits)
-    - [A video describing commits with GitKraken](https://www.youtube.com/watch?v=XfDbGgSwa5I).
+    - [A video describing commits with GitKraken](https://www.youtube.com/watch?v=XfDbGgSwa5I)
 
 ## How to make a commit in GitKraken
 
 ### Step 1: Make sure you are in the right branch
 
-Before making your commit, be sure you are working in the correct feature branch.
+Before making your commit, be sure you are working in the correct [feature branch](./working-with-branches.md).
 In GitKraken, you will see a check mark next to the branch name you have checked out in both the side menu under `Local` and in the branch diagram.
 
 <figure markdown="span">
@@ -25,13 +24,16 @@ For more on branches see [Working with branches](./working-with-branches.md).
 
 ### Step 2: Stage your changed files
 
-- Hover over any files you wish to commit and select the `Stage File` button.
+- On the right-hand panel, you will see a list of files that you have modified under "Unstaged Files".
+    - These are changes which you could include in your commit.
+- Choose the changes you want to include in your commit and move then from the `Unstaged Files` area to the `Staged Files` area:
+    - To include all changes, click the `Stage all changes` button.
+    - To include only some changes, hover over individual files and click the `Stage File` button one at a time.
 This will move that file from the `Unstaged Files` area to the `Staged Files` area.
-- Any files that are in the `Staged Files` section will be included in your commit.
+- ⚠️ Any files that you move into the `Staged Files` section will be included in your commit.
 - Only select files that you wish to be included in this commit!
 Each commit should correspond to a single change or group of related changes.
 For example, when updating both code and documentation, commit your code changes and your documentation changes separately.
-- If you wish to include all changes to all files, use the `Stage all changes` button.
 
 <figure markdown="span">
     ![Unstaged files](../../img/making-commits-2.png){width="600"}
@@ -41,7 +43,8 @@ For example, when updating both code and documentation, commit your code changes
 
 Write a commit message by filling in the `Summary` box.
 This should be a short message that describes what changes are associated with that commit.
-For example, when adding code to create a new plot, write "Add code to create density plot".
+
+For example, if you are adding code to create a new plot, you could write, "Add code to create density plot".
 
 <figure markdown="span">
     ![Commit message](../../img/making-commits-3.png){width="450"}
@@ -59,9 +62,9 @@ You should now see a new line with your commit message connected to your branch 
 
 #### Pre-commit
 
-- Every time you make a commit, you will see a banner showing the status of pre-commit.
-- Files will not be committed, unless pre-commit has passed.
-    - Still need to set up pre-commit?
+- Every time you make a commit, you will see a banner showing the status of [the pre-commit checks](STUB_LINK for precommit).
+- Files will only be committed if the pre-commit checks pass.
+    - Still need to set up pre-commit in the repository?
     See [Install pre-commit and setup hooks](STUB-LINK).
 
 
