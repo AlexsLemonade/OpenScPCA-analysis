@@ -17,9 +17,6 @@ on:
       - main
     paths:
       - analyses/hello-R/**
-  push:
-    branches:
-      - jashapiro/hello_R
 jobs:
   run-module:
     runs-on: ubuntu-latest
