@@ -39,6 +39,7 @@ renv
 reproducibility
 RStudio
 Rtools
+SCE
 ScPCA
 SemVar
 socio
@@ -51,4 +52,3 @@ WIPO
 WisCon
 WSL
 Xcode
-
