@@ -7,6 +7,7 @@
 name: Run hello-R analysis module
 env:
   MODULE_PATH: analyses/hello-R
+  AWS_DEFAULT_REGION: us-east-1
 
 on:
   workflow_dispatch:
