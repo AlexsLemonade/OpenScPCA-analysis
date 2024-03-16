@@ -172,41 +172,53 @@ simulate_sce <- function(sce, ncells, processed) {
 
   # Add any altExps -------------------------------------
   altExpNames(sce_sim) |> purrr::walk(\(name) {
-    alt_exp <- altExp(sce_sim, name)
-    alt_counts <- as.matrix(counts(alt_exp))
+    alt_sce <- altExp(sce_sim, name)
+    alt_counts <- as.matrix(counts(alt_sce))
     # zero count columns are not liked by splatter, so we remove them for the sim
     sim_cols <- which(colSums(alt_counts) > 0)
     alt_counts <- alt_counts[, sim_cols]
     alt_params <- splatter::simpleEstimate(alt_counts)
     sim_counts <- counts(splatter::simpleSimulate(alt_params, verbose = FALSE))
     # add back, leaving zeros
-    counts(alt_exp, withDimnames = FALSE)[, sim_cols] <- sim_counts
+    counts(alt_sce, withDimnames = FALSE)[, sim_cols] <- sim_counts
     if (processed) {
-      logcounts(alt_exp, withDimnames = FALSE) <- log1p(counts(alt_exp))
+      logcounts(alt_sce, withDimnames = FALSE) <- log1p(counts(alt_sce))
     }
-    altExp(sce_sim, name) <- alt_exp
+    # recalculate rowstats
+    rowData(alt_sce)[, c("sum", "detected")] <- scuttle::perFeatureQCMetrics(alt_sce)
+    altExp(sce_sim, name) <- alt_sce
   })
 
   # Replace and update column stats ---------------------
   # store column names to restore order later
   coldata_names <- names(colData(sce_sim))
+  rowdata_names <- names(rowData(sce_sim))
 
 
   # remove stats that will be recalculated
-  remove_stats <- c(
+  remove_colstats <- c(
     "sum",
     "detected",
     "total",
     "subsets_mito_sum",
     names(colData(sce_sim))[grep("altexps_.*_(sum|detected|percent)", names(colData(sce_sim)))]
   )
-  colData(sce_sim)[, remove_stats] <- NULL
+  colData(sce_sim)[, remove_colstats] <- NULL
 
-  sce_sim <- scuttle::addPerCellQC(sce_sim)
+  remove_rowstats <- c(
+    "sum",
+    "detected"
+  )
+  rowData(sce_sim)[, remove_rowstats] <- NULL
+
+  sce_sim <- sce_sim |>
+    scuttle::addPerCellQCMetrics() |>
+    scuttle::addPerFeatureQCMetrics()
   colData(sce_sim)$subsets_mito_sum <- colData(sce_sim)$sum * colData(sce_sim)$subsets_mito_percent / 100
 
   # restore column order
   colData(sce_sim) <- colData(sce_sim)[, coldata_names]
+  rowData(sce_sim) <- rowData(sce_sim)[, rowdata_names]
 
   return(sce_sim)
 }
