@@ -13,5 +13,7 @@ for dir in $data_dir/$project/*/; do
     sample=$(basename $dir)
     echo "Processing $sample"
     Rscript scripts/simulate-sce.R --sample_dir $dir --output_dir $output_dir/$project/$sample
-    Rscript scripts/sce-to-anndata.R --input_dir $output_dir/$project/$sample
 done
+
+echo "Creating AnnData files"
+Rscript scripts/sce-to-anndata.R -d $data_dir/$project

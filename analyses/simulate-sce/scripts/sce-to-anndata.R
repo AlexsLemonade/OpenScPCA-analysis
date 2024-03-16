@@ -5,7 +5,7 @@
 
 # The AnnData object being exported by this script is formatted to fit CZI schema: 3.0.0
 
-# refactored from https://github.com/AlexsLemonade/scpca-nf/blob/8bef82d853d19e5aeddd75401aa54cf8bfbced13/bin/sce_to_anndata.R
+# adapted from https://github.com/AlexsLemonade/scpca-nf/blob/8bef82d853d19e5aeddd75401aa54cf8bfbced13/bin/sce_to_anndata.R
 
 
 library(optparse)
@@ -13,9 +13,9 @@ library(optparse)
 # set up arguments
 option_list <- list(
   make_option(
-    opt_str = c("-d", "--input_dir"),
+    opt_str = c("-d", "--dir"),
     type = "character",
-    help = "path where rds files are located"
+    help = "Path where rds files are located. Will search recursively for files ending in `_processed.rds`, `_filtered.rds`, or `_unfiltered.rds.`",
   )
 )
 
@@ -37,8 +37,8 @@ suppressPackageStartupMessages({
 # this function updates merged object formatting for anndata export
 outfile_name <- function(sce_filename, feature) {
   # paste X to any present reduced dim names
-  suffix <- glue::glue("_{feature}.h5")
-  feature_filename <- stringr::str_replace(sce_filename, ".rds$", suffix )
+  suffix <- glue::glue("_{feature}.hdf5")
+  feature_filename <- stringr::str_replace(sce_filename, ".rds$", suffix)
   return(feature_filename)
 }
 
@@ -187,6 +187,7 @@ convert_altexp <- function(sce, feature_name, output_feature_h5, compress_output
 sce_files <- list.files(
   opts$input_dir,
   pattern = "_(processed|filtered|unfiltered).rds$",
+  recursive = TRUE,
   full.names = TRUE
 )
 
