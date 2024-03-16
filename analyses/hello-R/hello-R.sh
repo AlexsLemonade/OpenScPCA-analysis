@@ -6,6 +6,4 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 
 # Render the R notebook
 
-notebook="notebooks/hello.Rmd"
-
-Rscript -e "rmarkdown::render('${notebook}')"
+Rscript -e "rmarkdown::render('notebooks/hello.Rmd')"

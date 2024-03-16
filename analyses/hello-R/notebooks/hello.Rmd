@@ -1,5 +1,8 @@
 ---
-title: "Hello OpenScPCA"
+title: Hello OpenScPCA
+author:
+  - Joshua A. Shapiro, Childhood Cancer Data Lab, ALSF
+date: "`r Sys.Date()`"
 output: html_notebook
 ---
 
@@ -11,26 +14,31 @@ This notebook presents a simple example of an analysis in the OpenScPCA project,
 We will go through the processed SCE objects in the project `data` library and count the number of cells in each object, plotting the results.
 
 
-### Setup
+## Setup
 
 Load libraries and set initial paths.
 
-```{r setup}
+```{r libraries}
 # load required libraries
 suppressPackageStartupMessages({
   library("SingleCellExperiment")
   library("ggplot2")
 })
+```
 
-# Find the repository root
+Set the paths to the data, results, and plots directories.
+
+```{r}
+# Find the repository and module root directories
 repo_root <- rprojroot::find_root(rprojroot::is_git_root)
+module_root <- rprojroot::find_root(rprojroot::is_renv_project)
 
 # set current data dir
 data_dir <- file.path(repo_root, "data", "current")
 
 # set results and plots directories (using the analysis project file to find root)
-results_dir <- here::here("results")
-plots_dir <- here::here("plots")
+results_dir <- file.path(module_root, "results")
+plots_dir <- file.path(module_root, "plots")
 ```
 
 We will be creating two output files: a table and a plot.
@@ -115,11 +123,17 @@ count_plot <- ggplot(cell_counts, aes(x = n_cells, fill = project_id)) +
 count_plot # show the plot
 ```
 
-
 Excellent!
 
 Now let's save the plot.
 
 ```{r}
 ggsave(plot_file, count_plot, width = 8, height = 6)
+```
+
+
+## Session Info
+
+```{r}
+sessioninfo::session_info()
 ```
