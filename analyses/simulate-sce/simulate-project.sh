@@ -16,4 +16,4 @@ for dir in $data_dir/$project/*/; do
 done
 
 echo "Creating AnnData files"
-Rscript scripts/sce-to-anndata.R -d $data_dir/$project
+Rscript scripts/sce-to-anndata.R --dir $output_dir/$project

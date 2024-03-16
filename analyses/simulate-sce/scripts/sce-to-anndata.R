@@ -127,7 +127,7 @@ convert_sce_file <- function(sce_file) {
     sce,
     anndata_file = outfile_name(sce_file, "rna"),
     compression = "gzip"
-  )
+  ) |> suppressMessages() # suppress notes about metadata conversion
 
   # convert altExps to AnnData
   altExpNames(sce) |>
@@ -185,7 +185,7 @@ convert_altexp <- function(sce, feature_name, output_feature_h5, compress_output
 
 # get file list
 sce_files <- list.files(
-  opts$input_dir,
+  opts$dir,
   pattern = "_(processed|filtered|unfiltered).rds$",
   recursive = TRUE,
   full.names = TRUE
