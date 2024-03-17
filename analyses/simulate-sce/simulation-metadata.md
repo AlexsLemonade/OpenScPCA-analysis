@@ -115,14 +115,14 @@ Most contents are preserved in original form, but some are recalculated from the
 
 | field         | contents | simulation plan |
 | ------------- | -------- | --------------- |
-| "gene_ids"    | string   | keep            |
-| "gene_symbol" | string   | keep            |
-| "mean"        | float    | recalculate     |
-| "detected"    | float    | recalculate     |
+| `gene_ids`    | string   | keep            |
+| `gene_symbol` | string   | keep            |
+| `mean`        | float    | recalculate     |
+| `detected`    | float    | recalculate     |
 
 ## Fields in `metadata(altExp(sce))`
 
-Similar to `metadata(sce)`, but with no sample-related data beyond SCPCX ids.
+Similar to `metadata(sce)`, but with no sample-related data beyond `SCPCX` ids.
 Mostly mapping-related information and counts.
 `ambient_profile` contains a list of ambient ADT levels.
 
@@ -132,7 +132,7 @@ All of these fields are left unchanged.
 
 | field         | contents | simulation plan |
 | ------------- | -------- | --------------- |
-| "adt_id"      | string   | keep            |
-| "target_type" | string   | keep            |
-| "mean"        | float    | recalculate     |
-| "detected"    | float    | recalculate     |
+| `adt_id`      | string   | keep            |
+| `target_type` | string   | keep            |
+| `mean`        | float    | recalculate     |
+| `detected`    | float    | recalculate     |
