@@ -68,6 +68,7 @@ nav:
       - Determining and managing requirements:
         - contributing-to-analyses/determining-and-managing-requirements/index.md
         - contributing-to-analyses/determining-and-managing-requirements/software-requirements.md
+        - contributing-to-analyses/determining-and-managing-requirements/compute-requirements.md
   - Software platforms:            # LSfR, AWS, Docker, etc
     - software-platforms/index.md
   - Getting Help and FAQ:      # troubleshooting and FAQ
