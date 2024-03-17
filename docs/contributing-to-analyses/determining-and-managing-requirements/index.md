@@ -11,4 +11,4 @@ In the [Software Requirements](software-requirements.md) section, we describe se
 
 **Compute requirements** refer to the computational resources, such as the number of CPUs or the amount of RAM, that are required for your analysis to run.
 Gathering information about compute requirements helps us identify the computational resources we should use on Amazon Web Services.
-We discuss determining required computational resources in the [Compute Requirements](STUB_LINK) section.
+We discuss determining required computational resources in the [Compute Requirements](compute-requirements.md) section.
