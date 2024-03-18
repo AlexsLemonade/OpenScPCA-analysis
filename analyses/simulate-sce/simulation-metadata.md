@@ -1,7 +1,63 @@
-# Simulation and metadata in SCE objects
+# Simulation and metadata in SCE objects and metadata files
 
-This document describes what components of the SCE object are preserved and/or modified during simulations with the `simulate-sce.R` script.
+This document describes what components of the SCE object are preserved and/or modified during simulations with the `permute-metadata.R` and `simulate-sce.R` scripts.
 Most contents are preserved in original form, but some are recalculated from the simulated data or randomized with the intent of preserving characteristics of the input data, such as the number and content of cell type annotations.
+
+## Permutation of `single_cell_metadata.tsv`
+
+Fields that are not present in all projects (i.e. submitter-specific fields) are removed from the permuted metadata file.
+
+| Field                                      | Contents | Simulation plan                  |
+| ------------------------------------------ | -------- | -------------------------------- |
+| `scpca_project_id`                         |          | keep                             |
+| `scpca_sample_id`                          |          | keep                             |
+| `scpca_library_id`                         |          | keep                             |
+| `seq_unit`                                 |          | keep                             |
+| `technology`                               |          | keep                             |
+| `filtered_cell_count`                      |          | keep                             |
+| `submitter_id`                             |          | removed                          |
+| `participant_id`                           |          | anonymized                       |
+| `submitter`                                |          | keep                             |
+| `age_at_diagnosis`                         |          | permuted                         |
+| `sex`                                      |          | permuted                         |
+| `diagnosis`                                |          | permuted                         |
+| `subdiagnosis`                             |          | permuted (match diagnosis)       |
+| `tissue_location`                          |          | permuted                         |
+| `disease_timing`                           |          | permuted                         |
+| `organism`                                 |          | keep                             |
+| `development_stage_ontology_term_id`       |          | permuted (match age)             |
+| `sex_ontology_term_id`                     |          | permuted (match sex)             |
+| `organism_ontology_id`                     |          | keep                             |
+| `self_reported_ethnicity_ontology_term_id` |          | permuted                         |
+| `disease_ontology_term_id`                 |          | permuted (match diagnosis)       |
+| `tissue_ontology_term_id`                  |          | permuted (match tissue_location) |
+| `pi_name`                                  |          | keep                             |
+| `project_title`                            |          | keep                             |
+| `sample_cell_count_estimate`               |          | keep                             |
+| `alevin_fry_version`                       |          | keep                             |
+| `cell_filtering_method`                    |          | keep                             |
+| `date_processed`                           |          | keep                             |
+| `droplet_filtering_method`                 |          | keep                             |
+| `genome_assembly`                          |          | keep                             |
+| `has_cellhash`                             |          | keep                             |
+| `includes_anndata`                         |          | keep                             |
+| `is_multiplexed`                           |          | keep                             |
+| `has_citeseq`                              |          | keep                             |
+| `adt_filtering_method`                     |          | keep                             |
+| `adt_normalization_method`                 |          | keep                             |
+| `mapped_reads`                             |          | keep                             |
+| `mapping_index`                            |          | keep                             |
+| `min_gene_cutoff`                          |          | keep                             |
+| `normalization_method`                     |          | keep                             |
+| `prob_compromised_cutoff`                  |          | keep                             |
+| `processed_cells`                          |          | keep                             |
+| `salmon_version`                           |          | keep                             |
+| `total_reads`                              |          | keep                             |
+| `transcript_type`                          |          | keep                             |
+| `unfiltered_cells`                         |          | keep                             |
+| `workflow`                                 |          | keep                             |
+| `workflow_commit`                          |          | keep                             |
+| `workflow_version`                         |          | keep                             |
 
 ## Data matrices
 
@@ -61,6 +117,8 @@ Most contents are preserved in original form, but some are recalculated from the
 |                                |                                 |                                         |
 
 ### Fields in `metadata(sce)$sample_metadata`
+
+Most of these values, if adjusted, will be taken from the permuted version of the `single_cell_metadata.tsv` file.
 
 | field                                      | contents | simulation plan  |
 | ------------------------------------------ | -------- | ---------------- |

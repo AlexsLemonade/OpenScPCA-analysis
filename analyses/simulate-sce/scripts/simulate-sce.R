@@ -103,7 +103,7 @@ simulate_sce <- function(sce, ncells, library_metadata, processed) {
     "sce must be a SingleCellExperiment" = is(sce, "SingleCellExperiment"),
     "ncells must be a positive integer" = is.integer(ncells) && ncells > 0,
     ## TODO: revisit this assumption for multiplexed data
-    "library_metadata be a data frame with a single row" = (
+    "library_metadata should be a data frame with a single row" = (
       is.data.frame(library_metadata) && nrow(library_metadata) == 1
     ),
     "processed must be a boolean" = is.logical(processed)
