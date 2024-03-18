@@ -12,7 +12,8 @@ output: html_notebook
 This a template for an analysis notebook using R Markdown.
 
 It is a good idea to start with a brief introduction to the analysis, including the purpose of the analysis, the data used, and the methods applied.
-Replace this text with your own introduction, and be sure to update the `title` and `author` fields at the top of the document.
+Replace this text with your own introduction, and be sure to update the `title:` and `author:` fields in the YAML header at the top of the document.
+Don't forget to rename this files as well!
 
 
 ## Setup
@@ -20,11 +21,11 @@ Replace this text with your own introduction, and be sure to update the `title` 
 ### Packages
 
 Load required packages in the following chunk, if needed.
-Do not install packages here, only load them with the `library()` function.
+Do not install packages here; only load them with the `library()` function.
 
 ```{r packages}
 # load required packages
-# e.g. library("tidyverse")
+# e.g. library(tidyverse)
 ```
 
 You may also want to use the `package::function()` syntax within your code for better tracking of which functions come from which packages, and to avoid conflicts between functions with the same name in different packages.
@@ -32,12 +33,12 @@ You may also want to use the `package::function()` syntax within your code for b
 ### Paths
 
 Setting paths to directories and files for input and output at the start of a notebook can be helpful for organization and reproducibility.
-You may not know all of the paths you need when you start a notebook, but once you do, keeping them all in one place can be helpful, both for yourself in the future and for other users of the notebook.
+You may not know all of the paths you need when you start a notebook, but once you do, keeping them all in one place is helpful, both for yourself in the future and for other users of the notebook.
 
 
 ### Base directories
 
-In the chunk below, we included some common directories that you might need, finding their locations using the very useful `rprojroot` package.
+In the chunk below, we include some common directories that you might need, finding their locations using the very useful [`rprojroot` package](https://rprojroot.r-lib.org/).
 
 ```{r base paths}
 # The base path for the OpenScPCA repository, found by its (hidden) .git directory
@@ -54,12 +55,13 @@ module_base <- file.path(repository_base, "analyses", "{{module}}")
 
 ### Input and output files
 
-Set paths to input and output directories and files in the chunk below
+Set paths to input and output directories and files in the chunk below.
 
 ```{r paths}
 # Input files
 
 # Output files
+
 ```
 
 ## Analysis content
