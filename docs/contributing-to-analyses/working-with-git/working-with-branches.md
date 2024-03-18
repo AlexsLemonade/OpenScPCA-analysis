@@ -53,13 +53,13 @@ You can do this by double-clicking on the `main` branch in the branch graph with
     ![Click button to checkout main](../../img/working-with-branches-1.png){width="600"}
 </figure>
 
-2.Create and checkout a new branch by right-clicking on the `main` branch and selecting `Create branch here`.
+3. Create and checkout a new branch by right-clicking on the `main` branch and selecting `Create branch here`.
 
 <figure markdown="span">
     ![Create branch](../../img/working-with-branches-2.png){width="600"}
 </figure>
 
-3.You will then be prompted to name your branch.
+4. You will then be prompted to name your branch.
 We encourage users to name their branch using their GitHub username followed by a description of what changes will be included in the branch.
 For example, if you are adding an analysis to add cell type annotations to Ewing sarcoma samples, you might name your branch `username/celltype-ewings`.
 
