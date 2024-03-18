@@ -2,6 +2,8 @@ ableist
 ALSF
 bioinformatics
 Carpentries
+Cmd
+Ctrl
 conda
 config
 discoverable
