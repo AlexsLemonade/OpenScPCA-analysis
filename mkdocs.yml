@@ -58,7 +58,10 @@ nav:
       - technical-setup/environment-setup/setup-conda.md
       - technical-setup/environment-setup/install-r-rstudio.md
   - Tools for communication:   # Slack, issues, discussions
-    - communications-tools/tools-for-communication.md
+    - communications-tools/index.md
+    - GitHub Issues:
+      - communications-tools/github-issues/index.md
+      - communications-tools/github-issues/what-are-github-issues-and-how-do-we-use-them.md
   - Contributing to analyses:  # Setting up an analysis, all the git stuff
     - contributing-to-analyses/index.md
     - Starting your analysis:
@@ -67,8 +70,9 @@ nav:
       - contributing-to-analyses/starting-your-analysis/compute-requirements.md
     - Doing an analysis:
       - contributing-to-analyses/doing-analyses/index.md
-      - Working with Git: # Creating branches, adding commits, all git interactions
-        - contributing-to-analyses/doing-analyses/working-with-git/index.md
+    - Working with Git: # Creating branches, adding commits, all git interactions
+      - contributing-to-analyses/working-with-git/working-with-branches.md
+      - contributing-to-analyses/working-with-git/making-commits.md
   - Software platforms:            # LSfR, AWS, Docker, etc
     - software-platforms/index.md
   - Getting Help and FAQ:      # troubleshooting and FAQ
