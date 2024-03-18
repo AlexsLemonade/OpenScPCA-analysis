@@ -27,6 +27,12 @@ suppressPackageStartupMessages({
 ```
 
 Set the paths to the data, results, and plots directories.
+Here we use the `rprojroot` package to find:
+
+- the root of the `OpenScPCA-analysis` repository by looking for the (hidden) `.git` directory.
+- the root of this module by looking for the `renv.lock` file.
+
+Then we define the directories for input data and output results based on those root directories.
 
 ```{r}
 # Find the repository and module root directories
@@ -42,7 +48,7 @@ plots_dir <- file.path(module_root, "plots")
 ```
 
 We will be creating two output files: a table and a plot.
-Defining their locations in the `Setup` section will make it easy for future notebook users to know what to expect.
+Defining their locations in the `Setup` section will make it easy for future users (including us in the future) to know what to expect as output from this notebook.
 
 ```{r}
 count_file <- file.path(results_dir, "cell_counts.csv")
@@ -55,11 +61,19 @@ plot_file <- file.path(plots_dir, "cell_counts.pdf")
 First, we will define a function to load and count the cells in a SCE object, returning a one line data frame with the project ID, sample ID, library ID, and number of cells.
 
 ```{r}
-# function to count cells in an sce file
-# returns a data frame with ids and cell count
 count_sce <- function(sce_file) {
+  # function to count cells in an sce file
+  # returns a data frame with the following columns:
+  # - project_id
+  # - sample_id
+  # - library_id
+  # - n_cells: number of cells in the library
+
   # load the SCE object
   sce <- readRDS(sce_file)
+
+  # input check
+  stopifnot("`sce_file` must contain a SingleCellExperiment object" = is(sce, "SingleCellExperiment"))
 
   # get stats and count the cells
   result_df <- data.frame(
