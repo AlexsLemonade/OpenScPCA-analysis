@@ -65,7 +65,7 @@ Please be sure to provide this information when prompted.
 * [Filing an issue to modify an analysis?](STUB_LINK)
   * Report what you know about computational resources required in the "Will you require different computational resources beyond what the analysis module already uses?" field
 * [Filing a pull request?](STUB_LINK)
-  * Fill out the section explaining to reviewers what computational resources are required to run the code ("What are the computational requirements to be able to run the code in this PR?").
+  * Fill out the section explaining to reviewers what computational resources are required to run the code ("What are the computational requirements to be able to run the code in this PR?")
 
 You can always add a comment to your existing discussion post or issue about compute requirements if you have gathered more information since filing!
 
