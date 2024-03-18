@@ -1,8 +1,11 @@
 ableist
+ADT
 al
 ALSF
 altExp
 AnnData
+anonymize
+anonymized
 bioinformatics
 Carpentries
 CellAssign
@@ -29,6 +32,7 @@ LinkedIn
 linter
 linter's
 linters
+lockfile
 LSfR
 macOS
 merchantability
@@ -41,6 +45,7 @@ precommit
 README
 redistribution
 renv
+repo
 reproducibility
 RStudio
 Rtools

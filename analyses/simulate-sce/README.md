@@ -32,7 +32,8 @@ All files for the project will be simulated and saved to the `results/simulated`
 ./simulate-project.sh SCPCP000015
 ```
 
-This will call the `scripts/simulate-sce.R` script for each level of processed data in the project.
+This will first create a permuted metadata file for the project.
+Then the `scripts/simulate-sce.R` script will be called for each sample to create simulated `.rds` files.
 
 ## Simulation description
 

@@ -5,7 +5,7 @@
 # Works on a single sample directory at a time, processing all SCE files within that directory.
 
 
-# Parse arguments ---------------------------------------------
+# Parse arguments --------------------------------------------------------------
 
 library(optparse)
 
@@ -16,6 +16,12 @@ option_list <- list(
     type = "character",
     default = NULL,
     help = "The sample directory for the real data to use for simulation"
+  ),
+  make_option(
+    c("-m", "--metadata_file"),
+    type = "character",
+    default = NULL,
+    help = "The permuted metadata file to use for metadata replacement"
   ),
   make_option(
     c("-o", "--output_dir"),
@@ -39,7 +45,7 @@ option_list <- list(
 
 opts <- parse_args(OptionParser(option_list = option_list))
 
-# Load libraries ----------------------------------------------
+# Load libraries ---------------------------------------------------------------
 
 # wait to load these until after the command line arguments are parsed
 # Some take a while to load, and we'd rather have the script be responsive
@@ -50,7 +56,7 @@ suppressPackageStartupMessages({
 })
 
 
-# Functions ---------------------------------------------------
+# Functions --------------------------------------------------------------------
 
 #' Randomize labels
 #'
@@ -91,11 +97,15 @@ random_label <- function(label_set, n) {
 #' @import SingleCellExperiment
 #'
 #' @examples
-simulate_sce <- function(sce, ncells, processed) {
+simulate_sce <- function(sce, ncells, library_metadata, processed) {
   # check parameters
   stopifnot(
     "sce must be a SingleCellExperiment" = is(sce, "SingleCellExperiment"),
     "ncells must be a positive integer" = is.integer(ncells) && ncells > 0,
+    ## TODO: revisit this assumption for multiplexed data
+    "library_metadata should be a data frame with a single row" = (
+      is.data.frame(library_metadata) && nrow(library_metadata) == 1
+    ),
     "processed must be a boolean" = is.logical(processed)
   )
 
@@ -103,9 +113,24 @@ simulate_sce <- function(sce, ncells, processed) {
   cell_subset <- sample.int(ncol(sce), ncells)
   sce_sim <- sce[, cell_subset]
 
-  ### Reduce and remove metadata ----------------------------
-  # remove participant id, but leave it as a string
-  metadata(sce_sim)$sample_metadata$participant_id <- ""
+  ### Reduce and remove metadata -----------------------------------------------
+
+  # replace sample metadata fields with permuted values from the metadata file
+  # TODO: Make sure this works correctly with multiplexed data
+  metadata(sce_sim)$sample_metadata$submitter_id <- library_metadata$submitter_id
+  metadata(sce_sim)$sample_metadata$participant_id <- library_metadata$participant_id
+  metadata(sce_sim)$sample_metadata$age <- library_metadata$age_at_diagnosis
+  metadata(sce_sim)$sample_metadata$sex <- library_metadata$sex
+  metadata(sce_sim)$sample_metadata$diagnosis <- library_metadata$diagnosis
+  metadata(sce_sim)$sample_metadata$subdiagnosis <- library_metadata$subdiagnosis
+  metadata(sce_sim)$sample_metadata$tissue_location <- library_metadata$tissue_location
+  metadata(sce_sim)$sample_metadata$disease_timing <- library_metadata$disease_timing
+  metadata(sce_sim)$sample_metadata$development_stage_ontology_term_id <- library_metadata$development_stage_ontology_term_id
+  metadata(sce_sim)$sample_metadata$sex_ontology_term_id <- library_metadata$sex_ontology_term_id
+  metadata(sce_sim)$sample_metadata$self_reported_ethnicity_ontology_term_id <- library_metadata$self_reported_ethnicity_ontology_term_id
+  metadata(sce_sim)$sample_metadata$disease_ontology_term_id <- library_metadata$disease_ontology_term_id
+  metadata(sce_sim)$sample_metadata$tissue_ontology_term_id <- library_metadata$tissue_ontology_term_id
+
 
   # remove miQC model that may exist
   metadata(sce_sim)$miQC_model <- NULL
@@ -118,7 +143,7 @@ simulate_sce <- function(sce, ncells, processed) {
     metadata(sce_sim)$cellassign_predictions <- metadata(sce_sim)$cellassign_predictions[cell_subset, ]
   }
 
-  # Adjust cluster/cell type labels ----------------------------
+  # Adjust cluster/cell type labels --------------------------------------------
   if (!is.null(colData(sce)$submitter_celltype_annotation)) {
     submitter_set <- unique(colData(sce)$submitter_celltype_annotation)
     colData(sce_sim)$submitter_celltype_annotation <- random_label(submitter_set, ncells)
@@ -152,7 +177,7 @@ simulate_sce <- function(sce, ncells, processed) {
   }
 
 
-  # Perform simulation ---------------------------------
+  # Perform simulation ---------------------------------------------------------
   sim_params <- splatter::simpleEstimate(as.matrix(counts(sce_sim)))
   # get spliced ratio
   spliced_ratio <- sum(assay(sce_sim, "spliced")) / sum(counts(sce))
@@ -170,51 +195,65 @@ simulate_sce <- function(sce, ncells, processed) {
       scater::runUMAP(dimred = "PCA")
   }
 
-  # Add any altExps -------------------------------------
+  # Add any altExps ------------------------------------------------------------
   altExpNames(sce_sim) |> purrr::walk(\(name) {
-    alt_exp <- altExp(sce_sim, name)
-    alt_counts <- as.matrix(counts(alt_exp))
+    alt_sce <- altExp(sce_sim, name)
+    alt_counts <- as.matrix(counts(alt_sce))
     # zero count columns are not liked by splatter, so we remove them for the sim
     sim_cols <- which(colSums(alt_counts) > 0)
     alt_counts <- alt_counts[, sim_cols]
     alt_params <- splatter::simpleEstimate(alt_counts)
     sim_counts <- counts(splatter::simpleSimulate(alt_params, verbose = FALSE))
     # add back, leaving zeros
-    counts(alt_exp, withDimnames = FALSE)[, sim_cols] <- sim_counts
+    counts(alt_sce, withDimnames = FALSE)[, sim_cols] <- sim_counts
     if (processed) {
-      logcounts(alt_exp, withDimnames = FALSE) <- log1p(counts(alt_exp))
+      logcounts(alt_sce, withDimnames = FALSE) <- log1p(counts(alt_sce))
     }
-    altExp(sce_sim, name) <- alt_exp
+    # recalculate rowstats
+    rowData(alt_sce)[, c("sum", "detected")] <- scuttle::perFeatureQCMetrics(alt_sce)
+    altExp(sce_sim, name) <- alt_sce
   })
 
-  # Replace and update column stats ---------------------
+  # Replace and update column stats --------------------------------------------
   # store column names to restore order later
   coldata_names <- names(colData(sce_sim))
+  rowdata_names <- names(rowData(sce_sim))
 
 
   # remove stats that will be recalculated
-  remove_stats <- c(
+  remove_colstats <- c(
     "sum",
     "detected",
     "total",
     "subsets_mito_sum",
     names(colData(sce_sim))[grep("altexps_.*_(sum|detected|percent)", names(colData(sce_sim)))]
   )
-  colData(sce_sim)[, remove_stats] <- NULL
+  colData(sce_sim)[, remove_colstats] <- NULL
 
-  sce_sim <- scuttle::addPerCellQC(sce_sim)
+  remove_rowstats <- c(
+    "sum",
+    "detected"
+  )
+  rowData(sce_sim)[, remove_rowstats] <- NULL
+
+  sce_sim <- sce_sim |>
+    scuttle::addPerCellQCMetrics() |>
+    scuttle::addPerFeatureQCMetrics()
   colData(sce_sim)$subsets_mito_sum <- colData(sce_sim)$sum * colData(sce_sim)$subsets_mito_percent / 100
 
   # restore column order
   colData(sce_sim) <- colData(sce_sim)[, coldata_names]
+  rowData(sce_sim) <- rowData(sce_sim)[, rowdata_names]
 
   return(sce_sim)
 }
 
 
-# Main Script body ------------------------------------------------
+# Main Script body -------------------------------------------------------------
 
 set.seed(opts$seed)
+
+metadata <- readr::read_tsv(opts$metadata_file, show_col_types = FALSE)
 
 # get file list
 sce_files <- list.files(
@@ -230,8 +269,11 @@ purrr::walk(sce_files, \(sce_file) {
   is_processed <- grepl("_processed.rds$", sce_file)
   # load the real data
   real_sce <- readr::read_rds(sce_file)
+  # get the matching library metadata
+  library_metadata <- metadata |>
+    dplyr::filter(scpca_library_id == metadata(real_sce)$library_id)
   # simulate the data
-  sim_sce <- simulate_sce(real_sce, opts$ncells, processed = is_processed)
+  sim_sce <- simulate_sce(real_sce, opts$ncells, library_metadata, processed = is_processed)
   # save the simulated data
   sim_file <- file.path(
     opts$output_dir,
