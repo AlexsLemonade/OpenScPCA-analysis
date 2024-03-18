@@ -95,7 +95,7 @@ You can add these hooks by adding the following code to your `.pre-commit-local.
 ```yaml
   # ruff formatter for Python
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.2.1
+    rev: v0.3.3
     hooks:
       - id: ruff-format
   # code styling with the {styler} package for R
@@ -120,7 +120,7 @@ If you would like to use a code linter, we recommend using [`ruff`](https://docs
 ```yaml
   # ruff linter for Python
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.2.1
+    rev: v0.3.3
     hooks:
       - id: ruff
   # code linting with the  ith the {lintr} package for R
