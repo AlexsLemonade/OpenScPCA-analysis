@@ -10,7 +10,7 @@ Use the 'Preview' view to click the link below:
 _Hi there, thanks for your contribution!_
 _Please fill out this template to help us review your code._
 
-_Remember, the more context you provide, the faster review will go._
+_Remember, the more context you provide, the faster the review will go!_
 _For more information about filling out this template, please see the [OpenScPCA documentation on filing pull requests](STUB_LINK docs on PRs)._
 
 _Before filing the pull request, you can also feel free to delete the italicized instruction lines in this template._
@@ -22,14 +22,15 @@ _Before filing the pull request, you can also feel free to delete the italicized
 _In this section, tell reviewers about the scope and purpose of the code in the pull request._
 
 
-#### What is the scientific goal of the code in this pull request?
+#### What is the goal of this pull request?
+
+_Include the scientific or analytical goals, if applicable._
 
 
 
 #### Briefly describe the general approach you took to achieve this goal.
 
 
-#### Please link to the GitHub Discussion about this analysis contribution.
 
 
 #### Please link to the GitHub issue that this pull request addresses.
@@ -41,7 +42,12 @@ _In this section, tell reviewers about the scope and purpose of the code in the 
 
 ### Results
 
+_Delete this section if no results are associated with your pull request._
+
 _In this section, tell reviewers about what kinds of results (if any) your code produces._
+#### What is the name of your results bucket on S3?
+
+_Results should be [uploaded to your bucket](STUB_LINK docs on uploading results to S3) so they are available during review._
 
 
 #### What types of results does your code produce (e.g., table, figure)?
@@ -65,7 +71,6 @@ _This information will help guide their review._
 
 
 
-#### Is the analysis in a mature enough form that the results themselves are ready for review?
 
 
 
@@ -75,18 +80,16 @@ _Check all those that apply._
 _Note that you may find it easier to check off these items after the pull request is actually filed._
 
 
-#### Analysis module
+#### Analysis module and review
 
 - [ ] This analysis module [uses the analysis template and has the expected directory structure](STUB_LINK for analysis structure doc).
 - [ ] The analysis module `README.md` has been updated to reflect code changes in this pull request.
 - [ ] The analytical code is documented and contains comments.
+- [ ] Any results this code produces have been added to S3 for review.
 
 #### Reproducibility checklist
 
 - [ ] Code in this pull request has been added to the GitHub Action workflow that runs this module.
-- [ ] dependencies required to run the code in this pull request have been added to the analysis module `Dockerfile`.
-- [ ] The dependencies required to run the code in this pull request have been added to the analysis module conda `environment.yml` file.
-  - This item is most relevant for Python-based analysis modules, but may be relevant for additional modules as well.
-- [ ] The R package dependencies required to run the code in this pull request have been added to the analysis module `renv.lock` file
-  - This item is specific to R-based analysis modules.
-- [ ] Any results this code produces have been added to S3 for reviewers to see. TODO: IS THIS THE IDEA RIGHT?
+- [ ] The dependencies required to run the code in this pull request have been added to the analysis module `Dockerfile`.
+- [ ] If applicable, the dependencies required to run the code in this pull request have been added to the analysis module conda `environment.yml` file.
+- [ ] If applicable, R package dependencies required to run the code in this pull request have been added to the analysis module `renv.lock` file.
