@@ -66,8 +66,8 @@ nav:
     - contributing-to-analyses/index.md
     - Starting your analysis:
       - contributing-to-analyses/starting-your-analysis/index.md
-      - contributing-to-analyses/starting-your-analysis/software-requirements.md
-      - contributing-to-analyses/starting-your-analysis/compute-requirements.md
+      - contributing-to-analyses/starting-your-analysis/determining-software-requirements.md
+      - contributing-to-analyses/starting-your-analysis/determining-compute-requirements.md
     - Doing an analysis:
       - contributing-to-analyses/doing-analyses/index.md
     - Working with Git: # Creating branches, adding commits, all git interactions
