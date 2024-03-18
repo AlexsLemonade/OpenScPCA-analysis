@@ -1,7 +1,7 @@
 # Pushing to origin
 
-Pushing commits from your local branch to a remote branch creates a remote copy of the changes that you made on your local branch.
-This means your changes can now be viewed locally and on GitHub.
+Pushing commits from your local branch to a remote branch creates a remote copy of the changes on your local branch.
+This means your changes are now present both locally on your computer and on GitHub.
 
 !!! note "Learn about pushing to origin"
 
@@ -10,7 +10,7 @@ This means your changes can now be viewed locally and on GitHub.
 
 ## Why push?
 
-Creating a remote copy of your branch makes it possible to [file a pull request](STUB-LINK) to the `main` branch of `OpenScPCA-analysis`.
+Pushing your changes will allow to to eventually [file a pull request](STUB-LINK) to the `main` branch of `OpenScPCA-analysis`.
 Filing a pull request is the only way to incorporate your changes into the main code base of OpenScPCA.
 
 
@@ -30,7 +30,7 @@ The first time that you push to origin for a feature branch, you will be prompte
 - The first box should say `origin`, telling GitKraken to push your changes to a branch to your remote fork of `OpenScPCA-analysis`.
 - The second box tells GitKraken what to name the remote copy of the branch.
     - This field will be automatically populated with the same name used for the local branch.
-    - It is recommended to keep this and use the same branch name for the local and remote branch.
+    - We recommend you keep this default and use the same branch name for the local and remote branch.
 - Press `Submit` to confirm your choices and push to origin.
 
 <figure markdown="span">
