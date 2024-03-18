@@ -57,7 +57,7 @@ We always aim for a ratio of one issue to one pull request.
 
 **Please read the Data Lab's documentation on:**
 
-* [What are Github issues and how do we use them?](github-issues/what-are-github-issues-and-how-do-we-use-them.md)
+* [What are GitHub issues and how do we use them?](github-issues/what-are-github-issues-and-how-do-we-use-them.md)
 * [Issue templates](STUB_LINK)
 * [Examples of good and bad issues](STUB_LINK)
 
