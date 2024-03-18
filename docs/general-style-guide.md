@@ -51,6 +51,18 @@ Use it for describing:
 - Features
 - Lists of inputs or output files
 
+Alternatively, you can use numbered lists.
+When using numbered lists, number all items in the list with `1. `, this will allow for automatic numbering when rendering.
+After a new paragraph, automatic numbering will restart, so be sure that any text you would like to list under that number is indented.
+
+```
+1. Item 1
+   Some text and images about item 1
+
+1. Item 2
+   Some text and images about item 2
+```
+
 ## Using buttons
 
 Use [GitHub buttons](https://gist.github.com/apaskulin/1ad686e42c7165cb9c22f9fe1e389558#buttons) to draw attention to important links.
