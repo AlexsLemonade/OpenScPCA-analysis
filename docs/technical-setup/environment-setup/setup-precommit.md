@@ -90,7 +90,6 @@ In this case, the initial commit will fail, and you will then need to check and 
 Some formatters that we recommend are [`ruff-format`](https://docs.astral.sh/ruff/formatter/) for Python and [the `style-files` hook from the pre-commit package](https://lorenzwalthert.github.io/precommit/articles/available-hooks.html#style-files) for R.
 
 You can add these hooks by adding the following code to your `.pre-commit-local.yaml` file in the `repos:` section:
-(Note that newer versions of hooks these may be available, so you may wish to bump the `rev` fields.)
 
 ```yaml
   # ruff formatter for Python
@@ -151,3 +150,12 @@ There are many other pre-commit hooks available.
 
 You can find a fairly extensive list of them at the pre-commit ["Supported hooks" page](https://pre-commit.com/hooks.html).
 Just note that the more hooks you add, the longer each commit to your repository will take!
+
+
+#### Updating pre-commit hooks
+
+If you ever need to update the versions of your pre-commit hooks, please use this command:
+
+```sh
+pre-commit autoupdate -c .pre-commit-local.yaml
+```
