@@ -82,7 +82,7 @@ If you are making your first commit, the pre-commit checks may take longer and y
     ![Set up pre-commit](../../img/making-commits-6.png){width="600"}
 </figure>
 
-Having trouble getting pre-commit checks to pass?
+**Having trouble getting pre-commit checks to pass?**
 Please see the [documentation for troubleshooting commit failures](STUB-LINK).
 
 You have now successfully committed your changes to your feature branch!
