@@ -12,8 +12,6 @@ This project aims to characterize the ScPCA data by:
 
 TODO: ADD ILLUSTRATION
 
-<div class ="grid" markdown >
-
 **Co-develop analyses ideas and approaches**
 
 Participate in discussions with Data Lab members and other contributors to shape analyses ideas and select best approaches to implement analyses.
@@ -22,8 +20,6 @@ Participate in discussions with Data Lab members and other contributors to shape
 
 Work on an analysis module within a reproducible research framework setup for you by the Data Lab using R or Python.
 
-</div>
-
 **Review Process**
 
 Participate in the code review process to improve skills in programming, and writing collaborative code. 
@@ -31,6 +27,7 @@ Participate in the code review process to improve skills in programming, and wri
 **Add your analyses to the project**
 
 Contribute your analysis to benefit the broader pediatric cancer community.
+
 
 ## Benefits of Participating
 
