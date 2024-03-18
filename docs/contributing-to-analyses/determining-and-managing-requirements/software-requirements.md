@@ -24,7 +24,7 @@ sink()
 
 This will result in the contents being written to a file called `sessionInfo.txt` in your working directory, so be sure to use unique filenames if multiple scripts in your analysis are writing out the contents of `sessionInfo()`.
 
-You can post the contents of these files on [your pull requests](STUB_LINK index page for PRs) or commit them to the repository.
+You can post the contents of these files on [your pull requests](STUB_LINK index page for pull requests) or commit them to the repository.
 
 ### Using `renv`
 
@@ -76,13 +76,13 @@ You can use [`renv::status()`](https://rstudio.github.io/renv/reference/status.h
 
 Taking [a snapshot using the default arguments will only capture packages that are used in your module and their required dependencies](https://rstudio.github.io/renv/reference/snapshot.html), but there may be some other _recommended_ package that you want to include and pin to a specific version.
 
-For example, `ggplot2` needs the `svglite` package to save `.svg` files, but that package is not listed as a _requirement_, so `renv` may not know to track it, even if you have the package installed. 
+For example, `ggplot2` needs the `svglite` package to save `.svg` files, but that package is not listed as a _requirement_, so `renv` may not know to track it, even if you have the package installed.
 
 You can make `renv` include a package by loading it in a file called `dependencies.R` in a directory called `components` within your analysis.
 
 !!! note
     If you [used `--use-renv` when creating your analysis module](STUB LINK), `components/dependencies.R` was already created.
-    
+
 For instance, if you wanted to make sure `renv` was keeping track of the `scuttle` and `svglite` packages, your module's `components/dependencies.R` would include the following:
 
 ```r
@@ -92,7 +92,7 @@ library(svglite)
 
 #### Restoring dependencies
 
-If you are switching between your computer and Amazon Web Services or running someone else's module, it can be helpful to restore dependencies using a module's lockfile.
+If you are switching between your computer and Amazon Web Services or running another contributor's module, it can be helpful to restore dependencies using a module's lockfile.
 To do so, use the following command ([reference](https://rstudio.github.io/renv/reference/restore.html)):
 
 ```r

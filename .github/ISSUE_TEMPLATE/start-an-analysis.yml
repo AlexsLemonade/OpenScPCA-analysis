@@ -1,0 +1,67 @@
+name: Start an analysis
+description: Use this template to track the first pull request to establish an analysis module
+labels: analysis
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **This issue form should be used when you are ready to create a module and write analytical code.**
+        It tracks the first steps you will take toward implementing your module.
+
+        You should only file this issue _after_ you have discussed this analysis on GitHub Discussions.
+        Then, you can link to that thread and use it to help complete this issue.
+
+        If you have not yet had a GitHub Discussion about this analysis, please instead file a Discussion here: https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=propose-a-new-analysis.
+
+  - type: textarea
+    attributes:
+      label: Please link to the GitHub Discussion for this proposed analysis.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Describe the goals of this analysis module.
+      description: |
+        Summarize the overall scientific goals of the analysis from the discussion.
+        Tell us about what the code in the module will do.
+        This will help guide code review when you file your pull request(s).
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: What software will you require?
+      description: |
+        Tell us about the programming language you will use and any required packages (if known).
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: What will your first pull request contain?
+      description: |
+        Tell us what code and documentation to expect in the pull request to establish your module.
+        Remember [that smaller, more focused pull requests get through review faster](STUB_LINK docs on PRs).
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: What computational resources will you require?
+      description: |
+        Please provide any information about the required computational resources for the module.
+        This will help us prepare or allocate resources for your analysis.
+        For example:
+
+        - Does this analysis require a GPU?
+        - Is a certain amount of memory required?
+        - Can this be accomplished on a laptop?
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: If known, when do you expect to file the first pull request?
+    validations:
+      required: false
