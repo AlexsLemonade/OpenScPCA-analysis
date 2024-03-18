@@ -33,7 +33,7 @@ All files for the project will be simulated and saved to the `results/simulated`
 ```
 
 This will first create a permuted metadata file for the project.
-Then the `scripts/simulate-sce.R` script will be called for each sample to create simulated rds files.
+Then the `scripts/simulate-sce.R` script will be called for each sample to create simulated `.rds` files.
 
 ## Simulation description
 

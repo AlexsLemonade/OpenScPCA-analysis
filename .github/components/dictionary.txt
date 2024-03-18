@@ -4,6 +4,8 @@ al
 ALSF
 altExp
 AnnData
+anonymize
+anonymized
 bioinformatics
 Carpentries
 CellAssign
