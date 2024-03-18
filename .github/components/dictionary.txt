@@ -1,5 +1,6 @@
 ableist
 ALSF
+benchmarking
 bioinformatics
 Carpentries
 conda
@@ -13,6 +14,7 @@ formatters
 Generis
 GitHub
 GitKraken
+HPC
 ies
 immunities
 JSON
@@ -20,6 +22,7 @@ LGBTQ
 licensor
 licensor's
 licensors
+Lightsail
 LinkedIn
 linter
 linter's
@@ -34,6 +37,7 @@ OpenScPCA
 openscpca
 pre
 precommit
+PRs
 README
 redistribution
 renv

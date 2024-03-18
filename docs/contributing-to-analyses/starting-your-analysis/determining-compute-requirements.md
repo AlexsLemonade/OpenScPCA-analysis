@@ -10,7 +10,7 @@ We will prompt you to report compute requirements throughout the project as desc
 ### Prior success or failure
 
 A great place to start with determining compute requirements is what computer(s) you can successfully run your analysis on.
-For example, have you run this kind of analysis sucessfully on your laptop?
+For example, have you run this kind of analysis successfully on your laptop?
 You can use your laptop's specs when reporting compute requirements.
 Have you successfully run a similar analysis before on your institution's High Performance Computing (HPC) cluster?
 Report the characteristics of the kind of node you typically use.
