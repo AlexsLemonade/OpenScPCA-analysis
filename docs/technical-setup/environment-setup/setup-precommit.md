@@ -90,8 +90,7 @@ In this case, the initial commit will fail, and you will then need to check and 
 Some formatters that we recommend are [`ruff-format`](https://docs.astral.sh/ruff/formatter/) for Python and [the `style-files` hook from the pre-commit package](https://lorenzwalthert.github.io/precommit/articles/available-hooks.html#style-files) for R.
 
 You can add these hooks by adding the following code to your `.pre-commit-local.yaml` file in the `repos:` section:
-
-TODO: VERSIONS? ruff is at 0.3.3. precommit is up to date. prettier is in alpha for 4, so that seems fine.
+(Note that newer versions of hooks these may be available, so you may wish to bump the `rev` fields.)
 
 ```yaml
   # ruff formatter for Python
