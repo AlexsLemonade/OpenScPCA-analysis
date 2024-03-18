@@ -119,6 +119,7 @@ Only these items should be in backticks:
 - Names of packages, e.g. `renv`
 - SemVar software versions
 - References to a specific repository, e.g. `OpenScPCA-analysis`
+- Buttons in GitKraken, e.g.. `Stage all files`
 
 For consistency, please use the following:
 
