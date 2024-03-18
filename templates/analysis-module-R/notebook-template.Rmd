@@ -49,8 +49,6 @@ data_dir <- file.path(repository_base, "data", "current")
 
 # The path to this module
 module_base <- file.path(repository_base, "analyses", "{{module}}")
-# If you are using `renv`, you might use something like the following instead:
-# module_base <- rprojroot::find_root(rprojroot::is_renv_project)
 ```
 
 ### Input and output files
