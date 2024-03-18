@@ -13,16 +13,12 @@ body:
         - You are proposing an update to existing analysis module
 
         If you have not already had a Discussion about contributing to this analysis module, please instead post to GitHub Discussions:
-        -  [Use this Discussion template](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=modify-an-existing-analysis) to propose to modify an existing analysis
-        - [Original module authors] Seeking more feedback? Feel free to post an update to your original GitHub Discussions post.
+        - [Use this Discussion template](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=modify-an-existing-analysis) to propose to modify an existing analysis
+        - Are you the original module author seeking more feedback? Feel free to post an update to your original GitHub Discussions post
 
   - type: textarea
     attributes:
       label: If you are filing this issue based on a specific GitHub Discussion, please link to the relevant Discussion.
-      description: |
-        This does not apply if:
-        - You are adding to an existing module that you are the author of
-        - You are not seeking additional feedback about the next steps of your analysis
     validations:
       required: false
 
