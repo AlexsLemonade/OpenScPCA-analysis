@@ -2,7 +2,7 @@
 
 ## What is pre-commit?
 
-[`pre-commit`](https://pre-commit.com/) is a small software package that makes it easy to manage and run code quality checks prior to committing code. 
+[`pre-commit`](https://pre-commit.com/) is a small software package that makes it easy to manage and run code quality checks prior to committing code.
 `pre-commit` checks code quality by defining a set of "hooks," called pre-commit hooks, that will automatically run every time you commit changes to a repository.
 
 These pre-commit hooks check that the changes you are trying to commit pass the code quality standards we have set up.
@@ -58,7 +58,7 @@ All set! 🎉
 
 _Instructions in this section are optional._
 
-While we have use a limited set of required pre-commit hooks in this project, there are several other pre-commit hooks that you might find useful for your own development.
+While we use a limited set of required pre-commit hooks in this project, there are [several other pre-commit hooks that you might find useful for your own development](#suggested-additional-pre-commit-hooks).
 This section describes how you can add additional pre-commit hooks.
 
 Because all OpenScPCA contributors share the `.pre-commit-config.yaml` file, please do not modify it.
