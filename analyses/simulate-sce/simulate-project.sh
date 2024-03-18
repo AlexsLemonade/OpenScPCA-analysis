@@ -9,8 +9,15 @@ output_dir="results/simulated"
 
 project=$1
 
+Rscript scripts/permute-metadata.R \
+  --metadata_file $data_dir/$project/single_cell_metadata.tsv \
+  --output_file $output_dir/$project/single_cell_metadata.tsv
+
 for dir in $data_dir/$project/*/; do
     sample=$(basename $dir)
     echo "Processing $sample"
-    Rscript scripts/simulate-sce.R --sample_dir $dir --output_dir $output_dir/$project/$sample
+    Rscript scripts/simulate-sce.R \
+      --sample_dir $dir \
+      --metadata_file $output_dir/$project/single_cell_metadata.tsv \
+      --output_dir $output_dir/$project/$sample
 done

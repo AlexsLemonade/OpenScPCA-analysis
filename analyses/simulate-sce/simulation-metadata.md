@@ -62,29 +62,29 @@ Most contents are preserved in original form, but some are recalculated from the
 
 ### Fields in `metadata(sce)$sample_metadata`
 
-| field                                      | contents | simulation plan |
-| ------------------------------------------ | -------- | --------------- |
-| `sample_id`                                | string   | keep            |
-| `scpca_project_id`                         | string   | keep            |
-| `submitter_id`                             | string   | keep            |
-| `participant_id`                           | string   | empty string    |
-| `submitter`                                | string   | keep            |
-| `age`                                      | float    | keep            |
-| `sex`                                      | string   | keep            |
-| `diagnosis`                                | string   | keep            |
-| `subdiagnosis`                             | string   | keep            |
-| `tissue_location`                          | string   | keep            |
-| `disease_timing`                           | string   | keep            |
-| `organism`                                 | string   | keep            |
-| `is_xenograft`                             | boolean  | keep            |
-| `is_cell_line`                             | boolean  | keep            |
-| `development_stage_ontology_term_id`       | string   | keep            |
-| `sex_ontology_term_id`                     | string   | keep            |
-| `organism_ontology_id`                     | string   | keep            |
-| `self_reported_ethnicity_ontology_term_id` | string   | keep            |
-| `disease_ontology_term_id`                 | string   | keep            |
-| `tissue_ontology_term_id`                  | string   | keep            |
-| `library_id`                               | string   | keep            |
+| field                                      | contents | simulation plan  |
+| ------------------------------------------ | -------- | ---------------- |
+| `sample_id`                                | string   | keep             |
+| `scpca_project_id`                         | string   | keep             |
+| `submitter_id`                             | string   | empty string     |
+| `participant_id`                           | string   | anonymized value |
+| `submitter`                                | string   | keep             |
+| `age`                                      | float    | permuted value   |
+| `sex`                                      | string   | permuted value   |
+| `diagnosis`                                | string   | permuted value   |
+| `subdiagnosis`                             | string   | permuted value   |
+| `tissue_location`                          | string   | permuted value   |
+| `disease_timing`                           | string   | permuted value   |
+| `organism`                                 | string   | keep             |
+| `is_xenograft`                             | boolean  | keep             |
+| `is_cell_line`                             | boolean  | keep             |
+| `development_stage_ontology_term_id`       | string   | permuted value   |
+| `sex_ontology_term_id`                     | string   | permuted value   |
+| `organism_ontology_id`                     | string   | keep             |
+| `self_reported_ethnicity_ontology_term_id` | string   | permuted value   |
+| `disease_ontology_term_id`                 | string   | permuted value   |
+| `tissue_ontology_term_id`                  | string   | permuted value   |
+| `library_id`                               | string   | keep             |
 
 ## Fields in `colData(sce)`
 
