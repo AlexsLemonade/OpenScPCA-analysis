@@ -185,13 +185,24 @@ def main() -> None:
         print(f"\nInitialized new renv environment in `{module_dir}`.")
 
     # Add template files
+
+    # find the {{module}} tag in template files
+    module_tag = re.compile(r"{{\s*module\s*}}")
+
     if args.use_r:
-        # add an R Markdown notebook template
-        shutil.copy(
-            base_dir / "templates" / "analysis-module-R" / "notebook-template.Rmd",
-            module_dir / "notebook-template.Rmd",
+        template_rmd = (
+            base_dir / "templates" / "analysis-module-R" / "notebook-template.Rmd"
         )
-        print(f"\nAdded an R Markdown notebook template in `{module_dir}`.")
+        with open(template_rmd, "r") as f:
+            template_content = f.readlines()
+        # replace the module tag with the module name
+        template_content = (
+            module_tag.sub(args.name, line) for line in template_content
+        )
+        with open(module_dir / "notebook-template.Rmd", "w") as f:
+            f.writelines(template_content)
+
+        print(f"Added an R Markdown notebook template in `{module_dir}`.")
 
 
 if __name__ == "__main__":

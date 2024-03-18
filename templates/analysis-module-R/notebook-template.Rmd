@@ -1,5 +1,5 @@
 ---
-title: Analysis Title
+title: "{{module}} Analysis"
 author:
   - Your name here
 date: "`r Sys.Date()`"
@@ -46,10 +46,10 @@ repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 # The current data directory, found within the repository base directory
 data_dir <- file.path(repository_base, "data", "current")
 
-# This module's base path, found by the presence of an `renv` directory
-module_base <- rprojroot::find_root(rprojroot::is_renv_project)
-# If you are not using `renv`, you might use something like the following instead:
-# module_base <- file.path(repository_base, "analyses", "{module_name}")
+# The path to this module
+module_base <- file.path(repository_base, "analyses", "{{module}}")
+# If you are using `renv`, you might use something like the following instead:
+# module_base <- rprojroot::find_root(rprojroot::is_renv_project)
 ```
 
 ### Input and output files
