@@ -25,7 +25,7 @@ For more on branches see [Working with branches](./working-with-branches.md).
 
 ### Step 2: Stage your changed files
 
-- On the right-hand panel, you will see a list of files that you have modified under "Unstaged Files".
+- On the right-hand panel, you will see a list of files that you have modified under `Unstaged Files`.
     - These are changes which you could include in your commit.
 - Choose the changes you want to include in your commit and move them from the `Unstaged Files` area to the `Staged Files` area:
     - To include all changes, click the `Stage all changes` button.
@@ -34,7 +34,7 @@ For more on branches see [Working with branches](./working-with-branches.md).
     - ⚠️ Any files that you move into the `Staged Files` section will be included in your commit.
 
 Each commit should correspond to a single change or group of related changes.
-For example, when updating both code and documentation, commit your code changes and your documentation changes separately.
+For example, if you are updating both code and documentation, commit your code changes and your documentation changes separately.
 
 <figure markdown="span">
     ![Unstaged files](../../img/making-commits-2.png){width="600"}
