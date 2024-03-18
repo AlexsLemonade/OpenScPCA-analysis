@@ -2,12 +2,12 @@
 
 ## What is pre-commit?
 
-[`pre-commit`](https://pre-commit.com/) is a small software package that makes it easy to manage and run code quality checks.
+[`pre-commit`](https://pre-commit.com/) is a small software package that makes it easy to manage and run code quality checks prior to committing code. 
 `pre-commit` checks code quality by defining a set of "hooks," called pre-commit hooks, that will automatically run every time you commit changes to a repository.
 
 These pre-commit hooks check that the changes you are trying to commit pass the code quality standards we have set up.
 
-If `pre-commit` finds that certain files that do not pass these checks, you will need to update the files to ensure they pass.
+If `pre-commit` finds that certain files do not pass these checks, you will need to update the files to ensure they pass.
 You can learn more about this process in the [contributing to analyses documentation](STUB_LINK).
 
 ## How does OpenScPCA use pre-commit?
@@ -25,11 +25,11 @@ We have set up some pre-commit hooks to manage basic code security and catch oth
 
 During [conda setup](./setup-conda.md/#set-up-conda), you should have installed the `pre-commit` software into your base environment.
 
-To turn on the pre-commit hooks for the OpenScPCA repository, you will need run the command `pre-commit install` from a terminal window inside the repository.
+To turn on the pre-commit hooks for the OpenScPCA repository, you will need to run the command `pre-commit install` from a terminal window inside the repository.
 
 Please follow these steps to do this:
 
-1. Open your `OpenScPCA` repository in GitKraken.
+1. Open your forked copy of the `OpenScPCA` repository in GitKraken.
 
 
 1. Click the `Terminal` button at the top of GitKraken.
@@ -134,7 +134,7 @@ If you would like to use a code linter, we recommend using [`ruff`](https://docs
 #### Spell checking
 
 Spell checking is another useful class of tools that can be added as a pre-commit hook.
-Because biological and computational words are often not in default dictionaries, it is most helpful to use spell checker that looks for common errors rather than one that checks every word against a dictionary.
+Because biological and computational words are often not in default dictionaries, it is most helpful to use a spell checker that looks for common errors rather than one that checks every word against a dictionary.
 
 One such tool is `typos`, which runs quickly to check both text and code for common mistakes.
 `typos` can be installed as a pre-commit hook with the following code added to the `.pre-commit-local.yaml` file:
