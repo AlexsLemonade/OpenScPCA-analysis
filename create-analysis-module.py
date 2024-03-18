@@ -24,7 +24,10 @@ def main() -> None:
         ),
     )
     parser.add_argument(
+        "-R",
         "--use-r",
+        "--use-R",
+        dest="use_r",
         action="store_true",
         default=False,
         help="Set up for R analysis, including an R Markdown notebook template.",
