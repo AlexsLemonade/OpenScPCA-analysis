@@ -33,7 +33,7 @@ Please follow these steps to do this:
 
 
 1. Click the `Terminal` button at the top of GitKraken.
-This will open a terminal prompt inside of GitKraken where you can issue command-line commands. <!-- TODO: Note this in case we need it for windows setup: https://help.gitkraken.com/gitkraken-client/terminal/#setting-the-default-terminal-on-windows -->
+This will open a terminal prompt inside of GitKraken where you can issue command-line commands. <!-- TODO: Note this in case we need it for windows setup: https://help.gitkraken.com/gitkraken-client/terminal/#setting-the-default-terminal-on-windows. Also: https://help.gitkraken.com/gitkraken-client/windows-subsystem-for-linux/ -->
 
     <figure markdown="span">
         ![Open the terminal in GitKraken.](../../img/gitkraken-terminal-button.png){width="600"}
