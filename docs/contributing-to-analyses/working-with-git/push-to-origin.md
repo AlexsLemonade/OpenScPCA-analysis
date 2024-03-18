@@ -1,6 +1,7 @@
 # Pushing to origin
 
-Pushing commits from your local branch to a remote branch creates a remote copy of the changes on your local branch.
+Pushing commits from your local branch to origin creates a remote copy of the changes on your local branch in your repository.
+In this case, you will push to a remote branch in the repository you have forked from `OpenScPCA/analysis`.
 This means your changes are now present both locally on your computer and on GitHub.
 
 !!! note "Learn about pushing to origin"
@@ -10,11 +11,13 @@ This means your changes are now present both locally on your computer and on Git
 
 ## Why push?
 
-Pushing your changes will allow to to eventually [file a pull request](STUB-LINK) to the `main` branch of `OpenScPCA-analysis`.
-Filing a pull request is the only way to incorporate your changes into the main code base of OpenScPCA.
+- Pushing your changes will allow to to eventually [file a pull request](STUB-LINK) to the `main` branch of `OpenScPCA-analysis`.
+    - Filing a pull request is the only way to incorporate your changes into the main code base of OpenScPCA.
+- This allows you to work on your branch on multiple computers.
+    - Once you push to origin, your changes can then be pulled from the remote repository to any computer (including Amazon Lightsail for Research).
 
 
-## How to push
+## How to push to origin with GitKraken
 
 1.Make sure all changes you would like to include have been committed.
 See the section on [making commits](./making-commits.md).
@@ -51,8 +54,11 @@ You will also be able to see both the local computer icon and your GitHub avatar
     ![Sync local and remote branches](../../img/push-to-origin-4.png){width="600"}
 </figure>
 
-4.If more changes are needed, commit those changes, and then select `Push` to push to origin.
+4.If/when you make more changes, commit those changes, and then select `Push` to push to origin.
 
 Because you have already set the remote branch, changes will automatically be pushed to that remote branch using the `Push` button, with no further prompts from GitKraken.
+
+Note that you do not need to push to origin for every commit that you make.
+We recommending pushing any commits you have made at the completion of a coding session.
 
 Congratulations, you have now synced your local changes with a remote branch!
