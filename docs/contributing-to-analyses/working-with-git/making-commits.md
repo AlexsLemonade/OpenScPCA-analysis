@@ -6,6 +6,8 @@ For each commit, a unique ID (also known as a hash) will be assigned to identify
 
 !!! note "Learn more about commits"
 
+    For more details on commits, see:
+
     - [GitHub's documentation on commits](https://docs.github.com/en/pull-requests/committing-changes-to-your-project/creating-and-editing-commits/about-commits)
     - [A video describing commits with GitKraken](https://www.youtube.com/watch?v=XfDbGgSwa5I)
 
