@@ -21,6 +21,10 @@ _Before filing the pull request, you can also feel free to delete the italicized
 
 _In this section, tell reviewers about the scope and purpose of the code in the pull request._
 
+#### Please link to the GitHub issue that this pull request addresses.
+
+_If applicable, you can also link to the associated GitHub Discussion._
+
 
 #### What is the goal of this pull request?
 
@@ -32,10 +36,6 @@ _Include the scientific or analytical goals, if applicable._
 
 
 
-
-#### Please link to the GitHub issue that this pull request addresses.
-
-
 #### If known, do you anticipate filing additional pull requests to complete this analysis module?
 
 
@@ -45,6 +45,7 @@ _Include the scientific or analytical goals, if applicable._
 _Delete this section if no results are associated with your pull request._
 
 _In this section, tell reviewers about what kinds of results (if any) your code produces._
+
 #### What is the name of your results bucket on S3?
 
 _Results should be [uploaded to your bucket](STUB_LINK docs on uploading results to S3) so they are available during review._
@@ -62,6 +63,12 @@ _Results should be [uploaded to your bucket](STUB_LINK docs on uploading results
 
 _In this section, tell reviewers what kind of feedback you are looking for._
 _This information will help guide their review._
+
+#### What are the computational requirements to be able to run the code in this PR?
+
+_This information will help reviews run the code during review, if applicable._
+
+
 
 #### Are there particularly areas you'd like reviewers to have a close look at?
 
