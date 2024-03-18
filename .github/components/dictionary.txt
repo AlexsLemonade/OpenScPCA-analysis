@@ -37,6 +37,7 @@ precommit
 README
 redistribution
 renv
+repo
 reproducibility
 RStudio
 Rtools

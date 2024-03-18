@@ -63,8 +63,8 @@ nav:
     - contributing-to-analyses/index.md
     - Doing an analysis:
       - contributing-to-analyses/doing-analyses/index.md
-      - Working with Git: # Creating branches, adding commits, all git interactions
-        - contributing-to-analyses/doing-analyses/working-with-git/index.md
+    - Working with Git: # Creating branches, adding commits, all git interactions
+      - contributing-to-analyses/working-with-git/working-with-branches.md
       - Determining and managing requirements:
         - contributing-to-analyses/determining-and-managing-requirements/index.md
         - contributing-to-analyses/determining-and-managing-requirements/software-requirements.md
