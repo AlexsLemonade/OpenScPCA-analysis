@@ -43,23 +43,23 @@ This means you will create a new feature branch for every new pull request you p
 
 Follow these steps to create your feature branch:
 
-1. (Optional) Ensure your fork's `main` branch is up-to-date with the `AlexsLemonade/OpenScPCA-analysis` repository's main branch.
+1.(Optional) Ensure your fork's `main` branch is up-to-date with the `AlexsLemonade/OpenScPCA-analysis` repository's main branch.
     - Refer to [this documentation about how to keep your `main` branch in sync](STUB_LINK stay in sync).
 
-2. Open GitKraken and make sure you are on the `main` branch of the upstream repository, `AlexsLemonade/OpenScPCA-analysis`.
+2.Open GitKraken and make sure you are on the `main` branch of the upstream repository, `AlexsLemonade/OpenScPCA-analysis`.
 You can do this by double-clicking on the `main` branch in the branch graph with the ALSF logo.
 
 <figure markdown="span">
     ![Click button to checkout main](../../img/working-with-branches-1.png){width="600"}
 </figure>
 
-3. Create and checkout a new branch by right-clicking on the `main` branch and selecting `Create branch here`.
+3.Create and checkout a new branch by right-clicking on the `main` branch and selecting `Create branch here`.
 
 <figure markdown="span">
     ![Create branch](../../img/working-with-branches-2.png){width="600"}
 </figure>
 
-4. You will then be prompted to name your branch.
+4.You will then be prompted to name your branch.
 We encourage users to name their branch using their GitHub username followed by a description of what changes will be included in the branch.
 For example, if you are adding an analysis to add cell type annotations to Ewing sarcoma samples, you might name your branch `username/celltype-ewings`.
 
