@@ -17,7 +17,7 @@ For each commit, a unique ID (also known as a hash) will be assigned to identify
 
 Before making your commit, be sure you are working in the correct [feature branch](./working-with-branches.md).
 In GitKraken, you will see a check mark next to the branch name in both the side menu under `Local` and in the branch diagram.
-The checkmark next to the branch name indicates that you have that branch checked out.
+The check mark next to the branch name indicates that you have that branch checked out.
 
 <figure markdown="span">
     ![Branch checkout](../../img/making-commits-1.png){width="600"}
@@ -33,7 +33,7 @@ For more on branches see [Working with branches](./working-with-branches.md).
     - To include all changes, click the `Stage all changes` button.
     - To include only some changes, hover over individual files and click the `Stage File` button one at a time.
     This will move that file from the `Unstaged Files` area to the `Staged Files` area.
-    - ⚠️ Any files that you move into the `Staged Files` section will be included in your commit.
+    - Any files that you move into the `Staged Files` section will be included in your commit.
 
 Each commit should correspond to a single change or group of related changes.
 For example, if you are updating both code and documentation, commit your code changes and your documentation changes separately.
