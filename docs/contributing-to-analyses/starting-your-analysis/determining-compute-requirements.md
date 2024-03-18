@@ -12,9 +12,9 @@ We will prompt you to report compute requirements throughout the project as desc
 A great place to start with determining compute requirements is what computer(s) you can successfully run your analysis on.
 
 * Have you run this kind of analysis successfully on your laptop?
-  * You can use your laptop's specs when reporting compute requirements.
+    * You can use your laptop's specs when reporting compute requirements.
 * Have you successfully run a similar analysis before on your institution's High Performance Computing (HPC) cluster?
-  * Report the characteristics of the kind of node you typically use.
+    * Report the characteristics of the kind of node you typically use.
 
 Even failure can be very helpful!
 For instance, maybe you ran out of memory while running this analysis on a particular computer.
@@ -57,15 +57,15 @@ Here, we describe when and where to document compute requirements on GitHub disc
 Please be sure to provide this information when prompted.
 
 * [Proposing a new analysis in Discussions?](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=propose-a-new-analysis)
-  * Report what you know about computational resources required in the "Other Details" field
+    * Report what you know about computational resources required in the "Other Details" field
 * [Proposing to modify an existing analysis in Discussions?](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=modify-an-existing-analysis)
-  * Report what you know about computational resources required in the "Other Details" field
+    * Report what you know about computational resources required in the "Other Details" field
 * [Filing an issue to start an analysis?](STUB_LINK)
-  * Report what you know about computational resources required in the "What computational resources will you require?" field
+    * Report what you know about computational resources required in the "What computational resources will you require?" field
 * [Filing an issue to modify an analysis?](STUB_LINK)
-  * Report what you know about computational resources required in the "Will you require different computational resources beyond what the analysis module already uses?" field
+    * Report what you know about computational resources required in the "Will you require different computational resources beyond what the analysis module already uses?" field
 * [Filing a pull request?](STUB_LINK)
-  * Fill out the section explaining to reviewers what computational resources are required to run the code ("What are the computational requirements to be able to run the code in this PR?")
+    * Fill out the section explaining to reviewers what computational resources are required to run the code ("What are the computational requirements to be able to run the code in this PR?")
 
 You can always add a comment to your existing discussion post or issue about compute requirements if you have gathered more information since filing!
 
