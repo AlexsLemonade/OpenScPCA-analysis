@@ -59,13 +59,17 @@ nav:
       - technical-setup/environment-setup/install-r-rstudio.md
       - technical-setup/environment-setup/setup-precommit.md
   - Tools for communication:   # Slack, issues, discussions
-    - communications-tools/tools-for-communication.md
+    - communications-tools/index.md
+    - GitHub Issues:
+      - communications-tools/github-issues/index.md
+      - communications-tools/github-issues/what-are-github-issues-and-how-do-we-use-them.md
   - Contributing to analyses:  # Setting up an analysis, all the git stuff
     - contributing-to-analyses/index.md
     - Doing an analysis:
       - contributing-to-analyses/doing-analyses/index.md
-      - Working with Git: # Creating branches, adding commits, all git interactions
-        - contributing-to-analyses/doing-analyses/working-with-git/index.md
+    - Working with Git: # Creating branches, adding commits, all git interactions
+      - contributing-to-analyses/working-with-git/working-with-branches.md
+      - contributing-to-analyses/working-with-git/making-commits.md
       - Determining and managing requirements:
         - contributing-to-analyses/determining-and-managing-requirements/index.md
         - contributing-to-analyses/determining-and-managing-requirements/software-requirements.md
