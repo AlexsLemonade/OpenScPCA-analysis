@@ -24,6 +24,7 @@ LinkedIn
 linter
 linter's
 linters
+lockfile
 LSfR
 macOS
 merchantability
@@ -36,6 +37,7 @@ precommit
 README
 redistribution
 renv
+repo
 reproducibility
 RStudio
 Rtools

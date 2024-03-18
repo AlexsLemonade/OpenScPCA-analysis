@@ -64,7 +64,12 @@ nav:
     - Doing an analysis:
       - contributing-to-analyses/doing-analyses/index.md
     - Working with Git: # Creating branches, adding commits, all git interactions
+      - contributing-to-analyses/working-with-git/working-with-branches.md
+      - contributing-to-analyses/working-with-git/making-commits.md
       - contributing-to-analyses/doing-analyses/working-with-git/push-to-origin.md
+      - Determining and managing requirements:
+        - contributing-to-analyses/determining-and-managing-requirements/index.md
+        - contributing-to-analyses/determining-and-managing-requirements/software-requirements.md
   - Software platforms:            # LSfR, AWS, Docker, etc
     - software-platforms/index.md
   - Getting Help and FAQ:      # troubleshooting and FAQ
