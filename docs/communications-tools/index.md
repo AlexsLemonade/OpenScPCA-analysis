@@ -19,11 +19,11 @@ Discussions are organized by category.
 Please [read the description of each category](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new/choose) to make sure you are posting in the correct place.
 More on categories below!
 
-**Participate in community conversations.**
+#### Participate in community conversations
 
 * In general, use this forum to ask questions, discuss big picture ideas, brainstorm, and develop plans for analyses before implementing them.
 
-**Propose a new analysis or a modification to an existing analysis.**
+#### Propose a new analysis or a modification to an existing analysis
 
 * Discuss your ideas for:
 	* A new analysis in the [`Propose a new analysis` category](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/categories/propose-a-new-analysis).
@@ -31,17 +31,17 @@ More on categories below!
 * Each of these categories have built-in templates to guide you.
 * Project maintainers will further discuss your ideas with you before you file an issue.
 
-**Ask questions.**
+#### Ask questions
 
 * Get help from project maintainers and/or community members.
 * Use the [`Q&A` category](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/categories/q-a) to ask non-urgent questions. For example, where to find information.
 * Use the [`Troubleshooting` category](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/categories/troubleshooting) to get help from project maintainers. For example, challenges with setting up your local environment or trouble running an analysis. This category has a built-in template to guide you.
 
-**View announcements related to the project.**
+#### View announcements related to the project
 
 * We will post in the [`Announcements` category](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/categories/announcements) when there is news that the community should know about. For example, if the Data Lab staff will be offline for a few days.
 
-**Provide feedback about the project.**
+#### Provide feedback about the project
 
 * We may ask the community for feedback in the [`Polls` category](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/categories/polls).
 
@@ -66,17 +66,17 @@ We will provide you with further guidance!
 
 ### How and When to Use Issues
 
-**File an issue for a proposed analysis that has been accepted.**
+#### File an issue for a proposed analysis that has been accepted
 
 * *After* you have proposed an analysis on the discussions forum and it has been accepted by project maintainers, then you can file an issue.
 * The ideal issue will describe the scope and scientific goals of the analysis, the planned methods to address the scientific goals, and a proposed timeline for the analysis.
 
-**Identify a planned analysis that you wish to tackle.**
+#### Identify a planned analysis that you wish to tackle.
 
 * There are existing issues for planned analyses that others may not be working on yet.
 * If you would like to take on a planned analysis, you can comment on the issue to note your interest and ask any clarifying questions. Propose a solution for project maintainers to review and discuss further.
 
-**Report a bug.**
+#### Report a bug
 
 * If you encounter a bug, please file an issue using the `Bug Report` issue template to help us make improvements!
 * Provide a clear and detailed description of the problem.
@@ -124,7 +124,7 @@ See the [reporting section of the Code of Conduct](https://github.com/AlexsLemon
 You can email [report@ccdatalab.org](mailto:report@ccdatalab.org) with queries related to administration.
 
 You can email us to:
-- Report security issues
+- [Report security issues](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/SECURITY.md)
 - Make a non-anonymous code of conduct violation report
 - Copyright violations
 - Other such administration related items
