@@ -160,7 +160,7 @@ convert_altexp <- function(sce, feature_name, output_feature_h5, compress_output
   # only convert altExp with > 1 rows
   if (nrow(alt_sce) > 1) {
     # add sample metadata from main sce to alt sce metadata
-    metadata(alt_sce)$sample_metadata <- sample_metadata
+    metadata(alt_sce)$sample_metadata <- metadata(sce)$sample_metadata
 
     # make sce czi compliant
     alt_sce <- format_czi(alt_sce)
@@ -169,7 +169,7 @@ convert_altexp <- function(sce, feature_name, output_feature_h5, compress_output
     scpcaTools::sce_to_anndata(
       alt_sce,
       anndata_file = output_feature_h5
-    )
+    ) |> suppressMessages() # suppress notes about metadata conversion
   } else {
     # warn that the altExp cannot be converted
     warning(
