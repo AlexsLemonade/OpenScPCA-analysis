@@ -1,7 +1,7 @@
 # Pushing to origin
 
 Pushing commits from your local branch to origin creates a remote copy of the changes on your local branch in your repository.
-In this case, you will push to a remote branch in the repository you have forked from `OpenScPCA/analysis`.
+In this case, you will push to a remote branch to your fork of `OpenScPCA-analysis`.
 This means your changes are now present both locally on your computer and on GitHub.
 
 !!! note "Learn about pushing to origin"
