@@ -24,6 +24,7 @@ LinkedIn
 linter
 linter's
 linters
+lockfile
 LSfR
 macOS
 merchantability
@@ -36,9 +37,11 @@ precommit
 README
 redistribution
 renv
+repo
 reproducibility
 RStudio
 Rtools
+SCE
 ScPCA
 SemVar
 socio
@@ -51,4 +54,3 @@ WIPO
 WisCon
 WSL
 Xcode
-
