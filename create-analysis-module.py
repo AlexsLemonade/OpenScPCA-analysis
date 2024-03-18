@@ -24,10 +24,16 @@ def main() -> None:
         ),
     )
     parser.add_argument(
+        "--use-r",
+        action="store_true",
+        default=False,
+        help="Set up for R analysis, including an R Markdown notebook template.",
+    )
+    parser.add_argument(
         "--use-renv",
         action="store_true",
         default=False,
-        help="Initialize a new renv environment for the module.",
+        help="Initialize a new renv environment for the module. Implies `--use-r`.",
     )
     parser.add_argument(
         "--use-conda",
@@ -45,6 +51,9 @@ def main() -> None:
     )
 
     args = parser.parse_args()
+
+    if args.use_renv:
+        args.use_r = True
 
     # get the paths relative to this script file
     base_dir = pathlib.Path(__file__).parent
@@ -171,6 +180,15 @@ def main() -> None:
         )
 
         print(f"\nInitialized new renv environment in `{module_dir}`.")
+
+    # Add template files
+    if args.use_r:
+        # add an R Markdown notebook template
+        shutil.copy(
+            base_dir / "templates" / "analysis-module-R" / "notebook-template.Rmd",
+            module_dir / "notebook-template.Rmd",
+        )
+        print(f"\nAdded an R Markdown notebook template in `{module_dir}`.")
 
 
 if __name__ == "__main__":
