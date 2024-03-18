@@ -1,4 +1,4 @@
-name: Start an analysis
+name: Update an analysis
 description: Use this template to track the any additions or updates to an existing analysis module
 labels: analysis
 body:
