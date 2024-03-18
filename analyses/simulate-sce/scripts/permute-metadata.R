@@ -115,7 +115,7 @@ metadata <- metadata |>
     age_at_diagnosis = age_at_diagnosis[age_order],
     development_stage_ontology_term_id = development_stage_ontology_term_id[age_order],
     self_reported_ethnicity_ontology_term_id = sample(self_reported_ethnicity_ontology_term_id),
-    participant_id = as.character(forcats::fct_anon(participant_id)), # anonymize participant_id
+    participant_id = paste0("P", forcats::fct_anon(participant_id)), # anonymize participant_id
     submitter_id = "" # remove submitter_id,
 )
 
