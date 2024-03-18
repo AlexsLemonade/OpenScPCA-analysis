@@ -61,14 +61,14 @@ nav:
     - communications-tools/tools-for-communication.md
   - Contributing to analyses:  # Setting up an analysis, all the git stuff
     - contributing-to-analyses/index.md
+    - Starting your analysis:
+      - contributing-to-analyses/starting-your-analysis/index.md
+      - contributing-to-analyses/starting-your-analysis/software-requirements.md
+      - contributing-to-analyses/starting-your-analysis/compute-requirements.md
     - Doing an analysis:
       - contributing-to-analyses/doing-analyses/index.md
       - Working with Git: # Creating branches, adding commits, all git interactions
         - contributing-to-analyses/doing-analyses/working-with-git/index.md
-      - Determining and managing requirements:
-        - contributing-to-analyses/determining-and-managing-requirements/index.md
-        - contributing-to-analyses/determining-and-managing-requirements/software-requirements.md
-        - contributing-to-analyses/determining-and-managing-requirements/compute-requirements.md
   - Software platforms:            # LSfR, AWS, Docker, etc
     - software-platforms/index.md
   - Getting Help and FAQ:      # troubleshooting and FAQ
