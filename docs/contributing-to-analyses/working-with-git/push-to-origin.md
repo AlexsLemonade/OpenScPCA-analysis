@@ -58,7 +58,13 @@ You will also be able to see both the local computer icon and your GitHub avatar
 
 Because you have already set the remote branch, changes will automatically be pushed to that remote branch using the `Push` button, with no further prompts from GitKraken.
 
+## When to push
+
 Note that you do not need to push to origin for every commit that you make.
+Any commits that have been made that are not present in the remote branch will be included when you push to origin.
+
 We recommending pushing any commits you have made at the completion of a coding session.
+
+For example, if you commit changes to code and documentation separately, push both those commits together.
 
 Congratulations, you have now synced your local changes with a remote branch!
