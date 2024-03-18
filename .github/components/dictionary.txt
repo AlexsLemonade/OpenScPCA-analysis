@@ -32,6 +32,7 @@ LinkedIn
 linter
 linter's
 linters
+lockfile
 LSfR
 macOS
 merchantability
