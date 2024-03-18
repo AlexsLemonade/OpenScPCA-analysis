@@ -6,10 +6,10 @@ A branch in GitHub refers to an isolated copy of the repository contents.
 For example, the `main` branch of the `OpenScPCA-analysis` repository contains the main copy of all items in the repository.
 
 !!! note "Learn more about branches"
-    For more details on branches see:
+    For more details on branches, see:
 
     - [GitHub's documentation describing branches](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches)
-    - Tutorial on creating branches with GitKraken](https://www.gitkraken.com/learn/git/problems/create-git-branch).
+    - [Tutorial on creating branches with GitKraken](https://www.gitkraken.com/learn/git/problems/create-git-branch)
 
 ## What is a feature branch?
 
@@ -18,16 +18,16 @@ A feature branch contains a copy of the code in an isolated space.
 
 By using a feature branch, you can make code changes without affecting the code in the `main` branch or interfering with other contributors as they make changes.
 
-## When should you use a feature branch?
+### When should you use a feature branch?
 
-Every time you make a new addition or modify existing code, you will want to create a _new_ feature branch.
+Every time you make a new addition or modify existing code, you should create a _new_ feature branch.
 
 Every pull request should contain changes made in a _single_ feature branch.
 This means you will create a new feature branch for every new pull request you plan to file.
 
 ## Overview of working with branches in OpenScPCA
 
-- When you are working on your own analyses or proposing a change to the main code base, create a feature branch from the `main` branch of your fork.
+- When you are working on your own analyses or proposing a change to the main code base, create a feature branch from the `main` branch of the `AlexsLemonade/OpenScPCA-analysis` repository.
     - Haven't forked yet? Please see the documentation on [how to create your fork](../../technical-setup/fork-the-repo.md).
 - [Commit](STUB_LINK to making commits) any changes that you make to that feature branch.
 - [Push](STUB_LINK for pushing to origin) your commits to your origin repository, i.e. your fork on GitHub.com
