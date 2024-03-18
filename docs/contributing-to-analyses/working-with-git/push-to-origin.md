@@ -19,42 +19,42 @@ This means your changes are now present both locally on your computer and on Git
 
 ## How to push to origin with GitKraken
 
-1.Make sure all changes you would like to include have been committed.
+1. Make sure all changes you would like to include have been committed.
 See the section on [making commits](./making-commits.md).
 
-2.Select `Push`, located above the branch diagram in `GitKraken`.
+1. Select `Push`, located above the branch diagram in `GitKraken`.
 
-<figure markdown="span">
-    ![Click push](../../img/push-to-origin-1.png){width="600"}
-</figure>
+    <figure markdown="span">
+        ![Click push](../../img/push-to-origin-1.png){width="600"}
+    </figure>
 
-The first time that you push to origin for a feature branch, you will be prompted to select the remote branch to push to and from.
+    The first time that you push to origin for a feature branch, you will be prompted to select the remote branch to push to and from.
 
-- The first box should say `origin`, telling GitKraken to push your changes to a branch to your remote fork of `OpenScPCA-analysis`.
-- The second box tells GitKraken what to name the remote copy of the branch.
-    - This field will be automatically populated with the same name used for the local branch.
-    - We recommend you keep this default and use the same branch name for the local and remote branch.
-- Press `Submit` to confirm your choices and push to origin.
+    - The first box should say `origin`, telling GitKraken to push your changes to a branch to your remote fork of `OpenScPCA-analysis`.
+    - The second box tells GitKraken what to name the remote copy of the branch.
+        - This field will be automatically populated with the same name used for the local branch.
+        - We recommend you keep this default and use the same branch name for the local and remote branch.
+    - Press `Submit` to confirm your choices and push to origin.
 
-<figure markdown="span">
-    ![Submit remote branch name](../../img/push-to-origin-2.png){width="600"}
-</figure>
+    <figure markdown="span">
+        ![Submit remote branch name](../../img/push-to-origin-2.png){width="600"}
+    </figure>
 
-3.Confirm that you now have a remote copy of your feature branch.
+1. Confirm that you now have a remote copy of your feature branch.
 
-After you push to origin, you will see a message pop-up in the lower left stating, `Pushed successfully`.
+    After you push to origin, you will see a message pop-up in the lower left stating, `Pushed successfully`.
 
-<figure markdown="span">
-    ![Pushed successfully](../../img/push-to-origin-3.png){width="600"}
-</figure>
+    <figure markdown="span">
+        ![Pushed successfully](../../img/push-to-origin-3.png){width="600"}
+    </figure>
 
-You will also be able to see both the local computer icon and your GitHub avatar next to your branch name, indicating that your local branch and remote branch are now in sync.
+    You will also be able to see both the local computer icon and your GitHub avatar next to your branch name, indicating that your local branch and remote branch  are now in sync.
 
-<figure markdown="span">
-    ![Sync local and remote branches](../../img/push-to-origin-4.png){width="600"}
-</figure>
+    <figure markdown="span">
+        ![Sync local and remote branches](../../img/push-to-origin-4.png){width="600"}
+    </figure>
 
-4.If/when you make more changes, commit those changes, and then select `Push` to push to origin.
+1. If/when you make more changes, commit those changes, and then select `Push` to push to origin.
 
 Because you have already set the remote branch, changes will automatically be pushed to that remote branch using the `Push` button, with no further prompts from GitKraken.
 
