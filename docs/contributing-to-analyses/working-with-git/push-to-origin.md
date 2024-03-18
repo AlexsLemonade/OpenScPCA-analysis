@@ -14,7 +14,7 @@ This means your changes are now present both locally on your computer and on Git
 - Pushing your changes will allow to to eventually [file a pull request](STUB-LINK) to the `main` branch of `OpenScPCA-analysis`.
     - Filing a pull request is the only way to incorporate your changes into the main code base of OpenScPCA.
 - This allows you to work on your branch on multiple computers.
-    - Once you push to origin, your changes can then be pulled from the remote repository to any computer (including Amazon Lightsail for Research).
+    - Once you push to origin, your changes can then be pulled from the remote repository to any computer (such as working with Amazon Lightsail for Research).
 
 
 ## How to push to origin with GitKraken
