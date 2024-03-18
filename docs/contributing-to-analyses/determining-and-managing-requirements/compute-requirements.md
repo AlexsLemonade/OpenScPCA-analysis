@@ -2,6 +2,7 @@
 
 We use the term **compute requirements** to refer to the computational resources, such as the number of CPUs or the amount of RAM, that are required for your analysis to run.
 Reporting the compute requirements for running your analysis to project organizers helps us plan for allocating resources on Amazon Web Services (AWS) and to determine how to review [your pull requests](STUB_LINK PRs docs) (e.g., using our laptops vs. using AWS).
+
 We will prompt you to report compute requirements throughout the project as described [below](#reporting-compute-requirements).
 
 ## Determining compute requirements
@@ -15,20 +16,22 @@ Have you successfully run a similar analysis before on your institution's High P
 Report the characteristics of the kind of node you typically use.
 
 Even failure can be very helpful!
-For instance, if you run out of memory on a particular computer, the fact that you received that kind of error and the amount of RAM on that computer are useful pieces of information.
+For instance, maybe you ran out of memory while running this analysis on a particular computer.
+The amount of RAM on that computer is helpful information, because it tells us that the analysis probably requires more RAM.
 
 ### Read the docs
 
 If you know you will be using a particular software package for your analysis, review the package's documentation to see if the authors and maintainers give you any guidance about the compute requirements for running that package.
-For example, if you were to review the [`scvi-tools` documentation](https://docs.scvi-tools.org/en/stable/index.html), you would find that [using a GPU would be helpful](https://docs.scvi-tools.org/en/stable/installation.html#gpu).
-Methods or benchmarking papers in the literature may also be a good resource for understanding compute requirements.
+
+For example, the [`scvi-tools` documentation](https://docs.scvi-tools.org/en/stable/index.html) tells you that [using a GPU helps the analysis run faster](https://docs.scvi-tools.org/en/stable/installation.html#gpu).
+Methods or benchmarking papers in the literature may also be a good resource for figuring out compute requirements.
 
 ### Monitoring requirements
 
 #### `htop`
 
 To get an overview of computational resource usage when running an analysis, you can use [`htop`](https://htop.dev/) on Linux and macOS.
-`htop` will be already installed on machines run via [Lightsail for Research](STUB_LINK), but it can be [installed via conda](https://anaconda.org/conda-forge/htop) (see our [documentation on conda](software-requirements.md#adding-software-to-the-environment-and-tracking-installed-software)).
+`htop` will be already installed on machines run via [Lightsail for Research](STUB_LINK), but you can [install it via conda](https://anaconda.org/conda-forge/htop) (see our [documentation on conda](software-requirements.md#adding-software-to-the-environment-and-tracking-installed-software)).
 Check out [this beginner's guide to `htop`](https://spin.atomicobject.com/htop-guide/) for an introduction.
 
 <!-- TODO: Do we think this is likely to be useful or just overwhelming?
