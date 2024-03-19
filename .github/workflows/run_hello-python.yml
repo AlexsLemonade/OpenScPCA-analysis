@@ -44,4 +44,5 @@ jobs:
       - name: Run analysis
         run: |
           cd $MODULE_PATH
+          conda activate test
           bash hello-python.sh
