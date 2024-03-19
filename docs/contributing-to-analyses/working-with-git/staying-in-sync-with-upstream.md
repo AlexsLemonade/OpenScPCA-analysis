@@ -38,8 +38,12 @@ Follow these steps to keep your fork in sync with changes in `AlexsLemonade/Open
 1. Before making any changes locally, you will need to "pull" the synced changes from GitHub to your local computer.
 
     In GitKraken, you will see two versions of the `main` branch in the branch graph.
-    One will contain a computer icon, indicating that is the copy of the branch on your local computer.
-    The other will contain your GitHub avatar, indicating that is the copy of the branch on GitHub.
+
+    One will contain a computer icon.
+    This is the copy of the branch on your local computer.
+
+    The other will contain your GitHub avatar.
+    This is the copy of the branch on GitHub.
 
     Double-click on the remote `main` (GitHub avatar) and GitKraken will notify you that a local `main` already exists.
     Click the button that says `Reset Local to Here`.
@@ -81,11 +85,11 @@ Instead, follow these steps to fix the sync conflicts in GitKraken:
 Any files that contain conflicts will be listed on the right-hand side under `Conflicted files`.
 
     <figure markdown="span">
-        ![Conflict banner](../../img/upstream-sync-8.png){width="600"}
+        ![Conflict banner](../../img/upstream-sync-8.png){width="400"}
     </figure>
 
     <figure markdown="span">
-        ![Conflict files list](../../img/upstream-sync-9.png){width="600"}
+        ![Conflict files list](../../img/upstream-sync-9.png){width="400"}
     </figure>
 
     To learn how to resolve these conflicts, please watch this [tutorial from GitKraken](https://www.gitkraken.com/learn/git/tutorials/how-to-resolve-merge-conflict-in-git).
