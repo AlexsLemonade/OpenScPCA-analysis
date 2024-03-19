@@ -6,8 +6,11 @@ altExp
 AnnData
 anonymize
 anonymized
+benchmarking
 bioinformatics
 Carpentries
+Cmd
+Ctrl
 CellAssign
 conda
 config
@@ -21,6 +24,7 @@ formatters
 Generis
 GitHub
 GitKraken
+HPC
 ies
 immunities
 JSON
@@ -43,6 +47,7 @@ OpenScPCA
 openscpca
 pre
 precommit
+PRs
 README
 redistribution
 renv
@@ -65,4 +70,5 @@ WIPO
 WisCon
 WSL
 Xcode
+YAML
 Zappia
