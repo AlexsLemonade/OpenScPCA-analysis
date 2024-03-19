@@ -1,4 +1,4 @@
-# Staying in sync with upstream branches
+# Staying in sync with the upstream repository
 
 You may wish to keep changes made in `AlexsLemonade/OpenScPCA-analysis` in sync with the `main` branch of your fork.
 This ensures that your fork has the most recent changes and updates found in the main code base.
@@ -12,7 +12,7 @@ This ensures that your fork has the most recent changes and updates found in the
 
 Follow these steps to keep your fork in sync with changes in `AlexsLemonade/OpenScPCA-analysis`:
 
-1. Login to GitHub and navigate to the main page of your forked repository.
+1. Login to GitHub and navigate to the homepage of your forked repository (https://github.com/YOUR_USERNAME/OpenScPCA-analysis).
 
 1. If the `main` branch of your fork is out of date with the `main` branch of `AlexsLemonade/OpenScPCA-analysis`, then you will see a note that states, "This branch is X commits behind `AlexsLemonade/Open-ScPca-analysis:main`".
 
@@ -26,7 +26,7 @@ Follow these steps to keep your fork in sync with changes in `AlexsLemonade/Open
     Go ahead and press `Update branch`.
 
     <figure markdown="span">
-        ![Update branch](../../img/upstream-sync-2.png){width="400"}
+        ![Update branch](../../img/upstream-sync-2.png){width="300"}
     </figure>
 
 1. If your `main` branch has been updated successfully, you will now see a note that the branch is up to date with `AlexsLemonade/OpenScPCA-analysis`.
@@ -37,15 +37,16 @@ Follow these steps to keep your fork in sync with changes in `AlexsLemonade/Open
 
 ## Resolving sync conflicts
 
-If there are changes that you have on your `main` branch that conflict with changes made in the `main` branch of `AlexsLemonade/OpenScPCA-analysis`, you will not be able to sync until those conflicts have been resolved.
+If there are changes on your `main` branch that conflict with the current code in the `main` branch of `AlexsLemonade/OpenScPCA-analysis`, you will not be able to sync until those conflicts have been resolved.
 
 When this happens, GitHub will notify you that there are conflicts after pushing `Sync fork`.
 
 <figure markdown="span">
-    ![Sync conflicts](../../img/upstream-sync-4.png){width="400"}
+    ![Sync conflicts](../../img/upstream-sync-4.png){width="300"}
 </figure>
 
-Follow these steps to manage sync conflicts with GitKraken:
+**Do not click either of the buttons `Discard X commits` or `Open pull request`.**
+Instead, follow these steps to fix the sync conflicts in GitKraken:
 
 1. Open up your forked repository in GitKraken and checkout the `main` branch of your fork.
 
@@ -56,7 +57,8 @@ Follow these steps to manage sync conflicts with GitKraken:
         ![Merge main](../../img/upstream-sync-5.png){width="600"}
     </figure>
 
-1. A banner will pop up indicating that there is a merge conflict and any files that contain conflicts will be listed on the right-hand side under `Conflicted files`.
+1. A banner will pop up indicating that there is a merge conflict.
+Any files that contain conflicts will be listed on the right-hand side under `Conflicted files`.
 
     <figure markdown="span">
         ![Conflict banner](../../img/upstream-sync-6.png){width="600"}
@@ -66,6 +68,6 @@ Follow these steps to manage sync conflicts with GitKraken:
         ![Conflict files list](../../img/upstream-sync-7.png){width="600"}
     </figure>
 
-    For help in resolving these conflicts, please watch this [tutorial from GitKraken](https://www.gitkraken.com/learn/git/tutorials/how-to-resolve-merge-conflict-in-git).
+    To learn how to resolve these conflicts, please watch this [tutorial from GitKraken](https://www.gitkraken.com/learn/git/tutorials/how-to-resolve-merge-conflict-in-git).
 
     Once you have resolved the conflicts and committed the changes, your `main` branch will now be in sync with the upstream `main` branch of `AlexsLemonade/OpenScPCA-analysis`.
