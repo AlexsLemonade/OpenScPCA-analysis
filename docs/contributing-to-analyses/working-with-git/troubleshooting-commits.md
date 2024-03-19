@@ -1,6 +1,6 @@
 # Troubleshooting commits
 
-On this page we cover some commonly occuring scenarios that may cause you're commit to fail.
+On this page we cover some commonly occurring scenarios that may cause you're commit to fail.
 
 ## Why is pre-commit failing?
 
