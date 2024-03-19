@@ -1,9 +1,10 @@
 #!/usr/bin/env Rscript
 
-# This script takes a SingleCellExperiment stored in a .rds file and converts the main experiment
-# (usually RNA) to an AnnData object saved as an hdf5 file
+# This script takes a directory containing SingleCellExperiment objects as `rds` files and converts each
+# object to an AnnData object or objects saved as an hdf5 file.
+# RNA and ADT data (if present) are saved as separate AnnData objects.
 
-# The AnnData object being exported by this script is formatted to fit CZI schema: 3.0.0
+# The AnnData objects being exported by this script is formatted to fit CZI schema: 3.0.0
 
 # adapted from https://github.com/AlexsLemonade/scpca-nf/blob/8bef82d853d19e5aeddd75401aa54cf8bfbced13/bin/sce_to_anndata.R
 
@@ -34,9 +35,9 @@ suppressPackageStartupMessages({
 
 # Functions  -------------------------------------------------------------------
 
-# this function updates merged object formatting for anndata export
+
 outfile_name <- function(sce_filename, feature) {
-  # paste X to any present reduced dim names
+  # create the output file name for each feature
   suffix <- glue::glue("_{feature}.hdf5")
   feature_filename <- stringr::str_replace(sce_filename, ".rds$", suffix)
   return(feature_filename)
@@ -44,8 +45,9 @@ outfile_name <- function(sce_filename, feature) {
 
 # Merged object function  ------------------------------------------------------
 
-# this function updates merged object formatting for anndata export
+
 format_merged_sce <- function(sce) {
+  # this function updates merged object formatting for anndata export
   # paste X to any present reduced dim names
   reducedDimNames(sce) <- glue::glue("X_{reducedDimNames(sce)}")
   return(sce)
@@ -151,8 +153,6 @@ convert_altexp <- function(sce, feature_name, output_feature_h5, compression = "
              The altExp will not be converted.")
     return()
   }
-  # create output file name
-
 
   # extract altExp
   alt_sce <- altExp(sce, feature_name)
