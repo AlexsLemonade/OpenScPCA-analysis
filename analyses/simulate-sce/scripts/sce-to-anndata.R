@@ -136,7 +136,7 @@ convert_sce_file <- function(sce_file) {
         sce,
         feature_name,
         outfile_name(sce_file, feature_name),
-        opt$compress_output
+        compression = "gzip"
       )
     })
 }
@@ -144,7 +144,7 @@ convert_sce_file <- function(sce_file) {
 # AltExp to AnnData -----------------------------------------------------------
 
 # if feature data exists, grab it and export to AnnData
-convert_altexp <- function(sce, feature_name, output_feature_h5, compress_output) {
+convert_altexp <- function(sce, feature_name, output_feature_h5, compression = "gzip") {
   # make sure the feature data is present
   if (feature_name == "cellhash") {
     warning("Conversion of altExp data from multiplexed data is not supported.
@@ -168,7 +168,8 @@ convert_altexp <- function(sce, feature_name, output_feature_h5, compress_output
     # export altExp sce as anndata object
     scpcaTools::sce_to_anndata(
       alt_sce,
-      anndata_file = output_feature_h5
+      anndata_file = output_feature_h5,
+      compression = compression
     ) |> suppressMessages() # suppress notes about metadata conversion
   } else {
     # warn that the altExp cannot be converted
