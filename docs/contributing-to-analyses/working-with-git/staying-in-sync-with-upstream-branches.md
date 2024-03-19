@@ -10,7 +10,7 @@ This ensures that your fork has the most recent changes and updates found in the
     - [GitHub documentation on syncing a fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork)
 
 
-## How to sync your fork with changes in AlexsLemonade/OpenScPCA-analysis
+## How to sync your fork with changes in `AlexsLemonade/OpenScPCA-analysis`
 
 Follow these steps to keep your fork in sync with changes in `AlexsLemonade/OpenScPCA-analysis`:
 
