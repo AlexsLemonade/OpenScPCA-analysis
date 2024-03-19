@@ -22,6 +22,9 @@ on:
       - main
     paths:
       - analyses/hello-python/**
+  push:
+    branches:
+      - jashapiro/conda-lock
 
 jobs:
   run-module:
