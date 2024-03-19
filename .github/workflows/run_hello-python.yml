@@ -37,20 +37,10 @@ jobs:
       - name: Download test data
         run: ./download-data.py --bucket openscpca-temp-simdata --format AnnData --anonymous
 
-      - name: Cache conda packages
-        uses: actions/cache@v3
-        env:
-          # Increase this value to reset cache if environment.yml has not changed
-          CACHE_NUMBER: 0
-        with:
-          path: ~/conda_pkgs_dir
-          key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles( env.MODULE_PATH + '/environment.yml' ) }}
-
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3
         with:
           environment-file: "${{ env.MODULE_PATH }}/environment.yml"
-          use-only-tar-bz2: true # required for caching
 
       - name: Run analysis
         run: |
