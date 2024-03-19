@@ -114,11 +114,6 @@ def main() -> None:
         help="The AWS profile to use for the download. Uses the current default profile if undefined.",
     )
     parser.add_argument(
-        "--quiet",
-        action="store_true",
-        help="Suppress output except errors.",
-    )
-    parser.add_argument(
         "--anonymous",
         action="store_true",
         help="Download the data anonymously, without using AWS credentials. Only works if the bucket is public.",
@@ -220,6 +215,7 @@ def main() -> None:
         f"s3://{args.bucket}/{release}/",
         f"{args.data_dir}/{release}/",
         "--exact-timestamps",  # replace if a file has changed at all
+        "--no-progress",  # don't show progress animations
         "--exclude",
         "*",  # exclude everything by default
     ]
@@ -258,9 +254,6 @@ def main() -> None:
     if args.dryrun:
         sync_cmd += ["--dryrun"]
 
-    if args.quiet:
-        sync_cmd += ["--only-show-errors"]
-
     if args.profile:
         sync_cmd += ["--profile", args.profile]
 
@@ -270,12 +263,11 @@ def main() -> None:
     subprocess.run(sync_cmd, check=True)
 
     ### Print summary messages ###
-    if not args.quiet:
-        print("\n\n\033[1mDownload Summary\033[0m")  # bold
-        print("Release:", release)
-        print("Data Format:", ", ".join(formats))
-        print("Processing levels:", ", ".join(includes))
-        print("Downloaded data to:", args.data_dir / release)
+    print("\n\n\033[1mDownload Summary\033[0m")  # bold
+    print("Release:", release)
+    print("Data Format:", ", ".join(formats))
+    print("Processing levels:", ", ".join(includes))
+    print("Downloaded data to:", args.data_dir / release)
 
     ### Update current link to point to the new data release ###
     # only do this if the specified release is "current" or "latest", not for specific dates
@@ -284,8 +276,7 @@ def main() -> None:
         current_symlink = args.data_dir / "current"
         current_symlink.unlink(missing_ok=True)
         current_symlink.symlink_to(args.data_dir / release)
-        if not args.quiet:
-            print(f"Updated 'current' symlink to point to '{release}'.")
+        print(f"Updated 'current' symlink to point to '{release}'.")
 
 
 if __name__ == "__main__":
