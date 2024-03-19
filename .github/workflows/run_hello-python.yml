@@ -44,9 +44,10 @@ jobs:
         env:
           # Increase this value to reset cache if environment.yml has not changed
           CACHE_NUMBER: 0
+          ENV_FILE: ${{ env.MODULE_PATH }}/environment.yml
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles( env.MODULE_PATH + '/environment.yml' ) }}
+          key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles(env.ENV_FILE) }}
 
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3
