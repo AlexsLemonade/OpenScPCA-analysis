@@ -21,3 +21,6 @@ for dir in $data_dir/$project/*/; do
       --metadata_file $output_dir/$project/single_cell_metadata.tsv \
       --output_dir $output_dir/$project/$sample
 done
+
+echo "Creating AnnData files"
+Rscript scripts/sce-to-anndata.R --dir $output_dir/$project
