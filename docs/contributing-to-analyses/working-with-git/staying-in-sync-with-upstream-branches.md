@@ -5,9 +5,7 @@ This ensures that your fork has the most recent changes and updates found in the
 
 !!! note "Learn about syncing your fork"
 
-    For more information on syncing your fork with the upstream repository, see:
-
-    - [GitHub documentation on syncing a fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork)
+    For more information on syncing your fork with the upstream repository, see the [GitHub documentation on syncing a fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork).
 
 
 ## How to sync your fork with changes in `AlexsLemonade/OpenScPCA-analysis`
@@ -44,7 +42,7 @@ If there are changes that you have on your `main` branch that conflict with chan
 When this happens, GitHub will notify you that there are conflicts after pushing `Sync fork`.
 
 <figure markdown="span">
-    ![Sync conflicts](../../img/upstream-sync-4.png){width="600"}
+    ![Sync conflicts](../../img/upstream-sync-4.png){width="400"}
 </figure>
 
 Follow these steps to manage sync conflicts with GitKraken:
@@ -55,7 +53,7 @@ Follow these steps to manage sync conflicts with GitKraken:
     To do this, right-click on the remote `main` from `AlexsLemonade/OpenScPCA-analysis` and select `merge AlexsLemonade/main into main`.
 
     <figure markdown="span">
-        ![Merge main](../../img/upstream-sync-5.png){width="400"}
+        ![Merge main](../../img/upstream-sync-5.png){width="600"}
     </figure>
 
 1. A banner will pop up indicating that there is a merge conflict and any files that contain conflicts will be listed on the right-hand side under `Conflicted files`.
