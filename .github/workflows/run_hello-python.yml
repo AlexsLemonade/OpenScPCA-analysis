@@ -39,7 +39,7 @@ jobs:
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3
         with:
-          environment-file: "${env.MODULE_PATH}/environment.yml"
+          environment-file: "${{ env.MODULE_PATH }}/environment.yml"
 
       - name: Run analysis
         run: |
