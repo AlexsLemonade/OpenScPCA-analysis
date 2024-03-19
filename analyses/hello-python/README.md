@@ -7,7 +7,7 @@ The analysis counts the number of cells in each processed SCE file in the curren
 ## Usage
 
 To run the analysis, you will first need to activate the included conda environment.
-From this analysis directory, run the following commands:
+From this analysis directory, run the following commands at the command line:
 
 ```bash
 conda env update -f environment.yml -n openscpca-hello-python
