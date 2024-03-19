@@ -15,6 +15,7 @@ dependencies:
   - gitpython=3.1
   - jq=1.7
   - jupyter=1.0
+  - matplotlib=3.8
   - pandas=2.2
   - pre-commit=3.6
   - session-info=1.0
