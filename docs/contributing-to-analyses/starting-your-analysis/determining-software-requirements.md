@@ -1,4 +1,4 @@
-# Software Requirements
+# Determining Software Requirements
 
 ## Determining and managing software dependencies in R
 

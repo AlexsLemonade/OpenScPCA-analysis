@@ -184,8 +184,8 @@ def main() -> None:
         )
         print(ls_result.stderr, file=sys.stderr)
         sys.exit(1)
-    # get only date-based versions and remove the trailing slash
-    date_re = re.compile(r"(\d{4}-\d{2}-\d{2})/?")
+    # get only date-based versions or "test" and remove the trailing slash
+    date_re = re.compile(r"((\d{4}-\d{2}-\d{2})|(test))/?")
     releases = [
         m.group(1)
         for m in (date_re.search(line) for line in ls_result.stdout.splitlines())
