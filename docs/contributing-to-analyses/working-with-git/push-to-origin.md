@@ -45,7 +45,7 @@ See the section on [making commits](./making-commits.md).
     After you push to origin, you will see a message pop-up in the lower left stating, `Pushed successfully`.
 
     <figure markdown="span">
-        ![Pushed successfully](../../img/push-to-origin-3.png){width="600"}
+        ![Pushed successfully](../../img/push-to-origin-3.png){width="400"}
     </figure>
 
     You will also be able to see both the local computer icon and your GitHub avatar next to your branch name, indicating that your local branch and remote branch  are now in sync.
@@ -56,15 +56,15 @@ See the section on [making commits](./making-commits.md).
 
 1. If/when you make more changes, commit those changes, and then select `Push` to push to origin.
 
-Because you have already set the remote branch, changes will automatically be pushed to that remote branch using the `Push` button, with no further prompts from GitKraken.
+    Because you have already set the remote branch, changes will automatically be pushed to that remote branch using the `Push` button, with no further prompts from GitKraken.
+
+    Congratulations, you have now synced your local changes with a remote branch!
 
 ## When to push
 
 Note that you do not need to push to origin for every commit that you make.
 Any local commits that are not present in the remote branch will be included when you push to origin.
 
-We recommending pushing any commits you have made at the completion of a coding session.
+We recommend pushing any commits you have made at the completion of a coding session.
 
 For example, if you commit changes to code and documentation separately, push both those commits together.
-
-Congratulations, you have now synced your local changes with a remote branch!
