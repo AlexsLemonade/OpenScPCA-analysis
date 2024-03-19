@@ -9,9 +9,6 @@ on:
   schedule: # run monthly on the 1st
     - cron: "0 0 1 * *"
   workflow_dispatch:
-  push:
-    branches:
-      - jashapiro/104-*
 
 jobs:
   # Modules to run
