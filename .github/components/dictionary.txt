@@ -28,6 +28,7 @@ HPC
 ies
 immunities
 JSON
+Jupyter
 LGBTQ
 licensor
 licensor's
