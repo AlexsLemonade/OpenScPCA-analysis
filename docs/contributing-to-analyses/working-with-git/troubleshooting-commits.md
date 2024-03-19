@@ -1,16 +1,14 @@
 # Troubleshooting commits
 
-In some cases, GitKraken will not allow you to make a commit.
-Typically this will be because pre-commit hooks have not passed.
-
-!!!note "More information on pre-commit"
-
-    We ask that all contributors set up pre-commit hooks prior to making any commits.
-    For more information see the [documentation provided on setting up pre-commit](../../technical-setup/setup-precommit.md).
+On this page we cover some commonly occuring scenarios that may cause you're commit to fail.
 
 ## Why is pre-commit failing?
 
+We ask that all contributors set up pre-commit hooks prior to making any commits.
+For more information see the [documentation provided on setting up pre-commit](../../technical-setup/setup-precommit.md).
+
 We have set up pre-commit hooks to manage basic code security and catch other common problems, such as:
+
 
 - Large data files that should not be committed to the repository (files > 200 Kb)
 - Merge conflicts that have not yet been resolved
@@ -35,7 +33,8 @@ In the below example, the pre-commit failure is because we are trying to commit 
 The log may also include some details on which file caused an error and the reason.
 Typically, this will require you to delete sensitive information or remove any large files.
 
-Once you have identified and resolved the issue, you can commit your files and pre-commit should now pass.
+Once you have identified and resolved the issue, you will need to re-add your files to the `Staged files` section.
+Then you can commit your files and pre-commit should now pass.
 
 <figure markdown="span">
     ![Pre-commit pass](../../img/making-commits-5.png){width="600"}
