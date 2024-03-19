@@ -6,6 +6,7 @@ altExp
 AnnData
 anonymize
 anonymized
+benchmarking
 bioinformatics
 Carpentries
 Cmd
@@ -23,6 +24,7 @@ formatters
 Generis
 GitHub
 GitKraken
+HPC
 ies
 immunities
 JSON
@@ -45,6 +47,7 @@ OpenScPCA
 openscpca
 pre
 precommit
+PRs
 README
 redistribution
 renv
