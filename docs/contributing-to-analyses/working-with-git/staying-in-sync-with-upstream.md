@@ -35,6 +35,26 @@ Follow these steps to keep your fork in sync with changes in `AlexsLemonade/Open
         ![Successful sync](../../img/upstream-sync-3.png){width="600"}
     </figure>
 
+1. Before making any changes locally, you will need to "pull" the synced changes from GitHub to your local computer.
+
+    In GitKraken, you will see two versions of the `main` branch in the branch graph.
+    One will contain a computer icon, indicating that is the copy of the branch on your local computer.
+    The other will contain your GitHub avatar, indicating that is the copy of the branch on GitHub.
+
+    Double-click on the remote `main` (GitHub avatar) and GitKraken will notify you that a local `main` already exists.
+    Click the button that says `Reset Local to Here`.
+
+    <figure markdown="span">
+        ![Reset local](../../img/upstream-sync-4.png){width="600"}
+    </figure>
+
+    You now should see that your local and remote copy of `main` are synced with both avatars next to the branch name.
+
+    <figure markdown="span">
+        ![Git pull success](../../img/upstream-sync-5.png){width="600"}
+    </figure>
+
+
 ## Resolving sync conflicts
 
 If there are changes on your `main` branch that conflict with the current code in the `main` branch of `AlexsLemonade/OpenScPCA-analysis`, you will not be able to sync until those conflicts have been resolved.
@@ -42,7 +62,7 @@ If there are changes on your `main` branch that conflict with the current code i
 When this happens, GitHub will notify you that there are conflicts after pushing `Sync fork`.
 
 <figure markdown="span">
-    ![Sync conflicts](../../img/upstream-sync-4.png){width="300"}
+    ![Sync conflicts](../../img/upstream-sync-6.png){width="300"}
 </figure>
 
 **Do not click either of the buttons `Discard X commits` or `Open pull request`.**
@@ -54,20 +74,21 @@ Instead, follow these steps to fix the sync conflicts in GitKraken:
     To do this, right-click on the remote `main` from `AlexsLemonade/OpenScPCA-analysis` and select `merge AlexsLemonade/main into main`.
 
     <figure markdown="span">
-        ![Merge main](../../img/upstream-sync-5.png){width="600"}
+        ![Merge main](../../img/upstream-sync-7.png){width="600"}
     </figure>
 
 1. A banner will pop up indicating that there is a merge conflict.
 Any files that contain conflicts will be listed on the right-hand side under `Conflicted files`.
 
     <figure markdown="span">
-        ![Conflict banner](../../img/upstream-sync-6.png){width="600"}
+        ![Conflict banner](../../img/upstream-sync-8.png){width="600"}
     </figure>
 
     <figure markdown="span">
-        ![Conflict files list](../../img/upstream-sync-7.png){width="600"}
+        ![Conflict files list](../../img/upstream-sync-9.png){width="600"}
     </figure>
 
     To learn how to resolve these conflicts, please watch this [tutorial from GitKraken](https://www.gitkraken.com/learn/git/tutorials/how-to-resolve-merge-conflict-in-git).
 
     Once you have resolved the conflicts and committed the changes, your `main` branch will now be in sync with the upstream `main` branch of `AlexsLemonade/OpenScPCA-analysis`.
+    You may also choose to [push these changes to GitHub](./push-to-origin.md), to ensure that both the local and remote copy of your `main` branch are in sync with `AlexsLemonade/OpenScPCA-analysis:main`.
