@@ -14,9 +14,7 @@ We have set up pre-commit hooks to manage basic code security and catch other co
 
 - Large data files that should not be committed to the repository (files > 200 Kb)
 - Merge conflicts that have not yet been resolved
-
     - If you need help resolving merge conflicts, please see [resolving merge conflicts](STUB-LINK for merge conflicts).
-
 - Credential files and other sensitive information
 
 If you attempt to commit anything in the above list, then you will see a red banner indicating pre-commit failed.
@@ -44,15 +42,15 @@ Once you have identified and resolved the issue, you can commit your files and p
 </figure>
 
 
-## I added a file but it isn't showing up in GitKraken for me to stage and commit?
+## Why doesn't the file I added show up in GitKraken for me to stage and commit?
 
-In some cases, you may go to commit a file that is not showing up in the `Unstaged files` section of GitKraken.
+In some cases, you may try to commit a file that does not show up in the `Unstaged files` section of GitKraken.
 If the file is not there, than you cannot stage it and make a commit.
 
 We have set up a [`.gitignore` file](https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files) in the root directory of this repository that will tell Git to ignore certain files.
 Any files with a matching extension or path listed in the `.gitignore` will not be allowed to be committed to the repository.
 
-This includes:
+Ignored files include the following:
 
 - Data files, such as `.rds` or `.hdf5` files
 - Environment files, such as `renv` and `env` directories
