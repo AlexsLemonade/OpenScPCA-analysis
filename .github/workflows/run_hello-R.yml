@@ -27,6 +27,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: fail
+        run: exit 1
+
       - name: Checkout repo
         uses: actions/checkout@v4
 

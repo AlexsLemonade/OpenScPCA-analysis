@@ -30,12 +30,20 @@ jobs:
       - hello-python
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout template file
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github/cron-issue-templates/all-modules-issue-template.md
+          sparse-checkout-cone-mode: false
+
       - name: Post issue with spellcheck results
         if: contains(needs.*.result, 'failure')
         uses: peter-evans/create-issue-from-file@v5
         with:
           title: Analysis module failing in CI
-          content-filepath: .github/cron-issue-templates/all-modules-issue-template.md
+          content-filepath: |
+            .github/cron-issue-templates/all-modules-issue-template.md
           labels: |
             OpenScPCA admin
             ci
