@@ -20,7 +20,7 @@ Briefly, you will follow process:
 
 - Make code changes [in a feature branch](../../contributing-to-analyses/working-with-git/working-with-branches.md)
 - [Stage and Commit](../../contributing-to-analyses/working-with-git/making-commits.md) files with code changes
-    - ⚠️ Fix errors flagged by the pre-commit hook until the commit is successful
+    - ‼️ Fix errors flagged by the pre-commit hook until the commit is successful
 - [Push changes](../../contributing-to-analyses/working-with-git/push-to-origin.md) to your fork on GitHub
 - [File a pull request](STUB_LINK for filing a PR) to the `AlexsLemonade/OpenScPCA-analysis` upstream repository
 
