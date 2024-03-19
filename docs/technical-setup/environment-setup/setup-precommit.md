@@ -16,7 +16,7 @@ As an OpenScPCA contributor, you will use pre-commit when you [commit files](../
 ## How does OpenScPCA use pre-commit?
 
 All OpenScPCA contributors should use `pre-commit` while [making contributions with Git](./../../contributing-to-analyses/working-with-git/index.md).
-Briefly, you will follow [this process to make contributions](STUB_LINK for working with git):
+Briefly, you will follow process:
 
 - Make code changes [in a feature branch](../../contributing-to-analyses/working-with-git/working-with-branches.md)
 - [Stage and Commit](../../contributing-to-analyses/working-with-git/making-commits.md) files with code changes
