@@ -46,8 +46,7 @@ jobs:
       - name: Install and activate locked conda environment
         run: |
           conda install conda-lock
-          conda-lock install --name locked ${MODULE_PATH}/conda-lock.yml
-          conda activate locked
+          conda-lock install --name test ${MODULE_PATH}/conda-lock.yml
 
       - name: Run analysis
         run: |
