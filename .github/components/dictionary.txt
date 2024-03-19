@@ -8,6 +8,8 @@ anonymize
 anonymized
 bioinformatics
 Carpentries
+Cmd
+Ctrl
 CellAssign
 conda
 config
@@ -63,4 +65,5 @@ WIPO
 WisCon
 WSL
 Xcode
+YAML
 Zappia
