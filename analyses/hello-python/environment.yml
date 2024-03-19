@@ -121,7 +121,6 @@ dependencies:
   - libev=4.33
   - libexpat=2.6.2
   - libffi=3.4.2
-  - libgfortran=5.0.0
   - libgfortran5=13.2.0
   - libhwloc=2.9.3
   - libiconv=1.17
@@ -187,8 +186,6 @@ dependencies:
   - pycparser=2.21
   - pygments=2.17.2
   - pynndescent=0.5.11
-  - pyobjc-core=10.2
-  - pyobjc-framework-cocoa=10.2
   - pyopenssl=23.1.1
   - pyparsing=3.1.2
   - pysocks=1.7.1

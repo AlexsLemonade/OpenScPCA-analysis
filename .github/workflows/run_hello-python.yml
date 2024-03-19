@@ -4,7 +4,7 @@
 # - On pull requests where code in the module has changed
 # - As a reusable workflow called from a separate workflow which periodically runs all modules
 
-name: Run hello-R analysis module
+name: Run hello-python analysis module
 env:
   MODULE_PATH: analyses/hello-python
   AWS_DEFAULT_REGION: us-east-1
