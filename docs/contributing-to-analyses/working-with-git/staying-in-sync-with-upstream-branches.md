@@ -68,6 +68,6 @@ Follow these steps to manage sync conflicts with GitKraken:
         ![Conflict files list](../../img/upstream-sync-7.png){width="600"}
     </figure>
 
-    For help in resolving these conflicts, please see [resolving merge conflicts](STUB-LINK to resolve merge conflicts).
+    For help in resolving these conflicts, please watch this [tutorial from GitKraken](https://www.gitkraken.com/learn/git/tutorials/how-to-resolve-merge-conflict-in-git).
 
     Once you have resolved the conflicts and committed the changes, your `main` branch will now be in sync with the upstream `main` branch of `AlexsLemonade/OpenScPCA-analysis`.
