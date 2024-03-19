@@ -61,7 +61,7 @@ Because you have already set the remote branch, changes will automatically be pu
 ## When to push
 
 Note that you do not need to push to origin for every commit that you make.
-Any commits that have been made that are not present in the remote branch will be included when you push to origin.
+Any local commits that are not present in the remote branch will be included when you push to origin.
 
 We recommending pushing any commits you have made at the completion of a coding session.
 
