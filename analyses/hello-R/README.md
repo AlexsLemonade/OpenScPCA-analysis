@@ -14,6 +14,6 @@ bash hello-R.sh
 
 ### Output
 
-- `notebooks/hello.nb.html`: a rendered R Markdown notebook
+- `hello.nb.html`: a rendered R Markdown notebook
 - `results/cell_counts.csv`: a table of counts for each library
 - `plots/cell_counts.pdf`: histograms of cell counts by project
