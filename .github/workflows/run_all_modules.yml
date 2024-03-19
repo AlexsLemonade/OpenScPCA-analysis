@@ -16,5 +16,17 @@ on:
 jobs:
   run_hello-R:
     uses: ./.github/workflows/run_hello-R.yml
+
   run_hello-python:
     uses: ./.github/workflows/run_hello-python.yml
+
+  check-success:
+    if: ${{ always() }}
+    needs:
+      - run_hello-R
+      - run_hello-python
+    runs-on: ubuntu-latest
+    steps:
+      - name: check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: echo job failed && exit 1
