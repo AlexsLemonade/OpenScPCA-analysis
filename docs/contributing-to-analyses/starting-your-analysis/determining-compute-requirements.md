@@ -29,7 +29,6 @@ Methods or benchmarking papers in the literature may also be a good resource for
 
 ### How to monitor requirements
 
-
 To get an overview of computational resource usage when running an analysis, you can use the command-line tool [`htop`](https://htop.dev/) on Linux and macOS.
 
 `htop` will be already installed on machines run via [Lightsail for Research](STUB_LINK), but you can [install it via conda](https://anaconda.org/conda-forge/htop) (see our [documentation on conda](software-requirements.md#adding-software-to-the-environment-and-tracking-installed-software)).
@@ -60,9 +59,9 @@ Please be sure to provide this information when prompted.
 * [Proposing to modify an existing analysis in Discussions?](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=modify-an-existing-analysis)
     * Report what you know about computational resources required in the "Other Details" field
 * [Filing an issue to start an analysis?](STUB_LINK)
-    * Report what you know about computational resources required in the "What computational resources will you require?" field
+    * Report what you know about the required computational resources in the "What computational resources will you require?" field
 * [Filing an issue to modify an analysis?](STUB_LINK)
-    * Report what you know about computational resources required in the "Will you require different computational resources beyond what the analysis module already uses?" field
+    * Report what you know about the required computational resources in the "Will you require different computational resources beyond what the analysis module already uses?" field
 * [Filing a pull request?](STUB_LINK)
     * Fill out the section explaining to reviewers what computational resources are required to run the code ("What are the computational requirements to be able to run the code in this PR?")
 
