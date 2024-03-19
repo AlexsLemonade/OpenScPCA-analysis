@@ -42,10 +42,8 @@ nonconsensual
 OpenScPCA
 openscpca
 pre
-precommit
 README
 redistribution
-renv
 repo
 reproducibility
 RStudio
