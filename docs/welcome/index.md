@@ -12,21 +12,21 @@ This project aims to characterize the ScPCA data by:
 
 TODO: ADD ILLUSTRATION
 
-**Co-develop analyses ideas and approaches**
+**Co-develop analysis ideas and approaches**
 
-Participate in discussions with Data Lab members and other contributors to shape analyses ideas and select best approaches to implement analyses.
+Participate in discussions with Data Lab members and other contributors to shape analysis ideas and select the best approaches to implement analyses.
 
-**Implement analyses in a reproducible research framework**
+**Write reproducible code to perform analyses**
 
 Work on an analysis module within a reproducible research framework setup for you by the Data Lab using R or Python.
 
-**Review Process**
+**Participate in the analytical code review process**
 
-Participate in the code review process to improve skills in programming, and writing collaborative code. 
+Participate in the code review process to improve your programming skills and gain experience collaborating on a code base.
 
 **Add your analyses to the project**
 
-Contribute your analysis to benefit the broader pediatric cancer community.
+Contribute your analysis to benefit the broader pediatric cancer community and build your publicly-facing portfolio of source code contributions.
 
 
 ## Benefits of Participating
