@@ -34,7 +34,7 @@ jobs:
             .github/cron-issue-templates/all-modules-issue-template.md
           sparse-checkout-cone-mode: false
 
-      - name: Post issue with spellcheck results
+      - name: Post issue with results from running all modules
         if: contains(needs.*.result, 'failure')
         uses: peter-evans/create-issue-from-file@v5
         with:
