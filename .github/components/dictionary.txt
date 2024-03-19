@@ -8,6 +8,8 @@ anonymize
 anonymized
 bioinformatics
 Carpentries
+Cmd
+Ctrl
 CellAssign
 conda
 config
@@ -28,6 +30,7 @@ LGBTQ
 licensor
 licensor's
 licensors
+Lightsail
 LinkedIn
 linter
 linter's

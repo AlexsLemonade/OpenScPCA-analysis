@@ -69,6 +69,7 @@ nav:
     - Working with Git: # Creating branches, adding commits, all git interactions
       - contributing-to-analyses/working-with-git/working-with-branches.md
       - contributing-to-analyses/working-with-git/making-commits.md
+      - contributing-to-analyses/working-with-git/push-to-origin.md
       - Determining and managing requirements:
         - contributing-to-analyses/determining-and-managing-requirements/index.md
         - contributing-to-analyses/determining-and-managing-requirements/software-requirements.md
