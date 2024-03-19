@@ -10,6 +10,7 @@ As an OpenScPCA contributor, you will use pre-commit when you [commit files](../
 
 - These pre-commit hooks check that the changes you are trying to commit pass the code quality standards we have set up.
 - If `pre-commit` finds that certain files do not pass these checks, you will need to update the files to ensure they pass before you can commit your changes.
+
   - You can learn more about this process in the [contributing to analyses documentation](STUB_LINK).
 
 ## How does OpenScPCA use pre-commit?
