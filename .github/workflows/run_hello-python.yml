@@ -40,14 +40,12 @@ jobs:
       - name: Download test data
         run: ./download-data.py --bucket openscpca-temp-simdata --format AnnData --anonymous
 
-      - name: Set up conda base environment
+      - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3
-        with:
-          environment-file: environment.yml
-
 
       - name: Install and activate locked conda environment
         run: |
+          conda install conda-lock
           conda-lock install --name locked ${MODULE_PATH}/conda-lock.yml
           conda activate locked
 
