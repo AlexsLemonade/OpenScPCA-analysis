@@ -15,6 +15,14 @@ As an OpenScPCA contributor, you will use pre-commit when you [commit files](../
 ## How does OpenScPCA use pre-commit?
 
 All OpenScPCA contributors should use `pre-commit` while [making contributions with Git](./../../contributing-to-analyses/working-with-git/index.md).
+Briefly, you will follow [this process to make contributions](STUB_LINK for working with git):
+
+- Make code changes
+- [Stage and Commit](../../contributing-to-analyses/working-with-git/making-commits.md) files with code changes
+    - ⚠️ Fix errors flagged by the pre-commit hook until the commit is successful
+- [Push changes](../../contributing-to-analyses/working-with-git/push-to-origin.md) to GitHub
+- [File a pull request](STUB_LINK for filing a PR) to the `AlexsLemonade/OpenScPCA-analysis` upstream repository
+
 
 We have set up some pre-commit hooks to manage basic code security and catch other common problems, such as the following:
 
