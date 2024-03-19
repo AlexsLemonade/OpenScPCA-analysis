@@ -22,6 +22,9 @@ on:
       - main
     paths:
       - analyses/hello-python/**
+  push:
+    branches:
+      - jashapiro/103-hello-python
 jobs:
   run-module:
     runs-on: ubuntu-latest
