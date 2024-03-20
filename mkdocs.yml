@@ -73,7 +73,9 @@ nav:
       - contributing-to-analyses/starting-your-analysis/determining-compute-requirements.md
     - Working with Git: # Creating branches, adding commits, all git interactions
       - contributing-to-analyses/working-with-git/working-with-branches.md
+      - contributing-to-analyses/working-with-git/staying-in-sync-with-upstream.md
       - contributing-to-analyses/working-with-git/making-commits.md
+      - contributing-to-analyses/working-with-git/troubleshooting-commits.md
       - contributing-to-analyses/working-with-git/push-to-origin.md
   - Software platforms:            # LSfR, AWS, Docker, etc
     - software-platforms/index.md
