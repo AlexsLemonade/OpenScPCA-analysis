@@ -2,7 +2,7 @@
 
 This is an example analysis module using a Jupyter Notebook to perform a simple analysis of the OpenScPCA data.
 
-The analysis counts the number of cells in each processed SCE file in the current data directory.
+The analysis counts the number of cells in each processed AnnData file in the current data directory.
 
 ## Usage
 
