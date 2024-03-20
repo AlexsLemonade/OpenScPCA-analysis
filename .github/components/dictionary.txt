@@ -1,3 +1,4 @@
+‼️
 ableist
 ADT
 al
@@ -28,6 +29,7 @@ HPC
 ies
 immunities
 JSON
+Jupyter
 LGBTQ
 licensor
 licensor's
@@ -46,11 +48,9 @@ nonconsensual
 OpenScPCA
 openscpca
 pre
-precommit
 PRs
 README
-redistribution
-renv
+Redistributions
 repo
 reproducibility
 RStudio
