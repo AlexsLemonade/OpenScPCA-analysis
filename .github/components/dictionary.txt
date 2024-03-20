@@ -49,6 +49,7 @@ nonconsensual
 OpenScPCA
 openscpca
 pre
+PR
 PRs
 README
 redistribution
