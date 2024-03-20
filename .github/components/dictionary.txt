@@ -50,7 +50,9 @@ openscpca
 pre
 PRs
 README
-Redistributions
+redistribution
+redistributions
+renv
 repo
 reproducibility
 RStudio
