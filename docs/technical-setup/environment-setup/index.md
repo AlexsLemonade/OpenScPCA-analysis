@@ -5,7 +5,7 @@ This section of the documentation walks you through additional setup steps that 
 This section assumes that you have already taken the following setup steps:
 
 - Downloaded your [Git client of interest](../install-a-github-client.md)
-    - If you are working on a Windows machine, you will also have needed to install the [Windows Subsystem for Linux](STUB_LINK wsl instructions).
+    - If you are working on a Windows machine, you first need to install the [Windows Subsystem for Linux](STUB_LINK wsl instructions) before setting up Git.
 - [Forked the `AlexsLemonade/OpenScPCA-analysis` repository](../fork-the-repo.md)
 - [Cloned your fork](../clone-the-repo.md) to your computer
 
