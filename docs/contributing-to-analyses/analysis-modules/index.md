@@ -2,7 +2,7 @@
 
 OpenScPCA organizes individual analyses into [analysis modules](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses).
 Each analysis module is a folder with files containing all code, computing environment specifications, and documentation needed to run and interpret an analysis.
-For example, an analysis to perform cell type annotation on Ewing sarcoma samples would be single analysis module named, and it might be named `celltype-ewings-sarcoma`.
+For example, an analysis to perform cell type annotation on Ewing sarcoma samples would be a single analysis module named, and it might be named `celltype-ewings-sarcoma`.
 
 This section explains the structure of analysis modules.
 
@@ -36,7 +36,7 @@ These are the main files and folders you will interact with when writing your an
     - Use this [markdown file](STUB_LINK docs on markdown) to document your analysis module.
   Your `README.md` file should have enough information for other contributors or repository users to learn the following:
         - The scientific goals of the module
-        - The input data the module uses and its [computational resource requirements](../starting-your-analysis/determining-compute-requirements.md)
+        - The input and output of the module and its [computational resource requirements](../starting-your-analysis/determining-compute-requirements.md)
         - How to run the module
     - Please see the documentation on [documenting your analysis module](STUB_LINK module documenting notebooks) for more information about adding to this `README.md` file.
 
@@ -60,7 +60,7 @@ While you write your analysis, you may add other files too:
 
 - Scripts and analysis notebooks, e.g., R Markdown files or Jupyter notebooks
     - We recommend saving scripts in the `scripts` folder, as described above.
-    - You are also welcome to notebook files in `scripts`, or in the top-level of your analysis module folder.
+    - You are also welcome to save notebook files in the top-level of your analysis module folder.
     Feel free to choose what location makes the most sense for your analysis, as long as it is all documented in the module's `README.md` file!
         - Please see the documentation on [structuring your analysis notebooks](STUB_LINK structure notebooks) for more information about how to write your analysis notebooks.
 
@@ -73,7 +73,7 @@ While you write your analysis, you may add other files too:
         - `scripts/02_script-to-analyze-data.R`
         - `03_notebook-to-visualize-data.Rmd`
 
-- A shell script to run all code in the module
+- A script to run all code in the module
     - If your module has multiple scripts or notebooks, we recommend adding a script (for example a `shell` script) to the top-level of your analysis module folder that will run all scripts in order.
     - You can name this file, for example, `run_<module name>.sh` and document how to run in the module's `README.md`
 - Additional environment files
