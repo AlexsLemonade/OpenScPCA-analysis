@@ -41,7 +41,7 @@ We will review your code contribution by:
 - Ensuring that all necessary documentation is present and clear
 
 If the reviewer has comments or requests changes, you should address those comments before requesting a second review.
-Bear in mind that is _normal and expected_ for a pull request to undergo multiple rounds of review before it is approved.
+Bear in mind that it is _normal and expected_ for a pull request to undergo multiple rounds of review before it is approved.
 Once the reviewer is happy with the changes, they will approve the pull request and [merge](STUB-LINK for merge).
 
 Then, your code contributions will be present in the `main` branch of `AlexsLemonade/OpenScPCA-analysis` 🎉 !
