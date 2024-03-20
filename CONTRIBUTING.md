@@ -170,7 +170,7 @@ Note that these tools will often directly modify your files when run.
 If they are run as a pre-commit hook the initial commit will fail, and you will then need to check and stage the changes that were made by the tool before re-trying the commit.
 
 
-Some formatters that we recommend are [`ruff-format`](https://docs.astral.sh/ruff/formatter/) for Python and the [`style-files` hook from the precommit package](https://lorenzwalthert.github.io/precommit/articles/available-hooks.html#style-files) for R.
+Some formatters that we recommend are [`ruff-format`](https://docs.astral.sh/ruff/formatter/) for Python and the [`style-files` hook from the `precommit` package](https://lorenzwalthert.github.io/precommit/articles/available-hooks.html#style-files) for R.
 You can add those with the following code added to the `.pre-commit-config.yaml` file in the `repos:` section:
 
 ```yaml
@@ -222,7 +222,7 @@ Just note that the more hooks you add, the longer each commit to your repository
 To facilitate creating new analysis modules with recommended file structure and documentation, we have provided a script, `create-analysis-module.py`, that you can use to create a new module.
 This script will create a new directory within the `analyses` directory for the new module and populate it with a recommended file structure and some template files.
 
-If you plan to use `conda` or `renv` for package management, you can also use the script to create a conda environment file or initialize an renv project.
+If you plan to use `conda` or `renv` for package management, you can also use the script to create a conda environment file or initialize an `renv` project.
 To use the script, run one of the following commands in the root directory of the repository:
 
 ```bash
@@ -244,5 +244,5 @@ conda activate openscpca-{module_name}
 
 See the [Conda environment setup](#conda-environment-setup) section for more information on managing conda environments.
 
-If you have created a module with an renv environment, that environment will automatically be activated when you open `R` in the module directory.
+If you have created a module with an `renv` environment, that environment will automatically be activated when you open `R` in the module directory.
 
