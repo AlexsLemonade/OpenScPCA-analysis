@@ -1,8 +1,8 @@
 # Analysis modules
 
 OpenScPCA organizes individual analyses into [analysis modules](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses).
-For example, an analysis to perform cell tyoe annotation on Ewing sarcoma samples would be single analysis module named, e.g., `celltype-ewings`.
 Each analysis module is a folder with files containing all code, computing environment specifications, and documentation needed to run and interpret an analysis.
+For example, an analysis to perform cell type annotation on Ewing sarcoma samples would be single analysis module named, and it might be named `celltype-ewings-sarcoma`.
 
 This section explains the structure of analysis modules.
 
@@ -49,8 +49,8 @@ There are also some additional files in the skeleton that are useful to be aware
     - For more information on how OpenScPCA uses `Docker` images, [please see our `Docker` documentation](STUB_LINK for docker docs).
 - Hidden files **`.gitignore`** and **`.dockerignore`**
     - We have set up these files to tell Git and Docker, respectively, to ignore certain files that do not belong in version control or in the module's Docker image.
-    - These files will likely be automatically hidden from you, but it's useful to be aware that they are there and working behind the scenes to help manage the module!
-
+    - These files will likely be automatically hidden from you, and you don't really have to worry about it.
+    Just be aware that they are there and working behind the scenes to help manage the module!
 
 
 
@@ -58,16 +58,11 @@ There are also some additional files in the skeleton that are useful to be aware
 
 While you write your analysis, you may add other files too:
 
-- Additional environment files
-    - When you [create a module](STUB_LINK for creating a module), you can choose to include files that manage the module's software environment.
-    - In this case, your module may also contain contain R-specific (e.g., `renv.lock`) and/or Python-specific (e.g., `environment.yml`) files or folders.
-- Analysis notebooks, e.g., R Markdown files or Jupyter notebooks
-    - You are welcome to save these files at the top-level of your analysis module folder, or in `scripts`.
+- Scripts and analysis notebooks, e.g., R Markdown files or Jupyter notebooks
+    - We recommend saving scripts in the `scripts` folder, as described above.
+    - You are also welcome to notebook files in `scripts`, or in the top-level of your analysis module folder.
     Feel free to choose what location makes the most sense for your analysis, as long as it is all documented in the module's `README.md` file!
-    - Please see the documentation on [structuring your analysis notebooks](STUB_LINK structure notebooks) for more information about how to write your analysis notebooks.
-- A shell script to run all code in the module
-    - If your module has multiple scripts or notebooks, we recommend adding a script (for example a `shell` script) to the top-level of your analysis module folder that will run all scripts in order.
-    - You can name this file, for example, `run_<module name>.sh` and document how to run in the module's `README.md`
+        - Please see the documentation on [structuring your analysis notebooks](STUB_LINK structure notebooks) for more information about how to write your analysis notebooks.
 
     !!! note "Naming your files"
         If your module has multiple scripts or notebooks, we recommend naming them in the order they should be run.
@@ -77,6 +72,15 @@ While you write your analysis, you may add other files too:
         - `scripts/01_script-to-prepare-data.R`
         - `scripts/02_script-to-analyze-data.R`
         - `03_notebook-to-visualize-data.Rmd`
+
+- A shell script to run all code in the module
+    - If your module has multiple scripts or notebooks, we recommend adding a script (for example a `shell` script) to the top-level of your analysis module folder that will run all scripts in order.
+    - You can name this file, for example, `run_<module name>.sh` and document how to run in the module's `README.md`
+- Additional environment files
+    - When you [create a module](STUB_LINK for creating a module), you can choose to include files that manage the module's software environment in the analyis module skeleton.
+    - In this case, your module may also contain contain R-specific (e.g., `renv.lock`) and/or Python-specific (e.g., `environment.yml`) files or folders.
+
+
 
 
 ## Example analysis modules
