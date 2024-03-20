@@ -9,10 +9,15 @@ This section assumes that you have already taken the following setup steps:
 - [Forked the `AlexsLemonade/OpenScPCA-analysis` repository](../fork-the-repo.md)
 - [Cloned your fork](../clone-the-repo.md) to your computer
 
+## Setting up locally
 
-Next, you'll have to download and setup a few additional items to get started contributing:
+If you getting set up to work on your computer, you will need to take the following steps.
 
-- All contributors should [download and set up conda](./setup-conda.md)
+- [Download and set up conda](./setup-conda.md)
     - This will also provide you with Python and other tools you need to contribute to Python-based modules
-- All contributors should [set up `pre-commit`](./setup-precommit.md)
-- If you plan on contributing R-based modules, you should also [set up R, RStudio, and install a few handy R packages](./install-r-rstudio.md)
+- [Set up `pre-commit`](./setup-precommit.md)
+- [Optional] If you plan on contributing R-based modules, you should also [set up R, RStudio, and install a few handy R packages](./install-r-rstudio.md)
+
+## Setting up on Lightsail for Research
+
+If you getting set up to work on a Lightsail for Research instance, please refer to the [Lightsail for Research documentation](STUB_LINK for LSfR).
