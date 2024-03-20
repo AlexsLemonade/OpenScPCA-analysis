@@ -1,3 +1,4 @@
+‼️
 ableist
 ADT
 al
@@ -47,7 +48,6 @@ nonconsensual
 OpenScPCA
 openscpca
 pre
-precommit
 PRs
 README
 redistribution

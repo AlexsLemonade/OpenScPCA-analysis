@@ -65,7 +65,7 @@ You should now see a new line with your commit message connected to your branch 
 
 #### Pre-commit checks
 
-- Every time you make a commit, you will see a banner showing the status of [the pre-commit checks](STUB_LINK for precommit).
+- Every time you make a commit, you will see a banner showing the status of [the pre-commit checks](STUB_LINK for pre-commit).
 - Files will only be committed if the pre-commit checks pass.
     - Still need to set up pre-commit in the repository?
     See [Install pre-commit and setup hooks](STUB-LINK).
