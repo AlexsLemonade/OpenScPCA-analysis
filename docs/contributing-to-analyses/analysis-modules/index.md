@@ -68,3 +68,11 @@ While you write your analysis, you will add other files too:
         - `scripts/01_script-to-prepare-data.R`
         - `scripts/02_script-to-analyze-data.R`
         - `03_notebook-to-visualize-data.Rmd`
+
+
+## Example analysis modules
+
+To help you get started, we've created two analysis modules that you can use as references:
+
+- [`hello-R`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/hello-R) is an example R-based analysis module
+- [`hello-python`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/hello-python) is an example Python-based analysis module
