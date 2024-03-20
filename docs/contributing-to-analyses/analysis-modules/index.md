@@ -12,7 +12,7 @@ You can create a starting point for your analysis module with the script `create
 This script will create a skeleton anaysis module with the following file structure:
 
 <figure markdown="span">
-    ![Baseline file structure of an analysis module.](../../img/analysis-module-structure.png){width="200"}
+    ![Baseline file structure of an analysis module.](STUB_LINK to image created in #134){width="200"}
 </figure>
 
 Please refer to [the documentation on creating analysis modules](STUB_LINK for creating modules) when you are ready to make your first analysis folder and begin contributing to OpenScPCA!
