@@ -3,6 +3,11 @@
 You may wish to keep changes made in `AlexsLemonade/OpenScPCA-analysis` in sync with the `main` branch of your fork.
 This ensures that your fork has the most recent changes and updates found in the main code base.
 
+We recommend syncing at the following times:
+
+    - Before you make a new feature branch off `AlexsLemonade/OpenScPCA-analysis:main`.
+    - After you have merged a pull request into `AlexsLemonade/OpenScPCA-analysis:main`, sync to keep your fork's `main` up to date.
+
 !!! note "Learn about syncing your fork"
 
     For more information on syncing your fork with the upstream repository, see the [GitHub documentation on syncing a fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork).
