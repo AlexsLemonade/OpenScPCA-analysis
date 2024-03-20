@@ -9,7 +9,7 @@ This section explains the structure of analysis modules.
 ## Skeleton analysis module contents
 
 You can create a starting point for your analysis module with the script `create-analysis-module.py`.
-This script will create a skeleton anaysis module with the following file structure:
+This script will create a skeleton analysis module with the following file structure:
 
 <figure markdown="span">
     ![Baseline file structure of an analysis module.](STUB_LINK to image created in #134){width="200"}
@@ -77,7 +77,7 @@ While you write your analysis, you may add other files too:
     - If your module has multiple scripts or notebooks, we recommend adding a script (for example a `shell` script) to the top-level of your analysis module folder that will run all scripts in order.
     - You can name this file, for example, `run_<module name>.sh` and document how to run in the module's `README.md`
 - Additional environment files
-    - When you [create a module](STUB_LINK for creating a module), you can choose to include files that manage the module's software environment in the analyis module skeleton.
+    - When you [create a module](STUB_LINK for creating a module), you can choose to include files that manage the module's software environment in the analysis module skeleton.
     - In this case, your module may also contain contain R-specific (e.g., `renv.lock`) and/or Python-specific (e.g., `environment.yml`) files or folders.
 
 
