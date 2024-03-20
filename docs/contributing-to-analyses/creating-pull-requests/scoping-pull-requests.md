@@ -5,7 +5,7 @@
 When filing a PR, the content should be focused and contain a set of related changes.
 For most cases, each PR should contain changes that address one [issue filed in the repository](../../communications-tools/github-issues/what-are-github-issues-and-how-do-we-use-them.md).
 
-Keeping PRs focused on one task can help by combatting reviewer fatigue and keeping the [review process](STUB-LINK to review) short.
+Keeping PRs focused on one task can help by combating reviewer fatigue and keeping the [review process](STUB-LINK to review) short.
 Longer PRs are harder to review and it can be much easier to introduce an unwanted bug in the code.
 The smaller the PR, the faster and more thorough the review!
 
