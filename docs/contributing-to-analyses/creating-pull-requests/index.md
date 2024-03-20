@@ -9,9 +9,9 @@ In most cases, PRs are used to merge in changes from a [feature branch](../worki
 You can file PRs on GitHub and [request review](STUB-LINK to review) to ultimately be able to merge your code.
 The following components will be present in each PR:
 
-- A summary of line-by-line differences between the feature branch and the main branch.
+- A summary of line-by-line differences between the feature branch and the main branch, created by GitHub.
 - A summary, written by the contributor, describing the contents of changes proposed in the pull request.
-- A history of all commits made on the feature branch.
+- A history of all commits made on the feature branch, created by GitHub.
 
 !!! note "Learn more about pull requests"
     For more details on pull requests, see:
