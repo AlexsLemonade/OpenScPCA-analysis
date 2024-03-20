@@ -2,11 +2,12 @@
 
 ## What is a pull request?
 
-A pull request is used to propose merging new changes saved in one branch into another branch.
-In other words, you file a pull request to _request_ that your code be _pulled_ into another branch.
-In most cases, pull requests are used to merge in changes from a [feature branch](../working-with-git/working-with-branches.md) into the `main` branch of the repository.
+A pull request (PR) is used to propose merging new changes saved in one branch into another branch.
+In other words, you file a PR to _request_ that your code be _pulled_ into another branch.
+In most cases, PRs are used to merge in changes from a [feature branch](../working-with-git/working-with-branches.md) into the `main` branch of the repository.
 
-Pull requests can be viewed on GitHub, and include:
+You can file PRs on GitHub and [request review](STUB-LINK to review) to ultimately be able to merge your code.
+The following components will be present in each PR:
 
 - A summary of line-by-line differences between the feature branch and the main branch.
 - A summary, written by the contributor, describing the contents of changes proposed in the pull request.
@@ -20,19 +21,19 @@ Pull requests can be viewed on GitHub, and include:
 
 ## Using pull requests in OpenScPCA
 
-Once you have created a [feature branch](../working-with-git/working-with-branches.md) and [committed changes to that branch](../working-with-git/making-commits.md), you will file a pull request to merge those changes into the `main` branch of `AlexsLemonade/OpenScPCA-analysis`.
+Once you have created a [feature branch](../working-with-git/working-with-branches.md) and [committed changes to that branch](../working-with-git/making-commits.md), you will file a PR to merge those changes into the `main` branch of `AlexsLemonade/OpenScPCA-analysis`.
 
-- Each pull request contains a group of related changes to the code.
-    - Not sure what to include in your pull request?
+- Each PR contains a group of related changes to the code.
+    - Not sure what to include in your PR?
     See [scoping a pull request](STUB-LINK to scoping).
-- Each pull request includes a description of the changes made.
+- Each PR includes a description of the changes made.
     - We provide a [pull request template](STUB-LINK to templates) to guide you on what to include in your pull request description.
-- All pull requests are [reviewed](STUB-LINK to review) by at least one Data Lab staff member before they can be approved.
+- All PRs are [reviewed](STUB-LINK to review) by at least one Data Lab staff member before they can be approved.
 Once approved, a Data Lab staff member will merge your feature branch into the `main` branch of `AlexsLemonade/OpenScPCA-analysis`.
 
-## Reviewing pull requests
+## The pull request review process
 
-We require that [at least one Data Lab staff member review](STUB-LINK to reviewing) the content of all pull requests.
+We require that [at least one Data Lab staff member review](STUB-LINK to reviewing) the content of all PRs.
 We will review your code contribution by:
 
 - Checking for correctness, clarity, and reproducibility in the code
@@ -41,6 +42,6 @@ We will review your code contribution by:
 
 If the reviewer has comments or requests changes, you should address those comments before requesting a second review.
 Bear in mind that is _normal and expected_ for a pull request to undergo multiple rounds of review before it is approved.
-Once the reviewer is happy with the changes, they will approve the pull request.
+Once the reviewer is happy with the changes, they will approve the pull request and [merge](STUB-LINK for merge).
 
 Then, your code contributions will be present in the `main` branch of `AlexsLemonade/OpenScPCA-analysis` 🎉 !
