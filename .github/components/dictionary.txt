@@ -17,6 +17,7 @@ conda
 config
 discoverable
 DM
+Dockerfile
 doxxing
 dropdown
 enforceability
@@ -68,6 +69,7 @@ synched
 trainings
 transphobic
 triaged
+TSV
 UMAP
 WIPO
 WisCon
