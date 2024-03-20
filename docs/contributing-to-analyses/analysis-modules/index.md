@@ -1,24 +1,37 @@
 # Analysis modules
 
+OpenScPCA organizes individual analyses into [analysis modules](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses).
+For example, an analysis to perform cell tyoe annotation on Ewing sarcoma samples would be single analysis module named, e.g., `celltype-ewings`.
+Each analysis module is a folder with files containing all code, computing environment specifications, and documentation needed to run and interpret an analysis.
+
 This section explains the structure of analysis modules.
-Please refer to [this documentation on creating analysis modules](STUB_LINK for creating modules) when you are ready to begin contributing.
 
+## Skeleton analysis module contents
 
-<!--TODO: too many links to the same place? -->
-A starting point for the analysis module can be created using `create-analysis-module.py`.
-After running this script, you should now have a module with the following template structure: 
+You can create a starting point for your analysis module with the script `create-analysis-module.py`.
+This script will create a skeleton anaysis module with the following file structure:
 
 <figure markdown="span">
     ![Baseline file structure of an analysis module.](../../img/analysis-module-structure.png){width="200"}
 </figure>
 
-## Baseline module files and folders
+Please refer to [the documentation on creating analysis modules](STUB_LINK for creating modules) when you are ready to make your first analysis folder and begin contributing to OpenScPCA!
 
-Analysis modules will contain at least these files:
+These are the main files and folders you will interact with when writing your analysis:
 
-- **`Dockerfile`**
-    - This is the analysis module's [Dockerfile](https://docs.docker.com/reference/dockerfile/) and contains the commands that Docker uses to build the module's Docker image.
-    - For more information on how OpenScPCA uses `Docker` images, [please see our `Docker` documentation](STUB_LINK for docker docs).
+- **`scripts`**
+    - You can save any scripts (e.g., `.R`, `.py`, or `.sh`) that you write for your analysis module in this folder.
+    - If you choose, you can also save any notebooks (e.g., R Markdown or Jupyter) files in this folder too.
+    Or, depending on the goals of your analysis module, you may prefer to save notebooks in the top-level of the analysis module folder.
+- **`results`**
+    - Any result files (e.g., TSV files) that your code produces should be saved to this `results` folder.
+    - Git will ignore the contents of this folder, _except_ for its `README.md` file, which you can use to document the results files themselves.
+    This means that only its `README.md` file will be present in the remote repository.
+- **`plots`**
+    - Any plots that your code produces should be saved to this `plots` folder.
+- **`scratch`**
+    - You can optionally use this folder to store _intermediate_ files that your code produces but are not meant to live in `results` or `plots`.
+    - Git will ignore the contents of this folder, so contents of this folder will only be stored locally and not in the remote repository.
 - **`README.md`**
     - Use this [markdown file](STUB_LINK docs on markdown) to document your analysis module.
   Your `README.md` file should have enough information for other contributors or repository users to learn the following:
@@ -26,25 +39,19 @@ Analysis modules will contain at least these files:
         - The input data the module uses and its [computational resource requirements](../starting-your-analysis/determining-compute-requirements.md)
         - How to run the module
     - Please see the documentation on [documenting your analysis module](STUB_LINK module documenting notebooks) for more information about adding to this `README.md` file.
+
+
+There are also some additional files in the skeleton that are useful to be aware of:
+
+
+- **`Dockerfile`**
+    - This is the analysis module's [Dockerfile](https://docs.docker.com/reference/dockerfile/) and contains the commands that Docker uses to build the module's Docker image.
+    - For more information on how OpenScPCA uses `Docker` images, [please see our `Docker` documentation](STUB_LINK for docker docs).
 - Hidden files **`.gitignore`** and **`.dockerignore`**
     - We have set up these files to tell Git and Docker, respectively, to ignore certain files that do not belong in version control or in the module's Docker image.
     - These files will likely be automatically hidden from you, but it's useful to be aware that they are there and working behind the scenes to help manage the module!
 
 
-
-New analysis modules will also be created with these folders:
-
-- **`plots`**
-    - Any plots that your code produces should be saved to this `plots` folder.
-- **`results`**
-    - Any result files (e.g., TSV files) that your code produces should be saved to this `results` folder.
-    - Git will ignore the contents of this folder, _except_ for its `README.md` file, which you can use to document the results files themselves.
-    This means only the README will be present in the remote repository. 
-- **`scratch`**
-    - You can optionally use this folder to store _intermediate_ files that your code produces but are not meant to live in `results` or `plots`.
-    - Git will ignore the contents of this folder, so contents of this folder will only be stored locally and not in the remote repository. 
-- **`scripts`**
-    - You can save any scripts (e.g., `.R`, `.py`, or `.sh`) that you write for your analysis module in this folder.
 
 
 ## Additional files you will add to your module
