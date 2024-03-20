@@ -3,6 +3,7 @@
 ## What is a pull request?
 
 A pull request is used to propose merging new changes saved in one branch into another branch.
+In other words, you file a pull request to _request_ that your code be _pulled_ into another branch.
 In most cases, pull requests are used to merge in changes from a [feature branch](../working-with-git/working-with-branches.md) into the `main` branch of the repository.
 
 Pull requests can be viewed on GitHub, and include:
@@ -25,21 +26,21 @@ Once you have created a [feature branch](../working-with-git/working-with-branch
     - Not sure what to include in your pull request?
     See [scoping a pull request](STUB-LINK to scoping).
 - Each pull request includes a description of the changes made.
-    - We provide a [pull request template](STUB-LINK to templates) to guide contributors on what to include in their pull request description.
+    - We provide a [pull request template](STUB-LINK to templates) to guide you on what to include in your pull request description.
 - All pull requests are [reviewed](STUB-LINK to review) by at least one Data Lab staff member before they can be approved.
-Once approved, changes are merged into the `main` branch of `AlexsLemonade/OpenScPCA-analysis`.
+Once approved, a Data Lab staff member will merge your feature branch into the `main` branch of `AlexsLemonade/OpenScPCA-analysis`.
 
 ## Reviewing pull requests
 
-We require that the content of all pull requests undergo [review by a Data Lab staff member](STUB-LINK to reviewing).
-This includes:
+We require that [at least one Data Lab staff member review](STUB-LINK to reviewing) the content of all pull requests.
+We will review your code contribution by:
 
 - Checking for correctness, clarity, and reproducibility in the code
 - Evaluating methods and rationale for any proposed analysis
 - Ensuring that all necessary documentation is present and clear
 
-If the reviewer has comments or requests changes, those comments should be addressed prior to requesting a second review.
+If the reviewer has comments or requests changes, you should address those comments before requesting a second review.
+Bear in mind that is _normal and expected_ for a pull request to undergo multiple rounds of review before it is approved.
 Once the reviewer is happy with the changes, they will approve the pull request.
 
-Approved pull requests can be safely [merged and incorporated](STUB-LINK merging).
-Any new changes will be present in the `main` branch of `AlexsLemonade/OpenScPCA-analysis`.
+Then, your code contributions will be present in the `main` branch of `AlexsLemonade/OpenScPCA-analysis` 🎉 !
