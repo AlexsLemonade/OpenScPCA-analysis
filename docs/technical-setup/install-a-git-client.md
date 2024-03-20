@@ -1,4 +1,4 @@
-# Install a GitHub client
+# Install a Git client
 
 You will need a platform on your computer to run Git commands and interact with [GitHub](https://github.com).
 

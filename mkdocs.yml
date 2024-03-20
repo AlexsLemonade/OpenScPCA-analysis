@@ -50,7 +50,7 @@ nav:
     - welcome/index.md
   - Technical setup:           # Fork/clone, local environment setup
     - technical-setup/index.md
-    - technical-setup/install-a-github-client.md
+    - technical-setup/install-a-git-client.md
     - technical-setup/fork-the-repo.md
     - technical-setup/clone-the-repo.md
     - Environment setup:
