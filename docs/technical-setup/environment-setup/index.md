@@ -14,9 +14,9 @@ This section assumes that you have already taken these setup steps:
 If you are getting set up to work on your computer, you will need to take these additional steps:
 
 - [Download and set up conda](./setup-conda.md)
-    - This will also provide you with Python and other tools you need to contribute to Python-based modules
+    - This will also provide you with Python and other tools you need to write or contribute to Python-based modules
 - [Set up `pre-commit`](./setup-precommit.md)
-- [Optional] If you plan on contributing R-based modules, you should also [set up R, RStudio, and install a few handy R packages](./install-r-rstudio.md)
+- [Optional] If you plan on writing or contributing to R-based modules, you should also [set up R, RStudio, and install a few handy R packages](./install-r-rstudio.md)
 
 ## Setting up on Lightsail for Research
 
