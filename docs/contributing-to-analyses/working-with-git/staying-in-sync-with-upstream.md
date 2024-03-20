@@ -8,7 +8,7 @@ This ensures that your fork has the most recent changes and updates found in the
     For more information on syncing your fork with the upstream repository, see the [GitHub documentation on syncing a fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork).
 
 
-## How to sync your fork with changes in `AlexsLemonade/OpenScPCA-analysis`
+## Syncing your fork with `AlexsLemonade/OpenScPCA-analysis`
 
 Follow these steps to keep your fork in sync with changes in `AlexsLemonade/OpenScPCA-analysis`:
 
@@ -35,7 +35,7 @@ Follow these steps to keep your fork in sync with changes in `AlexsLemonade/Open
         ![Successful sync](../../img/upstream-sync-3.png){width="600"}
     </figure>
 
-1. Before making any changes locally, you will need to "pull" the synced changes from GitHub to your local computer.
+1. Before making any changes locally, you will need to pull the synced changes from GitHub to your computer.
 
     In GitKraken, you will see two versions of the `main` branch in the branch graph.
 
@@ -59,7 +59,7 @@ Follow these steps to keep your fork in sync with changes in `AlexsLemonade/Open
     </figure>
 
 
-## Resolving sync conflicts
+## Syncing your fork when there are sync conflicts
 
 If there are changes on your `main` branch that conflict with the current code in the `main` branch of `AlexsLemonade/OpenScPCA-analysis`, you will not be able to sync until those conflicts have been resolved.
 
