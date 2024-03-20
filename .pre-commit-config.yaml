@@ -2,9 +2,18 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
-      - id: check-added-large-files
+      - name: General file size limit
+        id: check-added-large-files
         args: ["--maxkb=200"]
-        exclude: 'conda-lock\.yml'
+        # Allow specific files types to be larger with later test
+        exclude: |
+          (?x)(
+              conda-lock\.yml|
+              \.html
+          )$
+      - name: Large file size limit
+        id: check-added-large-files
+        args: ["--maxkb=1000"]
       - id: detect-aws-credentials
         args: [--allow-missing-credentials]
       - id: detect-private-key
