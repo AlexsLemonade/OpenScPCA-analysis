@@ -5,7 +5,8 @@ Please refer to [this documentation on creating analysis modules](STUB_LINK for 
 
 
 <!--TODO: too many links to the same place? -->
-Analysis modules will have this baseline file structure, as [created by `create-analysis-module.py`](STUB_LINK for creating modules):
+A starting point for the analysis module can be created using `create-analysis-module.py`.
+After running this script, you should now have a module with the following template structure: 
 
 <figure markdown="span">
     ![Baseline file structure of an analysis module.](../../img/analysis-module-structure.png){width="200"}
@@ -38,16 +39,17 @@ New analysis modules will also be created with these folders:
 - **`results`**
     - Any result files (e.g., TSV files) that your code produces should be saved to this `results` folder.
     - Git will ignore the contents of this folder, _except_ for its `README.md` file, which you can use to document the results files themselves.
+    This means only the README will be present in the remote repository. 
 - **`scratch`**
     - You can optionally use this folder to store _intermediate_ files that your code produces but are not meant to live in `results` or `plots`.
-    - Git will ignore the contents of this folder.
+    - Git will ignore the contents of this folder, so contents of this folder will only be stored locally and not in the remote repository. 
 - **`scripts`**
     - You can save any scripts (e.g., `.R`, `.py`, or `.sh`) that you write for your analysis module in this folder.
 
 
 ## Additional files you will add to your module
 
-While you write your analysis, you will add other files too:
+While you write your analysis, you may add other files too:
 
 - Additional environment files
     - When you [create a module](STUB_LINK for creating a module), you can choose to include files that manage the module's software environment.
