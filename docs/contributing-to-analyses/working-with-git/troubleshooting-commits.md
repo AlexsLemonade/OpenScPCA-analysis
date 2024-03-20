@@ -1,6 +1,6 @@
 # Troubleshooting commits
 
-On this page we cover some commonly occurring scenarios that may cause you're commit to fail.
+On this page we cover some commonly occurring scenarios that may cause your commit to fail.
 
 ## Why is pre-commit failing?
 
@@ -45,6 +45,7 @@ Then you can commit your files and pre-commit should now pass.
 
 In some cases, you may try to commit a file that does not show up in the `Unstaged files` section of GitKraken.
 If the file is not there, than you cannot stage it and make a commit.
+This is likely because Git is intentionally ignoring that file.
 
 We have set up a [`.gitignore` file](https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files) in the root directory of this repository that will tell Git to ignore certain files.
 Any files with a matching extension or path listed in the `.gitignore` will not be allowed to be committed to the repository.
