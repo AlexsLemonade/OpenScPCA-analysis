@@ -51,6 +51,7 @@ precommit
 PRs
 README
 redistribution
+redistributions
 renv
 repo
 reproducibility
