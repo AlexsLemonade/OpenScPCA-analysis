@@ -5,13 +5,13 @@ repos:
       - name: General file size limit
         id: check-added-large-files
         args: ["--maxkb=200"]
-        # Allow specific files to be larger with later test
+        # Allow specific files types to be larger with later test
         exclude: |
           (?x)(
-              conda-lock\.yml$|
+              conda-lock\.yml|
               \.html
           )$
-      - name: Large file size limits
+      - name: Large file size limit
         id: check-added-large-files
         args: ["--maxkb=1000"]
       - id: detect-aws-credentials
