@@ -10,6 +10,26 @@ import subprocess
 import sys
 
 
+def copy_file_with_tag_replacement(
+    src: pathlib.Path | str, dest: pathlib.Path | str, tag: str, replacement: str
+) -> None:
+    """
+    Copy a file from src to dest, replacing all occurrences of tag with replacement.
+
+    The tag in the file must be enclosed in `{{` and `}}` and may contain whitespace.
+    """
+    tag = tag.strip(
+        " {}"
+    )  # make sure the incoming tag does not have enclosing {} or whitespace
+    tag_re = re.compile(r"{{\s*" + tag + r"\s*}}")
+    with open(src, "r") as f:
+        content = f.readlines()
+    # replace the module tag with the module name
+    output = (tag_re.sub(replacement, line) for line in content)
+    with open(dest, "w") as f:
+        f.writelines(output)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Create a new analysis module for OpenScPCA.",
@@ -45,6 +65,12 @@ def main() -> None:
         help="Initialize a new conda environment for the module.",
     )
     parser.add_argument(
+        "--use-jupyter",
+        action="store_true",
+        default=False,
+        help="Set up for analysis with Jupyter, including a Jupyter Notebook template. Implies `--use-conda`.",
+    )
+    parser.add_argument(
         "--conda-file-only",
         action="store_true",
         help=(
@@ -57,6 +83,9 @@ def main() -> None:
 
     if args.use_renv:
         args.use_r = True
+
+    if args.use_jupyter:
+        args.use_conda = True
 
     # get the paths relative to this script file
     base_dir = pathlib.Path(__file__).parent
@@ -127,15 +156,22 @@ def main() -> None:
             raise
 
     if args.use_conda or args.conda_file_only:
-        # add an environment.yml file copied from base but with a new name based on the module name
-        with open(base_dir / "environment.yml", "r") as f:
-            lines = f.readlines()
-        with open(module_dir / "environment.yml", "w") as f:
-            for line in lines:
-                if line.startswith("name:"):
-                    f.write(f"name: {env_name}\n")
-                else:
-                    f.write(line)
+        # add a template environment.yml file
+        if args.use_jupyter:
+            env_template = (
+                base_dir / "templates" / "analysis-module-jupyter" / "environment.yml"
+            )
+        else:
+            env_template = (
+                base_dir / "templates" / "analysis-module-python" / "environment.yml"
+            )
+
+        copy_file_with_tag_replacement(
+            src=env_template,
+            dest=module_dir / "environment.yml",
+            tag="openscpca_module",
+            replacement=args.name,
+        )
         print(
             f"\nCreated a conda environment file `environment.yml` in `{module_dir}`."
         )
@@ -147,14 +183,6 @@ def main() -> None:
                 cwd=module_dir,
             )
             print(f"Created conda environment `{env_name}`.")
-
-            # alternatively, we could create the environment in a module subdirectory with the `--prefix` option
-            # subprocess.run(
-            #     ["conda", "env", "create", "-f", "environment.yml", "--prefix", "env"],
-            #     cwd=module_dir,
-            # )
-            # with open(module_dir / "env" / ".gitignore", "w") as f:
-            #     f.writelines("# ignore all environment files\n*\n")
 
     if args.use_renv:
         # initialize a new renv environment
@@ -187,22 +215,36 @@ def main() -> None:
     # Add template files
 
     # find the {{module}} tag in template files
-    module_tag = re.compile(r"{{\s*module\s*}}")
+    module_tag = re.compile(r"{{\s*openscpca_module\s*}}")
 
     if args.use_r:
         template_rmd = (
             base_dir / "templates" / "analysis-module-R" / "notebook-template.Rmd"
         )
-        with open(template_rmd, "r") as f:
-            template_content = f.readlines()
-        # replace the module tag with the module name
-        template_content = (
-            module_tag.sub(args.name, line) for line in template_content
+        copy_file_with_tag_replacement(
+            src=template_rmd,
+            dest=module_dir / "notebook-template.Rmd",
+            tag="openscpca_module",
+            replacement=args.name,
         )
-        with open(module_dir / "notebook-template.Rmd", "w") as f:
-            f.writelines(template_content)
 
         print(f"Added an R Markdown notebook template in `{module_dir}`.")
+
+    if args.use_jupyter:
+        template_ipynb = (
+            base_dir
+            / "templates"
+            / "analysis-module-jupyter"
+            / "notebook-template.ipynb"
+        )
+        copy_file_with_tag_replacement(
+            src=template_ipynb,
+            dest=module_dir / "notebook-template.ipynb",
+            tag="openscpca_module",
+            replacement=args.name,
+        )
+
+        print(f"Added a Jupyter Notebook template in `{module_dir}`.")
 
 
 if __name__ == "__main__":
