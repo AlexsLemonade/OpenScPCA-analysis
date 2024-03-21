@@ -17,7 +17,7 @@ For example, if you are working on adding an [analysis module](STUB-LINK to anal
 
 All changes in a given PR should be focused with a set of related changes.
 For most cases, each PR should contain changes that address one [issue filed in the repository](../../communications-tools/github-issues/what-are-github-issues-and-how-do-we-use-them.md).
-There may be occassions where one issue requires multiple PRs, but _do not_ file PRs that address multiple issues at once.
+There may be occasions where one issue requires multiple PRs, but _do not_ file PRs that address multiple issues at once.
 
 Ensuring your PRs are focused on one task helps combat reviewer fatigue and keeps the [review process](STUB-LINK to review) short.
 
