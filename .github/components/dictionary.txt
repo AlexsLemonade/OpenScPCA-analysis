@@ -1,3 +1,4 @@
+‼️
 ableist
 ADT
 al
@@ -16,6 +17,7 @@ conda
 config
 discoverable
 DM
+Dockerfile
 doxxing
 dropdown
 enforceability
@@ -47,10 +49,11 @@ nonconsensual
 OpenScPCA
 openscpca
 pre
-precommit
+PR
 PRs
 README
 redistribution
+redistributions
 renv
 repo
 reproducibility
@@ -66,6 +69,7 @@ synched
 trainings
 transphobic
 triaged
+TSV
 UMAP
 WIPO
 WisCon

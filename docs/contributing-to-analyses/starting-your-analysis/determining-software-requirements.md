@@ -30,7 +30,7 @@ You can post the contents of these files on [your pull requests](STUB_LINK index
 
 [`renv`](https://rstudio.github.io/renv/articles/renv.html) is a package manager for R.
 We encourage you to read [the excellent introduction](https://rstudio.github.io/renv/articles/renv.html) for more information.
-Here, we will limit our discussion to the most common commands we expect you to use when writing an analysis and assume that you have already [installed `renv`](STUB_LINK renv installation instructions).
+Here, we will limit our discussion to the most common commands we expect you to use when writing an analysis and assume that you have already [installed `renv`](STUB_LINK `renv` installation instructions).
 
 #### Initializing `renv` in a module
 
