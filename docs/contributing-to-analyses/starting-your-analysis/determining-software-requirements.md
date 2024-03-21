@@ -128,29 +128,37 @@ conda activate openscpca-{module_name}
 
 #### Activating existing environments
 
-If you are working with an existing module that already has an  `environment.yaml` file or have switched computers, you can create and activate the environment on the computer you are working on by running the following commands:
+If you are working with an existing analysis module, it should have a `conda-lock.yml` file also present in the module directory, which defines precisely the sotware versions used in the module.
+You can create and activate the environment on the computer you are working on by running the following commands:
 
 ```bash
 # Navigate to the module's root directory
 cd analyses/{module_name}/
-conda env create --file environment.yml --name openscpca-{module_name}
+conda-lock install --name openscpca-{module_name} conda-lock.yml
 conda activate openscpca-{module_name}
 ```
 
-#### Note for ARM (Apple Silicon) computers
+You may also need to rerun the `conda-lock install` command if the `conda-lock.yml` file has been updated.
 
-While most conda packages are available for ARM-based computers (such as macOS computers with M-series processors), some software is only available for Intel architectures.
-However, it is still usually possible to run an Intel-based package on macOS, but you will need to create an environment that uses the `osx-64` architecture for all of its software.
-To do this, modify the creation command for the environment and add a setting to the environment, as shown below:
+If a `conda-lock.yml` file is not present, you can create an environment from the `environment.yml` file by running the following commands:
 
 ```bash
+# Navigate to the module's root directory
 cd analyses/{module_name}/
-CONDA_SUBDIR=osx-64 conda env create --file environment.yaml --name openscpca-{module_name}
+conda env create --name openscpca-{module_name} --file environment.yml
 conda activate openscpca-{module_name}
-conda config --env --set subdir osx-64
 ```
 
-Moving forward, you should be able to install any Intel-based package into the environment as usual.
+!!! note
+    During the `conda env create` step, you may see the following warning:
+
+    ```
+    EnvironmentSectionNotValid: The following section on 'environment.yml' is invalid and will be ignored:
+     - platforms
+    ```
+
+    This warning can be safely ignored; proceed with the installation and activation of the environment.
+
 
 ### Adding software to the environment and tracking installed software
 
@@ -162,15 +170,41 @@ For example, to install the `pandas` package and record it in the `environment.y
 ```bash
 # Navigate to the module's root directory
 cd analyses/{module_name}
-# Activate that module's envirionment
+# Activate that module's environment
 conda activate openscpca-{module_name}
 # Install the package
 conda install pandas
-# Update environment.yml
-conda env export --no-builds | grep -v "^prefix:" > environment.yml
 ```
 
-(The `grep` command in the final line is there to remove user-specific paths that `conda` includes in its export.)
+You should then immediately add the newly installed package to the module's `environment.yml` file.
+First check which version was installed, either by looking at the output from the `conda install` command, or by running a command like the following, which will print out the version number of the package in your current environment:
+
+```bash
+conda list pandas
+```
+
+Then add the package to the `dependencies:` section of the `environment.yml` file with a version number, as shown below:
+
+```yaml
+  - pandas=2.2.1
+```
+
+#### Creating or updating the `conda-lock.yml` file
+
+After adding or updating software in the environment, you should create or update the `conda-lock.yml` file to reflect the current state of the environment.
+To do this, run the following command from the module's root directory:
+
+```bash
+conda-lock --file environment.yml
+```
+
+This will create or update the `conda-lock.yml` file with the current state of the environment, including the versions of all installed software packages and their dependencies.
+
+!!! note
+    If the `conda-lock` command fails, it may be because a package is not available for one of the platforms in the `environment.yml` file.
+    Usually this will be a package that is not available for the `osx-arm64` (Apple Silicon) platform.
+    If this happens, see the [ Software not available on a specific platform](#software-not-available-on-a-specific-platform) section below for instructions on how to handle this situation.
+
 
 ### Finding available software
 
@@ -181,3 +215,33 @@ conda search {package_name}
 ```
 
 Alternatively, you can search [anaconda.org](https://anaconda.org) for packages and channels.
+
+
+#### Software not available on a specific platform
+
+While most conda packages are available for all platforms, there may be some cases where a particular platform does not have a version of a package.
+
+Most often this will occur for ARM-based computers (such as macOS computers with M-series processors).
+If you encounter an error with `conda-lock --file environment.yml`, it may be because a package is not available for the `osx-arm64` platform.
+
+In this case, you should edit the `environment.yml` file to remove the `- osx-arm64` line from the `platforms:` section.
+Then you will want to rerun `conda-lock`, but this time creating platform-specific lockfiles:
+
+```bash
+conda-lock --file environment.yml --kind explicit
+```
+
+This will result in separate files for each supported platform with names like `conda-linux-64.lock` or `conda-osx-64.lock`.
+
+On macOS, you can then use
+
+```bash
+cd analyses/{module_name}/
+CONDA_SUBDIR=osx-64 conda env create --file environment.yaml --name openscpca-{module_name}
+conda activate openscpca-{module_name}
+conda config --env --set subdir osx-64
+```
+
+Moving forward, you should be able to install any Intel-based package into the environment as usual.
+
+conda-lock install -n test-noarm2 conda-osx-64.lock --no-validate-platform
