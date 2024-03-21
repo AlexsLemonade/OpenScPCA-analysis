@@ -62,7 +62,7 @@ The macOS Terminal application is stored in `Applications -> Utilities`.
 </figure>
 
 Double-click this application to open the terminal.
-(PS: You can also change the look of the terminal by [customizing your terminal profile](https://support.apple.com/guide/terminal/profiles-change-terminal-windows-trml107/mac)).
+(PS: You can also change the look of the terminal by [customizing your terminal profile](https://support.apple.com/guide/terminal/profiles-change-terminal-windows-trml107/mac).)
 
 
 ### Accessing the terminal on WSL on Windows
