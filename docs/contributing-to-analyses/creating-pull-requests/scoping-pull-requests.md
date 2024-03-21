@@ -34,6 +34,7 @@ Below are some good rules of thumb to follow when determining when to file a PR:
     Any time that you are making changes on a branch, you can go through the steps of [filing a PR](STUB-LINK to filing PR) to view the amount of lines that have been changed.
     Instead of actually filing the PR, you can scroll below the template description to see the summary of commits and changes.
     Below the summary of all commits, GitHub displays a summary of your line-by-line changes, including the number of lines with additions and deletions.
+
     In the example below, 18 lines have been changed.
     If you start seeing the number of lines approach 400, it's time to file that PR!
 
@@ -41,7 +42,7 @@ Below are some good rules of thumb to follow when determining when to file a PR:
         ![Commit summary](../../img/scoping-prs-1.png){width="600"}
     </figure>
 
-- The contents of the PR address the contents of a single issue and solve one problem.
-This means for each issue, there is, at minimum, one PR that addresses that issue.
+- Each PR should address a single issue and solve one problem.
+This means you should file, at a minimum, one PR to address each issue.
 _Please do not_ file PRs that address multiple issues at once.
 
