@@ -17,6 +17,7 @@ conda
 config
 discoverable
 DM
+Dockerfile
 doxxing
 dropdown
 enforceability
@@ -48,6 +49,7 @@ nonconsensual
 OpenScPCA
 openscpca
 pre
+PR
 PRs
 README
 redistribution
@@ -67,6 +69,7 @@ synched
 trainings
 transphobic
 triaged
+TSV
 UMAP
 WIPO
 WisCon

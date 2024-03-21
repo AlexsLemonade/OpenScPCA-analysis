@@ -65,18 +65,21 @@ nav:
       - communications-tools/github-issues/what-are-github-issues-and-how-do-we-use-them.md
   - Contributing to analyses:  # Setting up an analysis, all the git stuff
     - contributing-to-analyses/index.md
+    - Analysis modules:
+      - contributing-to-analyses/analysis-modules/index.md
     - Starting your analysis:
       - contributing-to-analyses/starting-your-analysis/index.md
       - contributing-to-analyses/starting-your-analysis/determining-software-requirements.md
       - contributing-to-analyses/starting-your-analysis/determining-compute-requirements.md
-    - Doing an analysis:
-      - contributing-to-analyses/doing-analyses/index.md
     - Working with Git: # Creating branches, adding commits, all git interactions
       - contributing-to-analyses/working-with-git/working-with-branches.md
       - contributing-to-analyses/working-with-git/staying-in-sync-with-upstream.md
       - contributing-to-analyses/working-with-git/making-commits.md
       - contributing-to-analyses/working-with-git/troubleshooting-commits.md
       - contributing-to-analyses/working-with-git/push-to-origin.md
+    - Creating pull requests:
+      - contributing-to-analyses/creating-pull-requests/index.md
+      - contributing-to-analyses/creating-pull-requests/scoping-pull-requests.md
   - Software platforms:            # LSfR, AWS, Docker, etc
     - software-platforms/index.md
   - Getting Help and FAQ:      # troubleshooting and FAQ
