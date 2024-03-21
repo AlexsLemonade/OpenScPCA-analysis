@@ -42,11 +42,12 @@ import session_info
 
 def find_git_root():
     """Find the root directory of the git repository from the calling location of this script"""
-    pathlib.Path.cwd()
+    repo_root = pathlib.Path.cwd()
     while not (repo_root / ".git").is_dir():  # search for the .git directory
         repo_root = repo_root.parent
         if repo_root == "/":
             raise FileNotFoundError("Could not find the repository root directory")
+    return repo_root
 
 
 # Below we set some standard paths that may be useful for your script
