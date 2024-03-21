@@ -9,7 +9,7 @@ The terminal is an interface where you can type commands (rather than "point and
 In the OpenScPCA project, we use the word "terminal" to specifically refer to a UNIX-style terminal, and not for example the Windows PowerShell.
 
 macOS and Linux (which [Lightsail for Research instances](STUB_LINK to LSfR docs) use) computers come with a built-in terminal application.
-On Windows computers, you will first need to install and setup the [Windows Subsystem for Linux (WSL)](STUB_LINK for wsl instructions) to be able to use the terminal.
+On Windows computers, you will first need to install and setup the [Windows Subsystem for Linux (WSL)](STUB_LINK for WSL instructions) to be able to use the terminal.
 
 !!! info "Learn more about the terminal"
 
@@ -68,7 +68,7 @@ Double-click this application to open the terminal.
 
 ### Accessing the terminal on WSL on Windows
 
-Make sure that you have taken all the necessary steps to [install WSL](STUB_LINK wsl instructions):
+Make sure that you have taken all the necessary steps to [install WSL](STUB_LINK WSL instructions):
 
 - First, install WSL itself
 - Second, install the Ubuntu app from the Microsoft Store
