@@ -181,3 +181,20 @@ conda search {package_name}
 ```
 
 Alternatively, you can search [anaconda.org](https://anaconda.org) for packages and channels.
+
+### Using `session_info.show()` in Jupyter notebooks
+
+The `session-info` Python package can be used to report version information about Python and loaded modules.
+If you [created a module using `--use-jupyter`](STUB_LINK), the package [`session-info`](https://pypi.org/project/session-info/) was automatically included in the module's conda environment.
+
+Import `session-info` by placing the following in [the Setup section of your Jupyter notebook](STUB_LINK docs on structuring Jupyter notebooks):
+
+```python
+import session_info
+```
+
+Then include the following in the final cell of any Jupyter notebook using Python to ensure that the notebook reports version information:
+
+```python
+session_info.show()
+```
