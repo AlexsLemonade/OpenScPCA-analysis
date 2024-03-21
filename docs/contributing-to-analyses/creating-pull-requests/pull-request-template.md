@@ -27,7 +27,7 @@ Some examples of prompts typically seen in a PR template include:
     - The purpose of the changes made in the PR.
     - A description of the results or outcome of these changes.
     - Instructions for reviewers.
-- They sometimes contain checklists for contributors and reviewiers.
+- They sometimes contain checklists for contributors and reviewers.
     - These can be helpful to make sure that you have included all the required items and adhered to the guidelines.
 
 ## How do I use the pull request template for OpenScPCA?
@@ -46,4 +46,4 @@ This PR template includes the following sections:
     - Here is where you would bring up any points that you would like to discuss further or would like reviewers to pay special attention to.
 - Author checklists.
     - Check off the boxes that apply to your PR.
-    - This checklist ensures that your code fits the required guidelines, results are accessible to the reviewer, and your code is repoducible.
+    - This checklist ensures that your code fits the required guidelines, results are accessible to the reviewer, and your code is reproducible.
