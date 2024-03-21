@@ -3,6 +3,9 @@ contact_links:
   - name: Propose an analysis
     url: https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=propose-a-new-analysis
     about: Discuss your idea for a new analysis.
+  - name: Propose a modification to a module
+    url: https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=modify-an-existing-analysis
+    about: Discuss your idea for modifying someone else's existing module.
   - name: Ask a question
     url: https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=q-a
     about: Ask the community a question.
