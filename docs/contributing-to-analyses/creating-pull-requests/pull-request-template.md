@@ -6,7 +6,7 @@ When [filing a PR](STUB-LINK file a PR), you will be required to include an info
 You should also include any important information that you want reviewers to know.
 PR templates help make that process simple and easy!
 
-- When you go to file the PR and complete the PR description will automatically contain a set of text prompts and questions to answer.
+- When you go to file the PR, there will be a box for you to include the PR description that is already populated with a set of text prompts and questions to answer.
 - Every time that you file a new PR, the same set of prompts and questions will appear.
 - Answer the questions when writing up your description and then file your PR.
 
