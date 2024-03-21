@@ -5734,9 +5734,9 @@ body.lm-mod-override-cursor .jp-OutputArea-output.jp-mod-isolated::before {
 |----------------------------------------------------------------------------*/
 
 /*
-Hiding collapses in print mode.
+Hiding collapsers in print mode.
 
-Note: input and output wrappers have "display: block" property in print mode.
+Note: input and output wrappers have "display: block" propery in print mode.
 */
 
 @media print {
@@ -5935,7 +5935,7 @@ Note: input and output wrappers have "display: block" property in print mode.
   padding: 0;
   margin: 0;
 
-  /* Added to reveal the box-shadow on the input and output collapses. */
+  /* Added to reveal the box-shadow on the input and output collapsers. */
   overflow: visible;
 }
 
@@ -7234,7 +7234,7 @@ all of MD as it is not optimized for dense, information rich UIs.
 }
 </style>
 <style type="text/css">
-/* Force rendering true colors when outputting to pdf */
+/* Force rendering true colors when outputing to pdf */
 * {
   -webkit-print-color-adjust: exact;
 }
@@ -7917,7 +7917,11 @@ Defining their locations in the <code>Setup</code> section will make it easy for
 <div class="jp-InputPrompt jp-InputArea-prompt">In [9]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">count_plot</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">figure</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># special case for one project (plot has no facets)</span>
+<span class="k">if</span> <span class="n">cell_counts</span><span class="o">.</span><span class="n">project_id</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">count_plot</span><span class="o">.</span><span class="n">figure</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">count_plot</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">figure</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">plot_file</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -8075,7 +8079,7 @@ notebook            7.1.2
 Python 3.11.8 | packaged by conda-forge | (main, Feb 16 2024, 20:49:36) [Clang 16.0.6 ]
 macOS-14.3.1-arm64-arm-64bit
 -----
-Session information updated at 2024-03-19 18:17
+Session information updated at 2024-03-21 11:27
 </pre>
 </details>
 </div>
