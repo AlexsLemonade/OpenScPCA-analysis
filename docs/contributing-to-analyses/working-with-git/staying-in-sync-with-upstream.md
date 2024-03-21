@@ -7,7 +7,7 @@ We recommend syncing at the following times:
 
 - Before you make a [new feature branch](./working-with-branches.md) off `AlexsLemonade/OpenScPCA-analysis:main`
 - Before [filing a pull request](../creating-pull-requests/index.md) to merge your feature branch into `AlexsLemonade/OpenScPCA-analysis:main`
-- After you have [merged a pull request](STUB_LINK todos after merging) into `AlexsLemonade/OpenScPCA-analysis:main`
+- After you have [merged a pull request](STUB_LINK TODO items after merging) into `AlexsLemonade/OpenScPCA-analysis:main`
 
 
 !!! note "Learn about syncing your fork"
