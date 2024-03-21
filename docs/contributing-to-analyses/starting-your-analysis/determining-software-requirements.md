@@ -221,10 +221,10 @@ Alternatively, you can search [anaconda.org](https://anaconda.org) for packages 
 
 While most conda packages are available for all platforms, there may be some cases where a particular platform does not have a version of a package.
 
-Most often this will occur for ARM-based computers (such as macOS computers with M-series processors).
+Most often this will occur for ARM-based computers (such as macOS computers with Apple Silicon M-series processors).
 If you encounter an error with `conda-lock --file environment.yml`, it may be because a package is not available for the `osx-arm64` platform.
 
-In this case, you should edit the `environment.yml` file to remove the `- osx-arm64` line from the `platforms:` section.
+In this case, you should edit the `environment.yml` file to *remove* the `- osx-arm64` line from the `platforms:` section.
 Then you will want to rerun `conda-lock`, but this time creating platform-specific lockfiles:
 
 ```bash
@@ -233,15 +233,23 @@ conda-lock --file environment.yml --kind explicit
 
 This will result in separate files for each supported platform with names like `conda-linux-64.lock` or `conda-osx-64.lock`.
 
-On macOS, you can then use
+You can then use conda-lock to install or update your environment from the lockfile specific to the platform that you are using.
+For example, to install and activate and environment from the `conda-linux-64.lock` file, you would run the following commands:
 
 ```bash
-cd analyses/{module_name}/
-CONDA_SUBDIR=osx-64 conda env create --file environment.yaml --name openscpca-{module_name}
+conda-lock install --name openscpca-{module_name} conda-linux-64.lock
+conda activate openscpca-{module_name}
+```
+
+If you are using an Apple Silicon computer, you will need to use the `conda-osx-64.lock` file, with one extra option to allow installation of the non-native platform lockfile, and one extra command to ensure that any future software you install in the environment will use the same architecture:
+
+```bash
+conda-lock install --no-validate-platform --name openscpca-{module_name} conda-osx-64.lock
 conda activate openscpca-{module_name}
 conda config --env --set subdir osx-64
 ```
 
-Moving forward, you should be able to install any Intel-based package into the environment as usual.
-
-conda-lock install -n test-noarm2 conda-osx-64.lock --no-validate-platform
+!!! tip
+    If you find you need to add a package to an existing environment that is not available for your native platform (i.e., a package that is only available for Intel on an Apple Silicon computer), the easiest method is to add the package name and version to the `environment.yml` file _first_.
+    Then, remove the `osx-arm64` line from the `platforms:` section, and run `conda-lock --file environment.yml --kind explicit` to create the platform specific lockfiles.
+    Finally, use the `conda-lock install --no-validate-platform` command above to update your environment using the newly-created lockfile.
