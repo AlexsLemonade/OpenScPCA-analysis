@@ -1,0 +1,47 @@
+name: Report a bug
+description: Use this issue template to report a bug or problem with the codebase
+title: 'Bug report:'
+labels: bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This issue template should be used to report a bug.
+        If you are experiencing a different kind of problem working while with the codebase or OpenScPCA software tools, please [make a Troubleshooting post in GitHub Discussions instead](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/categories/troubleshooting).
+
+  - type: textarea
+    attributes:
+      label: Describe the bug
+      description: Provide a clear and concise description of what the bug is.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Steps to reproduce
+      description: |
+        Provide all necessary information to reproduce the bug, including:
+
+        - Steps to take and/or the exact code to run to reproduce the bug
+        - Which environment you are observing the bug in (e.g., which analysis module's conda environment)
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Consequences of the bug
+      description: |
+        Describe the consequence(s) of this bug. For example:
+
+        - The bug produces a particular error message (please include the error message here)
+        - The bug does not produce an error message, but the code does not yield the expected result
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Proposed solution
+      description: |
+        Optionally, describe a potential solution to the bug.
+    validations:
+      required: false
