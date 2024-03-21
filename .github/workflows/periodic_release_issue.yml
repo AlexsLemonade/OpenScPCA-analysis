@@ -3,8 +3,6 @@ name: File create a release issue
 on:
   schedule: # run monthly on the 1st
     - cron: 0 0 1 * *
-  push:
-    branches: jaclyn-taroni/28-release-template
 
 jobs:
   post_issue:
