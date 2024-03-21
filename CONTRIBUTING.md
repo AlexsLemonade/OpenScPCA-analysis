@@ -71,7 +71,7 @@ conda create --file environment.yml --name openscpca-{module_name}
 conda activate openscpca-{module_name}
 ```
 
-If you are working with a pre-existing module that already has an  `environment.yaml` file, you can create and activate the environment from that file by running the following commands:
+If you are working with a pre-existing module that already has an  `conda-lock.yml` file, you can create and activate the environment from that file by running the following commands:
 
 ```bash
 conda-lock install --name openscpca-{module_name} analyses/{module_name}/conda-lock.yml
