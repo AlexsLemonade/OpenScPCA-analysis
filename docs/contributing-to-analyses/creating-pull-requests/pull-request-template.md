@@ -12,6 +12,7 @@ PR templates help make that process simple and easy!
 
 See below for an example of what you will see when filing a PR for OpenScPCA.
 Note that this figure shows what the template looks like if using the `Preview` button.
+To edit the template, use the `Write` button.
 
 <figure markdown="span">
     ![PR template](../../img/pr-templates-1.png){width="600"}
