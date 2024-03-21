@@ -13,6 +13,11 @@ Please provide a description of your module, including:
 
 If there are multiple steps in the module, please include an outline of the analysis steps and scripts used.
 
+## How to run the module
+
+Please provide instructions on how to run the analysis module.
+What commands are needed to execute all steps in the analysis?
+
 ## Input files
 
 Please include a description of the required inputs to run the analysis module (e.g., processed `SingleCellExperiment` objects from the ScPCA Portal).
@@ -29,12 +34,12 @@ Please include a description of the output from your analysis, including:
 - Are any intermediate files generated?
 If so, where are they stored?
 
-## How to run the module
-
-Please provide instructions on how to run the analysis module.
-What commands are needed to execute all steps in the analysis?
-
 ## Computational resources
 
 Please indicate the computational resources that are required to run the module.
 If there are specific memory, CPU, and/or GPU requirements, please state that.
+
+## Software requirements
+
+Please describe the environment system used to run the analysis (e.g., `conda`, `renv`, `docker`).
+Include the locations of any files used to set up the environment.
