@@ -9,7 +9,8 @@ repos:
         exclude: |
           (?x)(
               conda-lock\.yml|
-              \.html
+              \.html|
+              docs/img/launch-terminal-mac.png
           )$
       - name: Large file size limit
         id: check-added-large-files
