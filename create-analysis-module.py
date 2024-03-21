@@ -141,10 +141,15 @@ def main() -> None:
             "\nPlease install R and try again."
         )
 
+    # set up final status messages
+    final_messages = [f"Creating analysis module `{args.name}` complete:\n"]
+
     # create the new module directory from the template
     try:
         shutil.copytree(template_dir, module_dir)
-        print(f"\nCreated new analysis module in `{module_dir}`.")
+        final_messages.append(
+            f"- Created new analysis module directory: `{module_dir}`."
+        )
     except FileNotFoundError:
         # just in case the template directory is missing
         if not template_dir.exists():
@@ -161,16 +166,14 @@ def main() -> None:
             env_template = base_dir / "templates" / "jupyter" / "environment.yml"
         else:
             env_template = base_dir / "templates" / "python" / "environment.yml"
-
+        module_env = module_dir / "environment.yml"
         copy_file_with_tag_replacement(
             src=env_template,
-            dest=module_dir / "environment.yml",
+            dest=module_env,
             tag="openscpca_module",
             replacement=args.name,
         )
-        print(
-            f"\nCreated a conda environment file `environment.yml` in `{module_dir}`."
-        )
+        final_messages.append(f"- Created conda environment file: `{module_env}`.")
 
         # create the conda environment
         if not args.conda_file_only:
@@ -178,7 +181,7 @@ def main() -> None:
                 ["conda", "env", "create", "-f", "environment.yml"],
                 cwd=module_dir,
             )
-            print(f"Created conda environment `{env_name}`.")
+            final_messages.append(f"- Created conda environment: `{env_name}`.")
 
     if args.use_renv:
         # initialize a new renv environment
@@ -206,15 +209,13 @@ def main() -> None:
             "# R dependencies not captured by `renv`\n" '# library("missing_package")\n'
         )
 
-        print(f"\nInitialized new renv environment in `{module_dir}`.")
+        final_messages.append(f"- Initialized new renv environment in `{module_dir}`.")
 
     # Add template files
 
-    # find the {{module}} tag in template files
-    module_tag = re.compile(r"{{\s*openscpca_module\s*}}")
-
     if args.use_r:
         template_rmd = base_dir / "templates" / "rmarkdown" / "notebook-template.Rmd"
+        module_rmd = module_dir / "notebook-template.Rmd"
         copy_file_with_tag_replacement(
             src=template_rmd,
             dest=module_dir / "notebook-template.Rmd",
@@ -222,18 +223,23 @@ def main() -> None:
             replacement=args.name,
         )
 
-        print(f"Added an R Markdown notebook template in `{module_dir}`.")
+        final_messages.append(f"- Added R Markdown notebook template: `{module_rmd}`.")
 
     if args.use_jupyter:
         template_ipynb = base_dir / "templates" / "jupyter" / "notebook-template.ipynb"
+        module_ipynb = module_dir / "notebook-template.ipynb"
         copy_file_with_tag_replacement(
             src=template_ipynb,
-            dest=module_dir / "notebook-template.ipynb",
+            dest=module_ipynb,
             tag="openscpca_module",
             replacement=args.name,
         )
 
-        print(f"Added a Jupyter Notebook template in `{module_dir}`.")
+        final_messages.append(f"- Added Jupyter Notebook template: `{module_ipynb}`.")
+
+    # print final status messages
+    print()  # add a newline before the final messages
+    print("\n".join(final_messages))
 
 
 if __name__ == "__main__":
