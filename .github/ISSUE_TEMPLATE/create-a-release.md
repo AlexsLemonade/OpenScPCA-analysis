@@ -1,7 +1,7 @@
 ---
 name: Create a release
 about: Use this to track creating a semantically-versioned release
-title: 'Create a release:'
+title: 'Create a release: vX.Y.Z'
 labels: release
 ---
 
