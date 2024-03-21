@@ -2,7 +2,7 @@
 
 ## What is conda?
 
-The OpenScPCA project uses [conda](https://docs.anaconda.com/free/miniconda/index.html) to set up your software environment.
+The OpenScPCA project uses [conda](https://docs.anaconda.com/free/miniconda/index.html) to manage your software environment.
 conda is a command-line software management tool which helps you install and track specific versions of software.
 It also allows you to have multiple software environments with different sets of packages on the same computer.
 
