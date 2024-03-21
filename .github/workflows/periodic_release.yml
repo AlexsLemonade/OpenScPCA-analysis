@@ -19,8 +19,14 @@ jobs:
         id: date
         run: echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
 
+      # https://stackoverflow.com/questions/59257913/remove-header-yaml-with-sed-from-a-markdown-file
+      - name: Remove YAML header
+        run: |
+          sed '/^---$/,/^---$/d' .github/ISSUE_TEMPLATE/create-a-release.md > create-release.md
+
       - name: Post issue with results from running all modules
         uses: peter-evans/create-issue-from-file@v5
         with:
           title: 'Create a release: ${{ steps.date.outputs.CURRENT_DATE }}'
-          content-filepath: .github/ISSUE_TEMPLATE/create-a-release.md
+          content-filepath: create-release.md
+          labels: release
