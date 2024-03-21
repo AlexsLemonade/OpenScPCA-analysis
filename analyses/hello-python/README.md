@@ -6,11 +6,11 @@ The analysis counts the number of cells in each processed AnnData file in the cu
 
 ## Usage
 
-To run the analysis, you will first need to activate the included conda environment.
+To run the analysis, you will first need to activate the included conda-lock environment.
 From this analysis directory, run the following commands at the command line:
 
 ```bash
-conda env update -f environment.yml -n openscpca-hello-python
+conda-lock install --name openscpca-hello-python conda-lock.yml
 conda activate openscpca-hello-python
 ```
 
