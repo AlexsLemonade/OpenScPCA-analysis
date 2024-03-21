@@ -2,7 +2,8 @@
 
 ## What is a pull request template?
 
-When [filing a PR](STUB-LINK file a PR), you will be required to include a description of the changes and any important information that you want reviewers to know.
+When [filing a PR](STUB-LINK file a PR), you will be required to include an informative title and description of the changes.
+You should also include any important information that you want reviewers to know.
 PR templates help make that process simple and easy!
 
 - When you go to file the PR and complete the PR description will automatically contain a set of text prompts and questions to answer.
@@ -10,8 +11,12 @@ PR templates help make that process simple and easy!
 - Answer the questions when writing up your description and then file your PR.
 
 See below for an example of what you will see when filing a PR for OpenScPCA.
+Note that this figure shows what the template looks like if using the `Preview` button.
 
-! example figure of PR template
+<figure markdown="span">
+    ![PR template](../../img/pr-templates-1.png){width="600"}
+</figure>
+
 
 ## Why are pull request templates are helpful?
 
