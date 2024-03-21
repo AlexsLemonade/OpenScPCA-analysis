@@ -6,7 +6,7 @@
   - [Creating and activating the base OpenScPCA environment](#creating-and-activating-the-base-openscpca-environment)
   - [Module-specific environments](#module-specific-environments)
   - [Adding software to the environment and tracking installed software](#adding-software-to-the-environment-and-tracking-installed-software)
-  - [Updating conda-lock.yml](#updating-conda-lockyml)
+  - [Updating `conda-lock.yml`](#updating-conda-lockyml)
   - [Finding available software](#finding-available-software)
     - [Note for ARM (Apple Silicon) computers](#note-for-arm-apple-silicon-computers)
 - [Setting up pre-commit](#setting-up-pre-commit)
@@ -104,7 +104,7 @@ Then add the module to the `dependencies` section of the `environment.yml` file 
 ```
 
 
-### Updating conda-lock.yml
+### Updating `conda-lock.yml`
 
 Before submitting a pull request, you should also update the `conda-lock.yml` file in the module directory.
 
