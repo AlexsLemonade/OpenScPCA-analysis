@@ -4,8 +4,6 @@ on:
   schedule: # run monthly on the 1st
     - cron: 0 0 1 * *
   workflow_dispatch:
-  push:
-    branches: jaclyn-taroni/28-release-template
 
 jobs:
   post_issue:
