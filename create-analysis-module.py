@@ -158,13 +158,9 @@ def main() -> None:
     if args.use_conda or args.conda_file_only:
         # add a template environment.yml file
         if args.use_jupyter:
-            env_template = (
-                base_dir / "templates" / "analysis-module-jupyter" / "environment.yml"
-            )
+            env_template = base_dir / "templates" / "jupyter" / "environment.yml"
         else:
-            env_template = (
-                base_dir / "templates" / "analysis-module-python" / "environment.yml"
-            )
+            env_template = base_dir / "templates" / "python" / "environment.yml"
 
         copy_file_with_tag_replacement(
             src=env_template,
@@ -218,9 +214,7 @@ def main() -> None:
     module_tag = re.compile(r"{{\s*openscpca_module\s*}}")
 
     if args.use_r:
-        template_rmd = (
-            base_dir / "templates" / "analysis-module-R" / "notebook-template.Rmd"
-        )
+        template_rmd = base_dir / "templates" / "rmarkdown" / "notebook-template.Rmd"
         copy_file_with_tag_replacement(
             src=template_rmd,
             dest=module_dir / "notebook-template.Rmd",
@@ -231,12 +225,7 @@ def main() -> None:
         print(f"Added an R Markdown notebook template in `{module_dir}`.")
 
     if args.use_jupyter:
-        template_ipynb = (
-            base_dir
-            / "templates"
-            / "analysis-module-jupyter"
-            / "notebook-template.ipynb"
-        )
+        template_ipynb = base_dir / "templates" / "jupyter" / "notebook-template.ipynb"
         copy_file_with_tag_replacement(
             src=template_ipynb,
             dest=module_dir / "notebook-template.ipynb",

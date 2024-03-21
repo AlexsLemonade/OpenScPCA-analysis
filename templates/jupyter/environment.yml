@@ -1,4 +1,4 @@
-name: "{{ openscpca_module }}"
+name: "openscpca-{{ openscpca_module }}"
 channels:
   - conda-forge
   - bioconda
