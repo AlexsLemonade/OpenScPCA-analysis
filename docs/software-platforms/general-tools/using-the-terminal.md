@@ -48,7 +48,6 @@ This will open a terminal prompt inside GitKraken where you can type your comman
 <figure markdown="span">
     ![Open the terminal in GitKraken.](../../img/gitkraken-terminal-button.png){width="600"}
 </figure>
- <!-- TODO: Note this in case we need it for windows setup: https://help.gitkraken.com/gitkraken-client/terminal/#setting-the-default-terminal-on-windows. Also: https://help.gitkraken.com/gitkraken-client/windows-subsystem-for-linux/ -->
 
 
 Or, you can launch the terminal application directly, as explained below for different operating systems.
