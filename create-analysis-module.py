@@ -65,6 +65,12 @@ def main() -> None:
         help="Initialize a new conda environment for the module.",
     )
     parser.add_argument(
+        "--use-python",
+        action="store_true",
+        default=False,
+        help="Set up for Python analysis, including a Python script template. Implies `--use-conda`.",
+    )
+    parser.add_argument(
         "--use-jupyter",
         action="store_true",
         default=False,
@@ -84,7 +90,7 @@ def main() -> None:
     if args.use_renv:
         args.use_r = True
 
-    if args.use_jupyter:
+    if args.use_jupyter or args.use_python:
         args.use_conda = True
 
     # get the paths relative to this script file
@@ -224,6 +230,16 @@ def main() -> None:
         )
 
         final_messages.append(f"- Added R Markdown notebook template: `{module_rmd}`.")
+
+    if args.use_python:
+        template_py = base_dir / "templates" / "python" / "script-template.py"
+        module_py = module_dir / "script-template.py"
+        copy_file_with_tag_replacement(
+            src=template_py,
+            dest=module_py,
+            tag="openscpca_module",
+            replacement=args.name,
+        )
 
     if args.use_jupyter:
         template_ipynb = base_dir / "templates" / "jupyter" / "notebook-template.ipynb"
