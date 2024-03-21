@@ -1,6 +1,6 @@
 # Filing a pull request
 
-Once you have [committed changes](../working-with-git/making-commits.md) to your [feature branch](../working-with-git/working-with-branches.md) and [pushed to origin](../working-with-git/push-to-origin.md), you are ready to file a PR.
+Once you have [committed changes](../working-with-git/making-commits.md) to your [feature branch](../working-with-git/working-with-branches.md) and [pushed to origin](../working-with-git/push-to-origin.md), you are ready to [file a PR](index.md).
 
 Don't know what to include in your PR or when to file a PR?
 
