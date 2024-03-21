@@ -5,8 +5,10 @@ This ensures that your fork has the most recent changes and updates found in the
 
 We recommend syncing at the following times:
 
-    - Before you make a new feature branch off `AlexsLemonade/OpenScPCA-analysis:main`.
-    - After you have merged a pull request into `AlexsLemonade/OpenScPCA-analysis:main`, sync to keep your fork's `main` up to date.
+- Before you make a [new feature branch](./working-with-branches.md) off `AlexsLemonade/OpenScPCA-analysis:main`
+- Before [filing a pull request](../creating-pull-requests/index.md) to merge your feature branch into `AlexsLemonade/OpenScPCA-analysis:main`
+- After you have [merged a pull request](STUB_LINK todos after merging) into `AlexsLemonade/OpenScPCA-analysis:main`
+
 
 !!! note "Learn about syncing your fork"
 
