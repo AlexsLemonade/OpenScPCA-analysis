@@ -1,0 +1,37 @@
+name: Request additional documentation
+description: Use this issue template to request additional or expanded project documentation
+title: 'Docs request:'
+labels: docs-request
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This issue template should be used to request that:
+
+        - An additional item should be documented
+        - An existing docs page should be expanded and/or improved
+
+  - type: textarea
+    attributes:
+      label: What is the documentation improvement or update you wish to see?
+      description: |
+        Please explain what additional documentation you are looking to see.
+
+        - Is there an item missing from the documentation that would be helpful to have?
+        - Do you wish to see more examples of how to carry out a certain task?
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Is there any additional context you would like to provide?
+      description: |
+        Please provide additional context or information that would help us understand how this documentation change would support you.
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: If this request is for an existing documentation page, please provide the link here.
+    validations:
+      required: false
