@@ -2,17 +2,19 @@
 
 ## What is a pull request template?
 
-When [filing a PR](STUB-LINK file a PR), you will be required to include an informative title and description of the changes.
-You should also include any important information that you want reviewers to know.
-PR templates help make that process simple and easy!
+When [filing a PR](STUB-LINK file a PR), GitHub will ask you for an informative title and description of the changes.
+There is lots of other information you can include in your pull request, including items you want to reviewers to have a particularly close look at, or any other technical information that will help the review process go more smoothly.
+In OpenScPCA, we use a pull request template to directly prompt you for important kinds of information that will help us review your code!
+Templates make filing PRs much easier for you as well, because they tell you exactly what kind of information you should provide.
 
-- When you go to file the PR, there will be a box for you to include the PR description that is already populated with a set of text prompts and questions to answer.
-- Every time that you file a new PR, the same set of prompts and questions will appear.
+- When you go to file the PR, there will be a box for you to include the PR description.
+This box is already populated with a set of text prompts and questions to answer - this is the PR template!
+- Every time that you file a new PR, the same template will appear.
 - Answer the questions when writing up your description and then file your PR.
 
 See below for an example of what you will see when filing a PR for OpenScPCA.
-Note that this figure shows what the template looks like if using the `Preview` button.
-To edit the template, use the `Write` button.
+Note that this figure shows what the template looks like if using the `Preview` tab.
+To edit the template, use the `Write` tab.
 
 <figure markdown="span">
     ![PR template](../../img/pr-templates-1.png){width="600"}
@@ -36,14 +38,14 @@ Every time you file a new PR in OpenScPCA, you will be prompted to fill out the 
 This PR template includes the following sections:
 
 - Instructions for filling out the template (in italics)
-    - After reading, these instructions can be deleted prior to filing the PR.
+    - After reading, you can delete these instructions before filing the PR.
 - A summary of the purpose and goals of this PR.
-    - Here you would include some background information on the changes that are being proposed and describe the general approach taken in the PR.
+    - Here you would include some background information on the changes you're proposing such as the general approach you took.
 - A summary of the results from this PR.
-    - This includes information on what results or output are produced from the changes made in the PR and where the results live.
+    - This includes information on what results or output your code in the PR produces and where the results live.
 - Directions for reviewers.
     - Include any computational resources and software requirements needed to run the analysis.
     - Here is where you would bring up any points that you would like to discuss further or would like reviewers to pay special attention to.
 - Author checklists.
     - Check off the boxes that apply to your PR.
-    - This checklist ensures that your code fits the required guidelines, results are accessible to the reviewer, and your code is reproducible.
+    - These checklists ensure that your code meets the required guidelines, the reviewer can access the results, and your code is reproducible.
