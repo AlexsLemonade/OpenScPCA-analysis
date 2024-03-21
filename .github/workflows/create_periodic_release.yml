@@ -1,8 +1,6 @@
 name: Create release tagged with today's date
 on:
   workflow_dispatch:
-  push:
-    branches: jaclyn-taroni/28-release-template
 
 jobs:
   post_issue:
