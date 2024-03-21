@@ -82,6 +82,8 @@ nav:
       - contributing-to-analyses/creating-pull-requests/scoping-pull-requests.md
   - Software platforms:            # LSfR, AWS, Docker, etc
     - software-platforms/index.md
+    - software-platoforms/general-tools/index.md
+    - software-platoforms/general-tools/using-the-terminal.md
   - Getting Help and FAQ:      # troubleshooting and FAQ
     - troubleshooting-faq/index.md
   - Policies: # CoC, Authorship, other policies
