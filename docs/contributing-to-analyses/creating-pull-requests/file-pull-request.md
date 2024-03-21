@@ -48,7 +48,7 @@ Any changes found in your feature branch that are _not_ in the `main` branch of 
         ![Check branches](../../img/file-pr-3.png){width="600"}
     </figure>
 
-    If you do not see a green checkmark with the words `Able to merge`, but instead see a red X and a warning stating `Merge conflicts detected`, you will need to [resolve merge conflicts](STUB-LINK for merge conflicts) before you can file the PR.
+    If you do not see a green check mark with the words `Able to merge`, but instead see a red X and a warning stating `Merge conflicts detected`, you will need to [resolve merge conflicts](STUB-LINK for merge conflicts) before you can file the PR.
 
 1. Be sure to provide a descriptive title summarizing your changes and fill out the [PR template](./pull-request-template.md).
 
