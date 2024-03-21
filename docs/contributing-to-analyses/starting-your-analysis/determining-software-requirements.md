@@ -128,7 +128,7 @@ conda activate openscpca-{module_name}
 
 #### Activating existing environments
 
-If you are working with an existing analysis module, it should have a `conda-lock.yml` file also present in the module directory, which defines precisely the sotware versions used in the module.
+If you are working with an existing analysis module, it should have a `conda-lock.yml` file also present in the module directory, which defines precisely the software versions used in the module.
 You can create and activate the environment on the computer you are working on by running the following commands:
 
 ```bash
