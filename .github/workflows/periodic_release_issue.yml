@@ -1,0 +1,25 @@
+# This files an issue for creating a release every month on the 1st
+name: File create a release issue
+on:
+  schedule: # run monthly on the 1st
+    - cron: 0 0 1 * *
+  push:
+    branches: jaclyn-taroni/28-release-template
+
+jobs:
+  post_issue:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Get date
+        run: echo "TODAY=$(date -I)" >> $GITHUB_ENV
+
+      - name: Post issue with results from running all modules
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: 'Create a release: ${{ env.TODAY }}'
+          content-filepath: .github/cron-issue-templates/create-release-template.md
+          labels: release
