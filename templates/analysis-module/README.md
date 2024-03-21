@@ -41,5 +41,5 @@ If there are specific memory, CPU, and/or GPU requirements, please state that.
 
 ## Software requirements
 
-Please describe the environment system used to run the analysis (e.g., `conda`, `renv`, `docker`).
+Please describe the environment system used to manage software dependencies for the module (e.g., `conda`, `renv`, `docker`).
 Include the locations of any files used to set up the environment.
