@@ -79,6 +79,7 @@ nav:
       - contributing-to-analyses/working-with-git/push-to-origin.md
     - Creating pull requests:
       - contributing-to-analyses/creating-pull-requests/index.md
+      - contributing-to-analyses/creating-pull-requests/scoping-pull-requests.md
   - Software platforms:            # LSfR, AWS, Docker, etc
     - software-platforms/index.md
   - Getting Help and FAQ:      # troubleshooting and FAQ
