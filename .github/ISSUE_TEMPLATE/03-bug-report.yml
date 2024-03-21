@@ -31,10 +31,10 @@ body:
     attributes:
       label: Consequences of the bug
       description: |
-        Describe what the consequence(s) of this bug. For example:
+        Describe the consequence(s) of this bug. For example:
 
-        - The bug produces to a particular error message (please include the error message here)
-        - The bug does not produce an error message but code does not yield the expected result
+        - The bug produces a particular error message (please include the error message here)
+        - The bug does not produce an error message, but the code does not yield the expected result
     validations:
       required: true
 
