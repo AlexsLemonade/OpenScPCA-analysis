@@ -28,6 +28,15 @@ For example, to reference <https://github.com/AlexsLemonade/OpenScPCA-analysis/i
 
 You can read more about referencing issues and pull requests, included advanced usage, in [GitHub's documentation](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/autolinked-references-and-urls#issues-and-pull-requests).
 
+### Labels
+
+You can use issue labels to help you filter existing issues.
+See [GitHub's documentation on filtering issues and pull requests by labels](https://docs.github.com/en/issues/tracking-your-work-with-issues/filtering-and-searching-issues-and-pull-requests#filtering-issues-and-pull-requests-by-labels) for more information
+
+!!! note "Applying labels"
+    You will not have permissions to apply labels to issues yourself.
+    Please mention a Data Lab team member to ask for a label to be applied to an issue you've created.
+
 ## What makes a good issue?
 
 Since issues [serve as the project's to-do list](index.md#what-are-github-issues-and-how-do-we-use-them), writing good, helpful issues is important.
