@@ -126,12 +126,18 @@ conda create --file environment.yml --name openscpca-{module_name}
 conda activate openscpca-{module_name}
 ```
 
-#### Freezing dependencies with `conda-lock`
+##### Freezing dependencies with `conda-lock`
 
 Conda is a powerful package manager, but it has some limitations when trying to perfectly reproduce an environment across different computer platforms.
-To address this, we use [`conda-lock`](https://conda.github.io/conda-lock/) to create a lockfile that captures the exact versions of all software packages in the environment, including both the packages that are explicitly listed in the `environment.yml` file and all of their dependencies.
-As software dependencies may vary across platforms, `conda-lock` will discover and record dependencies for each platform separately, ensuring that the environment can be recreated exactly on every platform where the software is available.
-This allows us to keep the `environment.yml` file as a "high-level" list of required software, while also having a "low-level" lockfile that can be used to recreate the environment exactly.
+In particular, some packages have dependencies that vary depending on the platform that is being used, which makes tracking dependencies across platforms difficult with the built-in conda tools.
+To address this, we use [`conda-lock`](https://conda.github.io/conda-lock/), which provides the following advantages:
+
+- The `conda-lock.yml` files created by `conda-lock` capture exact versions of all software packages in the environment, including both packages listed in the `environment.yml` file and all of their dependencies.
+- Dependencies required for each platform are discovered and recorded separately by `conda-lock`, ensuring that the environment can be recreated on every platform where the software is available.
+- This means that we can leave the `environment.yml` file as a "high-level" list of required software which is easy to read and update, while also having a "low-level" lockfile that contributors can use to recreate the environment exactly.
+
+
+#### Creating and updating `conda-lock.yml` files
 
 To create a `conda-lock.yml` file from an `environment.yml` file, run the following command from the module directory:
 
@@ -148,7 +154,7 @@ You should perform this step before filing a pull request to ensure that the `co
     Usually this will be a package that is not available for the `osx-arm64` (Apple Silicon) platform.
     If this happens, see the [Software not available on a specific platform](#software-not-available-on-a-specific-platform) section below for instructions on how to handle this situation.
 
-#### Activating existing environments
+#### Activating existing environments in a module
 
 If you are working with an existing analysis module, it should have a `conda-lock.yml` file present in the module directory.
 You can create and activate the environment on the computer you are using by running the following commands:
@@ -162,7 +168,11 @@ conda activate openscpca-{module_name}
 
 If the `conda-lock.yml` file has been updated since the last time you worked with the repository, you should rerun the `conda-lock install` command to update your environment to the latest version.
 
-If a `conda-lock.yml` file is not present, you can create an environment from the `environment.yml` file by running the following commands:
+Occasionally you may encounter a Python-based module that does not yet have a `conda-lock.yml` file.
+This is most likely to occur early in development of a module when the requirements may still be in flux.
+(If you do find a module that is missing a `conda-lock.yml` file, you may want to [file an issue](STUB_LINK issue filing) to let us know.)
+As long as there is an `environment.yml` file, you can still create an environment to work with the module.
+To do so, run the following commands from the module's root directory, replacing `{module_name}` with the name of the module you are working on:
 
 ```bash
 # Navigate to the module's root directory
