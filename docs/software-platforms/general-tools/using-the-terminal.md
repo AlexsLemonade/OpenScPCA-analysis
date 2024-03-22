@@ -64,13 +64,10 @@ Note that [Apple provides some additional instructions](https://support.apple.co
 
 ### Accessing the terminal on WSL on Windows
 
-Make sure that you have taken all the necessary steps to [install WSL](STUB_LINK WSL instructions):
-
-- First, install WSL itself
-- Second, install the Ubuntu app from the Microsoft Store
+Make sure that you have taken all the necessary steps to [install WSL](STUB_LINK WSL instructions).
 
 This Ubuntu app itself _is_ the terminal!
-To launch the terminal, simply [search for and open the Ubuntu app via the Windows Search Bar Menu](https://canonical-ubuntu-wsl.readthedocs-hosted.com/en/latest/guides/install-ubuntu-wsl2/#method-1-microsoft-store).
+Simply [search for and open the Ubuntu app via the Windows Search Bar Menu](https://canonical-ubuntu-wsl.readthedocs-hosted.com/en/latest/guides/install-ubuntu-wsl2/#method-1-microsoft-store) to launch the terminal.
 
 ### Accessing the terminal on Lightsail for Research
 
