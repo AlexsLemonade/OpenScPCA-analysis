@@ -128,10 +128,10 @@ conda activate openscpca-{module_name}
 
 #### Freezing dependencies with `conda-lock`
 
-Conda is a powerful package manager, but it has some limitations when trying to perfectly reproduce an environment across different computer platforms.
+Conda is a powerful package manager, but it has some limitations when trying to perfectly reproduce an environment across different computer platforms (e.g., between Linux and macOS).
 To address this, we use [`conda-lock`](https://conda.github.io/conda-lock/) to create a lockfile that captures the exact versions of all software packages in the environment, including both the packages that are explicitly listed in the `environment.yml` file and all of their dependencies.
 As software dependencies may vary across platforms, `conda-lock` will discover and record dependencies for each platform separately, ensuring that the environment can be recreated exactly on every platform where the software is available.
-This allows us to keep the `environment.yml` file as a "high-level" list of required software, while also having a "low-level" lockfile that can be used to recreate the environment exactly.
+Therefore, each analysis module should have an `environment.yml` file as a "high-level" list of required software, and also a "low-level" lockfile that contributors can use to exactly recreate the environment.
 
 To create a `conda-lock.yml` file from an `environment.yml` file, run the following command from the module directory:
 
