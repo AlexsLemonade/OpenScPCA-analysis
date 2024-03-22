@@ -7687,7 +7687,7 @@ Defining their locations in the <code>Setup</code> section will make it easy for
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># get all processed RNA anndata files in the data directory</span>
-<span class="n">anndata_files</span> <span class="o">=</span> <span class="n">data_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"**/*processed_rna.hdf5"</span><span class="p">)</span>
+<span class="n">anndata_files</span> <span class="o">=</span> <span class="n">data_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"**/*_processed_rna.hdf5"</span><span class="p">)</span>
 
 <span class="c1"># apply our counting function to all of the files and create a data frame of the results</span>
 <span class="n">count_tuples</span> <span class="o">=</span> <span class="p">(</span><span class="n">count_anndata</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">anndata_files</span><span class="p">)</span>
@@ -8079,7 +8079,7 @@ notebook            7.1.2
 Python 3.11.8 | packaged by conda-forge | (main, Feb 16 2024, 20:49:36) [Clang 16.0.6 ]
 macOS-14.3.1-arm64-arm-64bit
 -----
-Session information updated at 2024-03-21 14:41
+Session information updated at 2024-03-22 09:52
 </pre>
 </details>
 </div>
