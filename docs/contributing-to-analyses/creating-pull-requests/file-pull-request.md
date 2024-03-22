@@ -2,9 +2,7 @@
 
 Once you have [committed changes](../working-with-git/making-commits.md) to your [feature branch](../working-with-git/working-with-branches.md) and [pushed to origin](../working-with-git/push-to-origin.md), you are ready to [file a PR](index.md).
 
-Don't know what to include in your PR or when to file a PR?
-
-- See our [guidelines on scoping a PR](./scoping-pull-requests.md).
+Don't know what to include in your PR or when to file a PR? See our [guidelines on scoping a PR](./scoping-pull-requests.md)!
 
 !!! note "More information on filing a pull request"
 
@@ -12,7 +10,7 @@ Don't know what to include in your PR or when to file a PR?
 
 ## How to file a pull request for OpenScPCA
 
-All PRs should be filed from your feature branch to the `main` branch of `AlexsLemonade/OpenScPCA-analysis`.
+You should always file PRs from your feature branch in your fork to the `main` branch of `AlexsLemonade/OpenScPCA-analysis`.
 Filing a PR is the only way to incorporate any new analysis or code changes into the main code base of OpenScPCA.
 
 Follow the below steps to file a pull request on GitHub:
@@ -30,19 +28,22 @@ Follow the below steps to file a pull request on GitHub:
         ![Change branch](../../img/file-pr-1.png){width="300"}
     </figure>
 
-1. Click on the `Contribute` button and select `Open pull request`.
+1. Click on the `Contribute` button next to the `Sync Fork` button, and select `Open pull request`.
 Any changes found in your feature branch that are _not_ in the `main` branch of `AlexsLemonade/OpenScPCA-analysis` will be included in the PR.
 
     <figure markdown="span">
         ![Contribute](../../img/file-pr-2.png){width="300"}
     </figure>
 
-1. You will then be redirected to a page where you can complete filing your PR.
+1. GitHub will then redirect you to the page where you can file your PR.
+On this page, you should see:
 
-    - This should display the base branch as the `main` branch of `AlexsLemonade/OpenScPCA-analysis`.
+    - The **base repository** should be `AlexsLemonade/OpenScPCA-analysis`.
+        - The **base** field should be `main`.
         - This is the branch you are proposing to merge your changes _into_.
-    - The head repository should be your fork (`username/OpenScPCA-analysis`) with the branch set to your feature branch.
-        - This is the branch containing the changes you would like to merge into the main code base of OpenScPCA.
+    - The **head repository** should be your fork, `username/OpenScPCA-analysis`.
+        - The **compare** field should be your feature branch (here, `username/42-celltype-ewings`).
+        - This is the branch with the changes you would like to merge into OpenScPCA's main code base.
 
     <figure markdown="span">
         ![Check branches](../../img/file-pr-3.png){width="600"}
