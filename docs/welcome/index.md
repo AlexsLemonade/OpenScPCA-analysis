@@ -10,39 +10,47 @@ This project aims to characterize the ScPCA data by:
 
 ## How it works
 
-TODO: ADD ILLUSTRATION
+![how-it-works](../img/how-it-works.png)
 
-**Co-develop analysis ideas and approaches**
+<div class ="grid" markdown>
 
-Participate in discussions with Data Lab members and other contributors to shape analysis ideas and select the best approaches to implement analyses.
+<div markdown>
+- **Co-develop analysis ideas and approaches** <br/> Participate in discussions with Data Lab members and other contributors to shape analysis ideas and select the best approaches to implement analyses.
+</div>
 
-**Write reproducible code to perform analyses**
+<div markdown>
+- **Write reproducible code to perform analyses** <br/> Work on an analysis module within a reproducible research framework setup for you by the Data Lab using R or Python.
+</div>
 
-Work on an analysis module within a reproducible research framework setup for you by the Data Lab using R or Python.
+<div markdown>
+- **Participate in the analytical code review process** <br/> Participate in the code review process to improve your programming skills and gain experience collaborating on a code base.
+</div>
 
-**Participate in the analytical code review process**
+<div markdown>
+- **Add your analyses to the project** <br/> Contribute your analysis to benefit the broader pediatric cancer community and build your publicly-facing portfolio of source code contributions.
+</div>
 
-Participate in the code review process to improve your programming skills and gain experience collaborating on a code base.
-
-**Add your analyses to the project**
-
-Contribute your analysis to benefit the broader pediatric cancer community and build your publicly-facing portfolio of source code contributions.
+</div>
 
 
 ## Benefits of Participating
 
+:material-tools:{ .lg .middle }
 **Access to data and tools**
 
 Discover new datasets to advance your research and learn how to use powerful tooling for reproducible research and software development.
 
+:material-account-group:{ .lg .middle }
 **Join a supportive community**
 
 Connect with the Data Lab and receive ongoing support from our team throughout the project. Meet potential collaborators with diverse skill sets and a variety of expertise!
 
+:material-rocket-launch:{ .lg .middle }
 **Develop skills and gain experience**
 
 Build your analysis portfolio, develop transferable skills in big data analysis, and gain experience working collaboratively in a large code base. 
 
+:material-shape-plus:{ .lg .middle }
 **Contribute to impactful research**
 
 Contribute to open science and help build a resource that will benefit a broad community of pediatric cancer researchers. Plus you may be part of a future publication!
@@ -55,16 +63,38 @@ We are seeking contributors with diverse skills and expertise to join the OpenSc
 
 Get started by filling out the interest form below. You will receive an email response with more information and next steps.
 
+[Fill interest form](#){ .md-button .md-button--primary }
+
 
 ### Other ways to get started
 
-**Join the conversation on GitHub Discussions**
+<div class ="grid cards" markdown>
 
-Ask questions, discuss big picture ideas, brainstorm, and develop plans for analyses. Read this post on how to use GitHub Discussions for the OpenScPCA project.
+-   :material-forum-outline:{ .lg .middle } __Join the conversation on GitHub Discussions__
+
+    ---
+
+    Ask questions, discuss big picture ideas, brainstorm, and develop plans for analyses. Read this post on how to use GitHub Discussions for the OpenScPCA project.
+
+    [Learn more](./../communications-tools/tools-for-communication.md#github-discussions)
 
 
-**Explore the OpenScPCA-analysis GitHub repository**
 
-Browse the issues to see what analyses are planned or are currently being performed. Read the documentation to learn more about contributing to the project.
+-   :octicons-issue-opened-24:{ .lg .middle } __Explore open issues on our GitHub repository__
 
-**Explore an example analysis module**
+    ---
+
+    Browse the issues to see what analyses are planned to find an issue you wish to work on.
+
+    [Browse Issues](https://github.com/AlexsLemonade/OpenScPCA-analysis/issues)
+
+
+-   :octicons-telescope-24:{ .lg .middle } __Explore an example analysis module__
+
+    ---
+    
+    Create a local setup and explore how analysis modules are structured, and play with some simulated data or data from the portal.
+    
+    [Explore an example module](#STUB)
+
+</div>
