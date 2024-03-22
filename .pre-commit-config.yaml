@@ -8,10 +8,9 @@ repos:
         # Allow specific files types to be larger with later test
         exclude: |
           (?x)(
-              conda-lock\.yml|
-              \.html|
-              docs/img/launch-terminal-mac.png
-          )$
+              \.html$|
+              conda-lock\.yml$
+          )
       - name: Large file size limit
         id: check-added-large-files
         args: ["--maxkb=1000"]

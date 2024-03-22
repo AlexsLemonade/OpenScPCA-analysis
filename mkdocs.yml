@@ -80,6 +80,7 @@ nav:
     - Creating pull requests:
       - contributing-to-analyses/creating-pull-requests/index.md
       - contributing-to-analyses/creating-pull-requests/scoping-pull-requests.md
+      - contributing-to-analyses/creating-pull-requests/file-pull-request.md
   - Software platforms:            # LSfR, AWS, Docker, etc
     - software-platforms/index.md
     - software-platforms/general-tools/index.md

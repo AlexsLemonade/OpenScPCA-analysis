@@ -3,7 +3,7 @@
 ## What is conda?
 
 The OpenScPCA project uses [conda](https://docs.anaconda.com/free/miniconda/index.html) to manage your software environment.
-conda is a command-line software management tool which helps you install and track specific versions of software.
+Conda is a command-line software management tool which helps you install and track specific versions of software.
 It also allows you to have multiple software environments with different sets of packages on the same computer.
 
 This page provides instructions on how to install conda and use it to install certain software you will need to contribute to OpenScPCA.
@@ -60,12 +60,14 @@ These commands will set the [recommended channels](https://docs.conda.io/project
 Copy and paste the following command into the terminal, and hit enter.
 
     ```sh
-    conda install awscli jq pre-commit
+    conda install awscli conda-lock jq pre-commit
     ```
+    <!-- Do we want to suggest this instead? `conda env update --name base --file environment.yml`? -->
 
-    - The [`awscli` package](https://pypi.org/project/awscli/) will allow you to interact with [data stored in the Amazon Web Services (AWS) S3 bucket](STUB_LINK)
-    - The [`jq` package](https://pypi.org/project/jq/) provides JSON parsing capabilities
-    - The [`pre-commit`](https://pypi.org/project/pre-commit/) package will allow you to use [pre-commit hooks when contributing to analysis modules](STUB_LINK)
+    - The [`awscli` package](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html/) will allow you to interact with [data stored in the Amazon Web Services (AWS) S3 bucket](STUB_LINK)
+    - The [`conda-lock` package](https://conda.github.io/conda-lock/) is used to create fully reproducible, cross-platform [conda environments for analysis modules](../../contributing-to-analyses/starting-your-analysis/determining-software-requirements.md#managing-software-dependencies-in-Python-with-conda)
+    - The [`jq` package](https://jqlang.github.io/jq/) provides JSON parsing capabilities
+    - The [`pre-commit` package](https://pre-commit.com) will allow you to use [pre-commit hooks when contributing to analysis modules](STUB_LINK)
 
     !!! note
         You may be prompted to enter **`y`** or **`n`** (yes or no) during this setup.
