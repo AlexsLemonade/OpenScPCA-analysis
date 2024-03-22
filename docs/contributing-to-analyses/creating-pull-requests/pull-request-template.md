@@ -30,11 +30,9 @@ Some examples of prompts typically seen in a PR template include:
 Every time you file a new PR in OpenScPCA, you will be prompted to fill out the provided PR template.
 
 See below for an example of what you will see when filing a PR for OpenScPCA.
-Note that this figure shows what the template looks like if using the `Preview` tab.
-To edit the template, use the `Write` tab.
 
 <figure markdown="span">
-    ![PR template](../../img/pr-templates-1.png){width="600"}
+    ![PR template](../../img/file-pr-4.png){width="600"}
 </figure>
 
 
