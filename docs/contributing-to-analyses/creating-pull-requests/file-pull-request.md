@@ -32,7 +32,7 @@ Follow the below steps to file a pull request on GitHub:
 Any changes found in your feature branch that are _not_ in the `main` branch of `AlexsLemonade/OpenScPCA-analysis` will be included in the PR.
 
     <figure markdown="span">
-        ![Contribute](../../img/file-pr-2.png){width="300"}
+        ![Contribute](../../img/file-pr-2.png){width="600"}
     </figure>
 
 1. GitHub will then redirect you to the page where you can file your PR.
@@ -46,7 +46,7 @@ On this page, you should see:
         - This is the branch with the changes you would like to merge into OpenScPCA's main code base.
 
     <figure markdown="span">
-        ![Check branches](../../img/file-pr-3.png){width="600"}
+        ![Check branches](../../img/file-pr-3.png){width="700"}
     </figure>
 
     If you do not see a green check mark with the words `Able to merge`, but instead see a red X and a warning stating `Merge conflicts detected`, you will need to [resolve merge conflicts](STUB-LINK for merge conflicts) before you can file the PR.
@@ -59,8 +59,16 @@ On this page, you should see:
         ![Title and template](../../img/file-pr-4.png){width="600"}
     </figure>
 
+    Remember, you can always scroll down to below the template and check the contents of your PR look as expected.
+    This will show you the history of commits, the number of lines changed, and the line-by-line changes in the code.
+    This can also be helpful in ensuring your PR fits our [recommendation of 400 lines or less](./scoping-pull-requests.md#rules-of-thumb-for-good-pull-requests).
+
 1. Once you have completed the PR template, you can press `Create pull request`.
 
     After filing your PR, the Data Lab team will [review the proposed changes](STUB-LINK for review) before changes can be merged into the main code base.
+
+    - You will be able to make additional commits to your feature branch, even after filing your PR.
+    - Every time you make a new commit and push to origin, it will now be reflected in your PR.
+    - This is particularly helpful when making changes in response to [review comments](STUB-LINK for review).
 
 You have now successfully created a pull request!
