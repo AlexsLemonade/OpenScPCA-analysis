@@ -16,7 +16,7 @@ On Windows computers, you will first need to install and setup the [Windows Subs
     If you are new to the terminal, we highly recommend starting with a general introduction.
     You do not need to become a terminal expert, but it's helpful to have some basic bearings.
 
-    Here are a few we resources we suggest.
+    Here are a few resources we suggest.
     Note that while some links have details that are specific to macOS or Linux, the general principles and commands are exactly the same on both kinds of computers!
 
     - [Introduction to the command line](https://tutorials.codebar.io/command-line/introduction/tutorial.html)
