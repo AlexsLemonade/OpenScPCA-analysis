@@ -29,7 +29,7 @@ Requires AWS credentials with access to the OpenScPCA data release bucket.
 
 ## Software requirements
 
-This module runs in R, with packages managed by renv.
+This module runs in R, with packages managed by `renv`.
 
 Before running the analysis script, open an R session in the analysis module directory and run `renv::restore()` to install the required packages.
 All packages required are listed in the `renv.lock` file.
