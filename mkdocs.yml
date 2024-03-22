@@ -62,6 +62,7 @@ nav:
     - communications-tools/index.md
     - GitHub Issues:
       - communications-tools/github-issues/index.md
+      - communications-tools/github-issues/writing-issues.md
   - Contributing to analyses:  # Setting up an analysis, all the git stuff
     - contributing-to-analyses/index.md
     - Analysis modules:
