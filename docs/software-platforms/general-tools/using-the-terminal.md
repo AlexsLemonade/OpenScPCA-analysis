@@ -30,27 +30,15 @@ On Windows computers, you will first need to install and setup the [Windows Subs
 
 There are certain situations that you will need to use a terminal as part of contributing to OpenScPCA, such as:
 
-- To perform the [initial conda setup](../../technical-setup/environment-setup/setup-conda.md)
-- To set up the [`pre-commit` package](../../technical-setup/environment-setup/setup-precommit.md)
-- To [create a new analysis module](../../contributing-to-analyses/analysis-modules/STUB_LINK create a module)
-- To [run all full analysis module](STUB_LINK run an analysis module)
+- [To perform the initial conda setup](../../technical-setup/environment-setup/setup-conda.md)
+- [To set up the `pre-commit` package](../../technical-setup/environment-setup/setup-precommit.md)
+- [To create a new analysis module](../../contributing-to-analyses/analysis-modules/STUB_LINK create a module)
+- [To manage your environment and software dependencies with conda](../../contributing-to-analyses/starting-your-analysis/determining-software-requirements.md#managing-software-dependencies-in-python-with-conda)
+- [To run an analysis module](STUB_LINK run an analysis module)
 
 ## How do you access the terminal?
 
-First, no matter which kind of computer (Mac, WSL in Windows, or Lightsail for Research instance) you are using, you can directly access a terminal within GitKraken.
-The benefit of using the GitKraken terminal is that it always places you in your `OpenScPCA-analysis` repository folder, saving you time from having to navigate to the repository in terminal with the `cd` command.
-
-To launch a terminal in GitKraken, first open your repository in GitKraken.
-
-Then, click the `Terminal` button at the top of GitKraken.
-This will open a terminal prompt inside GitKraken where you can type your commands.
-
-<figure markdown="span">
-    ![Open the terminal in GitKraken.](../../img/gitkraken-terminal-button.png){width="600"}
-</figure>
-
-
-Or, you can launch the terminal application directly, as explained below for different operating systems.
+You can always access the terminal as its own app, described below for each operating system, or from within certain other applications, as described below.
 
 
 ### Accessing the terminal on a Mac
@@ -74,3 +62,46 @@ Simply [search for and open the Ubuntu app via the Windows Search Bar Menu](http
 Lightsail for Research instances run on the Ubuntu operating system, which is a type of Linux.
 
 To launch the terminal in Ubuntu, INSTRUCTIONS ARE FORTHCOMING FOR WHERE EXACTLY TO CLICK.
+
+
+### Accessing the terminal from other applications
+
+#### GitKraken
+
+You can directly access a terminal within GitKraken on any kind of computer you are using,
+The benefit of using the GitKraken terminal is that it always places you in your `OpenScPCA-analysis` repository folder, saving you time from having to navigate to the repository in terminal with the `cd` command.
+
+To launch a terminal in GitKraken, first open your repository in GitKraken.
+
+Then, click the `Terminal` button at the top of GitKraken.
+This will open a terminal prompt inside GitKraken where you can type your commands.
+
+<figure markdown="span">
+    ![Open the terminal in GitKraken.](../../img/gitkraken-terminal-button.png){width="600"}
+</figure>
+
+
+#### RStudio
+
+You can access RStudio's integrated terminal by clicking on the `Terminal` tab in the Console.
+Learn more about using the integrated terminal [from Posit's docmentation](https://support.posit.co/hc/en-us/articles/115010737148-Using-the-RStudio-Terminal-in-the-RStudio-IDE).
+
+??? "Working on Windows with WSL?"
+    If you are working on a Windows computer with WSL, you will access this terminal from the [RStudio Server](STUB_LINK rstudio server instructions) you launch in your browser.
+
+#### Visual Studio Code (VS Code)
+
+[VS Code](https://code.visualstudio.com/) is a powerful text editor that you may use while contributing to OpenScPCA.
+[Follow these instructions](https://code.visualstudio.com/docs/terminal/basics) to use its integrated terminal.
+
+??? "Working on Windows with WSL?"
+    If you are working on a Windows computer with WSL, you should also [install the WSL extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl) to be able to open files and run code within WSL.
+    Learn more about [working with VS code from WSL from this documentation](https://code.visualstudio.com/docs/remote/wsl-tutorial).
+
+    The terminal in VS Code will launch as either the Windows PowerShell or bash (Ubuntu) depending on what files you open in VS Code:
+
+    - If you open files on the Windows side of your system, the terminal will be Windows PowerShell.
+    - If you open files on the WSL side of your system, the terminal will be bash (Ubuntu).
+
+    To launch VS Code on the WSL side, type the command [`code`](https://code.visualstudio.com/docs/editor/command-line) in Ubuntu in the directory you want to open.
+    The first time you run this command, the VS Code `code` helper will install; then, you can use it to launch VS Code.
