@@ -1,4 +1,5 @@
-name: Create release tagged with today's date
+# This manually-triggered workflow should be run to create a periodic release 
+name: Create a release tagged with today's date
 on:
   workflow_dispatch:
 
