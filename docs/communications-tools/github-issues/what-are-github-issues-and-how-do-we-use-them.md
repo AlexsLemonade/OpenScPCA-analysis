@@ -1,4 +1,6 @@
-# What are GitHub Issues and how do we use them?
+# GitHub Issues
+
+## What are GitHub Issues, and how do we use them?
 
 [GitHub issues](https://docs.github.com/en/issues/tracking-your-work-with-issues/about-issues) are a feature of GitHub that we use to track work associated with the project.
 
@@ -12,6 +14,10 @@ You can view all issues for the project here: <https://github.com/AlexsLemonade/
 
 !!! note "Learn more about GitHub Issues"
     For more information about GitHub Issues, see [GitHub's documentation about issues](https://docs.github.com/en/issues/tracking-your-work-with-issues/about-issues)
+    
+## Writing issues
+
+For more information about writing issues and using issue templates, see our documentation on [Writing issues](STUB_LINK).
 
 ## When to use issues
 
@@ -37,8 +43,4 @@ Here are some examples of when not to use issues:
 
 See the [Tools for Communication documentation](../index.md) for a full discussion of how we use different communication tools within the project.
 
-<!-- TODO Turn this into writing issues instead? -->
-## Issue templates
 
-We use issue templates to help guide project maintainers and contributors in writing informative issues.
-See our [Issue Templates documentation](STUB_LINK) to learn how to use issue templates.
