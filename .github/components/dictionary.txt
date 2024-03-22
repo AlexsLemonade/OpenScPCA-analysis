@@ -24,6 +24,7 @@ enforceability
 et
 formatters
 Generis
+GFM
 GitHub
 GitKraken
 HPC
