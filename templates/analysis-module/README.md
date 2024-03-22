@@ -4,7 +4,7 @@ This is a template analysis module.
 It is intended to be used as a starting point for new analysis modules.
 Please fill in the content below with information specific to this analysis module.
 
-## Description of analysis module
+## Description
 
 Please provide a description of your module, including:
 
@@ -13,7 +13,7 @@ Please provide a description of your module, including:
 
 If there are multiple steps in the module, please include an outline of the analysis steps and scripts used.
 
-## How to run the module
+## Usage
 
 Please provide instructions on how to run the analysis module.
 What commands are needed to execute all steps in the analysis?
@@ -34,12 +34,12 @@ Please include a description of the output from your analysis, including:
 - Are any intermediate files generated?
 If so, where are they stored?
 
-## Computational resources
-
-Please indicate the computational resources that are required to run the module.
-If there are specific memory, CPU, and/or GPU requirements, please state that.
-
 ## Software requirements
 
 Please describe the environment system used to manage software dependencies for the module (e.g., `conda`, `renv`, `docker`).
 Include the locations of any files used to set up the environment.
+
+## Computational resources
+
+Please indicate the computational resources that are required to run the module.
+If there are specific memory, CPU, and/or GPU requirements, please state that.
