@@ -179,7 +179,7 @@ conda activate openscpca-{module_name}
      - platforms
     ```
 
-    This warning can be safely ignored; proceed with the installation and activation of the environment.
+    This warning can be safely ignored; proceed with the installation and activate the environment.
 
 
 ### Adding software to the environment and tracking installed software
