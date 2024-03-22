@@ -203,7 +203,7 @@ This will create or update the `conda-lock.yml` file with the current state of t
 !!! note
     If the `conda-lock` command fails, it may be because a package is not available for one of the platforms in the `environment.yml` file.
     Usually this will be a package that is not available for the `osx-arm64` (Apple Silicon) platform.
-    If this happens, see the [ Software not available on a specific platform](#software-not-available-on-a-specific-platform) section below for instructions on how to handle this situation.
+    If this happens, see the [Software not available on a specific platform](#software-not-available-on-a-specific-platform) section below for instructions on how to handle this situation.
 
 
 ### Finding available software
@@ -221,7 +221,7 @@ Alternatively, you can search [anaconda.org](https://anaconda.org) for packages 
 
 While most conda packages are available for all platforms, there may be some cases where a particular platform does not have a version of a package.
 
-Most often this will occur for ARM-based computers (such as macOS computers with Apple Silicon M-series processors).
+Most often this will occur for ARM-based computers, such as macOS computers with Apple Silicon M-series processors.
 If you encounter an error with `conda-lock --file environment.yml`, it may be because a package is not available for the `osx-arm64` platform.
 
 In this case, you should edit the `environment.yml` file to *remove* the `- osx-arm64` line from the `platforms:` section.
