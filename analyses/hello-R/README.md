@@ -16,10 +16,10 @@ bash hello-R.sh
 
 ## Input files
 
-- `data/current/{projects}/*_processed.rds`: processed `SingleCellExperiment` objects from an ScPCA data release
+- `data/current/{projects}/**/*_processed.rds`: processed `SingleCellExperiment` objects from an ScPCA data release
 
-These input files can be obtained by running the `download-data.py` script in the `scripts` directory with default arguments.
-Requires AWS credentials with access to the ScPCA data release bucket.
+These input files can be obtained by running the `download-data.py` script in OpenScPCA repository root directory with default arguments.
+Requires AWS credentials with access to the OpenScPCA data release bucket.
 
 ## Output files
 
