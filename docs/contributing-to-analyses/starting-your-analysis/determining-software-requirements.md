@@ -128,7 +128,7 @@ conda activate openscpca-{module_name}
 
 ##### Freezing dependencies with `conda-lock`
 
-Conda is a powerful package manager, but it has some limitations when trying to perfectly reproduce an environment across different computer platforms.
+Conda is a powerful package manager, but it has some limitations when trying to perfectly reproduce an environment across different computer platforms (e.g., between Linux and macOS).
 In particular, some packages have dependencies that vary depending on the platform that is being used, which makes tracking dependencies across platforms difficult with the built-in conda tools.
 To address this, we use [`conda-lock`](https://conda.github.io/conda-lock/), which provides the following advantages:
 
@@ -189,7 +189,7 @@ conda activate openscpca-{module_name}
      - platforms
     ```
 
-    This warning can be safely ignored; proceed with the installation and activation of the environment.
+    This warning can be safely ignored; proceed with the installation and activate the environment.
 
 
 ### Adding software to the environment and tracking installed software
