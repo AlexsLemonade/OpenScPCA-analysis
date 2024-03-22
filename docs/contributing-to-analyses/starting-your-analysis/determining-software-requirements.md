@@ -181,3 +181,46 @@ conda search {package_name}
 ```
 
 Alternatively, you can search [anaconda.org](https://anaconda.org) for packages and channels.
+
+### Using `session_info.show()`
+
+The [`session-info`](https://pypi.org/project/session-info/) Python package can be used to report version information about Python and loaded modules.
+If you [created a module using `--use-jupyter` or `--use-python`](STUB_LINK), `session-info` was automatically included in the module's conda environment.
+
+Import `session-info` by placing the following in [the Setup section of your Jupyter notebook](STUB_LINK docs on structuring Jupyter notebooks) or in the [load modules section of your script](STUB_LINK for structuring scripts):
+
+```python
+import session_info
+```
+
+#### In Jupyter notebooks
+
+Include the following in the final cell of any Jupyter notebook using Python to ensure that the notebook reports version information:
+
+```python
+session_info.show()
+```
+
+#### In Python scripts
+
+Using a script instead?
+
+Import `contextlib` by placing the following in the [load modules section of your script](STUB_LINK for structuring scripts):
+
+```python
+import contextlib
+```
+
+Then, you can use the following to write the output of `session_info.show()` to a text file called `session_info.txt` in your current directory:
+
+```python
+session_info_path = "session_info.txt"
+
+with open(session_into_path, "w") as f:
+    with contextlib.redirect_stdout(f):  # direct the session_info output to a file
+        session_info.show(dependencies=True)
+```
+
+If you're using this approach with multiple scripts in your module, be sure to use unique file names when naming your session info text files.
+
+You can post the contents of these files on [your pull requests](STUB_LINK index page for pull requests) or commit them to the repository.

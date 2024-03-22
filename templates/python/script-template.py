@@ -76,6 +76,6 @@ session_info_path = results_dir / "session_info.txt"
 
 # As the last step, record the versions of the modules and dependencies
 # that were used in this analysis
-with session_info_path.open("w") as f:
+with open(session_info_path, "w") as f:
     with contextlib.redirect_stdout(f):  # direct the session_info output to a file
         session_info.show(dependencies=True)
