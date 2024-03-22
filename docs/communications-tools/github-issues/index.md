@@ -17,7 +17,7 @@ You can view all issues for the project here: <https://github.com/AlexsLemonade/
  
 ## Writing issues
 
-For more information about writing issues and using issue templates, see our documentation on [Writing issues](STUB_LINK).
+For more information about writing issues and using issue templates, see our documentation on [Writing GitHub Issues](writing-issues.md).
 
 ## When to use issues
 
