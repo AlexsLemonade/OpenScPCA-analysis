@@ -40,7 +40,7 @@ To turn on the pre-commit hooks for the OpenScPCA repository, you will need to r
 We recommend launching [a terminal window in GitKraken](../../software-platforms/general-tools/using-the-terminal.md#how-do-you-access-the-terminal) to do this.
 
 1. Open a terminal window and navigate to the `OpenScPCA` repository.
-    - Remember, if you open the terminal within GitKraken, you're automatically in the repository - no extra naviation steps needed!
+    - Remember, if you open the terminal within GitKraken, you're automatically in the repository - no extra navigation steps needed!
 
 
 1. Type this command in the terminal prompt, and hit enter:

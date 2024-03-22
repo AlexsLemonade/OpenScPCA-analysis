@@ -84,10 +84,10 @@ This will open a terminal prompt inside GitKraken where you can type your comman
 #### RStudio
 
 You can access RStudio's integrated terminal by clicking on the `Terminal` tab in the Console.
-Learn more about using the integrated terminal [from Posit's docmentation](https://support.posit.co/hc/en-us/articles/115010737148-Using-the-RStudio-Terminal-in-the-RStudio-IDE).
+Learn more about using the integrated terminal [from Posit's documentation](https://support.posit.co/hc/en-us/articles/115010737148-Using-the-RStudio-Terminal-in-the-RStudio-IDE).
 
 ??? "Working on Windows with WSL?"
-    If you are working on a Windows computer with WSL, you will access this terminal from the [RStudio Server](STUB_LINK rstudio server instructions) you launch in your browser.
+    If you are working on a Windows computer with WSL, you will access this terminal from the [RStudio Server](STUB_LINK RStudio server instructions) you launch in your browser.
 
 #### Visual Studio Code (VS Code)
 
