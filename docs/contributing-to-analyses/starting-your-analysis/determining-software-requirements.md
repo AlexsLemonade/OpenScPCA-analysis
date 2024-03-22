@@ -216,7 +216,7 @@ Then, you can use the following to write the output of `session_info.show()` to 
 ```python
 session_info_path = "session_info.txt"
 
-with session_info_path.open("w") as f:
+with open(session_into_path, "w") as f:
     with contextlib.redirect_stdout(f):  # direct the session_info output to a file
         session_info.show(dependencies=True)
 ```
