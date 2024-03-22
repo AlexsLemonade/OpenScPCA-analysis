@@ -97,11 +97,10 @@ Learn more about using the integrated terminal [from Posit's documentation](http
 ??? "Working on Windows with WSL?"
     If you are working on a Windows computer with WSL, you should also [install the WSL extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl) to be able to open files and run code within WSL.
     Learn more about [working with VS code from WSL from this documentation](https://code.visualstudio.com/docs/remote/wsl-tutorial).
-
+    <!--
     The terminal in VS Code will launch as either the Windows PowerShell or bash (Ubuntu) depending on what files you open in VS Code:
-
     - If you open files on the Windows side of your system, the terminal will be Windows PowerShell.
     - If you open files on the WSL side of your system, the terminal will be bash (Ubuntu).
-
     To launch VS Code on the WSL side, type the command [`code`](https://code.visualstudio.com/docs/editor/command-line) in Ubuntu in the directory you want to open.
     The first time you run this command, the VS Code `code` helper will install; then, you can use it to launch VS Code.
+    -->
