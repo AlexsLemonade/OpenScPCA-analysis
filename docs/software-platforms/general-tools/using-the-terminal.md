@@ -56,12 +56,9 @@ Or, you can launch the terminal application directly, as explained below for dif
 ### Accessing the terminal on a Mac
 
 The macOS Terminal application is stored in `Applications -> Utilities`.
-
-<figure markdown="span">
-    ![Open the terminal in macOS.](../../img/launch-terminal-mac.png){width="600"}
-</figure>
-
 Double-click this application to open the terminal.
+
+Note that [Apple provides some additional instructions](https://support.apple.com/guide/terminal/open-or-quit-terminal-apd5265185d-f365-44cb-8b09-71a064a42125/mac) for opening the terminal too.
 (PS: You can also change the look of the terminal by [customizing your terminal profile](https://support.apple.com/guide/terminal/profiles-change-terminal-windows-trml107/mac).)
 
 
