@@ -1,4 +1,4 @@
-# Writing GitHub Issues
+# Writing GitHub issues
 
 ## Creating a new issue
 
