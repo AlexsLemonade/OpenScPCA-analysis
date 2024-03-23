@@ -1,5 +1,12 @@
 # Writing GitHub Issues
 
+## Creating a new issue
+
+To create a new issue, follow these instructions from GitHub: <https://docs.github.com/en/issues/tracking-your-work-with-issues/creating-an-issue#creating-an-issue-from-a-repository>
+
+You will be prompted with a selection of issues from our issue templates.
+See our documentation on [Issue Templates](issue-templates.md) for more about how to use the templates.
+
 ## Markdown
 
 [GitHub Issues are written in Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/about-writing-and-formatting-on-github), a plain text language for formatting documents.
