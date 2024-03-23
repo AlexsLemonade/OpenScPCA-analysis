@@ -14,7 +14,7 @@ You can view all issues for the project here: <https://github.com/AlexsLemonade/
 
 !!! note "Learn more about GitHub Issues"
     For more information about GitHub Issues, see [GitHub's documentation about issues](https://docs.github.com/en/issues/tracking-your-work-with-issues/about-issues)
- 
+
 ## Writing issues
 
 For more information about writing issues and using issue templates, see our documentation on [Writing GitHub Issues](writing-issues.md).
@@ -42,5 +42,3 @@ Here are some examples of when not to use issues:
 * Get help troubleshooting your local setup ([File a discussion instead](../index.md#ask-questions))
 
 See the [Tools for Communication documentation](../index.md) for a full discussion of how we use different communication tools within the project.
-
-
