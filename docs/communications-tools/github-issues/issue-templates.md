@@ -1,4 +1,4 @@
-# Issue Templates
+# Issue templates
 
 We use issue templates to prompt issue authors to include information that helps us accomplish the work tracked in that issue.
 Put another way, we have created templates that help us write [good issues](what-makes-a-good-issue.md).
@@ -7,9 +7,9 @@ Put another way, we have created templates that help us write [good issues](what
 
 When you create a new issue, you will be prompted to select what kind of issue you would like to file.
 
-    <figure markdown="span">
-      ![new issue template selection](../../img/new-issue-template-selection.png){width="600"}
-    </figure>
+<figure markdown="span">
+  ![new issue template selection](../../img/new-issue-template-selection.png){width="600"}
+</figure>
 
 The first five entries accompanied with a green `Getting Started` button are the issue templates.
 Below, we describe what the options are and how we use them in the project.
