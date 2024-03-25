@@ -5,37 +5,15 @@ on:
      - main
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * 1" # every Monday at midnight
+    - cron: "0 0 1 * *" # first of every month at midnight
 
-# From https://medium.com/@VeselyCodes/bi-weekly-github-actions-7bea6be7bd96
-env:
-  # The date of the first run of the action.
-  FIRST_RUN_DATE: 2024-03-25
 
 concurrency:
   # only one run per branch at a time
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-jobs:
-  weekindex:
-    if: ${{ github.event_name == 'schedule' }}
-    runs-on: ubuntu-latest
-    outputs:
-      weekindex: ${{ steps.calculate.outputs.weekindex }}
-    steps:
-      - name: Calculate weekdiff
-        id: calculate
-        run: |
-          current_date=$(date +%Y-%m-%d)
-          start=$(date -d ${{ env.FIRST_RUN_DATE }} +%s)
-          end=$(date -d $current_date +%s)
-          weekdiff=$(((end-start) / 60 / 60 / 24 / 7))
-          weekindex=$((weekdiff % 4))  ##################### We want to run every 4 weeks!
-          echo "weekindex=$weekindex" >> "$GITHUB_OUTPUT"
-
   spellcheck:
-    if: ${{ needs.weekindex.outputs.weekindex == 0 || github.event_name != 'schedule' }}
     runs-on: ubuntu-latest
     name: Spell check files
     permissions:
@@ -59,26 +37,26 @@ jobs:
           name: spell_check_errors
           path: spell_check_errors.tsv
 
-#      # Uncomment this job at OpenScPCA Launch
-#      - name: Post issue with spellcheck results
-#        id: spellissue
-#        uses: peter-evans/create-issue-from-file@v5
-#        with:
-#          title: Monthly spellcheck results
-#          content-filepath: .github/cron-issue-templates/spellcheck-issue-template.md
-#          labels: |
-#            OpenScPCA admin
-#            spelling
-#
-#      # Uncomment this job at OpenScPCA Launch
-#      - name: Comment artifact on issue
-#        uses: peter-evans/create-or-update-comment@v4
-#        with:
-#          issue-number: ${{ steps.spellissue.outputs.issue-number }}
-#          body: |
-#            The spellchecker found **${{ steps.spell.outputs.error_count }} errors**.
-#
-#            [Click to download the spelling errors TSV.](${{ steps.artifact-upload-step.outputs.artifact-url }})
+      - name: Post issue with spellcheck results
+        if: ${{ github.event_name == 'schedule' }}
+        id: spellissue
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: Monthly spellcheck results
+          content-filepath: .github/cron-issue-templates/spellcheck-issue-template.md
+          labels: |
+            OpenScPCA admin
+            spelling
+
+      - name: Comment artifact on issue
+        if: ${{ github.event_name == 'schedule' }}
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ steps.spellissue.outputs.issue-number }}
+          body: |
+            The spellchecker found **${{ steps.spell.outputs.error_count }} errors**.
+
+            [Click to download the spelling errors TSV.](${{ steps.artifact-upload-step.outputs.artifact-url }})
 
 
       - name: Fail if there are spelling errors
