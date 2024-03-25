@@ -2,7 +2,7 @@
 
 OpenScPCA organizes individual analyses into [analysis modules](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses).
 Each analysis module is a folder with files containing all code, computing environment specifications, and documentation needed to run and interpret an analysis.
-For example, an analysis to perform cell type annotation on Ewing sarcoma samples would be a single analysis module named, and it might be named `celltype-ewings-sarcoma`.
+For example, an analysis to perform cell type annotation on Ewing sarcoma samples would be a single analysis module, and it might be named `celltype-ewings-sarcoma`.
 
 This section explains the structure of analysis modules.
 
