@@ -81,6 +81,7 @@ nav:
       - contributing-to-analyses/creating-pull-requests/index.md
       - contributing-to-analyses/creating-pull-requests/scoping-pull-requests.md
       - contributing-to-analyses/creating-pull-requests/pull-request-template.md
+      - contributing-to-analyses/creating-pull-requests/resolve-merge-conflicts.md
       - contributing-to-analyses/creating-pull-requests/file-pull-request.md
   - Software platforms:            # LSfR, AWS, Docker, etc
     - software-platforms/index.md
