@@ -198,14 +198,8 @@ simulate_sce <- function(sce, ncells, library_metadata, processed) {
   # Add any altExps ------------------------------------------------------------
   altExpNames(sce_sim) |> purrr::walk(\(name) {
     alt_sce <- altExp(sce_sim, name)
-    alt_counts <- as.matrix(counts(alt_sce))
-    # zero count columns are not liked by splatter, so we remove them for the sim
-    sim_cols <- which(colSums(alt_counts) > 0)
-    alt_counts <- alt_counts[, sim_cols]
-    alt_params <- splatter::simpleEstimate(alt_counts)
-    sim_counts <- counts(splatter::simpleSimulate(alt_params, verbose = FALSE))
-    # add back, leaving zeros
-    counts(alt_sce, withDimnames = FALSE)[, sim_cols] <- sim_counts
+    sim_counts <- apply(counts(alt_sce), 1, sample) |> t() # Randomize each row
+    counts(alt_sce, withDimnames = FALSE) <- sim_counts
     if (processed) {
       logcounts(alt_sce, withDimnames = FALSE) <- log1p(counts(alt_sce))
     }
