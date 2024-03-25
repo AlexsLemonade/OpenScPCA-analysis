@@ -46,9 +46,8 @@ jobs:
           ERROR_COUNT: ${{ steps.spell.outputs.error_count }}
           ARTIFACT_URL: ${{ steps.artifact-upload-step.outputs.artifact-url }}
         run: |
-          which sed
-          sed -i "s/{{ERROR_COUNT}}/${ERROR_COUNT}/"  .github/cron-issue-templates/spellcheck-issue-template.md
-          sed -i "s/{{ARTIFACT_URL}}/${ARTIFACT_URL}/"  .github/cron-issue-templates/spellcheck-issue-template.md
+          sed -i "s@{{ERROR_COUNT}}@${ERROR_COUNT}@"  .github/cron-issue-templates/spellcheck-issue-template.md
+          sed -i "s@{{ARTIFACT_URL}}@${ARTIFACT_URL}@"  .github/cron-issue-templates/spellcheck-issue-template.md
 
 
       - name: Post issue with spellcheck results
