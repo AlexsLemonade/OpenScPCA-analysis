@@ -2,9 +2,9 @@ This issue tracks fixing typos identified by scheduled spellcheck workflow.
 
 ## Spelling errors
 
-Spellcheck found **ERROR_COUNT errors**.
+Spellcheck found **{{ERROR_COUNT}} errors**.
 
-[Click here to download the errors TSV](ARTICAL_URL).
+[Click here to download the errors TSV]({{ARTIFACT_URL}}).
 
 ## Issue checklist
 
