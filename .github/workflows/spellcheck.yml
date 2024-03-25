@@ -39,7 +39,7 @@ concurrency:
 
 
       - name: Update template
-        if: ${{ github.event_name != 'pull_request' && steps.spell.outputs.error_count > 0 }}
+        if: ${{ github.event_name == 'pull_request' && steps.spell.outputs.error_count > 0 }}
         env:
           ERROR_COUNT: ${{ steps.spell.outputs.error_count }}
           ARTIFACT_URL: ${{ steps.artifact-upload-step.outputs.artifact-url }}
@@ -49,7 +49,7 @@ concurrency:
 
 
       - name: Post issue with spellcheck results
-        if: ${{ github.event_name != 'pull_request' && steps.spell.outputs.error_count > 0 }}
+        if: ${{ github.event_name == 'pull_request' && steps.spell.outputs.error_count > 0 }}
         id: spellissue
         uses: peter-evans/create-issue-from-file@v5
         with:
