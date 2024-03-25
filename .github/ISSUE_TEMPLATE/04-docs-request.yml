@@ -1,5 +1,5 @@
 name: Request additional documentation
-description: Use this issue template to request additional or expanded project documentation
+description: Use this template to request additional or expanded project documentation
 title: 'Docs request:'
 labels: docs-request
 body:
