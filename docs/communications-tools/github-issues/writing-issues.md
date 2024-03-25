@@ -36,8 +36,8 @@ You can read more about referencing issues and pull requests, included advanced 
 ## Labels
 
 You can use issue labels to help you filter existing issues.
-See [GitHub's documentation on filtering issues and pull requests by labels](https://docs.github.com/en/issues/tracking-your-work-with-issues/filtering-and-searching-issues-and-pull-requests#filtering-issues-and-pull-requests-by-labels) for more information
+See [GitHub's documentation on filtering issues and pull requests by labels](https://docs.github.com/en/issues/tracking-your-work-with-issues/filtering-and-searching-issues-and-pull-requests#filtering-issues-and-pull-requests-by-labels) for more information.
 
 !!! note "Applying labels"
     You will not have permissions to apply labels to issues yourself.
-    Please mention a Data Lab team member to ask for a label to be applied to an issue you've created.
+    Please [mention](#using-mentions) a Data Lab team member to ask for a label to be applied to an issue you've created.

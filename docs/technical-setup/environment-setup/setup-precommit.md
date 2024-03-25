@@ -37,17 +37,11 @@ We have set up some pre-commit hooks to manage basic code security and catch oth
 During [conda setup](./setup-conda.md/#set-up-conda), you should have installed the `pre-commit` software into your base environment.
 
 To turn on the pre-commit hooks for the OpenScPCA repository, you will need to run the command `pre-commit install` from a terminal window inside the repository.
-Please follow these steps to do this:
+We recommend launching [a terminal window in GitKraken](../../software-platforms/general-tools/using-the-terminal.md#how-do-you-access-the-terminal) to do this.
 
-1. Open your forked copy of the `OpenScPCA` repository in GitKraken.
+1. Open a terminal window and navigate to the `OpenScPCA` repository.
+    - Remember, if you open the terminal within GitKraken, you're automatically in the repository - no extra navigation steps needed!
 
-
-1. Click the `Terminal` button at the top of GitKraken.
-This will open a terminal prompt inside of GitKraken where you can issue command-line commands. <!-- TODO: Note this in case we need it for windows setup: https://help.gitkraken.com/gitkraken-client/terminal/#setting-the-default-terminal-on-windows. Also: https://help.gitkraken.com/gitkraken-client/windows-subsystem-for-linux/ -->
-
-    <figure markdown="span">
-        ![Open the terminal in GitKraken.](../../img/gitkraken-terminal-button.png){width="600"}
-    </figure>
 
 1. Type this command in the terminal prompt, and hit enter:
 
@@ -55,7 +49,7 @@ This will open a terminal prompt inside of GitKraken where you can issue command
     pre-commit install
     ```
 
-1. Terminal should then return this output message showing that you successfully set up your pre-commit hooks:
+1. The terminal should then return this output message showing that you successfully set up your pre-commit hooks:
 
     ```
     pre-commit installed at .git/hooks/pre-commit

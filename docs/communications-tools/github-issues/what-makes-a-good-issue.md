@@ -8,9 +8,9 @@ Good issues include the following:
 - A title that is informative about the contents of the issue at a glance
 - A relatively small and focused scope, such that [the pull request that closes them is appropriate in scope](../../contributing-to-analyses/creating-pull-requests/scoping-pull-requests.md)
 - Ideas about how to accomplish a segment of work
-- Enough context
-  - For someone other than the author to accomplish the work
-  - To set up [pull request reviewers for success](STUB_LINK review process, probably)
+- Enough context...
+    - For someone other than the issue author to accomplish the work
+    - To set up [pull request reviewers for success](STUB_LINK review process, probably)
 - The requirements for satisfying or closing the issue (when known)
 
 <!-- Good and bad issues examples could go here -->
