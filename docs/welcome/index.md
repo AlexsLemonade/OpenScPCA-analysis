@@ -13,6 +13,8 @@ This project aims to
 
 - Build consensus around usage, strengths, and pitfalls of methods. 
 
+Whether you are a disease expert, a seasoned computational biologist or looking to hone your data analysis skills, you can contribute to OpenScPCA!
+
 
 ## How it works
 
