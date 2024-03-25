@@ -35,7 +35,7 @@ If you know the following, please include it in your issue when prompted:
 
 ### Update an analysis
 
-**Select Update an analysis when you are ready to make additions or updates to your module.**
+**Select _Update an analysis_ when you are ready to make additions or updates to your module.**
 If you're brand new to working on a module, please [start by filing a Discussion instead](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=modify-an-existing-analysis).
 
 Have the following ready when you file:
@@ -52,7 +52,7 @@ If you have or know the following, please include it in your issue when prompted
 
 ### Report a bug
 
-**Select Report a bug when you need to report a bug or problem with the codebase.**
+**Select _Report a bug_ when you need to report a bug or problem with the codebase.**
 If you are experiencing a different kind of problem, like trouble getting your local computer set up, please [file a Discussion instead](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=troubleshooting).
 
 Have the following ready when you file:
@@ -67,7 +67,7 @@ If you have the following, please include it in your issue when prompted:
 
 ### Request additional documentation
 
-**Select Request additional documentation when you what to request additional or expanded documentation.**
+**Select _Request additional documentation_ when you want to request additional or expanded documentation.**
 
 Have the following ready when you file:
 
@@ -84,7 +84,7 @@ If you have the following, please include it in your issue when prompted:
     We don't expect you to use this issue template.
     Only Data Lab staff should use this template.
 
-Use this issue template to track creating a semantically-versioned release associated with a project milestone.
+Use this issue template to track the creation of a semantically-versioned release associated with a project milestone.
 
 ### Opening a blank issue
 
