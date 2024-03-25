@@ -1,11 +1,17 @@
 # Welcome to OpenScPCA
 
 OpenScPCA is an open, collaborative project to analyze data from the Single-cell Pediatric Cancer Atlas (ScPCA) Portal, which currently holds 500 samples from over 50 pediatric cancer types. 
-This project aims to characterize the ScPCA data by:
 
-- Labeling cell types
-- Completing descriptive analyses
-- Identifying recurrent cell states in multiple tumor types
+This project aims to 
+
+- Characterize the ScPCA data with analyses like:
+    - Labeling cell types
+    - Completing descriptive analyses
+    - Identifying recurrent cell states in multiple tumor types
+
+- Refine approaches in the open.
+
+- Build consensus around usage, strengths, and pitfalls of methods. 
 
 
 ## How it works
