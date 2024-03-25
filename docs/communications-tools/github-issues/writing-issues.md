@@ -5,7 +5,7 @@
 To create a new issue, follow these instructions from GitHub: <https://docs.github.com/en/issues/tracking-your-work-with-issues/creating-an-issue#creating-an-issue-from-a-repository>
 
 You will be prompted with a selection of issues from our issue templates.
-See our documentation on [Issue Templates](issue-templates.md) for more about how to use the templates.
+See our documentation on [OpenScPCA Issue Templates](issue-templates.md) for more about how to use the templates.
 
 ## Markdown
 

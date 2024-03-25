@@ -18,7 +18,7 @@ Below, we describe what the options are and how we use them in the project.
 
 ### Start an analysis
 
-**Select Start an analysis when you are ready to create an analysis module.**
+**Select _Start an analysis_ when you are ready to create an analysis module.**
 You should file this only after you've discussed an analysis on GitHub Discussions.
 
 Have the following information ready when you file:
@@ -36,7 +36,7 @@ If you know the following, please include it in your issue when prompted:
 ### Update an analysis
 
 **Select Update an analysis when you are ready to make additions or updates to your module.**
-If you're brand new to working on a module, please [start by filing a discussion instead](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=modify-an-existing-analysis).
+If you're brand new to working on a module, please [start by filing a Discussion instead](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=modify-an-existing-analysis).
 
 Have the following ready when you file:
 
@@ -47,13 +47,13 @@ If you have or know the following, please include it in your issue when prompted
 
 - Any additional software requirements
 - Any additional compute requirements
-- A link to a relevant GitHub discussions thread
+- A link to a relevant GitHub Discussions thread
 - When you expect to file the pull request that will close the issue
 
 ### Report a bug
 
 **Select Report a bug when you need to report a bug or problem with the codebase.**
-If you are experiencing a different kind of problem, like trouble getting your local computer set up, please [file a discussion instead](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=troubleshooting).
+If you are experiencing a different kind of problem, like trouble getting your local computer set up, please [file a Discussion instead](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=troubleshooting).
 
 Have the following ready when you file:
 
@@ -81,7 +81,8 @@ If you have the following, please include it in your issue when prompted:
 
 !!! note
 
-    We don't expect contributors that are not Data Lab staff to use this issue template.
+    We don't expect you to use this issue template.
+    Only Data Lab staff should use this template.
 
 Use this issue template to track creating a semantically-versioned release associated with a project milestone.
 
