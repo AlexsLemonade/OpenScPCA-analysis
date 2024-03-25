@@ -1,8 +1,10 @@
-This issue tracks the results from running the scheduled spellcheck workflow.
-This issue is filed whether there are errors or not.
-Please see the issue comment for specific errors.
+This issue tracks fixing typos identified by scheduled spellcheck workflow.
 
-If there are no errors, this issue can be closed.
+## Spelling errors
+
+Spellcheck found **ERROR_COUNT errors**.
+
+[Click here to download the errors TSV](ARTICAL_URL).
 
 ## Issue checklist
 
