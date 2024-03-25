@@ -27,3 +27,10 @@
     --md-footer-fg-color--light: hsla(0, 0%, 100%, 0.7);
     --md-footer-fg-color--lighter: hsla(0, 0%, 100%, 0.3);
   }
+
+  .md-header__button.md-logo img {
+    fill: currentcolor;
+    /*display: block;*/
+    height: 2.5rem;
+    width: auto;
+  }
