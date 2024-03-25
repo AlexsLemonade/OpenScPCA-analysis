@@ -101,6 +101,6 @@ Get started by filling out the interest form below. You will receive an email re
     
     Create a local setup and explore how analysis modules are structured, and play with some simulated data or data from the portal.
     
-    [Explore an example module](#STUB)
+    [Explore an example module](STUB_LINK)
 
 </div>
