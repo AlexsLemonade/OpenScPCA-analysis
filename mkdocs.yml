@@ -15,7 +15,7 @@ theme:
     - navigation.tabs        # persistent navbar on the top
     - navigation.tabs.sticky # sticky navbar
     - navigation.indexes     # allow index pages to serve as overview pages for sections
-    - navigation.expand      # collapsible sections are expanded by default
+    - navigation.sections    # bold headers for directories
 
 plugins:
   - search  # search bar
@@ -53,21 +53,38 @@ nav:
     - welcome/index.md
   - Technical setup:           # Fork/clone, local environment setup
     - technical-setup/index.md
-    - technical-setup/install-a-github-client.md
+    - technical-setup/install-a-git-client.md
     - technical-setup/fork-the-repo.md
     - technical-setup/clone-the-repo.md
     - Environment setup:
       - technical-setup/environment-setup/index.md
       - technical-setup/environment-setup/setup-conda.md
+      - technical-setup/environment-setup/setup-precommit.md
       - technical-setup/environment-setup/install-r-rstudio.md
   - Tools for communication:   # Slack, issues, discussions
-    - communications-tools/tools-for-communication.md
+    - communications-tools/index.md
+    - GitHub Issues:
+      - communications-tools/github-issues/index.md
+      - communications-tools/github-issues/what-are-github-issues-and-how-do-we-use-them.md
   - Contributing to analyses:  # Setting up an analysis, all the git stuff
     - contributing-to-analyses/index.md
-    - Doing an analysis:
-      - contributing-to-analyses/doing-analyses/index.md
-      - Working with Git: # Creating branches, adding commits, all git interactions
-        - contributing-to-analyses/doing-analyses/working-with-git/index.md
+    - Analysis modules:
+      - contributing-to-analyses/analysis-modules/index.md
+    - Starting your analysis:
+      - contributing-to-analyses/starting-your-analysis/index.md
+      - contributing-to-analyses/starting-your-analysis/determining-software-requirements.md
+      - contributing-to-analyses/starting-your-analysis/determining-compute-requirements.md
+    - Working with Git: # Creating branches, adding commits, all git interactions
+      - contributing-to-analyses/working-with-git/working-with-branches.md
+      - contributing-to-analyses/working-with-git/staying-in-sync-with-upstream.md
+      - contributing-to-analyses/working-with-git/making-commits.md
+      - contributing-to-analyses/working-with-git/troubleshooting-commits.md
+      - contributing-to-analyses/working-with-git/push-to-origin.md
+    - Creating pull requests:
+      - contributing-to-analyses/creating-pull-requests/index.md
+      - contributing-to-analyses/creating-pull-requests/scoping-pull-requests.md
+      - contributing-to-analyses/creating-pull-requests/pull-request-template.md
+      - contributing-to-analyses/creating-pull-requests/file-pull-request.md
   - Software platforms:            # LSfR, AWS, Docker, etc
     - software-platforms/index.md
   - Getting Help and FAQ:      # troubleshooting and FAQ

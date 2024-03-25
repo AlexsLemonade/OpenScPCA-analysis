@@ -1,0 +1,70 @@
+name: Update an analysis
+description: Use this template to track the any additions or updates to an existing analysis module
+labels: analysis
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **This issue form should be used when you are adding to or updating an existing analysis module.**
+
+        You should use this issue form if:
+
+        - You are adding to an existing analysis module that you are actively working on
+        - You are proposing an update to existing analysis module
+
+        If you have not already had a Discussion about contributing to this analysis module, please instead post to GitHub Discussions:
+        - [Use this Discussion template](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=modify-an-existing-analysis) to propose to modify an existing analysis
+        - Are you the original module author seeking more feedback? Feel free to post an update to your original GitHub Discussions post
+
+  - type: textarea
+    attributes:
+      label: If you are filing this issue based on a specific GitHub Discussion, please link to the relevant Discussion.
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: Describe the goals of the changes to the analysis module.
+      description: |
+        Summarize the proposed changes' overall goals, including how they relate to the analysis module's overall scientific goals.
+        Tell us about what the code you plan to add or revise will do.
+        This will help guide code review when you file your pull request(s).
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: What will your pull request contain?
+      description: |
+        Tell us what code and documentation to expect in the pull request to update the module.
+        Remember [that smaller, more focused pull requests get through review faster](STUB_LINK docs on PRs).
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Will you require additional software beyond what is already in the analysis module?
+      description: |
+        Tell us about any new programming language(s) you will use and any new required packages (if known).
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: Will you require different computational resources beyond what the analysis module already uses?
+      description: |
+        Please provide any information about any different computational resources requirements for the module.
+        This will help us prepare or allocate resources for your analysis.
+        For example:
+
+        - Does this analysis require a GPU?
+        - Is a certain amount of memory required?
+        - Can this be accomplished on a laptop?
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: If known, when do you expect to file the pull request?
+    validations:
+      required: false

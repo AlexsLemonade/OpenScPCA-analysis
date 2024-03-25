@@ -114,9 +114,9 @@ def main() -> None:
         help="The AWS profile to use for the download. Uses the current default profile if undefined.",
     )
     parser.add_argument(
-        "--quiet",
+        "--anonymous",
         action="store_true",
-        help="Suppress output except errors.",
+        help="Download the data anonymously, without using AWS credentials. Only works if the bucket is public.",
     )
 
     args = parser.parse_args()
@@ -168,6 +168,8 @@ def main() -> None:
     ls_cmd = ["aws", "s3", "ls", f"s3://{args.bucket}/"]
     if args.profile:
         ls_cmd += ["--profile", args.profile]
+    if args.anonymous:
+        ls_cmd += ["--no-sign-request"]
     ls_result = subprocess.run(ls_cmd, capture_output=True, text=True)
     if ls_result.returncode:
         print(
@@ -177,8 +179,8 @@ def main() -> None:
         )
         print(ls_result.stderr, file=sys.stderr)
         sys.exit(1)
-    # get only date-based versions and remove the trailing slash
-    date_re = re.compile(r"(\d{4}-\d{2}-\d{2})/?")
+    # get only date-based versions or "test" and remove the trailing slash
+    date_re = re.compile(r"((\d{4}-\d{2}-\d{2})|(test))/?")
     releases = [
         m.group(1)
         for m in (date_re.search(line) for line in ls_result.stdout.splitlines())
@@ -213,12 +215,13 @@ def main() -> None:
         f"s3://{args.bucket}/{release}/",
         f"{args.data_dir}/{release}/",
         "--exact-timestamps",  # replace if a file has changed at all
+        "--no-progress",  # don't show progress animations
         "--exclude",
         "*",  # exclude everything by default
     ]
 
-    # Always include json files
-    patterns = ["*.json"]
+    # Always include json and tsv metadata files
+    patterns = ["*.json", "*.tsv"]
 
     if args.include_reports:
         patterns += ["*.html"]
@@ -251,21 +254,20 @@ def main() -> None:
     if args.dryrun:
         sync_cmd += ["--dryrun"]
 
-    if args.quiet:
-        sync_cmd += ["--only-show-errors"]
-
     if args.profile:
         sync_cmd += ["--profile", args.profile]
+
+    if args.anonymous:
+        sync_cmd += ["--no-sign-request"]
 
     subprocess.run(sync_cmd, check=True)
 
     ### Print summary messages ###
-    if not args.quiet:
-        print("\n\n\033[1mDownload Summary\033[0m")  # bold
-        print("Release:", release)
-        print("Data Format:", ", ".join(formats))
-        print("Processing levels:", ", ".join(includes))
-        print("Downloaded data to:", args.data_dir / release)
+    print("\n\n\033[1mDownload Summary\033[0m")  # bold
+    print("Release:", release)
+    print("Data Format:", ", ".join(formats))
+    print("Processing levels:", ", ".join(includes))
+    print("Downloaded data to:", args.data_dir / release)
 
     ### Update current link to point to the new data release ###
     # only do this if the specified release is "current" or "latest", not for specific dates
@@ -274,8 +276,7 @@ def main() -> None:
         current_symlink = args.data_dir / "current"
         current_symlink.unlink(missing_ok=True)
         current_symlink.symlink_to(args.data_dir / release)
-        if not args.quiet:
-            print(f"Updated 'current' symlink to point to '{release}'.")
+        print(f"Updated 'current' symlink to point to '{release}'.")
 
 
 if __name__ == "__main__":

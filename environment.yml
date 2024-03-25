@@ -6,5 +6,6 @@ channels:
 dependencies:
   - python=3.11
   - awscli=2.15
+  - conda-lock=2.5
   - jq=1.7
   - pre-commit=3.6

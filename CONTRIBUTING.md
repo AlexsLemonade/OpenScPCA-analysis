@@ -6,6 +6,7 @@
   - [Creating and activating the base OpenScPCA environment](#creating-and-activating-the-base-openscpca-environment)
   - [Module-specific environments](#module-specific-environments)
   - [Adding software to the environment and tracking installed software](#adding-software-to-the-environment-and-tracking-installed-software)
+  - [Updating `conda-lock.yml`](#updating-conda-lockyml)
   - [Finding available software](#finding-available-software)
     - [Note for ARM (Apple Silicon) computers](#note-for-arm-apple-silicon-computers)
 - [Setting up pre-commit](#setting-up-pre-commit)
@@ -70,10 +71,10 @@ conda create --file environment.yml --name openscpca-{module_name}
 conda activate openscpca-{module_name}
 ```
 
-If you are working with a pre-existing module that already has an  `environment.yaml` file, you can create and activate the environment from that file by running the following commands:
+If you are working with a pre-existing module that already has an  `conda-lock.yml` file, you can create and activate the environment from that file by running the following commands:
 
 ```bash
-conda env create --file analyses/{module_name}/environment.yml --name openscpca-{module_name}
+conda-lock install --name openscpca-{module_name} analyses/{module_name}/conda-lock.yml
 conda activate openscpca-{module_name}
 ```
 
@@ -87,10 +88,40 @@ For example, to install the `pandas` package and record it in the `environment.y
 cd analyses/{module_name}
 conda activate openscpca-{module_name}
 conda install pandas
-conda env export --no-builds | grep -v "^prefix:" > environment.yml
 ```
 
-(The `grep` command in the final line is there to remove user-specific paths that `conda` includes in its export.)
+You should then add the newly installed module to the module's `environment.yml` file.
+First check which version was installed, either by looking at the output from the install command, or by running a command like the following:
+
+```bash
+conda list pandas
+```
+
+Then add the module to the `dependencies` section of the `environment.yml` file with a version number, as shown below:
+
+```yaml
+  - pandas=2.2.1
+```
+
+
+### Updating `conda-lock.yml`
+
+Before submitting a pull request, you should also update the `conda-lock.yml` file in the module directory.
+
+To do this, run the following command from the module directory:
+
+```bash
+conda-lock --file environment.yml
+```
+
+To be sure that this exactly matches your environment, it is a good idea to follow locking the environment with:
+
+```bash
+conda-lock install --name openscpca-{module_name} conda-lock.yml
+conda activate openscpca-{module_name}
+```
+
+
 
 ### Finding available software
 
@@ -170,7 +201,7 @@ Note that these tools will often directly modify your files when run.
 If they are run as a pre-commit hook the initial commit will fail, and you will then need to check and stage the changes that were made by the tool before re-trying the commit.
 
 
-Some formatters that we recommend are [`ruff-format`](https://docs.astral.sh/ruff/formatter/) for Python and the [`style-files` hook from the precommit package](https://lorenzwalthert.github.io/precommit/articles/available-hooks.html#style-files) for R.
+Some formatters that we recommend are [`ruff-format`](https://docs.astral.sh/ruff/formatter/) for Python and the [`style-files` hook from the `precommit` package](https://lorenzwalthert.github.io/precommit/articles/available-hooks.html#style-files) for R.
 You can add those with the following code added to the `.pre-commit-config.yaml` file in the `repos:` section:
 
 ```yaml
@@ -222,7 +253,7 @@ Just note that the more hooks you add, the longer each commit to your repository
 To facilitate creating new analysis modules with recommended file structure and documentation, we have provided a script, `create-analysis-module.py`, that you can use to create a new module.
 This script will create a new directory within the `analyses` directory for the new module and populate it with a recommended file structure and some template files.
 
-If you plan to use `conda` or `renv` for package management, you can also use the script to create a conda environment file or initialize an renv project.
+If you plan to use `conda` or `renv` for package management, you can also use the script to create a conda environment file or initialize an `renv` project.
 To use the script, run one of the following commands in the root directory of the repository:
 
 ```bash
@@ -244,5 +275,4 @@ conda activate openscpca-{module_name}
 
 See the [Conda environment setup](#conda-environment-setup) section for more information on managing conda environments.
 
-If you have created a module with an renv environment, that environment will automatically be activated when you open `R` in the module directory.
-
+If you have created a module with an `renv` environment, that environment will automatically be activated when you open `R` in the module directory.
