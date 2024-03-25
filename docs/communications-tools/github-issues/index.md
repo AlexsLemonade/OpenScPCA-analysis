@@ -2,7 +2,7 @@
 
 ## What are GitHub Issues, and how do we use them?
 
-[GitHub issues](https://docs.github.com/en/issues/tracking-your-work-with-issues/about-issues) are a feature of GitHub that we use to track work associated with the project.
+[GitHub issues](https://docs.github.com/en/issues/tracking-your-work-with-issues/about-issues) are a GitHub feature that we use to track work associated with the project.
 
 Issues allow project maintainers and contributors to describe to one another how segments of work will be accomplished.
 
@@ -37,8 +37,8 @@ Use issues to do the following:
 
 Here are some examples of when not to use issues:
 
-* To propose a new analysis or modification to an existing analysis ([File a discussion instead](../index.md#propose-a-new-analysis-or-a-modification-to-an-existing-analysis))
+* To propose a new analysis or a modification to an existing analysis ([File a discussion instead](../index.md#propose-a-new-analysis-or-a-modification-to-an-existing-analysis))
 * To report a security vulnerability ([Report it via email instead](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/SECURITY.md))
-* Get help troubleshooting your local setup ([File a discussion instead](../index.md#ask-questions))
+* To get help troubleshooting your local setup ([File a discussion instead](../index.md#ask-questions))
 
 See the [Tools for Communication documentation](../index.md) for a full discussion of how we use different communication tools within the project.
