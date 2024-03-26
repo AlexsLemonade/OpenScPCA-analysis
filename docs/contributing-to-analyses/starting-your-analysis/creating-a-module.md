@@ -2,7 +2,7 @@
 
 Once you have [discussed your proposed analysis](../../communications-tools/index.md#github-discussions) and [filed an issue to get started](../../communications-tools/index.md#github-issues), you're ready to create an analysis module.
 
-We have provided a python script [`create-analysis-module.py`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/create-analysis-module.py) you can use to make this process easier.
+We have provided a script [`create-analysis-module.py`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/create-analysis-module.py) you can use to make this process easier.
 Before you begin, please review [this documentation](../analysis-modules/index.md) for an overview of skeleton file structure of an analysis module.
 
 
@@ -52,7 +52,7 @@ To run this script, take these steps:
 We recommend using one of these flags when creating your module.
 Each flag will create a skeleton module with the given files and folders.
 
-Note that you can use both an R and a python flag if you want to write your module in both languages.
+Note that you can use both an R and a Python flag if you want to write your module in both languages.
 
 ### Flags to create an R module
 
@@ -64,7 +64,7 @@ You can use this flag as:
 
 ```bash
 # Create a module called `my-module-name` with an example R Markdown notebook
-python create-analysis-module.py my-module-name --use-r
+./create-analysis-module.py my-module-name --use-r
 ```
 
 This will create skeleton module called `my-module-name` with these files and folders:
@@ -104,13 +104,13 @@ You can use this flag as:
 
 ```bash
 # Create a module called `my-module-name` with an example R Markdown notebook and an `renv` environment
-python create-analysis-module.py my-module-name --use-renv
+./create-analysis-module.py my-module-name --use-renv
 ```
 
 This will create skeleton module called `my-module-name` with these files and folders:
 
 
-```markdown
+```
 ├── scripts
 │   └── ...
 ├── results
@@ -146,11 +146,11 @@ This will create skeleton module called `my-module-name` with these files and fo
 
 !!! info
     The `hello-python` example module was created with this flag.
-    Learn more about [using conda to manage your python environment](../starting-your-analysis/determining-software-requirements/#managing-software-dependencies-in-python-with-conda).
+    Learn more about [using conda to manage your Python environment](../starting-your-analysis/determining-software-requirements/#managing-software-dependencies-in-python-with-conda).
 
 - This flag will both:
     - Add a template Jupyter notebook to your module
-      - To instead add a template python script, use `--use-python`
+      - To instead add a template Python script, use `--use-python`
     - Initialize an conda environment for your module
       - The conda environment will be named `openscpca-<module name>`
       - For example, if you name your module `celltype-ewings`, its conda environment will be named `openscpca-celltype-ewings`
@@ -158,15 +158,15 @@ This will create skeleton module called `my-module-name` with these files and fo
 You can use this flag as:
 
 ```bash
-python create-analysis-module.py my-module-name --use-jupyter
+./create-analysis-module.py my-module-name --use-jupyter
 
-# Or, to create a python script instead of a Jupyter notebook:
-python create-analysis-module.py my-module-name --use-python
+# Or, to create a Python script instead of a Jupyter notebook:
+./create-analysis-module.py my-module-name --use-python
 ```
 
 This will create skeleton module called `my-module-name` with these files and folders:
 
-```markdown
+```
 ├── scripts
 │   └── ...
 ├── results
@@ -183,7 +183,7 @@ This will create skeleton module called `my-module-name` with these files and fo
 └── .dockerignore
 ```
 
-- You can use `notebook-template.ipynb` (or `script-template.py`) as a starting point for any Jupyter notebooks (or python scripts) you create while writing your analysis
+- You can use `notebook-template.ipynb` (or `script-template.py`) as a starting point for any Jupyter notebooks (or Python scripts) you create while writing your analysis
 - You can use the `environment.yml` file to add packages to your module's conda environment
 
 
@@ -195,13 +195,13 @@ This flag will initialize a conda environment for your module, but will not add 
 You can use this flag as:
 
 ```bash
-python create-analysis-module.py my-module-name --use-conda
+./create-analysis-module.py my-module-name --use-conda
 ```
 
 This will create skeleton module called `my-module-name` with these files and folders:
 
 
-```markdown
+```
 ├── scripts
 │   └── ...
 ├── results
