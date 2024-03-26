@@ -28,7 +28,7 @@ To run this script, take these steps:
     - You may wish to launch terminal [from GitKraken](../../software-platforms/general-tools/using-the-terminal.md#gitkraken) so that you are automatically placed in the repository.
 
 2. Make sure you are working in your `base` conda environment by running `conda activate base`.
-    - You need to be in your `base` environment because this script relies on some [conda packages you previously installled during setup](../../technical-setup/environment-setup/setup-conda.md#set-up-conda).
+    - You need to be in your `base` environment because this script relies on some [conda packages you previously installed during setup](../../technical-setup/environment-setup/setup-conda.md#set-up-conda).
 
 3. As needed, navigate using `cd` to your `OpenScPCA-analysis` fork.
 
@@ -76,7 +76,7 @@ This will create skeleton module called `my-module-name` with these files and fo
 │   └── README.md
 ├── plots
 │   └── ...
-├── scratch
+├── scratchIG
 │   └── ...
 ├── README.md
 ├── notebook-template.Rmd
@@ -135,7 +135,7 @@ This will create skeleton module called `my-module-name` with these files and fo
 - You can use `components/dependencies.R` to [pin R package dependencies that `renv` does not automatically capture](../starting-your-analysis/determining-software-requirements/#pinning-dependencies-that-are-not-captured-automatically)
 - These additional files and folders manage the `renv` environment, and you should not directly edit them:
     - `renv.lock`
-    - The `renv` folder. TODO: DO WE WANT TO ADD THIS INTO THE MODULE GITIGNORE?
+    - The `renv` folder. TODO: DO WE WANT TO ADD THIS INTO THE MODULE `.gitignore`?
     - `.Rprofile`
 
 
