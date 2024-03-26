@@ -9,16 +9,34 @@ exclude_docs: | # syntax: https://www.mkdocs.org/user-guide/configuration/#exclu
 
 theme:
   name: material
+  favicon: img/favicon.svg
+  logo: img/ccdlxalsf.svg
   features:
     - content.code.copy      # code copy button in code blocks
     - search.suggest         # displays in light gray how you might complete the word
     - navigation.tabs        # persistent navbar on the top
     - navigation.tabs.sticky # sticky navbar
-    - navigation.sections    # enables sections along the left side bar via nested directories in docs/
     - navigation.indexes     # allow index pages to serve as overview pages for sections
+    - navigation.sections    # bold headers for directories
 
 plugins:
   - search  # search bar
+
+markdown_extensions:
+  - admonition  # https://squidfunk.github.io/mkdocs-material/setup/extensions/python-markdown/#admonition
+  - attr_list   # https://github.com/squidfunk/mkdocs-material/blob/master/docs/setup/extensions/python-markdown.md#attribute-lists
+  - md_in_html  # https://squidfunk.github.io/mkdocs-material/setup/extensions/python-markdown/#markdown-in-html
+  - pymdownx.highlight:  # https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#configuration
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.details     # https://squidfunk.github.io/mkdocs-material/setup/extensions/python-markdown-extensions/#details
+
+extra_css:
+  - stylesheets/extra.css
 
 # Here is the basic structure of our navigation setup.
 #nav:
@@ -27,6 +45,7 @@ plugins:
 #    - section-path/markdown-1.md <!-- left sidebar will display H1 title from the markdown file itself -->
 #    - section-path/markdown-2.md
 #    - Subsection name: <!-- This title appears as bold item in left sidebar -->
+#      - section-path/subsection-path/index.md <!-- summary page for this subsection -->
 #      - section-path/subsection-path/markdown-3.md
 
 # Currently, we have templated out the follow navbar items (specific names TBD)
@@ -35,13 +54,43 @@ nav:
     - welcome/index.md
   - Technical setup:           # Fork/clone, local environment setup
     - technical-setup/index.md
+    - technical-setup/install-a-git-client.md
+    - technical-setup/fork-the-repo.md
+    - technical-setup/clone-the-repo.md
+    - Environment setup:
+      - technical-setup/environment-setup/index.md
+      - technical-setup/environment-setup/setup-conda.md
+      - technical-setup/environment-setup/setup-precommit.md
+      - technical-setup/environment-setup/install-r-rstudio.md
   - Tools for communication:   # Slack, issues, discussions
     - communications-tools/index.md
+    - GitHub Issues:
+      - communications-tools/github-issues/index.md
+      - communications-tools/github-issues/what-are-github-issues-and-how-do-we-use-them.md
   - Contributing to analyses:  # Setting up an analysis, all the git stuff
     - contributing-to-analyses/index.md
+    - Analysis modules:
+      - contributing-to-analyses/analysis-modules/index.md
+    - Starting your analysis:
+      - contributing-to-analyses/starting-your-analysis/index.md
+      - contributing-to-analyses/starting-your-analysis/determining-software-requirements.md
+      - contributing-to-analyses/starting-your-analysis/determining-compute-requirements.md
+    - Working with Git: # Creating branches, adding commits, all git interactions
+      - contributing-to-analyses/working-with-git/working-with-branches.md
+      - contributing-to-analyses/working-with-git/staying-in-sync-with-upstream.md
+      - contributing-to-analyses/working-with-git/making-commits.md
+      - contributing-to-analyses/working-with-git/troubleshooting-commits.md
+      - contributing-to-analyses/working-with-git/push-to-origin.md
+    - Creating pull requests:
+      - contributing-to-analyses/creating-pull-requests/index.md
+      - contributing-to-analyses/creating-pull-requests/scoping-pull-requests.md
+      - contributing-to-analyses/creating-pull-requests/pull-request-template.md
+      - contributing-to-analyses/creating-pull-requests/file-pull-request.md
   - Software platforms:            # LSfR, AWS, Docker, etc
     - software-platforms/index.md
+    - software-platforms/general-tools/index.md
+    - software-platforms/general-tools/using-the-terminal.md
   - Getting Help and FAQ:      # troubleshooting and FAQ
     - troubleshooting-faq/index.md
-
-
+  - Policies: # CoC, Authorship, other policies
+    - policies/index.md

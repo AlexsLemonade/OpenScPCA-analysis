@@ -51,9 +51,21 @@ Use it for describing:
 - Features
 - Lists of inputs or output files
 
+Alternatively, you can use numbered lists.
+When using numbered lists, number all items in the list with `1. `, this will allow for automatic numbering when rendering.
+After a new paragraph, automatic numbering will restart, so be sure that any text you would like to list under that number is indented.
+
+```
+1. Item 1
+   Some text and images about item 1
+
+1. Item 2
+   Some text and images about item 2
+```
+
 ## Using buttons
 
-Use [Github buttons](https://gist.github.com/apaskulin/1ad686e42c7165cb9c22f9fe1e389558#buttons) to draw attention to important links.
+Use [GitHub buttons](https://gist.github.com/apaskulin/1ad686e42c7165cb9c22f9fe1e389558#buttons) to draw attention to important links.
 Use buttons sparingly.
 
 Use the buttons for links critical for users to continue on to the next stage like:
@@ -138,13 +150,13 @@ Examples:
 - We have provided an example analysis notebook.
 You will need to make a copy the example notebook and create your analysis.
 
-- After you file a PR, it will be reviewed by us or other contributors to the project.
+- After you file a PR, either we or other contributors to the project will review it.
 
 # Tone
 
 ## Instructive
 
-We must ensure that our instructions are clear about what the user is expected to do vs what will done for them by the Data Lab or other contributors.
+We must ensure that our instructions are clear about what the user is expected to do vs what the Data Lab or other contributors will do for them.
 
 It is especially important to use active voice and present tense when writing instructions.
 
@@ -165,7 +177,7 @@ For example, if the user can set configurations either with a file or with a com
 
 When describing exceptions, be clear about the case and what actions users need to take for that case.
 
-Avoid things like 'Depending on the functions, you can do Y."
+Avoid things like "Depending on the functions, you can do Y."
 
 Instead say, "When you use function X, do Y and when you use function A, do B."
 
@@ -173,8 +185,8 @@ Instead say, "When you use function X, do Y and when you use function A, do B."
 
 Examples are a good way to solidify your instructions.
 
-Instead of just describing a configuration file, providing an example file will enhance users' understanding of the fields and how they are expected to be structured.
-It will also give them file they can re-use when trying to do the task on their own.
+Instead of just describing a configuration file, providing an example file will enhance users' understanding of the fields and their expected structure.
+It will also give them files they can re-use when trying to do the task on their own.
 
 Here are some examples you provide:
 

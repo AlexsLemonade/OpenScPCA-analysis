@@ -1,0 +1,70 @@
+name: Check Spelling
+on:
+  pull_request: # TEMPORARY
+    branches:
+     - main
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 1 * *" # first of every month at midnight
+
+
+concurrency:
+  # only one run per branch at a time
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+
+jobs:
+  spellcheck:
+    runs-on: ubuntu-latest
+    name: Spell check files
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Spell check action
+        uses: alexslemonade/spellcheck@v0
+        id: spell
+        with:
+          dictionary: .github/components/dictionary.txt
+
+      - name: Upload spell check errors
+        uses: actions/upload-artifact@v4
+        id: artifact-upload-step
+        with:
+          name: spell_check_errors
+          path: spell_check_errors.tsv
+
+
+      - name: Update template
+        if: ${{ github.event_name != 'pull_request' && steps.spell.outputs.error_count > 0 }}
+        env:
+          ERROR_COUNT: ${{ steps.spell.outputs.error_count }}
+          ARTIFACT_URL: ${{ steps.artifact-upload-step.outputs.artifact-url }}
+        run: |
+          sed -i "s@{{ERROR_COUNT}}@${ERROR_COUNT}@g"  .github/cron-issue-templates/spellcheck-issue-template.md
+          sed -i "s@{{ARTIFACT_URL}}@${ARTIFACT_URL}@g"  .github/cron-issue-templates/spellcheck-issue-template.md
+
+
+      - name: Post issue with spellcheck results
+        if: ${{ github.event_name != 'pull_request' && steps.spell.outputs.error_count > 0 }}
+        id: spellissue
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: Monthly spellcheck results
+          content-filepath: .github/cron-issue-templates/spellcheck-issue-template.md
+          labels: |
+            OpenScPCA admin
+            spelling
+
+
+      - name: Fail if there are spelling errors
+        if: steps.spell.outputs.error_count > 0
+        run: |
+          echo "There were ${{ steps.spell.outputs.error_count }} errors"
+          column -t spell_check_errors.tsv
+          exit 1
