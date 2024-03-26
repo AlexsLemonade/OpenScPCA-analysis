@@ -9,30 +9,26 @@ You will be asked to resolve this conflict and select the changes that should be
 For example, there may be a change to a line on the `main` branch that conflicts with a change you have made to the same line on your feature branch.
 This must be resolved, before your feature branch can be merged into `main`.
 
-For more on merge conflicts, see the [GitHub documentation on merge conflicts](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/addressing-merge-conflicts/about-merge-conflicts).
+!!! note "More information on merge conflicts"
+    For more on merge conflicts, see the [GitHub documentation on merge conflicts](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/addressing-merge-conflicts/about-merge-conflicts).
 
 ## When might you see a merge conflict?
 
 These conflicts are likely to arise if another PR with changes to the same section of code you are working on gets merged into `main` before your changes are merged.
-This can happen if:
+This can happen when both you and a different contributor are working on the same area of code at the same time. 
+You get a merge conflict if their branch is merged into the upstream `main` repository while you are still working on your analysis and/or while your code is still under review.
 
-- The conflicting PR is merged while you are still working on your feature branch, prior to [filing a PR](./file-pull-request.md).
-    - Merge `main` into your feature branch [prior to filing the PR and resolve any conflicts](STUB-LINK to before you file).
-- The conflicting PR is merged while your PR with proposed changes is under review.
-    - If GitHub prompts you that your branch is out-of-date with the base branch, press `Update branch`.
+To resolve merge conflicts, you need to merge the upstream `main` branch into your feature branch.
+If Git finds merge conflicts, you can then resolve them in GitKraken, as described below.
+_We strongly recommend doing this [before you file a PR](STUB_LINK before you file)._
 
-    <figure markdown="span">
-        ![Update branch](../../img/resolve-merge-conflicts-1.png){width="600"}
-    </figure>
-
-If merged conflicts are detected when performing either of these tasks, please resolve them following the instructions below.
 
 ## How to resolve a merge conflict
 
-If a merge conflict is detected, we recommend using GitKraken.
+We recommend using GitKraken to resolve merge conflict.
 Do _not_ attempt to resolve the conflict using the GitHub interface, as it can be easy to make mistakes and miss conflicts.
 
-1. Navigate to GitKraken and check out the branch that you are working on.
+1. Open your fork in GitKraken and check out the feature branch that you are working on.
 
 1. Attempt to merge `AlexsLemonade/OpenScPCA-analysis` into your feature branch.
 To do this, right-click on the remote `main` from `AlexsLemonade/OpenScPCA-analysis` and select `merge AlexsLemonade/main into feature-branch-name`.
