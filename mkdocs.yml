@@ -91,6 +91,7 @@ nav:
   - Software platforms:            # LSfR, AWS, Docker, etc
     - software-platforms/index.md
     - software-platforms/general-tools/index.md
+    - software-platforms/general-tools/writing-in-markdown.md
     - software-platforms/general-tools/using-the-terminal.md
   - Getting Help and FAQ:      # troubleshooting and FAQ
     - troubleshooting-faq/index.md

@@ -45,7 +45,7 @@ These tools are available from the [R for macOS website](https://mac.r-project.o
 1. Install the **GNU Fortran compiler**.
 Click the link on the [Tools - R for Mac OS](https://mac.r-project.org/tools/) page to download the installer package and follow all installation instructions.
 
-
+<!--
 ### Install R on Windows
 
 
@@ -55,8 +55,7 @@ Click the link on the [Tools - R for Mac OS](https://mac.r-project.org/tools/) p
     - Navigate to the [Rtools download page](https://cran.r-project.org/bin/windows/Rtools/)
     - Click the Rtools version that matches the R version you just downloaded
     - On the next page, click the link `RtoolsXY installer` (where `XY` is the specific version you clicked) to download Rtools, and follow all installation instructions
-
-
+-->
 
 
 ## Install the RStudio IDE
@@ -86,4 +85,4 @@ install.packages(c("renv", "BiocManager"))
 
 ## Advanced considerations
 
-If you need to have multiple versions of installed on your computer, we recommend using the [`rig`](https://github.com/r-lib/rig) R Installation Manager.
+If you need to have multiple versions of R installed on your computer, we recommend using the [`rig`](https://github.com/r-lib/rig) R Installation Manager.

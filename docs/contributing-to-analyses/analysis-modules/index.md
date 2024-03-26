@@ -47,7 +47,7 @@ These are the main files and folders you will interact with when writing your an
     - You can optionally use this folder to store _intermediate_ files that your code produces but are not meant to live in `results` or `plots`.
     - We have set up Git to ignore the contents of this folder, so anything you save to this folder will only be stored locally and not in the remote repository.
 - **`README.md`**
-    - Use this [markdown file](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) to document your analysis module.
+    - Use this [markdown file](../../software-platforms/general-tools/writing-in-markdown.md) to document your analysis module.
   Your `README.md` file should have enough information for other contributors or repository users to learn the following:
         - The scientific goals of the module
         - The input and output of the module and its [computational resource requirements](../starting-your-analysis/determining-compute-requirements.md)
