@@ -17,9 +17,10 @@ Before you begin, please review [this documentation](../analysis-modules/index.m
 
 ## Running the module creation script
 
-You will first need to decide whether you will use R or Python (or both!) in your module.
+You can use the python script [`create-analysis-module.py`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/create-analysis-module.py) to create a skeleton module for your analysis in the `analyses` folder.
 
-When running the `create-analysis-module.py` script, you can use flags to add additional files and/or folders to your module skeleton that you will need for your chosen language, [as described below](#script-flags).
+Before running this script, you should decide whether you will use R or python (or both!) in your module.
+When running the script, you can use flags to add additional files and/or folders to your module skeleton that you will need for your chosen language, [as described below](#script-flags).
 
 
 To run this script, take these steps:
@@ -52,6 +53,7 @@ python create-analysis-module.py my-module-name <additional flags here>
 We recommend using one of these flags when creating your module.
 Each flag will create a skeleton module with the given files and folders.
 
+Note that you can use both an R and a python flag if you want to write your module in both languages.
 
 ### Flags to create an R module
 
@@ -139,17 +141,17 @@ This will create skeleton module called `my-module-name` with these files and fo
     - `.Rprofile`
 
 
-### Flags to create a Python module
+### Flags to create a python module
 
 #### `--use-jupyter`
 
 !!! info
     The `hello-python` example module was created with this flag.
-    Learn more about [using conda to manage your Python environment](../starting-your-analysis/determining-software-requirements/#managing-software-dependencies-in-python-with-conda).
+    Learn more about [using conda to manage your python environment](../starting-your-analysis/determining-software-requirements/#managing-software-dependencies-in-python-with-conda).
 
 - This flag will both:
     - Add a template Jupyter notebook to your module
-      - To instead add a template Python script, use `--use-python`
+      - To instead add a template python script, use `--use-python`
     - Initialize an conda environment for your module
       - The conda environment will be named `openscpca-<module name>`
       - For example, if you name your module `celltype-ewings`, its conda environment will be named `openscpca-celltype-ewings`
@@ -217,19 +219,3 @@ This will create skeleton module called `my-module-name` with these files and fo
 ```
 
 - You can use the `environment.yml` file to add packages to your module's conda environment
-
-
-<!--
-keeping for now in case:
-### Other script flags
-
-- `--use-renv`  will both:
-    - Add a template R notebook to your module
-    - Initialize an `renv` environment in your module
-- `--use-conda` will initialize a conda environment in your module
-- `--use-python` or `--use-jupyter`
-    - Add a template python script to your modul
-    - Initialize a conda environment in your module
-- `--conda-file-only` will create an `environment.yml` file, but will not
--->
-
