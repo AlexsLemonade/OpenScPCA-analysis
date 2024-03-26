@@ -15,6 +15,7 @@ This must be resolved, before your feature branch can be merged into `main`.
 ## When might you see a merge conflict?
 
 These conflicts are likely to arise if another PR with changes to the same section of code you are working on gets merged into `AlexsLemonade/OpenScPCA-analysis:main` before your changes are merged.
+
 This can happen when both you and a different contributor are working on the same area of code at the same time.
 If their branch is merged into the `main` branch of the upstream `AlexsLemonade/OpenScPCA-analysis` repository while you are still working on your analysis and/or while your code is still under review, you may see a merge conflict.
 
