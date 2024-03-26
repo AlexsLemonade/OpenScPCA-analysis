@@ -137,7 +137,7 @@ This will create skeleton module called `my-module-name` with these files and fo
 - You can use `components/dependencies.R` to [pin R package dependencies that `renv` does not automatically capture](../starting-your-analysis/determining-software-requirements/#pinning-dependencies-that-are-not-captured-automatically)
 - These additional files and folders manage the `renv` environment, and you should not directly edit them:
     - `renv.lock`
-    - The `renv` folder. TODO: DO WE WANT TO ADD THIS INTO THE MODULE `.gitignore`?
+    - The `renv` folder
     - `.Rprofile`
 
 
