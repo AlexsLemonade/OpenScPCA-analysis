@@ -38,7 +38,7 @@ jobs:
 
       # Update this step as needed to download the desired data
       - name: Download test data
-        run: ./download-data.py --bucket openscpca-temp-simdata --format SCE --anonymous
+        run: ./download-data.py --bucket openscpca-temp-simdata --format AnnData --anonymous
 
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3
