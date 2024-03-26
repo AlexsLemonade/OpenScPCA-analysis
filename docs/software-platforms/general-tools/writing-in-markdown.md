@@ -16,7 +16,7 @@ You will generally use markdown when writing:
 
 
 !!! info "Learn more about markdown"
-    Please see these resources for learning how to use markdown:
+    Please see these resources to learn more about using markdown:
 
     - [GitHub markdown documentation](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
     - A [little tutorial](https://www.markdowntutorial.com/) where you can practice using markdown
