@@ -8,6 +8,7 @@ import pathlib
 import re
 import subprocess
 import sys
+from typing import List
 
 # enable text formatting on Windows
 os.system("")
@@ -16,7 +17,7 @@ RELEASE_BUCKET = "analysis-s3-992382809252-us-east-2"  # TODO: change to correct
 TEST_BUCKET = "openscpca-temp-simdata"  # TODO: change to correct bucket
 
 
-def add_parent_dirs(patterns: list[str], dirs: list[str]) -> list[str]:
+def add_parent_dirs(patterns: List[str], dirs: List[str]) -> List[str]:
     """
     Add parent directories to each AWS include pattern.
     """
