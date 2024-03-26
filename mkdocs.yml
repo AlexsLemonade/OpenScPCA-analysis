@@ -18,6 +18,8 @@ theme:
     - navigation.tabs.sticky # sticky navbar
     - navigation.indexes     # allow index pages to serve as overview pages for sections
     - navigation.sections    # bold headers for directories
+    - navigation.footer      # allow users to jump to previous and next doc at the bottom of the page
+    - navigation.path        # add breadcrumbs
 
 plugins:
   - search  # search bar
@@ -37,6 +39,18 @@ markdown_extensions:
 
 extra_css:
   - stylesheets/extra.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/AlexsLemonade/OpenScPCA-analysis
+      name: OpenScPCA on Github
+    - icon: fontawesome/brands/slack
+      link: https://ccdatalab.org/slack
+      name: Cancer Data Science Slack
+    - icon: fontawesome/brands/x-twitter
+      link: https://twitter.com/CancerDataLab
+      name: Follow us on X
 
 # Here is the basic structure of our navigation setup.
 #nav:
