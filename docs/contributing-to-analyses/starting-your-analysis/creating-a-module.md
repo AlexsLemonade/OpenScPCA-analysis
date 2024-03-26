@@ -17,9 +17,9 @@ Before you begin, please review [this documentation](../analysis-modules/index.m
 
 ## Running the module creation script
 
-You can use the python script [`create-analysis-module.py`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/create-analysis-module.py) to create a skeleton module for your analysis in the `analyses` folder.
+You should use the [`create-analysis-module.py`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/create-analysis-module.py) script to create a skeleton module for your analysis in the `analyses` folder.
 
-Before running this script, you should decide whether you will use R or python (or both!) in your module.
+Before running this script, you should decide whether you will use R or Python (or both!) in your module.
 When running the script, you can use flags to add additional files and/or folders to your module skeleton that you will need for your chosen language, [as described below](#script-flags).
 
 
@@ -37,14 +37,14 @@ To run this script, take these steps:
 
 ```bash
 # Create a module called `my-module-name`, for example
-python create-analysis-module.py my-module-name <additional flags here>
+./create-analysis-module.py my-module-name <additional flags here>
 ```
 
 !!! tip
     You can always run the script with the `--help` flag to reveal the help menu and see other flags you can use:
 
     ```bash
-    python create-analysis-module.py --help
+    ./create-analysis-module.py --help
     ```
 
 ## Module creation script flags
@@ -71,7 +71,7 @@ python create-analysis-module.py my-module-name --use-r
 This will create skeleton module called `my-module-name` with these files and folders:
 
 
-```markdown
+```
 ├── scripts
 │   └── ...
 ├── results
@@ -141,7 +141,7 @@ This will create skeleton module called `my-module-name` with these files and fo
     - `.Rprofile`
 
 
-### Flags to create a python module
+### Flags to create a Python module
 
 #### `--use-jupyter`
 
