@@ -117,7 +117,7 @@ metadata <- metadata |>
     self_reported_ethnicity_ontology_term_id = sample(self_reported_ethnicity_ontology_term_id),
     participant_id = paste0("P", forcats::fct_anon(participant_id)), # anonymize participant_id
     submitter_id = "" # remove submitter_id,
-)
+  )
 
 ## TODO: revisit to deal properly with multiplexed data; for now no multiplexed data is included in the portal
 
