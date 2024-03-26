@@ -10,8 +10,7 @@ exclude_docs: | # syntax: https://www.mkdocs.org/user-guide/configuration/#exclu
 theme:
   name: material
   favicon: img/favicon.svg
-  logo: img/ccdl-logo.svg
-  #logo: img/ccdlxalsf.svg
+  logo: img/ccdlxalsf.svg
   features:
     - content.code.copy      # code copy button in code blocks
     - search.suggest         # displays in light gray how you might complete the word
