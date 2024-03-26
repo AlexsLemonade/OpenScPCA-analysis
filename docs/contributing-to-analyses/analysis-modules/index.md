@@ -11,9 +11,23 @@ This section explains the structure of analysis modules.
 You can create a starting point for your analysis module with the script `create-analysis-module.py`.
 This script will create a skeleton analysis module with the following file structure:
 
-<figure markdown="span">
-    ![Baseline file structure of an analysis module.](STUB_LINK to image created in #134){width="200"}
-</figure>
+
+```markdown
+├── scripts
+│   └── ...
+├── results
+│   └── README.md
+├── plots
+│   └── ...
+├── scratch
+│   └── ...
+├── README.md
+├── Dockerfile
+├── .gitignore
+└── .dockerignore
+```
+
+
 
 Please refer to [the documentation on creating analysis modules](STUB_LINK for creating modules) when you are ready to make your first analysis folder and begin contributing to OpenScPCA!
 
@@ -31,9 +45,9 @@ These are the main files and folders you will interact with when writing your an
     - Any plots that your code produces should be saved to this `plots` folder.
 - **`scratch`**
     - You can optionally use this folder to store _intermediate_ files that your code produces but are not meant to live in `results` or `plots`.
-    - Git will ignore the contents of this folder, so contents of this folder will only be stored locally and not in the remote repository.
+    - We have set up Git to ignore the contents of this folder, so anything you save to this folder will only be stored locally and not in the remote repository.
 - **`README.md`**
-    - Use this [markdown file](STUB_LINK docs on markdown) to document your analysis module.
+    - Use this [markdown file](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) to document your analysis module.
   Your `README.md` file should have enough information for other contributors or repository users to learn the following:
         - The scientific goals of the module
         - The input and output of the module and its [computational resource requirements](../starting-your-analysis/determining-compute-requirements.md)
