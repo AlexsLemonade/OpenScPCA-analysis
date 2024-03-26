@@ -14,9 +14,14 @@ This must be resolved, before your feature branch can be merged into `main`.
 
 ## When might you see a merge conflict?
 
-These conflicts are likely to arise if another PR with changes to the same section of code you are working on gets merged into `main` before your changes are merged.
-This can happen when both you and a different contributor are working on the same area of code at the same time. 
-You get a merge conflict if their branch is merged into the upstream `main` repository while you are still working on your analysis and/or while your code is still under review.
+These conflicts are likely to arise if another PR with changes to the same section of code you are working on gets merged into `AlexsLemonade/OpenScPCA-analysis:main` before your changes are merged.
+This can happen when both you and a different contributor are working on the same area of code at the same time.
+If their branch is merged into the `main` branch of the upstream `AlexsLemonade/OpenScPCA-analysis` repository while you are still working on your analysis and/or while your code is still under review, you may see a merge conflict.
+
+<figure markdown="span">
+    ![Merge conflicts example](../../img/resolve-merge-conflicts-1.png){width="500"}
+</figure>
+Figure from https://blog.developer.atlassian.com/a-better-pull-request/.
 
 To resolve merge conflicts, you need to merge the upstream `main` branch into your feature branch.
 If Git finds merge conflicts, you can then resolve them in GitKraken, as described below.
@@ -30,8 +35,8 @@ Do _not_ attempt to resolve the conflict using the GitHub interface, as it can b
 
 1. Open your fork in GitKraken and check out the feature branch that you are working on.
 
-1. Attempt to merge `AlexsLemonade/OpenScPCA-analysis` into your feature branch.
-To do this, right-click on the remote `main` from `AlexsLemonade/OpenScPCA-analysis` and select `merge AlexsLemonade/main into feature-branch-name`.
+1. Attempt to merge `AlexsLemonade/OpenScPCA-analysis:main` into your feature branch.
+To do this, right-click on the remote `main` from `AlexsLemonade/OpenScPCA-analysis` (indicated in GitKraken with the ALSF lemon logo) and select `merge AlexsLemonade/main into feature-branch-name`.
 
     <figure markdown="span">
         ![Merge main](../../img/resolve-merge-conflicts-2.png){width="600"}
