@@ -9,6 +9,8 @@ exclude_docs: | # syntax: https://www.mkdocs.org/user-guide/configuration/#exclu
 
 theme:
   name: material
+  favicon: img/favicon.svg
+  logo: img/ccdlxalsf.svg
   features:
     - content.code.copy      # code copy button in code blocks
     - search.suggest         # displays in light gray how you might complete the word
@@ -36,6 +38,8 @@ markdown_extensions:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
+extra_css:
+  - stylesheets/extra.css
 
 # Here is the basic structure of our navigation setup.
 #nav:
@@ -87,6 +91,8 @@ nav:
       - contributing-to-analyses/creating-pull-requests/file-pull-request.md
   - Software platforms:            # LSfR, AWS, Docker, etc
     - software-platforms/index.md
+    - software-platforms/general-tools/index.md
+    - software-platforms/general-tools/using-the-terminal.md
   - Getting Help and FAQ:      # troubleshooting and FAQ
     - troubleshooting-faq/index.md
   - Policies: # CoC, Authorship, other policies
