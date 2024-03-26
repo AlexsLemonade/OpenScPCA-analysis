@@ -11,7 +11,7 @@ option_list <- list(
     c("-f", "--metadata_file"),
     type = "character",
     default = NULL,
-    help = "Path to the metadata file to shuffle."
+    help = "Path to the sample metadata file to shuffle."
   ),
   make_option(
     c("-o", "--output_file"),
@@ -39,17 +39,23 @@ set.seed(opts$seed)
 
 metadata <- readr::read_tsv(opts$metadata_file, show_col_types = FALSE)
 
-# fields in every project
-common_fields <- c(
+# fields that apply at library level
+library_fields <- c(
   "scpca_project_id",
-  "scpca_sample_id",
   "scpca_library_id",
   "seq_unit",
   "technology",
   "filtered_cell_count",
+  "submitter",
+  "pi_name",
+  "project_title"
+)
+
+# fields that apply at sample level
+sample_fields <- c(
+  "scpca_sample_id",
   "submitter_id",
   "participant_id",
-  "submitter",
   "age_at_diagnosis",
   "sex",
   "diagnosis",
@@ -62,9 +68,7 @@ common_fields <- c(
   "organism_ontology_id",
   "self_reported_ethnicity_ontology_term_id",
   "disease_ontology_term_id",
-  "tissue_ontology_term_id",
-  "pi_name",
-  "project_title"
+  "tissue_ontology_term_id"
 )
 
 processing_fields <- c(
@@ -96,17 +100,22 @@ processing_fields <- c(
 )
 
 # Remove project-specific columns
-match_cols <- sort(match(c(common_fields, processing_fields), colnames(metadata)))
+match_cols <- sort(match(c(library_fields, sample_fields, processing_fields), colnames(metadata)))
 metadata <- metadata[, match_cols]
 
-# permute metadata -------------------------------------------------------------
-diagnosis_order <- sample(seq(1, nrow(metadata)), nrow(metadata))
+# get sample metadata only & reduce to one line per sample
+sample_metadata <- metadata[, sample_fields] |> dplyr::distinct()
+
+# check that sample data are not repeated
+stopifnot(length(unique(sample_metadata$scpca_sample_id)) == nrow(sample_metadata))
+
+# permute sample metadata -------------------------------------------------------------
+diagnosis_order <- sample(seq(1, nrow(sample_metadata)), nrow(sample_metadata))
 age_order <- sample(diagnosis_order)
 tissue_order <- sample(diagnosis_order)
 sex_order <- sample(diagnosis_order)
 
-
-metadata <- metadata |>
+sample_metadata <- sample_metadata |>
   dplyr::mutate(
     diagnosis = diagnosis[diagnosis_order],
     subdiagnosis = subdiagnosis[diagnosis_order],
@@ -119,6 +128,7 @@ metadata <- metadata |>
     submitter_id = "" # remove submitter_id,
   )
 
-## TODO: revisit to deal properly with multiplexed data; for now no multiplexed data is included in the portal
+metadata <- metadata |>
+  dplyr::rows_update(sample_metadata, by = "scpca_sample_id")
 
 readr::write_tsv(metadata, opts$output_file)
