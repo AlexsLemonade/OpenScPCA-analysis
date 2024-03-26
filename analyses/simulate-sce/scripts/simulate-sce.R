@@ -88,6 +88,7 @@ random_label <- function(label_set, n) {
 #'
 #' @param sce a SingleCellExperiment object, with the formatted expected from ScPCA
 #' @param ncells The number of cells to simulate
+#' @param replacement_metadata A data frame with sample metadata to replace in the sce object
 #' @param processed Boolean indicating whether the data is processed or not
 
 #'
@@ -97,13 +98,13 @@ random_label <- function(label_set, n) {
 #' @import SingleCellExperiment
 #'
 #' @examples
-simulate_sce <- function(sce, ncells, library_metadata, processed) {
+simulate_sce <- function(sce, ncells, replacement_metadata, processed) {
   # check parameters
   stopifnot(
     "sce must be a SingleCellExperiment" = is(sce, "SingleCellExperiment"),
     "ncells must be a positive integer" = is.integer(ncells) && ncells > 0,
-    "library_metadata should be a data frame with the same number of rows as the sample_metadata" = (
-      is.data.frame(library_metadata) && nrow(library_metadata) == nrow(metadata(sce)$sample_metadata)
+    "replacement_metadata should be a data frame with the same number of rows as the sce sample_metadata" = (
+      is.data.frame(replacement_metadata) && nrow(replacement_metadata) == nrow(metadata(sce)$sample_metadata)
     ),
     "processed must be a boolean" = is.logical(processed)
   )
@@ -115,7 +116,7 @@ simulate_sce <- function(sce, ncells, library_metadata, processed) {
   ### Reduce and remove metadata -----------------------------------------------
 
   # match column names from permuted metadata to sample_metadata
-  library_metadata <- library_metadata |>
+  replacement_metadata <- replacement_metadata |>
     dplyr::rename(
       sample_id = scpca_sample_id,
       age = age_at_diagnosis
@@ -124,7 +125,7 @@ simulate_sce <- function(sce, ncells, library_metadata, processed) {
 
   # replace sample metadata fields with permuted values
   metadata(sce_sim)$sample_metadata <- metadata(sce_sim)$sample_metadata |>
-    dplyr::rows_update(library_metadata, by = "sample_id")
+    dplyr::rows_update(replacement_metadata, by = "sample_id")
 
   # remove miQC model that may exist
   metadata(sce_sim)$miQC_model <- NULL
@@ -257,11 +258,11 @@ purrr::walk(sce_files, \(sce_file) {
   is_processed <- grepl("_processed.rds$", sce_file)
   # load the real data
   real_sce <- readr::read_rds(sce_file)
-  # get the matching library metadata
-  library_metadata <- metadata |>
+  # get the matching library metadata for replacing
+  replacement_metadata <- metadata |>
     dplyr::filter(scpca_library_id == metadata(real_sce)$library_id)
   # simulate the data
-  sim_sce <- simulate_sce(real_sce, opts$ncells, library_metadata, processed = is_processed)
+  sim_sce <- simulate_sce(real_sce, opts$ncells, replacement_metadata, processed = is_processed)
   # save the simulated data
   sim_file <- file.path(
     opts$output_dir,
