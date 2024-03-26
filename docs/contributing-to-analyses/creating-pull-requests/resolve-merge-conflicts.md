@@ -21,7 +21,7 @@ If their branch is merged into the `main` branch of the upstream `AlexsLemonade/
 <figure markdown="span">
     ![Merge conflicts example](../../img/resolve-merge-conflicts-1.png){width="500"}
 </figure>
-Figure from https://blog.developer.atlassian.com/a-better-pull-request/.
+Figure taken from [https://blog.developer.atlassian.com/a-better-pull-request/](https://blog.developer.atlassian.com/a-better-pull-request/).
 
 To resolve merge conflicts, you need to merge the upstream `main` branch into your feature branch.
 If Git finds merge conflicts, you can then resolve them in GitKraken, as described below.
