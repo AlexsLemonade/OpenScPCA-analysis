@@ -28,12 +28,11 @@ To run this script, take these steps:
 1. Open a [terminal](../../software-platforms/general-tools/using-the-terminal.md) window.
     - You may wish to launch terminal [from GitKraken](../../software-platforms/general-tools/using-the-terminal.md#gitkraken) so that you are automatically placed in the repository.
 
-2. Make sure you are working in your `base` conda environment by running `conda activate base`.
-    - You need to be in your `base` environment because this script relies on some [conda packages you previously installed during setup](../../technical-setup/environment-setup/setup-conda.md#set-up-conda).
+1. Make sure you are working in your `base` conda environment by running `conda activate base`.
 
-3. As needed, navigate using `cd` to your `OpenScPCA-analysis` fork.
+1. As needed, navigate using `cd` to your `OpenScPCA-analysis` fork.
 
-4. Run the module creation script using your desired flags:
+1. Run the module creation script using your desired flags:
 
 ```bash
 # Create a module called `my-module-name`, for example
@@ -59,7 +58,7 @@ Note that you can use both an R and a python flag if you want to write your modu
 
 #### `--use-r`
 
-This flag (`--use-R` also works!) will add a template R notebook to your module:
+This flag will add a template R notebook to your module:
 
 You can use this flag as:
 
