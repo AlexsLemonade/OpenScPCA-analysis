@@ -36,7 +36,9 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # Add step to download data here
+      # Update this step as needed to download the desired data
+      - name: Download test data
+        run: ./download-data.py --bucket openscpca-temp-simdata --format SCE --anonymous
 
       - name: Set up R
         uses: r-lib/actions/setup-r@v2

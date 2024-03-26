@@ -1,4 +1,7 @@
 # This is a workflow to run the {{ MODULE_NAME }} module
+
+# Replace {{ MODULE_NAME }} throughout the file and otherwise customize to the needs of the particular module
+
 # Analysis modules are run based on three triggers:
 # - Manual trigger
 # - On pull requests where code in the module has changed
@@ -33,7 +36,9 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # Add step to download data here
+      # Update this step as needed to download the desired data
+      - name: Download test data
+        run: ./download-data.py --bucket openscpca-temp-simdata --format SCE --anonymous
 
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3
