@@ -8,8 +8,8 @@ This section explains the structure of analysis modules.
 
 ## Skeleton analysis module contents
 
-You can create a starting point for your analysis module with the script `create-analysis-module.py`.
-This script will create a skeleton analysis module with the following file structure:
+You can create a starting point for your analysis module with the script [`create-analysis-module.py`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/create-analysis-module.py).
+This script will create a skeleton analysis module with the following file structure ([depending on how you run the script](../starting-your-analysis/creating-a-module.md#script-flags), there may be more files here too!).
 
 
 ```markdown
@@ -29,7 +29,7 @@ This script will create a skeleton analysis module with the following file struc
 
 
 
-Please refer to [the documentation on creating analysis modules](STUB_LINK for creating modules) when you are ready to make your first analysis folder and begin contributing to OpenScPCA!
+Please refer to [the documentation on creating analysis modules](../starting-your-analysis/creating-a-module.md) when you are ready to make your first analysis folder and begin contributing to OpenScPCA!
 
 These are the main files and folders you will interact with when writing your analysis:
 
