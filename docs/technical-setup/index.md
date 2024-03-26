@@ -9,7 +9,7 @@ This section provides instructions for technical aspects of set up, including:
 
 !!! warning
     At this time, the OpenScPCA project only supports macOS and Linux operating systems.
-    Instructions are therefore geared towards of these platforms.
+    Instructions are therefore geared towards using these platforms.
 
     If you would like to see Windows supported, please [let us know by filing an issue](https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/new?assignees=&labels=docs-request&projects=&template=04-docs-request.yml&title=Docs+request%3A)!
 
