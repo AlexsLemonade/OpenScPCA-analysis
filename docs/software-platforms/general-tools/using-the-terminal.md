@@ -63,7 +63,7 @@ Simply [search for and open the Ubuntu app via the Windows Search Bar Menu](http
 
 Lightsail for Research (LSfR) instances run on the Ubuntu operating system, which is a type of Linux.
 
-Take these steps to launch the terminal in LSfR:
+Take these steps to launch a terminal in LSfR:
 
 1. Click the `Activities` button in the top-left corner.
 
