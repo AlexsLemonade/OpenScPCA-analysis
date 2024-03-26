@@ -233,8 +233,8 @@ def main() -> None:
         "*",  # exclude everything by default
     ]
 
-    # Always include json and tsv metadata files
-    patterns = ["*.json", "*.tsv"]
+    # Always include json, tsv metadata files and DATA_USAGE.md
+    patterns = ["*.json", "*.tsv", "DATA_USAGE.md"]
 
     if args.include_reports:
         patterns += ["*.html"]
