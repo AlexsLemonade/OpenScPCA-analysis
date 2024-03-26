@@ -1,6 +1,6 @@
 # Writing in markdown
 
-You will often need to use markdown, a markup langauge to format your plain text.
+You will often need to use markdown, a markup language to format your plain text.
 With markdown, you can easily make text **bold**, _italicized_, and [add nicely-formatted links](https://github.com/AlexsLemonade/OpenScPCA-analysis) - to name a few handy features!
 
 Files with the `.md` extension, such as the commonly-used `README.md` file, are written in markdown.
