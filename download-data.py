@@ -12,6 +12,9 @@ import sys
 # enable text formatting on Windows
 os.system("")
 
+RELEASE_BUCKET = "analysis-s3-992382809252-us-east-2"  # TODO: change to correct bucket
+TEST_BUCKET = "openscpca-temp-simdata"  # TODO: change to correct bucket
+
 
 def add_parent_dirs(patterns: list[str], dirs: list[str]) -> list[str]:
     """
@@ -34,13 +37,19 @@ def main() -> None:
     parser.add_argument(
         "--list-releases",
         action="store_true",
-        help="List the available release versions.",
+        help="List the available release versions and exit.",
     )
     parser.add_argument(
         "--release",
         type=str,
         help="The release version to download. Defaults to 'current'.",
-        default="current",
+        default=None,  # default is set in the script
+    )
+    parser.add_argument(
+        "--test-data",
+        action="store_true",
+        help="Download test data from the test bucket and direct the `current` symlink to the test data directory."
+        " To switch back, rerun this script with the `--release current` option.",
     )
     parser.add_argument(
         "--format",
@@ -102,21 +111,10 @@ def main() -> None:
         default=pathlib.Path(__file__).parent / "data",
     )
     parser.add_argument(
-        "--bucket",
-        type=str,
-        help="The S3 bucket to download the data from. Default is OpenScPCA data release bucket.",
-        default="analysis-s3-992382809252-us-east-2",  # TODO: change to correct bucket
-    )
-    parser.add_argument(
         "--profile",
         type=str,
         default=None,
         help="The AWS profile to use for the download. Uses the current default profile if undefined.",
-    )
-    parser.add_argument(
-        "--anonymous",
-        action="store_true",
-        help="Download the data anonymously, without using AWS credentials. Only works if the bucket is public.",
     )
 
     args = parser.parse_args()
@@ -146,6 +144,19 @@ def main() -> None:
         )
         sys.exit(1)
 
+    # Check that only a release to test-data was set, and set buckets and default release
+    if args.release and args.test_data:
+        print(
+            "Only one of `--release` or `--test-data` can be set.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    elif args.test_data:
+        bucket = TEST_BUCKET
+    else:
+        bucket = RELEASE_BUCKET
+        args.release = args.release or "current"
+
     # Check that projects and samples are not requested together
     if args.projects and args.samples:
         print(
@@ -165,16 +176,16 @@ def main() -> None:
     includes = includes - {"bulk"}
 
     ### List the available releases ###
-    ls_cmd = ["aws", "s3", "ls", f"s3://{args.bucket}/"]
+    ls_cmd = ["aws", "s3", "ls", f"s3://{bucket}/"]
     if args.profile:
         ls_cmd += ["--profile", args.profile]
-    if args.anonymous:
+    if args.test_data:
         ls_cmd += ["--no-sign-request"]
     ls_result = subprocess.run(ls_cmd, capture_output=True, text=True)
     if ls_result.returncode:
         print(
-            f"Error listing releases from S3 bucket '{args.bucket}'.",
-            "Ensure you have the correct permissions and the bucket exists.",
+            f"Error listing release versions from the OpenScPCA release bucket.",
+            " Ensure you have the correct AWS permissions to access OpenScPCA data.",
             file=sys.stderr,
         )
         print(ls_result.stderr, file=sys.stderr)
@@ -193,7 +204,9 @@ def main() -> None:
         return
 
     # get the release to use or exit if it is not available
-    if args.release.lower() in ["current", "latest"]:
+    if args.test_data:
+        release = "test"
+    elif args.release.lower() in ["current", "latest"]:
         release = max(releases)
     elif args.release in releases:
         release = args.release
@@ -212,7 +225,7 @@ def main() -> None:
         "aws",
         "s3",
         "sync",
-        f"s3://{args.bucket}/{release}/",
+        f"s3://{bucket}/{release}/",
         f"{args.data_dir}/{release}/",
         "--exact-timestamps",  # replace if a file has changed at all
         "--no-progress",  # don't show progress animations
@@ -220,8 +233,8 @@ def main() -> None:
         "*",  # exclude everything by default
     ]
 
-    # Always include json and tsv metadata files
-    patterns = ["*.json", "*.tsv"]
+    # Always include json, tsv metadata files and DATA_USAGE.md
+    patterns = ["*.json", "*.tsv", "DATA_USAGE.md"]
 
     if args.include_reports:
         patterns += ["*.html"]
@@ -257,7 +270,7 @@ def main() -> None:
     if args.profile:
         sync_cmd += ["--profile", args.profile]
 
-    if args.anonymous:
+    if args.test_data:
         sync_cmd += ["--no-sign-request"]
 
     subprocess.run(sync_cmd, check=True)
@@ -269,13 +282,15 @@ def main() -> None:
     print("Processing levels:", ", ".join(includes))
     print("Downloaded data to:", args.data_dir / release)
 
-    ### Update current link to point to the new data release ###
-    # only do this if the specified release is "current" or "latest", not for specific dates
-    if args.release.lower() in ["current", "latest"] and not args.dryrun:
+    ### Update current link to point to new or test data ###
+    # only do this if we are using test data or the specified release is "current" or "latest", not for specific dates
+    if (
+        args.test_data or args.release.lower() in ["current", "latest"]
+    ) and not args.dryrun:
         # update the current symlink
         current_symlink = args.data_dir / "current"
         current_symlink.unlink(missing_ok=True)
-        current_symlink.symlink_to(args.data_dir / release)
+        current_symlink.symlink_to(release)
         print(f"Updated 'current' symlink to point to '{release}'.")
 
 

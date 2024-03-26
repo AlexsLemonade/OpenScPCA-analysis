@@ -35,7 +35,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download test data
-        run: ./download-data.py --bucket openscpca-temp-simdata --format AnnData --anonymous
+        run: ./download-data.py --test-data --format AnnData
 
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3

@@ -14,9 +14,8 @@ env:
 
 concurrency:
   # only one run per branch at a time
-  group: {{ MODULE_NAME }}-${{ github.ref }}
+  group: "{{ MODULE_NAME }}-${{ github.ref }}"
   cancel-in-progress: true
-
 
 on:
   workflow_dispatch:
@@ -25,8 +24,7 @@ on:
     branches:
       - main
     paths:
-      - analyses/{{ MODULE_NAME }}/**
-
+      - "analyses/{{ MODULE_NAME }}/**"
 
 jobs:
   run-module:
@@ -38,7 +36,7 @@ jobs:
 
       # Update this step as needed to download the desired data
       - name: Download test data
-        run: ./download-data.py --bucket openscpca-temp-simdata --format AnnData --anonymous
+        run: ./download-data.py --test-data --format AnnData
 
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3
