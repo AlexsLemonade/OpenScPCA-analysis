@@ -15,7 +15,7 @@ on:
     branches:
       - main
     paths:
-      - "${{ env.{{MODULE_PATH}} }}/*"
+      - "analysis/{{MODULE_NAME}}/*"
 
 
 jobs:
@@ -31,5 +31,5 @@ jobs:
 
       - name: Run analysis module
         run: |
-          cd ${{MODULE_PATH}}
+          cd $MODULE_PATH
           # run module script once here
