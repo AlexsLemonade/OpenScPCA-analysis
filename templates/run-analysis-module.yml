@@ -1,0 +1,35 @@
+# This is a workflow to run the {{MODULE_NAME}} module
+# Analysis modules are run based on three triggers:
+# - Manual trigger
+# - On pull requests where code in the module has changed
+# - As a reusable workflow called from a separate workflow which periodically runs all modules
+
+name: Run {{MODULE_NAME}} analysis module
+env:
+  MODULE_PATH: analyses/{{MODULE_NAME}}
+
+on:
+  workflow_dispatch:
+  workflow_call:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "${{ env.{{MODULE_PATH}} }}/*"
+
+
+jobs:
+  run-module:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # Additional steps to download data and set up the module run environment can go here.
+      # To set up the environment, we use `conda` and `renv`, as needed (not Docker).
+
+      - name: Run analysis module
+        run: |
+          cd ${{MODULE_PATH}}
+          # run module script once here
