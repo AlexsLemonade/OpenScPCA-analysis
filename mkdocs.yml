@@ -66,6 +66,7 @@ nav:
       - communications-tools/github-issues/index.md
       - communications-tools/github-issues/writing-issues.md
       - communications-tools/github-issues/what-makes-a-good-issue.md
+      - communications-tools/github-issues/issue-templates.md
   - Contributing to analyses:  # Setting up an analysis, all the git stuff
     - contributing-to-analyses/index.md
     - Analysis modules:
