@@ -13,6 +13,7 @@ Carpentries
 Cmd
 Ctrl
 CellAssign
+codebase
 conda
 config
 discoverable
