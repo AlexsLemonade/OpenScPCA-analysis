@@ -1,17 +1,17 @@
-# This is a workflow to run the {{MODULE_NAME}} module
+# This is a workflow to run the {{ MODULE_NAME }} module
 # Analysis modules are run based on three triggers:
 # - Manual trigger
 # - On pull requests where code in the module has changed
 # - As a reusable workflow called from a separate workflow which periodically runs all modules
 
-name: Run {{MODULE_NAME}} analysis module
+name: Run {{ MODULE_NAME }} analysis module
 env:
-  MODULE_PATH: analyses/{{MODULE_NAME}}
+  MODULE_PATH: analyses/{{ MODULE_NAME }}
   AWS_DEFAULT_REGION: us-east-1
 
 concurrency:
   # only one run per branch at a time
-  group: {{MODULE_NAME}}-${{ github.ref }}
+  group: {{ MODULE_NAME }}-${{ github.ref }}
   cancel-in-progress: true
 
 
@@ -22,7 +22,7 @@ on:
     branches:
       - main
     paths:
-      - analyses/{{MODULE_NAME}}/**
+      - analyses/{{ MODULE_NAME }}/**
 
 
 jobs:
