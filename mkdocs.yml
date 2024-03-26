@@ -75,6 +75,7 @@ nav:
       - contributing-to-analyses/starting-your-analysis/index.md
       - contributing-to-analyses/starting-your-analysis/determining-software-requirements.md
       - contributing-to-analyses/starting-your-analysis/determining-compute-requirements.md
+      - contributing-to-analyses/starting-your-analysis/creating-a-module.md
     - Working with Git: # Creating branches, adding commits, all git interactions
       - contributing-to-analyses/working-with-git/working-with-branches.md
       - contributing-to-analyses/working-with-git/staying-in-sync-with-upstream.md
