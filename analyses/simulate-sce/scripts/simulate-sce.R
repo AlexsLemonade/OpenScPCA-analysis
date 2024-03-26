@@ -102,9 +102,8 @@ simulate_sce <- function(sce, ncells, library_metadata, processed) {
   stopifnot(
     "sce must be a SingleCellExperiment" = is(sce, "SingleCellExperiment"),
     "ncells must be a positive integer" = is.integer(ncells) && ncells > 0,
-    ## TODO: revisit this assumption for multiplexed data
-    "library_metadata should be a data frame with a single row" = (
-      is.data.frame(library_metadata) && nrow(library_metadata) == 1
+    "library_metadata should be a data frame with the same number of rows as the sample_metadata" = (
+      is.data.frame(library_metadata) && nrow(library_metadata) == nrow(metadata(sce)$sample_metadata)
     ),
     "processed must be a boolean" = is.logical(processed)
   )
@@ -115,22 +114,17 @@ simulate_sce <- function(sce, ncells, library_metadata, processed) {
 
   ### Reduce and remove metadata -----------------------------------------------
 
-  # replace sample metadata fields with permuted values from the metadata file
-  # TODO: Make sure this works correctly with multiplexed data
-  metadata(sce_sim)$sample_metadata$submitter_id <- library_metadata$submitter_id
-  metadata(sce_sim)$sample_metadata$participant_id <- library_metadata$participant_id
-  metadata(sce_sim)$sample_metadata$age <- library_metadata$age_at_diagnosis
-  metadata(sce_sim)$sample_metadata$sex <- library_metadata$sex
-  metadata(sce_sim)$sample_metadata$diagnosis <- library_metadata$diagnosis
-  metadata(sce_sim)$sample_metadata$subdiagnosis <- library_metadata$subdiagnosis
-  metadata(sce_sim)$sample_metadata$tissue_location <- library_metadata$tissue_location
-  metadata(sce_sim)$sample_metadata$disease_timing <- library_metadata$disease_timing
-  metadata(sce_sim)$sample_metadata$development_stage_ontology_term_id <- library_metadata$development_stage_ontology_term_id
-  metadata(sce_sim)$sample_metadata$sex_ontology_term_id <- library_metadata$sex_ontology_term_id
-  metadata(sce_sim)$sample_metadata$self_reported_ethnicity_ontology_term_id <- library_metadata$self_reported_ethnicity_ontology_term_id
-  metadata(sce_sim)$sample_metadata$disease_ontology_term_id <- library_metadata$disease_ontology_term_id
-  metadata(sce_sim)$sample_metadata$tissue_ontology_term_id <- library_metadata$tissue_ontology_term_id
+  # match column names from permuted metadata to sample_metadata
+  library_metadata <- library_metadata |>
+    dplyr::rename(
+      sample_id = scpca_sample_id,
+      age = age_at_diagnosis
+    ) |>
+    dplyr::select(any_of(colnames(metadata(sce)$sample_metadata)))
 
+  # replace sample metadata fields with permuted values
+  metadata(sce_sim)$sample_metadata <- metadata(sce_sim)$sample_metadata |>
+    dplyr::rows_update(library_metadata, by = "sample_id")
 
   # remove miQC model that may exist
   metadata(sce_sim)$miQC_model <- NULL
