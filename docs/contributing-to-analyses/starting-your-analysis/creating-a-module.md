@@ -3,7 +3,7 @@
 Once you have [discussed your proposed analysis](../../communications-tools/index.md#github-discussions) and [filed an issue to get started](../../communications-tools/index.md#github-issues), you're ready to create an analysis module.
 
 We have provided a script [`create-analysis-module.py`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/create-analysis-module.py) you can use to make this process easier.
-Before you begin, please review [this documentation](../analysis-modules/index.md) for an overview of skeleton file structure of an analysis module.
+Before you begin, please review [this documentation](../analysis-modules/index.md) for an overview of the skeleton file structure of an empty analysis module.
 
 
 !!! note "Is this your first analysis module?"
@@ -20,7 +20,7 @@ Before you begin, please review [this documentation](../analysis-modules/index.m
 You should use the [`create-analysis-module.py`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/create-analysis-module.py) script to create a skeleton module for your analysis in the `analyses` folder.
 
 Before running this script, you should decide whether you will use R or Python (or both!) in your module.
-When running the script, you can use flags to add additional files and/or folders to your module skeleton that you will need for your chosen language, [as described below](#script-flags).
+When running the script, you can use flags to add additional files and/or folders to your module skeleton that you will need for your chosen language, [as described below](#module-creation-script-flags).
 
 
 To run this script, take these steps:
@@ -54,21 +54,21 @@ Each flag will create a skeleton module with the given files and folders.
 
 Note that you can use both an R and a Python flag if you want to write your module in both languages.
 
+Each example below shows the resulting module file structure when using each flag.
+
 ### Flags to create an R module
 
 #### `--use-r`
 
-This flag will add a template R notebook to your module.
-<div class="grid" markdown>
-
-You can use this flag as:
+Use this flag to add a template R notebook to your module:
 
 ```bash
-# Create a module called `my-module-name` with an example R Markdown notebook
+# Create a module called `my-module-name` with a template R Markdown notebook
 ./create-analysis-module.py my-module-name --use-r
 ```
 
-This will create skeleton module called `my-module-name` with the files and folders shown.
+<div class="grid" markdown>
+
 
 ```{ .no-copy title="Module directory with --use-r flag"}
 ├── scripts
@@ -85,9 +85,12 @@ This will create skeleton module called `my-module-name` with the files and fold
 ├── .gitignore
 └── .dockerignore
 ```
-</div>
 
 - You can use `notebook-template.Rmd` as a starting point for any R Markdown notebooks you create while writing your analysis
+
+
+</div>
+
 
 
 
@@ -95,21 +98,21 @@ This will create skeleton module called `my-module-name` with the files and fold
 
 !!! info
     The `hello-r` example module was created with this flag.
-    Learn more about [using `renv` to manage your R environment](../starting-your-analysis/determining-software-requirements/#using-renv).
+    Learn more about [using `renv` to manage your R environment](./determining-software-requirements.md#using-renv).
 
-- This flag will both:
-    - Add a template R notebook to your module
-    - Initialize an `renv` environment for your module
+Use this flag to:
 
-You can use this flag as:
+- Add a template R notebook to your module
+- Initialize an `renv` environment for your module
+
 
 ```bash
-# Create a module called `my-module-name` with an example R Markdown notebook and an `renv` environment
+# Create a module called `my-module-name` with a template R Markdown notebook
+#   and an `renv` environment
 ./create-analysis-module.py my-module-name --use-renv
 ```
 
-This will create skeleton module called `my-module-name` with these files and folders:
-
+<div class="grid" markdown>
 
 ```
 ├── scripts
@@ -134,12 +137,14 @@ This will create skeleton module called `my-module-name` with these files and fo
 ```
 
 - You can use `notebook-template.Rmd` as a starting point for any R Markdown notebooks you create while writing your analysis
-- You can use `components/dependencies.R` to [pin R package dependencies that `renv` does not automatically capture](../starting-your-analysis/determining-software-requirements/#pinning-dependencies-that-are-not-captured-automatically)
+- You can use `components/dependencies.R` to [pin R package dependencies that `renv` does not automatically capture](./determining-software-requirements.md#pinning-dependencies-that-are-not-captured-automatically)
 - These additional files and folders manage the `renv` environment, and you should not directly edit them:
     - `renv.lock`
     - The `renv` folder
     - `.Rprofile`
 
+
+</div>
 
 ### Flags to create a Python module
 
@@ -147,26 +152,28 @@ This will create skeleton module called `my-module-name` with these files and fo
 
 !!! info
     The `hello-python` example module was created with this flag.
-    Learn more about [using conda to manage your Python environment](../starting-your-analysis/determining-software-requirements/#managing-software-dependencies-in-python-with-conda).
+    Learn more about [using conda to manage your Python environment](./determining-software-requirements.md#managing-software-dependencies-in-python-with-conda).
 
-- This flag will both:
-    - Add a template Jupyter notebook to your module
-      - To instead add a template Python script, use `--use-python`
-    - Initialize a conda environment for your module
-      - The conda environment will be named `openscpca-<module name>`
-        - For example, if you name your module `celltype-ewings`, its conda environment will be named `openscpca-celltype-ewings`
-      - The conda environment will include an installation of Jupyter that you will be able to launch with the `jupyter lab` command when the environment is active.
+Use this flag to:
 
-You can use this flag as:
+- Add a template Jupyter notebook to your module
+    - To instead add a template Python script, use `--use-python`
+- Initialize a conda environment for your module
+    - The conda environment will be named `openscpca-<module name>`
+    - For example, if you name your module `celltype-ewings`, its conda environment will be named `openscpca-celltype-ewings`
+        - The conda environment will include an installation of Jupyter that you can launch with the `jupyter lab` command when the environment is active
 
 ```bash
+# Create a module called `my-module-name` with a template Jupyter notebook
+#   and a conda environment with Jupyter installed
 ./create-analysis-module.py my-module-name --use-jupyter
 
-# Or, to create a Python script instead of a Jupyter notebook:
+# Or, create a module called `my-module-name` with a template python script
+#   and a conda environment (Jupyter not installed)
 ./create-analysis-module.py my-module-name --use-python
 ```
 
-This will create skeleton module called `my-module-name` with these files and folders:
+<div class="grid" markdown>
 
 ```
 ├── scripts
@@ -186,21 +193,22 @@ This will create skeleton module called `my-module-name` with these files and fo
 ```
 
 - You can use `notebook-template.ipynb` (or `script-template.py`) as a starting point for any Jupyter notebooks (or Python scripts) you create while writing your analysis
-- You can use the `environment.yml` file to add packages to your module's conda environment
+- You can use the `environment.yml` file to add additional packages to your module's conda environment
 
-
+</div>
 
 #### `--use-conda`
 
-This flag will initialize a conda environment for your module, but will not add a template script or notebook.
+Use this flag to initialize a conda environment in your module, but without a template script or notebook.
+The conda environment will be named `openscpca-<module name>`.
 
-You can use this flag as:
 
 ```bash
+# Or, create a module called `my-module-name` with a conda environment
 ./create-analysis-module.py my-module-name --use-conda
 ```
 
-This will create skeleton module called `my-module-name` with these files and folders:
+<div class="grid" markdown>
 
 
 ```
@@ -220,3 +228,5 @@ This will create skeleton module called `my-module-name` with these files and fo
 ```
 
 - You can use the `environment.yml` file to add packages to your module's conda environment
+
+</div>
