@@ -50,6 +50,9 @@ extra:
     - icon: fontawesome/brands/x-twitter
       link: https://twitter.com/CancerDataLab
       name: Follow us on X
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/showcase/childhood-cancer-data-lab/
+      name: Follow us on LinkedIn
 
 copyright: Copyright &copy; 2024 OpenScPCA Project Maintainers & Contributors | CC-BY 4.0 License
 
