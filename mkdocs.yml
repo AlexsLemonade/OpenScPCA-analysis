@@ -91,6 +91,7 @@ nav:
     - Analysis modules:
       - contributing-to-analyses/analysis-modules/index.md
       - contributing-to-analyses/analysis-modules/creating-a-module.md
+      - contributing-to-analyses/starting-your-analysis/documenting-analysis.md
     - Determining analysis requirements:
       - contributing-to-analyses/determining-requirements/index.md
       - contributing-to-analyses/determining-requirements/determining-software-requirements.md
