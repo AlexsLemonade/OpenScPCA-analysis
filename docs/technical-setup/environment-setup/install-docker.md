@@ -24,7 +24,7 @@ Using Docker with OpenScPCA is optional, but highly recommended.
 A docker container will be created and available for each analysis module.
 This ensures reproducibility of that analysis module across any machine that is used.
 
-For example, if you work on your analysis locally and on [Lightsail for Research](STUB_LINK for LSfR), working in a Docker image ensures reproducible results.
+For example, if you work on your analysis locally and on [Lightsail for Research](../../software-platforms/lsfr/index.md), working in a Docker image ensures reproducible results.
 
 ## How to install Docker
 
