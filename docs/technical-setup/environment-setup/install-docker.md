@@ -3,9 +3,10 @@
 ## What is Docker?
 
 Docker containers are a helpful way to ensure that all contributors are able to run analysis in the same environment.
-A docker container compiles all packages, dependencies, and specified versions in a single portable image.
+A Docker container compiles all packages, dependencies, and specified versions in a single portable image.
+In short, Docker is a key tool we use to ensure _reproducibility_.
 
-This means that contributors can use the same Docker image to run the same analysis on two different machines and ensure the results are reproducible.
+By using the same Docker container, contributors can run the same analysis on different machines and get the same results.
 
 Read more about [Docker images and how we use them in OpenScPCA](STUB-LINK to what are docker images).
 
@@ -19,5 +20,4 @@ For example, if you work on your analysis locally and on [Lightsail for Research
 
 ## How to install Docker
 
-Docker is available for Mac, Linux, and Windows.
-Select your platform and follow the platform-specific instructions provided by Docker [here](https://docs.docker.com/get-docker/).
+Follow the platform-specific instructions [to download and install Docker](https://docs.docker.com/get-docker/) from the Docker website.
