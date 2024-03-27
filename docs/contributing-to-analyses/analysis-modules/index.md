@@ -8,14 +8,28 @@ This section explains the structure of analysis modules.
 
 ## Skeleton analysis module contents
 
-You can create a starting point for your analysis module with the script `create-analysis-module.py`.
-This script will create a skeleton analysis module with the following file structure:
+You can create a starting point for your analysis module with the script [`create-analysis-module.py`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/create-analysis-module.py).
+This script will create a skeleton analysis module with the following file structure ([depending on how you run the script](./creating-a-module.md#module-creation-script-flags), there may be more files here too!).
 
-<figure markdown="span">
-    ![Baseline file structure of an analysis module.](STUB_LINK to image created in #134){width="200"}
-</figure>
 
-Please refer to [the documentation on creating analysis modules](STUB_LINK for creating modules) when you are ready to make your first analysis folder and begin contributing to OpenScPCA!
+```markdown
+├── scripts
+│   └── ...
+├── results
+│   └── README.md
+├── plots
+│   └── ...
+├── scratch
+│   └── ...
+├── README.md
+├── Dockerfile
+├── .gitignore
+└── .dockerignore
+```
+
+
+
+Please refer to [the documentation on creating analysis modules](../analysis-modules/creating-a-module.md) when you are ready to make your first analysis folder and begin contributing to OpenScPCA!
 
 These are the main files and folders you will interact with when writing your analysis:
 
@@ -31,12 +45,12 @@ These are the main files and folders you will interact with when writing your an
     - Any plots that your code produces should be saved to this `plots` folder.
 - **`scratch`**
     - You can optionally use this folder to store _intermediate_ files that your code produces but are not meant to live in `results` or `plots`.
-    - Git will ignore the contents of this folder, so contents of this folder will only be stored locally and not in the remote repository.
+    - We have set up Git to ignore the contents of this folder, so anything you save to this folder will only be stored locally and not in the remote repository.
 - **`README.md`**
-    - Use this [markdown file](STUB_LINK docs on markdown) to document your analysis module.
+    - Use this [markdown file](../../software-platforms/general-tools/writing-in-markdown.md) to document your analysis module.
   Your `README.md` file should have enough information for other contributors or repository users to learn the following:
         - The scientific goals of the module
-        - The input and output of the module and its [computational resource requirements](../starting-your-analysis/determining-compute-requirements.md)
+        - The input and output of the module and its [computational resource requirements](../determining-requirements/determining-compute-requirements.md)
         - How to run the module
     - Please see the documentation on [documenting your analysis module](STUB_LINK module documenting notebooks) for more information about adding to this `README.md` file.
 
