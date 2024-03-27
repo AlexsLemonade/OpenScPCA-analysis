@@ -28,4 +28,4 @@ For example, if you work on your analysis locally and on [Lightsail for Research
 
 ## How to install Docker
 
-Follow the platform-specific instructions [to download and install Docker](https://docs.docker.com/get-docker/) from the Docker website.
+Follow the platform-specific instructions [to download and install Docker Desktop](https://docs.docker.com/get-docker/) from the Docker website.
