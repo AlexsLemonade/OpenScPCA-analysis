@@ -1,6 +1,6 @@
 # Authorship Policy
 
-Authorship on a future Open Pediatric Single-cell Pediatric Cancer Atlas publication will be based on meeting the following criteria adapted from [Cell Press](https://www.cell.com/pb/assets/raw/shared/guidelines/CRediT-taxonomy.pdf).
+Authorship on a future Open Single-cell Pediatric Cancer Atlas publication will be based on meeting the following criteria adapted from [Cell Press](https://www.cell.com/pb/assets/raw/shared/guidelines/CRediT-taxonomy.pdf).
 
 | Term | Definition | 
 |:-----|------------|
