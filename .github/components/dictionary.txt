@@ -53,6 +53,9 @@ nonconsensual
 OpenScPCA
 openscpca
 OpenScPCA's
+Posit
+Posit's
+PowerShell
 pre
 PR
 PRs
@@ -63,6 +66,7 @@ renv
 repo
 reproducibility
 RStudio
+RStudio's
 Rtools
 SaaS
 SCE

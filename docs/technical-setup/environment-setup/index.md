@@ -4,11 +4,9 @@ This section of the documentation walks you through additional setup steps that 
 
 This section assumes that you have already taken these setup steps:
 
-- Downloaded your [Git client of interest](../install-a-git-client.md)
-    - If you are working on a Windows machine, you first need to install the [Windows Subsystem for Linux](STUB_LINK WSL instructions) before setting up Git.
-    - TODO: Is this still true? If you are working on a [Lightsail for Research instance](STUB_LINK for LSfR), note that GitKraken will be pre-installed for you, but you will still need to sign in with your GitHub account.
-- [Forked the `AlexsLemonade/OpenScPCA-analysis` repository](../fork-the-repo.md)
-- [Cloned your fork](../clone-the-repo.md) to your computer
+- Download, install, and set up your [Git client](../install-a-git-client.md)
+- [Fork the `AlexsLemonade/OpenScPCA-analysis` repository](../fork-the-repo.md)
+- [Clone your fork](../clone-the-repo.md) to your computer
 
 While contributing to OpenScPCA, you may end up working on your local computer and/or on a Lightsail for Research instance.
 There are different instructions for getting set up to work on either platform.
@@ -22,6 +20,8 @@ If you are planning to work on your local computer, you will need to take these 
     - Installing conda also provides you with Python and other tools you need to write or contribute to Python-based modules
 - [Set up `pre-commit`](./setup-precommit.md)
     - This will allow you to make contributions in Git
+- [Optional] [Install Docker](./install-docker.md)
+    - This allows you to run your analysis modules inside a Docker container, ensuring reproducibility across machines.
 - [Optional] If you plan on writing or contributing to R-based modules, you should also [download and install R and RStudio, along with a few handy R packages](./install-r-rstudio.md)
 
 ## Setting up on Lightsail for Research
