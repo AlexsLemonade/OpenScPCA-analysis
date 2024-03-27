@@ -8,8 +8,8 @@ This section explains the structure of analysis modules.
 
 ## Skeleton analysis module contents
 
-You can create a starting point for your analysis module with the script `create-analysis-module.py`.
-This script will create a skeleton analysis module with the following file structure:
+You can create a starting point for your analysis module with the script [`create-analysis-module.py`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/create-analysis-module.py).
+This script will create a skeleton analysis module with the following file structure ([depending on how you run the script](./creating-a-module.md#module-creation-script-flags), there may be more files here too!).
 
 
 ```markdown
@@ -29,7 +29,7 @@ This script will create a skeleton analysis module with the following file struc
 
 
 
-Please refer to [the documentation on creating analysis modules](STUB_LINK for creating modules) when you are ready to make your first analysis folder and begin contributing to OpenScPCA!
+Please refer to [the documentation on creating analysis modules](../analysis-modules/creating-a-module.md) when you are ready to make your first analysis folder and begin contributing to OpenScPCA!
 
 These are the main files and folders you will interact with when writing your analysis:
 
@@ -50,7 +50,7 @@ These are the main files and folders you will interact with when writing your an
     - Use this [markdown file](../../software-platforms/general-tools/writing-in-markdown.md) to document your analysis module.
   Your `README.md` file should have enough information for other contributors or repository users to learn the following:
         - The scientific goals of the module
-        - The input and output of the module and its [computational resource requirements](../starting-your-analysis/determining-compute-requirements.md)
+        - The input and output of the module and its [computational resource requirements](../determining-requirements/determining-compute-requirements.md)
         - How to run the module
     - Please see the documentation on [documenting your analysis module](STUB_LINK module documenting notebooks) for more information about adding to this `README.md` file.
 
