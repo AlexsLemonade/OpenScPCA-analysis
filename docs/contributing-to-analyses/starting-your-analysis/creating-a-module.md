@@ -68,7 +68,7 @@ Each example below shows the resulting module file structure when using each fla
 
 ### Flags to create an R module
 
-#### `--use-r`
+#### The `--use-r` flag
 
 Use this flag to add a template R notebook to your module:
 
@@ -79,8 +79,10 @@ Use this flag to add a template R notebook to your module:
 
 <div class="grid" markdown>
 
+- You can use `notebook-template.Rmd` as a starting point for any R Markdown notebooks you create while writing your analysis
 
-```{ .no-copy title="Module directory with --use-r flag"}
+
+```{ .markdown .no-copy title="Module directory with --use-r flag"}
 ├── scripts
 │   └── ...
 ├── results
@@ -96,15 +98,12 @@ Use this flag to add a template R notebook to your module:
 └── .dockerignore
 ```
 
-- You can use `notebook-template.Rmd` as a starting point for any R Markdown notebooks you create while writing your analysis
-
-
 </div>
 
 
 
 
-#### `--use-renv`
+#### The `--use-renv` flag
 
 !!! info
     The `hello-r` example module was created with this flag.
@@ -124,7 +123,15 @@ Use this flag to:
 
 <div class="grid" markdown>
 
-```
+- You can use `notebook-template.Rmd` as a starting point for any R Markdown notebooks you create while writing your analysis
+- You can use `components/dependencies.R` to [pin R package dependencies that `renv` does not automatically capture](./determining-software-requirements.md#pinning-dependencies-that-are-not-captured-automatically)
+- These additional files and folders manage the `renv` environment, and you should not directly edit them:
+    - `renv.lock`
+    - The `renv` folder
+    - `.Rprofile`
+
+
+```{ .markdown .no-copy title="Module directory with --use-renv flag"}
 ├── scripts
 │   └── ...
 ├── results
@@ -146,19 +153,11 @@ Use this flag to:
 └── .dockerignore
 ```
 
-- You can use `notebook-template.Rmd` as a starting point for any R Markdown notebooks you create while writing your analysis
-- You can use `components/dependencies.R` to [pin R package dependencies that `renv` does not automatically capture](./determining-software-requirements.md#pinning-dependencies-that-are-not-captured-automatically)
-- These additional files and folders manage the `renv` environment, and you should not directly edit them:
-    - `renv.lock`
-    - The `renv` folder
-    - `.Rprofile`
-
-
 </div>
 
 ### Flags to create a Python module
 
-#### `--use-jupyter`
+#### The `--use-jupyter` flag
 
 !!! info
     The `hello-python` example module was created with this flag.
@@ -185,7 +184,12 @@ Use this flag to:
 
 <div class="grid" markdown>
 
-```
+
+- You can use `notebook-template.ipynb` (or `script-template.py`) as a starting point for any Jupyter notebooks (or Python scripts) you create while writing your analysis
+- You can use the `environment.yml` file to add additional packages to your module's conda environment
+
+
+```{ .markdown .no-copy title="Module directory with --use-jupyter flag"}
 ├── scripts
 │   └── ...
 ├── results
@@ -202,12 +206,9 @@ Use this flag to:
 └── .dockerignore
 ```
 
-- You can use `notebook-template.ipynb` (or `script-template.py`) as a starting point for any Jupyter notebooks (or Python scripts) you create while writing your analysis
-- You can use the `environment.yml` file to add additional packages to your module's conda environment
-
 </div>
 
-#### `--use-conda`
+#### The `--use-conda` flag
 
 Use this flag to initialize a conda environment in your module, but without a template script or notebook.
 The conda environment will be named `openscpca-<module name>`.
@@ -220,8 +221,10 @@ The conda environment will be named `openscpca-<module name>`.
 
 <div class="grid" markdown>
 
+- You can use the `environment.yml` file to add packages to your module's conda environment
 
-```
+
+```{ .markdown .no-copy title="Module directory with --use-conda flag"}
 ├── scripts
 │   └── ...
 ├── results
@@ -236,7 +239,5 @@ The conda environment will be named `openscpca-<module name>`.
 ├── .gitignore
 └── .dockerignore
 ```
-
-- You can use the `environment.yml` file to add packages to your module's conda environment
 
 </div>
