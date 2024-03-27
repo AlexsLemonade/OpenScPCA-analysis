@@ -71,8 +71,8 @@ We are seeking contributors with diverse skills and expertise to join the OpenSc
     If you would like support for Windows, please [file an issue](https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/new?assignees=&labels=docs-request&projects=&template=04-docs-request.yml&title=Docs+request%3A) to request Windows support and associated docs.
 
 <br/>
-The primary platform for the project is Linux and we're able to support analyses written in R and Python.
-The documentation and analyses modules cater mainly to Linux and Mac platforms, and R and Python languages.
+The primary platform for the project is Linux and we're best able to support analyses written in R and Python.
+The documentation and analyses modules cater mainly to Linux and Mac platforms, and the above languages.
 
 <br/><br/>
 Whether you are a disease expert, a seasoned computational biologist or looking to hone your data analysis skills, we welcome your contributions to OpenScPCA!
