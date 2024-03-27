@@ -33,6 +33,8 @@ Once approved, a Data Lab staff member will merge your feature branch into the `
 
 ## The pull request review process
 
+![pr-review-process](../../img/pr-review-cycle.png)
+
 We require that [at least one Data Lab staff member review](STUB-LINK to reviewing) the content of all PRs.
 We will review your code contribution by:
 
