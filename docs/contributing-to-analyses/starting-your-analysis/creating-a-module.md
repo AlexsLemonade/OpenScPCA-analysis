@@ -19,8 +19,13 @@ Before you begin, please review [this documentation](../analysis-modules/index.m
 
 You should use the [`create-analysis-module.py`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/create-analysis-module.py) script to create a skeleton module for your analysis in the `analyses` folder.
 
-Before running this script, you should decide whether you will use R or Python (or both!) in your module.
-When running the script, you can use flags to add additional files and/or folders to your module skeleton that you will need for your chosen language, [as described below](#module-creation-script-flags).
+Before running this script, you should determine two things:
+
+- The name of your module
+    - You will provide this name as an argument to the script
+-  Whether you will use R or Python (or both!) in your module
+    - You can use certain script flags to add a template notebook and/or set up an environment (`renv` or conda) for your chosen language, [as described below in detail](#module-creation-script-flags)
+        - If you do not use additional flags, the script will create a [skeleton module](../analysis-modules/index.md#skeleton-analysis-module-contents) only
 
 
 To run this script, take these steps:
@@ -28,16 +33,21 @@ To run this script, take these steps:
 1. Open a [terminal](../../software-platforms/general-tools/using-the-terminal.md) window.
     - You may wish to launch terminal [from GitKraken](../../software-platforms/general-tools/using-the-terminal.md#gitkraken) so that you are automatically placed in the repository.
 
-1. Make sure you are working in your `base` conda environment by running `conda activate base`.
+2. Make sure you are working in your `base` conda environment by running `conda activate base`.
 
-1. As needed, navigate using `cd` to your `OpenScPCA-analysis` fork.
+3. As needed, navigate using `cd` to your `OpenScPCA-analysis` fork.
 
-1. Run the module creation script using your desired flags:
+4. Run the module creation script:
 
-```bash
-# Create a module called `my-module-name`, for example
-./create-analysis-module.py my-module-name <additional flags here>
-```
+    ```bash
+    # Create a module called `my-module-name`
+    ./create-analysis-module.py my-module-name <additional flags here>
+    ```
+
+      - The script requires one first argument: the name of your module.
+          - The example code above will creates an analysis module called `my-module-name`
+      - You can also use an [additional flag](#module-creation-script-flags) to add a template notebook or set up an environment with `renv` or conda
+
 
 !!! tip
     You can always run the script with the `--help` flag to reveal the help menu and see other flags you can use:
