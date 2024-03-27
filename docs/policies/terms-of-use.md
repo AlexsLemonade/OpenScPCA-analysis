@@ -200,7 +200,7 @@ or any Policies or any applicable laws, rules or regulations.
 Any User Content uploaded to or distributed, transmitted or
 otherwise made available through the OpenScPCA Project will be
 deemed to include, and you hereby grant to us, a royalty-free,
-perpetual, irrevocable, nonexclusive, transferrable, sublicenseable,
+perpetual, irrevocable, nonexclusive, transferrable, sublicensable,
 right and license for us to adopt, publish, reproduce, disseminate,
 transmit, distribute, copy, use, create derivative works of, display
 (in whole or part) worldwide, or act on such User Content without
