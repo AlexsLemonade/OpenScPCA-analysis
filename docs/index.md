@@ -2,22 +2,15 @@
 
 OpenScPCA is an open, collaborative project to analyze data from the [Single-cell Pediatric Cancer Atlas (ScPCA) Portal](https://scpca.alexslemonade.org/), which currently holds 500 samples from over 50 pediatric cancer types. 
 
-This project aims to 
+This project aims to: 
 
 - Characterize the ScPCA data with analyses such as labeling cell types or identifying recurrent cell states in multiple tumor types
 
-- Refine approaches in the open.
+- Work on open and collaborative.
 
 - Build consensus around usage, strengths, and pitfalls of methods and their application to pediatric cancer data.
 
 - Improve the utility of the ScPCA data for the research community by exploring the creation of new data assets (e.g., integrated objects).
-
-The primary platform for the project is Linux.
-The documentation and analyses modules cater mainly to Linux and Mac platforms.
-
-If you would like support for Windows, please [file an issue](https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/new?assignees=&labels=docs-request&projects=&template=04-docs-request.yml&title=Docs+request%3A) to request Windows support and associated docs.
-
-Whether you are a disease expert, a seasoned computational biologist or looking to hone your data analysis skills, we welcome your contributions to OpenScPCA!
 
 
 ## How it works
@@ -73,7 +66,16 @@ Plus, you may be part of a future publication!
 ## Become a contributor
 
 We are seeking contributors with diverse skills and expertise to join the OpenScPCA community. 
-Do you want to get involved?
+
+!!! info inline end
+    If you would like support for Windows, please [file an issue](https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/new?assignees=&labels=docs-request&projects=&template=04-docs-request.yml&title=Docs+request%3A) to request Windows support and associated docs.
+
+<br/>
+The primary platform for the project is Linux and we're able to support analyses written in R and Python.
+The documentation and analyses modules cater mainly to Linux and Mac platforms, and R and Python languages.
+
+<br/><br/>
+Whether you are a disease expert, a seasoned computational biologist or looking to hone your data analysis skills, we welcome your contributions to OpenScPCA!
 
 Get started by filling out the interest form below. 
 You will receive an email response with more information and next steps.
