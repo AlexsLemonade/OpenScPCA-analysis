@@ -53,7 +53,7 @@ openscpca
 OpenScPCA's
 Posit
 Posit's
-Postpublication
+postpublication
 PowerShell
 pre
 PR
