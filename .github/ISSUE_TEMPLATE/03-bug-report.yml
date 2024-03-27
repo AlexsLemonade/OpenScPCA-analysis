@@ -1,5 +1,5 @@
 name: Report a bug
-description: Use this issue template to report a bug or problem with the codebase
+description: Use this template to report a bug or problem with the codebase
 title: 'Bug report:'
 labels: bug
 body:

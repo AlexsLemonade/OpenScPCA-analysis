@@ -1,0 +1,22 @@
+# This manually-triggered workflow should be run to create a periodic release 
+name: Create a release tagged with today's date
+on:
+  workflow_dispatch:
+
+jobs:
+  post_issue:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Get date
+        run: echo "TODAY=$(date -I)" >> $GITHUB_ENV
+
+      - name: Create dated release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ env.TODAY }}
+          generateReleaseNotes: true
+          prerelease: true
