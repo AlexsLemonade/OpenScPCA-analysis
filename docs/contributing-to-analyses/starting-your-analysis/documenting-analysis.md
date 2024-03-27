@@ -3,7 +3,7 @@
 Each analysis module should include a `README.md` file with important information about the analysis and instructions for running the analysis module.
 This file can be particularly helpful to other contributors who want to use your analysis module and to you when you revisit a module you've written in the past.
 
-We have provided a [template `README.md`](../../../templates/README.md) that will be included in the files obtained when [creating your analysis module](./creating-a-module.md).
+We have provided a [template `README.md`](../../../templates/README.md) that will be automatically included when you [create a new analysis module](./creating-a-module.md).
 You should fill out the template for your analysis module and provide the following information for each analysis:
 
 - Description
