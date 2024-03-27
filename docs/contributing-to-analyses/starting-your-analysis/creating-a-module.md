@@ -58,7 +58,8 @@ Note that you can use both an R and a Python flag if you want to write your modu
 
 #### `--use-r`
 
-This flag will add a template R notebook to your module:
+This flag will add a template R notebook to your module.
+<div class="grid" markdown>
 
 You can use this flag as:
 
@@ -67,10 +68,9 @@ You can use this flag as:
 ./create-analysis-module.py my-module-name --use-r
 ```
 
-This will create skeleton module called `my-module-name` with these files and folders:
+This will create skeleton module called `my-module-name` with the files and folders shown.
 
-
-```
+```{ .no-copy title="Module directory with --use-r flag"}
 ├── scripts
 │   └── ...
 ├── results
@@ -85,6 +85,7 @@ This will create skeleton module called `my-module-name` with these files and fo
 ├── .gitignore
 └── .dockerignore
 ```
+</div>
 
 - You can use `notebook-template.Rmd` as a starting point for any R Markdown notebooks you create while writing your analysis
 
@@ -151,9 +152,10 @@ This will create skeleton module called `my-module-name` with these files and fo
 - This flag will both:
     - Add a template Jupyter notebook to your module
       - To instead add a template Python script, use `--use-python`
-    - Initialize an conda environment for your module
+    - Initialize a conda environment for your module
       - The conda environment will be named `openscpca-<module name>`
-      - For example, if you name your module `celltype-ewings`, its conda environment will be named `openscpca-celltype-ewings`
+        - For example, if you name your module `celltype-ewings`, its conda environment will be named `openscpca-celltype-ewings`
+      - The conda environment will include an installation of Jupyter that you will be able to launch with the `jupyter lab` command when the environment is active.
 
 You can use this flag as:
 
