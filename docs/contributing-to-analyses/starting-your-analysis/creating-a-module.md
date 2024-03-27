@@ -82,7 +82,7 @@ Use this flag to add a template R notebook to your module:
 - You can use `notebook-template.Rmd` as a starting point for any R Markdown notebooks you create while writing your analysis
 
 
-```{ .markdown .no-copy title="Module directory with --use-r flag"}
+```{ .console .no-copy title="Module directory with --use-r flag"}
 ├── scripts
 │   └── ...
 ├── results
@@ -131,7 +131,7 @@ Use this flag to:
     - `.Rprofile`
 
 
-```{ .markdown .no-copy title="Module directory with --use-renv flag"}
+```{ .console .no-copy title="Module directory with --use-renv flag"}
 ├── scripts
 │   └── ...
 ├── results
@@ -189,7 +189,7 @@ Use this flag to:
 - You can use the `environment.yml` file to add additional packages to your module's conda environment
 
 
-```{ .markdown .no-copy title="Module directory with --use-jupyter flag"}
+```{ .console .no-copy title="Module directory with --use-jupyter flag"}
 ├── scripts
 │   └── ...
 ├── results
@@ -224,7 +224,7 @@ The conda environment will be named `openscpca-<module name>`.
 - You can use the `environment.yml` file to add packages to your module's conda environment
 
 
-```{ .markdown .no-copy title="Module directory with --use-conda flag"}
+```{ .console .no-copy title="Module directory with --use-conda flag"}
 ├── scripts
 │   └── ...
 ├── results
