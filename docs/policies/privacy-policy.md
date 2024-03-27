@@ -38,7 +38,7 @@ We may collect and retain information from or about you when you register on the
     "cookies" or other tracking tools to enhance your experience and
     gather information about Users and visits to the OpenScPCA Project.
     Please refer to the "May we use 'cookies' or other tracking
-    tools?\" section below for information about cookies and how we may
+    tools?" section below for information about cookies and how we may
     use them.
 
 -   **Information from Other Sources:** For purposes such as
@@ -204,13 +204,13 @@ protect the integrity of the OpenScPCA Project and welcome any
 feedback about these linked sites (including if a specific link does
 not work).
 
-11\. **Children\'s Privacy**
+11\. **Children's Privacy**
 
 We do not knowingly intend to collect personal information from
 children under 13 years of age. If a child has provided us with
 personal information, a parent or guardian of that child may send an
-email message to <report@ccdatalab.org> with \"Request for Child
-Information Removal\" in the subject line and the name and age of the
+email message to <report@ccdatalab.org> with "Request for Child
+Information Removal" in the subject line and the name and age of the
 child in the body of the message. After confirmation, we will make
 reasonable efforts to delete the child's information from the database
 that stores information for the OpenScPCA Project.
