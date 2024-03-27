@@ -18,4 +18,5 @@ Authorship on a future Open Pediatric Single-cell Pediatric Cancer Atlas publica
 | Supervision | Oversight and leadership responsibility for the research activity planning and execution, including mentorship external to the core team | 
 | Project Administration | Management and coordination responsibility for the research activity planning and execution | 
 | Funding Acquisition | Acquisition of the financial support for the project leading to this publication | 
+
 Reproduced from [Brand et al. (2015)](http://informatics.mit.edu/publications/beyond-authorship-attribution-contribution-collaboration-and-credit), Learned Publishing 28(2), with permission of the authors.
