@@ -15,6 +15,7 @@ Ctrl
 CellAssign
 conda
 config
+curation
 discoverable
 DM
 Dockerfile
@@ -43,6 +44,7 @@ linters
 lockfile
 LSfR
 macOS
+mentorship
 merchantability
 Miniconda
 nonconsensual
@@ -51,6 +53,7 @@ openscpca
 OpenScPCA's
 Posit
 Posit's
+Postpublication
 PowerShell
 pre
 PR

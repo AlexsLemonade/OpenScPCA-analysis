@@ -122,3 +122,5 @@ nav:
   - Policies: # CoC, Authorship, other policies
     - policies/index.md
     - policies/code-of-conduct.md
+    - policies/authorship.md
+

@@ -14,7 +14,7 @@ Authorship on a future Open Single-cell Pediatric Cancer Atlas publication will 
 | Data Curation | Management activities to annotate (produce metadata), scrub data and maintain research data (including software code, where it is necessary for interpreting the data itself) for initial use and later reuse | 
 | Writing – Original Draft  | Preparation, creation and/or presentation of the published work, specifically writing the initial draft (including substantive translation) | 
 | Writing – Review & Editing  | Preparation, creation and/or presentation of the published work by those from the original research group, specifically critical review, commentary or revision – including pre- or postpublication stages | 
-| Visualization | Preparation, creation and/or presentation of the published work, specifically visualization/ data presentation | 
+| Visualization | Preparation, creation and/or presentation of the published work, specifically visualization/data presentation | 
 | Supervision | Oversight and leadership responsibility for the research activity planning and execution, including mentorship external to the core team | 
 | Project Administration | Management and coordination responsibility for the research activity planning and execution | 
 | Funding Acquisition | Acquisition of the financial support for the project leading to this publication | 
