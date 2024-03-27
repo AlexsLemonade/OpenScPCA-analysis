@@ -127,3 +127,4 @@ For consistency, please use the following:
 - Refer to git as "Git" (without quotes), not "git"
   - If you are actually referring to a git command, you should use `git <command>`
 - Capitalize Python (not python)
+- Capitalize Docker (not docker)
