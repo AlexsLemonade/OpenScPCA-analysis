@@ -22,7 +22,7 @@ If you are planning to work on your local computer, you will need to take these 
     - This will allow you to make contributions in Git
 - [Optional] [Install Docker](./install-docker.md)
     - This allows you to run your analysis modules inside a Docker container, ensuring reproducibility across machines.
-- (Optional) If you plan on writing or contributing to R-based modules, you should also [download and install R and RStudio, along with a few handy R packages](./install-r-rstudio.md)
+- [Optional] If you plan on writing or contributing to R-based modules, you should also [download and install R and RStudio, along with a few handy R packages](./install-r-rstudio.md)
 
 ## Setting up on Lightsail for Research
 
