@@ -79,6 +79,7 @@ nav:
       - technical-setup/environment-setup/index.md
       - technical-setup/environment-setup/setup-conda.md
       - technical-setup/environment-setup/setup-precommit.md
+      - technical-setup/environment-setup/install-docker.md
       - technical-setup/environment-setup/install-r-rstudio.md
   - Tools for communication:   # Slack, issues, discussions
     - communications-tools/index.md
@@ -93,6 +94,7 @@ nav:
       - contributing-to-analyses/starting-your-analysis/index.md
       - contributing-to-analyses/starting-your-analysis/determining-software-requirements.md
       - contributing-to-analyses/starting-your-analysis/determining-compute-requirements.md
+      - contributing-to-analyses/starting-your-analysis/creating-a-module.md
     - Working with Git: # Creating branches, adding commits, all git interactions
       - contributing-to-analyses/working-with-git/working-with-branches.md
       - contributing-to-analyses/working-with-git/staying-in-sync-with-upstream.md
@@ -107,10 +109,16 @@ nav:
       - contributing-to-analyses/creating-pull-requests/file-pull-request.md
   - Software platforms:            # LSfR, AWS, Docker, etc
     - software-platforms/index.md
-    - software-platforms/general-tools/index.md
-    - software-platforms/general-tools/writing-in-markdown.md
-    - software-platforms/general-tools/using-the-terminal.md
-  - Getting Help and FAQ:      # troubleshooting and FAQ
+    - Lightsail for Research:
+      - software-platforms/lsfr/index.md
+    - Amazon S3:
+      - software-platforms/aws/index.md
+    - Additional project tools:
+      - software-platforms/general-tools/index.md
+      - software-platforms/general-tools/writing-in-markdown.md
+      - software-platforms/general-tools/using-the-terminal.md
+  - Getting Help:      # troubleshooting and FAQ
     - troubleshooting-faq/index.md
   - Policies: # CoC, Authorship, other policies
     - policies/index.md
+    - policies/code-of-conduct.md

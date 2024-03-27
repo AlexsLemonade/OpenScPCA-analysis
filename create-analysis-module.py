@@ -8,10 +8,14 @@ import re
 import shutil
 import subprocess
 import sys
+from typing import Union
 
 
 def copy_file_with_tag_replacement(
-    src: pathlib.Path | str, dest: pathlib.Path | str, tag: str, replacement: str
+    src: Union[pathlib.Path, str],
+    dest: Union[pathlib.Path, str],
+    tag: str,
+    replacement: str,
 ) -> None:
     """
     Copy a file from src to dest, replacing all occurrences of tag with replacement.
@@ -33,7 +37,7 @@ def copy_file_with_tag_replacement(
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Create a new analysis module for OpenScPCA.",
-        usage="%(prog)s MODULE_NAME [options]",
+        usage="./%(prog)s MODULE_NAME [options]",
     )
     parser.add_argument(
         "name",

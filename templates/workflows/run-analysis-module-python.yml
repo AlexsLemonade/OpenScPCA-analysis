@@ -1,17 +1,20 @@
-# This is a workflow to run the hello-python module
+# This is a workflow to run the {{ MODULE_NAME }} module
+
+# Replace {{ MODULE_NAME }} throughout the file and otherwise customize to the needs of the particular module
+
 # Analysis modules are run based on three triggers:
 # - Manual trigger
 # - On pull requests where code in the module has changed
 # - As a reusable workflow called from a separate workflow which periodically runs all modules
 
-name: Run hello-python analysis module
+name: Run {{ MODULE_NAME }} analysis module
 env:
-  MODULE_PATH: analyses/hello-python
+  MODULE_PATH: analyses/{{ MODULE_NAME }}
   AWS_DEFAULT_REGION: us-east-1
 
 concurrency:
   # only one run per branch at a time
-  group: hello-python-${{ github.ref }}
+  group: "{{ MODULE_NAME }}-${{ github.ref }}"
   cancel-in-progress: true
 
 on:
@@ -21,19 +24,17 @@ on:
     branches:
       - main
     paths:
-      - analyses/hello-python/**
+      - "analyses/{{ MODULE_NAME }}/**"
 
 jobs:
   run-module:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash -el {0}
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      # Update this step as needed to download the desired data
       - name: Download test data
         run: ./download-data.py --test-data --format AnnData
 
@@ -45,7 +46,7 @@ jobs:
           conda install conda-lock
           conda-lock install --name test ${MODULE_PATH}/conda-lock.yml
 
-      - name: Run analysis
+      - name: Run analysis module
         run: |
-          cd $MODULE_PATH
-          bash hello-python.sh
+          cd ${MODULE_PATH}
+          # run module script here

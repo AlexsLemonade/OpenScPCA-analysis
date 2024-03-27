@@ -9,8 +9,8 @@ The terminal is an interface where you can type commands (rather than "point and
 In the OpenScPCA project, we use the word "terminal" to specifically refer to a UNIX-style terminal, and not for example the Windows PowerShell.
 
 macOS and Linux (which [Lightsail for Research instances](STUB_LINK to LSfR docs) use) computers come with a built-in terminal application.
-At this time, the OpenScPCA project only supports these two operating systems; At this time, support for Windows is not yet provided. 
-If you would like to see Windows supported, please [let us know by filing an issue](https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/new?assignees=&labels=docs-request&projects=&template=04-docs-request.yml&title=Docs+request%3A). 
+At this time, the OpenScPCA project only supports these two operating systems; Support for Windows is not yet provided.
+If you would like to see Windows supported, please [let us know by filing an issue](https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/new?assignees=&labels=docs-request&projects=&template=04-docs-request.yml&title=Docs+request%3A).
 <!--
 On Windows computers, you will first need to install and setup the [Windows Subsystem for Linux (WSL)](STUB_LINK for WSL instructions) to be able to use the terminal.
 -->
@@ -61,9 +61,21 @@ Simply [search for and open the Ubuntu app via the Windows Search Bar Menu](http
 
 ### Accessing the terminal on Lightsail for Research
 
-Lightsail for Research instances run on the Ubuntu operating system, which is a type of Linux.
+Lightsail for Research (LSfR) instances run on the Ubuntu operating system, which is a type of Linux.
 
-TODO: To launch the terminal in Ubuntu, INSTRUCTIONS ARE FORTHCOMING FOR WHERE EXACTLY TO CLICK.
+Take these steps to launch a terminal in LSfR:
+
+1. Click the `Activities` button in the top-left corner.
+
+1. In the search bar that appears, search for "terminal."
+
+1. Click the Terminal app with the _black icon_ to launch the terminal:
+
+<figure markdown="span">
+    ![Open the terminal in Lightsail for Research.](../../img/lsfr-search-terminal.png){width="500"}
+</figure>
+
+
 
 
 ### Accessing the terminal from other applications

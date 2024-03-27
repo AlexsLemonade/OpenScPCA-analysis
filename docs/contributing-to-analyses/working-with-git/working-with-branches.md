@@ -43,7 +43,7 @@ This means you will create a new feature branch for every new pull request you p
 
 Follow these steps to create your feature branch:
 
-1. (Optional but recommended) Ensure your fork's `main` branch is up-to-date with the `AlexsLemonade/OpenScPCA-analysis` repository's main branch.
+1. [Optional but recommended] Ensure your fork's `main` branch is up-to-date with the `AlexsLemonade/OpenScPCA-analysis` repository's main branch.
 
     - Refer to [this documentation about how to keep your `main` branch in sync](./staying-in-sync-with-upstream.md).
 
