@@ -10,7 +10,7 @@ Before you begin, please review [this documentation](../analysis-modules/index.m
     If you are creating your first analysis module, we recommend that you [scope your first pull request](../creating-pull-requests/scoping-pull-requests.md) to contain only:
 
     - The analysis module skeleton created by running `create-analysis-module.py`
-    - Some [initial documentation of your module](STUB_LINK documenting analysis modules) in the `README.md` file
+    - Some [initial documentation of your module](./documenting-analysis.md) in the `README.md` file
 
     This way, you can get some experience filing pull requests, undergoing code review, and using other Git skills before you really get going on the analysis.
 
