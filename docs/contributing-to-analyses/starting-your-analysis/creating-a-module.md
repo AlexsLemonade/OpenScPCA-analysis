@@ -7,7 +7,7 @@ Before you begin, please review [this documentation](../analysis-modules/index.m
 
 
 !!! note "Is this your first analysis module?"
-    If you are creating your first analysis module, we recommend that you [scope your first pull request](../creating-pull-requests/scoping-pull-requests.md)  to contain only:
+    If you are creating your first analysis module, we recommend that you [scope your first pull request](../creating-pull-requests/scoping-pull-requests.md) to contain only:
 
     - The analysis module skeleton created by running `create-analysis-module.py`
     - Some [initial documentation of your module](STUB_LINK documenting analysis modules) in the `README.md` file
@@ -166,7 +166,7 @@ Use this flag to:
 Use this flag to:
 
 - Add a template Jupyter notebook to your module
-    - To instead add a template Python script, use `--use-python`
+    - To add a template Python script instead, use `--use-python`
 - Initialize a conda environment for your module
     - The conda environment will be named `openscpca-<module name>`
     - For example, if you name your module `celltype-ewings`, its conda environment will be named `openscpca-celltype-ewings`
