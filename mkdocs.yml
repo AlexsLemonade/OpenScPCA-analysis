@@ -18,6 +18,7 @@ theme:
     - navigation.tabs.sticky # sticky navbar
     - navigation.indexes     # allow index pages to serve as overview pages for sections
     - navigation.sections    # bold headers for directories
+    - navigation.footer      # allow users to jump to previous and next doc at the bottom of the page
 
 plugins:
   - search  # search bar
@@ -37,6 +38,23 @@ markdown_extensions:
 
 extra_css:
   - stylesheets/extra.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/AlexsLemonade/OpenScPCA-analysis
+      name: OpenScPCA on Github
+    - icon: fontawesome/brands/slack
+      link: https://ccdatalab.org/slack
+      name: Cancer Data Science Slack
+    - icon: fontawesome/brands/x-twitter
+      link: https://twitter.com/CancerDataLab
+      name: Follow us on X
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/showcase/childhood-cancer-data-lab/
+      name: Follow us on LinkedIn
+
+copyright: Copyright &copy; 2024 OpenScPCA Project Maintainers & Contributors | CC-BY 4.0 License
 
 # Here is the basic structure of our navigation setup.
 #nav:
@@ -61,6 +79,7 @@ nav:
       - technical-setup/environment-setup/index.md
       - technical-setup/environment-setup/setup-conda.md
       - technical-setup/environment-setup/setup-precommit.md
+      - technical-setup/environment-setup/install-docker.md
       - technical-setup/environment-setup/install-r-rstudio.md
   - Tools for communication:   # Slack, issues, discussions
     - communications-tools/index.md
@@ -91,10 +110,15 @@ nav:
       - contributing-to-analyses/creating-pull-requests/file-pull-request.md
   - Software platforms:            # LSfR, AWS, Docker, etc
     - software-platforms/index.md
-    - software-platforms/general-tools/index.md
-    - software-platforms/general-tools/writing-in-markdown.md
-    - software-platforms/general-tools/using-the-terminal.md
-  - Getting Help and FAQ:      # troubleshooting and FAQ
+    - Lightsail for Research:
+      - software-platforms/lsfr/index.md
+    - Amazon S3:
+      - software-platforms/aws/index.md
+    - Additional project tools:
+      - software-platforms/general-tools/index.md
+      - software-platforms/general-tools/writing-in-markdown.md
+      - software-platforms/general-tools/using-the-terminal.md
+  - Getting Help:      # troubleshooting and FAQ
     - troubleshooting-faq/index.md
   - Policies: # CoC, Authorship, other policies
     - policies/index.md
