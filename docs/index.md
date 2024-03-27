@@ -6,7 +6,7 @@ This project aims to:
 
 - Characterize the ScPCA data with analyses such as labeling cell types or identifying recurrent cell states in multiple tumor types
 
-- Work on open and collaborative.
+- Work on open and collaborative analyses.
 
 - Build consensus around usage, strengths, and pitfalls of methods and their application to pediatric cancer data.
 
