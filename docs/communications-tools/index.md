@@ -124,6 +124,7 @@ See the [reporting section of the Code of Conduct](https://github.com/AlexsLemon
 You can email [report@ccdatalab.org](mailto:report@ccdatalab.org) with queries related to administration.
 
 You can email us to:
+
 - [Report security issues](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/SECURITY.md)
 - Make a non-anonymous code of conduct violation report
 - Copyright violations

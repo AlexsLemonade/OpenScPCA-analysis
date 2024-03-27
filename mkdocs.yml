@@ -98,7 +98,7 @@ nav:
       - software-platforms/general-tools/index.md
       - software-platforms/general-tools/writing-in-markdown.md
       - software-platforms/general-tools/using-the-terminal.md
-  - Getting Help and FAQ:      # troubleshooting and FAQ
+  - Getting Help:      # troubleshooting and FAQ
     - troubleshooting-faq/index.md
   - Policies: # CoC, Authorship, other policies
     - policies/index.md
