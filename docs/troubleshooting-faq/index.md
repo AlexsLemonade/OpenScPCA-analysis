@@ -16,7 +16,6 @@ Don't see a topic in the documentation that addresses your issue?
 Here are other ways you can get help:
 
 - Please have a look at our [Troubleshooting Discussion forum](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/categories/troubleshooting) to see if your question has been addressed.
-  - If you still need help, you can use [this Discussion form](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=troubleshooting) to get help from the Data Lab
+    - If you still need help, you can use [this Discussion form](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=troubleshooting) to get help from the Data Lab
 - Please use [this Issue template](https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/new?assignees=&labels=docs-request&projects=&template=04-docs-request.yml&title=Docs+request%3A) to request that we add additional documentation that will better support you!
-
-You can also free to [get in touch with us in Slack](../communications-tools/index.md#slack) if you have any other issues!
+- You can also free to [get in touch with us in Slack](../communications-tools/index.md#slack) if you have any other issues!
