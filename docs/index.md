@@ -11,7 +11,9 @@ This project aims to
 
 - Refine approaches in the open.
 
-- Build consensus around usage, strengths, and pitfalls of methods. 
+- Build consensus around usage, strengths, and pitfalls of methods and their application to pediatric cancer data.
+
+- Improve the utility of the ScPCA data for the research community by exploring the creation of new data assets (e.g., integrated objects).
 
 The primary platform for the project is Linux.
 The documentation and analyses modules cater mainly to Linux and Mac platforms.
@@ -61,7 +63,7 @@ Connect with the Data Lab and receive ongoing support from our team throughout t
 :material-rocket-launch:{ .lg .middle }
 **Develop skills and gain experience**
 
-Build your analysis portfolio, develop transferable skills in big data analysis, and gain experience working collaboratively in a large code base. 
+Build your analysis portfolio, develop transferable skills in big data analysis, and gain experience working collaboratively in a large codebase. 
 
 :material-shape-plus:{ .lg .middle }
 **Contribute to impactful research**
