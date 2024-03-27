@@ -68,8 +68,8 @@ copyright: Copyright &copy; 2024 OpenScPCA Project Maintainers & Contributors | 
 
 # Currently, we have templated out the follow navbar items (specific names TBD)
 nav:
-  - Welcome to OpenScPCA:      # welcome, familiarizing yourself with the project
-    - welcome/index.md
+  - Getting started:      # welcome, familiarizing yourself with the project
+    - getting-started/explore-analysis.md
   - Technical setup:           # Fork/clone, local environment setup
     - technical-setup/index.md
     - technical-setup/install-a-git-client.md
