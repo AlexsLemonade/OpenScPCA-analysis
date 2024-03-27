@@ -8,7 +8,13 @@ In short, Docker is a key tool we use to ensure _reproducibility_.
 
 By using the same Docker container, contributors can run the same analysis on different machines and get the same results.
 
-Read more about [Docker images and how we use them in OpenScPCA](STUB-LINK to what are docker images).
+!!! note "More information on Docker"
+
+    For more information on Docker, see:
+
+    - [Docker for Data Science](https://www.datacamp.com/tutorial/docker-for-data-science-introduction)
+    - [Why you should use Docker in your research](https://blog.zooniverse.org/2018/07/17/why-you-should-use-docker-in-your-research/)
+    - [Docker images and how we use them in OpenScPCA](STUB-LINK to what are docker images)
 
 ## Why do I need Docker?
 
