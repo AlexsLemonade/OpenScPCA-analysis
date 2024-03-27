@@ -61,6 +61,7 @@ nav:
       - technical-setup/environment-setup/index.md
       - technical-setup/environment-setup/setup-conda.md
       - technical-setup/environment-setup/setup-precommit.md
+      - technical-setup/environment-setup/install-docker.md
       - technical-setup/environment-setup/install-r-rstudio.md
   - Tools for communication:   # Slack, issues, discussions
     - communications-tools/index.md
@@ -99,7 +100,7 @@ nav:
       - software-platforms/general-tools/index.md
       - software-platforms/general-tools/writing-in-markdown.md
       - software-platforms/general-tools/using-the-terminal.md
-  - Getting Help and FAQ:      # troubleshooting and FAQ
+  - Getting Help:      # troubleshooting and FAQ
     - troubleshooting-faq/index.md
   - Policies: # CoC, Authorship, other policies
     - policies/index.md
