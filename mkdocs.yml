@@ -51,6 +51,8 @@ extra:
       link: https://twitter.com/CancerDataLab
       name: Follow us on X
 
+copyright: Copyright &copy; 2024 OpenScPCA Project Maintainers & Contributors | CC-BY 4.0 License
+
 # Here is the basic structure of our navigation setup.
 #nav:
 #  - Navbar section: <!-- Contents for this navbar section are stored in the directory called `section-path` -->
