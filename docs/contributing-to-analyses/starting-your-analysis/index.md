@@ -1,6 +1,8 @@
 # Starting Your Analysis
 
-This section contains information about writing analysis modules:
+This section contains information about writing analysis modules.
+
+For more information on using Git and GitHub while writing your analysis module, please see the [Working with Git](../working-with-git/index.md) documentation station.
 
 ### Determining and Managing Requirements for Your Analysis
 
