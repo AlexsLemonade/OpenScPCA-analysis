@@ -5,7 +5,12 @@ On this page we cover some commonly occurring scenarios that may cause your comm
 ## Why is pre-commit failing?
 
 We ask that all contributors set up pre-commit hooks prior to making any commits.
-For more information, see the [documentation on pre-commit checks](making-commits.md#pre-commit-checks).
+These [pre-commit hooks perform checks](making-commits.md#pre-commit-checks) to manage basic code security and catch other common problems, such as:
+
+- Large data files that should not be committed to the repository (files > 200 Kb)
+- Merge conflicts that have not yet been resolved
+    - If you need help resolving merge conflicts, please see the documentation on [resolving merge conflicts](../creating-pull-requests/resolve-merge-conflicts.md).
+- Credential files and other sensitive information
 
 If you attempt to commit any file that do not meet the pre-commit requirements, then you will see a red banner indicating pre-commit failed.
 If this is the case, you will not be able to commit your changes until you fix the conflict.
