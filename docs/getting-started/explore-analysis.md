@@ -8,7 +8,7 @@ This folder also contains a pair of example analyses, one for [performing analys
 To run the example analysis or any other existing analyses, you will need to:
 
 1. [Set up your local environment](#set-up-local-environment)
-2. Acquire any [input data](#accessing-data-for-modules).
+1. Acquire any [input data](#accessing-data-for-modules)
 
 ## Set up local environment
 
@@ -27,13 +27,15 @@ All instructions and files needed to run a given module will be contained in the
 
 - To run existing modules, please reference the `README.md` found in the root directory for that module.
 - The `README.md` will contain a description of the module, instructions to run the module, the list of input and output files, and any additional software or computing resources you may need.
+
 See [analysis module](../analysis-modules/index.md) to learn more about how analyses are structured.
+
 ## Accessing data for modules
 
 The specific requirements for input data will be listed in the `README.md` for each module.
 For modules that use data obtained from the ScPCA Portal as input, data can be directly downloaded from the [ScPCA Portal](https://scpca.alexslemonade.org/).
 
-Additionally, you can use the [`simulate-sce`] analysis module to create simulated data.
+Additionally, you can use the [`simulate-sce`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/simulate-sce) analysis module to create simulated data.
 
 - This module simulates data based on the properties of real ScPCA data.
 - The simulated data contains permuted labels and simulated counts data for a small number of cells, making it ideal for testing analyses modules.
