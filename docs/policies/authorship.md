@@ -37,5 +37,4 @@ Other OpenScPCA contributors who were involved in the work you are publishing an
 
 Please note that failure to do this may result in violation of your own institutional ethics or misconduct policies.
 
-If you have questions about the OpenScPCA authorship policy, please contact us at `report@ccdatalab.org`.
-
+Any questions or feedback about the OpenScPCA authorship policy should be directed to <ccdl@alexslemonade.org>.
