@@ -1,0 +1,4 @@
+# Ignore RTF versions of policies
+# They are converted to Markdown
+*.rtf
+*.docx
