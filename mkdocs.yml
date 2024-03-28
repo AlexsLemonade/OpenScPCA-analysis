@@ -129,4 +129,5 @@ nav:
   - Policies: # CoC, Authorship, other policies
     - policies/index.md
     - policies/terms-of-use.md
+    - policies/privacy-policy.md
     - policies/code-of-conduct.md
