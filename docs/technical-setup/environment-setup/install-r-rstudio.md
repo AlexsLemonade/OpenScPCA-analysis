@@ -67,9 +67,9 @@ Click the download link and follow all instructions to complete the installation
 There are two R packages that OpenScPCA frequently uses that we recommend installing before getting started:
 
 - `renv`
-  - OpenScPCA uses [the `renv` package](https://rstudio.github.io/renv/articles/renv.html) to manage R packages in each analysis module.
+    - OpenScPCA uses [the `renv` package](https://rstudio.github.io/renv/articles/renv.html) to manage R packages in each analysis module.
 - `BiocManager`
-  - You need to use [Bioconductor packages](https://bioconductor.org/) to interact with ScPCA data in R environments.
+    - You need to use [Bioconductor packages](https://bioconductor.org/) to interact with ScPCA data in R environments.
   [The `BiocManager` package](https://cran.r-project.org/web/packages/BiocManager/vignettes/BiocManager.html) is used to install Bioconductor packages.
 
 
