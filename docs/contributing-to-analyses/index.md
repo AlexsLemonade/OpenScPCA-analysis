@@ -4,10 +4,10 @@ This section contains information about how to create, contribute to, and/or run
 
 All instructions in this section assume you have already:
 
-1. Been [onboarded to the project](STUB_LINK) as a new contributor
-1. Taken all [set up steps](../technical-setup/index.md) to work on the project
-1. [Discussed your proposed analysis on GitHub](../communications-tools/index.md#github-discussions)
-1. [Filed an issue](../communications-tools/github-issues/index.md) that tracks steps you'll take to perform your analysis
+1. Been [onboarded to the project](https://share.hsforms.com/1MlLtkGYSQa6j23HY_0fKaw336z0) as a new contributor
+2. Taken all [set up steps](../technical-setup/index.md) to work on the project
+3. [Discussed your proposed analysis on GitHub](../communications-tools/index.md#github-discussions)
+4. [Filed an issue](../communications-tools/github-issues/index.md) that tracks steps you'll take to perform your analysis
 
 Once you have an issue to work off of, you're ready to go!
 
