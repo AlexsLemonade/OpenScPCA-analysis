@@ -22,7 +22,7 @@ If desired, please [file an issue](https://github.com/AlexsLemonade/OpenScPCA-an
 
 To start contributing:
 
-1. Please review our [policies](#STUB_LINK).
+1. Please review our [policies](https://openscpca.readthedocs.io/policies).
 
 2. Fill out the [interest form](https://share.hsforms.com/1MlLtkGYSQa6j23HY_0fKaw336z0).
 
@@ -39,9 +39,9 @@ If this is your first time interacting with the project, please post in Discussi
 
 If you wish to report a security vulnerability, please [email](mailto:report@ccdatalab.org) us.
 Do NOT report it in a public forum.
-See [security policy](./SECURITY.md) for more information.
+See our [security policy](./SECURITY.md) for more information.
 
-Please see [Tool for communication](#STUB_LINK) for more information.
+Please see our documentation on [Tools for communication](https://openscpca.readthedocs.io/communications-tools/) for more information.
 
 ## Documentation
 
@@ -49,14 +49,14 @@ We have a comprehensive documentation to help you with various aspects of partic
 
 Please refer to it as you work on the project.
 
-|[OpenScPCA Documentation]( https://openscpca.readthedocs.io/)|
+|[OpenScPCA Documentation](https://openscpca.readthedocs.io/)|
 |---|
 
 ## Setting up and running analyses
 
 ### Local Setup
 
-To setup, you will need a Git client, mini conda, R or Python and an editor of your choice. Please see [Technical Setup] (#STUB_LINK) for detailed instructions to create a local setup.
+To setup, you will need a Git client, miniconda, R or Python, and an editor of your choice. Please see our documentation on [Technical Setup](https://openscpca.readthedocs.io/technical-setup) for detailed instructions to create a local setup.
 
 ### Accessing Data
 
