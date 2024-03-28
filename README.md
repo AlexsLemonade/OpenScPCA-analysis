@@ -24,7 +24,7 @@ To start contributing:
 
 1. Please review our [policies](#STUB_LINK).
 
-2. Fill out the interest form (TODO: make case for interest form).
+2. Fill out the [interest form](https://share.hsforms.com/1MlLtkGYSQa6j23HY_0fKaw336z0).
 
 3. Visit [Getting Started](#STUB_LINK) for first steps. 
 
