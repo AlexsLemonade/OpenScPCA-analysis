@@ -20,7 +20,7 @@ change this Privacy Policy, we will post the updated version on this
 page. Changes to this Privacy Policy will apply only to information
 collected after the date of the change.
 
-1. **What information is gathered?**
+1\. **What information is gathered?**
 
 We may collect and retain information from or about you when you register on the OpenScPCA Project, seek authentication, send or respond to communications, or participate in another OpenScPCA Project feature. Here are the types of personal information we gather:
 
