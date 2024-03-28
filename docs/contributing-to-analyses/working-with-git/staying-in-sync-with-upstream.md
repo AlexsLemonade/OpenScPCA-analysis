@@ -19,9 +19,11 @@ We recommend syncing at the following times:
 
 Follow these steps to keep your fork in sync with changes in `AlexsLemonade/OpenScPCA-analysis`:
 
-1. Login to GitHub and navigate to the homepage of your forked repository (https://github.com/YOUR_USERNAME/OpenScPCA-analysis).
+1. Login to GitHub and navigate to the homepage of your forked repository (`https://github.com/YOUR_USERNAME/OpenScPCA-analysis`).
 
-1. If the `main` branch of your fork is out of date with the `main` branch of `AlexsLemonade/OpenScPCA-analysis`, then you will see a note that states, "This branch is X commits behind `AlexsLemonade/Open-ScPca-analysis:main`".
+1. If the `main` branch of your fork is out of date with the `main` branch of `AlexsLemonade/OpenScPCA-analysis`, then you will see a note that states:
+
+    >  This branch is X commits behind `AlexsLemonade/Open-ScPca-analysis:main`.
 
     You can then press `Sync fork` to sync your fork with any upstream changes.
 
@@ -29,28 +31,28 @@ Follow these steps to keep your fork in sync with changes in `AlexsLemonade/Open
         ![Sync fork](../../img/upstream-sync-1.png){width="600"}
     </figure>
 
-1. After pressing `Sync fork` a pop-up will notify you that the branch is out-of-date.
+2. After pressing `Sync fork` a pop-up will notify you that the branch is out-of-date.
     Go ahead and press `Update branch`.
 
     <figure markdown="span">
         ![Update branch](../../img/upstream-sync-2.png){width="300"}
     </figure>
 
-1. If your `main` branch has been updated successfully, you will now see a note that the branch is up to date with `AlexsLemonade/OpenScPCA-analysis`.
+3. If your `main` branch has been updated successfully, you will now see a note that the branch is up to date with `AlexsLemonade/OpenScPCA-analysis`.
 
     <figure markdown="span">
         ![Successful sync](../../img/upstream-sync-3.png){width="600"}
     </figure>
 
-1. Before making any changes locally, you will need to pull the synced changes from GitHub to your computer.
+4. Before making any changes locally, you will need to pull the synced changes from GitHub to your computer.
 
-    In GitKraken, you will see two versions of the `main` branch in the branch graph.
+    In GitKraken, you will see two versions of the `main` branch in the branch graph:
 
-    One will contain a computer icon.
-    This is the copy of the branch on your local computer.
+       - One will contain a computer icon.
+        This is the copy of the branch on your local computer.
 
-    The other will contain your GitHub avatar.
-    This is the copy of the branch on GitHub.
+       - The other will contain your GitHub avatar.
+        This is the copy of the branch on GitHub.
 
     Double-click on the remote `main` (GitHub avatar) and GitKraken will notify you that a local `main` already exists.
     Click the button that says `Reset Local to Here`.
