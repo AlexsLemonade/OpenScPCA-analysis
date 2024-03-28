@@ -15,15 +15,17 @@ For each commit, a unique ID (also known as a hash) will be assigned to identify
 
 ### Step 1: Make sure you are in the right branch
 
-Before making your commit, be sure you are working in the correct [feature branch](./working-with-branches.md).
-In GitKraken, you will see a check mark next to the branch name in both the side menu under `Local` and in the branch diagram.
-The check mark next to the branch name indicates that you have that branch checked out.
+Before making your commit, be sure you are [working in the correct feature branch](./working-with-branches.md#switching-between-branches).
+
+- In GitKraken, you will see a check mark next to the branch name in both the side menu under `Local` and in the branch diagram.
+    - The check mark at the "Local" branch name indicates that that branch is checked out.
+- You can also see which branch name is checked out in GitKraken's top menu.
 
 <figure markdown="span">
     ![Branch checkout](../../img/making-commits-1.png){width="600"}
 </figure>
 
-For more on branches see [Working with branches](./working-with-branches.md).
+For more on branches, see [Working with branches](./working-with-branches.md).
 
 ### Step 2: Stage your changed files
 
@@ -65,11 +67,21 @@ You should now see a new line with your commit message connected to your branch 
 
 #### Pre-commit checks
 
-- Every time you make a commit, you will see a banner showing the status of [the pre-commit checks](STUB_LINK for pre-commit).
-- Files will only be committed if the pre-commit checks pass.
-    - Still need to set up pre-commit in the repository?
-    See [Install pre-commit and setup hooks](STUB-LINK).
+We have set up [pre-commit hooks](../../technical-setup/environment-setup/setup-precommit.md#what-is-pre-commit) to manage basic code security and catch other common problems, such as:
 
+- Large data files that should not be committed to the repository (files > 200 Kb)
+- Merge conflicts that have not yet been resolved
+    - If you need help resolving merge conflicts, please see the documentation on [resolving merge conflicts](../creating-pull-requests/resolve-merge-conflicts.md).
+- Credential files and other sensitive information
+
+
+!!! note "Still need to set up pre-commit?"
+
+    Please see the documentation on [installing the pre-commit package](../../technical-setup/environment-setup/setup-conda.md#set-up-conda) and [setting up pre-commit hooks in the repository](../../technical-setup/environment-setup/setup-precommit.md).
+
+
+Every time you make a commit, these pre-commit checks will run in the background to make sure all files you are committing pass the checks.
+Your commit will only succeed if all pre-commit checks pass, as indicated by an exit code of `0` and a green banner:
 
 <figure markdown="span">
     ![Passing pre-commit](../../img/making-commits-5.png){width="600"}
@@ -83,6 +95,6 @@ If you are making your first commit, the pre-commit checks may take longer and y
 </figure>
 
 **Having trouble getting pre-commit checks to pass?**
-Please see the [documentation for troubleshooting commit failures](STUB-LINK).
+Please see the [documentation for troubleshooting commit failures](troubleshooting-commits.md#why-is-pre-commit-failing).
 
 You have now successfully committed your changes to your feature branch!
