@@ -95,3 +95,4 @@ Zappia
 impactful
 octicons
 md
+miniconda
