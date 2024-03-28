@@ -13,6 +13,7 @@ Carpentries
 Cmd
 Ctrl
 CellAssign
+codebase
 conda
 config
 discoverable
@@ -24,6 +25,7 @@ enforceability
 et
 formatters
 Generis
+GFM
 GitHub
 GitKraken
 HPC
@@ -82,3 +84,6 @@ WSL
 Xcode
 YAML
 Zappia
+impactful
+octicons
+md

@@ -35,6 +35,9 @@ markdown_extensions:
   - pymdownx.snippets
   - pymdownx.superfences
   - pymdownx.details     # https://squidfunk.github.io/mkdocs-material/setup/extensions/python-markdown-extensions/#details
+  - pymdownx.emoji:      # https://squidfunk.github.io/mkdocs-material/reference/icons-emojis/
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 extra_css:
   - stylesheets/extra.css
@@ -68,8 +71,8 @@ copyright: Copyright &copy; 2024 OpenScPCA Project Maintainers & Contributors | 
 
 # Currently, we have templated out the follow navbar items (specific names TBD)
 nav:
-  - Welcome to OpenScPCA:      # welcome, familiarizing yourself with the project
-    - welcome/index.md
+  - Getting Started:      # welcome, familiarizing yourself with the project
+    - getting-started/index.md
   - Technical setup:           # Fork/clone, local environment setup
     - technical-setup/index.md
     - technical-setup/install-a-git-client.md
@@ -85,7 +88,9 @@ nav:
     - communications-tools/index.md
     - GitHub Issues:
       - communications-tools/github-issues/index.md
-      - communications-tools/github-issues/what-are-github-issues-and-how-do-we-use-them.md
+      - communications-tools/github-issues/writing-issues.md
+      - communications-tools/github-issues/what-makes-a-good-issue.md
+      - communications-tools/github-issues/issue-templates.md
   - Contributing to analyses:  # Setting up an analysis, all the git stuff
     - contributing-to-analyses/index.md
     - Analysis modules:
