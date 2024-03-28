@@ -18,5 +18,6 @@ This is an incomplete list; see the [Terms of Use](terms-of-use.md) and [Policie
 	- Don't disclose information or data you shouldn't 
 	- Don't distribute code in a manner that's inconsistent with its license
 	- Don't infringe on the copyright of others
-- Individual projects may have additional use restrictions listed in the `DATA_USAGE.md` file included with your download. Please review that file carefully.
+- Individual projects may have additional use restrictions listed in the `DATA_USAGE.md` file included with your download.
+Please review that file carefully.
 - Don't use virtual computers or other infrastructure for any purpose unrelated to the OpenScPCA Project or to violate applicable laws, regulations, standards, principles, or guidelines.
