@@ -81,7 +81,7 @@ We have set up [pre-commit hooks](../../technical-setup/environment-setup/setup-
 
 
 Every time you make a commit, these pre-commit checks will run in the background to make sure all files you are commiting pass the checks.
-Your commit will only succeed if all pre-commit checks pass, as indicated by an exit code of `0`:
+Your commit will only succeed if all pre-commit checks pass, as indicated by an exit code of `0` and a green banner:
 
 <figure markdown="span">
     ![Passing pre-commit](../../img/making-commits-5.png){width="600"}
