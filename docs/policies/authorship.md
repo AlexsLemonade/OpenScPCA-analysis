@@ -32,10 +32,10 @@ OpenScPCA contributors who do not meet the criteria required for authorship may 
 
 ## Attributing authorship on other publications
 
-If you plan to publish work that you contributed to the OpenScPCA project as part of a separate publication, you must follow our authorship guidelines to ensure other contributors receive appropriate credit.
+If you plan to publish work that you contributed to the OpenScPCA project as part of a separate publication, you must credit the OpenScPCA codebase and follow our authorship guidelines to ensure other contributors receive appropriate credit.
 Other OpenScPCA contributors who were involved in the work you are publishing and who meet the criteria outlined in *fig. 1* should receive authorship.
 
-Please note that failure to attribute author credit to collaborators may result in violation of your own institutional ethics or misconduct policies.
+Please note that failure to do this may result in violation of your own institutional ethics or misconduct policies.
 
 If you have questions about the OpenScPCA authorship policy, please contact us at `report@ccdatalab.org`.
 
