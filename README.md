@@ -47,7 +47,7 @@ Please see [Tool for communication](#STUB_LINK) for more information.
 
 ### Local Setup
 
-To setup, you will need a Git client, mini conda, R or Python and a editor of your choice. Please see [Technical Setup] for detailed instructions to create a local setup.
+To setup, you will need a Git client, mini conda, R or Python and an editor of your choice. Please see [Technical Setup] (#STUB_LINK) for detailed instructions to create a local setup.
 
 ### Accessing Data
 
@@ -56,6 +56,9 @@ We have also provided a way to generate simulated data for you to play with.
 
 Please [Getting access to Data](#STUB_LINK) for more details.
 
-### Running a module
+### Running an analysis module
 
-Each module has a README which contains instructions to run that specific module. Please see the relevant analysis module's README for instructions.
+Each analysis module has a README which contains instructions to run that specific module. 
+Please see the relevant analysis module's README for instructions.
+
+Learn more about [running an analysis module](#STUB_LINK) here. 
