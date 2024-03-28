@@ -13,7 +13,7 @@ These [pre-commit hooks perform checks](making-commits.md#pre-commit-checks) to 
 - Credential files and other sensitive information
 
 If you attempt to commit any file that does not meet the pre-commit requirements, then you will see a red banner indicating pre-commit failed.
-If this is the case, you will not be able to commit your changes until you fix the conflict.
+If this is the case, you will not be able to commit your changes until you fix the problem.
 
 You can click the `View log` button on the right hand side of the pre-commit banner to see which checks failed.
 
