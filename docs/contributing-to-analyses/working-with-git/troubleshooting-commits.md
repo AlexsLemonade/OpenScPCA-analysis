@@ -12,7 +12,7 @@ These [pre-commit hooks perform checks](making-commits.md#pre-commit-checks) to 
     - If you need help resolving merge conflicts, please see the documentation on [resolving merge conflicts](../creating-pull-requests/resolve-merge-conflicts.md).
 - Credential files and other sensitive information
 
-If you attempt to commit any file that do not meet the pre-commit requirements, then you will see a red banner indicating pre-commit failed.
+If you attempt to commit any file that does not meet the pre-commit requirements, then you will see a red banner indicating pre-commit failed.
 If this is the case, you will not be able to commit your changes until you fix the conflict.
 
 You can click the `View log` button on the right hand side of the pre-commit banner to see which checks failed.
