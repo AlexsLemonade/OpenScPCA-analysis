@@ -180,9 +180,9 @@ information, please contact us as described below. To the extent you
 believe we have not addressed your concerns or otherwise choose to do
 so, you have the right to lodge a complaint with a supervisory
 authority in the country where you reside and/or in the United States.
-For information on how you can file a privacy complaint with the
+<!-- For information on how you can file a privacy complaint with the
 Federal Trade Commission, please visit:
-<https://www.ftccomplaintassistant.gov/>
+<https://www.ftccomplaintassistant.gov/> -->
 
 9\.  **Important Notices to Non-United States Residents**
 
