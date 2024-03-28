@@ -32,7 +32,7 @@ To start contributing:
 
 You can ask questions, propose analyses, get help in [GitHub Discussions](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions).
 
-You can also join the OpenScPCA community in the `#open_scpca` channel on our [Cancer Data Science Slack](https://cancer-data-science.slack.com/).
+You can also join the OpenScPCA community in the `#open_scpca` channel on our [Cancer Data Science Slack](https://ccdatalab.org/slack).
 
 GitHub issues are reserved for planned and defined tasks or bug reports.
 If this is your first time interacting with the project, please post in Discussions.
