@@ -43,6 +43,15 @@ See [security policy](./SECURITY.md) for more information.
 
 Please see [Tool for communication](#STUB_LINK) for more information.
 
+## Documentation
+
+We have a comprehensive documentation to help you with various aspects of contributing - from proposing an analysis, troubleshooting errors to making your first code contribution. 
+
+Please refer to it as you work on the project.
+
+|[OpenScPCA Documentation]( https://openscpca.readthedocs.io/)|
+|---|
+
 ## Setting up and running analyses
 
 ### Local Setup
@@ -61,4 +70,5 @@ Please [Getting access to Data](#STUB_LINK) for more details.
 Each analysis module has a README which contains instructions to run that specific module. 
 Please see the relevant analysis module's README for instructions.
 
-Learn more about [running an analysis module](#STUB_LINK) here. 
+Learn more about [running an analysis module](#STUB_LINK) here.
+
