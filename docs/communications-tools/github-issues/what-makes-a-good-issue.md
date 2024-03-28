@@ -1,7 +1,7 @@
 # What makes a good issue?
 
 Since issues [serve as the project's to-do list](index.md#what-are-github-issues-and-how-do-we-use-them), writing good, helpful issues is important.
-We use [issue templates](STUB_LINK issue templates) to support writing good issues, but we also list some features of good issues below to guide you in writing your best issues.
+We use [issue templates](./issue-templates.md) to support writing good issues, but we also list some features of good issues below to guide you in writing your best issues.
 
 Good issues include the following:
 

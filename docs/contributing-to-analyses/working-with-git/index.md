@@ -11,4 +11,4 @@ Get some help by making a post in the [Troubleshooting Discussion board](https:/
 - Are there additional tasks about using Git/GitHub you'd like to see in the documentation?
 Tell us about it using [this issue template](https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/new?assignees=&labels=docs-request&projects=&template=04-docs-request.yml&title=Docs+request%3A)!
 
-- You can also free to [get in touch with us in Slack](../communications-tools/index.md#slack) if you have any other issues!
+- You can also free to [get in touch with us in Slack](../../communications-tools/index.md#slack) if you have any other issues!
