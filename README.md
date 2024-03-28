@@ -45,7 +45,7 @@ Please see [Tool for communication](#STUB_LINK) for more information.
 
 ## Documentation
 
-We have a comprehensive documentation to help you with various aspects of contributing - from proposing an analysis, troubleshooting errors to making your first code contribution. 
+We have a comprehensive documentation to help you with various aspects of participating in OpenScPCA - from proposing an analysis, acquiring data, troubleshooting errors to making your first code contribution. 
 
 Please refer to it as you work on the project.
 
