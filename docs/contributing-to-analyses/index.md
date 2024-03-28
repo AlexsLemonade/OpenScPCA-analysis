@@ -21,27 +21,33 @@ The image below provides a high-level overview of the Git/GitHub aspects of the 
 </figure>
 
 
-You will contribute to the project as follows:
+You will contribute to the project by creating and developing [analysis modules](./analysis_modules/index.md).
+
+!!! note "Before you begin"
+
+    Before you create your module, please review the documentation in the [**Analysis Module**](analysis-modules/index.md) and [**Determining analysis requirements**](determining-requirements/index.md) sections before you create your module.
+
+    This information will help orient you to how to write OpenScPCA analysis modules and ensure they meet the project's reproducibility requirements
+
+The below steps outline the process for getting started with a new analysis module.
 
 1. [Create a feature branch](working-with-git/working-with-branches.md) in your fork to begin your analysis (but see the [helpful tips](#helpful-tips) below!)
-1. [Create a new analysis module](analysis-modules/creating-a-module.md) (unless you are working on an existing module)
-1. Perform your analysis using Git:
+2. [Create a new analysis module](analysis-modules/creating-a-module.md) (unless you are working on an existing module)
+3. Perform your analysis using Git:
       - [Commit](working-with-git/making-commits.md) small units of work, [pushing](working-with-git/push-to-origin.md) your commits to your fork on GitHub along the way
-      - Be sure to [document](analysis-modules/documenting-analysis.md) module as you build it up
-1. When you've [completed enough work for a pull request (PR)](creating-pull-requests/scoping-pull-requests.md), you'll [file a PR](creating-pull-requests/index.md) to the upstream repository, `AlexsLemonade/OpenScPCA-analysis`
-1. The Data Lab will then [review your PR](STUB_LINK)
-1. Once we approve your PR, we will merge your feature branch into the upstream `AlexsLemonade/OpenScPCA-analysis` repository
-1. Finally, you'll [sync your fork](working-with-git/staying-in-sync-with-upstream.md) with the upstream repository
+      - Be sure to [document](analysis-modules/documenting-analysis.md) your analysis module as you build it up
+4. When you've [completed enough work for a pull request (PR)](creating-pull-requests/scoping-pull-requests.md), you'll [file a PR](creating-pull-requests/index.md) to the upstream repository, `AlexsLemonade/OpenScPCA-analysis`
+5. The Data Lab will then [review your PR](STUB_LINK)
+6. Once we approve your PR, we will merge your feature branch into the upstream `AlexsLemonade/OpenScPCA-analysis` repository
+7. Finally, you'll [sync your fork](working-with-git/staying-in-sync-with-upstream.md) with the upstream repository
     - Then, rinse and repeat - make your next feature branch and begin again!
 
 
 ## Helpful tips
 
-- Please review the documentation in the [**Analysis Module**](analysis-modules/index.md) and [**Determining analysis requirements**](determining-requirements/index.md) sections before you create your module.
-    - This information will help orient you to how to write OpenScPCA analysis modules and ensure they meet the project's reproducibility requirements
 
 - Before you dive into an analysis, take some time to [plan your work](creating-pull-requests/scoping-pull-requests.md).
-     - Focused units of work will make [the pull request process](creating-pull-requests/index.md) go more smoothly and more quickly!
+     - Focused units of work will make [the pull request process](creating-pull-requests/index.md) go smoothly and quickly!
      - You should expect that for each analysis you work on, you will go through several iterations of feature branches and PRs.
    You'll save time and energy in the long-run by thinking a little bit about what each branch, and therefore each PR, will contain.
 
