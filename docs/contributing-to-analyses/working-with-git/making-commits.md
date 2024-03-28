@@ -80,7 +80,7 @@ We have set up [pre-commit hooks](../../technical-setup/environment-setup/setup-
     Please see the documentation on [installing the pre-commit package](../../technical-setup/environment-setup/setup-conda.md#set-up-conda) and [setting up pre-commit hooks in the repository](../../technical-setup/environment-setup/setup-precommit.md).
 
 
-Every time you make a commit, these pre-commit checks will run in the background to make sure all files you are commiting pass the checks.
+Every time you make a commit, these pre-commit checks will run in the background to make sure all files you are committing pass the checks.
 Your commit will only succeed if all pre-commit checks pass, as indicated by an exit code of `0` and a green banner:
 
 <figure markdown="span">

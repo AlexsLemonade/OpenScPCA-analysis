@@ -31,6 +31,7 @@ Generis
 GFM
 GitHub
 GitKraken
+GitKraken's
 HPC
 ies
 immunities
