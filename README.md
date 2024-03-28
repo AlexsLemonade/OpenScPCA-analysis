@@ -40,7 +40,7 @@ Please see [Tool for communication](#STUB_LINK) for more information.
 
 ### Local Setup
 
-To setup, you will need a Git client, mini conda, R or Python and a editor of your choice. Please see [Techinal Setup] for detailed instructions to create a local setup.
+To setup, you will need a Git client, mini conda, R or Python and a editor of your choice. Please see [Technical Setup] for detailed instructions to create a local setup.
 
 ### Accessing Data
 
