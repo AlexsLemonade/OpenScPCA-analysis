@@ -5,7 +5,10 @@ Before contributing to OpenScPCA, you can explore and run any existing [analysis
 You can browse existing analysis modules in the repository in the [`analyses` folder](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses).
 This folder also contains a pair of example analyses, one for [performing analysis in R](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/hello-R) and one for [performing analysis in Python](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/hello-python).
 
-If you would like to run the example analysis or any other existing analyses, you will need to [set up your local environment](#set-up-local-environment) and acquire any [input data](#accessing-data-for-modules).
+To run the example analysis or any other existing analyses, you will need to:
+
+1. [Set up your local environment](#set-up-local-environment)
+2. Acquire any [input data](#accessing-data-for-modules).
 
 ## Set up local environment
 
@@ -24,7 +27,7 @@ All instructions and files needed to run a given module will be contained in the
 
 - To run existing modules, please reference the `README.md` found in the root directory for that module.
 - The `README.md` will contain a description of the module, instructions to run the module, the list of input and output files, and any additional software or computing resources you may need.
-
+See [analysis module](../analysis-modules/index.md) to learn more about how analyses are structured.
 ## Accessing data for modules
 
 The specific requirements for input data will be listed in the `README.md` for each module.
