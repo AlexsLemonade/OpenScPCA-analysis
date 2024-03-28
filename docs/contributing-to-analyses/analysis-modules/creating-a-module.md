@@ -107,7 +107,7 @@ Use this flag to add a template R notebook to your module:
 
 !!! info
     The `hello-r` example module was created with this flag.
-    Learn more about [using `renv` to manage your R environment](./determining-software-requirements.md#using-renv).
+    Learn more about [using `renv` to manage your R environment](../determining-requirements/determining-software-requirements.md#using-renv).
 
 Use this flag to:
 
@@ -124,7 +124,7 @@ Use this flag to:
 <div class="grid" markdown>
 
 - You can use `notebook-template.Rmd` as a starting point for any R Markdown notebooks you create while writing your analysis
-- You can use `components/dependencies.R` to [pin R package dependencies that `renv` does not automatically capture](./determining-software-requirements.md#pinning-dependencies-that-are-not-captured-automatically)
+- You can use `components/dependencies.R` to [pin R package dependencies that `renv` does not automatically capture](../determining-requirements/determining-software-requirements.md#pinning-dependencies-that-are-not-captured-automatically)
 - These additional files and folders manage the `renv` environment, and you should not directly edit them:
     - `renv.lock`
     - The `renv` folder
@@ -161,7 +161,7 @@ Use this flag to:
 
 !!! info
     The `hello-python` example module was created with this flag.
-    Learn more about [using conda to manage your Python environment](./determining-software-requirements.md#managing-software-dependencies-in-python-with-conda).
+    Learn more about [using conda to manage your Python environment](../determining-requirements/determining-software-requirements.md#managing-software-dependencies-in-python-with-conda).
 
 Use this flag to:
 

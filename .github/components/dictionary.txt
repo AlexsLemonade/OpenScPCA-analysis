@@ -31,6 +31,7 @@ Generis
 GFM
 GitHub
 GitKraken
+GitKraken's
 HPC
 ies
 immunities
@@ -53,6 +54,7 @@ merchantability
 Miniconda
 misidentification
 nonconsensual
+onboarded
 OpenScPCA
 openscpca
 OpenScPCA's

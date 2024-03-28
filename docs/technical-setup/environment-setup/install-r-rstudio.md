@@ -32,10 +32,7 @@ Next, you need to install additional tools that will let you build R packages th
 These tools are available from the [R for macOS website](https://mac.r-project.org/tools/) and are listed under **Mandatory Tools**.
 
 1. Install "**Xcode** developer tools from Apple" as follows:
-    - Launch a Terminal window by searching for "terminal" in spotlight
-      <figure markdown="span">
-        ![Launch the Terminal application.](../../img/terminal-spotlight.png){width="425"}
-      </figure>
+    - Launch a [Terminal window](../../software-platforms/general-tools/using-the-terminal.md)
     - Enter the command `sudo xcode-select --install` into Terminal and hit enter
     - You will then be prompted to enter your computer's password
   When you type, no symbols will appear - this is expected!
@@ -70,9 +67,9 @@ Click the download link and follow all instructions to complete the installation
 There are two R packages that OpenScPCA frequently uses that we recommend installing before getting started:
 
 - `renv`
-  - OpenScPCA uses [the `renv` package](https://rstudio.github.io/renv/articles/renv.html) to manage R packages in each analysis module.
+    - OpenScPCA uses [the `renv` package](https://rstudio.github.io/renv/articles/renv.html) to manage R packages in each analysis module.
 - `BiocManager`
-  - You need to use [Bioconductor packages](https://bioconductor.org/) to interact with ScPCA data in R environments.
+    - You need to use [Bioconductor packages](https://bioconductor.org/) to interact with ScPCA data in R environments.
   [The `BiocManager` package](https://cran.r-project.org/web/packages/BiocManager/vignettes/BiocManager.html) is used to install Bioconductor packages.
 
 
