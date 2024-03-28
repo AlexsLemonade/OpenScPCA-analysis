@@ -30,12 +30,16 @@ To start contributing:
 
 ### Communicating
 
-You can ask questions, propose analyses, get help in [Github Discussions](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions).
+You can ask questions, propose analyses, get help in [GitHub Discussions](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions).
 
 You can also join the OpenScPCA community in the `#open_scpca` channel on our [Cancer Data Science Slack](https://cancer-data-science.slack.com/).
 
-Github issues are reserved for planned and defined tasks or bug reports.
+GitHub issues are reserved for planned and defined tasks or bug reports.
 If this is your first time interacting with the project, please post in Discussions.
+
+If you wish to report a security vulnerability, please [email](mailto:report@ccdatalab.org) us.
+Do NOT report it in a public forum.
+See [security policy](./SECURITY.md) for more information.
 
 Please see [Tool for communication](#STUB_LINK) for more information.
 
