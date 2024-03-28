@@ -13,11 +13,13 @@ Carpentries
 Cmd
 Ctrl
 CellAssign
+codebase
 conda
 config
 designee
 discoverable
 DM
+DNT
 Dockerfile
 doxxing
 dropdown
@@ -26,6 +28,7 @@ enure
 et
 formatters
 Generis
+GFM
 GitHub
 GitKraken
 HPC
@@ -89,3 +92,6 @@ WSL
 Xcode
 YAML
 Zappia
+impactful
+octicons
+md

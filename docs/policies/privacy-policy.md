@@ -20,7 +20,7 @@ change this Privacy Policy, we will post the updated version on this
 page. Changes to this Privacy Policy will apply only to information
 collected after the date of the change.
 
-1. **What information is gathered?**
+1\. **What information is gathered?**
 
 We may collect and retain information from or about you when you register on the OpenScPCA Project, seek authentication, send or respond to communications, or participate in another OpenScPCA Project feature. Here are the types of personal information we gather:
 
@@ -180,9 +180,9 @@ information, please contact us as described below. To the extent you
 believe we have not addressed your concerns or otherwise choose to do
 so, you have the right to lodge a complaint with a supervisory
 authority in the country where you reside and/or in the United States.
-For information on how you can file a privacy complaint with the
+<!-- For information on how you can file a privacy complaint with the
 Federal Trade Commission, please visit:
-<https://www.ftccomplaintassistant.gov/>
+<https://www.ftccomplaintassistant.gov/> -->
 
 9\.  **Important Notices to Non-United States Residents**
 
@@ -220,4 +220,4 @@ that stores information for the OpenScPCA Project.
 Any questions or feedback about the OpenScPCA Project or this Privacy
 Policy should be directed to <ccdl@alexslemonade.org>.
 
-Last Updated: March 27, 2024
+Last Updated: March 28, 2024

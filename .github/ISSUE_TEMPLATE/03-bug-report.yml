@@ -1,13 +1,13 @@
 name: Report a bug
 description: Use this template to report a bug or problem with the codebase
-title: 'Bug report:'
+title: "Bug report:"
 labels: bug
 body:
   - type: markdown
     attributes:
       value: |
         This issue template should be used to report a bug.
-        If you are experiencing a different kind of problem working while with the codebase or OpenScPCA software tools, please [make a Troubleshooting post in GitHub Discussions instead](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/categories/troubleshooting).
+        If you are experiencing a different kind of problem working while with the codebase or OpenScPCA software tools, please [make a Troubleshooting post in GitHub Discussions instead](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=troubleshooting).
 
   - type: textarea
     attributes:
