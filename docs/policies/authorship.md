@@ -1,6 +1,6 @@
 # Open Single-cell Pediatric Cancer Atlas (OpenScPCA) Authorship Policy
 
-* [OpenScPCA authorship criteria](#openscpca-authorhsip-credit)
+* [OpenScPCA authorship criteria](#openscpca-authorship-criteria)
 * [Attributing authorship on other publications](#attributing-authorship-on-other-publications)
 
 
