@@ -22,7 +22,7 @@ If you would like support for Windows, please [file an issue](https://github.com
 
 To start contributing:
 
-1. Please review our [Code of Conduct](#STUB_LINK), [Terms of Use](#STUB_LINK) and [Authorship Policy](#STUB_LINK).
+1. Please review our [policies](#STUB_LINK)
 
 2. Fill out the interest form (TODO: make case for interest form)
 
