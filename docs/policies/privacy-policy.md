@@ -220,4 +220,4 @@ that stores information for the OpenScPCA Project.
 Any questions or feedback about the OpenScPCA Project or this Privacy
 Policy should be directed to <ccdl@alexslemonade.org>.
 
-Last Updated: March 27, 2024
+Last Updated: March 28, 2024
