@@ -22,9 +22,9 @@ If desired, please [file an issue](https://github.com/AlexsLemonade/OpenScPCA-an
 
 To start contributing:
 
-1. Please review our [policies](#STUB_LINK)
+1. Please review our [policies](#STUB_LINK).
 
-2. Fill out the interest form (TODO: make case for interest form)
+2. Fill out the interest form (TODO: make case for interest form).
 
 3. Visit [Getting Started](#STUB_LINK) for first steps. 
 
@@ -33,6 +33,9 @@ To start contributing:
 You can ask questions, propose analyses, get help in [Github Discussions](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions).
 
 You can also join the OpenScPCA community in the `#open_scpca` channel on our [Cancer Data Science Slack](https://cancer-data-science.slack.com/).
+
+Github issues are reserved for planned and defined tasks or bug reports.
+If this is your first time interacting with the project, please post in Discussions.
 
 Please see [Tool for communication](#STUB_LINK) for more information.
 

@@ -13,6 +13,7 @@ Carpentries
 Cmd
 Ctrl
 CellAssign
+codebase
 conda
 config
 designee
@@ -27,6 +28,7 @@ enure
 et
 formatters
 Generis
+GFM
 GitHub
 GitKraken
 HPC
@@ -90,5 +92,6 @@ WSL
 Xcode
 YAML
 Zappia
-GitHub
-scpca
+impactful
+octicons
+md
