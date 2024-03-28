@@ -128,4 +128,5 @@ nav:
     - troubleshooting-faq/index.md
   - Policies: # CoC, Authorship, other policies
     - policies/index.md
+    - policies/terms-of-use.md
     - policies/code-of-conduct.md
