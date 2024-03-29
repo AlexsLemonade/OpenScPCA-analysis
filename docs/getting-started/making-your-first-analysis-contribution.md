@@ -16,17 +16,17 @@ This is the path that you can expect to follow when making your first contributi
 
 You will file a discussion for:
 
-* a new analysis in the [`Propose a new analysis` category](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/categories/propose-a-new-analysis)
-* an update to an existing analysis in the [`Modify an existing analysis` category](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/categories/modify-an-existing-analysis)
+* A new analysis in the [`Propose a new analysis` category](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/categories/propose-a-new-analysis)
+* An update to an existing analysis in the [`Modify an existing analysis` category](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/categories/modify-an-existing-analysis)
 
 A Data Lab member will review your proposal and respond to your original post to discuss further.
 Together you will continue to develop your analysis plans and make decisions about next steps. 
 
-### File an issue
+### File an Issue
 
-* After you have proposed an analysis on discussions and a plan has been developed, then you can file [an issue](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/communications-tools/github-issues/index.md) in the `AlexsLemonade/OpenScPCA-analysis`repository.
+* After you have proposed an analysis on discussions and a plan has been developed, then you can file [an issue](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/communications-tools/github-issues/index.md) in the `AlexsLemonade/OpenScPCA-analysis` repository.
 * Refer to the documentation on [how to write an issue](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/communications-tools/github-issues/writing-issues.md). 
-* We use [issue templates](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/communications-tools/github-issues/issue-templates.md) to prompt issue authors to include information that helps us accomplish the work tracked in that issue. Templates help us write [good issues](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/communications-tools/github-issues/what-makes-a-good-issue.md). 
+* We use [issue templates](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/communications-tools/github-issues/issue-templates.md) to prompt issue authors to [include helpful information](relative link based on mkdocs, TBD) that helps us accomplish the work tracked in that issue. . 
 
 
 ### Pick an existing issue 
@@ -77,4 +77,4 @@ You will receive an email to complete setting up your account.
 
 ### Merge
 
-* Once approved, a Data Lab staff member will merge your feature branch into the main branch of `AlexsLemonade/OpenScPCA-analysis`.
+* Once approved, a Data Lab staff member will merge your feature branch into the main branch of `AlexsLemonade/OpenScPCA-analysis`. <!-- STUB_LINK: add link to merge docs -->
