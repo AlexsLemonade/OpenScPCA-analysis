@@ -57,8 +57,11 @@ You will receive an email to complete setting up your account.
 ### Implement your analysis 
 
 * Now that you have set up your local environment, discussed your proposed analysis, and filed an Issue, you're ready to create an [analysis module](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/contributing-to-analyses/analysis-modules/index.md).
+
 * Refer to the documentation on [creating an analysis module](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/contributing-to-analyses/analysis-modules/creating-a-module.md) to make your first analysis folder.
+
 * [Document each step of your analysis](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/contributing-to-analyses/analysis-modules/documenting-analysis.md). 
+
 * Once you have added or modified code for your analyses that you are happy with, you will need to [commit your changes](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/contributing-to-analyses/working-with-git/making-commits.md) to your [feature branch](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/contributing-to-analyses/working-with-git/working-with-branches.md).
 
 
@@ -67,7 +70,9 @@ You will receive an email to complete setting up your account.
 ### File a pull request
 
 * Once you have committed changes to your feature branch and [pushed to origin](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/contributing-to-analyses/working-with-git/push-to-origin.md), you are ready to file a [pull request](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/contributing-to-analyses/creating-pull-requests/index.md).
+
 * Refer to the documentation on [how to file a pull request](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/contributing-to-analyses/working-with-git/push-to-origin.md). 
+
 * Similar to Issue templates, we use [pull request templates](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/contributing-to-analyses/creating-pull-requests/pull-request-template.md) to prompt you for information that will help us review your code.
 
 ### Undergo analytical code review
