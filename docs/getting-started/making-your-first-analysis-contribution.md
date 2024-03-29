@@ -24,7 +24,8 @@ Together you will continue to develop your analysis plans and make decisions abo
 
 ### File an issue
 
-* After you have proposed an analysis on discussions and a plan has been developed, then you can [file an issue](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/communications-tools/github-issues/writing-issues.md) in the `AlexsLemonade/OpenScPCA-analysis`repository.
+* After you have proposed an analysis on discussions and a plan has been developed, then you can file [an issue](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/communications-tools/github-issues/index.md) in the `AlexsLemonade/OpenScPCA-analysis`repository.
+* Refer to the documentation on [how to write an issue](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/communications-tools/github-issues/writing-issues.md). 
 * We use [issue templates](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/communications-tools/github-issues/issue-templates.md) to prompt issue authors to include information that helps us accomplish the work tracked in that issue. Templates help us write [good issues](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/communications-tools/github-issues/what-makes-a-good-issue.md). 
 
 
