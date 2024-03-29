@@ -13,7 +13,7 @@ from typing import List
 # enable text formatting on Windows
 os.system("")
 
-RELEASE_BUCKET = "analysis-s3-992382809252-us-east-2"  # TODO: change to correct bucket
+RELEASE_BUCKET = "openscpca-data-release"
 TEST_BUCKET = "openscpca-temp-simdata"  # TODO: change to correct bucket
 
 

@@ -2,7 +2,7 @@
 
 In OpenScPCA we use branches to make any changes to the main code base.
 This allows contributors to work on their changes in an isolated environment.
-The contributor can then request for changes from that branch to be incorporated via a [pull request](STUB-LINK for pull requests).
+The contributor can then request for changes from that branch to be incorporated via a [pull request](../creating-pull-requests/index.md).
 
 ## What is a branch?
 
@@ -36,8 +36,8 @@ This means you will create a new feature branch for every new pull request you p
     - Be sure that you have added the [`AlexsLemonade/OpenScPCA-analysis` as the upstream repository](../../technical-setup/clone-the-repo.md#add-the-project-repository-as-a-remote-repository).
 - [Commit](./making-commits.md) any changes that you make to that feature branch.
 - [Push](./push-to-origin.md) your commits to your origin repository, i.e. your fork on GitHub.com
-- File a pull request to the `main` branch of the upstream `AlexsLemonade/OpenScPCA-analysis` repository.
-  - A [pull request](STUB_LINK for section on pull request) is a request to add code in your feature branch to the main code base.
+- [File a pull request](../creating-pull-requests/index.md) to the `main` branch of the upstream `AlexsLemonade/OpenScPCA-analysis` repository.
+    - A pull request is a request to add code in your feature branch to the main code base.
 
 ## Creating a feature branch in GitKraken
 
@@ -76,3 +76,15 @@ Follow these steps to create your feature branch:
 
 You have now successfully created your new feature branch.
 You can now proceed to make changes to the code and continue with your analysis!
+
+## Switching between branches
+
+GitKraken will always display which branch _of your fork_ you are working in on the top menu bar.
+For example, the image below shows you are in your fork's `main` branch.
+
+To switch to a different branch in your fork, you can click the dropdown arrow in the `branch` tab and select the branch to switch into, as shown in the image:
+
+
+<figure markdown="span">
+    ![Switching between branches in your fork](../../img/working-with-branches-4.png){width="400"}
+</figure>

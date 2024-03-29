@@ -6,7 +6,7 @@ A pull request (PR) is used to propose merging new changes saved in one branch i
 In other words, you file a PR to _request_ that your code be _pulled_ into another branch.
 In most cases, PRs are used to merge in changes from a [feature branch](../working-with-git/working-with-branches.md) into the `main` branch of the repository.
 
-You can file PRs on GitHub and [request review](STUB-LINK to review) to ultimately be able to merge your code.
+You can file PRs on GitHub and [request review](../pr-review-and-merge/index.md) to ultimately be able to merge your code.  <!-- STUB_LINK: Update to request review link, if needed -->
 The following components will be present in each PR:
 
 - A summary of line-by-line differences between the feature branch and the main branch, created by GitHub.
@@ -25,17 +25,20 @@ Once you have created a [feature branch](../working-with-git/working-with-branch
 
 - Each PR contains a group of related changes to the code.
     - Not sure what to include in your PR?
-    See [scoping a pull request](STUB-LINK to scoping).
+    See [scoping a pull request](scoping-pull-requests.md).
 - Each PR includes a description of the changes made.
-    - We provide a [pull request template](STUB-LINK to templates) to guide you on what to include in your pull request description.
-- All PRs are [reviewed](STUB-LINK to review) by at least one Data Lab staff member before they can be approved.
+    - We provide a [pull request template](pull-request-template.md) to guide you on what to include in your pull request description.
+- All PRs are [reviewed](../pr-review-and-merge/index.md) by at least one Data Lab staff member before they can be approved. <!-- STUB_LINK: Update to review link-->
 Once approved, a Data Lab staff member will merge your feature branch into the `main` branch of `AlexsLemonade/OpenScPCA-analysis`.
 
 ## The pull request review process
 
-![pr-review-process](../../img/pr-review-cycle.png)
 
-We require that [at least one Data Lab staff member review](STUB-LINK to reviewing) the content of all PRs.
+<figure markdown="span">
+    ![The PR review process](../../img/pr-review-cycle.png){width="700"}
+</figure>
+
+We require that [at least one Data Lab staff member review](../pr-review-and-merge/index.md) the content of all PRs. <!-- STUB_LINK: Update to request review link -->
 We will review your code contribution by:
 
 - Checking for correctness, clarity, and reproducibility in the code
@@ -44,6 +47,6 @@ We will review your code contribution by:
 
 If the reviewer has comments or requests changes, you should address those comments before requesting a second review.
 Bear in mind that it is _normal and expected_ for a pull request to undergo multiple rounds of review before it is approved.
-Once the reviewer is happy with the changes, they will approve the pull request and [merge](STUB-LINK for merge).
+Once the reviewer is happy with the changes, they will approve the pull request and [merge](../pr-review-and-merge/index.md). <!-- STUB_LINK: Update to merge link -->
 
 Then, your code contributions will be present in the `main` branch of `AlexsLemonade/OpenScPCA-analysis` 🎉 !

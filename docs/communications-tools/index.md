@@ -57,9 +57,9 @@ We always aim for a ratio of one issue to one pull request.
 
 **Please read the Data Lab's documentation on:**
 
-* [What are GitHub issues and how do we use them?](github-issues/what-are-github-issues-and-how-do-we-use-them.md)
-* [Issue templates](STUB_LINK)
-* [Examples of good and bad issues](STUB_LINK)
+* [What are GitHub issues and how do we use them?](./github-issues/index.md)
+* [Issue templates](./github-issues/issue-templates.md)
+<!-- * [Examples of good and bad issues](STUB_LINK) -->
 
 Please engage with project maintainers via [Discussions](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions) before filing your first issue in the `OpenScPCA-Analysis` repository.
 We will provide you with further guidance!
@@ -117,7 +117,7 @@ Direct messages can be sent to `Jen O'Malley`, `Jaclyn Taroni`, `Ally Hawkins`, 
 We may direct you back to the `#open-scpca` channel or to another staff member when appropriate.
 
 In some cases, you may use Slack to report a concern to a Data Lab staff member.
-See the [reporting section of the Code of Conduct](https://github.com/AlexsLemonade/OpenScPCA-admin/blob/main/code-of-conduct/code-of-conduct.md#report-an-incident) to learn more about when to use Slack for reporting.
+See the [reporting section of the Code of Conduct](../policies/code-of-conduct.md/#report-an-incident) to learn more about when to use Slack for reporting.
 
 ## Email
 
