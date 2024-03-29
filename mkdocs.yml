@@ -69,7 +69,9 @@ copyright: Copyright &copy; 2024 OpenScPCA Project Maintainers & Contributors | 
 #      - section-path/subsection-path/index.md <!-- summary page for this subsection -->
 #      - section-path/subsection-path/markdown-3.md
 
-# Currently, we have templated out the follow navbar items (specific names TBD)
+# Currently, we have templated out the follow navbar items
+# Note that the overall website landing page is in `docs/index.md`.
+#  When you locally serve, mkdocs will complain that it isn't in the nav below - this is expected. It should not be in the nav below.
 nav:
   - Getting Started:      # welcome, familiarizing yourself with the project
     - getting-started/making-your-first-analysis-contribution.md
