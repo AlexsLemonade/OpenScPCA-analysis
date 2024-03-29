@@ -6,13 +6,14 @@ This project aims to:
 
 - Characterize the ScPCA data with analyses such as labeling cell types or identifying recurrent cell states in multiple tumor types
 
-- Work on open and collaborative analyses.
+- Work on open and collaborative analyses
 
-- Build consensus around usage, strengths, and pitfalls of methods and their application to pediatric cancer data.
+- Build consensus around usage, strengths, and pitfalls of methods and their application to pediatric cancer data
 
 - Improve the utility of the ScPCA data for the research community by generating new data representations (e.g., integrated objects)
 
 ### Platform and Language
+
 The primary platform for the project is Linux, and we're best able to support analyses written in R and Python.
 The documentation and analyses modules cater to Linux and Mac platforms, and the above languages.
 
@@ -22,7 +23,7 @@ If desired, please [file an issue](https://github.com/AlexsLemonade/OpenScPCA-an
 
 To start contributing:
 
-1. Please review our [policies](https://openscpca.readthedocs.io/policies).
+1. Please review our [Policies](https://openscpca.readthedocs.io/policies).
 
 2. Fill out the [interest form](https://share.hsforms.com/1MlLtkGYSQa6j23HY_0fKaw336z0).
 
@@ -32,9 +33,9 @@ To start contributing:
 
 You can ask questions, propose analyses, get help in [GitHub Discussions](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions).
 
-You can also join the OpenScPCA community in the `#open_scpca` channel on our [Cancer Data Science Slack](https://ccdatalab.org/slack).
+You can also join the OpenScPCA community in the `#open-scpca` channel on our [Cancer Data Science Slack](https://ccdatalab.org/slack).
 
-GitHub issues are reserved for planned and defined tasks or bug reports.
+GitHub Issues are reserved for planned and defined tasks or bug reports.
 If this is your first time interacting with the project, please post in Discussions.
 
 If you wish to report a security vulnerability, please [email](mailto:report@ccdatalab.org) us.
@@ -61,7 +62,7 @@ To setup, you will need a Git client, miniconda, R or Python, and an editor of y
 ### Accessing Data
 
 Data is publicly available from the [ScPCA Portal](https://scpca.alexslemonade.org/) and from an AWS S3 bucket for OpenScPCA project contributors.
-We have also provided a way to generate simulated data for you to play with. 
+We also provide a way to download smaller, simulated data files for you to play with.
 
 Please [Getting access to Data](#STUB_LINK) for more details.
 
