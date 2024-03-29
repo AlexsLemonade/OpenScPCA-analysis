@@ -12,7 +12,7 @@ This is the path that you can expect to follow when making your first contributi
 
 ### Make an analysis proposal 
 
-[Start with GitHub discussions](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/111) to propose a new analysis or a modification to an existing analysis.
+[Start with GitHub Discussions](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/111) to propose a new analysis or a modification to an existing analysis.
 
 You will file a Discussion for:
 
