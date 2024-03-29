@@ -74,6 +74,7 @@ nav:
   - Getting Started:      # welcome, familiarizing yourself with the project
     - getting-started/index.md
     - getting-started/explore-analysis.md
+    - getting-started/making-your-first-analysis-contribution.md
   - Technical setup:           # Fork/clone, local environment setup
     - technical-setup/index.md
     - technical-setup/install-a-git-client.md
