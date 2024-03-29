@@ -1,4 +1,4 @@
-# Making first analysis contribution
+# Making your first analysis contribution
 
 This is the path that you can expect to follow when making your first contribution to an analysis. 
 
