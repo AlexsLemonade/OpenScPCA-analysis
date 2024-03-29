@@ -57,6 +57,7 @@ md
 merchantability
 Miniconda
 misidentification
+mkdocs
 nonconsensual
 octicons
 onboarded
@@ -87,6 +88,7 @@ socio
 Stumptown
 sublicensable
 synched
+TBD
 trainings
 transferrable
 transphobic
