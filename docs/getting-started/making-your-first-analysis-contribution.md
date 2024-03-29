@@ -1,8 +1,8 @@
 # Making your first analysis contribution
 
-This is the path that you can expect to follow when making your first contribution to an analysis. 
+![first-analysis-contribution](img/first-analysis-contribution.png)
 
-[Insert illustration]
+This is the path that you can expect to follow when making your first contribution to an analysis. 
 
 * [Planning](#planning)
 * [Implementation](#implementation)
