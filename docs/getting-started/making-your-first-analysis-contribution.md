@@ -74,7 +74,7 @@ You will receive an email to complete setting up your account.
 * Once you have committed changes to your feature branch and [pushed to origin](../contributing-to-analyses/working-with-git/push-to-origin.md), you are ready to file a [pull request](../contributing-to-analyses/creating-pull-requests/index.md).
 
 
-* Similar to Issue templates, we use [pull request templates](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/contributing-to-analyses/creating-pull-requests/pull-request-template.md) to prompt you for information that will help us review your code.
+* Similar to issue templates, we use [pull request templates](../contributing-to-analyses/creating-pull-requests/pull-request-template.md) to prompt you for information that will help us review your code.
 
 ### Undergo analytical code review
 
