@@ -10,12 +10,13 @@ anonymized
 benchmarking
 bioinformatics
 Carpentries
-Cmd
-Ctrl
 CellAssign
 codebase
 conda
 config
+Cmd
+CRediT
+Ctrl
 designee
 discoverable
 DM
@@ -33,8 +34,10 @@ GitHub
 GitKraken
 GitKraken's
 HPC
+ICJME
 ies
 immunities
+impactful
 indicia
 JSON
 Jupyter
@@ -50,10 +53,12 @@ linters
 lockfile
 LSfR
 macOS
+md
 merchantability
 Miniconda
 misidentification
 nonconsensual
+octicons
 onboarded
 OpenScPCA
 openscpca
@@ -94,6 +99,3 @@ WSL
 Xcode
 YAML
 Zappia
-impactful
-octicons
-md
