@@ -11,7 +11,7 @@ As an OpenScPCA contributor, you will use pre-commit when you [commit files](../
 - These pre-commit hooks check that the changes you are trying to commit pass the code quality standards we have set up.
 - If `pre-commit` finds that certain files do not pass these checks, you will need to update the files to ensure they pass before you can commit your changes.
 
-  - You can learn more about this process in the [contributing to analyses documentation](STUB_LINK).
+  - You can learn more about this process in the [documentation for working with Git](../../contributing-to-analyses/working-with-git/making-commits.md#pre-commit-checks).
 
 ## How does OpenScPCA use pre-commit?
 
@@ -22,13 +22,13 @@ Briefly, you will follow process:
 - [Stage and Commit](../../contributing-to-analyses/working-with-git/making-commits.md) files with code changes
     - ‼️ Fix errors flagged by the pre-commit hook until the commit is successful
 - [Push changes](../../contributing-to-analyses/working-with-git/push-to-origin.md) to your fork on GitHub
-- [File a pull request](STUB_LINK for filing a PR) to the `AlexsLemonade/OpenScPCA-analysis` upstream repository
+- [File a pull request](../../contributing-to-analyses/creating-pull-requests/index.md) to the `AlexsLemonade/OpenScPCA-analysis` upstream repository
 
 
 We have set up some pre-commit hooks to manage basic code security and catch other common problems, such as the following:
 
 - Large data files that should not be committed to the repository
-- [Merge conflicts](STUB_LINK resolving merge conflicts) that have not yet been resolved
+- [Merge conflicts](../../contributing-to-analyses/creating-pull-requests/resolve-merge-conflicts.md) that have not yet been resolved
 - Credential files and other sensitive information
 
 

@@ -10,7 +10,7 @@ See our documentation on [OpenScPCA Issue Templates](issue-templates.md) for mor
 ## Markdown
 
 [GitHub Issues are written in Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/about-writing-and-formatting-on-github), a plain text language for formatting documents.
-See our documentation on [Markdown](STUB_LINK markdown section under software tools) for more information about writing in Markdown.
+See our documentation on [Markdown](../../software-platforms/general-tools/writing-in-markdown.md) for more information about writing in Markdown.
 
 GitHub supports [a "dialect" of Markdown called GitHub Flavored Markdown (GFM)](https://github.github.com/gfm/).
 You don't need to worry too much about GFM, but you may come across this term reading docs from GitHub!

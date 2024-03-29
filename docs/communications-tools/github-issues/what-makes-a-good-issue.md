@@ -10,7 +10,7 @@ Good issues include the following:
 - Ideas about how to accomplish a segment of work
 - Enough context...
     - For someone other than the issue author to accomplish the work
-    - To set up [pull request reviewers for success](STUB_LINK review process, probably)
+    - To set up [pull request reviewers for success](../../contributing-to-analyses/pr-review-and-merge/index.md)
 - The requirements for satisfying or closing the issue (when known)
 
 <!-- Good and bad issues examples could go here -->
