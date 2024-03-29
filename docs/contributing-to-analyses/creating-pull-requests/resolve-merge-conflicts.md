@@ -26,7 +26,7 @@ Figure taken from [https://blog.developer.atlassian.com/a-better-pull-request/](
 
 To resolve merge conflicts, you need to merge the upstream `main` branch into your feature branch.
 If Git finds merge conflicts, you can then resolve them in GitKraken, as described below.
-_We strongly recommend doing this [before you file a PR](STUB_LINK before you file)._
+_We strongly recommend doing this before you file a PR._ <!-- STUB_LINK: Add link to before you file -->
 
 
 ## How to resolve a merge conflict
@@ -57,4 +57,4 @@ Any files that contain conflicts will be listed on the right-hand side under `Co
     To learn how to resolve these conflicts, please watch this [tutorial from GitKraken](https://www.gitkraken.com/learn/git/tutorials/how-to-resolve-merge-conflict-in-git).
 
 1. Once you have resolved the conflicts and committed the changes, your feature branch will now be in sync with the most recent changes in the `main` branch of `AlexsLemonade/OpenScPCA-analysis`.
-You should then [push these changes to GitHub](./push-to-origin.md), to ensure that both the local and remote copy of your feature branch contain the most recent changes in `main`.
+You should then [push these changes to GitHub](../working-with-git/push-to-origin.md), to ensure that both the local and remote copy of your feature branch contain the most recent changes in `main`.

@@ -21,11 +21,11 @@ The image below provides a high-level overview of the Git/GitHub aspects of the 
 </figure>
 
 
-You will contribute to the project by creating and developing [analysis modules](./analysis_modules/index.md).
+You will contribute to the project by creating and developing [analysis modules](./analysis-modules/index.md).
 
 !!! note "Before you begin"
 
-    Before you create your module, please review the documentation in the [**Analysis Module**](analysis-modules/index.md) and [**Determining analysis requirements**](determining-requirements/index.md) sections. 
+    Before you create your module, please review the documentation in the [**Analysis Module**](analysis-modules/index.md) and [**Determining analysis requirements**](determining-requirements/index.md) sections.
 
     This information will help orient you to how to write OpenScPCA analysis modules and ensure they meet the project's reproducibility requirements.
 
@@ -37,7 +37,7 @@ The below steps outline the process for getting started with a new analysis modu
       - [Commit](working-with-git/making-commits.md) small units of work, [pushing](working-with-git/push-to-origin.md) your commits to your fork on GitHub along the way
       - Be sure to [document](analysis-modules/documenting-analysis.md) your analysis module as you build it up
 4. When you've [completed enough work for a pull request (PR)](creating-pull-requests/scoping-pull-requests.md), you'll [file a PR](creating-pull-requests/index.md) to the upstream repository, `AlexsLemonade/OpenScPCA-analysis`
-5. The Data Lab will then [review your PR](STUB_LINK)
+5. The Data Lab will then [review your PR](pr-review-and-merge/index.md)
 6. Once we approve your PR, we will merge your feature branch into the upstream `AlexsLemonade/OpenScPCA-analysis` repository
 7. Finally, you'll [sync your fork](working-with-git/staying-in-sync-with-upstream.md) with the upstream repository
     - Then, rinse and repeat - make your next feature branch and begin again!
