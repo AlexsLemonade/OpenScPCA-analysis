@@ -97,7 +97,7 @@ nav:
     - Analysis modules:
       - contributing-to-analyses/analysis-modules/index.md
       - contributing-to-analyses/analysis-modules/creating-a-module.md
-      - contributing-to-analyses/starting-your-analysis/documenting-analysis.md
+      - contributing-to-analyses/analysis-modules/documenting-analysis.md
     - Determining analysis requirements:
       - contributing-to-analyses/determining-requirements/index.md
       - contributing-to-analyses/determining-requirements/determining-software-requirements.md
@@ -115,6 +115,8 @@ nav:
       - contributing-to-analyses/creating-pull-requests/pull-request-template.md
       - contributing-to-analyses/creating-pull-requests/resolve-merge-conflicts.md
       - contributing-to-analyses/creating-pull-requests/file-pull-request.md
+    - Code review and merging:
+      - contributing-to-analyses/pr-review-and-merge/index.md
   - Software platforms:            # LSfR, AWS, Docker, etc
     - software-platforms/index.md
     - Lightsail for Research:
@@ -132,3 +134,5 @@ nav:
     - policies/terms-of-use.md
     - policies/privacy-policy.md
     - policies/code-of-conduct.md
+    - policies/authorship.md
+

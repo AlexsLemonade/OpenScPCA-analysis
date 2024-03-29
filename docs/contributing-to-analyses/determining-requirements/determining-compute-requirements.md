@@ -1,7 +1,7 @@
 # Compute Requirements
 
 We use the term **compute requirements** to refer to the computational resources, such as the number of CPUs or the amount of RAM, that are required for your analysis to run.
-Reporting the compute requirements for running your analysis to project organizers helps us plan for allocating resources on Amazon Web Services (AWS) and to determine how to review [your pull requests](STUB_LINK PRs docs) (e.g., using our laptops vs. using AWS).
+Reporting the compute requirements for running your analysis to project organizers helps us plan for allocating resources on Amazon Web Services (AWS) and to determine how to [review your pull requests](STUB_LINK PR review) (e.g., using our laptops vs. using AWS).
 
 We will prompt you to report compute requirements throughout the project as described [below](#reporting-compute-requirements).
 
@@ -31,7 +31,7 @@ Methods or benchmarking papers in the literature may also be a good resource for
 
 To get an overview of computational resource usage when running an analysis, you can use the command-line tool [`htop`](https://htop.dev/) on Linux and macOS.
 
-`htop` will be already installed on machines run via [Lightsail for Research](STUB_LINK), but you can [install it via conda](https://anaconda.org/conda-forge/htop) (see our [documentation on conda](software-requirements.md#adding-software-to-the-environment-and-tracking-installed-software)).
+`htop` will be already installed on machines run via [Lightsail for Research](STUB_LINK), but you can [install it via conda](https://anaconda.org/conda-forge/htop) (see our [documentation on conda](determining-software-requirements.md#adding-software-to-the-environment-and-tracking-installed-software)).
 
 Check out [this beginner's guide to `htop`](https://spin.atomicobject.com/htop-guide/) for an introduction.
 
@@ -58,11 +58,11 @@ Please be sure to provide this information when prompted.
     * Report what you know about the required computational resources in the "Other Details" field
 * [Proposing to modify an existing analysis in Discussions?](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=modify-an-existing-analysis)
     * Report what you know about computational resources required in the "Other Details" field
-* [Filing an issue to start an analysis?](STUB_LINK)
+* [Filing an issue to start an analysis?](https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/new?assignees=&labels=analysis&projects=&template=01-start-an-analysis.yml)
     * Report what you know about the required computational resources in the "What computational resources will you require?" field
-* [Filing an issue to modify an analysis?](STUB_LINK)
+* [Filing an issue to modify an analysis?](https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/new?assignees=&labels=analysis&projects=&template=02-modify-an-analysis.yml)
     * Report what you know about the required computational resources in the "Will you require different computational resources beyond what the analysis module already uses?" field
-* [Filing a pull request?](STUB_LINK)
+* [Filing a pull request?](../creating-pull-requests/index.md)
     * Fill out the section explaining to reviewers what computational resources are required to run the code ("What are the computational requirements to be able to run the code in this PR?")
 
 You can always add a comment to your existing discussion post or issue about compute requirements if you have gathered more information since filing!
@@ -70,4 +70,4 @@ You can always add a comment to your existing discussion post or issue about com
 ### READMEs
 
 Every analysis module in the project includes its own README file.
-Document the compute requirements in the README of your module. (STUB_LINK)
+Document the compute requirements [in your module's README file](../analysis-modules/documenting-analysis.md).
