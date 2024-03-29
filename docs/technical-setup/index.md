@@ -13,4 +13,4 @@ This section provides instructions for technical aspects of set up, including:
 
     If you would like to see Windows supported, please [let us know by filing an issue](https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/new?assignees=&labels=docs-request&projects=&template=04-docs-request.yml&title=Docs+request%3A)!
 
-    Note that all contributors have access to [Lightsail for Research](STUB_LINK LSfR) instances which run Linux (Ubuntu).
+    Note that all contributors have access to [Lightsail for Research](../software-platforms/lsfr/index.md) instances which run Linux (Ubuntu).
