@@ -10,12 +10,13 @@ anonymized
 benchmarking
 bioinformatics
 Carpentries
-Cmd
-Ctrl
 CellAssign
 codebase
 conda
 config
+Cmd
+CRediT
+Ctrl
 designee
 discoverable
 DM
@@ -33,6 +34,7 @@ GitHub
 GitKraken
 GitKraken's
 HPC
+ICJME
 ies
 immunities
 impactful
@@ -51,6 +53,7 @@ linters
 lockfile
 LSfR
 macOS
+md
 merchantability
 Miniconda
 misidentification
