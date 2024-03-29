@@ -35,6 +35,7 @@ GitKraken's
 HPC
 ies
 immunities
+impactful
 indicia
 JSON
 Jupyter
@@ -54,6 +55,7 @@ merchantability
 Miniconda
 misidentification
 nonconsensual
+octicons
 onboarded
 OpenScPCA
 openscpca
@@ -94,6 +96,3 @@ WSL
 Xcode
 YAML
 Zappia
-impactful
-octicons
-md

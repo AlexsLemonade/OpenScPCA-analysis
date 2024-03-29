@@ -9,7 +9,7 @@ This section explains the structure of analysis modules.
 ## Skeleton analysis module contents
 
 You can create a starting point for your analysis module with the script [`create-analysis-module.py`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/create-analysis-module.py).
-This script will create a skeleton analysis module with the following file structure ([depending on how you run the script](../starting-your-analysis/creating-a-module.md#script-flags), there may be more files here too!).
+This script will create a skeleton analysis module with the following file structure ([depending on how you run the script](./creating-a-module.md#module-creation-script-flags), there may be more files here too!).
 
 
 ```markdown
@@ -29,7 +29,7 @@ This script will create a skeleton analysis module with the following file struc
 
 
 
-Please refer to [the documentation on creating analysis modules](../starting-your-analysis/creating-a-module.md) when you are ready to make your first analysis folder and begin contributing to OpenScPCA!
+Please refer to [the documentation on creating analysis modules](../analysis-modules/creating-a-module.md) when you are ready to make your first analysis folder and begin contributing to OpenScPCA!
 
 These are the main files and folders you will interact with when writing your analysis:
 
@@ -47,12 +47,12 @@ These are the main files and folders you will interact with when writing your an
     - You can optionally use this folder to store _intermediate_ files that your code produces but are not meant to live in `results` or `plots`.
     - We have set up Git to ignore the contents of this folder, so anything you save to this folder will only be stored locally and not in the remote repository.
 - **`README.md`**
-    - Use this [markdown file](../../software-platforms/general-tools/writing-in-markdown.md) to document your analysis module.
+    - Use this [markdown](../../software-platforms/general-tools/writing-in-markdown.md) file to document your analysis module.
   Your `README.md` file should have enough information for other contributors or repository users to learn the following:
         - The scientific goals of the module
-        - The input and output of the module and its [computational resource requirements](../starting-your-analysis/determining-compute-requirements.md)
+        - The input and output of the module and its [computational resource requirements](../determining-requirements/determining-compute-requirements.md)
         - How to run the module
-    - Please see the documentation on [documenting your analysis module](STUB_LINK module documenting notebooks) for more information about adding to this `README.md` file.
+    - Please see the documentation on [documenting your analysis module](./documenting-analysis.md) for more information about adding to this `README.md` file.
 
 
 There are also some additional files in the skeleton that are useful to be aware of:
@@ -60,7 +60,7 @@ There are also some additional files in the skeleton that are useful to be aware
 
 - **`Dockerfile`**
     - This is the analysis module's [Dockerfile](https://docs.docker.com/reference/dockerfile/) and contains the commands that Docker uses to build the module's Docker image.
-    - For more information on how OpenScPCA uses `Docker` images, [please see our `Docker` documentation](STUB_LINK for docker docs).
+    - For more information on how OpenScPCA uses `Docker` images, [please see our `Docker` documentation](../../technical-setup/environment-setup/install-docker.md).
 - Hidden files **`.gitignore`** and **`.dockerignore`**
     - We have set up these files to tell Git and Docker, respectively, to ignore certain files that do not belong in version control or in the module's Docker image.
     - These files will likely be automatically hidden from you, and you don't really have to worry about it.
@@ -91,7 +91,7 @@ While you write your analysis, you may add other files too:
     - If your module has multiple scripts or notebooks, we recommend adding a script (for example a `shell` script) to the top-level of your analysis module folder that will run all scripts in order.
     - You can name this file, for example, `run_<module name>.sh` and document how to run in the module's `README.md`
 - Additional environment files
-    - When you [create a module](STUB_LINK for creating a module), you can choose to include files that manage the module's software environment in the analysis module skeleton.
+    - When you [create a module](./creating-a-module.md), you can choose to include files that manage the module's software environment in the analysis module skeleton.
     - In this case, your module may also contain contain R-specific (e.g., `renv.lock`) and/or Python-specific (e.g., `environment.yml`) files or folders.
 
 

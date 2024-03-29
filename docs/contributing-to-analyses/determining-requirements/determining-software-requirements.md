@@ -1,4 +1,4 @@
-# Determining Software Requirements
+# Software Requirements
 
 ## Determining and managing software dependencies in R
 
@@ -24,18 +24,18 @@ sink()
 
 This will result in the contents being written to a file called `sessionInfo.txt` in your working directory, so be sure to use unique filenames if multiple scripts in your analysis are writing out the contents of `sessionInfo()`.
 
-You can post the contents of these files on [your pull requests](STUB_LINK index page for pull requests) or commit them to the repository.
+You can post the contents of these files on [your pull requests](../creating-pull-requests/index.md) or commit them to the repository.
 
 ### Using `renv`
 
-[`renv`](https://rstudio.github.io/renv/articles/renv.html) is a package manager for R.
+[`renv`](https://rstudio.github.io/renv/) is a package manager for R.
 We encourage you to read [the excellent introduction](https://rstudio.github.io/renv/articles/renv.html) for more information.
-Here, we will limit our discussion to the most common commands we expect you to use when writing an analysis and assume that you have already [installed `renv`](STUB_LINK `renv` installation instructions).
+Here, we will limit our discussion to the most common commands we expect you to use when writing an analysis and assume that you have already [installed `renv`](../../technical-setup/environment-setup/install-r-rstudio.md#install-r-package-dependencies).
 
 #### Initializing `renv` in a module
 
 !!! note
-    If you [used `--use-renv` when creating your analysis module](STUB LINK), this step has been taken care of.
+    If you [used `--use-renv` when creating your analysis module](../analysis-modules/creating-a-module.md#the-use-renv-flag), this step has been taken care of.
 
 To start using `renv` in your analysis module, you can run the following R command from the root directory of your analysis module:
 
@@ -51,7 +51,7 @@ The `.Rprofile` file created by `renv::init()` will cause `renv` to automaticall
 
 #### Using `renv` with RStudio Projects
 
-If you are using [the RStudio IDE](STUB_LINK our docs on RStudio install) for developing your module, you might find it helpful to use [an RStudio Project](https://docs.posit.co/ide/user/ide/guide/code/projects.html) for your module in conjunction with `renv`.
+If you are using [the RStudio IDE](../../technical-setup/environment-setup/install-r-rstudio.md#install-the-rstudio-ide) for developing your module, you might find it helpful to use [an RStudio Project](https://docs.posit.co/ide/user/ide/guide/code/projects.html) for your module in conjunction with `renv`.
 
 Following the linked directions, we recommend creating an RStudio Project from an existing directory (your module).
 You can commit the `.Rproj` file that is created to the repository.
@@ -61,7 +61,7 @@ When you open the Project in RStudio, it will automatically source the `.Rprofil
 #### Taking snapshots
 
 As you develop your analysis, you may install packages using `install.packages()`, `renv::install()`, or `BiocManager::install()`.
-You should periodically update the lockfile to make sure all dependencies are captured by using the following R command in the root directory of your module ([reference](https://rstudio.github.io/renv/reference/restore.html)):
+You should periodically update the lockfile to make sure all dependencies are captured by using the following R command in the root directory of your module ([reference](https://rstudio.github.io/renv/reference/snapshot.html)):
 
 ```r
 renv::snapshot()
@@ -81,7 +81,7 @@ For example, `ggplot2` needs the `svglite` package to save `.svg` files, but tha
 You can make `renv` include a package by loading it in a file called `dependencies.R` in a directory called `components` within your analysis.
 
 !!! note
-    If you [used `--use-renv` when creating your analysis module](STUB LINK), `components/dependencies.R` was already created.
+    If you [used `--use-renv` when creating your analysis module](../analysis-modules/creating-a-module.md#the-use-renv-flag), `components/dependencies.R` was already created.
 
 For instance, if you wanted to make sure `renv` was keeping track of the `scuttle` and `svglite` packages, your module's `components/dependencies.R` would include the following:
 
@@ -102,13 +102,13 @@ renv::restore()
 ## Managing software dependencies in Python with conda
 
 We strongly recommend using [conda](https://docs.conda.io/en/latest/) and [`conda-lock`](https://conda.github.io/conda-lock/) to manage dependencies for any module written primarily in Python.
-These instructions assume you have already [installed conda and set up your base environment](STUB_LINK conda technical setup).
+These instructions assume you have already [installed conda and set up your base environment](../../technical-setup/environment-setup/setup-conda.md).
 
 ### Module-specific conda environments
 
 #### Creating environments
 
-When [creating a Python module using `create-analysis-module.py`](STUB_LINK module creation), a conda environment will be created for that module by default with two effects:
+When [creating a Python module using `create-analysis-module.py`](../analysis-modules/creating-a-module.md), a conda environment will be created for that module by default with two effects:
 
 * A basic `environment.yml` file will already be present in the module's directory
 * A conda environment named `openscpca-{module_name}` will already exist
@@ -126,7 +126,7 @@ conda create --file environment.yml --name openscpca-{module_name}
 conda activate openscpca-{module_name}
 ```
 
-##### Freezing dependencies with `conda-lock`
+#### Freezing dependencies with `conda-lock`
 
 Conda is a powerful package manager, but it has some limitations when trying to perfectly reproduce an environment across different computer platforms (e.g., between Linux and macOS).
 In particular, some packages have dependencies that vary depending on the platform that is being used, which makes tracking dependencies across platforms difficult with the built-in conda tools.
@@ -170,7 +170,7 @@ If the `conda-lock.yml` file has been updated since the last time you worked wit
 
 Occasionally you may encounter a Python-based module that does not yet have a `conda-lock.yml` file.
 This is most likely to occur early in development of a module when the requirements may still be in flux.
-(If you do find a module that is missing a `conda-lock.yml` file, you may want to [file an issue](STUB_LINK issue filing) to let us know.)
+(If you do find a module that is missing a `conda-lock.yml` file, you may want to [file an issue](../../communications-tools/github-issues/index.md) to let us know.)
 As long as there is an `environment.yml` file, you can still create an environment to work with the module.
 To do so, run the following commands from the module's root directory, replacing `{module_name}` with the name of the module you are working on:
 
@@ -184,7 +184,7 @@ conda activate openscpca-{module_name}
 !!! note
     During the `conda env create` step, you may see the following warning:
 
-    ```
+    ```{.console .no-copy}
     EnvironmentSectionNotValid: The following section on 'environment.yml' is invalid and will be ignored:
      - platforms
     ```
@@ -301,7 +301,7 @@ conda config --env --set subdir osx-64
 ### Using `session_info.show()`
 
 The [`session-info`](https://pypi.org/project/session-info/) Python package can be used to report version information about Python and loaded modules.
-If you [created a module using `--use-jupyter` or `--use-python`](STUB_LINK), `session-info` was automatically included in the module's conda environment.
+If you [created a module using `--use-jupyter` or `--use-python`](../analysis-modules/creating-a-module.md#the-use-jupyter-flag), `session-info` was automatically included in the module's conda environment.
 
 Import `session-info` by placing the following in [the Setup section of your Jupyter notebook](STUB_LINK docs on structuring Jupyter notebooks) or in the [load modules section of your script](STUB_LINK for structuring scripts):
 
@@ -339,4 +339,4 @@ with open(session_into_path, "w") as f:
 
 If you're using this approach with multiple scripts in your module, be sure to use unique file names when naming your session info text files.
 
-You can post the contents of these files on [your pull requests](STUB_LINK index page for pull requests) or commit them to the repository.
+You can post the contents of these files on [your pull requests](../creating-pull-requests/index.md) or commit them to the repository.
