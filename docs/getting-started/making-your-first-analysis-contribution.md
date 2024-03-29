@@ -60,18 +60,18 @@ You will receive an email to complete setting up your account.
 
 * Now that you have set up your local environment, discussed your proposed analysis, and filed an Issue, you're ready to create an [analysis module](../contributing-to-analyses/analysis-modules/index.md).
 
-* Refer to the documentation on [creating an analysis module](../analysis-modules/creating-a-module.md) to make your first analysis folder.
+* Refer to the documentation on [creating an analysis module](../contributing-to-analyses/analysis-modules/creating-a-module.md) to make your first analysis folder.
 
-* [Document each step of your analysis](../analysis-modules/documenting-analysis.md). 
+* [Document each step of your analysis](../contributing-to-analyses/analysis-modules/documenting-analysis.md). 
 
-* Once you have added or modified code for your analyses that you are happy with, you will need to [commit your changes](../contributing-to-analyses/working-with-git/making-commits.md) to your [feature branch](../working-with-git/working-with-branches.md).
+* Once you have added or modified code for your analyses that you are happy with, you will need to [commit your changes](../contributing-to-analyses/working-with-git/making-commits.md) to your [feature branch](../contributing-to-analyses/working-with-git/working-with-branches.md).
 
 
 ## Review
 
 ### File a pull request
 
-* Once you have committed changes to your feature branch and [pushed to origin](../contributing-to-analyses/working-with-git/push-to-origin.md), you are ready to file a [pull request](../creating-pull-requests/index.md).
+* Once you have committed changes to your feature branch and [pushed to origin](../contributing-to-analyses/working-with-git/push-to-origin.md), you are ready to file a [pull request](../contributing-to-analyses/creating-pull-requests/index.md).
 
 
 * Similar to Issue templates, we use [pull request templates](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/docs/contributing-to-analyses/creating-pull-requests/pull-request-template.md) to prompt you for information that will help us review your code.
@@ -79,7 +79,7 @@ You will receive an email to complete setting up your account.
 ### Undergo analytical code review
 
 * [Pull requests must be reviewed and approved](../contributing-to-analyses/creating-pull-requests/index.md#the-pull-request-review-process) by a Data Lab member before they can be merged into the `AlexsLemonade/OpenScPCA-analysis` repository.
-* All pull requests will undergo [analytical code review](../pr-review-and-merge/index.md). 
+* All pull requests will undergo [analytical code review](../contributing-to-analyses/pr-review-and-merge/index.md). 
 
 ### Merge
 
