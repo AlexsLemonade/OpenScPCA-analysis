@@ -1,40 +1,38 @@
-# Open Single-cell Pediatric Cancer Atlas (OpenScPCA) Authorship Policy
-
-* [OpenScPCA authorship criteria](#openscpca-authorship-criteria)
-* [Attributing authorship on other publications](#attributing-authorship-on-other-publications)
-
+# Authorship Policy
 
 ## OpenScPCA authorship criteria
 
-Authorship on a future OpenScPCA publication is based on the below criteria (*fig. 1*) adpated from [*Cell Press*](https://www.cell.com/pb/assets/raw/shared/guidelines/CRediT-taxonomy.pdf).
-To receive author credit, a researcher who has participated in OpenScPCA is expected to have made a substantial contribution to the project that meets one or more of the following requirements.
+Authorship criteria for any future OpenScPCA publication(s) will follow [guidance from the International Committee of Medical Journal Editors (ICJME)](https://www.icmje.org/recommendations/browse/roles-and-responsibilities/defining-the-role-of-authors-and-contributors.html).
 
-| Term | Definition | 
-|:-----|------------|
-| Conceptualization | Ideas; formulation or evolution of overarching research goals and aims | 
-| Methodology | Development or design of methodology; creation of models  | 
-| Software | Programming, software development; designing computer programs; implementation of the computer code and supporting algorithms; testing of existing code components | 
-| Validation | Verification, whether as a part of the activity or separate, of the overall replication/ reproducibility of results/experiments and other research outputs | 
-| Formal Analysis | Application of statistical, mathematical, computational, or other formal techniques to analyze or synthesize study data | 
-| Investigation | Conducting a research and investigation process, specifically performing the experiments, or data/evidence collection | 
-| Resources | Provision of study materials, reagents, materials, patients, laboratory samples, animals, instrumentation, computing resources, or other analysis tools | 
-| Data Curation | Management activities to annotate (produce metadata), scrub data and maintain research data (including software code, where it is necessary for interpreting the data itself) for initial use and later reuse | 
-| Writing – Original Draft  | Preparation, creation and/or presentation of the published work, specifically writing the initial draft (including substantive translation) | 
-| Writing – Review & Editing  | Preparation, creation and/or presentation of the published work by those from the original research group, specifically critical review, commentary or revision – including pre- or postpublication stages | 
-| Visualization | Preparation, creation and/or presentation of the published work, specifically visualization/data presentation | 
-| Supervision | Oversight and leadership responsibility for the research activity planning and execution, including mentorship external to the core team | 
-| Project Administration | Management and coordination responsibility for the research activity planning and execution | 
-| Funding Acquisition | Acquisition of the financial support for the project leading to this publication | 
+In particular, [the four criteria recommended by ICJME](https://www.icmje.org/recommendations/browse/roles-and-responsibilities/defining-the-role-of-authors-and-contributors.html#two):
 
-*Fig. 1 Reproduced from [Brand et al. (2015)](https://www.researchgate.net/publication/274098676_Beyond_authorship_Attribution_contribution_collaboration_and_credit), Learned Publishing 28(2), with permission of the authors.*
+> - Substantial contributions to the conception or design of the work; or the acquisition, analysis, or interpretation of data for the work; AND
+> - Drafting the work or reviewing it critically for important intellectual content; AND
+> - Final approval of the version to be published; AND
+> - Agreement to be accountable for all aspects of the work in ensuring that questions related to the accuracy or integrity of any part of the work are appropriately investigated and resolved.
 
-OpenScPCA contributors who do not meet the criteria required for authorship may still be acknowledged. 
+We encourage you to review [the ICJME guidance](https://www.icmje.org/recommendations/browse/roles-and-responsibilities/defining-the-role-of-authors-and-contributors.html) in full.
 
-## Attributing authorship on other publications
+We expect contributors to participate in the conception and design of the work through Discussions, issues, and review, and to contribute analyses and interpretation by filing pull requests to the `OpenScPCA-analysis` repository.
+To meet the criteria for authorship, these contributions must lead to a portion of results included in a publication.
 
-If you plan to publish work that you contributed to the OpenScPCA project as part of a separate publication, you must credit the OpenScPCA codebase and follow our authorship guidelines to ensure other contributors receive appropriate credit.
-Other OpenScPCA contributors who were involved in the work you are publishing and who meet the criteria outlined in *fig. 1* should receive authorship.
+OpenScPCA contributors who do not meet the criteria for authorship may still be acknowledged with their permission.
 
-Please note that failure to do this may result in violation of your own institutional ethics or misconduct policies.
+## Contributor Roles Taxonomy (CRediT)
+
+Any OpenScPCA publication will use the [Contributor Roles Taxonomy (CRediT)](https://credit.niso.org/) to describe each author's contribution to the work.
+You can view the definitions of roles here: <https://credit.niso.org/contributor-roles-defined/>.
+
+## Other publications
+
+If you plan to publish work that you contributed to the OpenScPCA project as part of a separate publication, you must do the following:
+
+- Include any OpenScPCA contributors who contributed substantially to the work as authors, who...
+    - Participate in drafting or critically reviewing the manuscript
+    - Have the opportunity approve the manuscript
+- Credit the OpenScPCA materials per the [LICENSE](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/LICENSE.md)
+- Follow your institution's guidance or policies regarding authorship on scientific publications
+
+## Contact
 
 Any questions or feedback about the OpenScPCA authorship policy should be directed to <ccdl@alexslemonade.org>.
