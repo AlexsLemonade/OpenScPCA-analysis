@@ -99,3 +99,7 @@ WSL
 Xcode
 YAML
 Zappia
+impactful
+octicons
+md
+miniconda
