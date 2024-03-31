@@ -1,8 +1,8 @@
 # OpenScPCA-analysis
 
-OpenScPCA is an open, collaborative project to analyze data from the [Single-cell Pediatric Cancer Atlas (ScPCA) Portal](https://scpca.alexslemonade.org/), which currently holds 500 samples from over 50 pediatric cancer types. 
+OpenScPCA is an open, collaborative project to analyze data from the [Single-cell Pediatric Cancer Atlas (ScPCA) Portal](https://scpca.alexslemonade.org/), which currently holds 500 samples from over 50 pediatric cancer types.
 
-This project aims to: 
+This project aims to:
 
 - Characterize the ScPCA data with analyses such as labeling cell types or identifying recurrent cell states in multiple tumor types
 
@@ -27,7 +27,7 @@ To start contributing:
 
 2. Fill out the [interest form](https://share.hsforms.com/1MlLtkGYSQa6j23HY_0fKaw336z0).
 
-3. Visit [Getting Started](#STUB_LINK) for first steps. 
+3. Visit [Getting Started](#STUB_LINK) for first steps.
 
 ### Communicating
 
@@ -46,7 +46,7 @@ Please see our documentation on [Tools for communication](https://openscpca.read
 
 ## Documentation
 
-We have a comprehensive documentation to help you with various aspects of participating in OpenScPCA - from proposing an analysis, acquiring data, troubleshooting errors to making your first code contribution. 
+We have a comprehensive documentation to help you with various aspects of participating in OpenScPCA - from proposing an analysis, acquiring data, troubleshooting errors to making your first code contribution.
 
 Please refer to it as you work on the project.
 
@@ -57,7 +57,7 @@ Please refer to it as you work on the project.
 
 ### Local Setup
 
-To setup, you will need a Git client, miniconda, R or Python, and an editor of your choice. Please see our documentation on [Technical Setup](https://openscpca.readthedocs.io/technical-setup) for detailed instructions to create a local setup.
+To set up, you will need a Git client, Miniconda, R or Python, and an editor of your choice. Please see our documentation on [Technical Setup](https://openscpca.readthedocs.io/technical-setup) for detailed instructions to create a local setup.
 
 ### Accessing Data
 
@@ -68,7 +68,7 @@ Please [Getting access to Data](#STUB_LINK) for more details.
 
 ### Running an analysis module
 
-Each analysis module has a README which contains instructions to run that specific module. 
+Each analysis module has a README which contains instructions to run that specific module.
 Please see the relevant analysis module's README for instructions.
 
 Learn more about [running an analysis module](#STUB_LINK) here.
