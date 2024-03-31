@@ -79,6 +79,7 @@ nav:
     - Getting Access to Resources:
       - getting-started/accessing-resources/index.md
       - getting-started/accessing-resources/getting-access-to-data.md
+      - getting-started/accessing-resources/getting-access-to-compute.md
   - Technical setup:           # Fork/clone, local environment setup
     - technical-setup/index.md
     - technical-setup/install-a-git-client.md
