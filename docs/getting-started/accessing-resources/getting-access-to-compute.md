@@ -28,4 +28,4 @@ Accessing GPU instances in Lightsail for Research in your account requires us to
 
 Requests for access to GPU instances can be included on Discussions or issues in sections that ask about computing resources.
 
-Requests for access to GPU instances will be evaluated
+Requests for access to GPU instances will be evaluated on a case-by-case basis.
