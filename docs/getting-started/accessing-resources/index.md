@@ -17,3 +17,7 @@ See our documentation on [AWS](STUB_LINK) for more information.
 
 See [Getting Access to Data](getting-access-to-data.md) for more information about downloading data.
 Once an AWS account has been created for you, you can access data on S3 via the data download script in the repository.
+
+## Getting access to compute
+
+See [Getting Access to Compute](getting-access-to-compute.md) for more information about how we provide access to virtual computers.
