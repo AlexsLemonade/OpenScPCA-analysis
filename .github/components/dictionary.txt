@@ -11,6 +11,7 @@ benchmarking
 bioinformatics
 Carpentries
 CellAssign
+CLI
 codebase
 conda
 config
@@ -86,6 +87,8 @@ SingleR
 socio
 Stumptown
 sublicensable
+symlink
+symlinked
 synched
 trainings
 transferrable
@@ -99,7 +102,3 @@ WSL
 Xcode
 YAML
 Zappia
-impactful
-octicons
-md
-miniconda
