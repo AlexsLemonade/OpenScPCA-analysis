@@ -11,6 +11,8 @@ Before we create an AWS account for you, the following must be completed:
 
 There are technical limits to the number of accounts we can create, so we want to be sure contributors will use them prior to allocation.
 
+See our documentation on [AWS](STUB_LINK) for more information.
+
 ## Getting access to data
 
 See [Getting Access to Data](getting-access-to-data.md) for more information about downloading data.
