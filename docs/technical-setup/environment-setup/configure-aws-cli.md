@@ -24,7 +24,7 @@ If you've followed [the steps to set up conda](setup-conda.md), the AWS CLI has 
 aws configure sso
 ```
 
-2. Fill in the prompts using the following values, replacing `{The access portal URL from you invite email}`including the curly brackets with the access portal URL.
+2. Fill in the prompts using the following values, replacing `{The access portal URL from you invite email}` including the curly brackets with the access portal URL.
 
 ```
 SSO session name (Recommended): openscpca-sso
@@ -34,6 +34,7 @@ SSO registration scopes [sso:account:access]: sso:account:access
 ```
 
 3. Step 2 will automatically open a browser window for you to confirm access by hitting the `Confirm and continue` button.
+(If a browser window doesn't open, follow the instructions in your Terminal.)
 If you're not logged in, you will be prompted to log in.
 
 4. Click the `Allow access` button on the next screen.
@@ -47,6 +48,7 @@ Using the account ID {account number}
 The only role available to you is: ResearcherRestriction
 Using the role name "ResearcherRestriction"
 ```
+
 And fill in the prompts with the following:
 
 ```
@@ -56,3 +58,16 @@ CLI profile name [ResearcherRestriction-{account number}]: openscpca
 ```
 
 ## Logging in to a new session
+
+To use the AWS CLI for this project, you will need to be logged into the `openscpca` profile.
+
+1. To login, use the following command in your Terminal application:
+
+```sh
+aws sso login --profile openscpca
+```
+
+2. Step 1  will automatically open a browser window for you to confirm access by hitting the `Confirm and continue` button.
+(If a browser window doesn't open, follow the instructions in your Terminal.)
+
+3. Click the `Allow access` button on the next screen.
