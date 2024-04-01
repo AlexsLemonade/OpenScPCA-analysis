@@ -11,7 +11,7 @@ These instructions assume you have already installed AWS CLI during [conda set u
 ## Configuring the AWS CLI
 
 !!! info
-    If you're using [Lightsail for Research](../software-platforms/lsfr/index.md), the configuration and login steps have occurred automatically.
+    If you're using [Lightsail for Research](../../software-platforms/lsfr/index.md), the configuration and login steps have occurred automatically.
     You only need to follow these steps if you're using another system like your laptop.
 
 To follow these instructions, you'll need [the access portal URL from when you set up your user in IAM Identity Center](../../software-platforms/aws/index.md#joining-iam-identity-center).
