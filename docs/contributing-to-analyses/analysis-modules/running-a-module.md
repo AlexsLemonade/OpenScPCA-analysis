@@ -32,12 +32,12 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 - `#!/bin/bash` is known as a ["shebang" line](https://linuxhandbook.com/shebang/).
 It makes the script executable with a default bash interpreter.
 - `set -euo pipefail` sets a few helpful script settings with the (you guessed it!) `set` command:
-    - The `-e` flag will cause the script to fail immediately if any command it calls fails
-    - The `-u` flag will cause the script to fail immediately if it encounters an undefined variable
-    - The `-o pipefail` flag ensures that, if a particular command fails, the script returns command's error message
-- `cd "$(dirname "${BASH_SOURCE[0]}")"` automatically sets the working directory to the directory where the script is saved
-    - This means it will behave as though it is run from its own directory, no matter where you call the script from
-    - This is especially useful to make sure that all paths used within the script can be relative paths that will work no matter how the script is invoked 
+    - The `-e` flag will cause the script to fail immediately if any command it calls fails.
+    - The `-u` flag will cause the script to fail immediately if it encounters an undefined variable.
+    - The `-o pipefail` flag extends the `-e` flag to apply to commands that are part of pipelines.
+- `cd "$(dirname "${BASH_SOURCE[0]}")"` automatically sets the working directory to the directory where the script is saved.
+    - This means it will behave as though it is run from its own directory, no matter where you call the script from.
+    - This is especially useful to make sure that all paths used within the script can be relative paths that will work no matter how the script is run.
 
 
 After these lines, you can then proceed to add all of the commands and scripts needed to run the full module.
