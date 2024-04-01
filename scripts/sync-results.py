@@ -102,6 +102,9 @@ def main() -> None:
         sync_cmd += ["--include", "results/*"]
     if args.sync_plots:
         sync_cmd += ["--include", "plots/*"]
+    # exclude hidden files (.dotfiles)
+    sync_cmd += ["--exclude", "**/.*"]
+
     if args.delete_extra:
         sync_cmd += ["--delete"]
     if args.dryrun:
