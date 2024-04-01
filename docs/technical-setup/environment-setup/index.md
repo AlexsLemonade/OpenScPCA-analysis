@@ -21,7 +21,7 @@ If you are planning to work on your local computer, you will need to take these 
 - [Set up `pre-commit`](./setup-precommit.md)
     - This will allow you to make contributions in Git
 - [Configure the AWS CLI](./configure-aws-cli.md)
-    - You can only complete this step if the Data Lab has created an Amazon Web Services account for you.
+    - You can only complete this step if the Data Lab has [created an Amazon Web Services account for you](../getting-started/accessing-resources/index.md).
 - [Optional] [Install Docker](./install-docker.md)
     - This allows you to run your analysis modules inside a Docker container, ensuring reproducibility across machines.
 - [Optional] If you plan on writing or contributing to R-based modules, you should also [download and install R and RStudio, along with a few handy R packages](./install-r-rstudio.md)

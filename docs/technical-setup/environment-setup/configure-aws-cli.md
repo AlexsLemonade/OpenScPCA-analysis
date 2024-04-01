@@ -7,6 +7,7 @@
 The Amazon Web Services (AWS) Command Line Interface (CLI) allows you to interact with AWS via the command line.
 Configuring the AWS CLI is required for using [the download data script](../../getting-started/accessing-resources/getting-access-to-data.md#accessing-data-on-s3) and [uploading your results to S3 for review](STUB_LINK).
 
+These instructions assume you have already installed AWS CLI during [conda set up](setup-conda.md#set-up-conda).
 ## Configuring the AWS CLI
 
 !!! info
@@ -16,7 +17,6 @@ Configuring the AWS CLI is required for using [the download data script](../../g
 To follow these instructions, you'll need [the access portal URL from when you set up your user in IAM Identity Center](../../software-platforms/aws/index.md#joining-iam-identity-center).
 Note: SSO below stands for "Single Sign-On" and is what AWS used to call IAM Identity Center.
 
-If you've followed [the steps to set up conda](setup-conda.md), the AWS CLI has already been installed.
 
 1. Use the following command in your Terminal application to start configuring:
 
@@ -59,7 +59,7 @@ CLI profile name [ResearcherRestriction-{account number}]: openscpca
 
 ## Logging in to a new session
 
-To use the AWS CLI for this project, you will need to be logged into the `openscpca` profile.
+To use the AWS CLI for this project, you will need to be logged into the `openscpca` profile on your computer.
 
 1. To login, use the following command in your Terminal application:
 
