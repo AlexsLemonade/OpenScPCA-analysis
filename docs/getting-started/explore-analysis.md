@@ -1,4 +1,4 @@
-# Explore existing analysis
+# Explore existing analyses
 
 Before contributing to OpenScPCA, you can explore and run any existing [analysis modules](../contributing-to-analyses/analysis-modules/index.md) on your local machine.
 
