@@ -50,4 +50,4 @@ jobs:
       - name: Run analysis
         run: |
           cd $MODULE_PATH
-          bash hello-R.sh
+          bash run_hello-R.sh
