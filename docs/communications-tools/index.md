@@ -59,7 +59,7 @@ We always aim for a ratio of one issue to one pull request.
 
 * [What are GitHub issues and how do we use them?](./github-issues/index.md)
 * [Issue templates](./github-issues/issue-templates.md)
-* [Examples of good and bad issues](STUB_LINK)
+<!-- * [Examples of good and bad issues](STUB_LINK) -->
 
 Please engage with project maintainers via [Discussions](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions) before filing your first issue in the `OpenScPCA-Analysis` repository.
 We will provide you with further guidance!

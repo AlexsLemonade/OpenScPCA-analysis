@@ -8,7 +8,7 @@ This page provides some background information on working with the terminal, als
 The terminal is an interface where you can type commands (rather than "point and click") to interact with your operating system.
 In the OpenScPCA project, we use the word "terminal" to specifically refer to a UNIX-style terminal, and not for example the Windows PowerShell.
 
-macOS and Linux (which [Lightsail for Research instances](STUB_LINK to LSfR docs) use) computers come with a built-in terminal application.
+macOS and Linux (which [Lightsail for Research instances](../lsfr/index.md) use) computers come with a built-in terminal application.
 At this time, the OpenScPCA project only supports these two operating systems; Support for Windows is not yet provided.
 If you would like to see Windows supported, please [let us know by filing an issue](https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/new?assignees=&labels=docs-request&projects=&template=04-docs-request.yml&title=Docs+request%3A).
 <!--
@@ -32,7 +32,7 @@ There are certain situations that you will need to use a terminal as part of con
 
 - [To perform the initial conda setup](../../technical-setup/environment-setup/setup-conda.md)
 - [To set up the `pre-commit` package](../../technical-setup/environment-setup/setup-precommit.md)
-- [To create a new analysis module](../../contributing-to-analyses/analysis-modules/STUB_LINK create a module)
+- [To create a new analysis module](../../contributing-to-analyses/analysis-modules/creating-a-module.md)
 - [To manage your environment and software dependencies with conda](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#managing-software-dependencies-in-python-with-conda)
 - [To run an analysis module](STUB_LINK run an analysis module)
 

@@ -49,7 +49,7 @@ On this page, you should see:
         ![Check branches](../../img/file-pr-3.png){width="700"}
     </figure>
 
-    If you do not see a green check mark with the words `Able to merge`, but instead see a red X and a warning stating `Merge conflicts detected`, you will need to [resolve merge conflicts](STUB-LINK for merge conflicts) before you can file the PR.
+    If you do not see a green check mark with the words `Able to merge`, but instead see a red X and a warning stating `Merge conflicts detected`, you will need to [resolve merge conflicts](resolve-merge-conflicts.md) before you can file the PR.
 
 1. Be sure to provide a descriptive title summarizing your changes and fill out the [PR template](./pull-request-template.md).
 
@@ -63,12 +63,12 @@ On this page, you should see:
     This will show you the history of commits, the number of lines changed, and the line-by-line changes in the code.
     This can also be helpful in ensuring your PR fits our [recommendation of 400 lines or less](./scoping-pull-requests.md#rules-of-thumb-for-good-pull-requests).
 
-1. Once you have completed the PR template, you can press `Create pull request`.
+2. Once you have completed the PR template, you can press `Create pull request`.
 
-    After filing your PR, the Data Lab team will [review the proposed changes](STUB-LINK for review) before changes can be merged into the main code base.
+    After filing your PR, the Data Lab team will [review the proposed changes](../pr-review-and-merge/index.md) before changes can be merged into the main code base.
 
     - You will be able to make additional commits to your feature branch, even after filing your PR.
     - Every time you make a new commit and push to origin, it will now be reflected in your PR.
-    - This is particularly helpful when making changes in response to [review comments](STUB-LINK for review).
+    - This is particularly helpful when making changes in response to [review comments](../pr-review-and-merge/index.md).
 
 You have now successfully created a pull request!

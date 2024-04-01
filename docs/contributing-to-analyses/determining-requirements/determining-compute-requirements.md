@@ -1,7 +1,7 @@
 # Compute Requirements
 
 We use the term **compute requirements** to refer to the computational resources, such as the number of CPUs or the amount of RAM, that are required for your analysis to run.
-Reporting the compute requirements for running your analysis to project organizers helps us plan for allocating resources on Amazon Web Services (AWS) and to determine how to [review your pull requests](STUB_LINK PR review) (e.g., using our laptops vs. using AWS).
+Reporting the compute requirements for running your analysis to project organizers helps us plan for allocating resources on Amazon Web Services (AWS) and to determine how to [review your pull requests](../pr-review-and-merge/index.md) (e.g., using our laptops vs. using AWS). <!-- STUB_LINK: may replace with review-specific page -->
 
 We will prompt you to report compute requirements throughout the project as described [below](#reporting-compute-requirements).
 
@@ -31,7 +31,7 @@ Methods or benchmarking papers in the literature may also be a good resource for
 
 To get an overview of computational resource usage when running an analysis, you can use the command-line tool [`htop`](https://htop.dev/) on Linux and macOS.
 
-`htop` will be already installed on machines run via [Lightsail for Research](STUB_LINK), but you can [install it via conda](https://anaconda.org/conda-forge/htop) (see our [documentation on conda](determining-software-requirements.md#adding-software-to-the-environment-and-tracking-installed-software)).
+`htop` will be already installed on machines run via [Lightsail for Research](../../software-platforms/lsfr/index.md), but you can [install it via conda](https://anaconda.org/conda-forge/htop) (see our [documentation on conda](determining-software-requirements.md#adding-software-to-the-environment-and-tracking-installed-software)).
 
 Check out [this beginner's guide to `htop`](https://spin.atomicobject.com/htop-guide/) for an introduction.
 

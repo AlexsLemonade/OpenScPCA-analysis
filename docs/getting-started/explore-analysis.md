@@ -7,8 +7,9 @@ This folder also contains a pair of example analyses, one for [performing analys
 
 To run the example analysis or any other existing analyses, you will need to:
 
-1. [Set up your local environment](#set-up-local-environment)
-1. Acquire any [input data](#accessing-data-for-modules)
+- [Set up local environment](#set-up-local-environment)
+- [Run existing modules](#run-existing-modules)
+- [Accessing data for modules](#accessing-data-for-modules)
 
 ## Set up local environment
 
@@ -28,7 +29,7 @@ All instructions and files needed to run a given module will be contained in the
 - To run existing modules, please reference the `README.md` found in the root directory for that module.
 - The `README.md` will contain a description of the module, instructions to run the module, the list of input and output files, and any additional software or computing resources you may need.
 
-See [analysis module](../analysis-modules/index.md) to learn more about how analyses are structured.
+See [analysis module](../contributing-to-analyses/analysis-modules/index.md) to learn more about how analyses are structured.
 
 ## Accessing data for modules
 

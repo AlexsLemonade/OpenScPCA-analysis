@@ -45,7 +45,7 @@ Next, you will need to set certain conda settings and install a few packages tha
 1. Copy and paste the following code into the terminal, and hit enter.
 These commands will set the [recommended channels](https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/channels.html) conda should use to search for software.
     - If you get the error `conda: command not found`, you may need to try again in a new terminal window.
-    If this doesn't help, you can [get help here](STUB_LINK somewhere to get help).
+    If this still doesn't work, [you can always ask us for help](../../troubleshooting-faq/index.md).
 
     ```sh
     conda config --add channels defaults
@@ -64,10 +64,10 @@ Copy and paste the following command into the terminal, and hit enter.
     ```
     <!-- Do we want to suggest this instead? `conda env update --name base --file environment.yml`? -->
 
-    - The [`awscli` package](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html/) will allow you to interact with [data stored in the Amazon Web Services (AWS) S3 bucket](STUB_LINK)
+    - The [`awscli` package](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html) will allow you to interact with [data stored in the Amazon Web Services (AWS) S3 bucket](../../software-platforms/aws/index.md)
     - The [`conda-lock` package](https://conda.github.io/conda-lock/) is used to create fully reproducible, cross-platform [conda environments for analysis modules](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#managing-software-dependencies-in-Python-with-conda)
     - The [`jq` package](https://jqlang.github.io/jq/) provides JSON parsing capabilities
-    - The [`pre-commit` package](https://pre-commit.com) will allow you to use [pre-commit hooks when contributing to analysis modules](STUB_LINK)
+    - The [`pre-commit` package](https://pre-commit.com) will allow you to use [pre-commit hooks when contributing to analysis modules](../../contributing-to-analyses/working-with-git/making-commits.md#pre-commit-checks)
 
     !!! note
         You may be prompted to enter **`y`** or **`n`** (yes or no) during this setup.
