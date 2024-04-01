@@ -37,8 +37,8 @@ def main() -> None:
         "--bucket",
         "-b",
         type=str,
-        required=True,
-        help="The name of the S3 bucket to sync data to.",
+        required=False,
+        help="The name of the S3 bucket to sync data to. Will use the OPENSCPCA_RESULTS_BUCKET environment variable if not specified.",
     )
     parser.add_argument(
         "--skip-plots",
@@ -72,6 +72,18 @@ def main() -> None:
 
     args = parser.parse_args()
 
+    # set the bucket name (if not specified, use an environment variable)
+    if args.bucket:
+        bucket = args.bucket
+    else:  # if no bucket is specified, use the environment
+        bucket = os.environ.get("OPENSCPCA_RESULTS_BUCKET")
+    if not bucket:
+        print(
+            "No bucket specified and OPENSCPCA_RESULTS_BUCKET environment variable is not set.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
     ## Set up the paths and directories ##
     # Find the repository root directory
     repo_root = find_git_root()
@@ -92,7 +104,7 @@ def main() -> None:
         "s3",
         "sync",
         module_root,
-        f"s3://{args.bucket}/{args.module}",
+        f"s3://{bucket}/{args.module}",
         "--exclude",
         "*",
     ]
@@ -113,7 +125,7 @@ def main() -> None:
     sync_result = subprocess.run(sync_cmd)
     if sync_result.returncode:
         print(
-            f"Error syncing to S3 bucket '{args.bucket}'."
+            f"Error syncing to S3 bucket '{bucket}'."
             " Check that the bucket exists and that you have permission to write to it.",
             file=sys.stderr,
         )
