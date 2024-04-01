@@ -35,6 +35,7 @@ See [Getting Access to Resources](index.md) for more information.
 
 !!! note
     These instructions assume you have taken the following steps:
+
     - [Cloned the repo](../../technical-setup/clone-the-repo.md)
     - [Set up your environment](../../technical-setup/environment-setup/index.md),
     - [Configured the AWS CLI and logged in](../../technical-setup/environment-setup/configure-aws-cli.md) OR are [using Lightsail for Research](../software-platforms/lsfr/index.md) (which doesn't require logging in via the AWS CLI)
