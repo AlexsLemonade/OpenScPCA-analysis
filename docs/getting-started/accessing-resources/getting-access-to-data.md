@@ -74,11 +74,11 @@ Downloads via the download script will generally have the following structure:
 data
 ├── {Release}
 │       ├── {Project ID}
-│       |   └── {Sample ID}
-│       |       └── {Library files}
-|       ├── bulk_metadata.tsv (if applicable)
-|       ├── bulk_quant.tsv (if applicable)
-|       └── single_cell_metadata.tsv
+│       │   └── {Sample ID}
+│       │       └── {Library files}
+│       ├── bulk_metadata.tsv (if applicable)
+│       ├── bulk_quant.tsv (if applicable)
+│       └── single_cell_metadata.tsv
 └── current -> {Absolute Path to Repository}/data/{Release}
 ```
 
