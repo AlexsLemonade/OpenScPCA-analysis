@@ -24,7 +24,7 @@ def find_git_root() -> pathlib.Path:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Sync daata from an analysis module to your S3 bucket.",
+        description="Sync data from an analysis module to your S3 bucket.",
     )
     parser.add_argument(
         "--module",
