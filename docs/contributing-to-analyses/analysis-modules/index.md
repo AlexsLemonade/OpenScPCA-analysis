@@ -95,7 +95,7 @@ While you write your analysis, you may add other files too:
     - In this case, your module may also contain contain R-specific (e.g., `renv.lock`) and/or Python-specific (e.g., `environment.yml`) files or folders.
 - Documentation for your analysis module
     -  A template `README.md` file will be created for you when you create a new analysis module.
-    You will not need to specifically create any new files for documentating your module, but you will need to [fill in the `README.md` file](documenting-analysis.md) with information about the goals and content of the module, as well as instructions for how to run it.
+    You will not need to specifically create any new files for documenting your module, but you will need to [fill in the `README.md` file](documenting-analysis.md) with information about the goals and content of the module, as well as instructions for how to run it.
 
 
 ## Example analysis modules
