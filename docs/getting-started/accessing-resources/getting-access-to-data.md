@@ -11,7 +11,7 @@ ScPCA data are readily available from the ScPCA Portal that the Data Lab maintai
 
 You can select the project(s) or sample(s) you are interested in analyzing and download them from the Portal.
 
-We recommend creating a `portal_downloads` subdirectory in the local copy of the `data` directory, which can be accomplished by running the following command from the root of the repository on Linux or Mac OS:
+We recommend creating a `portal_downloads` subdirectory in the local copy of the `data` directory, which can be accomplished by running the following command from the root of the repository on Linux or macOS:
 
 ```sh
 mkdir -p data/portal_downloads
@@ -46,7 +46,7 @@ You can list all the options for the download data script by running the followi
 ./download-data.py --help
 ```
 
-To download all processed samples in `SingleCellExperiment` format, you can run the download script with all default options:
+To download all processed samples from the most recent release in `SingleCellExperiment` format, you can run the download script with all default options:
 
 ```sh
 ./download-data.py
@@ -58,11 +58,10 @@ If you prefer to work with `AnnData` files, you can specify using the `--format`
 ./download-data.py --format AnnData
 ```
 
-To review what samples would be downloaded without performing the download yet, you can use the `--dry-run` option as follows:
+To review what samples would be downloaded without performing the download yet, you can use the `--dryrun` option as follows:
 
 ```sh
-./download-data.py --dry-run
-```
+./download-data.py --dryrun
 
 If you're only working with a subset of the data, you can use the `--projects` or `--samples` to download select samples (note: these options are mutually exclusive).
 
@@ -79,13 +78,19 @@ data
 │       ├── bulk_metadata.tsv (if applicable)
 │       ├── bulk_quant.tsv (if applicable)
 │       └── single_cell_metadata.tsv
-└── current -> {Absolute Path to Repository}/data/{Release}
+└── current -> {Release}
 ```
 
 See the ScPCA documentation for more information about individual files: <https://scpca.readthedocs.io>.
 
 Data releases are dated using the following format: `YYYY-MM-DD`.
 By default, the data download script will download the most recent release.
+
+To list all available releases, you can use the following command from the root of the repository:
+
+```sh
+./download-data.py --list-releases
+```
 
 The release directory is symlinked to `data/current`.
 This is generally the path you should use in your code.
@@ -106,3 +111,4 @@ To download test data with all other options set at default, run the following f
 This will download test data and direct `data/current` symlink to the test data directory.
 
 To switch back to using ScPCA data, rerun the script with the `--release current` option.
+If you already have the most recent data, this will not repeat downloading the data you already have.

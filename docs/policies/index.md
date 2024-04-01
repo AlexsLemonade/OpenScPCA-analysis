@@ -6,6 +6,7 @@ Please read the following Policies carefully:
 - [Privacy Policy](privacy-policy.md)
 - [Code of Conduct](code-of-conduct.md)
 - [Authorship](authorship.md)
+- [Security Policy](SECURITY.md)
 
 By participating in the OpenScPCA Project, as defined in the Terms of Use, you agree to be bound by the Terms of Use and all Policies.
 
