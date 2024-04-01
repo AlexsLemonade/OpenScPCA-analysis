@@ -74,7 +74,7 @@ copyright: Copyright &copy; 2024 OpenScPCA Project Maintainers & Contributors | 
 #  When you locally serve, mkdocs will complain that it isn't in the nav below - this is expected. It should not be in the nav below.
 nav:
   - Getting Started:      # welcome, familiarizing yourself with the project
-    - getting-started/index.md
+    - getting-started/making-your-first-analysis-contribution.md
     - getting-started/explore-analysis.md
     - Getting Access to Resources:
       - getting-started/accessing-resources/index.md
