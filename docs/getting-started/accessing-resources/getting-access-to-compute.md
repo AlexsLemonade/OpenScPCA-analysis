@@ -7,7 +7,7 @@ We use [Lightsail for Research](https://aws.amazon.com/lightsail/research/) to m
 You must meet the criteria for AWS account creation to gain access to Lightsail for Research.
 See [Getting access to AWS](index.md#getting-access-to-aws) for more information.
 
-See our docs [Lightsail for Research](STUB_LINK) for more information on using this service.
+See our docs about [Lightsail for Research](STUB_LINK) for more information on using this service.
 
 ### Monthly budget
 
@@ -18,7 +18,7 @@ See [the AWS documentation on monitoring cost estimates](https://docs.aws.amazon
 
 When you have exhausted your budget, we may prevent you from accessing services for the rest of the month.
 
-Requests for an increased budget can be included on Discussions or issues in sections that ask about computing resources.
+Requests for an increased budget can be included on Discussions or Issues in sections that ask about computing resources.
 
 Requests for a budget increase will be evaluated on a case-by-case basis.
 
@@ -26,6 +26,6 @@ Requests for a budget increase will be evaluated on a case-by-case basis.
 
 Accessing GPU instances in Lightsail for Research in your account requires us to put in a request with Amazon Web Services.
 
-Requests for access to GPU instances can be included on Discussions or issues in sections that ask about computing resources.
+Requests for access to GPU instances can be included on Discussions or Issues in sections that ask about computing resources.
 
 Requests for access to GPU instances will be evaluated on a case-by-case basis.
