@@ -34,7 +34,7 @@ See [Getting Access to Resources](index.md) for more information.
 ### Using the download data script
 
 !!! note
-    These instructions assume you have [set up your environment](../../technical-setup/environment-setup/index.md), [configured the AWS CLI and logged](../../technical-setup/environment-setup/configure-aws-cli.md) or are [using Lightsail for Research](STUB_LINK).
+    These instructions assume you have [set up your environment](../../technical-setup/environment-setup/index.md), [configured the AWS CLI and logged](../../technical-setup/environment-setup/configure-aws-cli.md) or are [using Lightsail for Research](../software-platforms/lsfr/index.md).
 
 The `download-data.py` script is designed to download files from whatever release you specify to a folder named for the date of that release and [symlink](https://en.wikipedia.org/wiki/Symbolic_link) it to `data/current`.
 

@@ -10,7 +10,7 @@ Configuring the AWS CLI is required for using [the download data script](../../g
 ## Configuring the AWS CLI
 
 !!! info
-    If you're using [Lightsail for Research](STUB_LINK), the configuration and login steps have occurred automatically.
+    If you're using [Lightsail for Research](../software-platforms/lsfr/index.md), the configuration and login steps have occurred automatically.
     You only need to follow these steps if you're using another system like your laptop.
 
 To follow these instructions, you'll need [the access portal URL from when you set up your user in IAM Identity Center](../../software-platforms/aws/index.md#joining-iam-identity-center).
@@ -67,7 +67,7 @@ To use the AWS CLI for this project, you will need to be logged into the `opensc
 aws sso login --profile openscpca
 ```
 
-2. Step 1  will automatically open a browser window for you to confirm access by hitting the `Confirm and continue` button.
+2. Step 1 will automatically open a browser window for you to confirm access by hitting the `Confirm and continue` button.
 (If a browser window doesn't open, follow the instructions in your Terminal.)
 
 3. Click the `Allow access` button on the next screen.
