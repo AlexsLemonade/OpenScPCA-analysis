@@ -87,14 +87,15 @@ While you write your analysis, you may add other files too:
         - `scripts/02_script-to-analyze-data.R`
         - `03_notebook-to-visualize-data.Rmd`
 
-- A script to run all code in the module
+- [A script to run all code in the module](./run-a-module.md)
     - If your module has multiple scripts or notebooks, we recommend adding a script (for example a `shell` script) to the top-level of your analysis module folder that will run all scripts in order.
     - You can name this file, for example, `run_<module name>.sh` and document how to run in the module's `README.md`
 - Additional environment files
     - When you [create a module](./creating-a-module.md), you can choose to include files that manage the module's software environment in the analysis module skeleton.
     - In this case, your module may also contain contain R-specific (e.g., `renv.lock`) and/or Python-specific (e.g., `environment.yml`) files or folders.
-
-
+- Documentation for your analysis module
+    -  A template `README.md` file will be created for you when you create a new analysis module.
+    You will not need to specifically create any new files for documentating your module, but you will need to [fill in the `README.md` file](documenting-analysis.md) with information about the goals and content of the module, as well as instructions for how to run it.
 
 
 ## Example analysis modules
