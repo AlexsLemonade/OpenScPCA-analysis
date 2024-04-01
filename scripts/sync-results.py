@@ -61,18 +61,16 @@ def main() -> None:
     parser.add_argument(
         "--dryrun",
         action="store_true",
-        help="Perform a dry run of the download: show what would be done but do not sync anything.",
+        help="Perform a dry run: show what would be done but do not sync anything.",
     )
     parser.add_argument(
         "--profile",
         type=str,
         default=None,
-        help="The AWS profile to use for the download. Uses the current default profile if undefined.",
+        help="The AWS profile to use. Uses the current default profile if undefined.",
     )
 
     args = parser.parse_args()
-
-    ### Validate the arguments ###
 
     ## Set up the paths and directories ##
     # Find the repository root directory
