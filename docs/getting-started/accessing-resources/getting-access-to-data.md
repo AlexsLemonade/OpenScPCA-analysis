@@ -50,6 +50,9 @@ You can list all the options for the download data script by running the followi
 ./download-data.py --help
 ```
 
+!!! tip No `--profile` necessary on Lightsail for Research
+    Omit `--profile openscpca` from the commands below if you're using Lightsail for Research.
+
 Assuming you created a profile called `openscpca` when [configuring the AWS CLI](../../technical-setup/environment-setup/configure-aws-cli.md), you can run the download script with all default options to download all processed samples from the most recent release in `SingleCellExperiment` format:
 
 ```sh
