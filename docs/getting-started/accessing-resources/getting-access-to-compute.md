@@ -16,7 +16,11 @@ All contributors have a 200 USD/month budget for compute usage that they must mo
 Lightsail for Research virtual computers and volumes will report their monthly cost.
 See [the AWS documentation on monitoring cost estimates](https://docs.aws.amazon.com/lightsail-for-research/latest/ug/monitor-cost-usage-estimates.html) for more information.
 
+[Your results S3 bucket](STUB_LINK) also counts towards your budget.
+You can not access the cost estimates for S3 directly, so please use $0.023/GB as your as a rule of thumb for[S3 storage pricing in `us-east-2`](https://aws.amazon.com/s3/pricing/).
+
 When you have exhausted your budget, we may prevent you from accessing services for the rest of the month.
+We notify you via the email you used to sign up that you are approaching your budget before restricting access.
 
 Requests for an increased budget can be included on Discussions or Issues in sections that ask about computing resources.
 
