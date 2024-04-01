@@ -34,7 +34,11 @@ See [Getting Access to Resources](index.md) for more information.
 ### Using the download data script
 
 !!! note
-    These instructions assume you have [set up your environment](../../technical-setup/environment-setup/index.md), [configured the AWS CLI](STUB_LINK) or are [using Lightsail for Research](STUB_LINK).
+    These instructions assume you have taken the following steps:
+
+    - [Cloned the repo](../../technical-setup/clone-the-repo.md)
+    - [Set up your environment](../../technical-setup/environment-setup/index.md)
+    - [Configured the AWS CLI and logged in](../../technical-setup/environment-setup/configure-aws-cli.md) OR are [using Lightsail for Research](../../software-platforms/lsfr/index.md) (which doesn't require logging in via the AWS CLI)
 
 The `download-data.py` script is designed to download files from whatever release you specify to a folder named for the date of that release and [symlink](https://en.wikipedia.org/wiki/Symbolic_link) it to `data/current`.
 
@@ -46,22 +50,26 @@ You can list all the options for the download data script by running the followi
 ./download-data.py --help
 ```
 
-To download all processed samples from the most recent release in `SingleCellExperiment` format, you can run the download script with all default options:
+!!! tip No `--profile` necessary on Lightsail for Research
+    Omit `--profile openscpca` from the commands below if you're using Lightsail for Research.
+
+Assuming you created a profile called `openscpca` when [configuring the AWS CLI](../../technical-setup/environment-setup/configure-aws-cli.md), you can run the download script with all default options to download all processed samples from the most recent release in `SingleCellExperiment` format:
 
 ```sh
-./download-data.py
+./download-data.py --profile openscpca
 ```
 
 If you prefer to work with `AnnData` files, you can specify using the `--format` option as follows:
 
 ```sh
-./download-data.py --format AnnData
+./download-data.py --format AnnData --profile openscpca
 ```
 
 To review what samples would be downloaded without performing the download yet, you can use the `--dryrun` option as follows:
 
 ```sh
-./download-data.py --dryrun
+./download-data.py --dryrun --profile openscpca
+```
 
 If you're only working with a subset of the data, you can use the `--projects` or `--samples` to download select samples (note: these options are mutually exclusive).
 
