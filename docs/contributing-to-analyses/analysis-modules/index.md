@@ -36,7 +36,7 @@ These are the main files and folders you will interact with when writing your an
 - **`scripts`**
     - You can save any scripts (e.g., `.R`, `.py`, or `.sh`) that you write for your analysis module in this folder.
     - If you choose, you can also save any notebooks (e.g., R Markdown or Jupyter) files in this folder too.
-    Or, depending on the goals of your analysis module, you may prefer to save notebooks in the top-level of the analysis module folder.
+    Or, depending on the goals of your analysis module, you may prefer to save notebooks in the root of the analysis module folder.
 - **`results`**
     - Any result files (e.g., TSV files) that your code produces should be saved to this `results` folder.
     - Git will ignore the contents of this folder, _except_ for its `README.md` file, which you can use to document the results files themselves.
@@ -74,7 +74,7 @@ While you write your analysis, you may add other files too:
 
 - Scripts and analysis notebooks, e.g., R Markdown files or Jupyter notebooks
     - We recommend saving scripts in the `scripts` folder, as described above.
-    - You are also welcome to save notebook files in the top-level of your analysis module folder.
+    - You are also welcome to save notebook files in the root of your analysis module folder.
     Feel free to choose what location makes the most sense for your analysis, as long as it is all documented in the module's `README.md` file!
         - Please see the documentation on [structuring your analysis notebooks](STUB_LINK structure notebooks) for more information about how to write your analysis notebooks.
 
@@ -88,7 +88,7 @@ While you write your analysis, you may add other files too:
         - `03_notebook-to-visualize-data.Rmd`
 
 - [A script to run all code in the module](./running-a-module.md)
-    - If your module has multiple scripts or notebooks, we recommend adding a script (for example a `shell` script) to the top-level of your analysis module folder that will run all scripts in order.
+    - If your module has multiple scripts or notebooks, we recommend adding a script (for example a `shell` script) to the root of your analysis module folder that will run all scripts in order.
     - You can name this file, for example, `run_{module-name}.sh` and document how to run in the module's `README.md`
 - Additional environment files
     - When you [create a module](./creating-a-module.md), you can choose to include files that manage the module's software environment in the analysis module skeleton.

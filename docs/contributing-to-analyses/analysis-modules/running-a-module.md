@@ -17,7 +17,7 @@ If you are writing such a module, we strongly recommend you add a separate scrip
 !!! tip
     For examples of a shell script that runs a module, please see those scripts in [our example R module](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/hello-R/run_hello-R.sh) or [our example Python module](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/hello-python/run_hello-python.sh).
 
-You should save your script in the top-level of your analysis module and name it `run_{module-name}.sh` (this file name not strictly required, but it is highly recommended).
+You should save your script in the root of your analysis module and name it `run_{module-name}.sh` (this file name not strictly required, but it is highly recommended).
 
 We also strongly recommend starting your script out with a few lines to make it easier errors that might occur, and generally run more smoothly:
 
