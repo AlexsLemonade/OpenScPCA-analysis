@@ -86,6 +86,12 @@ See the ScPCA documentation for more information about individual files: <https:
 Data releases are dated using the following format: `YYYY-MM-DD`.
 By default, the data download script will download the most recent release.
 
+To list all available releases, you can use the following command from the root of the repository:
+
+```sh
+./download-data.py --list-releases
+```
+
 The release directory is symlinked to `data/current`.
 This is generally the path you should use in your code.
 
