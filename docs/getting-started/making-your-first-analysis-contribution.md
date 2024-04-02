@@ -1,17 +1,11 @@
 # Making your first analysis contribution
 
 
-<figure markdown="span">
+<!-- These images intentionally do not use HTML formatting --> 
 
-      ![Path from joining to making a contribution- Planning](../img/first-analysis-contribution-planning.png){width="550"}
+![Path from joining to making a contribution- Planning](../img/first-analysis-contribution-planning.png){width="550"}
 
-</figure>
-
-<figure markdown="span">
-
-      ![Path from joining to making a contribution- Implementation and Review](../img/first-analysis-contribution-implementation-review.png){width="700"}
-      
-</figure>
+![Path from joining to making a contribution- Implementation and Review](../img/first-analysis-contribution-implementation-review.png){width="700"}
 
 
 This is the path that you can expect to follow when making your first contribution to an analysis.
