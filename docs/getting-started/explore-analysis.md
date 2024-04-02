@@ -26,7 +26,7 @@ This includes:
 Each existing module has its own folder in the repository's [`analyses` folder](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses).
 See our documentation on [analysis modules](../contributing-to-analyses/analysis-modules/index.md) to learn more about how analyses are structured.
 
-All instructions and files ([except data](#get-access-to-data-for-running-modules)) needed to run a given module are provided the module's folder.
+All instructions and files ([except data](#get-access-to-data-for-running-modules)) needed to run a given module are provided in the module's folder.
 
 - To [run existing modules](../contributing-to-analyses/analysis-modules/running-a-module.md), please refer to the `README.md` found in the root directory of that module.
 - The `README.md` will contain a description of the module, instructions to run the module, the list of input and output files, and any additional software or computing resources you may need.
