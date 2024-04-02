@@ -7,8 +7,9 @@ We have found that following some common patterns can enhance sharing and reprod
 - **Introduction**: Briefly describe the analysis and its purpose.
 - **Setup**: Load required packages and define paths for input and output files.
 - **Functions**: Define any custom functions used in the analysis.
-- **Analysis**: This is where the bulk of the analysis occusrs.
-  Intersperse code to do the work and Markdown to explain the steps and interpret results.
+- **Analysis**: This is where the bulk of the analysis should appear.
+  - Intersperse code, to do the work, and text, to explain the steps and interpret results.
+  - Use headings and subheadings to break up the analysis into logical sections.
 - **Session info**: Print out the versions of all packages used in the analysis.
 
 Below we provide more detail about each of these sections for [R Markdown](#r-markdown-notebooks) and [Jupyter](#jupyter-notebooks) notebooks.
