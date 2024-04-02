@@ -125,9 +125,9 @@ count_sce <- function(sce_file) {
   ...
 }
 ```
+
 !!! note
     We generally do _not_ recommend using `source()` to load functions from external files, as this can make it harder to keep track of where functions are defined and can lead to errors if the file is moved or renamed.
-
 
     It also means that the notebook is not self-contained, and functions will not be present in the output html files, which can make it harder to share and reproduce the analysis.
 
