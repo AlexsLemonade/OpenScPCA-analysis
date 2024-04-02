@@ -106,6 +106,7 @@ nav:
       - contributing-to-analyses/analysis-modules/creating-a-module.md
       - contributing-to-analyses/analysis-modules/running-a-module.md
       - contributing-to-analyses/analysis-modules/documenting-analysis.md
+      - contributing-to-analyses/analysis-modules/notebook-structure.md
     - Determining analysis requirements:
       - contributing-to-analyses/determining-requirements/index.md
       - contributing-to-analyses/determining-requirements/determining-software-requirements.md
@@ -143,4 +144,3 @@ nav:
     - policies/privacy-policy.md
     - policies/code-of-conduct.md
     - policies/authorship.md
-

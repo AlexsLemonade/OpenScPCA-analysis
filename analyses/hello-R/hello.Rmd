@@ -62,8 +62,10 @@ First, we will define a function to load and count the cells in a SCE object, re
 
 ```{r}
 count_sce <- function(sce_file) {
-  # function to count cells in an sce file
-  # returns a data frame with the following columns:
+  # Count cells in an sce file
+  # Args:
+  # - sce_file: path to the SingleCellExperiment file
+  # Returns a data frame with the following columns:
   # - project_id
   # - sample_id
   # - library_id
@@ -146,7 +148,7 @@ ggsave(plot_file, count_plot, width = 8, height = 6)
 ```
 
 
-## Session Info
+## Session info
 
 ```{r}
 sessioninfo::session_info()
