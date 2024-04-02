@@ -23,11 +23,11 @@ If desired, please [file an issue](https://github.com/AlexsLemonade/OpenScPCA-an
 
 To start contributing:
 
-1. Please review our [Policies](https://openscpca.readthedocs.io/policies).
+1. Please review our [Policies](https://openscpca.readthedocs.io/en/latest/policies/).
 
 2. Fill out the [interest form](https://share.hsforms.com/1MlLtkGYSQa6j23HY_0fKaw336z0).
 
-3. Visit [Getting Started](#STUB_LINK) for first steps.
+3. Visit [Getting Started](https://openscpca.readthedocs.io/en/latest/getting-started/making-your-first-analysis-contribution/) for first steps.
 
 ### Communicating
 
@@ -42,7 +42,7 @@ If you wish to report a security vulnerability, please [email](mailto:report@ccd
 Do NOT report it in a public forum.
 See our [security policy](./SECURITY.md) for more information.
 
-Please see our documentation on [Tools for communication](https://openscpca.readthedocs.io/communications-tools/) for more information.
+Please see our documentation on [Tools for communication](https://openscpca.readthedocs.io/en/latest/communications-tools/) for more information.
 
 ## Documentation
 
@@ -57,19 +57,19 @@ Please refer to it as you work on the project.
 
 ### Local Setup
 
-To set up, you will need a Git client, Miniconda, R or Python, and an editor of your choice. Please see our documentation on [Technical Setup](https://openscpca.readthedocs.io/technical-setup) for detailed instructions to create a local setup.
+To set up, you will need a Git client, Miniconda, R or Python, and an editor of your choice. Please see our documentation on [Technical Setup](https://openscpca.readthedocs.io/en/latest/technical-setup) for detailed instructions to create a local setup.
 
 ### Accessing Data
 
 Data is publicly available from the [ScPCA Portal](https://scpca.alexslemonade.org/) and from an AWS S3 bucket for OpenScPCA project contributors.
 We also provide a way to download smaller, simulated data files for you to play with.
 
-Please [Getting access to Data](#STUB_LINK) for more details.
+Please [Getting access to Data](https://openscpca.readthedocs.io/en/latest/getting-started/accessing-resources/getting-access-to-data/) for more details.
 
 ### Running an analysis module
 
-Each analysis module has a README which contains instructions to run that specific module.
-Please see the relevant analysis module's README for instructions.
+Each analysis module has a `README.md` file which contains instructions to run that specific module.
+Please see the relevant analysis module's `README.md` for instructions.
 
-Learn more about [running an analysis module](#STUB_LINK) here.
+Learn more about [running an analysis module](https://openscpca.readthedocs.io/en/latest/contributing-to-analyses/analysis-modules/running-a-module/) here.
 
