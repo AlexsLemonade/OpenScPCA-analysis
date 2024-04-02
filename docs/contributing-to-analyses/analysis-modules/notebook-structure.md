@@ -93,7 +93,7 @@ All file paths should be defined as relative paths, with the exception of any in
 
 ### Defining custom functions
 
-Followith the Setup section, it is often useful to have a **Functions** section where all custom functions that will be used later in the notebook are defined.
+Following the Setup section, it is often useful to have a **Functions** section where all custom functions that will be used later in the notebook are defined.
 Keeping the functions in a central place in the notebook makes it easier to find and modify them later, and also makes it easier to reuse them in other analyses.
 Each function should be defined in a separate code chunk, and should be documented with comments to explain what the function does does and how to use it, including inputs and outputs.
 
@@ -120,7 +120,7 @@ It also means that the notebook is not self-contained, and functions will not be
 
 ### Analysis steps
 
-Once all of the inctions are defined, the remainder of the notebook should be a series of code chunks that perform the analysis steps, with Markdown text to explain what each step is doing and why.
+Once all of the functions are defined, the remainder of the notebook should be a series of code chunks that perform the analysis steps, with Markdown text to explain what each step is doing and why.
 Use headings and subheadings as appropriate to break up the analysis into logical sections, and include plots in the notebook to help illustrate the results.
 
 Code chunks should still contain comments as needed to explain logic and implementation, with the Markdown text providing a higher-level overview of the analysis steps, including any interpretation of results.
