@@ -7,7 +7,7 @@ We use [Lightsail for Research](https://aws.amazon.com/lightsail/research/) to m
 You must meet the criteria for AWS account creation to gain access to Lightsail for Research.
 See [Getting access to AWS](index.md#getting-access-to-aws) for more information.
 
-See our docs about [Lightsail for Research](STUB_LINK) for more information on using this service.
+See our docs about [Lightsail for Research](../../software-platforms/lsfr/index.md) for more information on using this service.
 
 ### Monthly budget
 

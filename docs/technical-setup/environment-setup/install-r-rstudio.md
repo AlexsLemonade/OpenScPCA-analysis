@@ -16,7 +16,7 @@ Please read these instructions carefully even if you already have any of these i
 The official OpenScPCA project version of R is `4.3.3`, so we recommend that you have at least this version installed.
 Please be aware that if you install a different R version and run existing modules, you may get different results.
 
-The instructions provided here are suitable for the vast majority of contributors, but please refer to [this section](#advanced-considerations) for advanced considerations about R installation.
+The instructions provided here are suitable for the vast majority of contributors, but please refer to our section on [advanced considerations about R installation](#advanced-considerations) for more information.
 
 
 ### Install R on macOS
@@ -37,10 +37,10 @@ These tools are available from the [R for macOS website](https://mac.r-project.o
     - You will then be prompted to enter your computer's password
   When you type, no symbols will appear - this is expected!
   Hit enter after your password, and the developer tools will proceed to install
-        - If you receive a message that begins with `xcode-select: note: Command line tools are already installed.`, then you have previously installed this on your system and are all set.
+        - If you receive a message that begins with `xcode-select: note: Command line tools are already installed.`, then you have previously installed this on your system and are all set with this step.
 
 1. Install the **GNU Fortran compiler**.
-Click the link on the [Tools - R for Mac OS](https://mac.r-project.org/tools/) page to download the installer package and follow all installation instructions.
+Click the link on the [Tools - R for Mac OS](https://mac.r-project.org/tools/) page to download the `gfortran` installer package and follow all installation instructions.
 
 <!--
 ### Install R on Windows
@@ -82,4 +82,4 @@ install.packages(c("renv", "BiocManager"))
 
 ## Advanced considerations
 
-If you need to have multiple versions of R installed on your computer, we recommend using the [`rig`](https://github.com/r-lib/rig) R Installation Manager.
+If you need to have multiple versions of R installed on your computer, we recommend using the [`rig` R Installation Manager](https://github.com/r-lib/rig).

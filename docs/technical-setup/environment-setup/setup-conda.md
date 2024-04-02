@@ -31,8 +31,8 @@ Miniconda is lightweight version of the full conda platform and includes the con
 To install Miniconda, [download the installer for your operating system](https://docs.anaconda.com/free/miniconda/), and follow all instructions.
 
   - If you are on a macOS computer, be sure to download one of the links ending in `pkg`, _not `bash`_:
-    - If you are on an Apple Silicon (M1-3) mac, download `Miniconda3 macOS Apple M1 64-bit pkg`
-    - If you are on an Intel mac, download `Miniconda3 macOS Intel x86 64-bit pkg`
+    - Apple Silicon (M1-3) mac users should download `Miniconda3 macOS Apple M1 64-bit pkg`
+    - Intel mac users should download `Miniconda3 macOS Intel x86 64-bit pkg`
 
 If you already have conda on your system, you do not need to re-install it.
 
@@ -65,7 +65,7 @@ Copy and paste the following command into the terminal, and hit enter.
     <!-- Do we want to suggest this instead? `conda env update --name base --file environment.yml`? -->
 
     - The [`awscli` package](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html) will allow you to interact with [data stored in the Amazon Web Services (AWS) S3 bucket](../../software-platforms/aws/index.md)
-    - The [`conda-lock` package](https://conda.github.io/conda-lock/) is used to create fully reproducible, cross-platform [conda environments for analysis modules](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#managing-software-dependencies-in-Python-with-conda)
+    - The [`conda-lock` package](https://conda.github.io/conda-lock/) is used to create fully reproducible, cross-platform [conda environments for analysis modules](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#managing-software-dependencies-in-python-with-conda)
     - The [`jq` package](https://jqlang.github.io/jq/) provides JSON parsing capabilities
     - The [`pre-commit` package](https://pre-commit.com) will allow you to use [pre-commit hooks when contributing to analysis modules](../../contributing-to-analyses/working-with-git/making-commits.md#pre-commit-checks)
 
