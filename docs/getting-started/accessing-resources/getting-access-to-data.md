@@ -26,7 +26,7 @@ Before filing a pull request, you should change your paths to reflect the direct
 Because we expect that contributors may want to work with many samples or analyze data on remote systems, we also provide access to the ScPCA on AWS S3 via a script for downloading data.
 
 Before you can access data in this manner, the Data Lab team needs to create an AWS account for you; these data are not publicly accessible.
-See [Getting Access to Resources](index.md) for more information.
+See our documentation [getting access to AWS](index.md#getting-access-to-aws) for more information.
 
 !!! info Review additional restrictions
     Please review the `DATA_USAGE.md` file included in all downloads for any additional restrictions on data usage (see [Policies](../../policies/index.md)).
