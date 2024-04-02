@@ -130,6 +130,7 @@ nav:
     - software-platforms/index.md
     - Lightsail for Research:
       - software-platforms/lsfr/index.md
+      - software-platforms/lsfr/creating-vcs.md
     - Amazon S3:
       - software-platforms/aws/index.md
     - Additional project tools:
