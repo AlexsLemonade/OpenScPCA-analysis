@@ -8,7 +8,7 @@ OpenScPCA community members will use the following tools for communication and c
 
 ## GitHub Discussions
 
-We use [GitHub Discussions](https://docs.github.com/en/discussions/quickstart) as the community forum for the project, and [you can find the Dicussions page here](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions) in the `OpenScPCA-Analysis` repository.
+We use [GitHub Discussions](https://docs.github.com/en/discussions/quickstart) as the community forum for the project, and [you can find the Discussions page here](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions) in the `OpenScPCA-Analysis` repository.
 You are most likely to engage with the project for the first time via Discussions.
 
 !!! tip "Before posting"

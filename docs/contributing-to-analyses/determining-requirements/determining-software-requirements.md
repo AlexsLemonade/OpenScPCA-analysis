@@ -290,7 +290,7 @@ conda activate openscpca-{module_name}
 conda config --env --set subdir osx-64
 ```
 
-!!! tip "Addig packages that are not available for your current platform"
+!!! tip "Adding packages that are not available for your current platform"
     If you find you need to add a package to an existing environment that is not available for your _current_ platform (i.e., a package that is only available for Intel on an Apple Silicon computer), the easiest method is to follow a slightly different order of operations:
 
     - First, add the package name and version to the `environment.yml` file.
