@@ -1,4 +1,4 @@
-# Structuring your notebooks
+# Structuring analysis notebooks
 
 Notebook formats such as [R Markdown](https://rmarkdown.rstudio.com/index.html) or [Jupyter](https://jupyter-notebook.readthedocs.io/en/latest/) are a great way to document an analysis and share it with others.
 We have found that following some common patterns can enhance sharing and reproducibility, so we suggest the following structure when you create a notebook.
