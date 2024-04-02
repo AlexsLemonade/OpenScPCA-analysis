@@ -1831,8 +1831,10 @@ library ID, and number of cells.</p>
 <!-- rnb-chunk-begin -->
 <!-- rnb-source-begin eyJkYXRhIjoiY291bnRfc2NlIDwtIGZ1bmN0aW9uKHNjZV9maWxlKSB7XG4gICMgZnVuY3Rpb24gdG8gY291bnQgY2VsbHMgaW4gYW4gc2NlIGZpbGVcbiAgIyByZXR1cm5zIGEgZGF0YSBmcmFtZSB3aXRoIHRoZSBmb2xsb3dpbmcgY29sdW1uczpcbiAgIyAtIHByb2plY3RfaWRcbiAgIyAtIHNhbXBsZV9pZFxuICAjIC0gbGlicmFyeV9pZFxuICAjIC0gbl9jZWxsczogbnVtYmVyIG9mIGNlbGxzIGluIHRoZSBsaWJyYXJ5XG5cbiAgIyBsb2FkIHRoZSBTQ0Ugb2JqZWN0XG4gIHNjZSA8LSByZWFkUkRTKHNjZV9maWxlKVxuXG4gICMgaW5wdXQgY2hlY2tcbiAgc3RvcGlmbm90KFwiYHNjZV9maWxlYCBtdXN0IGNvbnRhaW4gYSBTaW5nbGVDZWxsRXhwZXJpbWVudCBvYmplY3RcIiA9IGlzKHNjZSwgXCJTaW5nbGVDZWxsRXhwZXJpbWVudFwiKSlcblxuICAjIGdldCBzdGF0cyBhbmQgY291bnQgdGhlIGNlbGxzXG4gIHJlc3VsdF9kZiA8LSBkYXRhLmZyYW1lKFxuICAgIHByb2plY3RfaWQgPSBtZXRhZGF0YShzY2UpJHByb2plY3RfaWQsXG4gICAgc2FtcGxlX2lkID0gbWV0YWRhdGEoc2NlKSRzYW1wbGVfaWQsXG4gICAgbGlicmFyeV9pZCA9IG1ldGFkYXRhKHNjZSkkbGlicmFyeV9pZCxcbiAgICBuX2NlbGxzID0gbmNvbChzY2UpXG4gIClcbiAgcmV0dXJuKHJlc3VsdF9kZilcbn0ifQ== -->
 <pre class="r"><code>count_sce &lt;- function(sce_file) {
-  # function to count cells in an sce file
-  # returns a data frame with the following columns:
+  # Count cells in an sce file
+  # Args:
+  # - sce_file: path to the SingleCellExperiment file
+  # Returns a data frame with the following columns:
   # - project_id
   # - sample_id
   # - library_id
@@ -1940,7 +1942,7 @@ count_plot # show the plot</code></pre>
 <!-- rnb-text-begin -->
 </div>
 <div id="session-info" class="section level2">
-<h2>Session Info</h2>
+<h2>Session info</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
 <!-- rnb-source-begin eyJkYXRhIjoic2Vzc2lvbmluZm86OnNlc3Npb25faW5mbygpIn0= -->
