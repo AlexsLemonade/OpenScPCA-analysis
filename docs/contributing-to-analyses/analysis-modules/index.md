@@ -76,7 +76,7 @@ While you write your analysis, you may add other files too:
     - We recommend saving scripts in the `scripts` folder, as described above.
     - You are also welcome to save notebook files in the root of your analysis module folder.
     Feel free to choose what location makes the most sense for your analysis, as long as it is all documented in the module's `README.md` file!
-        - Please see the documentation on [structuring your analysis notebooks](STUB_LINK structure notebooks) for more information about how to write your analysis notebooks.
+        - Please see the documentation on [structuring your analysis notebooks](notebook-structure.md) for more information about how to write your analysis notebooks.
 
     !!! note "Naming your files"
         If your module has multiple scripts or notebooks, we recommend naming them in the order they should be run.
