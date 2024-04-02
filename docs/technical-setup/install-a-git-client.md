@@ -17,7 +17,8 @@ GitKraken is _free_ to use with public repositories like `OpenScPCA-analysis`; y
 
 ### Install GitKraken
 
-1. Install GitKraken [using this link](https://www.gitkraken.com/download). Note that installing GitKraken will also provide you with Git itself.
+1. Install GitKraken [using this link](https://www.gitkraken.com/download). 
+Note that installing GitKraken will also provide you with Git itself.
 
 1. Set up GitKraken on your machine by [directly signing in with your GitHub account](https://help.gitkraken.com/gitkraken-client/github-gitkraken-client/#sign-in-with-github).
 This will automatically provide you with the credentials you need to interact with GitHub without further setup.
