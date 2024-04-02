@@ -8,8 +8,10 @@ Just like the upstream `AlexsLemonade/OpenScPCA-analysis` repository, your fork 
 
 !!! info "Your fork will be public and openly licensed."
 	Code and other materials you commit to your fork and push to GitHub will be **publicly available** and licensed under the same license as the `AlexsLemonade` repository (Creative Commons Attribution 4.0 International and 3-Clause BSD licenses).
+
+
 	Be careful about what you commit!
-    See [Policies](../policies/index.md) for more information.
+    See our [Policies](../policies/index.md) page for more information.
 
 One benefit of using a fork is that changes you make will not affect the upstream project in `AlexsLemonade/OpenScPCA-analysis`.
 This means you can safely work on your analyses without worrying about messing anything up in the upstream repository.

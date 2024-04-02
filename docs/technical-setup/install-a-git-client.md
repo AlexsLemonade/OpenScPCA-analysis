@@ -10,16 +10,17 @@ There are many platforms you can choose, but we recommend using either [**GitKra
     This option is best for contributors who are new to Git.
     The OpenScPCA documentation will primarily present how to use Git via GitKraken.
 
-GitKraken is a GUI (graphical-user interface) which lets you "point-and-click" to run all Git commands.
-GitKraken is a more user-friendly option which does not require you to use the command line (aka, terminal) or memorize Git commands.
-It also provides a more streamlined approach to using Git when working on a Windows machine, vs. using the Git command line interface.
-GitKraken is free to use with public repositories like `OpenScPCA-analysis`; you do not need to upgrade to a paid plan.
+GitKraken is a GUI (graphical-user interface) for using Git, meaning you can "point-and-click" to run all Git commands.
+It is therefore a user-friendly option which does not require you to use the command line (aka, terminal) or memorize Git commands.
+
+GitKraken is _free_ to use with public repositories like `OpenScPCA-analysis`; you do not need to upgrade to their paid plan!
 
 ### Install GitKraken
 
-1. Install GitKraken [using this link](https://www.gitkraken.com/download).
+1. Install GitKraken [using this link](https://www.gitkraken.com/download). 
+Note that installing GitKraken will also provide you with Git itself.
 
-2. Set up GitKraken on your machine by [directly signing in with your GitHub account](https://help.gitkraken.com/gitkraken-client/github-gitkraken-client/#sign-in-with-github).
+1. Set up GitKraken on your machine by [directly signing in with your GitHub account](https://help.gitkraken.com/gitkraken-client/github-gitkraken-client/#sign-in-with-github).
 This will automatically provide you with the credentials you need to interact with GitHub without further setup.
 
 
@@ -50,7 +51,7 @@ For this, launch a Terminal window, enter the command shown below, and follow th
 xcode-select --install
 ```
 
-
+<!--
 ### Install Git on Windows
 
 We recommend installing the [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/install) with the default Ubuntu Linux distribution.
@@ -63,3 +64,4 @@ You can then install Git into your Ubuntu system:
 # Install git
 apt-get install git
 ```
+-->
