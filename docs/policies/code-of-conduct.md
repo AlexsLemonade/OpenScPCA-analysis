@@ -6,24 +6,6 @@ Alex’s Lemonade Stand Foundation’s (ALSF) Childhood Cancer Data Lab (Data La
 We are committed to creating a friendly and respectful place for contributing and learning.
 Everyone participating in the Open Single-cell Pediatric Cancer Atlas (OpenScPCA) project is expected to show respect and courtesy to others.
 
-**Table of contents:**
-
-- [Summary](#summary)
-- [Code of Conduct](#code-of-conduct-1)
-- [When and how to use these guidelines](#when-and-how-to-use-these-guidelines)
-- [Expected behavior](#expected-behavior)
-- [Unacceptable behavior](#unacceptable-behavior)
-- [Report an Incident](#report-an-incident)
-  - [When to report an incident](#when-to-report-an-incident)
-  - [How to report an incident](#how-to-report-an-incident)
-  - [Email the Data Lab](#email-the-data-lab)
-  - [Submit an anonymous report](#submit-an-anonymous-report)
-  - [What if my report is about a Data Lab staff member?](#what-if-my-report-is-about-a-data-lab-staff-member)
-- [What happens after a report is filed?](#what-happens-after-a-report-is-filed)
-- [Retaliation](#retaliation)
-- [Consequences](#consequences)
-- [Attribution](#attribution)
-- [Modifications to these guidelines](#modifications-to-these-guidelines)
 
 ## Code of Conduct
 
@@ -162,7 +144,7 @@ False reporting, reports made in bad faith, or reporting as retaliation will not
 These guidelines are based on the code of conduct written by [The Carpentries](https://docs.carpentries.org/topic_folders/policies/code-of-conduct.html#code-of-conduct-detailed-view), which is adapted from the guidelines by the [Django Project](https://www.djangoproject.com/conduct/enforcement-manual/), which was itself based on the [Ada Initiative](http://geekfeminism.wikia.com/wiki/Conference_anti-harassment/Responding_to_reports) template.
 
 These guidelines are also influenced by [Mozilla’s Community Participation Guidelines](https://www.mozilla.org/en-US/about/governance/policies/participation/), which has been adapted from Mozilla’s original Community Participation Guidelines, the [Ubuntu Code of Conduct](https://ubuntu.com/community/ethos/code-of-conduct), [Mozilla’s View Source Conference Code of Conduct](https://viewsourceconf.org/berlin-2016/code-of-conduct/), and the [Rust Language Code of Conduct](https://www.rust-lang.org/conduct.html), which are based on Stumptown Syndicate’s [Citizen Code of Conduct](https://github.com/stumpsyn/policies/blob/master/citizen_code_of_conduct.md).
-Additional text from the [Bioinformatics Research Network Code of Conduct](https://docs.google.com/document/d/1q06RJbIsyIzLC828A7rBEhtfkujkj9kx7Y118AaWASA/edit), [R-ladies Code of Conduct](https://rladies.org/coc/), the [LGBTQ in Technology Code of Conduct](http://lgbtq.technology/coc.html), and the [WisCon Code of Conduct](http://wiscon.net/policies/anti-harassment/code-of-conduct/).
+Additional text from the [Bioinformatics Research Network Code of Conduct](https://docs.google.com/document/d/1q06RJbIsyIzLC828A7rBEhtfkujkj9kx7Y118AaWASA/edit), [R-Ladies Code of Conduct](https://rladies.org/coc/), the [LGBTQ in Technology Code of Conduct](http://lgbtq.technology/coc.html), and the [WisCon Code of Conduct](http://wiscon.net/policies/anti-harassment/code-of-conduct/).
 
 ## Modifications to these guidelines
 
