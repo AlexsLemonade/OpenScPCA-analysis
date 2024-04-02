@@ -53,8 +53,8 @@ Open the AWS Service Catalog by using the search bar and typing, `service catalo
     <!--TODO Do we want to provide guidance on names?-->
     - Pick an `Application` to use from the drop-down menu.
     This installs any additional applications along with the pre-installed applications.
-        - If you are planning to develop in R, we recommend choosing `Rstudio`, which includes both RStudio and VSCodium.
-        - If you are planning to develop in Python, we recommend choosing `VSCodium`, which includes VSCodium, but does not include Rstudio.
+        - If you are planning to develop in R, we recommend choosing `Rstudio`, which includes RStudio.
+        - If you are planning to develop in Python, we recommend choosing `VSCodium`, which includes VSCodium, a distribution of Microsoft's editor VS Code.
         - For information on all application options, see [the LSfR documentation on Applications](https://docs.aws.amazon.com/lightsail-for-research/latest/ug/blueprints-plans.html).
     - Choose any of the availability zones.
     - Name your instance, be sure to make sure this is different than the name chose for your product.
