@@ -5,7 +5,7 @@
     See [Getting Access to Resources](../../getting-started/accessing-resources/index.md) for more information.
 
 The Amazon Web Services (AWS) Command Line Interface (CLI) allows you to interact with AWS via the command line.
-Configuring the AWS CLI is required for using [the download data script](../../getting-started/accessing-resources/getting-access-to-data.md#accessing-data-on-s3) and [uploading your results to S3 for review](STUB_LINK).
+Configuring the AWS CLI is required for using [the download data script](../../getting-started/accessing-resources/getting-access-to-data.md#using-the-download-data-script) and [uploading your results to S3 for review](STUB_LINK).
 
 These instructions assume you have already installed AWS CLI during [conda set up](setup-conda.md#set-up-conda).
 ## Configuring the AWS CLI

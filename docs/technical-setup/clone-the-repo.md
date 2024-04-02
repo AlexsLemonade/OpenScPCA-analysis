@@ -5,7 +5,7 @@ Cloning provides you with a local copy of the repository to work with.
 You will need to clone the repository to every computer (or remote server) you want to use to contribute to the project.
 
 !!! note
-    You should clone your forked repository from `<username>/OpenScPCA-analysis`, _not_ `AlexsLemonade/OpenScPCA-analysis`.
+    You should clone your forked repository from `<YOUR_USERNAME>/OpenScPCA-analysis`, _not_ `AlexsLemonade/OpenScPCA-analysis`.
 
 
 ## Clone your forked repository
