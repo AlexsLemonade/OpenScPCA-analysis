@@ -1,8 +1,17 @@
 # Structuring analysis notebooks
 
 Notebook formats such as [R Markdown](https://rmarkdown.rstudio.com/index.html) or [Jupyter](https://jupyter-notebook.readthedocs.io/en/latest/) are a great way to document an analysis and share it with others.
-We have found that following some common patterns can enhance sharing and reproducibility, so we suggest the following structure when you create a notebook.
+We have found that following some common patterns can enhance sharing and reproducibility, so we suggest the following overall structure when you create a notebook:
 
+- **Headers**: Start with a header that includes a title, author, and date.
+- **Introduction**: Briefly describe the analysis and its purpose.
+- **Setup**: Load required packages and define paths for input and output files.
+- **Functions**: Define any custom functions used in the analysis.
+- **Analysis**: This is where the bulk of the analysis occusrs.
+  Intersperse code to do the work and Markdown to explain the steps and interpret results.
+- **Session info**: Print out the versions of all packages used in the analysis.
+
+Below we provide more detail about each of these sections for [R Markdown](#r-markdown-notebooks) and [Jupyter](#jupyter-notebooks) notebooks.
 
 ## R Markdown notebooks
 
