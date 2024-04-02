@@ -19,7 +19,7 @@ Below we provide more detail about each of these sections for [R Markdown](#r-ma
 We will illustrate the structure of an R Markdown notebook using the example notebook found in the [`hello-R`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/hello-R) analysis module: [`hello.Rmd`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/hello-R/hello.Rmd).
 
 
-### Headers
+### Headers { #r-headers }
 
 R Markdown notebooks start with a YAML header that should contain a `title`, `author`, and `date`, as shown in this example:
 
@@ -38,7 +38,7 @@ If you do set the date manually, be sure to keep it current as the notebook is m
 The `output` field specifies the output format of the notebook, which we recommend setting to `html_notebook` for the analyses in the OpenScPCA project.
 
 
-### Introduction
+### Introduction { #r-introduction }
 
 The remainder of the notebook should be a mix of Markdown and R code chunks.
 We suggest starting with an **Introduction** section that briefly describes the analysis and its purpose, to help orient readers.
@@ -46,12 +46,12 @@ We suggest starting with an **Introduction** section that briefly describes the 
 You should include a bit of information about the input data, the analysis steps, and the expected output.
 
 
-### Setup
+### Setup { #r-setup }
 
 Following the Introduction, a **Setup** section should load R packages and define paths for input and output files.
 
 
-#### Loading packages
+#### Loading packages { #r-loading-packages }
 
 The notebook should not download any R packages; in other words, you should never include the code `install.packages()` in your notebook.
 All packages should already be installed on the system running the notebook, and can be separately tracked using [`renv`](../determining-requirements/determining-software-requirements.md#using-renv).
@@ -70,7 +70,7 @@ suppressPackageStartupMessages({
 ```
 
 
-#### Setting paths
+#### Setting paths { #r-setting-paths }
 
 Defining paths to all input and output files at the start of the notebook makes it much easier for users to understand the analysis structure and to modify the paths if needed.
 
@@ -104,7 +104,7 @@ Note that we use `file.path()` to construct paths, which is a platform-independe
     Just add that path to the Setup section with the other paths, rather than defining it later in the notebook.
 
 
-### Defining custom functions
+### Defining custom functions { #r-defining-functions }
 
 Following the Setup section, it is often useful to have a **Functions** section where you define any custom functions you write for use later in the notebook.
 Keeping the functions in a central place in the notebook makes it easier to find and modify them later.
@@ -133,7 +133,7 @@ count_sce <- function(sce_file) {
     It also means that the notebook is not self-contained, and functions will not be present in the output html files, which can make it harder to share and reproduce the analysis.
 
 
-### Analysis steps
+### Analysis steps { #r-analysis-steps }
 
 Once all of the functions are defined, the remainder of the notebook should be a series of code chunks that perform the analysis steps, with [Markdown text](../../software-platforms/general-tools/writing-in-markdown.md) to explain what each step is doing and why.
 Use headings and subheadings as appropriate to break up the analysis into logical sections, and include plots in the notebook to help illustrate the results.
@@ -142,7 +142,7 @@ Code chunks should still contain comments to explain logic and implementation.
 The Markdown text should focus on providing a higher-level overview of the analysis steps, including any interpretation of results.
 
 
-### Session info
+### Session info { #r-session-info }
 
 The final section of every R Markdown notebook should be a **Session info** section that uses the [`sessionInfo()` function](../determining-requirements/determining-software-requirements.md#using-sessioninfo) to print out the versions of all packages used in the analysis.
 
@@ -155,7 +155,7 @@ The final section of every R Markdown notebook should be a **Session info** sect
 We will illustrate the structure of a Jupyter notebook using the example notebook found in the [`hello-python`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/hello-python) analysis module: [`hello.ipynb`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/hello-python/hello.ipynb).
 
 
-### Headers
+### Headers { #jupyter-headers }
 
 Jupyter notebooks do not have a YAML header like R Markdown notebooks, but you should still begin with a Markdown cell at the top of the notebook that includes a title, author, and date, as shown in this example:
 
@@ -170,22 +170,22 @@ Childhood Cancer Data Lab, ALSF
 The date should be kept current as the notebook is modified.
 
 
-### Introduction
+### Introduction { #jupyter-introduction }
 
 Following the header cell, an **Introduction** section should briefly describe the analysis and its purpose, to help orient readers.
 
 You should include a bit of information about the input data, the analysis steps, and the expected output.
 
 
-### Setup
+### Setup { #jupyter-setup }
 
 Following the Introduction, a **Setup** section should include cells to load Python packages and define paths for input and output files.
 
 
-#### Loading Python packages
+#### Loading Python packages { #jupyter-loading-packages }
 
 Load all Python packages in a cell or cells at the start of the notebook using `import` statements.
-For example, you will always want to import the [`session_info` package](#session-info-1) to document the versions of all packages used in the analysis:
+For example, you will always want to import the [`session_info` package](#jupyter-session-info) to document the versions of all packages used in the analysis:
 
 ```python
 import session_info
@@ -197,7 +197,7 @@ Do not install new Python packages within a notebook.
 All packages should instead be [installed and tracked using `conda`](../determining-requirements/determining-software-requirements.md#module-specific-conda-environments).
 
 
-#### Setting paths
+#### Setting paths { #jupyter-setting-paths }
 
 Defining paths to all input and output files at the start of the notebook makes it much easier for users to understand the analysis structure and to modify the paths if needed.
 
@@ -223,7 +223,7 @@ module_root_path = pathlib.Path(repo_root) / "analyses" / "hello-python"
 
 Either of these packages can be used to construct paths in a platform-independent way, and both are part of the Python standard library, so you should use whichever you are more comfortable with.
 
-### Defining custom functions
+### Defining custom functions { #jupyter-defining-functions }
 
 Following the Setup section, it is often useful to have a **Functions** section where you define any custom functions you write for use later in the notebook.
 Keeping the functions in a central place in the notebook makes it easier to find and modify them later.
@@ -249,7 +249,7 @@ If you have a large number of functions, you may consider moving them to a separ
 Imported function definitions will no longer appear in the output files, which can make it harder to share and reproduce the analysis.
 
 
-### Analysis steps
+### Analysis steps { #jupyter-analysis-steps }
 
 Once all of the functions are defined, the remainder of the notebook should be a series of cells with code to perform the analysis steps, and [Markdown text](../../software-platforms/general-tools/writing-in-markdown.md) to explain what each step is doing and why.
 Use headings and subheadings as appropriate to break up the analysis into logical sections, and include plots in the notebook to help illustrate the results.
@@ -258,6 +258,6 @@ Code cells should still contain comments to explain logic and implementation.
 Markdown cells should focus on providing a higher-level overview of the analysis steps, including any interpretation of results.
 
 
-### Session info
+### Session info { #jupyter-session-info }
 
 The final section of every Jupyter notebook should be a **Session info** section that uses the [`session_info.show()` function](../determining-requirements/determining-software-requirements.md#using-session_infoshow) to print out the versions of all packages used in the analysis.
