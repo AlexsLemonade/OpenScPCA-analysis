@@ -1,13 +1,17 @@
-# Suggested structure for an R Markdown notebook
+# Structuring your notebooks
 
-An R Markdown notebook is a great way to document an analysis and share it with others.
+Notebook formats such as [R Markdown](https://rmarkdown.rstudio.com/index.html) or [Jupyter](https://jupyter-notebook.readthedocs.io/en/latest/) are a great way to document an analysis and share it with others.
 We have found that following some common patterns can enhance sharing and reproducibility, so we suggest the following structure when you create a notebook.
 
-We will illustrate the structure using the example notebook found in the [`hello-R`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/hello-R) analysis module: [`hello.Rmd`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/hello-R/hello.Rmd).
 
-## Headers
+## R Markdown notebooks
 
-The R Markdown notebook starts with a YAML header that should contain a `title`, `author`, and `date`, as shown in this example:
+We will illustrate the structure of an R Markdown notebook using the example notebook found in the [`hello-R`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/hello-R) analysis module: [`hello.Rmd`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/hello-R/hello.Rmd).
+
+
+### Headers
+
+R Markdown notebooks start with a YAML header that should contain a `title`, `author`, and `date`, as shown in this example:
 
 ```yaml
 ---
@@ -22,18 +26,21 @@ The date is here set dynamically in the output to the date that the analysis was
 
 The `output` field specifies the output format of the notebook, which will usually be `html_notebook` for the analyses in the OpenScPCA project.
 
-## Introduction
+
+### Introduction
 
 The remainder of the notebook will be a mix of Markdown and R code chunks.
 We suggest starting with an **Introduction** section that briefly describes the analysis and its purpose, to help orient readers.
 
 You should include a bit of information about the input data, the analysis steps, and the expected output.
 
-## Setup
+
+### Setup
 
 Following the Introduction, a **Setup** section should handle loading R packages and defining paths for input and output files.
 
-### Loading packages
+
+#### Loading packages
 
 The notebook should not download any R packages.
 All packages should already be installed on the system running the notebook, and can be separately tracked using [`renv`](../determining-requirements/determining-software-requirements.md#using-renv).
@@ -52,7 +59,7 @@ suppressPackageStartupMessages({
 ```
 
 
-### Setting paths
+#### Setting paths
 
 Defining paths to all input and output files at the start of the notebook makes it much easier to users to understand the structure of the analysis and to modify the paths if needed.
 
@@ -83,7 +90,8 @@ All file paths should be defined as relative paths, with the exception of any in
     No problem!
     Just add that path to the Setup section with the other paths, rather than defining it later in the notebook.
 
-## Defining custom functions
+
+### Defining custom functions
 
 Followith the Setup section, it is often useful to have a **Functions** section where all custom functions that will be used later in the notebook are defined.
 Keeping the functions in a central place in the notebook makes it easier to find and modify them later, and also makes it easier to reuse them in other analyses.
@@ -109,16 +117,21 @@ count_sce <- function(sce_file) {
 We generally do _not_ recommend using `source()` to load functions from external files, as this can make it harder to keep track of where functions are defined and can lead to errors if the file is moved or renamed.
 It also means that the notebook is not self-contained, and functions will not be present in the output html files, which can make it harder to share and reproduce the analysis.
 
-## Analysis steps
+
+### Analysis steps
 
 Once all of the inctions are defined, the remainder of the notebook should be a series of code chunks that perform the analysis steps, with Markdown text to explain what each step is doing and why.
 Use headings and subheadings as appropriate to break up the analysis into logical sections, and include plots in the notebook to help illustrate the results.
 
 Code chunks should still contain comments as needed to explain logic and implementation, with the Markdown text providing a higher-level overview of the analysis steps, including any interpretation of results.
 
-## Session info
+
+### Session info
 
 The final section of every notebook should be a **Session info** section that uses the [`sessionInfo()` function](../determining-requirements/determining-software-requirements.md#using-sessioninfo) to print out the versions of all packages used in the analysis.
 
 !!! tip
     In `hello.Rmd`, we use a package with a slightly nicer output format: `sessioninfo::session_info()`; either is fine!
+
+
+## Jupyter notebooks
