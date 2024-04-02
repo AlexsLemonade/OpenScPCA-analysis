@@ -185,7 +185,7 @@ Following the Introduction, a **Setup** section should include cells to load Pyt
 #### Loading Python packages
 
 Load all Python packages in a cell or cells at the start of the notebook using `import` statements.
-For example, you will always want to import the `session_info` package to print out the versions of all packages used in the analysis.
+For example, you will always want to import the [`session_info` package](#session-info-1) to document the versions of all packages used in the analysis:
 
 ```python
 import session_info
@@ -211,7 +211,7 @@ In the `hello.ipynb` notebook, we find the repository root path using the [`GitP
 repo_root = git.Repo(".", search_parent_directories=True).working_dir
 ```
 
-You can then use the `os` or `pathlib` package to construct paths relative to the repository root, as shown below to find the module root:
+You can then use the [`os` package](https://docs.python.org/3/library/os.html) or the [`pathlib` package](https://docs.python.org/3/library/pathlib.html) to construct paths relative to the repository root, as shown below to find the module root:
 
 ```python
 # use os.path.join to construct paths relative to the repository root
@@ -221,7 +221,7 @@ module_root = os.path.join(repo_root, "analyses", "hello-python")
 module_root_path = pathlib.Path(repo_root) / "analyses" / "hello-python"
 ```
 
-Either of these packages can be used to construct paths in a platform-independent way, and you should use whichever you are more comfortable with.
+Either of these packages can be used to construct paths in a platform-independent way, and both are part of the Python standard library, so you should use whichever you are more comfortable with.
 
 ### Defining custom functions
 
