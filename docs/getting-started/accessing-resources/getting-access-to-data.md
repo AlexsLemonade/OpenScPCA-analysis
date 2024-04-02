@@ -40,7 +40,7 @@ See [Getting Access to Resources](index.md) for more information.
     - [Set up your environment](../../technical-setup/environment-setup/index.md)
     - [Configured the AWS CLI and logged in](../../technical-setup/environment-setup/configure-aws-cli.md) OR are [using Lightsail for Research](../../software-platforms/lsfr/index.md) (which doesn't require logging in via the AWS CLI)
 
-The `download-data.py` script is designed to download files from whatever release you specify to a folder named for the date of that release and [symlink](https://en.wikipedia.org/wiki/Symbolic_link) it to `data/current`.
+The `download-data.py` script is designed to download files from whatever release you specify to a folder named for the date of that release and [symlink](https://en.wikipedia.org/wiki/Symbolic_link) it to `data/current`. <!-- STUB_LINK link to the download script, or at least tell contributors where to find it -->
 
 We briefly cover some of the most common use cases below, but we encourage you to review all the options available to you.
 
@@ -50,7 +50,7 @@ You can list all the options for the download data script by running the followi
 ./download-data.py --help
 ```
 
-!!! tip No `--profile` necessary on Lightsail for Research
+!!! tip "No `--profile` necessary on Lightsail for Research"
     Omit `--profile openscpca` from the commands below if you're using Lightsail for Research.
 
 Assuming you created a profile called `openscpca` when [configuring the AWS CLI](../../technical-setup/environment-setup/configure-aws-cli.md), you can run the download script with all default options to download all processed samples from the most recent release in `SingleCellExperiment` format:
@@ -89,7 +89,7 @@ data
 └── current -> {Release}
 ```
 
-See the ScPCA documentation for more information about individual files: <https://scpca.readthedocs.io>.
+See the ScPCA documentation for [more information about individual files](https://scpca.readthedocs.io/en/latest/sce_file_contents.html).
 
 Data releases are dated using the following format: `YYYY-MM-DD`.
 By default, the data download script will download the most recent release.
