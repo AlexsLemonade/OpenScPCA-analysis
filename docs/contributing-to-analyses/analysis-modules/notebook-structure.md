@@ -8,8 +8,8 @@ We have found that following some common patterns can enhance sharing and reprod
 - **Setup**: Load required packages and define paths for input and output files.
 - **Functions**: Define any custom functions used in the analysis.
 - **Analysis**: This is where the bulk of the analysis should appear.
-  - Intersperse code, to do the work, and text, to explain the steps and interpret results.
-  - Use headings and subheadings to break up the analysis into logical sections.
+    - Intersperse code, to do the work, and text, to explain the steps and interpret results.
+    - Use headings and subheadings to break up the analysis into logical sections.
 - **Session info**: Print out the versions of all packages used in the analysis.
 
 Below we provide more detail about each of these sections for [R Markdown](#r-markdown-notebooks) and [Jupyter](#jupyter-notebooks) notebooks.
@@ -127,6 +127,7 @@ count_sce <- function(sce_file) {
 ```
 !!! note
     We generally do _not_ recommend using `source()` to load functions from external files, as this can make it harder to keep track of where functions are defined and can lead to errors if the file is moved or renamed.
+
     It also means that the notebook is not self-contained, and functions will not be present in the output html files, which can make it harder to share and reproduce the analysis.
 
 
