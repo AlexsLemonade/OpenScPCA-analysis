@@ -2,18 +2,15 @@
 
 ## Creating a new issue
 
-To create a new issue, follow these instructions from GitHub: <https://docs.github.com/en/issues/tracking-your-work-with-issues/creating-an-issue#creating-an-issue-from-a-repository>
+Please refer to [these instructions from GitHub](https://docs.github.com/en/issues/tracking-your-work-with-issues/creating-an-issue#creating-an-issue-from-a-repository) to learn how to create a new issue.
 
-You will be prompted with a selection of issues from our issue templates.
-See our documentation on [OpenScPCA Issue Templates](issue-templates.md) for more about how to use the templates.
+OpenScPCA will [prompt you with a selection of issues from our issue templates](https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/new/choose).
+See our documentation on [OpenScPCA issue Templates](issue-templates.md) for more about how to use the templates.
 
 ## Markdown
 
 [GitHub Issues are written in Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/about-writing-and-formatting-on-github), a plain text language for formatting documents.
 See our documentation on [Markdown](../../software-platforms/general-tools/writing-in-markdown.md) for more information about writing in Markdown.
-
-GitHub supports [a "dialect" of Markdown called GitHub Flavored Markdown (GFM)](https://github.github.com/gfm/).
-You don't need to worry too much about GFM, but you may come across this term reading docs from GitHub!
 
 ## Using mentions
 
@@ -29,7 +26,7 @@ You can find more information about mentioning people in [GitHub's documentation
 It can be helpful to refer to related issues or pull requests when you are writing an issue to provide extra context for others and help keep the project organized.
 
 Use the number of the GitHub issue or pull request, preceded by a number sign (`#`), to reference it.
-For example, to reference <https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/243>, you would write #243 in the body of the issue.
+For example, to reference <https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/243>, you would write `#243` in the body of the issue.
 
 You can read more about referencing issues and pull requests, included advanced usage, in [GitHub's documentation](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/autolinked-references-and-urls#issues-and-pull-requests).
 
