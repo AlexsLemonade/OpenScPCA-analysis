@@ -35,6 +35,7 @@ GFM
 GitHub
 GitKraken
 GitKraken's
+GPUs
 HPC
 IAM
 ICJME
@@ -100,6 +101,8 @@ transphobic
 triaged
 TSV
 UMAP
+vCPUs
+VSCodium
 WIPO
 WisCon
 WSL
