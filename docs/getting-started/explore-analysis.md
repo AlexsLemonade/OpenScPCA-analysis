@@ -25,8 +25,8 @@ See our documentation on [analysis modules](../contributing-to-analyses/analysis
 All instructions and files (except [data](#obtain-data-to-run-a-module)) needed to run a given module are provided the module's folder.
 
 - To [run existing modules](../contributing-to-analyses/analysis-modules/running-a-module.md), please refer to the `README.md` found in the root directory of that module.
-    - The `README.md` will contain a description of the module, instructions to run the module, the list of input and output files, and any additional software or computing resources you may need.
-    - The `README.md` will also contain information about the input data that the module takes.
+- The `README.md` will contain a description of the module, instructions to run the module, the list of input and output files, and any additional software or computing resources you may need.
+ 
 
 ## Obtain data to run a module
 
@@ -39,4 +39,5 @@ Alternatively, you can use the [`simulate-sce`](https://github.com/AlexsLemonade
 - The module requires either `SingleCellExperiment` or `AnnData` objects from the ScPCA Portal as input.
 
 In some cases, an analysis module's input data will be the results/output from a different module.
-These results are stored in an [S3 bucket on Amazon Web Services](../software-platforms/aws/index.md), and [are available to contributors](accessing-resources/getting-access-to-data.md).
+These results are stored in an [S3 bucket on Amazon Web Services](../software-platforms/aws/index.md), and are available to contributors. 
+Read more about [getting access to data](accessing-resources/getting-access-to-data.md).
