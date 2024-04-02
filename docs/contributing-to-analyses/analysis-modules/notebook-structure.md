@@ -46,7 +46,7 @@ The notebook should not download any R packages; in other words, you should neve
 All packages should already be installed on the system running the notebook, and can be separately tracked using [`renv`](../determining-requirements/determining-software-requirements.md#using-renv).
 
 We generally recommend keeping the number of packages loaded with `library()` to a minimum and using the `package::function()` syntax to call functions, to make it clear which package each function comes from.
-For some common packages, however, this can become burdensome.
+However, for some commonly invoked packages such as `SingleCellExperiment` and `ggplot2` this can become burdensome, making loading the package with `library()` more convenient.
 
 It is often also convenient to suppress the sometimes verbose messages that packages print on loading using `suppressPackageStartupMessages()`, as shown below:
 
@@ -63,10 +63,13 @@ suppressPackageStartupMessages({
 
 Defining paths to all input and output files at the start of the notebook makes it much easier for users to understand the analysis structure and to modify the paths if needed.
 
-R notebooks by default use paths relative to the location of the notebook file, but this can lead to errors if the notebook file itself is moved, so we recommend defining paths relative to either the OpenScPCA project root or the analysis module root.
+Do not use absolute file paths, as this can make it harder to share and reproduce the analysis.
+Instead, define paths relative to the root of the OpenScPCA project or the root of the analysis module.
+While R notebooks allow you to set paths relative to location of the notebook file, this can be brittle if the notebook is ever moved to a new location.
 
-In the `hello.Rmd` notebook, the paths are defined using the [`rprojroot` package](https://rprojroot.r-lib.org), which has a number of convenient functions for finding the root of a project based on its contents.
-In the example below, we find the OpenScPCA project root by looking for the `.git` directory, and the analysis module root by looking for the `renv` files that were set up in that project.
+
+In the `hello.Rmd` notebook, we define root paths using the [`rprojroot` package](https://rprojroot.r-lib.org), which has a number of convenient functions for finding the root of a project based on its contents.
+In the example below, we find the OpenScPCA project root by looking for the `.git` directory, and the analysis module root by looking for the `renv` files that were set up in that module.
 
 ```r
 # Find the repository and module root directories
@@ -74,7 +77,7 @@ repo_root <- rprojroot::find_root(rprojroot::is_git_root)
 module_root <- rprojroot::find_root(rprojroot::is_renv_project)
 ```
 
-Alternatively, if your module does not use `renv`, the module root could be found relative to the repository root as shown below:
+Alternatively, if your module does not use `renv`, the module root could be found relative to the OpenScPCA repository root, as shown below:
 
 ```r
 repo_root <- rprojroot::find_root(rprojroot::is_git_root)
@@ -83,7 +86,6 @@ module_root <- file.path(repo_root, "analyses", "hello-R")
 
 Note that we use `file.path()` to construct paths, which is a platform-independent way to define directories and filenames for safe navigation.
 
-All file paths should be defined as relative paths, with the exception of any input data that might be downloaded as part of the analysis, which may be referenced by a URL.
 
 !!! note
     When working on an analysis, it is quite common to find that you need a file that you had not anticipated when you started.
@@ -113,9 +115,9 @@ count_sce <- function(sce_file) {
   ...
 }
 ```
-
-We generally do _not_ recommend using `source()` to load functions from external files, as this can make it harder to keep track of where functions are defined and can lead to errors if the file is moved or renamed.
-It also means that the notebook is not self-contained, and functions will not be present in the output html files, which can make it harder to share and reproduce the analysis.
+!!! note
+    We generally do _not_ recommend using `source()` to load functions from external files, as this can make it harder to keep track of where functions are defined and can lead to errors if the file is moved or renamed.
+    It also means that the notebook is not self-contained, and functions will not be present in the output html files, which can make it harder to share and reproduce the analysis.
 
 
 ### Analysis steps
