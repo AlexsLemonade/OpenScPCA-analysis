@@ -11,7 +11,7 @@ This analysis counts the number of cells in each processed AnnData file in the c
 The workflow is run using the following command from this analysis directory:
 
 ```bash
-bash hello-python.sh
+bash run_hello-python.sh
 ```
 
 ## Input files

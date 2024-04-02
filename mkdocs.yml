@@ -76,6 +76,10 @@ nav:
   - Getting Started:      # welcome, familiarizing yourself with the project
     - getting-started/making-your-first-analysis-contribution.md
     - getting-started/explore-analysis.md
+    - Getting Access to Resources:
+      - getting-started/accessing-resources/index.md
+      - getting-started/accessing-resources/getting-access-to-data.md
+      - getting-started/accessing-resources/getting-access-to-compute.md
   - Technical setup:           # Fork/clone, local environment setup
     - technical-setup/index.md
     - technical-setup/install-a-git-client.md
@@ -85,6 +89,7 @@ nav:
       - technical-setup/environment-setup/index.md
       - technical-setup/environment-setup/setup-conda.md
       - technical-setup/environment-setup/setup-precommit.md
+      - technical-setup/environment-setup/configure-aws-cli.md
       - technical-setup/environment-setup/install-docker.md
       - technical-setup/environment-setup/install-r-rstudio.md
   - Tools for communication:   # Slack, issues, discussions
@@ -99,6 +104,7 @@ nav:
     - Analysis modules:
       - contributing-to-analyses/analysis-modules/index.md
       - contributing-to-analyses/analysis-modules/creating-a-module.md
+      - contributing-to-analyses/analysis-modules/running-a-module.md
       - contributing-to-analyses/analysis-modules/documenting-analysis.md
     - Determining analysis requirements:
       - contributing-to-analyses/determining-requirements/index.md

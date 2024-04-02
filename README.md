@@ -1,8 +1,8 @@
 # OpenScPCA-analysis
 
-OpenScPCA is an open, collaborative project to analyze data from the [Single-cell Pediatric Cancer Atlas (ScPCA) Portal](https://scpca.alexslemonade.org/), which currently holds 500 samples from over 50 pediatric cancer types. 
+OpenScPCA is an open, collaborative project to analyze data from the [Single-cell Pediatric Cancer Atlas (ScPCA) Portal](https://scpca.alexslemonade.org/), which currently holds 500 samples from over 50 pediatric cancer types.
 
-This project aims to: 
+This project aims to:
 
 - Characterize the ScPCA data with analyses such as labeling cell types or identifying recurrent cell states in multiple tumor types
 
@@ -23,11 +23,11 @@ If desired, please [file an issue](https://github.com/AlexsLemonade/OpenScPCA-an
 
 To start contributing:
 
-1. Please review our [Policies](https://openscpca.readthedocs.io/policies).
+1. Please review our [Policies](https://openscpca.readthedocs.io/en/latest/policies/).
 
 2. Fill out the [interest form](https://share.hsforms.com/1MlLtkGYSQa6j23HY_0fKaw336z0).
 
-3. Visit [Getting Started](#STUB_LINK) for first steps. 
+3. Visit [Getting Started](https://openscpca.readthedocs.io/en/latest/getting-started/making-your-first-analysis-contribution/) for first steps.
 
 ### Communicating
 
@@ -42,11 +42,11 @@ If you wish to report a security vulnerability, please [email](mailto:report@ccd
 Do NOT report it in a public forum.
 See our [security policy](./SECURITY.md) for more information.
 
-Please see our documentation on [Tools for communication](https://openscpca.readthedocs.io/communications-tools/) for more information.
+Please see our documentation on [Tools for communication](https://openscpca.readthedocs.io/en/latest/communications-tools/) for more information.
 
 ## Documentation
 
-We have a comprehensive documentation to help you with various aspects of participating in OpenScPCA - from proposing an analysis, acquiring data, troubleshooting errors to making your first code contribution. 
+We have a comprehensive documentation to help you with various aspects of participating in OpenScPCA - from proposing an analysis, acquiring data, troubleshooting errors to making your first code contribution.
 
 Please refer to it as you work on the project.
 
@@ -57,19 +57,19 @@ Please refer to it as you work on the project.
 
 ### Local Setup
 
-To setup, you will need a Git client, miniconda, R or Python, and an editor of your choice. Please see our documentation on [Technical Setup](https://openscpca.readthedocs.io/technical-setup) for detailed instructions to create a local setup.
+To set up, you will need a Git client, Miniconda, R or Python, and an editor of your choice. Please see our documentation on [Technical Setup](https://openscpca.readthedocs.io/en/latest/technical-setup) for detailed instructions to create a local setup.
 
 ### Accessing Data
 
 Data is publicly available from the [ScPCA Portal](https://scpca.alexslemonade.org/) and from an AWS S3 bucket for OpenScPCA project contributors.
 We also provide a way to download smaller, simulated data files for you to play with.
 
-Please [Getting access to Data](#STUB_LINK) for more details.
+Please reference [Getting access to Data](https://openscpca.readthedocs.io/en/latest/getting-started/accessing-resources/getting-access-to-data/) for more details.
 
 ### Running an analysis module
 
-Each analysis module has a README which contains instructions to run that specific module. 
-Please see the relevant analysis module's README for instructions.
+Each analysis module has a `README.md` file which contains instructions to run that specific module.
+Please see the relevant analysis module's `README.md` for instructions.
 
-Learn more about [running an analysis module](#STUB_LINK) here.
+Learn more about [running an analysis module](https://openscpca.readthedocs.io/en/latest/contributing-to-analyses/analysis-modules/running-a-module/) here.
 

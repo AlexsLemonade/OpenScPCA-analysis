@@ -11,7 +11,7 @@ This analysis counts the number of cells in each processed SCE file in the curre
 To run the analysis, run the following command from this analysis directory:
 
 ```bash
-bash hello-R.sh
+bash run_hello-R.sh
 ```
 
 ## Input files

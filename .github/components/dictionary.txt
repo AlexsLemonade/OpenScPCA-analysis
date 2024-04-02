@@ -7,10 +7,12 @@ altExp
 AnnData
 anonymize
 anonymized
+authenticator
 benchmarking
 bioinformatics
 Carpentries
 CellAssign
+CLI
 codebase
 conda
 config
@@ -34,6 +36,7 @@ GitHub
 GitKraken
 GitKraken's
 HPC
+IAM
 ICJME
 ies
 immunities
@@ -57,6 +60,7 @@ md
 merchantability
 Miniconda
 misidentification
+multifactor
 nonconsensual
 octicons
 onboarded
@@ -84,8 +88,11 @@ ScPCA
 SemVar
 SingleR
 socio
+SSO
 Stumptown
 sublicensable
+symlink
+symlinked
 synched
 trainings
 transferrable
@@ -99,7 +106,3 @@ WSL
 Xcode
 YAML
 Zappia
-impactful
-octicons
-md
-miniconda

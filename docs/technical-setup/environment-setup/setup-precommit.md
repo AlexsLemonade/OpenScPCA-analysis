@@ -37,7 +37,7 @@ We have set up some pre-commit hooks to manage basic code security and catch oth
 During [conda setup](./setup-conda.md/#set-up-conda), you should have installed the `pre-commit` software into your base environment.
 
 To turn on the pre-commit hooks for the OpenScPCA repository, you will need to run the command `pre-commit install` from a terminal window inside the repository.
-We recommend launching [a terminal window in GitKraken](../../software-platforms/general-tools/using-the-terminal.md#how-do-you-access-the-terminal) to do this.
+We recommend launching [a terminal window in GitKraken](../../software-platforms/general-tools/using-the-terminal.md#gitkraken) to do this.
 
 1. Open a terminal window and navigate to the `OpenScPCA` repository.
     - Remember, if you open the terminal within GitKraken, you're automatically in the repository - no extra navigation steps needed!
@@ -51,7 +51,7 @@ We recommend launching [a terminal window in GitKraken](../../software-platforms
 
 1. The terminal should then return this output message showing that you successfully set up your pre-commit hooks:
 
-    ```
+    ```{.bash .no-copy}
     pre-commit installed at .git/hooks/pre-commit
     ```
 
@@ -138,7 +138,7 @@ If you would like to use a code linter, we recommend using [`ruff`](https://docs
 Spell checking is another useful class of tools that can be added as a pre-commit hook.
 Because biological and computational words are often not in default dictionaries, it is most helpful to use a spell checker that looks for common errors rather than one that checks every word against a dictionary.
 
-One such tool is `typos`, which runs quickly to check both text and code for common mistakes.
+One such tool is [`typos`](https://github.com/crate-ci/typos), which runs quickly to check both text and code for common mistakes.
 `typos` can be installed as a pre-commit hook with the following code added to the `.pre-commit-local.yaml` file:
 
 ```yaml
