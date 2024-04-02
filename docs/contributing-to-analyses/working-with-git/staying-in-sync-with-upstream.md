@@ -31,7 +31,7 @@ Follow these steps to keep your fork in sync with changes in `AlexsLemonade/Open
         ![Sync fork](../../img/upstream-sync-1.png){width="600"}
     </figure>
 
-2. After pressing `Sync fork`, GitHub will notify you that the branch is out-of-date.
+1. After pressing `Sync fork`, GitHub will notify you that the branch is out-of-date.
 Go ahead and press `Update branch`.
 
     - If GitHub instead tells you there are conflict that must be resolved, see the [section below on resolving sync conflicts](#syncing-your-fork-when-there-are-sync-conflicts).
@@ -41,13 +41,13 @@ Go ahead and press `Update branch`.
         ![Update branch](../../img/upstream-sync-2.png){width="300"}
     </figure>
 
-3. If your `main` branch has been updated successfully, you will now see a note that the branch is up to date with `AlexsLemonade/OpenScPCA-analysis`.
+1. If your `main` branch has been updated successfully, you will now see a note that the branch is up to date with `AlexsLemonade/OpenScPCA-analysis`.
 
     <figure markdown="span">
         ![Successful sync](../../img/upstream-sync-3.png){width="600"}
     </figure>
 
-4. Before making any changes locally, you will need to pull the synced changes from GitHub to your computer.
+1. Before making any changes locally, you will need to pull the synced changes from GitHub to your computer.
 
     In GitKraken, you will see two versions of the `main` branch in the branch graph:
 

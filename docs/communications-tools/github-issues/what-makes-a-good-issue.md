@@ -9,7 +9,7 @@ Good issues include the following:
 - A relatively small and focused scope, such that [the pull request that closes them is appropriate in scope](../../contributing-to-analyses/creating-pull-requests/scoping-pull-requests.md)
 - Ideas about how to accomplish a segment of work
 - Enough context so that:
-    - For someone other than the issue author to accomplish the work
+    - Someone other than the issue author to accomplish the work
     - [Pull request reviewers are set up for success](../../contributing-to-analyses/pr-review-and-merge/index.md)
 - The requirements for satisfying or closing the issue (when known)
 
