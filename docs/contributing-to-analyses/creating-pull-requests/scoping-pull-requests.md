@@ -23,7 +23,7 @@ Ensuring your PRs are focused on one task helps combat reviewer fatigue and keep
 
 - Longer PRs are harder and more time-consuming to review, and reviewers are more likely to miss catching unwanted bugs in the code.
 - The smaller the PR, the faster and more thorough the review!
-- Quicker review means you are less likely to introduce [merge conflicts](resolve-merge-conflicts.md).
+- Quicker review means [merge conflicts](resolve-merge-conflicts.md) are less likely to arise.
 
 ## Rules of thumb for good pull requests
 
@@ -31,11 +31,11 @@ Below are some good rules of thumb to follow when determining when to file a PR:
 
 - The total number of changed lines should be less than 400.
 
-    Any time that you are making changes on a branch, you can go through the steps of [filing a PR](./file-pull-request.md) to view the amount of lines that have been changed.
-    Instead of actually filing the PR, you can scroll below the template description to see the summary of commits and changes.
-    Below the summary of all commits, GitHub displays a summary of your line-by-line changes, including the number of lines with additions and deletions.
+    Any time that you are making changes on a branch, you can go through the steps of [filing a PR](./file-pull-request.md) to view the amount of lines that have been changed:
 
-    In the example below, 18 lines have been changed.
+    - Instead of actually filing the PR, you can scroll below the template description to see the summary of commits and changes.
+    - Below the summary of all commits, GitHub displays a summary of your line-by-line changes, including the number of lines with additions and deletions.
+    - In the example below, 18 lines have been changed.
     If you start seeing the number of lines approach 400, it's time to file that PR!
 
     <figure markdown="span">
@@ -44,5 +44,4 @@ Below are some good rules of thumb to follow when determining when to file a PR:
 
 - Each PR should address a single issue and solve one problem.
 This means you should file, at a minimum, one PR to address each issue.
-_Please do not_ file PRs that address multiple issues at once.
-
+_Please try not to file PRs that address multiple issues at once._
