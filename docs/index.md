@@ -102,6 +102,6 @@ Read this post on how to use GitHub Discussions for the OpenScPCA project.
 
     Create a local setup and explore how analysis modules are structured, and play with some simulated data or data from the [ScPCA Portal](https://scpca.alexslemonade.org/).
 
-    [Explore an example module](STUB_LINK)
+    [Explore an example module](getting-started/explore-analysis.md)
 
 </div>
