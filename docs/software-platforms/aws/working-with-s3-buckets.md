@@ -44,8 +44,8 @@ We have written a script to help you sync your results to your S3 bucket, stored
 For this script to work, you need to be [logged into the AWS account profile you use for contributing to OpenScPCA](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
 
 This script syncs the contents of a given analysis module's `results` and `plots` directories from your computer to S3.
-It does not also sync S3 contents back to your computer.
-Your files will be synced to a bucket called `s3://{your bucket name}/{analysis module name}`, where:
+It does not copy any files from S3 back to your computer.
+Your files will be synced to the S3 location `s3://{your bucket name}/{analysis module name}`, where:
 
 - Results will be synced to `s3://{your bucket name}/{analysis module name}/results`
 - Plots will be synced to `s3://{your bucket name}/{analysis module name}/plots`
@@ -64,7 +64,7 @@ scripts/sync-results.py \
   - You can omit this argument if you have saved your bucket name in the environment variable `OPENSCPCA_RESULTS_BUCKET`
 
 **Before you run the script to sync your results,** we recommend you first run the script with the `--dryrun` flag.
-This flag will not actually sync your files, but it will instead print out which files will be synced, and where, to your S3 bucket:
+This flag will not actually sync your files, but it will instead print out which files will be synced to your S3 bucket, and where they will be placed:
 
 ```sh
 scripts/sync-results.py \
@@ -77,10 +77,8 @@ If everything looks correct to you when running with `--dryrun`, you can then pr
 
 ### Additional script flags
 
-By default, there any result or plot files that exist on S3 but that you have locally deleted, this script will _not also delete_ those files from S3.
-To override this behavior and delete them from S3 as well, use the `--destructive-sync` flag:
-
-
+By default, if there are any result or plot files that exist on S3 but that you have locally deleted, this script will _not delete_ those files from S3.
+To override this behavior and delete these files from S3 as well (but only for the specified analysis module), use the `--destructive-sync` flag:
 ```sh
 scripts/sync-results.py \
     --module {analysis module name} \
