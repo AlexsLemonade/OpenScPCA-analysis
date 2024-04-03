@@ -1,6 +1,6 @@
 # Filing a pull request
 
-Once you have [committed changes](../working-with-git/making-commits.md) to your [feature branch](../working-with-git/working-with-branches.md) and [pushed to origin](../working-with-git/push-to-origin.md), you are ready to [file a PR](index.md).
+Once you have [committed changes](../working-with-git/making-commits.md) to your [feature branch](../working-with-git/working-with-branches.md) and [pushed to origin](../working-with-git/push-to-origin.md), you are ready to file a PR.
 
 Don't know what to include in your PR or when to file a PR? See our [guidelines on scoping a PR](./scoping-pull-requests.md)!
 
@@ -19,7 +19,7 @@ Follow the below steps to file a pull request on GitHub:
 
 1. [Push](../working-with-git/push-to-origin.md) all commits to origin, ensuring that all commits are saved to the remote copy of your feature branch.
 
-1. Navigate to your fork of the OpenScPCA repository on `GitHub.com`.
+1. Navigate to your fork of the OpenScPCA repository on GitHub.
 
     Once there, use the drop-down menu on the top left to select the feature branch you would like to file the PR _from_.
     This will re-load the page and now display the contents of your feature branch.

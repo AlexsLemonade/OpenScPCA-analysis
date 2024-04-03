@@ -15,7 +15,7 @@ By using the same Docker container, contributors can run the same analysis on di
     - [Docker for Data Science](https://www.datacamp.com/tutorial/docker-for-data-science-introduction)
     - [Why you should use Docker in your research](https://blog.zooniverse.org/2018/07/17/why-you-should-use-docker-in-your-research/)
 <!--
-    - [Docker images and how we use them in OpenScPCA](STUB-LINK to what are docker images)
+    - [Docker images and how we use them in OpenScPCA](STUB_LINK to what are docker images)
 -->
 
 ## Why do I need Docker?

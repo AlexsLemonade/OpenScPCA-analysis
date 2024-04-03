@@ -2,7 +2,7 @@
 
 ## What is a pull request template?
 
-When [filing a PR](STUB-LINK file a PR), GitHub will ask you for an informative title and description of the changes.
+When [filing a PR](file-pull-request.md), GitHub will ask you for an informative title and description of the changes.
 There is lots of other information you can include in your PR, including items you want reviewers to have a particularly close look at, or any other technical information that will help the review process go more smoothly.
 
 In OpenScPCA, we use a pull request template to directly prompt you for important kinds of information that will help us review your code:
