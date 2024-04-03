@@ -21,6 +21,8 @@ CRediT
 Ctrl
 designee
 discoverable
+docstring
+docstrings
 DM
 DNT
 Dockerfile

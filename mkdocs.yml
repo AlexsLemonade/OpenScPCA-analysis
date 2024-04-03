@@ -107,6 +107,7 @@ nav:
       - contributing-to-analyses/analysis-modules/running-a-module.md
       - contributing-to-analyses/analysis-modules/documenting-analysis.md
       - contributing-to-analyses/analysis-modules/notebook-structure.md
+      - contributing-to-analyses/analysis-modules/script-structure.md
     - Determining analysis requirements:
       - contributing-to-analyses/determining-requirements/index.md
       - contributing-to-analyses/determining-requirements/determining-software-requirements.md
