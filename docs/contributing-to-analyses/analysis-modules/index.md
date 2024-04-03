@@ -78,7 +78,7 @@ While you write your analysis, you may add other files too:
     Feel free to choose what location makes the most sense for your analysis, as long as it is all documented in the module's `README.md` file!
         - Please see the documentation on [structuring your analysis notebooks](notebook-structure.md) for more information about how to write your analysis notebooks.
 
-    !!! note "Naming your files"
+    !!! tip "Naming your files"
         If your module has multiple scripts or notebooks, we recommend naming them in the order they should be run.
 
         For example, you might have these files in your module (the script names are conceptual!):
@@ -86,6 +86,9 @@ While you write your analysis, you may add other files too:
         - `scripts/01_script-to-prepare-data.R`
         - `scripts/02_script-to-analyze-data.R`
         - `03_notebook-to-visualize-data.Rmd`
+
+        Check out [these slides from Jenny Bryan](https://speakerdeck.com/jennybc/how-to-name-files) to learn more about how we in the Data Lab think about naming our files!
+
 
 - [A script to run all code in the module](./running-a-module.md)
     - If your module has multiple scripts or notebooks, we recommend adding a script (for example a `shell` script) to the root of your analysis module folder that will run all scripts in order.
