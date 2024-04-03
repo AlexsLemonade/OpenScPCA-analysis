@@ -1,6 +1,6 @@
 # Working with S3 buckets
 
-As an onboarded OpenScPCA contributor, you will be [assigned an AWS S3 bucket](../../getting-started/accessing-resources/index.md#getting-access-to-aws).
+As an onboarded OpenScPCA contributor, you will be [assigned an AWS S3 results bucket](../../getting-started/accessing-resources/index.md#getting-access-to-aws).
 You will use this bucket to sync your analysis results.
 This is necessary because [analysis module results are not included in Git version control](../../contributing-to-analyses/analysis-modules/index.md#skeleton-analysis-module-contents), so uploading your results to S3 allows the Data Lab to access them during code review.
 
