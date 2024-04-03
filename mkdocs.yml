@@ -127,11 +127,11 @@ nav:
       - contributing-to-analyses/creating-pull-requests/file-pull-request.md
     - Code review and merging:
       - contributing-to-analyses/pr-review-and-merge/index.md
-  - Software platforms:            # LSfR, AWS, Docker, etc
+  - Software platforms:            # AWS (S3 & LSfR), Docker, etc
     - software-platforms/index.md
-    - Amazon S3:
+    - Amazon Web Services (AWS):
       - software-platforms/aws/index.md
-      - software-platforms/aws/joining-aws.md
+      - software-platforms/aws/creating-vcs.md
     - Additional project tools:
       - software-platforms/general-tools/index.md
       - software-platforms/general-tools/writing-in-markdown.md
