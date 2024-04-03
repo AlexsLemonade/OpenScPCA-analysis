@@ -129,7 +129,7 @@ In the above example, you can access the parsed argument as `args.input_anndata_
 
 #### Additional Python tips
 
-- Please use [docstrings](https://www.geeksforgeeks.org/python-docstrings/) when adding documentation to any custom functions you write.
+- Include [docstrings](https://www.geeksforgeeks.org/python-docstrings/) for all custom functions you write.
     - You may wish to enclose your opening script comments inside a docstring.
 - Following Python convention, you may also wish to define [a `main()` function](https://realpython.com/python-main-function/) to handle most of the script work.
     - In this case, your [argument parsing code](#python-arguments) should be placed at the top of the `main()` function.
