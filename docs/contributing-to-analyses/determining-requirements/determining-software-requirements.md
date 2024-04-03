@@ -108,7 +108,7 @@ These instructions assume you have already [installed conda and set up your base
 
 #### Creating environments
 
-When [creating a Python module using `create-analysis-module.py`](../analysis-modules/creating-a-module.md), a conda environment will be created for that module by default with two effects:
+When [creating a Python module using `create-analysis-module.py`](../analysis-modules/creating-a-module.md#flags-to-create-a-python-module), a conda environment will be created for that module by default with two effects:
 
 * A basic `environment.yml` file will already be present in the module's directory
 * A conda environment named `openscpca-{module_name}` will already exist
@@ -152,6 +152,7 @@ You should perform this step before filing a pull request to ensure that the `co
 !!! note
     If the `conda-lock` command fails, it may be because a package is not available for one of the platforms listed in the `environment.yml` file.
     Usually this will be a package that is not available for the `osx-arm64` (Apple Silicon) platform.
+
     If this happens, see the [Software not available on a specific platform](#software-not-available-on-a-specific-platform) section below for instructions on how to handle this situation.
 
 #### Activating existing environments in a module
@@ -289,7 +290,7 @@ conda activate openscpca-{module_name}
 conda config --env --set subdir osx-64
 ```
 
-!!! tip
+!!! tip "Adding packages that are not available for your current platform"
     If you find you need to add a package to an existing environment that is not available for your _current_ platform (i.e., a package that is only available for Intel on an Apple Silicon computer), the easiest method is to follow a slightly different order of operations:
 
     - First, add the package name and version to the `environment.yml` file.
