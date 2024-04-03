@@ -129,8 +129,6 @@ nav:
       - contributing-to-analyses/pr-review-and-merge/index.md
   - Software platforms:            # LSfR, AWS, Docker, etc
     - software-platforms/index.md
-    - Lightsail for Research:
-      - software-platforms/lsfr/creating-vcs.md
     - Amazon Web Services (AWS):
       - software-platforms/aws/index.md
       - software-platforms/aws/working-with-s3-buckets.md
