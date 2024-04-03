@@ -1,6 +1,6 @@
 # Working with storage volumes in Lightsail for Research
 
-We recommend attaching disks (also sometimes called storage volumes) to any virtual computers you create in Lightsail for Research (LSfR).
+We recommend attaching disks (also sometimes called storage volumes) to any [virtual computers you create in Lightsail for Research (LSfR)](creating-vcs.md).
 Attaching a disk to your virtual computer will increase its storage capacity.
 
 ## Quick tips about disks
