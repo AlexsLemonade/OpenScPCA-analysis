@@ -30,6 +30,8 @@ Below, we provide a few additional considerations that are specific to scripts i
     - Below, we provide specific instructions for how to write this line in [R scripts](#r-shebang) and [Python scripts](#python-shebang).
 - Your opening comments should be a brief, 1-3 sentences describing the purpose of the script.
     - These comments _are complementary to_ but do not replace [additional documentation in your module's `README.md`](documenting-analysis.md).
+- Don't forget to document any custom functions that you write!
+    - At a minimum, function documentation comments should describe the function's purpose, its arguments, and what it returns
 - If you need to import a separate script with reusable functions, you should import it in the section where you load other packages.
 - In most cases, your script should not hard code input and output file paths.
 Instead, we recommend using an argument parser to read these paths in from the command line.
@@ -65,7 +67,7 @@ option_list <- list(
     # Description of the argument
     help = "path to input RDS file for analysis"
   ),
-  ##  define additional options here ##
+  ## define any additional options here ##
 )
 
 # Parse arguments into a usable list
@@ -77,6 +79,8 @@ In the above example, you can access the parsed argument as `opts$input_rds_file
 #### Additional R tips
 
 - You can add more structure to your script using [sectioning comments](https://r4ds.hadley.nz/workflow-style#sectioning-comments), which help you navigate the code in RStudio much like section headers in a notebook.
+- Please use [docstrings](https://www.geeksforgeeks.org/python-docstrings/) when adding documentation to any custom functions you write.
+
 
 ### Considerations for Python scripts
 
@@ -113,18 +117,19 @@ parser.add_argument(
     # Description of the argument
     help = "path to input AnnData file for analysis"
 )
-# define any additional arguments here
+## define any additional arguments here ##
 
 # parse the arguments into an object
 args = parser.parse_args()
 ```
 
 In the above example, you can access the parsed argument as `args.input_anndata_file`.
-```
+
 
 
 #### Additional Python tips
 
-- You may wish to enclose your opening comments inside a [triple-quote block](https://www.geeksforgeeks.org/triple-quotes-in-python/).
-- Following Python convention, you may also want to define [a `main()` function](https://realpython.com/python-main-function/) to handle most of the script work.
+- Please use [docstrings](https://www.geeksforgeeks.org/python-docstrings/) when adding documentation to any custom functions you write.
+    - You may wish to enclose your opening script comments inside a docstring.
+- Following Python convention, you may also wish to define [a `main()` function](https://realpython.com/python-main-function/) to handle most of the script work.
     - In this case, your [argument parsing code](#python-arguments) should be placed at the top of the `main()` function.
