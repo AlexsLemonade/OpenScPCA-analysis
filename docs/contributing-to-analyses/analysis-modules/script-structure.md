@@ -69,10 +69,10 @@ option_list <- list(
 )
 
 # Parse arguments into a usable list
-opt_list <- parse_args(OptionParser(option_list = option_list))
+opts <- parse_args(OptionParser(option_list = option_list))
 ```
 
-In the above example, you can access the parsed argument as `opt_list$input_rds_file`.
+In the above example, you can access the parsed argument as `opts$input_rds_file`.
 
 #### Additional R tips
 
