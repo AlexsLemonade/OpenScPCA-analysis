@@ -41,7 +41,7 @@ Although we are most concerned with finding the right size computer to run an an
 
 We generally will not ask you to report input file sizes because we can calculate them if we know what project(s) or sample(s) you are analyzing!
 
-However, if your module code generates large intermediate files, [document that information your module's `README.md` file](../analysis-modules/documenting-analysis.md) to help others who want to run the code.
+However, if your module code generates large intermediate files, [document that information in your module's `README.md` file](../analysis-modules/documenting-analysis.md) to help others who want to run the code.
 
 Check out [this blog post on finding file sizes in Linux and macOS](https://monovm.com/blog/how-to-find-the-file-size-in-linux/) for a variety of tips on calculating file and directory sizes.
 
