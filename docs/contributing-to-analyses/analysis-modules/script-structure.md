@@ -10,14 +10,14 @@ To learn more about writing a wrapper script to run all scripts and/or notebooks
 
 Similar to our [recommendations for computational notebooks](notebook-structure.md), we recommend using a similar overall structure in your scripts to enhance sharing and reproducibility:
 
-<!-- Do we want to recommend a shebang? -->
 - **[Shebang](https://linuxhandbook.com/shebang/):** Add an opening line to set the script's interpreter.
 - **Opening comments**: Add comments to the top of your script that briefly explain the script.
 - **Load packages**: Load required packages.
 - **Functions**: Define any custom functions used in the script.
-- **Parse input arguments**: Parse input arguments, such as file paths, here.
+All functions should include documentation comments.
+- **Parse script arguments**: Parse any arguments to the script, such as file paths, here.
 - **Main body**: This is where the main body of your script should appear.
-- [Optional] **Session info**: Export out the versions of all packages used in the analysis.
+- **Session info** (optional): Export out the versions of all packages used in the analysis.
 
 Many considerations for writing scripts are the same as for writing notebooks, so we encourage you to read the documentation on structuring [R Markdown notebooks](notebook-structure.md#r-markdown-notebooks) and [Jupyter notebooks](notebook-structure/#jupyter-notebooks).
 
@@ -31,7 +31,7 @@ Below, we provide a few additional considerations that are specific to scripts i
 - Your opening comments should be a brief, 1-3 sentences describing the purpose of the script.
     - These comments _are complementary to_ but do not replace [additional documentation in your module's `README.md`](documenting-analysis.md).
 - If you need to import a separate script with reusable functions, you should import it in the section where you load other packages.
-- In most cases, your script should not hardcode input and output file paths.
+- In most cases, your script should not hard code input and output file paths.
 Instead, we recommend using an argument parser to read these paths in from the command line.
     - Below, we provide recommendations for argument parsing in [R scripts](#r-arguments) and [Python scripts](#python-arguments).
  - You may still want to export session information at the end of your script.
@@ -49,7 +49,7 @@ Your R scripts should always start with this line:
 
 #### Parse input arguments { #r-arguments }
 
-We recommend using the [`optparse` package](https://cran.r-project.org/web/packages/optparse/index.html) to parse input arguments in R scripts.
+We recommend using the [`optparse` package](https://cran.r-project.org/package=optparse) to parse input arguments in R scripts.
 
 For example, after loading the `optparse` package, you can define input options with the [`make_option()`](https://rdrr.io/cran/optparse/man/add_make_option.html) function, and then use the [`parse_args()`](https://rdrr.io/cran/optparse/man/parse_args.html) function to parse them into a usable list.
 
@@ -59,7 +59,7 @@ option_list <- list(
   make_option(
     # Users can specify this argument with either `-i` or `--input_rds_file`
     opt_str = c("-i", "--input_rds_file"),
-    # The provided value will be stored as a character variable called `input_anndata_file`
+    # The provided value will be stored as a character variable called `input_rds_file`
     type = "character",
     dest = "input_rds_file",
     # Description of the argument
@@ -92,7 +92,8 @@ Your Python scripts should always start with this line:
 
 We recommend using the [`argparse` package](https://docs.python.org/3/library/argparse.html) to parse input arguments in Python scripts.
 
-For example, after loading the `argparse` package, you can define a parser object with [`argparse.ArgumentParser()`](https://docs.python.org/3/library/argparse.html#creating-a-parser), and then use [`.add_argument()`](https://docs.python.org/3/library/argparse.html#adding-arguments) to add each argument to the parser object.
+For example, after loading the `argparse` package, you can define a parser object with [`argparse.ArgumentParser()`](https://docs.python.org/3/library/argparse.html#creating-a-parser), and then use the [`.add_argument()` method](https://docs.python.org/3/library/argparse.html#adding-arguments) to add each argument to the parser object.
+Finally, use the [`.parse_args()` method](https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.parse_args) to create an object containing the argument values.
 
 
 ```python
@@ -101,7 +102,7 @@ parser = argparse.ArgumentParser(
     description = "Performs task XYZ as part of analysis"
 )
 
-# parse a command line argument
+# define a command line argument
 parser.add_argument(
     # Users can specify this argument with either `-i` or `--input_anndata_file`
     "-i",
@@ -112,9 +113,14 @@ parser.add_argument(
     # Description of the argument
     help = "path to input AnnData file for analysis"
 )
+# define any additional arguments here
+
+# parse the arguments into an object
+args = parser.parse_args()
 ```
 
-In the above example, you can access the parsed argument as `parser.input_anndata_file`.
+In the above example, you can access the parsed argument as `args.input_anndata_file`.
+```
 
 
 #### Additional Python tips
