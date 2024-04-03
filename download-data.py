@@ -201,7 +201,7 @@ def main() -> None:
     ]
 
     # hide any future releases
-    current_releases = [r for r in all_releases if r <= datetime.today().isoformat()]
+    current_releases = [r for r in all_releases if r <= datetime.date.today().isoformat()]
 
     # list the current releases and exit if that was what was requested
     if args.list_releases:
