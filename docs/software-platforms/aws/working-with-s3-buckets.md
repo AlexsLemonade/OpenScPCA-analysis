@@ -41,9 +41,11 @@ You can then use `$OPENSCPCA_RESULTS_BUCKET` (or, `${OPENSCPCA_RESULTS_BUCKET}`)
 ## Syncing your results to S3
 
 We have written a script to help you sync your results to your S3 bucket, stored in [`scripts/sync-results.py`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/scripts/sync-results.py).
-You will need to use the [terminal](../general-tools/using-the-terminal.md) to run this script.
 
-For this script to you, you need to be [logged into the AWS account profile you use for contributing to OpenScPCA](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
+This script syncs the contents of a given analysis module's `results` and `plots` directories from your computer to S3.
+It does not also sync S3 contents back to your computer.
+
+For this script to work, you need to be [logged into the AWS account profile you use for contributing to OpenScPCA](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
 
 
 The simplest usage of this script, called from the `OpenScPCA-analysis` repository root folder, is:
@@ -58,6 +60,17 @@ scripts/sync-results.py \
 - `--bucket` (or `-b`) is your [bucket name](#finding-your-bucket-name)
   - You can omit this argument if you have saved your bucket name in the environment variable `OPENSCPCA_RESULTS_BUCKET`
 
+By default, there any result or plot files that exist on S3 but that you have locally deleted, this script will _not also delete_ those files from S3.
+To override this behavior and delete them from S3 as well, use the `--destructive-sync` flag:
+
+
+```sh
+scripts/sync-results.py \
+    --module {analysis module name} \
+    --bucket {name of your researcher bucket} \
+    --destructive-sync
+```
+
 You can run the following to see all script options:
 
 ```sh
@@ -71,5 +84,8 @@ If you have multiple AWS profiles on your system, it may help to use the `--prof
 For example, if you [configured your OpenScPCA AWS profile](../../technical-setup/environment-setup/configure-aws-cli.md) to be named `openscpca`, you would use:
 
 ```sh
-scripts/sync-results.py --profile openscpca
+scripts/sync-results.py \
+    --module {analysis module name} \
+    --bucket {name of your researcher bucket} \
+    --profile openscpca
 ```
