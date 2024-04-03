@@ -1,6 +1,6 @@
 # Working with Storage Volumes in Lightsail for Research
 
-We recommend attaching disks (also sometimes called storage volumes) to any virtual computers you create Lightsail for Research (LSfR).
+We recommend attaching disks (also sometimes called storage volumes) to any virtual computers you create in Lightsail for Research (LSfR).
 Attaching a disk to your virtual computer will increase its storage capacity.
 
 ## Quick tips about disks
@@ -13,7 +13,7 @@ Attaching a disk to your virtual computer will increase its storage capacity.
 
 ## Creating and attaching a disk
 
-1. Navigate to the Storage section of the LSfR console and click the `Create disk` button.
+1. Navigate to the `Storage` section of the LSfR console and click the `Create disk` button.
 
     <figure markdown="span">
         ![Storage section](../../img/storage-volumes-1.png){width="850"}
@@ -72,7 +72,8 @@ Confirm detaching the disk when prompted.
 !!! note
     Deleting a disk will permanently delete all of the data on it.
 
-To delete a disk once it is detached, navigate to `Storage`, select the disk, and then click `Delete disk`.
+Disks can be deleted only once they have been detached from a virtual computer. 
+To delete a disk, navigate to `Storage`, select the disk, and then click `Delete disk`.
 
 <figure markdown="span">
     ![Delete](../../img/storage-volumes-7.png){width="750"}
