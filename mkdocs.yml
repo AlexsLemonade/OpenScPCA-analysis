@@ -130,9 +130,10 @@ nav:
   - Software platforms:            # LSfR, AWS, Docker, etc
     - software-platforms/index.md
     - Lightsail for Research:
-      - software-platforms/lsfr/index.md
-    - Amazon S3:
+      - software-platforms/lsfr/creating-vcs.md
+    - Amazon Web Services (AWS):
       - software-platforms/aws/index.md
+      - software-platforms/aws/creating-vcs.md
     - Additional project tools:
       - software-platforms/general-tools/index.md
       - software-platforms/general-tools/writing-in-markdown.md
