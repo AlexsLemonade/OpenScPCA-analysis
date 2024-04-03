@@ -9,7 +9,7 @@ To learn more about writing a wrapper script to run all scripts and/or notebooks
 
 ## Saving your scripts
 
-You can store these in the [`scripts` folder of your analysis module](./index.md#skeleton-analysis-module-contents).
+You should store these in the [`scripts` folder of your analysis module](./index.md#skeleton-analysis-module-contents).
 If you find yourself writing utility functions or scripts that do not necessarily represent the main analysis code itself, you are welcome to add a `utils` folder in your module to store these scripts.
 
 As you develop your analysis, you may find yourself adding more than one script.
@@ -46,8 +46,8 @@ Below, we provide a few additional considerations that are specific to scripts i
 
 - Your opening comments should be a brief, 1-3 sentences describing the purpose of the script.
 These comments _are complementary to_ but do not replace [additional documentation in your module's `README.md`](documenting-analysis.md).
-- If you need to import a script with reusable functions, you should import it in the section where you load other packages.
-- You will still need to export session information at the end of your script.
+- If you need to import a separate script with reusable functions, you should import it in the section where you load other packages.
+- You may still want to export session information at the end of your script.
 See our additional documentation on how to do this for [R scripts](../determining-requirements/determining-software-requirements.md#in-a-script) and [Python scripts](../determining-requirements/determining-software-requirements.md#in-python-scripts).
 
 
