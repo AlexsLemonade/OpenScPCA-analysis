@@ -136,7 +136,7 @@ def main() -> None:
         sys.exit(1)
 
     print("Sync complete.")
-    print("Files are now available on S3 at: s3://{bucket}/{args.module}/")
+    print(f"Files are now available on S3 at: s3://{bucket}/{args.module}/")
 
 
 if __name__ == "__main__":
