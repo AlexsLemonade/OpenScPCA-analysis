@@ -20,4 +20,4 @@ All contributors will have a designated [researcher bucket](working-with-s3-buck
 
 ## LSfR: AWS for virtual computing
 
-As an OpenScPCA contributor, you are eligible for a monthly allocation on [Lightsail for Research (LSfR)](https://aws.amazon.com/lightsail/research/), a Amazon product that allows you to work on a virtual Ubuntu (Linux) Desktop computer in your browser.
+As an OpenScPCA contributor, you are eligible for a monthly allocation on [Lightsail for Research (LSfR)](https://aws.amazon.com/lightsail/research/), an Amazon product that allows you to work on a virtual Ubuntu (Linux) Desktop computer in your browser.
