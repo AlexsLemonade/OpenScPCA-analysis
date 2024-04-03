@@ -101,6 +101,7 @@ transphobic
 triaged
 TSV
 UMAP
+vCPU
 vCPUs
 VSCodium
 WIPO
