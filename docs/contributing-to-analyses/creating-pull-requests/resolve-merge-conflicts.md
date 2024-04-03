@@ -21,8 +21,8 @@ If their branch is merged into the `main` branch of the upstream `AlexsLemonade/
 
 <figure markdown="span">
     ![Merge conflicts example](../../img/resolve-merge-conflicts-1.png){width="500"}
+    <figcaption>Image from [https://blog.developer.atlassian.com/a-better-pull-request/](https://blog.developer.atlassian.com/a-better-pull-request/).</figcaption>
 </figure>
-Figure taken from [https://blog.developer.atlassian.com/a-better-pull-request/](https://blog.developer.atlassian.com/a-better-pull-request/).
 
 To resolve merge conflicts, you need to merge the upstream `main` branch into your feature branch.
 If Git finds merge conflicts, you can then resolve them in GitKraken, as described below.
@@ -46,6 +46,9 @@ To do this, right-click on the remote `main` from `AlexsLemonade/OpenScPCA-analy
 1. A banner will pop up indicating that there is a merge conflict.
 Any files that contain conflicts will be listed on the right-hand side under `Conflicted files`.
 
+    !!! tip
+        Learn more about how to resolve these conflicts by watching this [tutorial from GitKraken](https://www.gitkraken.com/learn/git/tutorials/how-to-resolve-merge-conflict-in-git).
+
     <figure markdown="span">
         ![Conflict banner](../../img/upstream-sync-8.png){width="400"}
     </figure>
@@ -54,7 +57,6 @@ Any files that contain conflicts will be listed on the right-hand side under `Co
         ![Conflict files list](../../img/upstream-sync-9.png){width="400"}
     </figure>
 
-    To learn how to resolve these conflicts, please watch this [tutorial from GitKraken](https://www.gitkraken.com/learn/git/tutorials/how-to-resolve-merge-conflict-in-git).
 
 1. Once you have resolved the conflicts and committed the changes, your feature branch will now be in sync with the most recent changes in the `main` branch of `AlexsLemonade/OpenScPCA-analysis`.
 You should then [push these changes to GitHub](../working-with-git/push-to-origin.md), to ensure that both the local and remote copy of your feature branch contain the most recent changes in `main`.

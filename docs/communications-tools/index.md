@@ -8,10 +8,11 @@ OpenScPCA community members will use the following tools for communication and c
 
 ## GitHub Discussions
 
-[GitHub Discussions](https://docs.github.com/en/discussions/quickstart) is the community forum for the project, [which can be found here](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions) in the `OpenScPCA-Analysis` repository.
+We use [GitHub Discussions](https://docs.github.com/en/discussions/quickstart) as the community forum for the project, and [you can find the Discussions page here](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions) in the `OpenScPCA-Analysis` repository.
 You are most likely to engage with the project for the first time via Discussions.
 
-Please read this [pinned discussion](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/111) from the Data Lab before creating your first post!
+!!! tip "Before posting"
+	Please read this [pinned discussion](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/111) from the Data Lab before creating your first post!
 
 ### How and When to Use Discussions
 
@@ -102,10 +103,10 @@ If you have a question, it's likely that someone else has a similar one!
 Posting on Slack makes it possible for any project maintainer or community member to help you.
 We cannot always respond immediately, but we will do our best to answer to all messages within 24 hours.
 
-**Helpful tips:**
+!!! tip "Helpful tips for posting on Slack"
 
-* Please try to use threads for responses to questions or ongoing conversations about the same topic.
-* Slack messages are not permanent and will disappear after 30 days. If there is a post that contains information you want to refer back to, we recommend that you save it elsewhere.
+    * Please try to use [threads](https://slack.com/help/articles/115000769927-Use-threads-to-organize-discussions) for responses to questions or ongoing conversations about the same topic.
+    * Slack messages are not permanent and will disappear after 30 days. If there is a post that contains information you want to refer back to, we recommend that you save it elsewhere.
 
 ### Direct messages
 

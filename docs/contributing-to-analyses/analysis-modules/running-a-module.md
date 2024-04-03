@@ -6,7 +6,7 @@ All modules should contain [clear documentation in the `README.md` file](documen
 - What command(s) to issue to run the full module
 
 !!! note
-    If you are exploring modules and come across an analysis module without clear instructions for how to run it, please let us know using [GitHub Discussions](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=modify-an-existing-analysis).
+    If you are exploring modules and come across an analysis module without clear instructions for how to run it, please let us know by [filing an issue](../../communications-tools/github-issues/index.md).
 
 
 In some cases, a module will only contain a single script (or notebook), and running that script alone will run the full analysis.

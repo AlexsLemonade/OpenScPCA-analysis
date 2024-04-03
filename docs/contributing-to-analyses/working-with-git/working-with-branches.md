@@ -71,7 +71,7 @@ Follow these steps to create your feature branch:
 !!! note "Helpful hints for choosing a branch name"
 
     - Branch names should always be unique, so don't reuse old branch names!
-    - Names should not contain any special symbols besides `_` and `-`.
+    - Branch names should not contain any special symbols besides `_` and `-`.
     - It can be extra helpful to include the issue number in your branch name, e.g., `username/42-celltype-ewings`.
 
 You have now successfully created your new feature branch.

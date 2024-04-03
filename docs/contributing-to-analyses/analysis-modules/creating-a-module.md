@@ -3,7 +3,7 @@
 Once you have [discussed your proposed analysis](../../communications-tools/index.md#github-discussions) and [filed an issue to get started](../../communications-tools/index.md#github-issues), you're ready to create an analysis module.
 
 We have provided a script [`create-analysis-module.py`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/create-analysis-module.py) you can use to make this process easier.
-Before you begin, please review [this documentation](../analysis-modules/index.md) for an overview of the skeleton file structure of an empty analysis module.
+Before you begin, please review [this documentation](../analysis-modules/index.md#skeleton-analysis-module-contents) for an overview of the skeleton file structure of an empty analysis module.
 
 
 !!! note "Is this your first analysis module?"
