@@ -10,9 +10,9 @@ Using a virtual computer allows you to develop and run analyses that require mor
     You will need access to AWS to use LSfR.
     See [getting access to AWS](../../getting-started/accessing-resources/index.md#getting-access-to-aws) to learn how to get set up with AWS.
 
-- The virtual computers provided through LSfR use an Ubuntu operating system.
+- The virtual computers provided through LSfR use the Ubuntu operating system.
 - During setup, you will choose your desired configuration, including the amount of virtual CPUs, memory, and storage space.
-    - You also have the option to add [additional storage to your virtual computer](STUB-LINK for volumes).
+    - You also have the option to add [additional storage to your virtual computer](STUB_LINK for volumes).
 - All virtual computers will have a set of pre-installed applications needed for working with OpenScPCA, including:
     - Git and GitKraken
     - The AWS command line interface, which has already been configured for you
@@ -29,12 +29,17 @@ Using a virtual computer allows you to develop and run analyses that require mor
 Follow the below steps to create a virtual computer to use with LSfR.
 
 1. Navigate to the [access portal URL from when you set up your user in IAM Identity center](../aws/index.md#joining-iam-identity-center).
-This link should bring you to the AWS Console and home page.
-
-    Once here, be sure that you are in the `us-east-2` region, by selecting the drop-down menu in the tool bar.
+After logging in, you will need to select your account and click on `ResearcherRestriction`.
 
     <figure markdown="span">
         ![Select region](../../img/creating-vcs-1.png){width="400"}
+    </figure>
+
+    This should bring you to the AWS Console and home page.
+    Once in the AWS Console, be sure that you are in the `us-east-2` region, by selecting the drop-down menu in the tool bar.
+
+    <figure markdown="span">
+        ![Select region](../../img/creating-vcs-2.png){width="400"}
     </figure>
 
 1. You will need to use the AWS Service Catalog to create virtual computers.
@@ -43,13 +48,13 @@ Creating an instance via LSfR is _not supported_.
     Open the AWS Service Catalog by using the search bar and typing, `service catalog`.
 
     <figure markdown="span">
-        ![Select service catalog](../../img/creating-vcs-2.png){width="600"}
+        ![Select service catalog](../../img/creating-vcs-3.png){width="600"}
     </figure>
 
 1. Select `LightsailInstance` in the product list, and click `Launch product`.
 
     <figure markdown="span">
-        ![Launch product](../../img/creating-vcs-3.png){width="600"}
+        ![Launch product](../../img/creating-vcs-4.png){width="600"}
     </figure>
 
 1. You will then choose the name and configurations for your virtual computer.
@@ -71,7 +76,7 @@ Creating an instance via LSfR is _not supported_.
     This _does not_ delete your instance; it temporarily stops any idle instances until you are ready to resume your work.
 
     <figure markdown="span">
-        ![Configure instance](../../img/creating-vcs-4.png){width="600"}
+        ![Configure instance](../../img/creating-vcs-5.png){width="600"}
     </figure>
 
 1. Once you have configured your instance, click `Launch product`.
@@ -108,24 +113,24 @@ It takes time to create the instance and for all software to be installed.
 Search for Lightsail for Research using the search bar and then select the product.
 
     <figure markdown="span">
-        ![Search for Lightsail](../../img/creating-vcs-5.png){width="600"}
+        ![Search for Lightsail](../../img/creating-vcs-6.png){width="600"}
     </figure>
 
 1. This will take you directly to a page that lists your virtual computers.
 You should see the virtual computer you created with the instance name that you provided during set up.
 
     <figure markdown="span">
-        ![List of computers](../../img/creating-vcs-6.png){width="600"}
+        ![List of computers](../../img/creating-vcs-7.png){width="600"}
     </figure>
 
 1. To launch the computer, click `Start computer`.
 When the computer is ready, use the drop-down menu in the lower right-hand side to select `Access operating system`.
 
     <figure markdown="span">
-        ![Start computer](../../img/creating-vcs-7.png){width="600"}
+        ![Start computer](../../img/creating-vcs-8.png){width="600"}
     </figure>
 
     You can also use `Launch Rstudio` or `Launch VSCodium`, but if you do that you will have access to _only_ that application instead of the Ubuntu desktop and all installed applications.
 
 1. A new window should open in your browser with the Ubuntu desktop view.
-You can now continue to [develop analysis using your virtual computer](STUB_LINK to developing with LSfR).
+You can now continue to [develop analyses using your virtual computer](STUB_LINK to developing with LSfR).
