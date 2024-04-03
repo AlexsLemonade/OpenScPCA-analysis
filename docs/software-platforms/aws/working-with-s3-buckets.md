@@ -40,7 +40,7 @@ You can then use `$OPENSCPCA_RESULTS_BUCKET` (or, `${OPENSCPCA_RESULTS_BUCKET}`)
 
 ## Syncing your results to S3
 
-We have written a script to help you sync you results to your S3 bucket, stored in [`scripts/sync-results.py`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/scripts/sync-results.py).
+We have written a script to help you sync your results to your S3 bucket, stored in [`scripts/sync-results.py`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/scripts/sync-results.py).
 You will need to use the [terminal](../general-tools/using-the-terminal.md) to run this script.
 
 For this script to you, you need to be [logged into the AWS account profile you use for contributing to OpenScPCA](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
