@@ -46,7 +46,7 @@ Please see our documentation on [Tools for communication](https://openscpca.read
 
 ## Documentation
 
-We have a comprehensive documentation to help you with various aspects of participating in OpenScPCA - from proposing an analysis, acquiring data, troubleshooting errors to making your first code contribution.
+We have comprehensive documentation to help you with various aspects of participating in OpenScPCA - from proposing an analysis, acquiring data, troubleshooting errors to making your first code contribution.
 
 Please refer to it as you work on the project.
 
@@ -64,12 +64,11 @@ To set up, you will need a Git client, Miniconda, R or Python, and an editor of 
 Data is publicly available from the [ScPCA Portal](https://scpca.alexslemonade.org/) and from an AWS S3 bucket for OpenScPCA project contributors.
 We also provide a way to download smaller, simulated data files for you to play with.
 
-Please reference [Getting access to Data](https://openscpca.readthedocs.io/en/latest/getting-started/accessing-resources/getting-access-to-data/) for more details.
+Please refer to [Getting access to Data](https://openscpca.readthedocs.io/en/latest/getting-started/accessing-resources/getting-access-to-data/) for more details.
 
 ### Running an analysis module
 
 Each analysis module has a `README.md` file which contains instructions to run that specific module.
 Please see the relevant analysis module's `README.md` for instructions.
 
-Learn more about [running an analysis module](https://openscpca.readthedocs.io/en/latest/contributing-to-analyses/analysis-modules/running-a-module/) here.
-
+Please see our documentation on [running an analysis module](https://openscpca.readthedocs.io/en/latest/contributing-to-analyses/analysis-modules/running-a-module/) for more information.
