@@ -17,8 +17,12 @@ Your S3 bucket name is simply `researcher-{account number}-us-east-2`.
 
 For example, if your account number were `12345`, your bucket name would be `researcher-12345-us-east-2`.
 
+You will need to know your bucket name for a few circumstances:
 
-## Storing your bucket name
+- You will need to specify your bucket name when [syncing your analysis results with S3](#syncing-your-results-to-s3)
+- You will need to tell reviewers your result bucket name when when [filing pull requests (PRs) and filling out the PR template](../../contributing-to-analyses/creating-pull-requests/pull-request-template.md)
+
+### Storing your bucket name
 
 > These instructions are mostly applicable to advanced users, but we're happy to help you set this up if you need assistance!
 
@@ -32,3 +36,8 @@ export OPENSCPCA_RESULTS_BUCKET=researcher-{account number}-us-east-2
 ```
 
 You can then use `$OPENSCPCA_RESULTS_BUCKET` (or, `${OPENSCPCA_RESULTS_BUCKET}`) to refer to your bucket name when running commands in terminal.
+
+
+## Syncing your results to S3
+
+_Coming up in the next PR._
