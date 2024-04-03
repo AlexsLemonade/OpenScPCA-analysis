@@ -3,24 +3,23 @@
 We use Amazon Web Services (AWS) to grant contributors access to data and Linux virtual computers.
 
 !!! note
-    See [Getting Access to Resources](../../getting-started/accessing-resources/index.md) for more information about AWS access.
+    See [Getting Access to Resources](../../getting-started/accessing-resources/index.md) for more information about getting AWS access.
 
-## Joining IAM Identity Center
+    Once we have created an AWS account for you, you can proceed to [set up your account](./joining-aws.md).
 
-When we create an account for you, we will also create a user for you with the username `researcher-{your github handle}`.
 
-You will receive an email from `no-reply@login.awsapps.com` with the subject "Invitation to join AWS IAM Identity Center (successor to AWS Single Sign-On)."
 
-You must accept this invitation to gain access to your AWS account and to download project data from S3.
+## S3: AWS for data
 
-To accept the invitation, please take the following steps.
+We use [AWS S3](https://aws.amazon.com/s3/) to store project data in files and folders known in S3 lingo as "buckets."
+Please refer to [our documentation on accessing project data](../../getting-started/accessing-resources/getting-access-to-data.md#accessing-data-on-s3) for more information.
 
-1. Note the following information in the invitation email: **Your AWS access portal URL**.
-   You will need this value to [configure AWS CLI locally](../../technical-setup/environment-setup/configure-aws-cli.md) and to [log into the console to use Lightsail for Research](STUB_LINK).
-   It is also helpful to bookmark this URL so you can easily return to it.
+We also use S3 as central location for you to share your result files with us before [filing a pull request](../../contributing-to-analyses/creating-pull-requests/index.md).
+All contributors will have a designated [researcher bucket](working-with-s3-buckets.md) where results can be synced and shared as part of [code review](../../contributing-to-analyses/pr-review-and-merge/index.md).
 
-2. Click the `Accept Invitation` button in the email.
 
-3. Enter a strong password that is unique to this service when prompted in the browser.
+## LSfR: AWS for virtual computing
 
-4. Set up a multifactor authentication device, such as an authenticator app or security key, when prompted in the browser.
+We use an AWS product called ["Lightsail for Research" (LSfR)](https://aws.amazon.com/lightsail/research/) to provide virtual Linux (specifically, Ubuntu) computers.
+
+_Additional content forthcoming._
