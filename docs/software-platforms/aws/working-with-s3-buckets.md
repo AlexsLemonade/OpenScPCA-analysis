@@ -66,8 +66,8 @@ scripts/sync-results.py --help
 For this script to you, you need to be signed into the AWS account profile you use for contributing to OpenScPCA.
 If you have multiple AWS profiles on your system, it may help to use the `--profile` argument to specify the name of your OpenScPCA AWS profile.
 
-For example, if you [configured your OpenScPCA AWS profile](../../technical-setup/environment-setup/configure-aws-cli.md) to be named `openscpca-sso`, you would use:
+For example, if you [configured your OpenScPCA AWS profile](../../technical-setup/environment-setup/configure-aws-cli.md) to be named `openscpca`, you would use:
 
 ```sh
-scripts/sync-results.py --profile openscpca-sso
+scripts/sync-results.py --profile openscpca
 ```
