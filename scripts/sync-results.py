@@ -57,7 +57,7 @@ def main() -> None:
         action="store_true",
         dest="delete_extra",
         help=(
-            "Delete any files in the S3 bucket that are not found in the local directories being synced."
+            "Delete any files in the S3 bucket that are not present in the local directories being synced."
             " Default behavior is to leave any additional files in the S3 bucket."
         ),
     )
