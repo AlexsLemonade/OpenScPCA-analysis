@@ -19,7 +19,7 @@ Attaching a disk to your virtual computer will increase its storage capacity.
         ![Storage section](../../img/storage-volumes-1.png){width="850"}
     </figure>
 
-1. Give your disk a descriptive name, select the `us-east-2` region, and pick an appropriate size for your disk.
+1. Give your disk a descriptive name, select the `us-east-2` region, pick an appropriate size for your disk, and click `Create disk`.
 
     <figure markdown="span">
         ![Create disk](../../img/storage-volumes-2.png){width="600"}
@@ -69,10 +69,10 @@ Confirm detaching the disk when prompted.
 
 ### Deleting
 
-!!! note
+!!! warning
     Deleting a disk will permanently delete all of the data on it.
 
-Disks can be deleted only once they have been detached from a virtual computer. 
+Disks can be deleted only once they have been detached from a virtual computer.
 To delete a disk, navigate to `Storage`, select the disk, and then click `Delete disk`.
 
 <figure markdown="span">
