@@ -53,7 +53,7 @@ def main() -> None:
         help="Skip syncing the results directory.",
     )
     parser.add_argument(
-        "--with-delete",
+        "--destructive-sync",
         action="store_true",
         dest="delete_extra",
         help=(
