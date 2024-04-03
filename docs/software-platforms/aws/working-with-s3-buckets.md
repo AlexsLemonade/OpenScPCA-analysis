@@ -1,4 +1,4 @@
-# Working with your bucket
+# Working with S3 buckets
 
 As an onboarded OpenScPCA contributor, you will be [assigned an AWS S3 bucket](../../getting-started/accessing-resources/index.md#getting-access-to-aws).
 You will use this bucket to sync your analysis results.
