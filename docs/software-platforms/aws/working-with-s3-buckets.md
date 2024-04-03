@@ -13,7 +13,7 @@ This page covers some information you'll need for working with your S3 bucket.
 ## Finding your bucket name
 
 Once you have been accepted as a new OpenScPCA contributor, you will receive an account number specific to you.
-Your S3 bucket name is simply `researcher-{account number}-us-east-2`.
+Your S3 bucket name is `researcher-{account number}-us-east-2`.
 
 For example, if your account number were `12345`, your bucket name would be `researcher-12345-us-east-2`.
 
@@ -30,12 +30,13 @@ Optionally, you may wish to save your bucket name as an environment variable in 
 
 We have set up some OpenScPCA scripts to look for the environment variable `OPENSCPCA_RESULTS_BUCKET`, so if you define this in your profile, you'll have an easier time using those scripts!
 
-For this, add this line (with `{account number}` replaced with your account number) to your profile file:
+To use this, add this line (with `{account number}` replaced with your account number) to your profile file:
+
 ```sh
 export OPENSCPCA_RESULTS_BUCKET=researcher-{account number}-us-east-2
 ```
 
-You can then use `$OPENSCPCA_RESULTS_BUCKET` (or, `${OPENSCPCA_RESULTS_BUCKET}`) to refer to your bucket name when running commands in terminal.
+You can then use `$OPENSCPCA_RESULTS_BUCKET` (or, `${OPENSCPCA_RESULTS_BUCKET}`) to refer to your bucket name when running commands in the terminal or in shell scripts.
 
 
 ## Syncing your results to S3
