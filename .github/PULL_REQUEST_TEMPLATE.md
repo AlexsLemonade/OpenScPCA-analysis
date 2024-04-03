@@ -1,17 +1,9 @@
-## For PRs updating docs, please use the appropriate template:
-
-Use the 'Preview' view to click the link below:
-
-<a href="?expand=1&template=docs-update-pr.md"> Update docs PR template </a>
-
-### For any other types of PRs, delete all of the above text and this line and use the template below.
-
-
 _Hi there, thanks for your contribution!_
 _Please fill out this template to help us review your code._
 
 _Remember, the more context you provide, the faster the review will go!_
-_For more information about filling out this template, please see the [OpenScPCA documentation on filing pull requests](STUB_LINK docs on PRs)._
+_For more information about filling out this template, please see the OpenScPCA documentation on filing pull requests:_
+ https://openscpca.readthedocs.io/en/latest/contributing-to-analyses/creating-pull-requests/
 
 _Before filing the pull request, you can also feel free to delete the italicized instruction lines in this template._
 
@@ -48,7 +40,9 @@ _In this section, tell reviewers about what kinds of results (if any) your code 
 
 #### What is the name of your results bucket on S3?
 
-_Results should be [uploaded to your bucket](STUB_LINK docs on uploading results to S3) so they are available during review._
+_Results should be uploaded to your bucket so they are available during review._
+_See here for instructions on how to upload to your bucket:_
+https://openscpca.readthedocs.io/en/latest/software-platforms/aws/working-with-s3-buckets/
 
 
 #### What types of results does your code produce (e.g., table, figure)?
@@ -89,10 +83,10 @@ _Note that you may find it easier to check off these items after the pull reques
 
 #### Analysis module and review
 
-- [ ] This analysis module [uses the analysis template and has the expected directory structure](STUB_LINK for analysis structure doc).
+- [ ] This analysis module [uses the analysis template and has the expected directory structure](https://openscpca.readthedocs.io/en/latest/contributing-to-analyses/analysis-modules/).
 - [ ] The analysis module `README.md` has been updated to reflect code changes in this pull request.
 - [ ] The analytical code is documented and contains comments.
-- [ ] Any results this code produces have been added to S3 for review.
+- [ ] Any results and/or plots this code produces have been added to your S3 bucket for review.
 
 #### Reproducibility checklist
 
