@@ -1,7 +1,7 @@
 # Working with S3 buckets
 
 As an onboarded OpenScPCA contributor, you will be [assigned an AWS S3 bucket](../../getting-started/accessing-resources/index.md#getting-access-to-aws).
-You will use this bucket to sync your analysis results.
+You will use this bucket to [sync your analysis results](#syncing-your-results-to-s3).
 This is necessary because [analysis module results are not included in Git version control](../../contributing-to-analyses/analysis-modules/index.md#skeleton-analysis-module-contents), so uploading your results to S3 allows the Data Lab to access them during code review.
 
 This page covers some information you'll need for working with your S3 bucket.
@@ -40,4 +40,34 @@ You can then use `$OPENSCPCA_RESULTS_BUCKET` (or, `${OPENSCPCA_RESULTS_BUCKET}`)
 
 ## Syncing your results to S3
 
-_Coming up in the next PR._
+We have written a script to help you sync you results to your S3 bucket, stored in [`scripts/sync-results.py`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/scripts/sync-results.py).
+You will need to use the [terminal](../general-tools/using-the-terminal.md) to run this script.
+
+The simplest usage of this script, called from the `OpenScPCA-analysis` repository root folder, is:
+
+```sh
+scripts/sync-results.py \
+    --module {analysis module name} \
+    --bucket {name of your researcher bucket}
+```
+
+- `--module` (or `-m`) is the folder name of the analysis module whose results you want to sync
+- `--bucket` (or `-b`) is your [bucket name](#finding-your-bucket-name)
+  - You can omit this argument if you have saved your bucket name in the environment variable `OPENSCPCA_RESULTS_BUCKET`
+
+You can run the following to see all script options:
+
+```sh
+scripts/sync-results.py --help
+```
+
+### Advanced options
+
+For this script to you, you need to be signed into the AWS account profile you use for contributing to OpenScPCA.
+If you have multiple AWS profiles on your system, it may help to use the `--profile` argument to specify the name of your OpenScPCA AWS profile.
+
+For example, if you [configured your OpenScPCA AWS profile](../../technical-setup/environment-setup/configure-aws-cli.md) to be named `openscpca-sso`, you would use:
+
+```sh
+scripts/sync-results.py --profile openscpca-sso
+```
