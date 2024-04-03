@@ -35,6 +35,7 @@ GFM
 GitHub
 GitKraken
 GitKraken's
+hardcode
 HPC
 IAM
 ICJME
