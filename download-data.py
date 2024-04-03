@@ -3,6 +3,7 @@
 # Script for downloading data from an OpenScPCA data release
 
 import argparse
+import datetime
 import os
 import pathlib
 import re
@@ -185,7 +186,7 @@ def main() -> None:
     ls_result = subprocess.run(ls_cmd, capture_output=True, text=True)
     if ls_result.returncode:
         print(
-            f"Error listing release versions from the OpenScPCA release bucket.",
+            "Error listing release versions from the OpenScPCA release bucket.",
             " Ensure you have the correct AWS permissions to access OpenScPCA data.",
             file=sys.stderr,
         )
@@ -193,28 +194,31 @@ def main() -> None:
         sys.exit(1)
     # get only date-based versions or "test" and remove the trailing slash
     date_re = re.compile(r"((\d{4}-\d{2}-\d{2})|(test))/?")
-    releases = [
+    all_releases = [
         m.group(1)
         for m in (date_re.search(line) for line in ls_result.stdout.splitlines())
         if m
     ]
 
-    # list the releases and exit if that was what was requested
+    # hide any future releases
+    current_releases = [r for r in all_releases if r <= datetime.date.today().isoformat()]
+
+    # list the current releases and exit if that was what was requested
     if args.list_releases:
-        print("Available release dates:", "\n".join(releases), sep="\n")
+        print("Available release dates:", "\n".join(current_releases), sep="\n")
         return
 
     # get the release to use or exit if it is not available
     if args.test_data:
         release = "test"
     elif args.release.lower() in ["current", "latest"]:
-        release = max(releases)
-    elif args.release in releases:
+        release = max(current_releases)
+    elif args.release in all_releases:  # allow downloads from the future
         release = args.release
     else:
         print(
             f"Release dated '{args.release}' is not available. Available release dates are:",
-            "\n".join(releases),
+            "\n".join(all_releases),
             sep="\n",
             file=sys.stderr,
         )
