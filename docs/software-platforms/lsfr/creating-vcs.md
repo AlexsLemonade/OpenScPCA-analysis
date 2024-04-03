@@ -2,7 +2,7 @@
 
 While working on an [analysis module](../../contributing-to-analyses/analysis-modules/index.md), you can develop locally or on a virtual computer with Lightsail for Research (LSfR).
 
-Virtual computers provide access to a set amount of virtual CPUs, memory, and storage through a web browser rather than a physical machine.
+Virtual computers provide access to a set amount of virtual CPUs (vCPUs), memory, and storage through a web browser rather than a physical machine.
 Using a virtual computer allows you to develop and run analyses that require more CPUs and memory than is available on your local machine.
 
 _Note that you will need access to AWS to use LSfR._
@@ -63,7 +63,7 @@ Open the AWS Service Catalog by using the search bar and typing, `service catalo
         - Before you request a plan with GPUs, you will need to put in a [request with the Data Lab team](../../getting-started/accessing-resources/getting-access-to-compute.md#gpu-instance-access).
     - Set the `ShutdownIdlePercent` to 5 and the `ShutdownTimePeriod` to 10.
     This means if the instance is using less than 5% of the total available CPUs or inactive for more than 10 minutes, the instance will temporarily shut down.
-    This _does not_ terminate your instance, it temporarily stops any idle instances until you are ready to resume your work.
+    This _does not_ delete your instance; it temporarily stops any idle instances until you are ready to resume your work.
 
     <figure markdown="span">
         ![Configure instance](../../img/creating-vcs-4.png){width="600"}
@@ -75,7 +75,8 @@ You have now created a virtual computer!
 ## How to access a virtual computer
 
 Once you have created your virtual computer, you will be able to access and launch the computer on a web browser.
-Note that it can take 5-10 minutes to create the instance.
+We recommend waiting ~10 minutes before accessing the instance.
+It takes time create the instance and for all software to be installed.
 
 1. To access a virtual computer, you will need to navigate to Lightsail for Research.
 Search for Lightsail for Research using the search bar and then select the product.
