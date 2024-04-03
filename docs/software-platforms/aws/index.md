@@ -11,7 +11,7 @@ We use Amazon Web Services (AWS) to grant contributors access to data and Linux 
 
 ## S3: AWS for data
 
-We use [AWS S3](https://aws.amazon.com/s3/) to store project data in files and folders known in S3 lingo as "buckets."
+We use [AWS S3](https://aws.amazon.com/s3/) to store project data in folders, referred to in S3 as "buckets."
 Please refer to [our documentation on accessing project data](../../getting-started/accessing-resources/getting-access-to-data.md#accessing-data-on-s3) for more information.
 
 We also use S3 as central location for you to share your result files with us before [filing a pull request](../../contributing-to-analyses/creating-pull-requests/index.md).
