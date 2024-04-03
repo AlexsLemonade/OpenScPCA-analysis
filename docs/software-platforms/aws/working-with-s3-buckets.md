@@ -44,6 +44,7 @@ We have written a script to help you sync your results to your S3 bucket, stored
 
 This script syncs the contents of a given analysis module's `results` and `plots` directories from your computer to S3.
 It does not also sync S3 contents back to your computer.
+All results that you sync to S3 are also organized by module.
 
 For this script to work, you need to be [logged into the AWS account profile you use for contributing to OpenScPCA](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
 
