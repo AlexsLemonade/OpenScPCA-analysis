@@ -1,7 +1,7 @@
 # Working with S3 buckets
 
 As an onboarded OpenScPCA contributor, you will be [assigned an AWS S3 bucket](../../getting-started/accessing-resources/index.md#getting-access-to-aws).
-You will use this bucket to sync your analysis results.
+You will use this bucket to [sync your analysis results](#syncing-your-results-to-s3).
 This is necessary because [analysis module results are not included in Git version control](../../contributing-to-analyses/analysis-modules/index.md#skeleton-analysis-module-contents), so uploading your results to S3 allows the Data Lab to access them during code review.
 
 This page covers some information you'll need for working with your S3 bucket.
@@ -41,4 +41,67 @@ You can then use `$OPENSCPCA_RESULTS_BUCKET` (or, `${OPENSCPCA_RESULTS_BUCKET}`)
 
 ## Syncing your results to S3
 
-_Coming up in the next PR._
+We have written a script to help you sync your results to your S3 bucket, stored in [`scripts/sync-results.py`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/scripts/sync-results.py).
+For this script to work, you need to be [logged into the AWS account profile you use for contributing to OpenScPCA](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
+
+This script syncs the contents of a given analysis module's `results` and `plots` directories from your computer to S3.
+It does not copy any files from S3 back to your computer.
+Your files will be synced to the S3 location `s3://{your bucket name}/{analysis module name}`, where:
+
+- Results will be synced to `s3://{your bucket name}/{analysis module name}/results`
+- Plots will be synced to `s3://{your bucket name}/{analysis module name}/plots`
+
+
+The simplest usage of this script, called from the `OpenScPCA-analysis` repository root folder, is:
+
+```sh
+scripts/sync-results.py \
+    --module {analysis module name} \
+    --bucket {name of your bucket}
+```
+
+- `--module` (or `-m`) is the folder name of the analysis module whose results you want to sync
+- `--bucket` (or `-b`) is your [bucket name](#finding-your-bucket-name)
+  - You can omit this argument if you have saved your bucket name in the environment variable `OPENSCPCA_RESULTS_BUCKET`
+
+**Before you run the script to sync your results,** we recommend you first run the script with the `--dryrun` flag.
+This flag will not actually sync your files, but it will instead print out which files will be synced to your S3 bucket, and where they will be placed:
+
+```sh
+scripts/sync-results.py \
+    --module {analysis module name} \
+    --bucket {name of your researcher bucket} \
+    --dryrun
+```
+
+If everything looks correct to you when running with `--dryrun`, you can then proceed to run the script without this flag and actually perform the syncing.
+
+### Additional script flags
+
+By default, if there are any result or plot files that exist on S3 but that you have locally deleted, this script will _not delete_ those files from S3.
+To override this behavior and delete these files from S3 as well (but only for the specified analysis module), use the `--destructive-sync` flag:
+```sh
+scripts/sync-results.py \
+    --module {analysis module name} \
+    --bucket {name of your researcher bucket} \
+    --destructive-sync
+```
+
+You can run the following to see all script options:
+
+```sh
+scripts/sync-results.py --help
+```
+
+#### Advanced options
+
+If you have multiple AWS profiles on your system, it may help to use the `--profile` argument to specify the name of your OpenScPCA AWS profile.
+
+For example, if you [configured your OpenScPCA AWS profile](../../technical-setup/environment-setup/configure-aws-cli.md) to be named `openscpca`, you would use:
+
+```sh
+scripts/sync-results.py \
+    --module {analysis module name} \
+    --bucket {name of your researcher bucket} \
+    --profile openscpca
+```
