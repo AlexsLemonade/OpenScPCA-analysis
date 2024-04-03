@@ -10,9 +10,9 @@ Using a virtual computer allows you to develop and run analyses that require mor
     You will need access to AWS to use LSfR.
     See [getting access to AWS](../../getting-started/accessing-resources/index.md#getting-access-to-aws) to learn how to get set up with AWS.
 
-- The virtual computers provided through LSfR use an Ubuntu operating system.
+- The virtual computers provided through LSfR use the Ubuntu operating system.
 - During setup, you will choose your desired configuration, including the amount of virtual CPUs, memory, and storage space.
-    - You also have the option to add [additional storage to your virtual computer](STUB-LINK for volumes).
+    - You also have the option to add [additional storage to your virtual computer](STUB_LINK for volumes).
 - All virtual computers will have a set of pre-installed applications needed for working with OpenScPCA, including:
     - Git and GitKraken
     - The AWS command line interface, which has already been configured for you
@@ -128,4 +128,4 @@ When the computer is ready, use the drop-down menu in the lower right-hand side 
     You can also use `Launch Rstudio` or `Launch VSCodium`, but if you do that you will have access to _only_ that application instead of the Ubuntu desktop and all installed applications.
 
 1. A new window should open in your browser with the Ubuntu desktop view.
-You can now continue to [develop analysis using your virtual computer](STUB_LINK to developing with LSfR).
+You can now continue to [develop analyses using your virtual computer](STUB_LINK to developing with LSfR).
