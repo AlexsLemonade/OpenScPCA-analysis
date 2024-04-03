@@ -134,6 +134,7 @@ nav:
     - Amazon Web Services (AWS):
       - software-platforms/aws/index.md
       - software-platforms/aws/creating-vcs.md
+      - software-platforms/aws/working-with-volumes.md
     - Additional project tools:
       - software-platforms/general-tools/index.md
       - software-platforms/general-tools/writing-in-markdown.md
