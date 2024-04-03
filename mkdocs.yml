@@ -132,6 +132,7 @@ nav:
       - software-platforms/lsfr/index.md
     - Amazon S3:
       - software-platforms/aws/index.md
+      - software-platforms/aws/working-with-your-bucket.md
     - Additional project tools:
       - software-platforms/general-tools/index.md
       - software-platforms/general-tools/writing-in-markdown.md
