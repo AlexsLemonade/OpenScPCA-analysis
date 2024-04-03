@@ -61,6 +61,20 @@ scripts/sync-results.py \
 - `--bucket` (or `-b`) is your [bucket name](#finding-your-bucket-name)
   - You can omit this argument if you have saved your bucket name in the environment variable `OPENSCPCA_RESULTS_BUCKET`
 
+**Before you run the script to sync your results,** we recommend you first run the script with the `--dryrun` flag.
+This flag will not actually sync your files, but it will instead print out which files will be synced, and where, to your S3 bucket:
+
+```sh
+scripts/sync-results.py \
+    --module {analysis module name} \
+    --bucket {name of your researcher bucket} \
+    --dryrun
+```
+
+If everything looks correct to you when running with `--dryrun`, you can then proceed to run the script without this flag and actually perform the syncing.
+
+### Additional script flags
+
 By default, there any result or plot files that exist on S3 but that you have locally deleted, this script will _not also delete_ those files from S3.
 To override this behavior and delete them from S3 as well, use the `--destructive-sync` flag:
 
@@ -78,7 +92,7 @@ You can run the following to see all script options:
 scripts/sync-results.py --help
 ```
 
-### Advanced options
+#### Advanced options
 
 If you have multiple AWS profiles on your system, it may help to use the `--profile` argument to specify the name of your OpenScPCA AWS profile.
 
