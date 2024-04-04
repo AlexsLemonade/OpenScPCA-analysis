@@ -37,7 +37,7 @@ stopifnot(
 
 set.seed(opts$seed)
 
-metadata <- readr::read_tsv(opts$metadata_file, show_col_types = FALSE)
+metadata <- readr::read_tsv(opts$metadata_file, col_types = readr::cols(.default = "c"))
 
 # fields that apply at library level
 library_fields <- c(

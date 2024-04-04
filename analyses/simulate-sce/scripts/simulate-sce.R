@@ -110,6 +110,7 @@ simulate_sce <- function(sce, ncells, replacement_metadata, processed) {
   )
 
   # define a subset of cells to simulate
+  ncells <- min(ncells, ncol(sce))
   cell_subset <- sample.int(ncol(sce), ncells)
   sce_sim <- sce[, cell_subset]
 
