@@ -131,6 +131,7 @@ nav:
     - software-platforms/index.md
     - Amazon Web Services (AWS):
       - software-platforms/aws/index.md
+      - software-platforms/aws/working-with-s3-buckets.md
       - software-platforms/aws/creating-vcs.md
       - software-platforms/aws/working-with-volumes.md
     - Additional project tools:
