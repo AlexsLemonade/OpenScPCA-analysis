@@ -8,7 +8,6 @@ AnnData
 anonymize
 anonymized
 authenticator
-AWS
 benchmarking
 bioinformatics
 Carpentries
