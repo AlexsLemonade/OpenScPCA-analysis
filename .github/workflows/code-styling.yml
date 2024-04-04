@@ -20,14 +20,14 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Load 1Password secrets
-        uses: 1password/load-secrets-action@v1
-        with:
-          export-env: true
-        env:
-          # TODO: Which tokens do we actually need here?
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_DOCS_BOT_SERVICE_TOKEN }}
-          DOCS_BOT_GITHUB_TOKEN: ${{ secrets.OP_DOCS_BOT_GITHUB_TOKEN }}
+      #- name: Load 1Password secrets
+      #  uses: 1password/load-secrets-action@v1
+      #  with:
+      #    export-env: true
+      #  env:
+      #    # TODO: Which tokens do we actually need here?
+      #    OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets. }}
+      #    DOCS_BOT_GITHUB_TOKEN: ${{ secrets. }}
 
       ## First, style the R code ##
       - name: Install R
@@ -54,9 +54,8 @@ jobs:
           args: format analyses/
 
       - name: Create PR with styled code
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v6 # defaults to ${GITHUB_TOKEN} token
         with:
-          token: ${{ env.DOCS_BOT_GITHUB_TOKEN }}
           commit-message: Styled code
           signoff: false
           branch: style-analysis-modules
