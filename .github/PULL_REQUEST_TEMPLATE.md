@@ -58,9 +58,12 @@ https://openscpca.readthedocs.io/en/latest/software-platforms/aws/working-with-s
 _In this section, tell reviewers what kind of feedback you are looking for._
 _This information will help guide their review._
 
-#### What are the computational requirements to be able to run the code in this PR?
+#### What are the software and computational requirements to be able to run the code in this PR?
 
-_This information will help reviews run the code during review, if applicable._
+_This information will help reviewers run the code during review, if applicable._
+_For software, how should reviewers set up their environment (e.g., `renv` or `conda`) to run this code?_
+_For compute, can reviewers run this code on their laptop, or do they need additional computational resources such as RAM or storage?_
+_Please make sure this information, if applicable, is documented in the README.md file._
 
 
 
