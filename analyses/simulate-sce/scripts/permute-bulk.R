@@ -1,8 +1,8 @@
 #!/usr/bin/env Rscript
 
-# Script to generate simulated single-cell data from a real dataset
+# Script to generate permuted bulk RNAseq data from a real dataset
 
-# Works on a single sample directory at a time, processing all SCE files within that directory.
+# Works on a single bulk file, and permutes the values within each gene
 
 
 # Parse arguments --------------------------------------------------------------
