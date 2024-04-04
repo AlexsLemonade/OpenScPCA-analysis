@@ -75,7 +75,7 @@ conda install awscli conda-lock jq pre-commit
 
 ## Set up pre-commit
 
-Now that you've installed `pre-commit` into the `openscpca` as described above, you can set up `pre-commit` as described in [our documentation](../../technical-setup/environment-setup/setup-precommit.md#set-up-pre-commit).
+Now that you've installed `pre-commit` into the `openscpca` environment as described above, you can set up `pre-commit` following the instructions in [our documentation](../../technical-setup/environment-setup/setup-precommit.md#set-up-pre-commit).
 
 ## Start analyzing
 
