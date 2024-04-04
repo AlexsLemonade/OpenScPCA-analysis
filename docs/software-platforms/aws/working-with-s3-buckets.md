@@ -80,6 +80,7 @@ If everything looks correct to you when running with `--dryrun`, you can then pr
 
 By default, if there are any result or plot files that exist on S3 but that you have locally deleted, this script will _not delete_ those files from S3.
 To override this behavior and delete these files from S3 as well (but only for the specified analysis module), use the `--destructive-sync` flag:
+
 ```sh
 scripts/sync-results.py \
     --module {analysis module name} \

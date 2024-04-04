@@ -64,7 +64,7 @@ To set up, you will need a Git client, Miniconda, R or Python, and an editor of 
 Data is publicly available from the [ScPCA Portal](https://scpca.alexslemonade.org/) and from an AWS S3 bucket for OpenScPCA project contributors.
 We also provide a way to download smaller, simulated data files for you to play with.
 
-Please refer to [Getting access to Data](https://openscpca.readthedocs.io/en/latest/getting-started/accessing-resources/getting-access-to-data/) for more details.
+Please refer to [Getting Access to Data](https://openscpca.readthedocs.io/en/latest/getting-started/accessing-resources/getting-access-to-data/) for more details.
 
 ### Running an analysis module
 
