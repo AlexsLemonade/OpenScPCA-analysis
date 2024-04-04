@@ -12,7 +12,7 @@ Using a virtual computer allows you to develop and run analyses that require mor
 
 - The virtual computers provided through LSfR use the Ubuntu operating system.
 - During setup, you will choose your desired configuration, including the amount of virtual CPUs, memory, and storage space.
-    - You also have the option to add [additional storage to your virtual computer](STUB_LINK for volumes).
+    - You also have the option to add [additional storage to your virtual computer](./working-with-volumes.md).
 - All virtual computers will have a set of pre-installed applications needed for working with OpenScPCA, including:
     - Git and GitKraken
     - The AWS command line interface, which has already been configured for you
