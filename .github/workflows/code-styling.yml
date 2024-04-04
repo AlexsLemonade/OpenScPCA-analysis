@@ -53,8 +53,7 @@ jobs:
         run: pip install ruff
 
       - name: Style analysis modules python code
-        run: |
-          ruff format analyses/
+        run: ruff format analyses/
 
       - name: Create PR with styled code
         uses: peter-evans/create-pull-request@v6
