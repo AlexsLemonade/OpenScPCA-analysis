@@ -25,7 +25,7 @@ Please refer to these pages about working with S3:
 As an OpenScPCA contributor, you are eligible for a monthly allocation on [Lightsail for Research (LSfR)](https://aws.amazon.com/lightsail/research/), an Amazon product that allows you to work on a virtual Ubuntu (Linux) Desktop computer in your browser.
 
 
-Please refer to these pages about setting up and using LSfR:
+Please refer to these pages to learn more about setting up and using LSfR:
 
 - [Creating a virtual computer](./creating-vcs.md)
 - [Working with LSfR volumes](./working-with-volumes.md)
