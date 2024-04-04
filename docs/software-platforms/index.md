@@ -2,16 +2,11 @@
 
 This section provides information about using some of OpenScPCA's core software platforms:
 
-### [Lightsail for Research](./lsfr/index.md)
+### [Amazon Web Services (AWS)](./aws/index.md)
 
-- As an OpenScPCA contributor, you are eligible for a monthly allocation on Lightsail for Research (LSfR), a Amazon product that allows you to work on a virtual Ubuntu (Linux) Desktop computer in your browser.
-- This section explains how to get started with LSfR to create your virtual computer, and how to work with it moving forward.
-
-### [Amazon (AWS) S3](./aws/index.md)
-
-- The OpenScPCA project uses Amazon Web Services (AWS), Amazon's cloud services, to store all project data on [S3](https://aws.amazon.com/s3/), a data hosting service.
-- This section explains how to get access to and obtain the data from Amazon S3.
-
+- The OpenScPCA project uses Amazon Web Services (AWS), Amazon's cloud services, to both store data and provide contributors with a virtual computing environment.
+    - We use [S3](https://aws.amazon.com/s3/) to store data and [Lightsail for Research (LSfR)](https://aws.amazon.com/lightsail/research/) for virtual computing.
+- This section explains how to interact with data on S3 and how to use LSfR virtual computers.
 
 ### Docker
 
