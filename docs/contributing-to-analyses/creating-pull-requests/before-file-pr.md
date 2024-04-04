@@ -31,7 +31,7 @@ After merging, be sure to [push to origin](../working-with-git/push-to-origin.md
 As a contributor to OpenScPCA, you will be provided with an [AWS account](../../software-platforms/aws/joining-aws.md) and access to an [AWS S3 results bucket](../../software-platforms/aws/working-with-s3-buckets.md).
 
 Results files from running your analysis are [not under version control, so they will not be included in your PR](../analysis-modules/index.md#skeleton-analysis-module-contents).
-Instead, you will have to save your results files to [your S3 bucket](../../software-platforms/aws/working-with-s3-buckets.md].
+Instead, you will have to save your results files to [your S3 bucket](../../software-platforms/aws/working-with-s3-buckets.md).
 Adding your results to S3 allows the Data Lab to access them during code review.
 
 Follow [these instructions to sync your results to S3](../../software-platforms/aws/working-with-s3-buckets.md#syncing-your-results-to-s3) prior to filing your PR.
