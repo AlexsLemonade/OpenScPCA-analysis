@@ -127,7 +127,7 @@ nav:
       - contributing-to-analyses/creating-pull-requests/file-pull-request.md
     - Code review and merging:
       - contributing-to-analyses/pr-review-and-merge/index.md
-  - Software platforms:            # LSfR, AWS, Docker, etc
+  - Software platforms:            # AWS (S3 & LSfR), Docker, etc
     - software-platforms/index.md
     - Amazon Web Services (AWS):
       - software-platforms/aws/index.md
