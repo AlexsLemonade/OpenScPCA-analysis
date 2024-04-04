@@ -34,11 +34,13 @@ jobs:
         uses: r-lib/actions/setup-r@v2
 
       - name: Install R dependencies
-        run: install.packages("styler", repos = "https://packagemanager.posit.co/cran/__linux__/jammy/latest")
+        run: install.packages("styler", repos = "https://p3m.dev/cran/__linux__/jammy/latest")
         shell: Rscript --no-init-file {0}
 
       - name: Style analysis modules R code
-        run: styler::style_dir("analyses", filetype = c("R", "r", "Rmd", "rmd")) # exclude_dirs and exclude_files do not seem to like globs...
+        run: |
+          list_dirs("analyses") |>
+            purrr::walk(styler::style_dir, filetype = c("R", "r", "Rmd", "rmd"))
         shell: Rscript --no-init-file {0}
 
       # maybe - hack since it seems to want to restyle renv/activate.R which maybe we don't want?
@@ -46,14 +48,10 @@ jobs:
 
 
       ## Second, style the python code ##
-      - name: Install python
-        uses: actions/setup-python@v2
-
-      - name: Install python dependencies
-        run: pip install ruff
-
-      - name: Style analysis modules python code
-        run: ruff format analyses/
+      - name: Format python files
+        uses: chartboost/ruff-action@v1
+        with:
+          args: format analyses/
 
       - name: Create PR with styled code
         uses: peter-evans/create-pull-request@v6
