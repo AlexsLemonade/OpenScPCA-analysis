@@ -38,7 +38,7 @@ See our documentation [getting access to AWS](index.md#getting-access-to-aws) fo
 
     - [Cloned the repo](../../technical-setup/clone-the-repo.md)
     - [Set up your environment](../../technical-setup/environment-setup/index.md)
-    - [Configured the AWS CLI and logged in](../../technical-setup/environment-setup/configure-aws-cli.md) OR are [using Lightsail for Research](../../software-platforms/lsfr/index.md) (which doesn't require logging in via the AWS CLI)
+    - [Configured the AWS CLI and logged in](../../technical-setup/environment-setup/configure-aws-cli.md) OR are [using Lightsail for Research](../../software-platforms/aws/index.md#lsfr-virtual-computing-with-aws) (which doesn't require logging in via the AWS CLI)
 
 The [`download-data.py` script](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/download-data.py) is designed to download files from whatever release you specify to a folder named for the date of that release and [symlink](https://en.wikipedia.org/wiki/Symbolic_link) it to `data/current`.
 

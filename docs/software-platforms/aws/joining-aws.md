@@ -9,7 +9,7 @@ You must accept this invitation to gain access to your AWS account and to downlo
 To accept the invitation, please take the following steps.
 
 1. Note the following information in the invitation email: **Your AWS access portal URL**.
-   You will need this value to [configure AWS CLI locally](../../technical-setup/environment-setup/configure-aws-cli.md) and to [log into the console to use Lightsail for Research](STUB_LINK).
+   You will need this value to [configure AWS CLI locally](../../technical-setup/environment-setup/configure-aws-cli.md) and to [log into the console to use Lightsail for Research](./creating-vcs.md#how-to-create-a-virtual-computer). TODO IS THIS RELATIVE LINK CORRECT??????
    It is also helpful to bookmark this URL so you can easily return to it.
 
 2. Click the `Accept Invitation` button in the email.
