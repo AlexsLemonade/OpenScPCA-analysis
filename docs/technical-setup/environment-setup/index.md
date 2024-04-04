@@ -28,4 +28,4 @@ If you are planning to work on your local computer, you will need to take these 
 
 ## Setting up on Lightsail for Research
 
-If you are planning to work on a Lightsail for Research instance, please refer to the [Lightsail for Research documentation](../../software-platforms/lsfr/index.md).
+If you are planning to work on a Lightsail for Research instance, please refer to the [Lightsail for Research documentation](../../software-platforms/aws/index.md#lsfr-virtual-computing-with-aws).

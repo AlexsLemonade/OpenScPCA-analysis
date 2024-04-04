@@ -43,7 +43,8 @@ This PR template includes the following sections:
 - A summary of the purpose and goals of this PR.
     - Here you would include some background information on the changes you're proposing such as the general approach you took.
 - A summary of the results from this PR.
-    - This includes information on what results or output your code in the PR produces and where the results live.
+    - This includes information on what results or output your code in the PR produces.
+    - In this section, you will also tell reviewers [the name of your AWS S3 bucket](../../software-platforms/aws/working-with-s3-buckets.md#finding-your-bucket-name) so they can access your results during code review.
 - Directions for reviewers.
     - Include any computational resources and software requirements needed to run the analysis.
     - Here is where you would bring up any points that you would like to discuss further or would like reviewers to pay special attention to.
