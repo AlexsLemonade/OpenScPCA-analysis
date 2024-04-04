@@ -3,9 +3,10 @@ FROM bioconductor/bioconductor_docker:3.18
 
 # Labels following the Open Containers Initiative (OCI) recommendations
 # For more information, see https://specs.opencontainers.org/image-spec/annotations/?v=v1.0.1
+LABEL org.opencontainers.image.title="ccdl/openscpca-simulate-sce"
+LABEL org.opencontainers.image.description="Docker image for the OpenScPCA analysis module 'simulate-sce'"
 LABEL org.opencontainers.image.authors="OpenScPCA scpca@ccdatalab.org"
-LABEL org.opencontainers.image.source="https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/templates/analysis-module"
-
+LABEL org.opencontainers.image.source="https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/simulate-sce"
 
 ENV RENV_CONFIG_CACHE_ENABLED FALSE
 RUN Rscript -e "install.packages(c('remotes', 'renv'))"
