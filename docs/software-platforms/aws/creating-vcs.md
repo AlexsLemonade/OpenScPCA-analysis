@@ -12,7 +12,7 @@ Using a virtual computer allows you to develop and run analyses that require mor
 
 - The virtual computers provided through LSfR use the Ubuntu operating system.
 - During setup, you will choose your desired configuration, including the amount of virtual CPUs, memory, and storage space.
-    - You also have the option to add [additional storage to your virtual computer](STUB_LINK for volumes).
+    - You also have the option to add [additional storage to your virtual computer](./working-with-volumes.md).
 - All virtual computers will have a set of pre-installed applications needed for working with OpenScPCA, including:
     - Git and GitKraken
     - The AWS command line interface, which has already been configured for you
@@ -130,7 +130,8 @@ When the computer is ready, use the drop-down menu in the lower right-hand side 
         ![Start computer](../../img/creating-vcs-8.png){width="600"}
     </figure>
 
-    You can also use `Launch Rstudio` or `Launch VSCodium`, but if you do that you will have access to _only_ that application instead of the Ubuntu desktop and all installed applications.
+    You can also use `Launch RStudio` or `Launch VSCodium`, but if you do that you will have access to _only_ that application instead of the Ubuntu desktop and all installed applications.
 
 1. A new window should open in your browser with the Ubuntu desktop view.
-You can now continue to [develop analyses using your virtual computer](STUB_LINK to developing with LSfR).
+
+See [Working with storage volumes in Lightsail for Research](working-with-volumes.md) and [Getting started with development on Lightsail for Research](starting-development-on-lsfr.md) for next steps.

@@ -19,7 +19,7 @@ All functions should include documentation comments.
 - **Main body**: This is where the main body of your script should appear.
 - **Session info** (optional): Export out the versions of all packages used in the analysis.
 
-Many considerations for writing scripts are the same as for writing notebooks, so we encourage you to read the documentation on structuring [R Markdown notebooks](notebook-structure.md#r-markdown-notebooks) and [Jupyter notebooks](notebook-structure/#jupyter-notebooks).
+Many considerations for writing scripts are the same as for writing notebooks, so we encourage you to read the documentation on structuring [R Markdown notebooks](notebook-structure.md#r-markdown-notebooks) and [Jupyter notebooks](notebook-structure.md#jupyter-notebooks).
 
 Below, we provide a few additional considerations that are specific to scripts in general, and then specific considerations for R and Python.
 
