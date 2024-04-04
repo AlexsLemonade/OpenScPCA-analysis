@@ -42,7 +42,7 @@ jobs:
 
       - name: Style analysis modules R code
         run: |
-          list_dirs("analyses") |>
+          list.dirs("analyses") |>
             purrr::walk(styler::style_dir, filetype = c("R", "r", "Rmd", "rmd"))
         shell: Rscript --no-init-file {0}
 
