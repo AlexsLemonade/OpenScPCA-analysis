@@ -12,13 +12,13 @@ In the time that you are working on your analysis on your [feature branch](../wo
 You will need to make sure any changes made to the `main` branch are incorporated into your feature branch before filing a PR.
 
 You can do this in GitKraken by finding the remote copy of the `main` branch in the branch graph (indicated by presence of the ALSF lemon logo).
-Right-click on the `main` branch and chooose `merge AlexsLemonade/main into username/name-of-feature-branch`.
+Right-click on the `main` branch and select `merge AlexsLemonade/main into username/name-of-feature-branch`.
 
 <figure markdown="span">
     ![Merge main](../../img/before-file-1.png){width="600"}
 </figure>
 
-Aftr merging, be sure to [push to origin](../working-with-git/push-to-origin.md), ensuring the changes are reflected in the remote copy of your feature branch.
+After merging, be sure to [push to origin](../working-with-git/push-to-origin.md), ensuring the changes are reflected in the remote copy of your feature branch.
 
 !!! tip
 
