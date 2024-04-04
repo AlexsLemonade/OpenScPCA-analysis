@@ -52,25 +52,20 @@ conda config --add channels conda-forge
 conda config --set channel_priority strict
 ```
 
-
 You will not have permission to install programs into your `base` environment as described in [the conda setup documentation](../../technical-setup/environment-setup/setup-conda.md).
 
-Instead, you need to first create a conda environment using Terminal as follows:
+Instead, you need to first create a conda environment using the `environment.yml` in the root of the repository.
+Use the following command in Terminal, replacing `{your disk's name}` (including the curly brackets) with the name of the disk you cloned the repository to:
 
 ```sh
-conda create --name openscpca
+cd ~/{your disk's name}/OpenScPCA-analysis
+conda env create -f environment.yml
 ```
 
 Then, activate the environment with the following command:
 
 ```sh
 conda activate openscpca
-```
-
-Now you can install [the minimal conda environment](../../technical-setup/environment-setup/setup-conda.md#set-up-conda) with the following command:
-
-```sh
-conda install awscli conda-lock jq pre-commit
 ```
 
 ## Set up pre-commit
