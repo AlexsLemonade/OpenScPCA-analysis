@@ -1,6 +1,6 @@
 # Before you file a pull request
 
-Before you are able to file a pull request with proposed changes, you will need to complete the following steps.
+Before you are able to file a pull request with proposed changes, you will need to complete the following steps:
 
 - Merge any changes from `AlexsLemonade/OpenScPCA-analysis:main` into your [feature branch](../working-with-git/working-with-branches.md).
 - Add any results files needed for review to S3.
@@ -8,8 +8,10 @@ Before you are able to file a pull request with proposed changes, you will need 
 
 ## Merge changes from upstream repository
 
-In the time that you are working on your analysis on your [feature branch](../working-with-git/working-with-branches.md), it's likely that others have also been working on changes that have been merged into the `main` branch of `AlexsLemonade/OpenScPCA-analysis`.
-You will need to make sure any changes made to the `main` branch are incorporated into your feature branch before filing a PR.
+While you have been working on your analysis on your [feature branch](../working-with-git/working-with-branches.md), it's likely that others have also been working in their own feature branches.
+Some of their changes may have also been merged into the `main` branch of `AlexsLemonade/OpenScPCA-analysis`.
+This means you are now out-of-sync with the `main` branch
+You will need to incorporate those changes in `main` into your feature branch before filing a PR.
 
 You can do this in GitKraken by finding the remote copy of the `main` branch in the branch graph (indicated by presence of the ALSF lemon logo).
 Right-click on the `main` branch and select `merge AlexsLemonade/main into username/name-of-feature-branch`.
@@ -28,8 +30,8 @@ After merging, be sure to [push to origin](../working-with-git/push-to-origin.md
 
 As a contributor to OpenScPCA, you will be provided with an [AWS account](../../software-platforms/aws/joining-aws.md) and access to an [AWS S3 results bucket](../../software-platforms/aws/working-with-s3-buckets.md).
 
-Results files from running your analysis should not be [under version control and should not be included in your PR](../analysis-modules/index.md#skeleton-analysis-module-contents).
-All results files should be saved in your S3 bucket.
+Results files from running your analysis are [not under version control, so they will not be included in your PR](../analysis-modules/index.md#skeleton-analysis-module-contents).
+Instead, you will have to save your results files to [your S3 bucket](../../software-platforms/aws/working-with-s3-buckets.md].
 Adding your results to S3 allows the Data Lab to access them during code review.
 
 Follow [these instructions to sync your results to S3](../../software-platforms/aws/working-with-s3-buckets.md#syncing-your-results-to-s3) prior to filing your PR.
