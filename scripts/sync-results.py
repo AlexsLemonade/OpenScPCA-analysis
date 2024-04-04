@@ -53,15 +53,18 @@ def main() -> None:
         help="Skip syncing the results directory.",
     )
     parser.add_argument(
-        "--no-delete",
-        action="store_false",
+        "--destructive-sync",
+        action="store_true",
         dest="delete_extra",
-        help="Do not delete extra files in the S3 bucket.",
+        help=(
+            "Delete any files in the S3 bucket that are not present in the local directories being synced."
+            " Default behavior is to leave any additional files in the S3 bucket."
+        ),
     )
     parser.add_argument(
         "--dryrun",
         action="store_true",
-        help="Perform a dry run: show what would be done but do not sync anything.",
+        help="Perform a dry run: show what would be done but do not copy or delete any files.",
     )
     parser.add_argument(
         "--profile",
@@ -133,6 +136,7 @@ def main() -> None:
         sys.exit(1)
 
     print("Sync complete.")
+    print(f"Files are now available on S3 at: s3://{bucket}/{args.module}/")
 
 
 if __name__ == "__main__":
