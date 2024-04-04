@@ -123,6 +123,7 @@ nav:
       - contributing-to-analyses/creating-pull-requests/index.md
       - contributing-to-analyses/creating-pull-requests/scoping-pull-requests.md
       - contributing-to-analyses/creating-pull-requests/pull-request-template.md
+      - contributing-to-analyses/creating-pull-requests/before-file-pr.md
       - contributing-to-analyses/creating-pull-requests/resolve-merge-conflicts.md
       - contributing-to-analyses/creating-pull-requests/file-pull-request.md
     - Code review and merging:
@@ -131,6 +132,7 @@ nav:
     - software-platforms/index.md
     - Amazon Web Services (AWS):
       - software-platforms/aws/index.md
+      - software-platforms/aws/joining-aws.md
       - software-platforms/aws/working-with-s3-buckets.md
       - software-platforms/aws/creating-vcs.md
       - software-platforms/aws/working-with-volumes.md
