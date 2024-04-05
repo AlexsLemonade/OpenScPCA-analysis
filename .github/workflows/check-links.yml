@@ -39,11 +39,11 @@ jobs:
         id: artifact-upload-step
         with:
           name: bad_links
-          path: bad_links.tsv
+          path: bad_links.txt
 
       - name: Fail if there are bad links
         if: steps.find_links.outputs.n_bad_links > 0
         run: |
           echo "There were ${{ steps.find_links.outputs.n_bad_links }} link errors"
-          cat bad_links.tsv
+          cat bad_links.txt
           exit 1
