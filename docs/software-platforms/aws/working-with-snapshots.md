@@ -52,7 +52,7 @@ Once your snapshot has been created you should be able to see the snapshot liste
 
 ## Creating a new virtual computer or disk from a snapshot
 
-1. Find the previous virtual computer or disk that contains the snapshot you would like to use for creating a new virtual computer or disk.
+1. Find the virtual computer or disk with the snapshot you would like to create a new virtual computer or disk from.
 Open up the snapshot drop-down menu and select the snapshot you would like to use.
 
 1. With the snapshot selected, use the `Actions` drop-down menu to select `Create virtual computer`.
@@ -67,15 +67,15 @@ Pick the instance size or disk size from the menu options.
 
     By default, the same instance size or disk size will be selected, but if you would like to re-size please choose a different option from the menu.
 
-    - Reference these [guidelines when choosing an instance size](./creating-vcs.md#choosing-an-instance).
-    - Remember that you will have a [monthly budget for any computational resources you use](../../getting-started/accessing-resources/getting-access-to-compute.md#monthly-budget).
+    - Refer to these [guidelines when choosing an instance size](./creating-vcs.md#choosing-an-instance).
+    - Remember that you have a [monthly budget for any computational resources you use](../../getting-started/accessing-resources/getting-access-to-compute.md#monthly-budget).
 
     <figure markdown="span">
         ![Select size](../../img/snapshots-6.png){width="700"}
     </figure>
 
 1. Once you have chosen your size, select either `Create virtual computer` or `Create disk`.
-Your new virtual computer will be listed under the `Virtual computers` section and new disks can be found in the `Storage` section of LSfR.
+New virtual computer will be listed under the `Virtual computers` section, and new disks will be in the `Storage` section of LSfR.
 
     If you are creating a new virtual computer, please be sure to follow the instructions below to [create a cost control rule](#creating-a-cost-control-rule).
     A cost control rule ensures that your virtual computer does not continue to run when not actively in use, lowering your total cost.
@@ -85,7 +85,7 @@ Your new virtual computer will be listed under the `Virtual computers` section a
 ## Creating a cost control rule
 
 If you have created a new virtual computer from a snapshot, you must add a cost control rule.
-When [creating a virtual computer](./creating-vcs.md) for the first time, a cost control rule is added, but this is not the case when creating a virtual computer from a snapshot.
+Unlike when you [create a virtual computer from scratch](./creating-vcs.md), cost control rules are not automatically added when you create a virtual computer from a snapshot.
 
 !!! tip
     A cost control rule sets the minimum number of CPUs needed for AWS to keep the virtual computer running.
