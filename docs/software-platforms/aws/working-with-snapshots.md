@@ -4,7 +4,9 @@
 
 Snapshots of both [virtual computers](./creating-vcs.md) and [disks](./working-with-volumes.md) can be created in Lightsail for Research (LSfR).
 You can think of these snapshots as back-ups of your virtual computer or disk.
+
 As with backing up your computer, it is recommended to save snapshots frequently so that no data is lost.
+We recommend doing this once a week.
 
 - Snapshots can be used to restore or create a new virtual computer or disk.
 This is particularly helpful if you need to restore a virtual computer or disk that has crashed for any reason.
@@ -33,6 +35,7 @@ Here you will see a list of all your virtual computers, disks, and any existing 
     </figure>
 
 1. You will then be prompted to provide a descriptive name for your snapshot.
+It can be helpful to include the date of the snapshot in the name.
 Once a name has been created, click `Create snapshot`.
 
     <figure markdown="span">
@@ -74,4 +77,38 @@ Pick the instance size or disk size from the menu options.
 1. Once you have chosen your size, select either `Create virtual computer` or `Create disk`.
 Your new virtual computer will be listed under the `Virtual computers` section and new disks can be found in the `Storage` section of LSfR.
 
-If you created a new disk, be sure to [attach your disk to a virtual computer](./working-with-volumes.md#creating-and-attaching-a-disk) before proceeding.
+    If you are creating a new virtual computer, please be sure to follow the instructions below to [create a cost control rule](#creating-a-cost-control-rule).
+    A cost control rule ensures that your virtual computer does not continue to run when not actively in use, lowering your total cost.
+
+    If you created a new disk, be sure to [attach your disk to a virtual computer](./working-with-volumes.md#creating-and-attaching-a-disk) before proceeding.
+
+## Creating a cost control rule
+
+If you have created a new virtual computer from a snapshot, you must add a cost control rule.
+When [creating a virtual computer](./creating-vcs.md) for the first time, a cost control rule is added, but this is not the case when creating a virtual computer from a snapshot.
+
+!!! tip
+    A cost control rule sets the minimum number of CPUs needed for AWS to keep the virtual computer running.
+    When you use less than the minimum number of CPUs for a set amount of time, the virtual computer will shut down, but remain active in your account for future use.
+
+
+1. Select the virtual computer you have created from the `Virtual computers` section and scroll all the way down to the `Cost control rules` section.
+Select `Create cost control rule`.
+
+    <figure markdown="span">
+        ![Create rule](../../img/snapshots-7.png){width="600"}
+    </figure>
+
+1. A menu will pop up where you can set the minimum CPU utilization and time period.
+Please keep the default setting of 5% and 10 minutes.
+This means if the instance is using less than 5% of the total available CPUs for at least 10 minutes, the instance will temporarily shut down.
+
+    <figure markdown="span">
+        ![Set up rule](../../img/snapshots-8.png){width="600"}
+    </figure>
+
+1. You will then be asked to confirm your choices, click `Confirm`.
+
+    <figure markdown="span">
+        ![Confirm rule](../../img/snapshots-9.png){width="500"}
+    </figure>

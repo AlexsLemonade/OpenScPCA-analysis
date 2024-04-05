@@ -72,7 +72,7 @@ Creating an instance via LSfR is _not supported_.
     - Pick the size for your instance.
         - See the [table below outlining the total vCPUs and memory included with each instance size](#choosing-an-instance) to choose the most appropriate instance.
     - Set the `ShutdownIdlePercent` to 5 and the `ShutdownTimePeriod` to 10.
-    This means if the instance is using less than 5% of the total available CPUs or inactive for more than 10 minutes, the instance will temporarily shut down.
+    This means if the instance is using less than 5% of the total available CPUs for at least 10 minutes, the instance will temporarily shut down.
     This _does not_ delete your instance; it temporarily stops any idle instances until you are ready to resume your work.
 
     <figure markdown="span">
