@@ -137,6 +137,7 @@ nav:
       - software-platforms/aws/creating-vcs.md
       - software-platforms/aws/working-with-volumes.md
       - software-platforms/aws/starting-development-on-lsfr.md
+      - software-platforms/aws/working-with-snapshots.md
     - Additional project tools:
       - software-platforms/general-tools/index.md
       - software-platforms/general-tools/writing-in-markdown.md
