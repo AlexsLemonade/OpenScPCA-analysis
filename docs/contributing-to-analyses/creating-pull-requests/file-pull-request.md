@@ -13,6 +13,10 @@ Don't know what to include in your PR or when to file a PR? See our [guidelines 
 You should always file PRs from your feature branch in your fork to the `main` branch of `AlexsLemonade/OpenScPCA-analysis`.
 Filing a PR is the only way to incorporate any new analysis or code changes into the main code base of OpenScPCA.
 
+!!! tip
+
+    Make sure you have followed the steps outlined in [Before you file a pull request](./before-file-pr.md) prior to following the instructions here.
+
 Follow the below steps to file a pull request on GitHub:
 
 1. [Commit](../working-with-git/making-commits.md) all changes you plan to include in your PR to your [feature branch](../working-with-git/working-with-branches.md).

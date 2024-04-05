@@ -26,7 +26,7 @@ If their branch is merged into the `main` branch of the upstream `AlexsLemonade/
 
 To resolve merge conflicts, you need to merge the upstream `main` branch into your feature branch.
 If Git finds merge conflicts, you can then resolve them in GitKraken, as described below.
-_We strongly recommend doing this before you file a PR._ <!-- STUB_LINK: Add link to before you file -->
+_We strongly recommend doing this [before you file a PR](./before-file-pr.md)._
 
 
 ## How to resolve a merge conflict
