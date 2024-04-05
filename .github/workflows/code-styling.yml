@@ -1,5 +1,8 @@
 name: Code styling
 on:
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
   schedule:
     - cron: "0 0 1 * *" # first of every month at midnight
@@ -30,12 +33,16 @@ jobs:
 
       - name: Style analysis modules R code
         run: |
-          r_files <- list.files("analyses", recursive=TRUE, pattern = "\\.(r|rmd)$", ignore.case = TRUE) |> 
-            purrr::discard(\(x) grepl("renv/activate.R", x))
-          styler::style_file(
+          list.files(
+            "analyses",
+            recursive = TRUE,
+            full.names = TRUE,
+            pattern = "\\.(r|rmd)$", ignore.case = TRUE
+          ) |>
             # do not style renv/activate.R
-            file.path("analyses", r_files[grep("renv/activate.R", r_files, invert=TRUE)])
-          )
+            purrr::discard(\(x) grepl("renv/activate.R", x)) |>
+            # perform styling
+            styler::style_file()
         shell: Rscript --no-init-file {0}
 
 
