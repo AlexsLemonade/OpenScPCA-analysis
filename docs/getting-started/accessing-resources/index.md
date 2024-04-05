@@ -1,4 +1,4 @@
-# Getting Access to Resources
+# Getting access to resources
 
 We use Amazon Web Services (AWS) to grant contributors access to data and Linux virtual computers.
 
