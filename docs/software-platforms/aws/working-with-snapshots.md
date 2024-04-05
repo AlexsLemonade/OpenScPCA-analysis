@@ -10,7 +10,7 @@ We recommend doing this once a week.
 
 - Snapshots can be used to restore or create a new virtual computer or disk.
 This is particularly helpful if you need to restore a virtual computer or disk that has crashed for any reason.
-- When restoring a virtual computer from a snapshot, you can change the [instance size and select a different configuration for vCPUs and memory](./creating-vcs.md#choosing-an-instance).
+- When restoring a virtual computer from a snapshot, you can change the [instance size and select a different configuration for vCPUs and memory](./creating-vcs.md#choosing-an-instance-size).
 - When restoring a disk from a snapshot, you can change the total storage.
 
 !!! note "More information on snapshots"
@@ -67,7 +67,7 @@ Pick the instance size or disk size from the menu options.
 
     By default, the same instance size or disk size will be selected, but if you would like to re-size please choose a different option from the menu.
 
-    - Refer to these [guidelines when choosing an instance size](./creating-vcs.md#choosing-an-instance).
+    - Refer to these [guidelines when choosing an instance size](./creating-vcs.md#choosing-an-instance-size).
     - Remember that you have a [monthly budget for any computational resources you use](../../getting-started/accessing-resources/getting-access-to-compute.md#monthly-budget).
 
     <figure markdown="span">
@@ -77,10 +77,12 @@ Pick the instance size or disk size from the menu options.
 1. Once you have chosen your size, select either `Create virtual computer` or `Create disk`.
 New virtual computer will be listed under the `Virtual computers` section, and new disks will be in the `Storage` section of LSfR.
 
+!!! warning
+
     If you are creating a new virtual computer, please be sure to follow the instructions below to [create a cost control rule](#creating-a-cost-control-rule).
     A cost control rule ensures that your virtual computer does not continue to run when not actively in use, lowering your total cost.
 
-    If you created a new disk, be sure to [attach your disk to a virtual computer](./working-with-volumes.md#creating-and-attaching-a-disk) before proceeding.
+If you created a new disk, be sure to [attach your disk to a virtual computer](./working-with-volumes.md#creating-and-attaching-a-disk) before proceeding.
 
 ## Creating a cost control rule
 
