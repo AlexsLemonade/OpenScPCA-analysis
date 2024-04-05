@@ -1,4 +1,4 @@
-# Getting Access to Data
+# Getting access to data
 
 To participate in the OpenScPCA Project, you will need access to the Single-cell Pediatric Cancer Atlas (ScPCA) data.
 Here, we describe several ways to access data.
