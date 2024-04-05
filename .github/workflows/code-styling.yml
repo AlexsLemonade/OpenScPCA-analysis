@@ -30,12 +30,13 @@ jobs:
 
       - name: Style analysis modules R code
         run: |
-          list.dirs("analyses") |>
-            purrr::walk(styler::style_dir, filetype = c("R", "r", "Rmd", "rmd"))
+          r_files <- list.files("analyses", recursive=TRUE, pattern = "*.R$|*.r$|*.Rmd$|*.rmd$")
+          styler::style_file(
+            # do not style renv/activate.R
+            file.path("analyses", r_files[grep("renv/activate.R", r_files, invert=TRUE)])
+          )
         shell: Rscript --no-init-file {0}
 
-      # maybe - hack since it seems to want to restyle renv/activate.R which maybe we don't want?
-      #- name: Check out any renv files modified by the styler
 
       ## Second, style the python code ##
       - name: Format python files
