@@ -32,7 +32,7 @@ project_id <- "SCPCP000015"
 sample_id <- "SCPCS000490"
 library_id <- "SCPCL000822"
 
-suffixes <- c( "_processed.rds", "_filtered.rds", "_unfiltered.rds")
+suffixes <- c("_processed.rds", "_filtered.rds", "_unfiltered.rds")
 
 infiles <- file.path(data_dir, project_id, sample_id, paste0(library_id, suffixes))
 outfiles <- file.path(results_dir, project_id, sample_id, paste0(library_id, suffixes))
@@ -59,17 +59,17 @@ metadata(sce_sim)$miQC_model <- NULL
 
 # reduce the cell type data matrices, if present
 if (!is.null(metadata(sce_sim)$singler_results)) {
-  metadata(sce_sim)$singler_results <- metadata(sce_sim)$singler_results[cell_subset,]
+  metadata(sce_sim)$singler_results <- metadata(sce_sim)$singler_results[cell_subset, ]
 }
 if (!is.null(metadata(sce_sim)$cellassign_predictions)) {
-  metadata(sce_sim)$cellassign_predictions <- metadata(sce_sim)$cellassign_predictions[cell_subset,]
+  metadata(sce_sim)$cellassign_predictions <- metadata(sce_sim)$cellassign_predictions[cell_subset, ]
 }
 ```
 
 Create a function to randomly select labels from a set, ensuring each label is included at least once.
 
 ```{r}
-random_label<- function(label_set, n){
+random_label <- function(label_set, n) {
   # randomly select n labels from the label set, ensuring each label is included at least once
   # ensure labels are unique
   label_set <- unique(label_set)
@@ -82,7 +82,6 @@ random_label<- function(label_set, n){
   r_labels[idx] <- label_set
   return(r_labels)
 }
-
 ```
 
 Modify the cluster and cell type labels in the subset SCE to ensure they are all represented
@@ -95,8 +94,8 @@ cluster_set <- unique(colData(sce)$cluster)
 cellassign_set <- unique(colData(sce)$cellassign_celltype_annotation)
 
 # create a mapping for singler ontology and annotation
-singler_df <- colData(sce)|>
-  data.frame()|>
+singler_df <- colData(sce) |>
+  data.frame() |>
   dplyr::select(singler_celltype_ontology, singler_celltype_annotation) |>
   dplyr::distinct()
 
@@ -125,11 +124,11 @@ sim_params <- splatter::splatEstimate(as.matrix(counts(sce_sim)))
 
 # sim_params <- splatter::setParams(sim_params, group.prob = cluster_probs)
 
-counts(sce_sim, withDimnames = FALSE) <- splatter::splatSimulate(sim_params)|>
+counts(sce_sim, withDimnames = FALSE) <- splatter::splatSimulate(sim_params) |>
   counts()
 # recalculate dimension reduction
 sce_sim <- sce_sim |>
-  scater::logNormCounts()|>
+  scater::logNormCounts() |>
   scater::runPCA(10) |> # we don't need all the PCA components
   scater::runUMAP(dimred = "PCA")
 ```
@@ -151,15 +150,14 @@ remove_stats <- c(
   "subsets_mito_detected",
   names(colData(sce_sim))[grep("altExp_.*_(sum|detected|percent)", names(colData(sce_sim)))]
 )
-colData(sce_sim)[,remove_stats] <- NULL
+colData(sce_sim)[, remove_stats] <- NULL
 
 sce_sim <- scuttle::addPerCellQC(sce_sim)
 colData(sce_sim)$subsets_mito_sum <- colData(sce_sim)$sum * colData(sce_sim)$subsets_mito_percent / 100
 colData(sce_sim)$subsets_mito_detected <- round(colData(sce_sim)$detected * mito_detected_factor)
 
 # restore column order
-colData(sce_sim) <- colData(sce_sim)[,colData_names]
-
+colData(sce_sim) <- colData(sce_sim)[, colData_names]
 ```
 
 ```{r}
