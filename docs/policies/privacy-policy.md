@@ -180,9 +180,6 @@ information, please contact us as described below. To the extent you
 believe we have not addressed your concerns or otherwise choose to do
 so, you have the right to lodge a complaint with a supervisory
 authority in the country where you reside and/or in the United States.
-<!-- For information on how you can file a privacy complaint with the
-Federal Trade Commission, please visit:
-<https://www.ftccomplaintassistant.gov/> -->
 
 9\.  **Important Notices to Non-United States Residents**
 
@@ -220,4 +217,4 @@ that stores information for the OpenScPCA Project.
 Any questions or feedback about the OpenScPCA Project or this Privacy
 Policy should be directed to <ccdl@alexslemonade.org>.
 
-Last Updated: March 28, 2024
+Last Updated: April 5, 2024
