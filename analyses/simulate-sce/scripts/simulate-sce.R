@@ -186,9 +186,10 @@ simulate_sce <- function(sce, ncells, replacement_metadata, processed) {
   # recalculate dimension reduction for processed data
   if (processed) {
     logcounts(sce_sim, withDimnames = FALSE) <- log1p(counts(sce_sim)) # use log1p for speed
-    sce_sim <- sce_sim |>
-      scater::runPCA(10) |> # we don't need all the PCA components
-      scater::runUMAP(dimred = "PCA")
+    sce_sim <- scater::runPCA(sce_sim, 10) # we don't need all the PCA components
+    if ("UMAP" %in% reducedDimNames(sce)) { # only run UMAP if it was run before
+      sce_sim <- scater::runUMAP(sce_sim)
+    }
   }
 
   # Add any altExps ------------------------------------------------------------
