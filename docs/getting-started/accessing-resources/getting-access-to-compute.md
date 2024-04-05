@@ -1,4 +1,4 @@
-# Getting Access to Compute
+# Getting access to compute
 
 ## Lightsail for Research
 

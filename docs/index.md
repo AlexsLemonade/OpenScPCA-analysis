@@ -38,7 +38,7 @@ This project aims to:
 </div>
 
 
-## Benefits of Participating
+## Benefits of participating
 
 :material-tools:{ .lg .middle }
 **Access to data and tools**
