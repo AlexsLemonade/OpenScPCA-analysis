@@ -6,6 +6,7 @@ We use Amazon Web Services (AWS) to grant contributors access to data and Linux 
     See [Getting Access to Resources](../../getting-started/accessing-resources/index.md) for more information about getting AWS access.
 
     Once we have created an AWS account for you, you can proceed to [set up your account](./joining-aws.md).
+
     Note that your use of AWS services described in this section counts towards your [monthly budget](../../getting-started/accessing-resources/getting-access-to-compute.md#monthly-budget).
 
 ## S3: Data storage with AWS
@@ -16,14 +17,13 @@ All contributors will have a designated [researcher bucket](working-with-s3-buck
 
 Please refer to these pages about working with S3:
 
-- [Locally logging into AWS](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session)
+- [Configuring and logging into AWS from the command line](../../technical-setup/environment-setup/configure-aws-cli.md)
 - [Accessing project data from S3](../../getting-started/accessing-resources/getting-access-to-data.md#accessing-data-on-s3)
 - [Using your researcher bucket](working-with-s3-buckets.md)
 
-## LSfR: Virtual computing with AWS
+## Lightsail for Research: Virtual computing with AWS
 
 As an OpenScPCA contributor, you are eligible for a monthly allocation on [Lightsail for Research (LSfR)](https://aws.amazon.com/lightsail/research/), an Amazon product that allows you to work on a virtual Ubuntu (Linux) Desktop computer in your browser.
-
 
 Please refer to these pages to learn more about setting up and using LSfR:
 

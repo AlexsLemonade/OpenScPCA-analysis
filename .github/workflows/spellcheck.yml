@@ -1,8 +1,8 @@
 name: Check Spelling
 on:
-  pull_request: # TEMPORARY
-    branches:
-     - main
+  #pull_request:
+  #  branches:
+  #   - main
   workflow_dispatch:
   schedule:
     - cron: "0 0 1 * *" # first of every month at midnight
