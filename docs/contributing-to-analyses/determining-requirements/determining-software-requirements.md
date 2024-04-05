@@ -147,7 +147,7 @@ conda-lock --file environment.yml
 
 This will create a `conda-lock.yml` file in the module directory that contains the exact versions of all software packages in the environment, including any dependencies that may be specific to a given platform.
 
-You should perform this step before filing a pull request to ensure that the `conda-lock.yml` file is up-to-date with the current state of your environment.
+You should perform this step before [filing a pull request](../creating-pull-requests/index.md) to ensure that the `conda-lock.yml` file is up-to-date with the current state of your environment.
 
 !!! note
     If the `conda-lock` command fails, it may be because a package is not available for one of the platforms listed in the `environment.yml` file.
