@@ -30,4 +30,4 @@ Please refer to these pages to learn more about setting up and using LSfR:
 - [Creating a virtual computer](./creating-vcs.md)
 - [Working with LSfR volumes](./working-with-volumes.md)
 - [Developing analyses on LSfR](./starting-development-on-lsfr.md)
-- [Using snapshots on LSfR](STUB_LINK LSfR snapshots)
+- [Using snapshots on LSfR](./working-with-snapshots.md)
