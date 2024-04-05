@@ -37,7 +37,7 @@ body:
       label: What will your pull request contain?
       description: |
         Tell us what code and documentation to expect in the pull request to update the module.
-        Remember [that smaller, more focused pull requests get through review faster](STUB_LINK docs on PRs).
+        Remember [that smaller, more focused pull requests get through review faster](https://openscpca.readthedocs.io/en/latest/contributing-to-analyses/creating-pull-requests/scoping-pull-requests/).
     validations:
       required: true
 
