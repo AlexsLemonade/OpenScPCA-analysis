@@ -70,7 +70,7 @@ Creating an instance via LSfR is _not supported_.
     - Name your instance.
     It might be helpful to use the same name as the provisioned product.
     - Pick the size for your instance.
-        - See the [table below outlining the total vCPUs and memory included with each instance size](#choosing-an-instance) to choose the most appropriate instance.
+        - See the [table below outlining the total vCPUs and memory included with each instance size](#choosing-an-instance-size) to choose the most appropriate instance.
     - Set the `ShutdownIdlePercent` to 5 and the `ShutdownTimePeriod` to 10.
     This means if the instance is using less than 5% of the total available CPUs for at least 10 minutes, the instance will temporarily shut down.
     This _does not_ delete your instance; it temporarily stops any idle instances until you are ready to resume your work.
@@ -82,7 +82,7 @@ Creating an instance via LSfR is _not supported_.
 1. Once you have configured your instance, click `Launch product`.
 You have now created a virtual computer!
 
-### Choosing an instance
+### Choosing an instance size
 
 When creating your virtual computer, you will need to choose the instance size.
 This specifies the total vCPUs and memory (RAM) available for use in your virtual computer.
