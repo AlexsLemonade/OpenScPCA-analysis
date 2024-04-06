@@ -1,4 +1,4 @@
-# Compute Requirements
+# Compute requirements
 
 We use the term **compute requirements** to refer to the computational resources, such as the number of CPUs or the amount of RAM, that are required for your analysis to run.
 Reporting the compute requirements for running your analysis to project organizers helps us plan for allocating resources on Amazon Web Services (AWS) and to determine how to [review your pull requests](../pr-review-and-merge/index.md) (e.g., using our laptops vs. using AWS). <!-- STUB_LINK: may replace with review-specific page -->
