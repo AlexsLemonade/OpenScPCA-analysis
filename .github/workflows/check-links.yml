@@ -30,7 +30,7 @@ jobs:
           grep "relative link" build-log.txt > bad_links.txt
           echo "grep done"
 
-          echo "n_bad_links=$(wc -l < bad_links.txt)"
+          echo "n_bad_links=$(wc -l < bad_links.txt)" || true
 
           # Save the number of bad links to github output
           echo "n_bad_links=$(wc -l < bad_links.txt)" >> "$GITHUB_OUTPUT"
