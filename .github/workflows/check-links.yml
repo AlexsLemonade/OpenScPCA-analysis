@@ -27,10 +27,11 @@ jobs:
 
           # Capture all the bad links
           grep "relative link" build-log.txt > bad_links.txt
-          cat bad_links.txt
+          
+          echo "n_bad_links=$(wc -l < bad_links.txt)"
 
           # Save the number of bad links to github output
-          echo "n_bad_links=$(wc -l < bad_links.txt)" >> $GITHUB_OUTPUT
+          echo "n_bad_links=$(wc -l < bad_links.txt)" >> "$GITHUB_OUTPUT"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
