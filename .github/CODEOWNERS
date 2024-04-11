@@ -1,14 +1,14 @@
 # Default reviewers
-* @alexslemonade/openscpca-admins
+* @allyhawkins @jashapiro @jaclyn-taroni @sjspielman
 
 # CODEOWNER owner
 /.github/CODEOWNERS @jaclyn-taroni
 
 # Primary reviewers for docs and licenses changes
 /docs/ @dvenprasad @sjspielman
-/CONTRIBUTING.md @sjspielman
-/README.md @sjspielman
-/mkdocs.yml @sjspielman
+/CONTRIBUTING.md @dvenprasad @sjspielman
+/README.md @dvenprasad @sjspielman
+/mkdocs.yml @dvenprasad @sjspielman
 /LICENSE.md @jaclyn-taroni
 /SECURITY.md @jaclyn-taroni
 /code-of-conduct.md @jaclyn-taroni
@@ -24,6 +24,7 @@
 
 # Primary reviewers for analysis modules
 
+/analyses/ @allyhawkins @jashapiro @jaclyn-taroni @sjspielman
 /analyses/hello-python/ @jashapiro
 /analyses/hello-r/ @jashapiro
 /analyses/simulate-sce/ @jashapiro
