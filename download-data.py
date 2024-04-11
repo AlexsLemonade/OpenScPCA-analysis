@@ -125,7 +125,7 @@ def main() -> None:
 
     # Check formats are valid and make a set
     sce_formats = {"sce", "rds"}
-    anndata_formats = {"anndata", "hdf5", "h5ad"}
+    anndata_formats = {"anndata", "h5ad", "hdf5"}
     formats = {f.lower() for f in args.format.split(",")}
     if not all(f in sce_formats | anndata_formats for f in formats):
         print(
@@ -250,6 +250,7 @@ def main() -> None:
         patterns += [f"*_{level}.rds" for level in includes]
 
     if "anndata" in formats:
+        patterns += [f"*_{level}_*.h5ad" for level in includes]
         patterns += [f"*_{level}_*.hdf5" for level in includes]
 
     # If projects or samples are specified, extend the file-only patterns to specify parent directories
