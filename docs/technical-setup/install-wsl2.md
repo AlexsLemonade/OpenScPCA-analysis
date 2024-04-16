@@ -31,7 +31,9 @@ Along the way, you may get prompts asking if you allow the app to make changes t
 Always click "Yes" when you see these prompts.
 
 1. Once WSL2 has finished installing, open the new Ubuntu app if it does not open automatically.
-    - Ubuntu should prompt you to create a username and password which represent your WSL2 credentials; these are _different_ from the username and password you already have set up on the Windows side of your computer.
+    - Ubuntu should prompt you to create a username and password which represent your WSL2 credentials. 
+      These are _independent_ of the username and password you already have set up on the Windows side of your computer.
+      Changing one will not affect the other, but you can use the same username for both if you would like.
     - Note that when you type your password, no symbols will appear - this is expected!
 
     ??? question "Did Ubuntu not prompt you for a username and password?"

@@ -55,7 +55,7 @@ Note that [Apple provides some additional instructions](https://support.apple.co
 Make sure that you have taken all the necessary steps to [install WSL2](../../technical-setup/install-wsl2.md).
 
 This Ubuntu app itself _is_ the terminal!
-Simply search for and open the Ubuntu app via the Windows Search Bar Menu to launch the terminal.
+Use the Windows Search Bar Menu  to search for and open the Ubuntu app.
 
 
 
