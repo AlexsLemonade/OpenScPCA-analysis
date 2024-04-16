@@ -17,7 +17,7 @@ These instructions will provide you with both WSL2 and the Ubuntu app:
 
 - WSL2 allows your computer to have a separate Linux subsystem
 - Ubuntu is the default Linux distribution that gets installed when you install WSL2
-    - The Ubuntu app also acts as the Linux [the terminal interface](../software-platforms/general-tools/using-the-terminal.md).
+    - The Ubuntu app also acts as the Linux [terminal interface](../software-platforms/general-tools/using-the-terminal.md).
     - The Ubuntu terminal is the main way you will interact with the Linux side of your computer.
 
 To install WSL2, take the following steps:
