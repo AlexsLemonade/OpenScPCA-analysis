@@ -7,10 +7,22 @@ This section provides instructions for technical aspects of set up, including:
 - [Cloning your fork](./clone-the-repo.md) to your computer
 - Setting up [additional dependencies](environment-setup/index.md) on your computer that you'll need to contribute to OpenScPCA
 
-!!! warning
-    At this time, the OpenScPCA project only supports macOS and Linux operating systems.
-    Instructions are therefore geared towards using these platforms.
+## Special considerations for Windows users
 
-    If you would like to see Windows supported, please [let us know by filing an issue](https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/new?assignees=&labels=docs-request&projects=&template=04-docs-request.yml&title=Docs+request%3A)!
+Due to the OpenScPCA project's technical environment needs, Windows users will [need a distinct local setup that uses Windows Subsystem for Linux 2 (WSL2)](./install-wsl2.md).
 
-    Note that all contributors have access to [Lightsail for Research](../software-platforms/aws/index.md#lsfr-virtual-computing-with-aws) instances which run Linux (specifically, Ubuntu).
+
+[WSL2](https://learn.microsoft.com/en-us/windows/wsl/about) lets you run a separate Linux (Ubuntu) environment on your Windows computer and provides a separate Linux file system that is separate from your regular Windows file system.
+When contributing to OpenScPCA, you will need to work entirely on the WSL2 side of your computer, which means:
+
+- Your repository needs to be cloned into your WSL2 file system
+- All applications (e.g., GitKraken and RStudio) need to be installed as Linux applications on your WSL2 system
+
+_The OpenScPCA project does not support the use of Windows machines without WSL2._
+Note that all contributors have access to [Lightsail for Research (LSfR)](../software-platforms/aws/index.md#lsfr-virtual-computing-with-aws) instances which run Linux (specifically, Ubuntu), so you can use LSfR if you prefer not to install WSL2.
+
+TODO: We have also created a [specific GitHub Discussions category](STUB_LINK discussions category) where you can post questions about using WSL2.
+
+!!! note "Learn more about WSL2"
+    For more information about WSL2, please see this [Introduction to Windows Subsystem for Linux](https://learn.microsoft.com/en-us/training/modules/wsl-introduction/).
+
