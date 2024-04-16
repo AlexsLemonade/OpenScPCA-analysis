@@ -33,6 +33,8 @@ This will automatically provide you with the credentials you need to interact wi
     [Follow these instructions first](./install-wsl2.md).
 
 You will [install GitKraken as a Linux application](https://help.gitkraken.com/gitkraken-client/how-to-install/#deb) into the WSL2 side of your computer.
+Note that installing GitKraken will also provide you with Git itself.
+
 All of the following installation steps are commands that you should run in the Ubuntu app.
 
 1. To begin, open the Ubuntu app and run this command:
@@ -44,13 +46,13 @@ All of the following installation steps are commands that you should run in the 
     This command ensures that `apt`, the native Ubuntu package manager, is up to date.
     Note that Ubuntu will prompt you for your WSL2 password; again, no symbols will appear when you type it.
 
-2. Download the GitKraken Linux installer:
+1. Download the GitKraken Linux installer:
 
     ```sh
     wget https://release.gitkraken.com/linux/gitkraken-amd64.deb
     ```
 
-3. Install GitKraken:
+1. Install GitKraken:
 
     ```sh
     wget sudo apt install ./gitkraken-amd64.deb
@@ -59,8 +61,10 @@ All of the following installation steps are commands that you should run in the 
     Along the way, you may be prompted `Do you want to continue [Y/n]?`.
     When you see this prompt, hit enter (or "Y") to continue with the installation.
 
-All set!
-Moving forward, you can now launch GitKraken by typing `gitkraken` in the Ubuntu terminal.
+Now that you have installed GitKraken, you can open it by typing `gitkraken` in the Ubuntu terminal.
+
+The final step is to set up GitKraken on your machine by [directly signing in with your GitHub account](https://help.gitkraken.com/gitkraken-client/github-gitkraken-client/#sign-in-with-github).
+This will automatically provide you with the credentials you need to interact with GitHub without further setup.
 
 You can also refer to the [GitKraken website](https://help.gitkraken.com/gitkraken-client/windows-subsystem-for-linux) for additional considerations for using GitKraken with WSL2.
 
