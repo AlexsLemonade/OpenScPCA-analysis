@@ -13,31 +13,36 @@ If you do not have at least these Windows versions, you must use [Lightsail for 
 
 ## Install WSL2
 
-These instructions will provide you with both WSL2 and Ubuntu, which is the [terminal](../software-platforms/general-tools/using-the-terminal.md) that interacts with the Linux side of your computer.
+These instructions will provide you with both WSL2 and the Ubuntu app:
+
+- WSL2 allows your computer to have a separate Linux subsystem
+- Ubuntu is the default Linux distribution that gets installed when you install WSL2
+    - The Ubuntu app also acts as the Linux [the terminal interface](../software-platforms/general-tools/using-the-terminal.md).
+    - The Ubuntu terminal is the main way you will interact with the Linux side of your computer.
 
 To install WSL2, take the following steps:
 
-1. In the Windows menu, search for the "Windows Powershell" application.
+1. In the Windows menu, search for the "Windows PowerShell" application.
 Open it by clicking "Run as administrator".
 
-1. Enter this command in Powershell and hit enter:
+1. Enter this command in PowerShell and hit enter:
 
     ```sh
     wsl --install
     ```
 
-1. WSL2 will now install.
+2. WSL2 will now install.
 Along the way, you may get prompts asking if you allow the app to make changes to your device.
 Always click "Yes" when you see these prompts.
 
 1. Once WSL2 has finished installing, open the new Ubuntu app if it does not open automatically.
-    - Ubuntu should prompt you to create a username and password which represent your WSL2 credentials. 
+    - Ubuntu should prompt you to create a username and password which represent your WSL2 credentials.
       These are _independent_ of the username and password you already have set up on the Windows side of your computer.
       Changing one will not affect the other, but you can use the same username for both if you would like.
     - Note that when you type your password, no symbols will appear - this is expected!
 
     ??? question "Did Ubuntu not prompt you for a username and password?"
-        If that prompt does not appear in Ubuntu, instead open Powershell and run the command:
+        If that prompt does not appear in Ubuntu, instead open PowerShell and run the command:
 
         ```sh
         wsl --unregister Ubuntu
