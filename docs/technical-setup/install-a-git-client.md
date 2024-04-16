@@ -15,13 +15,55 @@ It is therefore a user-friendly option which does not require you to use the com
 
 GitKraken is _free_ to use with public repositories like `OpenScPCA-analysis`; you do not need to upgrade to their paid plan!
 
-### Install GitKraken
+### Install GitKraken on macOS
 
-1. Install GitKraken [using this link](https://www.gitkraken.com/download). 
+1. Install GitKraken [using this link](https://www.gitkraken.com/download).
 Note that installing GitKraken will also provide you with Git itself.
 
 1. Set up GitKraken on your machine by [directly signing in with your GitHub account](https://help.gitkraken.com/gitkraken-client/github-gitkraken-client/#sign-in-with-github).
 This will automatically provide you with the credentials you need to interact with GitHub without further setup.
+
+### Install GitKraken on Windows with WSL2
+
+!!! note
+    Before installing GitKraken, make sure your WSL2 installation is up to date by running this command in Windows Powershell (not in Ubuntu).
+    When launching Powershell, make sure you are [running as an administrator](https://learn.microsoft.com/en-us/powershell/scripting/windows-powershell/starting-windows-powershell?view=powershell-7.4#with-administrative-privileges-run-as-administrator).
+
+    Still need to install WSL2?
+    [Follow these instructions first](./install-wsl2.md).
+
+You will [install GitKraken as a Linux application](https://help.gitkraken.com/gitkraken-client/how-to-install/#deb) into the WSL2 side of your computer.
+All of the following installation steps are commands that you should run in the Ubuntu app.
+
+1. To begin, open the Ubuntu app and run this command:
+
+    ```sh
+    sudo apt update
+    ```
+
+    This command ensures that `apt`, the native Ubuntu package manager, is up to date.
+    Note that Ubuntu will prompt you for your WSL2 password; again, no symbols will appear when you type it.
+
+2. Download the GitKraken Linux installer:
+
+    ```sh
+    wget https://release.gitkraken.com/linux/gitkraken-amd64.deb
+    ```
+
+3. Install GitKraken:
+
+    ```sh
+    wget sudo apt install ./gitkraken-amd64.deb
+    ```
+
+    Along the way, you may be prompted `Do you want to continue [Y/n]?`.
+    When you see this prompt, hit enter (or "Y") to continue with the installation.
+
+All set!
+Moving forward, you can now launch GitKraken by typing `gitkraken` in the Ubuntu terminal.
+
+You can also refer to the [GitKraken website](https://help.gitkraken.com/gitkraken-client/windows-subsystem-for-linux) for additional considerations for using GitKraken with WSL2.
+
 
 
 ## Why use the Git command line interface?
@@ -51,17 +93,14 @@ For this, launch a Terminal window, enter the command shown below, and follow th
 xcode-select --install
 ```
 
-<!--
-### Install Git on Windows
+### Install Git on Windows in WSL2
 
-We recommend installing the [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/install) with the default Ubuntu Linux distribution.
-You can then install Git into your Ubuntu system:
+Once you have [installed WSL2](./install-wsl2.md), you can install Git using `apt`:
 
+```sh
+# First make sure apt is up to date
+sudo apt update
+
+# Next, install Git
+apt install git
 ```
-# You may need to update the package list first:
-# apt-get update
-
-# Install git
-apt-get install git
-```
--->
