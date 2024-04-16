@@ -21,7 +21,7 @@ When contributing to OpenScPCA, you will need to work entirely on the WSL2 side 
 _The OpenScPCA project does not support the use of Windows machines without WSL2._
 Note that all contributors have access to [Lightsail for Research (LSfR)](../software-platforms/aws/index.md#lsfr-virtual-computing-with-aws) instances which run Linux (specifically, Ubuntu), so you can use LSfR if you prefer not to install WSL2.
 
-TODO: We have also created a [specific GitHub Discussions category](STUB_LINK discussions category) where you can post questions about using WSL2.
+<!-- TODO: We have also created a specific GitHub Discussions category where you can post questions about using WSL2.-->
 
 !!! note "Learn more about WSL2"
     For more information about WSL2, please see this [Introduction to Windows Subsystem for Linux](https://learn.microsoft.com/en-us/training/modules/wsl-introduction/).
