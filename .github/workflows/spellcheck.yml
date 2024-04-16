@@ -1,8 +1,9 @@
 name: Check Spelling
 on:
-  #pull_request:
-  #  branches:
-  #   - main
+  pull_request:
+    branches: main
+    paths:
+      - docs/**
   workflow_dispatch:
   schedule:
     - cron: "0 0 1 * *" # first of every month at midnight
