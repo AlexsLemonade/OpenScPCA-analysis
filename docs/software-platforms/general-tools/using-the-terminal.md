@@ -49,14 +49,14 @@ Double-click this application to open the terminal.
 Note that [Apple provides some additional instructions](https://support.apple.com/guide/terminal/open-or-quit-terminal-apd5265185d-f365-44cb-8b09-71a064a42125/mac) for opening the terminal too.
 (PS: You can also change the look of the terminal by [customizing your terminal profile](https://support.apple.com/guide/terminal/profiles-change-terminal-windows-trml107/mac).)
 
-<!--
-### Accessing the terminal on WSL on Windows
 
-Make sure that you have taken all the necessary steps to [install WSL](STUB_LINK WSL instructions).
+### Accessing the terminal on WSL2 on Windows
+
+Make sure that you have taken all the necessary steps to [install WSL2](../../technical-setup/install-wsl2.md).
 
 This Ubuntu app itself _is_ the terminal!
-Simply [search for and open the Ubuntu app via the Windows Search Bar Menu](https://canonical-ubuntu-wsl.readthedocs-hosted.com/en/latest/guides/install-ubuntu-wsl2/#method-1-microsoft-store) to launch the terminal.
--->
+Simply search for and open the Ubuntu app via the Windows Search Bar Menu to launch the terminal.
+
 
 
 ### Accessing the terminal on Lightsail for Research
