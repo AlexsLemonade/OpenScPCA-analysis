@@ -110,5 +110,5 @@ Once you have [installed WSL2](./install-wsl2.md), you can install Git using `ap
 sudo apt update
 
 # Next, install Git
-apt install git
+sudo apt install git
 ```
