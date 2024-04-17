@@ -33,7 +33,7 @@ Open it by clicking "Run as administrator".
     wsl --install
     ```
 
-2. WSL2 will now install.
+1. WSL2 will now install.
 Along the way, you may get prompts asking if you allow the app to make changes to your device.
 Always click "Yes" when you see these prompts.
 
@@ -51,6 +51,15 @@ Always click "Yes" when you see these prompts.
         ```
 
         This will force Ubuntu to relaunch and prompt you for a username and password.
+
+1. Finally, we recommend that you run the following command in Ubuntu terminal to ensure that the package index for `apt`, the native Ubuntu package manager, is up to date.
+
+    ```sh
+    sudo apt update
+    ```
+
+    Ubuntu may prompt you for your newly-created password when you run this command.
+    Again, when you type your password, no symbols will appear, as expected.
 
 ### Enable copy and paste
 

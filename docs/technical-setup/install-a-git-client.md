@@ -37,18 +37,10 @@ This will automatically provide you with the credentials you need to interact wi
     [Follow these instructions first](./install-wsl2.md).
 
 You will [install GitKraken as a Linux application](https://help.gitkraken.com/gitkraken-client/how-to-install/#deb) into the WSL2 side of your computer.
-Note that installing GitKraken will also provide you with Git itself.
+Note that the command-line version of Git was installed as part of the WSL2 installation, so this step will provide you with the full GitKraken GUI to go along with it.
 
 All of the following installation steps are commands that you should run in the Ubuntu terminal.
 
-1. To begin, open the Ubuntu terminal and run this command:
-
-    ```sh
-    sudo apt update
-    ```
-
-    This command ensures that `apt`, the native Ubuntu package manager, is up to date.
-    Note that Ubuntu will prompt you for your WSL2 password; again, no symbols will appear when you type it.
 
 1. Download the GitKraken Linux installer:
 
@@ -70,7 +62,7 @@ Now that you have installed GitKraken, you can open it by typing `gitkraken` in 
 The final step is to set up GitKraken on your machine by [directly signing in with your GitHub account](https://help.gitkraken.com/gitkraken-client/github-gitkraken-client/#sign-in-with-github).
 This will automatically provide you with the credentials you need to interact with GitHub without further setup.
 
-You can also refer to the [GitKraken website](https://help.gitkraken.com/gitkraken-client/windows-subsystem-for-linux) for additional considerations for using GitKraken with WSL2.
+You can also refer to the [GitKraken website](https://help.gitkraken.com/gitkraken-client/windows-subsystem-for-linux) for additional considerations (some of which are more advanced) for using GitKraken with WSL2.
 
 
 
@@ -103,12 +95,5 @@ xcode-select --install
 
 ### Install Git on Windows in WSL2
 
-Once you have [installed WSL2](./install-wsl2.md), you can install Git using `apt`:
-
-```sh
-# First make sure apt is up to date
-sudo apt update
-
-# Next, install Git
-sudo apt install git
-```
+The [WSL2 installation itself](./install-wsl2.md) comes with Git, so no further action is needed.
+That said, if you want to update the Git installation, please refer to [Git's documentation directly](https://git-scm.com/download/linux).
