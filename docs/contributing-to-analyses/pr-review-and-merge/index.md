@@ -17,7 +17,7 @@ Below is a general overview of what you can expect during the code review proces
 1. You will then need to respond to those comments.
 <!-- Follow [these guidelines when addressing review comments](STUB_LINK to addressing review comments).-->
 
-1. Once you have fully addressed comments from the reviewer, then you will be able to re-request a review.
+3. Once you have fully addressed comments from the reviewer, then you will be able to re-request a review.
 
 The above steps will repeat until the reviewer feels that all comments have been addressed adequately.
 At that time, the PR will be approved.
