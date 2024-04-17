@@ -9,11 +9,12 @@ This section provides instructions for technical aspects of set up, including:
 
 ## Special considerations for Windows users
 
-Due to the OpenScPCA project's technical environment needs, Windows users will [need a distinct local setup that uses Windows Subsystem for Linux 2 (WSL2)](./install-wsl2.md).
+Due to the OpenScPCA project's technical environment needs, Windows users will [need to install and use Windows Subsystem for Linux 2 (WSL2)](./install-wsl2.md).
 
 
-[WSL2](https://learn.microsoft.com/en-us/windows/wsl/about) lets you run a separate Linux (Ubuntu) environment on your Windows computer and provides a separate Linux file system that is separate from your regular Windows file system.
-When contributing to OpenScPCA, you will need to work entirely on the WSL2 side of your computer, which means:
+[WSL2](https://learn.microsoft.com/en-us/windows/wsl/about) lets you run a separate Linux (Ubuntu) environment on your Windows computer.
+This includes a separate Linux file system that is mostly distinct from your regular Windows file system.
+When contributing to OpenScPCA, all data analysis will happen on the WSL2 side of your computer, which means:
 
 - Your repository needs to be cloned into your WSL2 file system
 - All applications (e.g., GitKraken and RStudio) need to be installed as Linux applications on your WSL2 system
