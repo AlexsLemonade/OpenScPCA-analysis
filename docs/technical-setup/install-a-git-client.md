@@ -29,15 +29,19 @@ This will automatically provide you with the credentials you need to interact wi
     Before installing GitKraken, make sure your WSL2 installation is up to date by running this command in Windows Powershell (not in Ubuntu).
     When launching Powershell, make sure you are [running as an administrator](https://learn.microsoft.com/en-us/powershell/scripting/windows-powershell/starting-windows-powershell?view=powershell-7.4#with-administrative-privileges-run-as-administrator).
 
+    ```sh
+    wsl --update
+    ```
+
     Still need to install WSL2?
     [Follow these instructions first](./install-wsl2.md).
 
 You will [install GitKraken as a Linux application](https://help.gitkraken.com/gitkraken-client/how-to-install/#deb) into the WSL2 side of your computer.
 Note that installing GitKraken will also provide you with Git itself.
 
-All of the following installation steps are commands that you should run in the Ubuntu app.
+All of the following installation steps are commands that you should run in the Ubuntu terminal.
 
-1. To begin, open the Ubuntu app and run this command:
+1. To begin, open the Ubuntu terminal and run this command:
 
     ```sh
     sudo apt update
@@ -55,7 +59,7 @@ All of the following installation steps are commands that you should run in the 
 1. Install GitKraken:
 
     ```sh
-    wget sudo apt install ./gitkraken-amd64.deb
+    sudo apt install ./gitkraken-amd64.deb
     ```
 
     Along the way, you may be prompted `Do you want to continue [Y/n]?`.
