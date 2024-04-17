@@ -12,10 +12,10 @@ We will review your code contribution by:
 Below is a general overview of what you can expect during the code review process:
 
 1. In most cases, the first time your PR is reviewed by a Data Lab member, they will provide comments and suggestions.
-Feel free to browse some [example reviewer comments](STUB_LINK to example review comments).
+<!-- Feel free to browse some [example reviewer comments](STUB_LINK to example review comments). -->
 
 1. You will then need to respond to those comments.
-Follow [these guidelines when addressing review comments](STUB_LINK to addressing review comments).
+<!-- Follow [these guidelines when addressing review comments](STUB_LINK to addressing review comments).-->
 
 1. Once you have fully addressed comments from the reviewer, then you will be able to re-request a review.
 
