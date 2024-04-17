@@ -42,25 +42,74 @@ These tools are available from the [R for macOS website](https://mac.r-project.o
 1. Install the **GNU Fortran compiler**.
 Click the link on the [Tools - R for Mac OS](https://mac.r-project.org/tools/) page to download the `gfortran` installer package and follow all installation instructions.
 
-<!--
-### Install R on Windows
+### Install R on Windows with WSL2
+
+These instructions will install R on the WSL2 side of your computer.
 
 
-1. Navigate to the [Windows download page on the CRAN website](https://cran.r-project.org/bin/windows/base/), and follow instructions to download and install R.
 
-2. Next, you need to install Rtools, which provides additional tools that will let you build R packages that you are likely to encounter in OpenScPCA.
-    - Navigate to the [Rtools download page](https://cran.r-project.org/bin/windows/Rtools/)
-    - Click the Rtools version that matches the R version you just downloaded
-    - On the next page, click the link `RtoolsXY installer` (where `XY` is the specific version you clicked) to download Rtools, and follow all installation instructions
--->
+
 
 
 ## Install the RStudio IDE
+
+### Install the RStudio IDE on macOS
 
 If you do not already have RStudio installed, you need to [install the free RStudio Desktop](https://posit.co/download/rstudio-desktop/).
 This website shows Step 1 as installing R itself, which you can skip and proceed straight to Step 2, Install RStudio.
 
 Click the download link and follow all instructions to complete the installation.
+
+
+### Install RStudio Server on Windows with WSL2
+
+Because there is no native way to use the RStudio IDE within WSL2's Ubuntu operating system, you will instead need to install the RStudio Server.
+
+This will provide essentially the same experience as working with RStudio Desktop, except you will access the IDE through your browser instead of through a built-in GUI.
+
+To install RStudio Server, run these commands in the Ubuntu terminal:
+
+1. Download the RStudio Server installer file:
+
+    ```sh
+    wget https://rstudio.org/download/latest/stable/server/jammy/rstudio-server-latest-amd64.deb
+    ```
+
+1. Install RStudio Server:
+
+    ```
+    sudo apt install ./rstudio-server-latest-amd64.deb
+    ```
+
+    Note that this line will also start the server automatically when the installation is complete.
+
+
+#### Using the RStudio Server
+
+To access the RStudio Server, the server must be running.
+You can start and stop the server by running the following lines in Ubuntu terminal.
+We recommend that you stop the server after each coding session:
+
+- Start RStudio Server
+
+    ```sh
+    sudo systemctl start rstudio-server.service
+    ```
+
+- Stop RStudio Server
+
+    ```sh
+    sudo systemctl stop rstudio-server.service
+    ```
+
+To use the RStudio Server, navigate to `localhost:8787` in your browser.
+You will be prompted to sign into the server with a username and password; use the username and password credentials you created when you [installed Ubuntu](../install-wsl2.md#installation-instructions).
+
+Once you log in, you will see an RStudio IDE in the browser which you can use as you normally would use RStudio Desktop!
+Because the server is installed on the WSL2 side of your computer, you can fully interact with your Linux file system via RStudio Server's built-in terminal just the same as the Ubuntu terminal application.
+
+
+
 
 ## Install R package dependencies
 
