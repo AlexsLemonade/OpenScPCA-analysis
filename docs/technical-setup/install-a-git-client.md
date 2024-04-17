@@ -15,6 +15,9 @@ It is therefore a user-friendly option which does not require you to use the com
 
 GitKraken is _free_ to use with public repositories like `OpenScPCA-analysis`; you do not need to upgrade to their paid plan!
 
+Be aware that installing GitKraken will install Git, but _only_ for use in GitKraken.
+If you want to also be able to use Git via command line, please refer to the [command line installation instructions](#why-use-the-git-command-line-interface).
+
 ### Install GitKraken on macOS
 
 1. Install GitKraken [using this link](https://www.gitkraken.com/download).
@@ -37,7 +40,6 @@ This will automatically provide you with the credentials you need to interact wi
     [Follow these instructions first](./install-wsl2.md).
 
 You will [install GitKraken as a Linux application](https://help.gitkraken.com/gitkraken-client/how-to-install/#deb) into the WSL2 side of your computer.
-Note that the command-line version of Git was installed as part of the WSL2 installation, so this step will provide you with the full GitKraken GUI to go along with it.
 
 All of the following installation steps are commands that you should run in the Ubuntu terminal.
 
@@ -48,7 +50,7 @@ All of the following installation steps are commands that you should run in the 
     wget https://release.gitkraken.com/linux/gitkraken-amd64.deb
     ```
 
-1. Install GitKraken:
+2. Install GitKraken:
 
     ```sh
     sudo apt install ./gitkraken-amd64.deb
@@ -95,5 +97,14 @@ xcode-select --install
 
 ### Install Git on Windows in WSL2
 
+Once you have [installed WSL2](./install-wsl2.md), you can install Git using `apt`:
 The [WSL2 installation itself](./install-wsl2.md) comes with Git, so no further action is needed.
+
 That said, if you want to update the Git installation, please refer to [Git's documentation directly](https://git-scm.com/download/linux).
+```sh
+# First make sure apt is up to date
+sudo apt update
+
+# Next, install Git
+sudo apt install git
+```
