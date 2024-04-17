@@ -11,7 +11,7 @@ WSL2 requires that you are on Windows 11 or Windows 10 version 2004+ (Build 1904
 If you do not have at least these Windows versions, you must use [Lightsail for Research](../software-platforms/aws/index.md#lightsail-for-research-virtual-computing-with-aws) instead.
 
 
-## Install WSL2
+## Installation instructions
 
 These instructions will provide you with both WSL2 and the Ubuntu app:
 
@@ -33,7 +33,7 @@ Open it by clicking "Run as administrator".
     wsl --install
     ```
 
-2. WSL2 will now install.
+1. WSL2 will now install.
 Along the way, you may get prompts asking if you allow the app to make changes to your device.
 Always click "Yes" when you see these prompts.
 
