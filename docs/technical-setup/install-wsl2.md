@@ -17,7 +17,7 @@ These instructions will provide you with both WSL2 and the Ubuntu app:
 
 - WSL2 allows your computer to have a separate Linux subsystem
 - Ubuntu is the default Linux distribution that gets installed when you install WSL2
-    - The Ubuntu app also acts as the Linux [terminal interface](../software-platforms/general-tools/using-the-terminal.md).
+    - The Ubuntu terminal application also acts as the Linux [terminal interface](../software-platforms/general-tools/using-the-terminal.md).
     - The Ubuntu terminal is the main way you will interact with the Linux side of your computer.
         - To learn more about the relationship between your Linux and Windows file systems, please refer to this article on [Working across Windows and Linux file systems](https://learn.microsoft.com/en-us/windows/wsl/filesystems).
         However, please be aware that for the purposes of OpenScPCA contribution, you should _only_ install files and perform analyses on the Linux file system.
