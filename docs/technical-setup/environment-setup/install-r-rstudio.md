@@ -68,7 +68,7 @@ This should launch the R console in terminal; hit `Ctrl+D` to quit.
 
 1. Finally, copy and paste this line into the Ubuntu terminal.
     ```sh
-    echo "\noptions(repos = list(CRAN='https://p3m.dev/cran/__linux__/jammy/latest'))" >> ~/.Rprofile
+    echo "options(repos = list(CRAN='https://p3m.dev/cran/__linux__/jammy/latest'))" >> ~/.Rprofile
     ```
       - This line sets the default R package repository to P3M, the Posit Public Package Manager, instead of the default of CRAN in your [`.Rprofile`](https://support.posit.co/hc/en-us/articles/360047157094-Managing-R-with-Rprofile-Renviron-Rprofile-site-Renviron-site-rsession-conf-and-repos-conf) file.
        - It will _dramatically_ streamline R package installation by providing you with pre-built package binaries, removing the need to install lots of additional system library dependencies on your computer.
@@ -96,7 +96,7 @@ To install RStudio Server, run these commands in the Ubuntu terminal:
 1. Download the RStudio Server installer file:
 
     ```sh
-    wget https://rstudio.org/download/latest/stable/server/jammy/rstudio-server-latest-amd64.deb
+    wget "https://rstudio.org/download/latest/stable/server/$(lsb_release -cs)/rstudio-server-latest-amd64.deb"
     ```
 
 1. Install RStudio Server:
@@ -124,13 +124,13 @@ We recommend that you stop the server after each coding session:
 - Start RStudio Server
 
     ```sh
-    sudo systemctl start rstudio-server.service
+    sudo rstudio-server start
     ```
 
 - Stop RStudio Server
 
     ```sh
-    sudo systemctl stop rstudio-server.service
+    sudo rstudio-server stop
     ```
 
 To use the RStudio Server, navigate to `localhost:8787` in your browser.
