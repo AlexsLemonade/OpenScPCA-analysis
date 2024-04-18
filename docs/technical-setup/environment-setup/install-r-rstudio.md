@@ -107,6 +107,13 @@ To install RStudio Server, run these commands in the Ubuntu terminal:
 
     Note that this line will also start the server automatically when the installation is complete.
 
+1. You can now safely remove the installer file:
+
+
+    ```sh
+    rm rstudio-server-latest-amd64.deb
+    ```
+
 
 #### Using the RStudio Server
 
