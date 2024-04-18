@@ -50,7 +50,7 @@ All of the following installation steps are commands that you should run in the 
     wget https://release.gitkraken.com/linux/gitkraken-amd64.deb
     ```
 
-2. Install GitKraken:
+1. Install GitKraken:
 
     ```sh
     sudo apt install ./gitkraken-amd64.deb
@@ -58,6 +58,12 @@ All of the following installation steps are commands that you should run in the 
 
     Along the way, you may be prompted `Do you want to continue [Y/n]?`.
     When you see this prompt, hit enter (or "Y") to continue with the installation.
+
+1. You can now safely remove the installer file:
+
+    ```sh
+    rm gitkraken-amd64.deb
+    ```
 
 Now that you have installed GitKraken, you can open it by typing `gitkraken` in the Ubuntu terminal.
 
