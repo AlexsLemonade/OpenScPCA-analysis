@@ -68,7 +68,7 @@ This should launch the R console in terminal; hit `Ctrl+D` to quit.
 
 1. Finally, copy and paste this line into the Ubuntu terminal.
     ```sh
-    echo "options(repos = list(CRAN='https://p3m.dev/cran/__linux__/$(lsb_release -cs)/latest'))" >> ~/.Rprofile
+    echo -e "options(repos = list(CRAN='https://p3m.dev/cran/__linux__/$(lsb_release -cs)/latest'))" >> ~/.Rprofile
     ```
       - This line sets the default R package repository to P3M, the Posit Public Package Manager, instead of the default of CRAN in your [`.Rprofile`](https://support.posit.co/hc/en-us/articles/360047157094-Managing-R-with-Rprofile-Renviron-Rprofile-site-Renviron-site-rsession-conf-and-repos-conf) file.
        - It will _dramatically_ streamline R package installation by providing you with pre-built package binaries, removing the need to install lots of additional system library dependencies on your computer.
