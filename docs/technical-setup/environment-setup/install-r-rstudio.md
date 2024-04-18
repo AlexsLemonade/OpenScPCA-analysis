@@ -132,7 +132,7 @@ You can start and stop the server by running the following lines in the Ubuntu t
     sudo rstudio-server stop
     ```
 
-To use the RStudio Server, navigate to `localhost:8787` in your browser.
+To use the RStudio Server, navigate to `http://localhost:8787` in your browser.
 You will be prompted to sign into the server with a username and password; use the username and password credentials you created when you [installed Ubuntu](../install-wsl2.md#installation-instructions).
 
 Once you log in, you will see an RStudio IDE in the browser which you can use as you normally would use RStudio Desktop!
