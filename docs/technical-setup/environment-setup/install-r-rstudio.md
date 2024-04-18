@@ -46,8 +46,32 @@ Click the link on the [Tools - R for Mac OS](https://mac.r-project.org/tools/) p
 
 These instructions will install R on the WSL2 side of your computer.
 
+1. Copy and paste this code into the Ubuntu terminal to install R:
 
+    ```sh
+    # install a few helper packages needed to install R and certain R packages
+    sudo apt install --no-install-recommends software-properties-common dirmngr libssl-dev
 
+    # add the signing key (by Michael Rutter) for these repos
+    wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
+
+    # add the R 4.0 repo from CRAN -- adjust 'focal' to 'groovy' or 'bionic' as needed
+    sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/"
+
+    # install R
+    sudo apt install --no-install-recommends r-base r-base-dev
+    ```
+
+1. To confirm R was successfully installed, run `R` in the Ubuntu terminal.
+This should launch the R console in terminal; hit `Ctrl+D` to quit.
+    - If you instead get an error message that the command was not found, your R installation was not successful; please feel free to use the [Troubleshooting GitHub Discussions](../../communications-tools/index.md#ask-questions) to get some help!
+
+1. Finally, copy and paste this line into the Ubuntu terminal.
+    ```sh
+    echo "\noptions(repos = list(CRAN='https://p3m.dev/cran/__linux__/jammy/latest'))" >> ~/.Rprofile
+    ```
+      - This line sets the default R package repository to P3M, the Posit Public Package Manager, instead of the default of CRAN in your [`.Rprofile`](https://support.posit.co/hc/en-us/articles/360047157094-Managing-R-with-Rprofile-Renviron-Rprofile-site-Renviron-site-rsession-conf-and-repos-conf) file.
+       - It will _dramatically_ streamline R package installation by providing you with pre-built package binaries, removing the need to install lots of additional system library dependencies on your computer.
 
 
 
