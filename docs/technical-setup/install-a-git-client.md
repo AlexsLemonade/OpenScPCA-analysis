@@ -104,9 +104,7 @@ xcode-select --install
 ### Install Git on Windows in WSL2
 
 Once you have [installed WSL2](./install-wsl2.md), you can install Git using `apt`:
-The [WSL2 installation itself](./install-wsl2.md) comes with Git, so no further action is needed.
 
-That said, if you want to update the Git installation, please refer to [Git's documentation directly](https://git-scm.com/download/linux).
 ```sh
 # First make sure apt is up to date
 sudo apt update
