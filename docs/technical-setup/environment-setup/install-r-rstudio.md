@@ -55,8 +55,8 @@ These instructions will install R on the WSL2 side of your computer.
     # add the signing key (by Michael Rutter) for these repos
     wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
 
-    # add the R 4.0 repo from CRAN -- adjust 'focal' to 'groovy' or 'bionic' as needed
-    sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/"
+    # add the R 4.0 repo from CRAN
+    sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
 
     # install R
     sudo apt install --no-install-recommends r-base r-base-dev
@@ -68,7 +68,7 @@ This should launch the R console in terminal; hit `Ctrl+D` to quit.
 
 1. Finally, copy and paste this line into the Ubuntu terminal.
     ```sh
-    echo "options(repos = list(CRAN='https://p3m.dev/cran/__linux__/jammy/latest'))" >> ~/.Rprofile
+    echo "options(repos = list(CRAN='https://p3m.dev/cran/__linux__/$(lsb_release -cs)/latest'))" >> ~/.Rprofile
     ```
       - This line sets the default R package repository to P3M, the Posit Public Package Manager, instead of the default of CRAN in your [`.Rprofile`](https://support.posit.co/hc/en-us/articles/360047157094-Managing-R-with-Rprofile-Renviron-Rprofile-site-Renviron-site-rsession-conf-and-repos-conf) file.
        - It will _dramatically_ streamline R package installation by providing you with pre-built package binaries, removing the need to install lots of additional system library dependencies on your computer.
@@ -118,8 +118,7 @@ To install RStudio Server, run these commands in the Ubuntu terminal:
 #### Using the RStudio Server
 
 To access the RStudio Server, the server must be running.
-You can start and stop the server by running the following lines in Ubuntu terminal.
-We recommend that you stop the server after each coding session:
+You can start and stop the server by running the following lines in the Ubuntu terminal.
 
 - Start RStudio Server
 
