@@ -23,50 +23,41 @@ These instructions will provide you with both WSL2 and the Ubuntu terminal:
         However, please be aware that for the purposes of OpenScPCA contribution, you should _only_ install files and perform analyses on the Linux file system.
 
 To install WSL2, take the following steps.
+Note that these instructions are taken from [these official Windows instructions](https://learn.microsoft.com/en-us/windows/wsl/setup/environment).
+
 Throughout this process you will be prompted about whether you want to all this app to make changes to your device.
 Always click "Yes" when you see these prompts.
 
 1. In the Windows menu, search for the "Windows PowerShell" application.
 Open it by clicking "Run as administrator".
 
-1. Enter this command in PowerShell and hit enter:
+1. Run this command in PowerShell to install WSL2:
 
     ```sh
     wsl --install
     ```
 
-1. WSL2 will now install.
-
-1. Once WSL2 has finished installing, open the new Ubuntu app if it does not open automatically.
-    - Ubuntu should prompt you to create a username and password which represent your WSL2 credentials.
-      These are _independent_ of the username and password you already have set up on the Windows side of your computer.
-      Changing one will not affect the other, but you can use the same username for both if you would like.
-        - _Make sure you keep track of your username and password!_
-        You will need to use your password when installing software Ubuntu, and if you choose to use [RStudio](environment-setup/install-r-rstudio.md#using-the-rstudio-server), you will need your username and password.
+1. Once WSL2 has finished installing, you will be prompted to set up a username and password that represent your Ubuntu credentials.
+    - These credentials are _independent_ of the username and password you already have set up on the Windows side of your computer.
+        - Changing one will not affect the other, but you can use the same username for both if you would like.
+    - _Make sure you keep track of your username and password!_
+    You will need to use your password when installing software Ubuntu, and if you choose to use [RStudio](environment-setup/install-r-rstudio.md#using-the-rstudio-server), you will need your username and password.
     - Note that when you type your password, no symbols will appear - this is expected!
 
-    ??? question "Did Ubuntu not prompt you for a username and password?"
-        If that prompt does not appear in Ubuntu, instead open PowerShell and run the command:
+1. Close out the PowerShell application, and open the Ubuntu terminal application by searching in for it in the Windows menu.
 
-        ```sh
-        wsl --unregister Ubuntu
-        ```
-
-        This will force Ubuntu to relaunch and prompt you for a username and password.
-
-1. Finally, we recommend that you run the following command in Ubuntu terminal to ensure that the package index for `apt`, the native Ubuntu package manager, is up to date.
+    - Run the following command in Ubuntu to ensure that the package index for `apt`, the native Ubuntu package manager, and all its pre-installed packages are up to date.
+    - Ubuntu will prompt you for your newly-created password when you run this command; you can expect to be prompted for a password anytime you run a command as [`sudo`](https://www.pluralsight.com/resources/blog/cloud/linux-commands-for-beginners-sudo).
+         - Again, when you type your password, no symbols will appear, as expected.
+         - Enter "Y" if/when you are prompted for whether you want to continue with any package upgrades.
 
     ```sh
-    sudo apt update
+    sudo apt update && sudo apt upgrade
     ```
 
-    Ubuntu may prompt you for your newly-created password when you run this command.
-    Again, when you type your password, no symbols will appear, as expected.
 
-### Enable copy and paste
+!!! tip "A Ubuntu tip!"
+    Copy and paste in the Ubuntu terminal is notoriously tricky!
+    Unfortunately, the usual shortcuts of `Ctrl+C`/`Ctrl+V` don't work there.
 
-The standard `Ctrl+C/Ctrl+V` shortcuts for copy/paste do not natively work in Ubuntu.
-To turn on copy/paste shortcuts, right-click on the Ubuntu window's title bar and select "Properties."
-
-On the next screen, make sure `Use Ctrl+Shift+C/V as Copy/Paste` is checked on.
-Now, you can use `Ctrl+Shift+C` for copy, and `Ctrl+Shift+V` for paste.
+    Instead, right-clicking in the terminal window will paste the contents of your clipboard into the terminal.
