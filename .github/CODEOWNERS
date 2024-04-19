@@ -1,5 +1,5 @@
 # Default reviewers
-* @allyhawkins @jashapiro @jaclyn-taroni @sjspielman
+* @allyhawkins
 
 # CODEOWNER owner
 /.github/CODEOWNERS @jaclyn-taroni
@@ -25,7 +25,7 @@
 
 # Primary reviewers for analysis modules
 
-/analyses/ @allyhawkins @jashapiro @jaclyn-taroni @sjspielman
+/analyses/ @allyhawkins
 /analyses/hello-python/ @jashapiro
 /analyses/hello-r/ @jashapiro
 /analyses/simulate-sce/ @jashapiro
