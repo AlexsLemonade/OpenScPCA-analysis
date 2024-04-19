@@ -13,7 +13,7 @@ If you do not have at least these Windows versions, you must use [Lightsail for 
 
 ## Installation instructions
 
-These instructions will provide you with both WSL2 and the Ubuntu app:
+These instructions will provide you with both WSL2 and the Ubuntu terminal:
 
 - WSL2 allows your computer to have a separate Linux subsystem
 - Ubuntu is the default Linux distribution that gets installed when you install WSL2
@@ -22,7 +22,9 @@ These instructions will provide you with both WSL2 and the Ubuntu app:
         - To learn more about the relationship between your Linux and Windows file systems, please refer to this article on [Working across Windows and Linux file systems](https://learn.microsoft.com/en-us/windows/wsl/filesystems).
         However, please be aware that for the purposes of OpenScPCA contribution, you should _only_ install files and perform analyses on the Linux file system.
 
-To install WSL2, take the following steps:
+To install WSL2, take the following steps.
+Throughout this process you will be prompted about whether you want to all this app to make changes to your device.
+Always click "Yes" when you see these prompts.
 
 1. In the Windows menu, search for the "Windows PowerShell" application.
 Open it by clicking "Run as administrator".
@@ -34,8 +36,6 @@ Open it by clicking "Run as administrator".
     ```
 
 1. WSL2 will now install.
-Along the way, you may get prompts asking if you allow the app to make changes to your device.
-Always click "Yes" when you see these prompts.
 
 1. Once WSL2 has finished installing, open the new Ubuntu app if it does not open automatically.
     - Ubuntu should prompt you to create a username and password which represent your WSL2 credentials.
