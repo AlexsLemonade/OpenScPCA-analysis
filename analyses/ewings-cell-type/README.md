@@ -12,9 +12,7 @@ What commands are needed to execute all steps in the analysis?
 
 ## Input files
 
-Please include a description of the required inputs to run the analysis module (e.g., processed `SingleCellExperiment` objects from the ScPCA Portal).
-If the input to this module is dependent on running any other scripts (e.g., `download-data.py`) or on the output of another module, please state that.
-If possible, include examples of specific commands used to obtain data.
+This module requires the processed `SingleCellExperiment` objects (`_processed.rds`) from SCPCP0000015.
 
 ## Output files
 
