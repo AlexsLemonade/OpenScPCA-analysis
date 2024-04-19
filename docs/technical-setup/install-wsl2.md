@@ -11,7 +11,7 @@ WSL2 requires that you are on Windows 11 or Windows 10 version 2004+ (Build 1904
 If you do not have at least these Windows versions, you must use [Lightsail for Research](../software-platforms/aws/index.md#lightsail-for-research-virtual-computing-with-aws) instead.
 
 
-## Install WSL2
+## Installation instructions
 
 These instructions will provide you with both WSL2 and the Ubuntu app:
 
@@ -41,6 +41,8 @@ Always click "Yes" when you see these prompts.
     - Ubuntu should prompt you to create a username and password which represent your WSL2 credentials.
       These are _independent_ of the username and password you already have set up on the Windows side of your computer.
       Changing one will not affect the other, but you can use the same username for both if you would like.
+        - _Make sure you keep track of your username and password!_
+        You will need to use your password when installing software Ubuntu, and if you choose to use [RStudio](environment-setup/install-r-rstudio.md#using-the-rstudio-server), you will need your username and password.
     - Note that when you type your password, no symbols will appear - this is expected!
 
     ??? question "Did Ubuntu not prompt you for a username and password?"
