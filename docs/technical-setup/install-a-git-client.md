@@ -65,12 +65,12 @@ All of the following installation steps are commands that you should run in the 
     rm gitkraken-amd64.deb
     ```
 
-Now that you have installed GitKraken, you can open it by typing `gitkraken` in the Ubuntu terminal.
+1. Now that you have installed GitKraken, you can open it by typing `gitkraken` in the Ubuntu terminal.
 
-The final step is to set up GitKraken on your machine by [directly signing in with your GitHub account](https://help.gitkraken.com/gitkraken-client/github-gitkraken-client/#sign-in-with-github).
+1. The final step is to set up GitKraken on your machine by [directly signing in with your GitHub account](https://help.gitkraken.com/gitkraken-client/github-gitkraken-client/#sign-in-with-github).
 This will automatically provide you with the credentials you need to interact with GitHub without further setup.
-
-You can also refer to the [GitKraken website](https://help.gitkraken.com/gitkraken-client/windows-subsystem-for-linux) for additional considerations (some of which are more advanced) for using GitKraken with WSL2.
+    - Note that you may need to manually copy/paste the Token displayed in your browser into GitKraken to complete the signin.
+    - You can also refer to the [GitKraken website](https://help.gitkraken.com/gitkraken-client/windows-subsystem-for-linux) for additional considerations (some of which are more advanced) for using GitKraken with WSL2.
 
 
 
