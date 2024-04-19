@@ -62,6 +62,8 @@ These instructions will install R on the WSL2 side of your computer.
     sudo apt install --no-install-recommends r-base r-base-dev
     ```
 
+    As this code runs, you may be prompted to hit `ENTER` and/or `Y` to continue; make sure to enter as prompted.
+
 1. To confirm R was successfully installed, run `R` in the Ubuntu terminal.
 This should launch the R console in terminal; hit `Ctrl+D` to quit.
     - If you instead get an error message that the command was not found, your R installation was not successful; please feel free to use the [Troubleshooting GitHub Discussions](../../communications-tools/index.md#ask-questions) to get some help!
