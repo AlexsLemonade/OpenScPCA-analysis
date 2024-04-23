@@ -74,7 +74,7 @@ You can also launch the Ubuntu terminal by clicking "Ubuntu" when searching for 
 Note that the Terminal application can have different tabs for different shells - for example one tab for Ubuntu terminal, and another tab for PowerShell.
 
 <figure markdown="span">
-    ![Open the Ubuntu Terminal in Windows](../../img/wsl-terminal-tab.png){width="500"}
+    ![Open the Ubuntu Terminal in Windows](../../img/wsl-terminal-tab.png){width="300"}
 </figure>
 
 
