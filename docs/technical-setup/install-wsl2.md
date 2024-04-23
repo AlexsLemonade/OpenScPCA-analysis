@@ -57,7 +57,5 @@ Open it by clicking "Run as administrator".
 
 
 !!! tip "A Ubuntu tip!"
-    Copy and paste in the Ubuntu terminal is notoriously tricky!
-    Unfortunately, the usual shortcuts of `Ctrl+C`/`Ctrl+V` don't work there.
-
-    Instead, right-clicking in the terminal window will paste the contents of your clipboard into the terminal.
+    Be aware that right-clicking in the Ubuntu terminal window has different behavior compared to the rest of your computer.
+    In Ubuntu, right-clicking will _paste_ the contents of your clipboard into the terminal.
