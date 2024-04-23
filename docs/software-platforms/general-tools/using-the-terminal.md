@@ -63,7 +63,7 @@ Search for the application called "Ubuntu" in the Windows search menu to launch 
 #### Windows 11
 
 In the most recent Windows 11 version, there is a single application called _Terminal_ which opens all types of shells, aka command line prompts, open in the same window.
-By default, the "Terminal" application will launch the Ubuntu terminal when you open it.
+By default, the Terminal application will launch the Ubuntu terminal when you open it.
 You can also launch the Ubuntu terminal by clicking "Ubuntu" when searching for this application in the Windows search menu.
 
 <figure markdown="span">
