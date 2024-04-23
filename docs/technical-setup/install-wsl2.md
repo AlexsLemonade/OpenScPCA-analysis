@@ -37,11 +37,11 @@ Open it by clicking "Run as administrator".
     wsl --install
     ```
 
-1. Once WSL2 has finished installing, you will be prompted to set up a username and password that represent your Ubuntu credentials.
+1. Once WSL2 has finished installing, you will be prompted to set up a username and password to use with Ubuntu.
     - These credentials are _independent_ of the username and password you already have set up on the Windows side of your computer.
         - Changing one will not affect the other, but you can use the same username for both if you would like.
     - _Make sure you keep track of your username and password!_
-    You will need to use your password when installing software Ubuntu, and if you choose to use [RStudio](environment-setup/install-r-rstudio.md#using-the-rstudio-server), you will need your username and password.
+    You will need to use your password when installing software for Ubuntu, and if you choose to use [RStudio](environment-setup/install-r-rstudio.md#using-the-rstudio-server), you will need your username and password.
     - Note that when you type your password, no symbols will appear - this is expected!
 
 1. Open a [Ubuntu terminal window](../software-platforms/general-tools/using-the-terminal.md#accessing-the-terminal-on-wsl2-on-windows).
