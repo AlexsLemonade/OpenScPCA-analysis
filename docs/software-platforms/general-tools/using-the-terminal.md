@@ -54,8 +54,29 @@ Note that [Apple provides some additional instructions](https://support.apple.co
 
 Make sure that you have taken all the necessary steps to [install WSL2](../../technical-setup/install-wsl2.md).
 
-The Ubuntu terminal application itself _is_ the terminal.
-Use the Windows Search Bar Menu to search for and open the Ubuntu terminal.
+Accessing the Ubuntu terminal depends on your Windows version:
+
+#### Windows 10
+
+Search for the application called "Ubuntu" in the Windows search menu to launch the Ubuntu terminal.
+
+#### Windows 11
+
+In the most recent Windows 11 version, there is a single application called _Terminal_ which opens all types of shells, aka command line prompts, open in the same window.
+By default, the "Terminal" application will launch the Ubuntu terminal when you open it.
+You can also launch the Ubuntu terminal by clicking "Ubuntu" when searching for this application in the Windows search menu.
+
+<figure markdown="span">
+    ![Open the Ubuntu Terminal in Windows](../../img/wsl-terminal.png){width="300"}
+</figure>
+
+
+Note that the Terminal application can have different tabs for different shells - for example one tab for Ubuntu terminal, and another tab for PowerShell.
+
+<figure markdown="span">
+    ![Open the Ubuntu Terminal in Windows](../../img/wsl-terminal-tab.png){width="500"}
+</figure>
+
 
 
 ### Accessing the terminal on Lightsail for Research

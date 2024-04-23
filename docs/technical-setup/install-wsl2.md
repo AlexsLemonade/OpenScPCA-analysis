@@ -28,7 +28,7 @@ Note that these instructions are taken from [these official Windows instructions
 Throughout this process you will be prompted about whether you want to all this app to make changes to your device.
 Always click "Yes" when you see these prompts.
 
-1. In the Windows menu, search for the "Windows PowerShell" application.
+1. In the Windows Search Bar Menu, search for the "Windows PowerShell" application.
 Open it by clicking "Run as administrator".
 
 1. Run this command in PowerShell to install WSL2:
@@ -44,7 +44,7 @@ Open it by clicking "Run as administrator".
     You will need to use your password when installing software Ubuntu, and if you choose to use [RStudio](environment-setup/install-r-rstudio.md#using-the-rstudio-server), you will need your username and password.
     - Note that when you type your password, no symbols will appear - this is expected!
 
-1. Close out the PowerShell application, and open the Ubuntu terminal application by searching in for it in the Windows menu.
+1. Open a [Ubuntu terminal window](../software-platforms/general-tools/using-the-terminal.md#accessing-the-terminal-on-wsl2-on-windows).
 
     - Run the following command in Ubuntu to ensure that the package index for `apt`, the native Ubuntu package manager, and all its pre-installed packages are up to date.
     - Ubuntu will prompt you for your newly-created password when you run this command; you can expect to be prompted for a password anytime you run a command as [`sudo`](https://www.pluralsight.com/resources/blog/cloud/linux-commands-for-beginners-sudo).
