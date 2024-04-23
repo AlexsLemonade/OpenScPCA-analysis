@@ -54,28 +54,22 @@ Note that [Apple provides some additional instructions](https://support.apple.co
 
 Make sure that you have taken all the necessary steps to [install WSL2](../../technical-setup/install-wsl2.md).
 
-Accessing the Ubuntu terminal depends on your Windows version:
+To access the Ubuntu terminal, you can either use either of these applications:
 
-#### Windows 10
+- The "Ubuntu" application, which will launch a Ubuntu terminal.
+- The ["Terminal" application](https://learn.microsoft.com/en-us/windows/terminal/)
+    - This application opens all types of shells, aka command line prompts, open in the same window.
+    If it is not already installed, you can [install Terminal from the Microsoft Store](https://apps.microsoft.com/detail/9n0dx20hk701?rtc=1&hl=en-us&gl=US).
+    - You can launch the Ubuntu terminal by clicking "Ubuntu" when searching for this application in the Windows search menu.
 
-Search for the application called "Ubuntu" in the Windows search menu to launch the Ubuntu terminal.
+        <figure markdown="span">
+            ![Open the Ubuntu Terminal in Windows](../../img/wsl-terminal.png){width="300"}
+        </figure>
+    - Note that the Terminal application can have different tabs for different shells - for example one tab for Ubuntu terminal, and another tab for PowerShell.
 
-#### Windows 11
-
-In the most recent Windows 11 version, there is a single application called _Terminal_ which opens all types of shells, aka command line prompts, open in the same window.
-By default, the Terminal application will launch the Ubuntu terminal when you open it.
-You can also launch the Ubuntu terminal by clicking "Ubuntu" when searching for this application in the Windows search menu.
-
-<figure markdown="span">
-    ![Open the Ubuntu Terminal in Windows](../../img/wsl-terminal.png){width="300"}
-</figure>
-
-
-Note that the Terminal application can have different tabs for different shells - for example one tab for Ubuntu terminal, and another tab for PowerShell.
-
-<figure markdown="span">
-    ![Open the Ubuntu Terminal in Windows](../../img/wsl-terminal-tab.png){width="300"}
-</figure>
+        <figure markdown="span">
+            ![Open the Ubuntu Terminal in Windows](../../img/wsl-terminal-tab.png){width="300"}
+        </figure>
 
 
 
