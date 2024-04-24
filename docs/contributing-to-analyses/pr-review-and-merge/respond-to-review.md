@@ -8,65 +8,135 @@ Your reviewer will evaluate the code and/or documentation in your PR for the fol
 
 - **Context**
     - Has enough information been provided for the reviewer to fully understand the scope and context of what they are reviewing?
-    If not, your reviewer's initial code review will likely request additional information to be able to perform review.
+    If not, your reviewer's initial code review will likely request additional information they need to be able to perform review.
 - **Clarity**
     - Is the code readable, reasonably efficient, and well-commented?
-- **Reproducibility**
-    - Can the code be re-run to successfully generate the same results?
 - **Documentation**
     - Are the code and results (if applicable) clearly documented?
     - Are the steps to set up the code environment and run the code clearly documented?
+- **Reproducibility**
+    - Can the code be re-run to successfully generate the same results?
 - **Code checks**
     - We have set up several automated checks using GitHub actions for code quality control.
     If any of these automated checks fail, your reviewer may include feedback about what changes you may need to make for code checks to pass.
 
+!!! tip "Read the full review first"
+    Responding to code reviews establishes a conversation between you and your reviewer.
+    To ensure that this process goes smoothly and with fewer opportunities for miscommunication, we strongly recommend reading through all of your reviewer's comments before diving into review:
 
-## Responding to review
+    - You'll gain more context about why the reviewer left certain comments by reading the whole review first.
+        - Several comments may also be related to each other, and taking in the full review will help you identify similar concepts or areas the reviewer noted.
+    - It's also possible that your reviewer misunderstood, or differently interpreted, some changes you made.
+        - Reading the full review will help you understand if there are areas that need clarification before you can dive into responding.
 
-Responding to code reviews establishes a conversation between you and your reviewer.
-To ensure that this process goes smoothly and with fewer opportunities for miscommunication, we strongly recommend that read through all of your reviewer's comments before diving into review:
+## The pull request page
 
-- You'll gain more context about why the reviewer left certain comments by reading the whole review first.
-    - Several comments may also be related to each other, and taking in the full review will help you identify similar concepts or areas the reviewer noted.
-- It's also possible that your reviewer misunderstood, or differently interpreted, some changes you made.
-    - Reading the full review will help you understand if there are areas that need clarification before you can dive into responding.
+On the top of the PR page, you will see four tabs:
 
-### The pull request page
+<figure markdown="span">
+    ![Pull request tabs.](../../img/respond-to-review-tabs.png){width="800"}
+</figure>
 
-On the PR page, you will see several tabs:
+<div class="grid" markdown>
 
-- **Conversation**
+
+- **`Conversation`**
     - This tab shows the main PR page.
     Here, you can find all comments left on the PR, both reviewer comments and any comments you leave in response.
     - You can also find any [resolved comments](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/commenting-on-a-pull-request#resolving-conversations) here, if you need to refer to them again.
-- **Commits**
+- **`Commits`**
     - This tab shows a list of all commits added to the branch that is being reviewed.
     Your reviewer may use this page to explore changes in individual commits.
-- **Checks**
+
+<!-- comment to force two grid columns -->
+
+- **`Checks`**
     - This tab shows results from certain types of code checks; you can ignore this tab.
-- **Files Changed**
-    - This tab shows a line-by-line overview of content you have added and removed in your branch, relative to the base `AlexsLemonade/OpenScPCA-analysis` repository's `main` branch that your PR is targetting.
-    - Referring to this tab is a great way to quickly see all your changes, as well as work with _reviewer suggestions_, [which are described below](#inline-suggestions).
+- **`Files changed`**
+    - This tab shows a line-by-line overview of content you have added and removed in your branch, relative to the base `AlexsLemonade/OpenScPCA-analysis` repository's `main` branch that your PR is targeting.
+    - Referring to this tab is a great way to quickly see all your changes, as well as work with [reviewer suggestions comments](#inline-comments).
 
+</div>
 
-### Types of reviewer comments
+## Types of reviewer comments
 
 When reviewing your pull request, there are several types of comments your reviewer may leave for you to respond to.
 <!-- Please refer to [our documentation on example reviews](STUB_LINK example reviews). -->
 
-- Comments with overall feedback
-    - In most circumstances, your reviewer will leave an overall high-level comment explaining their overall impressions from reviewing the code and synthesizing the types of changes they are requesting you make.
-- File-level comments
-    - Your reviewer can leave file-specific comments that provide high-level feedback about the overall contents of a given file.
-- Inline comments
-    - Your reviewer can also leave inline comments with feedback about specific lines of code.
-    - These comments can also include _suggestions_ for code changes, that you can incorporate into your PR directly via on GitHub.
 
-#### Inline suggestions
+!!! tip "Navigating review comments"
+    Unresolved file-level and inline review comments will appear both in the `Conversation` and in the `Files Changed` tabs.
+
+    - In the `Conversation` tab, comments are listed in chronological order based on when the reviewer wrote the comment, which might not match the order of the code itself.
+    - In the `Files Changed` tab, comments appear right at the file or line of code they are about.
 
 
+### Comments with overall feedback
 
-https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/incorporating-feedback-in-your-pull-request
+In most circumstances, your reviewer will leave an overall high-level comment explaining their overall impressions from reviewing the code and synthesizing the types of changes they are requesting you make.
+
+### File-level comments
+
+Your reviewer can leave file-specific comments that provide high-level feedback about the overall contents of a given file.
+
+For example, this file-level review comment requests that the code author comment and document a script:
+
+<figure markdown="span">
+    ![Re-request review.](../../img/respond-to-review-filecomment.png){width="600"}
+</figure>
+
+
+### Inline comments
+
+Your reviewer can also leave inline comments with feedback about specific lines of code.
+These comments can also include _suggestions_ for code changes, that you can incorporate into your PR directly via on GitHub.
+
+For example, below you can see three inline comments left on an R script, where the first and third comment are suggestions, as seen in the `Files changed` tab:
+
+<div class="grid" markdown>
+
+<!-- Note that I've used <br> to make the bullets line up with the associated comment in the image -->
+
+- In the first comment, the reviewer suggested that the code author add a new line to load the `readr` library.<br><br><br><br>
+- In the second comment, the reviewer did not formally suggest a code change, but left a comment recommending to use `file.path()`.
+(Learn more about [structuring your scripts](../analysis-modules/script-structure.md)!)<br><br>
+- In the third comment, the reviewer suggested that the code author remove a line that loads the `dplyr` library.
+
+
+<figure markdown="span">
+    ![Re-request review.](../../img/respond-to-review-inline.png){width="600"}
+</figure>
+
+</div>
+
+#### Working with suggestion comments
+
+Suggestion comments have two associated buttons: `Commit suggestion` and `Add suggestion to batch`.
+
+- You can directly commit a _single_ suggestion by clicking `Commit suggestion` button, and then clicking `Commit changes` in the dropdown box:
+<figure markdown="span">
+    ![Re-request review.](../../img/respond-to-review-commit-1-file.png){width="600"}
+</figure>
+
+- Alternatively, if there are multiple suggestions to accept, you can click the `Add suggestion to batch` button on each one.
+_The `Add suggestion to batch` option is only available via the `Files changed` tab!_
+    - Now, both suggestions are `Pending in batch` to be committed as a group:
+<figure markdown="span">
+    ![Re-request review.](../../img/respond-to-review-pending-batch.png){width="600"}
+</figure>
+
+You can commit the batched suggestions at once with the `Commit suggestions` button that will appear at the top of the `Files changed` tab:
+
+<figure markdown="span">
+    ![Re-request review.](../../img/respond-to-review-commitbatch.png){width="600"}
+</figure>
+
+!!! warning
+    After committing suggestions, be sure to _pull your changes locally_ before making more code changes in response to review!
+    This will help you avoid [merge conflicts](../creating-pull-requests/resolve-merge-conflicts.md).
+
+
+Read this GitHub documentation for more about [applying suggested changes while responding to review](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/incorporating-feedback-in-your-pull-request).
 
 
 ## Re-requesting review
@@ -74,6 +144,6 @@ https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/review
 Once you feel that you have addressed your reviewer's comments, you can [re-request review by clicking the cycle icon next to their handle on the right side of the PR page](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/incorporating-feedback-in-your-pull-request#re-requesting-a-review).
 
 <figure markdown="span">
-    ![Re-request review.](../../img/responding-to-review-x.png){width="300"}
+    ![Re-request review.](../../img/respond-to-review-x.png){width="400"}
 </figure>
 
