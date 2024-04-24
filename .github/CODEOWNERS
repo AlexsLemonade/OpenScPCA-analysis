@@ -5,7 +5,7 @@
 /.github/CODEOWNERS @jaclyn-taroni
 
 # Primary reviewers for docs and licenses changes
-/docs/ @dvenprasad @sjspielman
+/docs/ @sjspielman
 /CONTRIBUTING.md @dvenprasad @sjspielman
 /README.md @dvenprasad @sjspielman
 /mkdocs.yml @dvenprasad @sjspielman
