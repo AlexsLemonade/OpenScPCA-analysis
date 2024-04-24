@@ -90,7 +90,30 @@ For example, below you can see three inline comments left on an R script, where 
 
 </div>
 
-#### Working with suggestion comments
+## Replying to comments
+
+You can directly reply to review comments on GitHub.
+For example, you might ask your reviewer to clarify a particular comment, or ask for more guidance about how to implement the review.
+Or, you might just want to leave your reviewer a helpful note of some kind!
+
+The way to responding to an existing comment differs depending on which PR tab you are leaving the comment from:
+
+- If you are in the **`Files changed`** tab, use the button `Add single comment` to reply (_do not use `Start a review`_):
+    <figure markdown="span">
+        ![Reply to a review comment from the `Files changed` tab.](../../img/respond-to-review-comment-filed-changed.png){width="600"}
+    </figure>
+
+- If you are in the **`Conversation`** tab, use the button `Comment`.
+    <figure markdown="span">
+        ![Reply to a review comment from the `Conversation` tab.](../../img/respond-to-review-comment-conversation.png){width="600"}
+    </figure>
+
+When leaving a comment, you can either click `Add single comment` or `Start a review`.
+You should click `Add single comment`:
+
+
+
+## Working with suggestion comments
 
 Suggestion comments have two associated buttons: `Commit suggestion` and `Add suggestion to batch`.
 
@@ -140,3 +163,10 @@ Once you feel that you have addressed your reviewer's comments, you can [re-requ
     ![Re-request review.](../../img/respond-to-review-x.png){width="400"}
 </figure>
 
+You can also post a comment in your PR summarizing your response to review, which will help your reviewer navigate your code changes:
+
+- Which review comments did you address?
+    - Is there more information you can tell your reviewer that will help them understand your code changes?
+- Which review comments, if any, did you not address?
+    - Was it because the review comment itself was confusing, or because you weren't sure how to address it?
+    Communicating this with your reviewer will help you both out!
