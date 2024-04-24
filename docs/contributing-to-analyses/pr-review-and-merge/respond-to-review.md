@@ -1,35 +1,14 @@
 # Responding to code reviews
 
-After you file your PR, the Data Lab team will assign a reviewer to your pull request.
-We aim to begin the process of code review within three business days of you filing the PR.
-You can expect that each PR will undergo several rounds of code review and response to review
+Code review is essentially a conversation between you and your reviewer.
+To ensure that this process goes smoothly and with fewer opportunities for miscommunication, we strongly recommend reading through all of your reviewer's comments before diving into review:
 
-Your reviewer will evaluate the code and/or documentation in your PR for the following considerations:
+- You'll gain more context about why the reviewer left certain comments by reading the whole review first.
+    - Several comments may also be related to each other, and taking in the full review will help you identify similar concepts or areas the reviewer noted.
+- It's also possible that your reviewer misunderstood, or differently interpreted, some changes you made.
+    - Reading the full review will help you understand if there are areas that need clarification before you can dive into responding.
 
-- **Context**
-    - Has enough information been provided for the reviewer to fully understand the scope and context of what they are reviewing?
-    If not, your reviewer's initial code review will likely request additional information they need to be able to perform review.
-- **Clarity**
-    - Is the code readable, reasonably efficient, and well-commented?
-- **Documentation**
-    - Are the code and results (if applicable) clearly documented?
-    - Are the steps to set up the code environment and run the code clearly documented?
-- **Reproducibility**
-    - Can the code be re-run to successfully generate the same results?
-- **Code checks**
-    - We have set up several automated checks using GitHub actions for code quality control.
-    If any of these automated checks fail, your reviewer may include feedback about what changes you may need to make for code checks to pass.
-
-!!! tip "Read the full review first"
-    Responding to code reviews establishes a conversation between you and your reviewer.
-    To ensure that this process goes smoothly and with fewer opportunities for miscommunication, we strongly recommend reading through all of your reviewer's comments before diving into review:
-
-    - You'll gain more context about why the reviewer left certain comments by reading the whole review first.
-        - Several comments may also be related to each other, and taking in the full review will help you identify similar concepts or areas the reviewer noted.
-    - It's also possible that your reviewer misunderstood, or differently interpreted, some changes you made.
-        - Reading the full review will help you understand if there are areas that need clarification before you can dive into responding.
-
-## The pull request page
+## Navigating the pull request page
 
 On the top of the PR page, you will see four tabs:
 
@@ -54,8 +33,8 @@ On the top of the PR page, you will see four tabs:
     - This tab shows results from certain types of code checks that have been automatically set up by the Data Lab; you can ignore this tab.
 - **`Files changed`**
     - This tab shows a line-by-line overview of content you have added and removed in your branch.
-    Changes shown here should reflect the difference between files in your branch and the base branch your PR is targeting. 
-This should be the `main` branch of the `AlexsLemonade/OpenScPCA-analysis` repository. 
+    Changes shown here should reflect the difference between files in your branch and the base branch your PR is targeting.
+This should be the `main` branch of the `AlexsLemonade/OpenScPCA-analysis` repository.
     - Referring to this tab is a great way to quickly see all your changes, as well as respond to [reviewer suggestions or comments](#inline-comments).
 
 </div>
@@ -66,7 +45,7 @@ When reviewing your pull request, there are several types of comments your revie
 <!-- Please refer to [our documentation on example reviews](STUB_LINK example reviews). -->
 
 
-!!! tip "Navigating review comments"
+!!! tip "Reading review comments"
     Unresolved file-level and inline review comments will appear both in the `Conversation` and in the `Files Changed` tabs.
 
     - In the `Conversation` tab, comments are listed in chronological order based on when the reviewer wrote the comment, which might not match the order of the code itself.
@@ -133,12 +112,22 @@ You can commit the batched suggestions at once with the `Commit suggestions` but
     ![Re-request review.](../../img/respond-to-review-commitbatch.png){width="600"}
 </figure>
 
-!!! warning
-    After committing suggestions, be sure to _pull your changes locally_ before making more code changes in response to review!
-    This will help you avoid [merge conflicts](../creating-pull-requests/resolve-merge-conflicts.md).
-
 
 Read this GitHub documentation for more about [applying suggested changes while responding to review](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/incorporating-feedback-in-your-pull-request).
+
+## Responding to review comments
+
+When making code changes in response to review, you need to make sure your local repository is staying in-sync with any changes made directly on GitHub.
+Follow these steps when responding to review to avoid [merge conflicts](../creating-pull-requests/resolve-merge-conflicts.md):
+
+1. Before making any code changes, _pull_ your branch from GitHub.
+This will ensure you are up-to-date with any code changes made on GitHub, including committed review suggestions or updates from merging the upstream `main` branch into your pull request branch.
+    <figure markdown="span">
+        ![Pull in GitKraken.](../../img/respond-to-review-pull.png){width="600"}
+    </figure>
+
+1. Make changes, commit, and push as you normally would.
+Any changes you push to the branch with an open PR will automatically be reflected in the PR.
 
 
 ## Re-requesting review
