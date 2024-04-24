@@ -27,12 +27,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Spell check action
+      # Two separate spell check steps:
+      #  When running on PRs, we only want to check docs files
+      #  When running for any other trigger, we want to check the full repo
+      - name: Run spell check on PRs
+        if: ${{ github.event_name == 'pull_request'}}
         uses: alexslemonade/spellcheck@v0
         id: spell
         with:
           dictionary: .github/components/dictionary.txt
-          files: ${{ github.event_name == 'pull_request' && "docs/* docs/*/* docs/*/*/*" || null }}
+          files: "docs/* docs/*/* docs/*/*/*"
+
+      - name: Run spell check on non-PRs
+        if: ${{ github.event_name != 'pull_request'}}
+        uses: alexslemonade/spellcheck@v0
+        id: spell
+        with:
+          dictionary: .github/components/dictionary.txt
 
       - name: Upload spell check errors
         uses: actions/upload-artifact@v4
