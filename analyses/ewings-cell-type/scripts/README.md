@@ -13,5 +13,4 @@ python run-cellassign.py \
   --anndata_file <path to anndata file> \
   --output_predictions <path to output tsv file> \
   --reference <path to marker gene reference>
-  --
 ```
