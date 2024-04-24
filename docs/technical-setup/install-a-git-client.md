@@ -28,7 +28,7 @@ This will automatically provide you with the credentials you need to interact wi
 
 ### Install GitKraken on Windows with WSL2
 
-!!! note
+??? note "Update WSL2 if needed"
     Before installing GitKraken, make sure your WSL2 installation is up to date by running this command in Windows Powershell (not in Ubuntu).
     When launching Powershell, make sure you are [running as an administrator](https://learn.microsoft.com/en-us/powershell/scripting/windows-powershell/starting-windows-powershell?view=powershell-7.4#with-administrative-privileges-run-as-administrator).
 
