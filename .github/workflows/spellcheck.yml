@@ -32,7 +32,7 @@ jobs:
         id: spell
         with:
           dictionary: .github/components/dictionary.txt
-          files: "docs/* docs/**/*"
+          files: "docs/* docs/*/* docs/*/*/*"
 
       - name: Upload spell check errors
         uses: actions/upload-artifact@v4
