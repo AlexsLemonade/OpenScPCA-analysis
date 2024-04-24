@@ -65,7 +65,7 @@ If it is not already installed, you can [install Terminal from the Microsoft Sto
 
 - The Terminal application can have different tabs for different shells - for example one tab for Ubuntu terminal, and another tab for PowerShell.
     <figure markdown="span">
-        ![Open the Ubuntu Terminal in Windows](../../img/wsl-terminal-tab.png){width="300"}
+        ![Open the Ubuntu Terminal in Windows](../../img/wsl-terminal-tab.png){width="450"}
     </figure>
 
 Note that you can also directly search for an open the "Ubuntu" application to work in an Ubuntu terminal.
