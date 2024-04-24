@@ -128,6 +128,8 @@ This will ensure you are up-to-date with any code changes made on GitHub, includ
 
 1. Make changes, commit, and push as you normally would.
 Any changes you push to the branch with an open PR will automatically be reflected in the PR.
+    - When committing changes in response to review, the smaller the better!
+    Review will go more smoothly if each commit addresses only one review comment.
 
 
 ## Re-requesting review
