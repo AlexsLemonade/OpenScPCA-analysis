@@ -1,11 +1,25 @@
 # Code review and merging your pull request
 
-Once you have submitted your [pull request (PR)](../creating-pull-requests/index.md), your PR will be reviewed by a Data Lab team member.
-We will review your code contribution by:
+Once you have submitted your [pull request (PR)](../creating-pull-requests/index.md), the Data Lab team will assign a reviewer to your pull request.
+You can expect that each PR will undergo several rounds of code review and response to review.
 
-- Checking for correctness, clarity, and reproducibility in the code
-- Evaluating methods and rationale for any proposed analysis
-- Ensuring that all necessary documentation is present and clear
+Your reviewer will evaluate the code and/or documentation in your PR for the following considerations:
+
+- **Context**
+    - Has enough information been provided for the reviewer to fully understand the scope and context of what they are reviewing?
+    If not, your reviewer's initial code review will likely request additional information they need to be able to perform review.
+- **Clarity and Correctness**
+    - Is the code readable, reasonably efficient, and well-commented?
+    - Does the code appear to work correctly?
+- **Documentation**
+    - Are the code and results (if applicable) clearly documented?
+    - Are the steps to set up the code environment and run the code clearly documented?
+- **Reproducibility**
+    - Can the code be re-run to successfully generate the same results?
+- **Code checks**
+    - We have set up several automated checks using GitHub actions for code quality control.
+    If any of these automated checks fail, your reviewer may include feedback about what changes you may need to make for code checks to pass.
+
 
 ## Overview of the review process
 
