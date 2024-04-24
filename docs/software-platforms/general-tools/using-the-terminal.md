@@ -54,23 +54,22 @@ Note that [Apple provides some additional instructions](https://support.apple.co
 
 Make sure that you have taken all the necessary steps to [install WSL2](../../technical-setup/install-wsl2.md).
 
-To access the Ubuntu terminal, you can either use either of these applications:
+To access the Ubuntu terminal, we recommend using the ["Terminal" application](https://learn.microsoft.com/en-us/windows/terminal/).
+This application opens all types of shells, aka command line prompts, open in the same window.
+If it is not already installed, you can [install Terminal from the Microsoft Store](https://apps.microsoft.com/detail/9n0dx20hk701?rtc=1&hl=en-us&gl=US).
 
-- The "Ubuntu" application, which will launch a Ubuntu terminal.
-- The ["Terminal" application](https://learn.microsoft.com/en-us/windows/terminal/)
-    - This application opens all types of shells, aka command line prompts, open in the same window.
-    If it is not already installed, you can [install Terminal from the Microsoft Store](https://apps.microsoft.com/detail/9n0dx20hk701?rtc=1&hl=en-us&gl=US).
-    - You can launch the Ubuntu terminal by clicking "Ubuntu" when searching for this application in the Windows search menu.
+- You can launch the Ubuntu terminal by clicking "Ubuntu" when searching for this application in the Windows search menu.
+    <figure markdown="span">
+        ![Open the Ubuntu Terminal in Windows](../../img/wsl-terminal.png){width="300"}
+    </figure>
 
-        <figure markdown="span">
-            ![Open the Ubuntu Terminal in Windows](../../img/wsl-terminal.png){width="300"}
-        </figure>
-    - Note that the Terminal application can have different tabs for different shells - for example one tab for Ubuntu terminal, and another tab for PowerShell.
+- The Terminal application can have different tabs for different shells - for example one tab for Ubuntu terminal, and another tab for PowerShell.
+    <figure markdown="span">
+        ![Open the Ubuntu Terminal in Windows](../../img/wsl-terminal-tab.png){width="300"}
+    </figure>
 
-        <figure markdown="span">
-            ![Open the Ubuntu Terminal in Windows](../../img/wsl-terminal-tab.png){width="300"}
-        </figure>
-
+Note that you can also directly search for an open the "Ubuntu" application to work in an Ubuntu terminal.
+However, copy and paste shortcuts don't work well in the native Ubuntu application, so we recommend using the Terminal application as described above.
 
 
 ### Accessing the terminal on Lightsail for Research
