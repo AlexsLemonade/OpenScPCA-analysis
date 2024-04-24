@@ -47,7 +47,7 @@ Open it by clicking "Run as administrator".
 1. Open a [Ubuntu terminal window](../software-platforms/general-tools/using-the-terminal.md#accessing-the-terminal-on-wsl2-on-windows).
 
     - Run the following command in Ubuntu to ensure that the package index for `apt`, the native Ubuntu package manager, and all its pre-installed packages are up to date.
-    - Ubuntu will prompt you for your newly-created password when you run this command; you can expect to be prompted for a password anytime you run a command as [`sudo`](https://www.pluralsight.com/resources/blog/cloud/linux-commands-for-beginners-sudo).
+    - Ubuntu will prompt you for your newly-created password when you run this command; you can expect to be prompted for a password any time you run a command as [`sudo`](https://www.pluralsight.com/resources/blog/cloud/linux-commands-for-beginners-sudo).
          - Again, when you type your password, no symbols will appear, as expected.
          - Enter "Y" if/when you are prompted for whether you want to continue with any package upgrades.
 
