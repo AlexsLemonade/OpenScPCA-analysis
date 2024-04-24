@@ -14,6 +14,8 @@ What commands are needed to execute all steps in the analysis?
 
 This module requires the processed `SingleCellExperiment` objects (`_processed.rds`) from SCPCP0000015.
 
+This module also requires `references/tumor_marker_genes.tsv` which contains a list of marker genes for identifying Ewing sarcoma tumor cells.
+
 ## Output files
 
 Please include a description of the output from your analysis, including:
