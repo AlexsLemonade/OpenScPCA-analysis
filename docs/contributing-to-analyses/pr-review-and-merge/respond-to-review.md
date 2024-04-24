@@ -2,7 +2,7 @@
 
 After you file your PR, the Data Lab team will assign a reviewer to your pull request.
 We aim to begin the process of code review within three business days of you filing the PR.
-You can expect that each PR will have undergo several rounds of code review and response to review
+You can expect that each PR will undergo several rounds of code review and response to review
 
 Your reviewer will evaluate the code and/or documentation in your PR for the following considerations:
 
@@ -41,8 +41,8 @@ On the top of the PR page, you will see four tabs:
 
 
 - **`Conversation`**
-    - This tab shows the main PR page.
-    Here, you can find all comments left on the PR, both reviewer comments and any comments you leave in response.
+    - This tab shows the main page of the PR.
+    Here, you can find the original description of the PR along with any comments left on the PR, both reviewer comments and any comments you leave in response.
     - You can also find any [resolved comments](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/commenting-on-a-pull-request#resolving-conversations) here, if you need to refer to them again.
 - **`Commits`**
     - This tab shows a list of all commits added to the branch that is being reviewed.
@@ -51,10 +51,12 @@ On the top of the PR page, you will see four tabs:
 <!-- comment to force two grid columns -->
 
 - **`Checks`**
-    - This tab shows results from certain types of code checks; you can ignore this tab.
+    - This tab shows results from certain types of code checks that have been automatically set up by the Data Lab; you can ignore this tab.
 - **`Files changed`**
-    - This tab shows a line-by-line overview of content you have added and removed in your branch, relative to the base `AlexsLemonade/OpenScPCA-analysis` repository's `main` branch that your PR is targeting.
-    - Referring to this tab is a great way to quickly see all your changes, as well as work with [reviewer suggestions comments](#inline-comments).
+    - This tab shows a line-by-line overview of content you have added and removed in your branch.
+    Changes shown here should reflect the difference between files in your branch and the base branch your PR is targeting. 
+This should be the `main` branch of the `AlexsLemonade/OpenScPCA-analysis` repository. 
+    - Referring to this tab is a great way to quickly see all your changes, as well as respond to [reviewer suggestions or comments](#inline-comments).
 
 </div>
 
