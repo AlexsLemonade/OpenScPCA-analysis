@@ -55,21 +55,20 @@ Note that [Apple provides some additional instructions](https://support.apple.co
 Make sure that you have taken all the necessary steps to [install WSL2](../../technical-setup/install-wsl2.md).
 
 To access the Ubuntu terminal, we recommend using the ["Terminal" application](https://learn.microsoft.com/en-us/windows/terminal/).
-This application opens all types of shells, aka command line prompts, open in the same window.
+This application opens all types of shells, aka command line prompts, in the same window.
+Compared to other options for launching Ubuntu, it has much better support for handy features such as copy and paste.
+
 If it is not already installed, you can [install Terminal from the Microsoft Store](https://apps.microsoft.com/detail/9n0dx20hk701?rtc=1&hl=en-us&gl=US).
 
 - You can launch the Ubuntu terminal by clicking "Ubuntu" when searching for this application in the Windows search menu.
     <figure markdown="span">
-        ![Open the Ubuntu Terminal in Windows](../../img/wsl-terminal.png){width="300"}
+        ![Open the Ubuntu Terminal in Windows](../../img/wsl-terminal.png){width="500"}
     </figure>
 
 - The Terminal application can have different tabs for different shells - for example one tab for Ubuntu terminal, and another tab for PowerShell.
     <figure markdown="span">
         ![Open the Ubuntu Terminal in Windows](../../img/wsl-terminal-tab.png){width="450"}
     </figure>
-
-Note that you can also directly search for an open the "Ubuntu" application to work in an Ubuntu terminal.
-However, copy and paste shortcuts don't work well in the native Ubuntu application, so we recommend using the Terminal application as described above.
 
 
 ### Accessing the terminal on Lightsail for Research
