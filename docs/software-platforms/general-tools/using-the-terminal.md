@@ -60,7 +60,7 @@ Compared to other options for launching Ubuntu, it has much better support for h
 
 If it is not already installed, you can [install Terminal from the Microsoft Store](https://apps.microsoft.com/detail/9n0dx20hk701?rtc=1&hl=en-us&gl=US).
 
-- You can launch the Ubuntu terminal by clicking "Ubuntu" when searching for this application in the Windows search menu.
+- You can launch the Ubuntu terminal by clicking "Ubuntu" when searching for the Terminal application in the Windows search menu.
     <figure markdown="span">
         ![Open the Ubuntu Terminal in Windows](../../img/wsl-terminal-start.png){width="450"}
     </figure>
