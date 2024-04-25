@@ -14,5 +14,7 @@ dependencies:
   - jq=1.7
   - pre-commit=3.6
   - session-info=1.0
-  - anndata~=0.10
-  - scvi-tools~=1.1
+  - anndata
+  - pip
+  - pip:
+    - scvi-tools
