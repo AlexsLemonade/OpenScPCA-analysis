@@ -54,8 +54,21 @@ Note that [Apple provides some additional instructions](https://support.apple.co
 
 Make sure that you have taken all the necessary steps to [install WSL2](../../technical-setup/install-wsl2.md).
 
-The Ubuntu terminal application itself _is_ the terminal.
-Use the Windows Search Bar Menu to search for and open the Ubuntu terminal.
+To access the Ubuntu terminal, we recommend using the ["Terminal" application](https://learn.microsoft.com/en-us/windows/terminal/).
+This application opens all types of shells, aka command line prompts, in the same window.
+Compared to other options for launching Ubuntu, it has much better support for handy features such as copy and paste.
+
+If it is not already installed, you can [install Terminal from the Microsoft Store](https://apps.microsoft.com/detail/9n0dx20hk701?rtc=1&hl=en-us&gl=US).
+
+- You can launch the Ubuntu terminal by clicking "Ubuntu" when searching for the Terminal application in the Windows search menu.
+    <figure markdown="span">
+        ![Open the Ubuntu Terminal in Windows](../../img/wsl-terminal-start.png){width="450"}
+    </figure>
+
+- The Terminal application can have different tabs for different shells - for example one tab for Ubuntu terminal, and another tab for PowerShell.
+    <figure markdown="span">
+        ![Open the Ubuntu Terminal in Windows](../../img/wsl-terminal-tab.png){width="450"}
+    </figure>
 
 
 ### Accessing the terminal on Lightsail for Research
@@ -99,24 +112,20 @@ This will open a terminal prompt inside GitKraken where you can type your comman
 You can access RStudio's integrated terminal by clicking on the `Terminal` tab in the Console.
 Learn more about using the integrated terminal [from Posit's documentation](https://support.posit.co/hc/en-us/articles/115010737148-Using-the-RStudio-Terminal-in-the-RStudio-IDE).
 
-<!--
+
 ??? "Working on Windows with WSL?"
-    If you are working on a Windows computer with WSL, you will access this terminal from the [RStudio Server](STUB_LINK RStudio server instructions) you launch in your browser.
--->
+    If you are working on a Windows computer with WSL, you will access this terminal from the [RStudio Server](../../technical-setup/environment-setup/install-r-rstudio.md#using-the-rstudio-server) you launch in your browser.
+
 
 #### Visual Studio Code (VS Code)
 
 [VS Code](https://code.visualstudio.com/) is a powerful text editor that you may use while contributing to OpenScPCA.
 [Follow these instructions](https://code.visualstudio.com/docs/terminal/basics) to use its integrated terminal.
 
-<!--
+
 ??? "Working on Windows with WSL?"
     If you are working on a Windows computer with WSL, you should also [install the WSL extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl) to be able to open files and run code within WSL.
     Learn more about [working with VS code from WSL from this documentation](https://code.visualstudio.com/docs/remote/wsl-tutorial).
 
-    The terminal in VS Code will launch as either the Windows PowerShell or bash (Ubuntu) depending on what files you open in VS Code:
-    - If you open files on the Windows side of your system, the terminal will be Windows PowerShell.
-    - If you open files on the WSL side of your system, the terminal will be bash (Ubuntu).
-    To launch VS Code on the WSL side, type the command [`code`](https://code.visualstudio.com/docs/editor/command-line) in Ubuntu in the directory you want to open.
+    To launch VS Code from the Ubuntu terminal, run the command [`code`](https://code.visualstudio.com/docs/editor/command-line) in Ubuntu in the directory you want to open.
     The first time you run this command, the VS Code `code` helper will install; then, you can use it to launch VS Code.
--->

@@ -13,7 +13,7 @@ If you do not have at least these Windows versions, you must use [Lightsail for 
 
 ## Installation instructions
 
-These instructions will provide you with both WSL2 and the Ubuntu app:
+These instructions will provide you with both WSL2 and the Ubuntu terminal:
 
 - WSL2 allows your computer to have a separate Linux subsystem
 - Ubuntu is the default Linux distribution that gets installed when you install WSL2
@@ -22,42 +22,40 @@ These instructions will provide you with both WSL2 and the Ubuntu app:
         - To learn more about the relationship between your Linux and Windows file systems, please refer to this article on [Working across Windows and Linux file systems](https://learn.microsoft.com/en-us/windows/wsl/filesystems).
         However, please be aware that for the purposes of OpenScPCA contribution, you should _only_ install files and perform analyses on the Linux file system.
 
-To install WSL2, take the following steps:
+To install WSL2, take the following steps.
+Note that these instructions are taken from [these official Windows instructions](https://learn.microsoft.com/en-us/windows/wsl/setup/environment).
 
-1. In the Windows menu, search for the "Windows PowerShell" application.
+Throughout this process you will be prompted about whether you want to all this app to make changes to your device.
+Always click "Yes" when you see these prompts.
+
+1. In the Windows Search Bar Menu, search for the "Windows PowerShell" application.
 Open it by clicking "Run as administrator".
 
-1. Enter this command in PowerShell and hit enter:
+1. Run this command in PowerShell to install WSL2:
 
     ```sh
     wsl --install
     ```
 
-1. WSL2 will now install.
-Along the way, you may get prompts asking if you allow the app to make changes to your device.
-Always click "Yes" when you see these prompts.
-
-1. Once WSL2 has finished installing, open the new Ubuntu app if it does not open automatically.
-    - Ubuntu should prompt you to create a username and password which represent your WSL2 credentials.
-      These are _independent_ of the username and password you already have set up on the Windows side of your computer.
-      Changing one will not affect the other, but you can use the same username for both if you would like.
-        - _Make sure you keep track of your username and password!_
-        You will need to use your password when installing software Ubuntu, and if you choose to use [RStudio](environment-setup/install-r-rstudio.md#using-the-rstudio-server), you will need your username and password.
+1. Once WSL2 has finished installing, you will be prompted to set up a username and password to use with Ubuntu.
+    - These credentials are _independent_ of the username and password you already have set up on the Windows side of your computer.
+        - Changing one will not affect the other, but you can use the same username for both if you would like.
+    - _Make sure you keep track of your username and password!_
+    You will need to use your password when installing software for Ubuntu, and if you choose to use [RStudio](environment-setup/install-r-rstudio.md#using-the-rstudio-server), you will need your username and password.
     - Note that when you type your password, no symbols will appear - this is expected!
 
-    ??? question "Did Ubuntu not prompt you for a username and password?"
-        If that prompt does not appear in Ubuntu, instead open PowerShell and run the command:
+1. Open an [Ubuntu terminal window](../software-platforms/general-tools/using-the-terminal.md#accessing-the-terminal-on-wsl2-on-windows).
 
-        ```sh
-        wsl --unregister Ubuntu
-        ```
+    - Run the following command in Ubuntu to ensure that the package index for `apt`, the native Ubuntu package manager, and all its pre-installed packages are up to date.
+    - Ubuntu will prompt you for your newly-created password when you run this command; you can expect to be prompted for a password any time you run a command as [`sudo`](https://www.pluralsight.com/resources/blog/cloud/linux-commands-for-beginners-sudo).
+         - Again, when you type your password, no symbols will appear, as expected.
+         - Enter "Y" if/when you are prompted for whether you want to continue with any package upgrades.
 
-        This will force Ubuntu to relaunch and prompt you for a username and password.
+    ```sh
+    sudo apt update && sudo apt upgrade
+    ```
 
-### Enable copy and paste
 
-The standard `Ctrl+C/Ctrl+V` shortcuts for copy/paste do not natively work in Ubuntu.
-To turn on copy/paste shortcuts, right-click on the Ubuntu window's title bar and select "Properties."
-
-On the next screen, make sure `Use Ctrl+Shift+C/V as Copy/Paste` is checked on.
-Now, you can use `Ctrl+Shift+C` for copy, and `Ctrl+Shift+V` for paste.
+!!! tip "An Ubuntu tip!"
+    Be aware that right-clicking in the Ubuntu terminal window has different behavior compared to the rest of your computer.
+    In Ubuntu, right-clicking will _paste_ the contents of your clipboard into the terminal.
