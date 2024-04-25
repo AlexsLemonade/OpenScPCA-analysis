@@ -107,12 +107,13 @@ For example, below are two suggestions left as comments on an R script:
     ![Re-request review.](../../img/respond-to-review-06.png){width="600"}
 </figure>
 
-## Responding to review comments 
+## Responding to review comments
 
-### Responding to suggestion comments 
+### Responding to suggestion comments
 Suggestion comments have two associated buttons boxed in the image above: `Commit suggestion` and `Add suggestion to batch`.
 
-- You can directly commit a _single_ suggestion by clicking `Commit suggestion` button, and then clicking `Commit changes` in the dropdown box:
+- You can directly commit a _single_ suggestion by clicking `Commit suggestion` button.
+Type a commit message, and then click `Commit changes` in the dropdown box:
 <figure markdown="span">
     ![Re-request review.](../../img/respond-to-review-07.png){width="600"}
 </figure>
@@ -135,7 +136,7 @@ Read this GitHub documentation for more about [applying suggested changes while 
 
 
 
-## Making additional code changes in response to comments
+### Making additional code changes in response to comments
 
 In some cases a reviewer will request you make changes to the code without providing in-line suggestions.
 When this happens, you will need to make the code changes locally.
