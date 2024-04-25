@@ -1,6 +1,7 @@
 # Responding to code reviews
 
-Code review is essentially a conversation between you and your reviewer.
+Code review is essentially a conversation between you and your reviewer about your proposed changes. 
+This document includes some example review comments and guidance on how to respond to review comments and suggestions. 
 To ensure that this process goes smoothly and with fewer opportunities for miscommunication, we strongly recommend reading through all of your reviewer's comments before diving into review:
 
 - You'll gain more context about why the reviewer left certain comments by reading the whole review first.
@@ -125,13 +126,12 @@ The way to responding to an existing comment differs depending on which PR tab y
         ![Reply to a review comment from the `Conversation` tab.](../../img/respond-to-review-comment-conversation.png){width="600"}
     </figure>
 
-(Learn more about [structuring your scripts](../analysis-modules/script-structure.md)!)
 
 ### Suggestion comments
 
-These comments can also include _suggestions_ for code changes, that you can incorporate into your PR directly via on GitHub.
+Reviewer comments can also include _suggestions_ for code changes, that you can incorporate into your PR directly on GitHub.
 
-For example, below you are two suggestions review comments on an R script:
+For example, below are two suggestions left as comments on an R script:
 
 - In the first comment, the reviewer suggested that the code author add a new line to load the `readr` library.
 - In the second comment, the reviewer suggested that the code author remove a line that loads the `dplyr` library.
