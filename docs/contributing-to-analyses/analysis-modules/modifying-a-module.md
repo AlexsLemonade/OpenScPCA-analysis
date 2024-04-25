@@ -2,7 +2,7 @@
 
 
 If you are modifying a module that already exists, then you will first need to file an issue using the [`Update an analysis` issue template](../../communications-tools/github-issues/issue-templates.md#update-an-analysis).
-Then you can create a new branch and commit any code changes.
+Then you can create a new branch and commit any code changes before filing a PR. 
 
 Be sure that you add documentation for any code changes that you make, as well as any new software dependencies your changes require.
 The following changes should be included in any PRs that modify existing modules:
