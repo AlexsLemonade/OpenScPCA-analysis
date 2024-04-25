@@ -3,7 +3,12 @@
 ## Description
 
 This module will include code to annotate cell types in the Ewing sarcoma samples from SCPCP000015 present on the ScPCA Portal.
-<!--TODO: Fill out more information of the steps involved in cell typing -->
+
+Currently this module includes analysis notebooks used to explore cell typing methods.
+
+1. `01-marker-gene-classification-cellassign.Rmd`: This notebook looks at marker gene expression in SCPCS000490.
+Tumor cells are classified using manual annotation based on marker gene expression and clustering.
+`CellAssign` is also used to classify cells with the references stored in `references/celassign_refs`.
 
 ## Usage
 
