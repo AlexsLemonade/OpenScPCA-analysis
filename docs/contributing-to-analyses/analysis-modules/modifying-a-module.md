@@ -2,10 +2,12 @@
 
 
 If you are modifying a module that already exists, then you will first need to file an issue using the [`Update an analysis` issue template](../../communications-tools/github-issues/issue-templates.md#update-an-analysis).
-Then you can create a new branch and commit any code changes before filing a PR. 
+Then you can create a new branch and commit any code changes before filing a PR.
 
 Be sure that you add documentation for any code changes that you make, as well as any new software dependencies your changes require.
-The following changes should be included in any PRs that modify existing modules:
+You will also need to [upload the updated module results to S3](../../software-platforms/aws/working-with-s3-buckets.md#syncing-your-results-to-s3).
+
+You should include these documentation changes in any PRs that modify existing modules:
 
 - Fully document your changes [in the module's `README.md` file](./documenting-analysis.md).
 This includes all of:
