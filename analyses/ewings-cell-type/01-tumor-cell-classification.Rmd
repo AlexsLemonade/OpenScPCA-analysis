@@ -1,0 +1,292 @@
+---
+title: "Explor tumor cell classification - SCPCS000490"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output: html_notebook
+params:
+  sample_id: SCPCS000490
+  library_id: SCPCL000822
+---
+
+
+## Introduction
+
+This notebook looks at expression of marker genes for tumor cells in a Ewing sarcoma sample, `r {params$sample_id}`. 
+Additionally, we see if we can use those marker genes to classify tumor and normal cells using `CellAssign`. 
+
+- First we look at expression of each of the marker genes across all cells. 
+- Then we plot the mean expression of all marker genes across all cells. 
+- Next, we perform clustering and see if we can assign each cluster as tumor or normal cells based on mean expression of marker genes. 
+- Finally, we use `CellAssign` with both the full list of marker genes and filtered list of marker genes. 
+- The results from `CellAssign` are then compared to manual annotation of cells. 
+
+## Setup
+
+```{r packages}
+suppressMessages(
+  # load required packages
+  library(SingleCellExperiment),
+  library(ggplot2)
+)
+```
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The current data directory, found within the repository base directory
+data_dir <- file.path(repository_base, "data", "current")
+sample_dir <- file.path(data_dir, "SCPCP000015", params$sample_id)
+
+# The path to this module
+module_base <- file.path(repository_base, "analyses", "ewings-cell-type")
+```
+
+
+```{r paths}
+# Input files
+sce_filename <- glue::glue("{params$library_id}_processed.rds")
+sce_file <- file.path(sample_dir, sce_filename)
+
+anndata_filename <- glue::glue("{params$library_id}_processed_rna.hdf5")
+anndata_file <- file.path(sample_dir, anndata_filename)
+
+marker_genes <- file.path(module_base, "references", "tumor_marker_genes.tsv")
+
+# Output files
+tumor_markers_mtx_file <- file.path(module_base, "references", "tumor-marker-cellassign.tsv")
+filtered_markers_mtx_file <- file.path(module_base, "references", "filtered-tumor-marker-cellassign.tsv")
+cellassign_predictions_file <- file.path(module_base, "results", "cellassign-tumor-predictions.tsv")
+filtered_predictions_file <- file.path(module_base, "results", "filtered-cellassign-tumor-predictions.tsv")
+```
+
+```{r}
+# read in processed sce
+sce <- readr::read_rds(sce_file)
+
+# read in marker genes table 
+marker_genes_df <- readr::read_tsv(marker_genes) |> 
+  # account for genes being from multiple sources
+  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |> 
+  dplyr::distinct()
+
+marker_genes <- marker_genes_df |> 
+  dplyr::filter(cell_type == "tumor") |> 
+  dplyr::pull(ensembl_gene_id)
+```
+
+
+## Analysis content
+
+### Explore marker gene expression 
+
+The first thing we do here is just create a faceted UMAP showing the expression of each marker gene for tumor cells. 
+
+```{r}
+# get the gene expression counts for all marker genes
+marker_gene_exp <- logcounts(sce[marker_genes, ]) |>
+    as.matrix() |>
+    t() |>
+    as.data.frame() |>
+    tibble::rownames_to_column("barcodes")
+
+# pull out the UMAP coordinates and make a data frame to use for plotting
+umap_df <- sce |> 
+  scuttle::makePerCellDF(use.dimred = "UMAP") |> 
+  # replace UMAP.1 with UMAP1
+  dplyr::rename_with(
+        \(x) stringr::str_replace(x, "^UMAP\\.", "UMAP"),
+        starts_with("UMAP")
+      )
+
+marker_gene_plot_df <- umap_df |> 
+  # add in marker gene expression to dataframe 
+  dplyr::left_join(marker_gene_exp, by = "barcodes") |> 
+  # combine all genes into a single column for easy faceting
+  tidyr::pivot_longer(
+    cols = starts_with("ENSG"),
+    names_to = "ensembl_gene_id",
+    values_to = "gene_expression"
+  ) |> 
+  # join with marker gene df to get gene symbols for plotting 
+  dplyr::left_join(marker_genes_df, by = c("ensembl_gene_id")) |>
+  dplyr::select(barcodes, UMAP1, UMAP2, gene_symbol, ensembl_gene_id, gene_expression, clusters)
+```
+
+
+```{r}
+# faceted umap showing a umap panel for each marker gene 
+ggplot(marker_gene_plot_df, aes(x = UMAP1, y = UMAP2, color = gene_expression)) +
+    geom_point(alpha = 0.1, size = 0.4) +
+    facet_wrap(vars(gene_symbol)) +
+    scale_color_viridis_c() +
+    labs(
+      color = "Log-normalized gene expression"
+    ) +
+    # remove axis numbers and background grid
+    scale_x_continuous(labels = NULL, breaks = NULL) +
+    scale_y_continuous(labels = NULL, breaks = NULL) +
+    theme(
+      aspect.ratio = 1,
+      legend.position = "bottom",
+      axis.title = element_text(size = 9, color = "black"),
+      strip.text = element_text(size = 8),
+      legend.title = element_text(size = 9),
+      legend.text = element_text(size = 8)
+    ) +
+    guides(colour = guide_colorbar(title.position = "bottom", title.hjust = 0.5)) +
+  theme_bw()
+```
+
+Looking at this plot, there is definitely some variation in the expression of marker genes. 
+It looks like the highest gene expression is seen in the larger group of cells on the bottom right of the UMAP. 
+
+Below, we can get the mean gene expression of all marker genes and plot in a single UMAP. 
+
+```{r}
+# calculate mean gene expression across all marker genes in list 
+marker_mean_exp <- umap_df |> 
+  dplyr::group_by(barcodes) |> 
+  dplyr::mutate(mean_exp = mean(gene_expression)) |> 
+  dplyr::select(barcodes, UMAP1, UMAP2, mean_exp) |> 
+  dplyr::distinct()
+
+# plot mean gene expression 
+ggplot(marker_mean_exp, aes(x = UMAP1, y = UMAP2, color = mean_exp)) +
+  geom_point(size = 0.5, alpha = 0.5) +
+  scale_color_viridis_c() +
+  theme_bw()
+```
+
+Similar to the individual plots, it looks like there is one group of cells on the bottom right that has the highest mean gene expression. 
+We would anticipate that these are most likely to be the tumor cells. 
+
+### Clustering
+
+```{r}
+ggplot(umap_df, aes(x = UMAP1, y = UMAP2, color = clusters)) +
+  geom_point(size = 0.5, alpha = 0.5) +
+  theme_bw()
+```
+
+
+```{r}
+# classify cells as tumor/normal 
+classification_df <- marker_mean_exp |> 
+  dplyr::mutate(tumor_normal_classification = dplyr::if_else(mean_exp > 0.5, "Tumor", "Normal"))
+
+ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = tumor_normal_classification)) +
+  geom_point(size = 0.5, alpha = 0.5) +
+  theme_bw()
+```
+
+
+### Run CellAssign with marker genes 
+
+Create marker genes reference 
+
+```{r}
+binary_mtx <- marker_genes_df |>
+  dplyr::select(cell_type, ensembl_gene_id) |> 
+  unique() |> 
+  tidyr::pivot_wider(
+    id_cols = ensembl_gene_id,
+    names_from = cell_type,
+    values_from = cell_type,
+    values_fn = length,
+    values_fill = 0
+  ) |>
+  # add a column with no marker genes
+  # cell assign will assign cells to "other" when no other cell types are appropriate
+  dplyr::mutate(other = 0)
+
+# export matrix 
+readr::write_tsv(binary_mtx, tumor_markers_mtx_file)
+```
+
+Add script for running CellAssign 
+```{r, eval=FALSE}
+cellassign_call <- glue::glue("
+python scripts/run-cellassign.py \
+  --anndata_file '{anndata_file}' \
+  --output_predictions '{cellassign_predictions_file}' \
+  --reference '{tumor_markers_mtx}'
+")
+
+system(cellassign_call)
+```
+
+
+Read in CellAssign marker genes
+```{r}
+predictions <- readr::read_tsv(cellassign_predictions_file)
+
+celltype_assignments <- predictions |>
+      tidyr::pivot_longer(
+        !barcode,
+        names_to = "celltype",
+        values_to = "prediction"
+      ) |>
+      dplyr::group_by(barcode) |>
+      dplyr::slice_max(prediction, n = 1) |>
+      dplyr::ungroup()
+
+table(celltype_assignments$celltype)
+```
+
+What if we restrict our list of marker genes based on our dataset? So we want something that has a mean gene expression of 1. 
+
+```{r}
+filtered_markers <- rowData(sce) |> 
+  as.data.frame() |> 
+  dplyr::filter(gene_symbol %in% marker_genes_df$gene_symbol,
+                mean > 1) |> 
+  dplyr::pull(gene_ids)
+
+filtered_binary_mtx <- binary_mtx |> 
+  dplyr::filter(ensembl_gene_id %in% filtered_markers)
+
+readr::write_tsv(filtered_binary_mtx, filtered_markers_mtx_file)
+```
+
+
+```{r, eval=FALSE}
+cellassign_call <- glue::glue("
+python scripts/run-cellassign.py --anndata_file '{anndata_file}' --output_predictions '{filtered_predictions_file}' --reference '{filtered_markers_mtx_file}'
+")
+
+system(cellassign_call)
+```
+
+```{r}
+predictions <- readr::read_tsv(filtered_predictions_file)
+
+celltype_assignments <- predictions |>
+      tidyr::pivot_longer(
+        !barcode,
+        names_to = "celltype",
+        values_to = "prediction"
+      ) |>
+      dplyr::group_by(barcode) |>
+      dplyr::slice_max(prediction, n = 1) |>
+      dplyr::ungroup()
+
+table(celltype_assignments$celltype)
+```
+
+```{r}
+celltype_df <- marker_mean_exp |> 
+  dplyr::left_join(celltype_assignments, by = c("barcodes" = "barcode"))
+
+ggplot(celltype_df, aes(x = UMAP1, UMAP2, color = celltype)) +
+  geom_point(size = 0.5, alpha = 0.5) + 
+  theme_bw()
+```
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
