@@ -12,8 +12,15 @@ What commands are needed to execute all steps in the analysis?
 
 ## Input files
 
-This module requires the processed `SingleCellExperiment` objects (`_processed.rds`) from SCPCP0000015.
+This module requires the processed `SingleCellExperiment` objects (`_processed.rds`) and processed `AnnData` objects (`.hdf5` files) from SCPCP0000015.
+These files were obtained using the `download-data.py` script:
 
+```sh
+# download SCE objects
+./download-data.py --projects SCPCP000015
+# download AnnData objects
+./download-data.py --projects SCPCP000015 --format "AnnData"
+```
 This module also requires `references/tumor_marker_genes.tsv` which contains a list of marker genes for identifying Ewing sarcoma tumor cells.
 
 ## Output files
