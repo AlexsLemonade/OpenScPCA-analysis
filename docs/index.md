@@ -1,7 +1,5 @@
 # Welcome to OpenScPCA
 
-typooo
-
 OpenScPCA is an open, collaborative project to analyze data from the [Single-cell Pediatric Cancer Atlas (ScPCA) Portal](https://scpca.alexslemonade.org/), which currently holds 500 samples from over 50 pediatric cancer types.
 
 This project aims to:
