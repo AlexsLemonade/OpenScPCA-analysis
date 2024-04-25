@@ -15,7 +15,7 @@ To ensure that code review goes smoothly and with fewer opportunities for miscom
 On the top of the PR page, you will see four tabs:
 
 <figure markdown="span">
-    ![Pull request tabs.](../../img/respond-to-review-tabs.png){width="800"}
+    ![Pull request tabs.](../../img/respond-to-review-01.png){width="800"}
 </figure>
 
 <div class="grid" markdown>
@@ -64,7 +64,7 @@ Your reviewer can leave file-specific comments that provide high-level feedback 
 For example, this file-level review comment requests that the code author comment and document a script:
 
 <figure markdown="span">
-    ![Re-request review.](../../img/respond-to-review-filecomment.png){width="600"}
+    ![Re-request review.](../../img/respond-to-review-02.png){width="600"}
 </figure>
 
 
@@ -73,7 +73,7 @@ For example, this file-level review comment requests that the code author commen
 Your reviewer can also leave in-line comments with feedback about specific lines of code:
 
 <figure markdown="span">
-    ![Re-request review.](../../img/respond-to-review-inline.png){width="600"}
+    ![Re-request review.](../../img/respond-to-review-03.png){width="600"}
 </figure>
 
 You can directly reply to these review comments on GitHub.
@@ -84,12 +84,12 @@ The way to responding to an existing comment differs depending on which PR tab y
 
 - If you are in the **`Files changed`** tab, use the button `Add single comment` to reply (_do not use `Start a review`_):
     <figure markdown="span">
-        ![Reply to a review comment from the `Files changed` tab.](../../img/respond-to-review-comment-filed-changed.png){width="600"}
+        ![Reply to a review comment from the `Files changed` tab.](../../img/respond-to-review-04.png){width="600"}
     </figure>
 
 - If you are in the **`Conversation`** tab, use the button `Comment`.
     <figure markdown="span">
-        ![Reply to a review comment from the `Conversation` tab.](../../img/respond-to-review-comment-conversation.png){width="600"}
+        ![Reply to a review comment from the `Conversation` tab.](../../img/respond-to-review-05.png){width="600"}
     </figure>
 
 
@@ -104,7 +104,7 @@ For example, below are two suggestions left as comments on an R script:
 
 
 <figure markdown="span">
-    ![Re-request review.](../../img/respond-to-review-suggestions.png){width="600"}
+    ![Re-request review.](../../img/respond-to-review-06.png){width="600"}
 </figure>
 
 
@@ -112,20 +112,20 @@ Suggestion comments have two associated buttons boxed in the image above: `Commi
 
 - You can directly commit a _single_ suggestion by clicking `Commit suggestion` button, and then clicking `Commit changes` in the dropdown box:
 <figure markdown="span">
-    ![Re-request review.](../../img/respond-to-review-commit-1-file.png){width="600"}
+    ![Re-request review.](../../img/respond-to-review-07.png){width="600"}
 </figure>
 
 - Alternatively, if there are multiple suggestions to accept, you can click the `Add suggestion to batch` button on each one.
 _The `Add suggestion to batch` option is only available via the `Files changed` tab!_
     - Now, both suggestions are `Pending in batch` to be committed as a group:
 <figure markdown="span">
-    ![Re-request review.](../../img/respond-to-review-pending-batch.png){width="600"}
+    ![Re-request review.](../../img/respond-to-review-08.png){width="600"}
 </figure>
 
 You can commit the batched suggestions at once with the `Commit suggestions` button that will appear at the top of the `Files changed` tab:
 
 <figure markdown="span">
-    ![Re-request review.](../../img/respond-to-review-commitbatch.png){width="600"}
+    ![Re-request review.](../../img/respond-to-review-09.png){width="600"}
 </figure>
 
 
@@ -145,7 +145,7 @@ Follow these steps when responding to review to avoid [merge conflicts](../creat
 1. Before making any code changes, _pull_ your branch from GitHub.
 This will ensure you are up-to-date with any code changes made on GitHub, including committed review suggestions or updates from merging the upstream `main` branch into your pull request branch.
     <figure markdown="span">
-        ![Pull in GitKraken.](../../img/respond-to-review-pull.png){width="600"}
+        ![Pull in GitKraken.](../../img/respond-to-review-10.png){width="600"}
     </figure>
 
 1. Make changes, commit, and push as you normally would.
@@ -159,7 +159,7 @@ Any changes you push to the branch with an open PR will automatically be reflect
 Once you feel that you have addressed your reviewer's comments, you can [re-request review by clicking the cycle icon next to their handle on the right side of the PR page](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/incorporating-feedback-in-your-pull-request#re-requesting-a-review).
 
 <figure markdown="span">
-    ![Re-request review.](../../img/respond-to-review-x.png){width="400"}
+    ![Re-request review.](../../img/respond-to-review-11.png){width="400"}
 </figure>
 
 You can also post a comment in your PR summarizing your response to review, which will help your reviewer navigate your code changes:
