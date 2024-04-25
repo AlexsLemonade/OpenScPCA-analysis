@@ -80,7 +80,7 @@ You can directly reply to these review comments on GitHub.
 For example, you might ask your reviewer to clarify a particular comment, or ask for more guidance about how to implement the review.
 Or, you might just want to leave your reviewer a helpful note of some kind!
 
-The way to responding to an existing comment differs depending on which PR tab you are leaving the comment from:
+The way to respond to an existing comment differs depending on which PR tab you are leaving the comment from:
 
 - If you are in the **`Files changed`** tab, use the button `Add single comment` to reply (_do not use `Start a review`_):
     <figure markdown="span">
@@ -107,7 +107,9 @@ For example, below are two suggestions left as comments on an R script:
     ![Re-request review.](../../img/respond-to-review-06.png){width="600"}
 </figure>
 
+## Responding to review comments 
 
+### Responding to suggestion comments 
 Suggestion comments have two associated buttons boxed in the image above: `Commit suggestion` and `Add suggestion to batch`.
 
 - You can directly commit a _single_ suggestion by clicking `Commit suggestion` button, and then clicking `Commit changes` in the dropdown box:
@@ -133,9 +135,9 @@ Read this GitHub documentation for more about [applying suggested changes while 
 
 
 
-## Responding to review comments
+## Making additional code changes in response to comments
 
-In some cases a reviewer will request you make changes without providing in-line suggestions.
+In some cases a reviewer will request you make changes to the code without providing in-line suggestions.
 When this happens, you will need to make the code changes locally.
 If you committed suggestions directly on GitHub before working on additional changes, be sure to sync your local branch with changes made on GitHub before changing any local code.
 
