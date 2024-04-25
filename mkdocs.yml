@@ -106,6 +106,7 @@ nav:
       - contributing-to-analyses/analysis-modules/creating-a-module.md
       - contributing-to-analyses/analysis-modules/running-a-module.md
       - contributing-to-analyses/analysis-modules/documenting-analysis.md
+      - contributing-to-analyses/analysis-modules/modifying-a-module.md
       - contributing-to-analyses/analysis-modules/notebook-structure.md
       - contributing-to-analyses/analysis-modules/script-structure.md
     - Determining analysis requirements:
@@ -128,6 +129,7 @@ nav:
       - contributing-to-analyses/creating-pull-requests/file-pull-request.md
     - Code review and merging your pull request:
       - contributing-to-analyses/pr-review-and-merge/index.md
+      - contributing-to-analyses/pr-review-and-merge/respond-to-review.md
   - Software platforms:            # AWS (S3 & LSfR), Docker, etc
     - software-platforms/index.md
     - Amazon Web Services (AWS):

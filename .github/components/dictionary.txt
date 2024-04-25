@@ -10,6 +10,7 @@ anonymized
 authenticator
 benchmarking
 bioinformatics
+Bleijs
 Carpentries
 CellAssign
 CLI
@@ -31,12 +32,14 @@ dropdown
 enforceability
 enure
 et
+ewings
 formatters
 Generis
 GFM
 GitHub
 GitKraken
 GitKraken's
+Goodspeed
 GPUs
 HPC
 IAM
@@ -88,6 +91,7 @@ Rtools
 SaaS
 SCE
 ScPCA
+SCPCP
 SemVar
 SingleR
 socio
@@ -105,6 +109,7 @@ TSV
 UMAP
 vCPU
 vCPUs
+Visser
 VSCodium
 WIPO
 WisCon
