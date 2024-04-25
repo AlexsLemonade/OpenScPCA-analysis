@@ -1,0 +1,31 @@
+# Default reviewers
+* @allyhawkins
+
+# CODEOWNER owner
+/.github/CODEOWNERS @jaclyn-taroni
+
+# Primary reviewers for docs and licenses changes
+/docs/ @sjspielman
+/CONTRIBUTING.md @dvenprasad @sjspielman
+/README.md @dvenprasad @sjspielman
+/mkdocs.yml @dvenprasad @sjspielman
+/LICENSE.md @jaclyn-taroni
+/SECURITY.md @jaclyn-taroni
+/code-of-conduct.md @jaclyn-taroni
+/docs/policies/ @jaclyn-taroni 
+
+
+# Management scripts and templates
+/create-analysis-module.py @jashapiro
+/download-data.py @jashapiro
+/scripts/sync-results.py @jashapiro
+/templates/ @jashapiro
+/environment.yml @jashapiro
+/.pre-commit-config.yaml @jashapiro
+
+# Primary reviewers for analysis modules
+
+/analyses/ @allyhawkins
+/analyses/hello-python/ @jashapiro
+/analyses/hello-r/ @jashapiro
+/analyses/simulate-sce/ @jashapiro
