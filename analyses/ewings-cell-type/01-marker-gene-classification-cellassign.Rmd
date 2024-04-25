@@ -1,8 +1,11 @@
 ---
-title: "Explor tumor cell classification - SCPCS000490"
+title: "Explore tumor cell classification with marker genes and CellAssign - SCPCS000490"
 author: Ally Hawkins
 date: "`r Sys.Date()`"
-output: html_notebook
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
 params:
   sample_id: SCPCS000490
   library_id: SCPCL000822
@@ -12,13 +15,18 @@ params:
 ## Introduction
 
 This notebook looks at expression of marker genes for tumor cells in a Ewing sarcoma sample, `r {params$sample_id}`. 
-Additionally, we see if we can use those marker genes to classify tumor and normal cells using `CellAssign`. 
+Additionally, we see if we can use those marker genes to classify tumor and normal cells using both manual annotation and `CellAssign`. 
+
+The first section focuses on assigning tumor and normal cells by looking at marker gene expression alone: 
 
 - First we look at expression of each of the marker genes across all cells. 
 - Then we plot the mean expression of all marker genes across all cells. 
 - Next, we perform clustering and see if we can assign each cluster as tumor or normal cells based on mean expression of marker genes. 
-- Finally, we use `CellAssign` with both the full list of marker genes and filtered list of marker genes. 
-- The results from `CellAssign` are then compared to manual annotation of cells. 
+
+The next section uses `CellAssign` to assign tumor cells with the same set of marker genes: 
+
+- We use `CellAssign` with both the full list of marker genes and filtered list of marker genes. 
+- We then compare the average gene expression of all marker genes between tumor and other cells. 
 
 ## Setup
 
@@ -55,8 +63,8 @@ anndata_file <- file.path(sample_dir, anndata_filename)
 marker_genes <- file.path(module_base, "references", "tumor_marker_genes.tsv")
 
 # Output files
-tumor_markers_mtx_file <- file.path(module_base, "references", "tumor-marker-cellassign.tsv")
-filtered_markers_mtx_file <- file.path(module_base, "references", "filtered-tumor-marker-cellassign.tsv")
+tumor_markers_mtx_file <- file.path(module_base, "references", "cellassign_refs", "tumor-marker-cellassign.tsv")
+filtered_markers_mtx_file <- file.path(module_base, "references", "cellassign_refs", "filtered-tumor-marker-cellassign.tsv")
 cellassign_predictions_file <- file.path(module_base, "results", "cellassign-tumor-predictions.tsv")
 filtered_predictions_file <- file.path(module_base, "results", "filtered-cellassign-tumor-predictions.tsv")
 ```
@@ -98,9 +106,7 @@ umap_df <- sce |>
   dplyr::rename_with(
         \(x) stringr::str_replace(x, "^UMAP\\.", "UMAP"),
         starts_with("UMAP")
-      )
-
-marker_gene_plot_df <- umap_df |> 
+      ) |> 
   # add in marker gene expression to dataframe 
   dplyr::left_join(marker_gene_exp, by = "barcodes") |> 
   # combine all genes into a single column for easy faceting
@@ -117,8 +123,8 @@ marker_gene_plot_df <- umap_df |>
 
 ```{r}
 # faceted umap showing a umap panel for each marker gene 
-ggplot(marker_gene_plot_df, aes(x = UMAP1, y = UMAP2, color = gene_expression)) +
-    geom_point(alpha = 0.1, size = 0.4) +
+ggplot(umap_df, aes(x = UMAP1, y = UMAP2, color = gene_expression)) +
+    geom_point(alpha = 0.1, size = 0.2) +
     facet_wrap(vars(gene_symbol)) +
     scale_color_viridis_c() +
     labs(
@@ -149,7 +155,7 @@ Below, we can get the mean gene expression of all marker genes and plot in a sin
 marker_mean_exp <- umap_df |> 
   dplyr::group_by(barcodes) |> 
   dplyr::mutate(mean_exp = mean(gene_expression)) |> 
-  dplyr::select(barcodes, UMAP1, UMAP2, mean_exp) |> 
+  dplyr::select(barcodes, UMAP1, UMAP2, mean_exp, clusters) |> 
   dplyr::distinct()
 
 # plot mean gene expression 
@@ -162,29 +168,60 @@ ggplot(marker_mean_exp, aes(x = UMAP1, y = UMAP2, color = mean_exp)) +
 Similar to the individual plots, it looks like there is one group of cells on the bottom right that has the highest mean gene expression. 
 We would anticipate that these are most likely to be the tumor cells. 
 
-### Clustering
+### Using clusters and marker gene expression to annotate tumor cells
+
+We anticipate that the tumor cells and normal cells would cluster separately. 
+First, let's just plot the cluster assignments alone.  
 
 ```{r}
-ggplot(umap_df, aes(x = UMAP1, y = UMAP2, color = clusters)) +
+ggplot(marker_mean_exp, aes(x = UMAP1, y = UMAP2, color = clusters)) +
   geom_point(size = 0.5, alpha = 0.5) +
   theme_bw()
 ```
 
+It looks like our large group of cells on the bottom right is comprised of a few clusters while most other groups of cells are a single cluster. 
+Let's see if there's any difference in mean expression of the marker genes across the clusters. 
+Based on the gene expression I would expect most cells in the bottom right to be considered tumor and all other cells to be normal. 
 
 ```{r}
-# classify cells as tumor/normal 
-classification_df <- marker_mean_exp |> 
-  dplyr::mutate(tumor_normal_classification = dplyr::if_else(mean_exp > 0.5, "Tumor", "Normal"))
-
-ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = tumor_normal_classification)) +
-  geom_point(size = 0.5, alpha = 0.5) +
+# plot marker gene expression across all clusters 
+ggplot(marker_mean_exp, aes(x = mean_exp, fill = clusters)) +
+  geom_density() +
+  facet_grid(rows = vars(clusters)) +
   theme_bw()
 ```
 
+Looking at this there are definitely distinct groups of cells with higher mean expression of the marker genes than other cells. 
+Before doing anything fancy, let's use this to manually assign tumor and normal cells. 
+One approach is to assign based on the cluster, so if the cluster has a median expression > 0.75 then all cells in that cluster would get assigned as tumor cells. 
+We could also pick a mean expression cutoff and use that to assign each cell individually, but there are some tails that overlap. 
+
+```{r}
+# classify clusters as tumor/normal 
+cluster_classification_df <- marker_mean_exp |> 
+  dplyr::group_by(clusters) |> 
+  # calculate the median mean gene expression across all cells in a cluster
+  dplyr::summarise(median_cluster_exp = median(mean_exp)) |> 
+  # use 0.75 as the cutoff for tumor/normal 
+  dplyr::mutate(tumor_normal_classification = dplyr::if_else(median_cluster_exp > 0.75, "Tumor", "Normal"))
+
+# get individual cell classifications
+celltype_classification_df <- marker_mean_exp |> 
+  dplyr::left_join(cluster_classification_df)
+
+# umap showing tumor and normal cells 
+ggplot(celltype_classification_df, aes(x = UMAP1, y = UMAP2, color = tumor_normal_classification)) +
+  geom_point(size = 0.5, alpha = 0.5) +
+  theme_bw()
+```
 
 ### Run CellAssign with marker genes 
 
-Create marker genes reference 
+Now let's see if we can use an automated marker gene-based method to identify tumor cells. 
+To do this we will use `CellAssign` with a reference matrix created from the marker gene list. 
+
+First, we need to create a binary matrix with two columns, "tumor" and "other". 
+The "other" will refer to any normal cells. 
 
 ```{r}
 binary_mtx <- marker_genes_df |>
@@ -205,23 +242,28 @@ binary_mtx <- marker_genes_df |>
 readr::write_tsv(binary_mtx, tumor_markers_mtx_file)
 ```
 
-Add script for running CellAssign 
+Now run `CellAssign` with the full marker gene list as the reference. 
+
 ```{r, eval=FALSE}
 cellassign_call <- glue::glue("
 python scripts/run-cellassign.py \
   --anndata_file '{anndata_file}' \
   --output_predictions '{cellassign_predictions_file}' \
-  --reference '{tumor_markers_mtx}'
+  --reference '{tumor_markers_mtx_file}'
 ")
 
 system(cellassign_call)
 ```
 
 
-Read in CellAssign marker genes
+We can then read in the predictions file and find the predicted cell type for each cell, either "tumor" or "other". 
+
 ```{r}
+# read in predictions
 predictions <- readr::read_tsv(cellassign_predictions_file)
 
+# get individual cell type assignments
+# those with the max prediction 
 celltype_assignments <- predictions |>
       tidyr::pivot_longer(
         !barcode,
@@ -231,19 +273,41 @@ celltype_assignments <- predictions |>
       dplyr::group_by(barcode) |>
       dplyr::slice_max(prediction, n = 1) |>
       dplyr::ungroup()
-
+# create a table of assignments 
 table(celltype_assignments$celltype)
 ```
 
-What if we restrict our list of marker genes based on our dataset? So we want something that has a mean gene expression of 1. 
+Looking at this, it appears that `CellAssign` is classifying all cells as "other"? 
+I find this hard to believe since this sample was taken directly from a Ewing sarcoma tumor, so there are bound to be tumor cells. 
+
+In looking at the original UMAP there are quite a few genes that have very low expression across all cells, so perhaps they are adding noise to the model. 
+Although this is a bit circular, we could restrict our list of marker genes to be only those that have a high mean gene expression in our dataset? 
+I would expect that when we do that, we are able to identify more tumor cells that line up with what we would expect based on gene expression patterns. 
 
 ```{r}
-filtered_markers <- rowData(sce) |> 
+# grab the mean gene expression for all marker genes 
+rowdata_df <- rowData(sce) |> 
   as.data.frame() |> 
-  dplyr::filter(gene_symbol %in% marker_genes_df$gene_symbol,
-                mean > 1) |> 
+  dplyr::filter(gene_symbol %in% marker_genes_df$gene_symbol)
+rowdata_df
+```
+
+```{r}
+# what's the mean gene expression of all genes in this sample for reference
+mean(rowData(sce)$mean)
+```
+
+
+There are a few genes that have low gene expression < 1. 
+Let's try and filter out those genes and then use `CellAssign`. 
+
+```{r}
+# get list of marker genes to keep
+filtered_markers <- rowdata_df |> 
+  dplyr::filter(mean > 1) |> 
   dplyr::pull(gene_ids)
 
+# filter binary mtx 
 filtered_binary_mtx <- binary_mtx |> 
   dplyr::filter(ensembl_gene_id %in% filtered_markers)
 
@@ -258,6 +322,9 @@ python scripts/run-cellassign.py --anndata_file '{anndata_file}' --output_predic
 
 system(cellassign_call)
 ```
+
+
+Now we can read in the predictions for the filtered marker gene list. 
 
 ```{r}
 predictions <- readr::read_tsv(filtered_predictions_file)
@@ -275,6 +342,8 @@ celltype_assignments <- predictions |>
 table(celltype_assignments$celltype)
 ```
 
+Now we are seeing a few more tumor cells, let's see where they are? 
+
 ```{r}
 celltype_df <- marker_mean_exp |> 
   dplyr::left_join(celltype_assignments, by = c("barcodes" = "barcode"))
@@ -283,6 +352,29 @@ ggplot(celltype_df, aes(x = UMAP1, UMAP2, color = celltype)) +
   geom_point(size = 0.5, alpha = 0.5) + 
   theme_bw()
 ```
+
+Not quite where I would expect to see tumor cells. 
+Let's look at the mean expression of marker genes between tumor and other cells as classified by `CellAssign`. 
+
+```{r}
+ggplot(celltype_df, aes(x = mean_exp, fill = celltype)) +
+  geom_density() +
+  facet_grid(rows = vars(celltype)) +
+  theme_bw()
+```
+
+Unlike what I would expect, the "other" cells appear to have higher expression of marker genes? 
+Maybe using `CellAssign` with only two options and a small set of marker genes doesn't work in the way we would expect. 
+
+## Conclusions 
+
+- We do see variation in marker gene expression, with a large group of cells expressing multiple marker genes at a higher level than all other cells. 
+- This same group of cells has the highest mean gene expression of all marker genes. 
+- We see a clear separation in marker gene expression between clusters. 
+- Assigning tumor cells by cluster identifies a distinct group of tumor cells. 
+- Using `CellAssign` with the same list of marker genes doesn't identify any tumor cells. 
+- Using `CellAssign` with a restricted list of marker genes identfies tumor cells that have lower marker gene expression than other cells. 
+This is opposite of the assignment we obtained using manual annotation. 
 
 ## Session Info
 
