@@ -18,5 +18,5 @@ This includes all of:
     - Changes to the module's [compute requirements](../determining-requirements/determining-compute-requirements.md)
     - Changes to instructions for setting up the module's run environment and/or running the module
 - Make sure any new dependencies have been added to the module's [software environment](../determining-requirements/determining-software-requirements.md).
-- Either update or add `README.md` files to any new sub-folders you add to the module.
+- Either update or add `README.md` files to any sub-folders you modify or add to the module.
     - For example, if you added a new script to the `scripts` directory, be sure to add a `scripts/README.md` that describes the usage of the new script.
