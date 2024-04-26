@@ -67,7 +67,7 @@ You should periodically update the lockfile to make sure all dependencies are ca
 renv::snapshot()
 ```
 
-When prompted, respond `y` to save the new packages in your lockfile.
+When prompted, respond `y` to save the new packages in your `renv.lock` file.
 Commit the changes to your lockfile to the repository.
 
 You can use [`renv::status()`](https://rstudio.github.io/renv/reference/status.html) at any time to check if there are inconsistencies between the module dependencies and the lockfile.
@@ -93,15 +93,16 @@ library(svglite)
 #### Restoring dependencies
 
 If you are switching between your computer and Amazon Web Services or running another contributor's module, it can be helpful to restore dependencies using a module's lockfile.
-To do so, use the following command ([reference](https://rstudio.github.io/renv/reference/restore.html)):
+To do so, use [`renv::restore()` function](https://rstudio.github.io/renv/reference/restore.html):
 
 ```r
 renv::restore()
 ```
 
-## Managing software dependencies in Python with conda
+## Managing software dependencies in Python and other languages with conda
 
-We strongly recommend using [conda](https://docs.conda.io/en/latest/) and [`conda-lock`](https://conda.github.io/conda-lock/) to manage dependencies for any module written primarily in Python.
+We strongly recommend using [conda](https://docs.conda.io/en/latest/) and [`conda-lock`](https://conda.github.io/conda-lock/) to manage dependencies for any module written primarily in Python, as well as for modules that use software written in other languages.
+Many useful bioinformatics tools are available through [Bioconda](https://bioconda.github.io/), which should already be configured as a conda channel.
 These instructions assume you have already [installed conda and set up your base environment](../../technical-setup/environment-setup/setup-conda.md).
 
 ### Module-specific conda environments
