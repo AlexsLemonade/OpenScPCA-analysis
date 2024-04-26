@@ -3,8 +3,8 @@
 This page provides some guidance on creating Docker images for an OpenScPCA analysis module.
 
 Note that creating docker images is not required for contributing to OpenScPCA, but it can be useful for testing and sharing your analysis module with others.
-Each analysis module will ultimately be update include a docker image to allow for running the analysis module as part of the OpenScPCA-nf workflow, but this does not need to be done by the module author.
-Data Lab staff will create the Docker image for each analysis module as part of the process of adding the module to the OpenScPCA-nf workflow if it has not already been done.
+Each analysis module will ultimately be updated to include a Docker image to allow for running the analysis module as part of the `OpenScPCA-nf` workflow, but this does not need to be done by the module author.
+Data Lab staff will create a Docker image as part of the process of adding the module to the `OpenScPCA-nf` workflow if it has not already been done.
 
 ## Prerequisites
 
@@ -47,7 +47,7 @@ The Bioconductor images are especially handy as they include system software dep
 
 You will want to include the following steps in your Dockerfile:
 
-- Install `renv` (and `remotes` if you have any Github-based packages in your environment).
+- Install `renv` (and `remotes` if you have any GitHub-based packages in your environment).
 - Copy the `renv.lock` file from the host environment to the image.
 - Use `renv::restore()` to reproduce the R environment from the `renv.lock` file.
 
