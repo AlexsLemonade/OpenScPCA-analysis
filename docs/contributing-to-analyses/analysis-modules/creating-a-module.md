@@ -161,7 +161,7 @@ Use this flag to:
 
 !!! info
     The `hello-python` example module was created with this flag.
-    Learn more about [using conda to manage your Python environment](../determining-requirements/determining-software-requirements.md#managing-software-dependencies-in-python-and-other-languages-with-conda).
+    Learn more about [using conda to manage your Python environment](../determining-requirements/determining-software-requirements.md#managing-software-dependencies-with-conda).
 
 Use this flag to:
 
