@@ -31,7 +31,7 @@ This will keep the build environment small and prevent unnecessary files from be
 ## Base images
 
 The base image you choose will depend on the software requirements of your analysis module.
-You should use a publically available base image; ideally one that is in active development and well-maintained in order to ensure that your image is secure and up-to-date.
+You should use a publicly available base image; ideally one that is in active development and well-maintained in order to ensure that your image is secure and up-to-date.
 You should always use a versioned base image to ensure that your analysis module is reproducible, i.e., not the one tagged as `latest`.
 
 ## Additional software
