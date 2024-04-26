@@ -16,7 +16,7 @@ Most likely, this will take the form of either:
 
 The goal of creating a Docker image is to incorporate these software requirements into a container that can be used to run all parts of the analysis module without any installation steps other than installing Docker and pulling the image.
 
-You will also need to have [Docker installed on your computer](https://docs.docker.com/engine/install/) to build and test the images.
+You will also need to have [Docker installed on your computer](../../technical-setup/environment-setup/install-docker.md) to build and test the images.
 
 ## Docker template files
 
