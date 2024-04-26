@@ -2,30 +2,34 @@
 
 This page provides some guidance on creating Docker images for an OpenScPCA analysis module.
 
+Having a Docker image for your analysis module is a key part of ensuring that your analysis is as easily reproducible as possible.
+
 Note that creating docker images is not required for contributing to OpenScPCA, but it can be useful for testing and sharing your analysis module with others.
-Each analysis module will ultimately be updated to include a Docker image to allow for running the analysis module as part of the `OpenScPCA-nf` workflow, but this does not need to be done by the module author.
+Each analysis module will ultimately be updated to include a Docker image before producing final results, but this does not need to be done by the module author.
 Data Lab staff will create a Docker image as part of the process of adding the module to the `OpenScPCA-nf` workflow if it has not already been done.
 
 ## Prerequisites
 
-Before making a Docker image, you will likely want to have fully [defined the software environment](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md) that you will be using for your analysis module.
-Most likely, this will take the form of either:
+Before making a Docker image, you will want to have [defined the software environment](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md) that you will be using for your analysis module.
+Having the requirements prepared will make creating a fully reproducible Docker image much more straightforward.
+
+For the easiest setup, you should have one of the two following kind of environment definitions:
 
 - an [`renv.lock` file](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#determining-and-managing-software-dependencies-in-r) if you are working with R, or
 - a [conda `environment.yml`](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#module-specific-conda-environments) and/or [`conda-lock.yml` file](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#freezing-dependencies-with-conda-lock) if you are working with Python or other software available through [Bioconda](https://bioconda.github.io).
 
-The goal of creating a Docker image is to incorporate these software requirements into a container that can be used to run all parts of the analysis module without any installation steps other than installing Docker and pulling the image.
+
 
 You will also need to have [Docker installed on your computer](../../technical-setup/environment-setup/install-docker.md) to build and test the images.
 
 ## Docker template files
 
-When you create an analysis module, a template `Dockerfile` and a `.dockerignore` file will be created in the root of the analysis module.
+When you [create an analysis module](../../contributing-to-analyses/analysis-modules/creating-a-module.md), a template `Dockerfile` and a `.dockerignore` file will be created in the root of the analysis module.
 
-The  `Dockerfile` includes a `FROM` statement that specifies the base image to use and a couple of `LABEL` statements to populate metadata about the image.
+The `Dockerfile` includes a `FROM` statement that specifies the base image to use and a couple of `LABEL` statements to populate metadata about the image.
 
 The `.dockerignore` file is used to specify files and directories that should *not* be included in the Docker build environment.
-By default, this will be set to ignore all files with the exception of environment files (e.g., `renv.lock`, `environment.yml`, `conda-lock.yml`).
+By default, this will be set to ignore all files except environment files (e.g., `renv.lock`, `environment.yml`, `conda-lock.yml`).
 This will keep the build environment small and prevent unnecessary files from being included in the image.
 
 ## Base images
@@ -42,7 +46,8 @@ If necessary, you can also include statements to install other software using th
 
 ## R-based images
 
-If you are working with R, you will likely want to use one of the [`rocker/r-ver` images](https://hub.docker.com/r/rocker/r-ver/tags) or a[`bioconductor/r-ver` image](https://hub.docker.com/r/bioconductor/r-ver/tags) images, which are a set of Docker images that provide complete R environments, tied to a specific version of R and/or Bioconductor.
+If you are working with R, you will likely want to use one of the [`rocker/r-ver` images](https://hub.docker.com/r/rocker/r-ver/tags) or a [`bioconductor/r-ver` image](https://hub.docker.com/r/bioconductor/r-ver/tags).
+These are Docker images that provide complete R environments tied to a specific version of R and/or Bioconductor.
 The Bioconductor images are especially handy as they include system software dependencies for Bioconductor packages that may not be installed in the `rocker` images.
 They also support binary installation of Bioconductor packages, which can dramatically speed up build times.
 

@@ -99,9 +99,9 @@ To do so, use [`renv::restore()` function](https://rstudio.github.io/renv/refere
 renv::restore()
 ```
 
-## Managing software dependencies in Python and other languages with conda
+## Managing software dependencies with conda
 
-We strongly recommend using [conda](https://docs.conda.io/en/latest/) and [`conda-lock`](https://conda.github.io/conda-lock/) to manage dependencies for any module written primarily in Python, as well as for modules that use software written in other languages.
+We strongly recommend using [conda](https://docs.conda.io/en/latest/) and [`conda-lock`](https://conda.github.io/conda-lock/) to manage dependencies for any module written primarily in Python, as well as for standalone software packages that do not depend on a specific language.
 Many useful bioinformatics tools are available through [Bioconda](https://bioconda.github.io/), which should already be configured as a conda channel.
 These instructions assume you have already [installed conda and set up your base environment](../../technical-setup/environment-setup/setup-conda.md).
 
@@ -300,7 +300,7 @@ conda config --env --set subdir osx-64
     - Finally, use the `conda-lock install --no-validate-platform` command above to update your environment using the newly-created lockfile.
 
 
-### Using `session_info.show()`
+### Using `session_info.show()` in Python
 
 The [`session-info`](https://pypi.org/project/session-info/) Python package can be used to report version information about Python and loaded modules.
 If you [created a module using `--use-jupyter` or `--use-python`](../analysis-modules/creating-a-module.md#the-use-jupyter-flag), `session-info` was automatically included in the module's conda environment.
