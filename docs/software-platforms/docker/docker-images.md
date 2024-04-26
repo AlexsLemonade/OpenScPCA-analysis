@@ -43,7 +43,8 @@ If necessary, you can also include statements to install other software using th
 ## R-based images
 
 If you are working with R, you will likely want to use one of the [`rocker/r-ver` images](https://hub.docker.com/r/rocker/r-ver/tags) or a[`bioconductor/r-ver` image](https://hub.docker.com/r/bioconductor/r-ver/tags) images, which are a set of Docker images that provide complete R environments, tied to a specific version of R and/or Bioconductor.
-The Bioconductor images are especially handy as they include system software dependencies for Bioconductor packages that may not be installed in the `rocker` images, and support binary installation of Bioconductor packages, which can dramatically speed up build times.
+The Bioconductor images are especially handy as they include system software dependencies for Bioconductor packages that may not be installed in the `rocker` images.
+They also support binary installation of Bioconductor packages, which can dramatically speed up build times.
 
 You will want to include the following steps in your Dockerfile:
 
