@@ -16,7 +16,7 @@ Most likely, this will take the form of either:
 
 The goal of creating a Docker image is to incorporate these software requirements into a container that can be used to run all parts of the analysis module without any installation steps other than installing Docker and pulling the image.
 
-You will also need to have [Docker installed on your computer](https://docs.docker.com/engine/install/).
+You will also need to have [Docker installed on your computer](https://docs.docker.com/engine/install/) to build and test the images.
 
 ## Docker template files
 
@@ -31,18 +31,18 @@ This will keep the build environment small and prevent unnecessary files from be
 ## Base images
 
 The base image you choose will depend on the software requirements of your analysis module.
-You should use a publicly available base image; ideally one that is in active development and well-maintained in order to ensure that your image is secure and up-to-date.
-You should always use a versioned base image to ensure that your analysis module is reproducible, i.e., not the one tagged as `latest`.
+You should aim to use a publicly available base image that is in active development and well-maintained in order to ensure that your image is secure and up-to-date.
+You should always use a *versioned* base image to ensure that your analysis module is reproducible, i.e., not the one tagged as `latest`.
 
 ## Additional software
 
 If your analysis module requires additional software that is not available in the base image, you will need to install it in the Dockerfile.
-The easiest way to do this is likely to be to use the same package manager that you used to define the software environment for your analysis module.
-If necessary, you can also include statements to install software using the system package manager (e.g., `apt-get` for Debian-based images).
+The easiest way to do this is likely to be to use the same tool (`renv`, `conda`, etc.) that you used to define the software environment for your analysis module.
+If necessary, you can also include statements to install other software using the system package manager (e.g., `apt-get` for Debian-based images).
 
 ## R-based images
 
-If you are working with R, you will likely want to use one of the `rocker/r-ver` or `bioconductor/r-ver` images, which are a set of Docker images that provide complete R environments, tied to a specific version of R and/or Bioconductor.
+If you are working with R, you will likely want to use one of the [`rocker/r-ver` images](https://hub.docker.com/r/rocker/r-ver/tags) or a[`bioconductor/r-ver` image](https://hub.docker.com/r/bioconductor/r-ver/tags) images, which are a set of Docker images that provide complete R environments, tied to a specific version of R and/or Bioconductor.
 The Bioconductor images are especially handy as they include system software dependencies for Bioconductor packages that may not be installed in the `rocker` images, and support binary installation of Bioconductor packages, which can dramatically speed up build times.
 
 You will want to include the following steps in your Dockerfile:
@@ -77,8 +77,8 @@ RUN Rscript -e 'renv::restore()' && \
 
 ## Conda-based images
 
-If you are working with conda, you will likely want to use one of the `continuumio/miniconda3` images.
-Since the conda environment should define the version of Python itself, you should not need to worry too much about the specific version of the base image, but you should still use a versioned image for reproducibility.
+If you are working with conda, you will likely want to use one of the [`continuumio/miniconda3` images](https://hub.docker.com/r/continuumio/miniconda3/tags).
+Since the conda environment files should define the version of Python itself, you should not need to worry too much about the specific version of the base image, but you should still use a versioned image for reproducibility.
 
 In the Dockerfile, you will want include the following steps:
 
