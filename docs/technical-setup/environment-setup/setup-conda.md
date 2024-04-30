@@ -39,9 +39,9 @@ To install Miniconda, [download the graphical installer for macOS](https://docs.
     - Apple Silicon (M1-3) Mac users should download `Miniconda3 macOS Apple M1 64-bit pkg`
     - Intel Mac users should download `Miniconda3 macOS Intel x86 64-bit pkg`
 
-### Install Miniconda on Windows with WSL2
+### Install Miniconda on Windows with WSL 2
 
-To install Miniconda onto the WSL2 side of your Windows machine, you will need to follow the [Quick command line install instructions for Linux](https://docs.anaconda.com/free/miniconda/#quick-command-line-install).
+To install Miniconda onto the WSL 2 side of your Windows machine, you will need to follow the [Quick command line install instructions for Linux](https://docs.anaconda.com/free/miniconda/#quick-command-line-install).
 
 - Copy and paste all commands, in order, into the [Ubuntu terminal](../../software-platforms/general-tools/using-the-terminal.md).
   - Be sure to also take the step to initialize conda for the Bash shell.
