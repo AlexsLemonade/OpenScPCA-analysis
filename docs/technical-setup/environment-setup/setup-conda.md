@@ -19,7 +19,7 @@ There are two main reasons we use conda for OpenScPCA:
 - conda allows you set up different software environments for different projects
     - For example, you may have two projects that require different versions of the same package.
     With conda, you can create separate, fully isolated software environments for each project with different package versions.
-    - Python-based OpenScPCA analysis modules will use different conda environments to prevent conflicts and improve reproducibility.
+    - Python-based OpenScPCA analysis modules as well as those that require other external software will use different conda environments to prevent conflicts and improve reproducibility.
     Therefore, installing conda is also part of setting up your computer to be able to contribute to Python-based modules.
 
 
@@ -65,7 +65,7 @@ Copy and paste the following command into the terminal, and hit enter.
     <!-- Do we want to suggest this instead? `conda env update --name base --file environment.yml`? -->
 
     - The [`awscli` package](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html) will allow you to interact with [data stored in the Amazon Web Services (AWS) S3 bucket](../../software-platforms/aws/index.md)
-    - The [`conda-lock` package](https://conda.github.io/conda-lock/) is used to create fully reproducible, cross-platform [conda environments for analysis modules](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#managing-software-dependencies-in-python-with-conda)
+    - The [`conda-lock` package](https://conda.github.io/conda-lock/) is used to create fully reproducible, cross-platform [conda environments for analysis modules](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#managing-software-dependencies-with-conda)
     - The [`jq` package](https://jqlang.github.io/jq/) provides JSON parsing capabilities
     - The [`pre-commit` package](https://pre-commit.com) will allow you to use [pre-commit hooks when contributing to analysis modules](../../contributing-to-analyses/working-with-git/making-commits.md#pre-commit-checks)
 
