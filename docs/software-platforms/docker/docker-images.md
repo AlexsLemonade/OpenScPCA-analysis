@@ -28,14 +28,15 @@ When you [create an analysis module](../../contributing-to-analyses/analysis-mod
 
 The `Dockerfile` includes a `FROM` statement that specifies the base image to use and a couple of `LABEL` statements to populate metadata about the image.
 
-The `.dockerignore` file is used to specify files and directories that should *not* be included in the Docker build environment.
-By default, this will be set to ignore all files except environment files (e.g., `renv.lock`, `environment.yml`, `conda-lock.yml`).
+The `.dockerignore` file specifies files and directories that should *not* be included in the Docker build environment.
+By default, we've set up this file to ignore all files except environment files (e.g., `renv.lock`, `environment.yml`, `conda-lock.yml`).
 This will keep the build environment small and prevent unnecessary files from being included in the image.
 
 ## Base images
 
 The base image you choose will depend on the software requirements of your analysis module.
 You should aim to use a publicly available base image that is in active development and well-maintained in order to ensure that your image is secure and up-to-date.
+
 You should always use a *versioned* base image to ensure that your analysis module is reproducible, i.e., not the one tagged as `latest`.
 
 We present some recommended base images for R and conda-based environments below, but you may need to choose a different base image depending on your specific requirements.
