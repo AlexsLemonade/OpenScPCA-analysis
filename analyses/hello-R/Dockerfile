@@ -1,23 +1,22 @@
-# A template docker file for creating a new analysis
-FROM bioconductor/bioconductor_docker:3.18
+# Docker image for the hello-R analysis
+FROM bioconductor/r-ver:3.18
 
 # Labels following the Open Containers Initiative (OCI) recommendations
 # For more information, see https://specs.opencontainers.org/image-spec/annotations/?v=v1.0.1
 LABEL org.opencontainers.image.authors="OpenScPCA scpca@ccdatalab.org"
 LABEL org.opencontainers.image.source="https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/hello-R"
 
-# Install R packages
-#### R packages
-# Use renv for R packages
+# Install renv to enable later package installation
+RUN Rscript -e "install.packages('renv')"
+
+# Disable the renv cache to install packages directly into the R library
 ENV RENV_CONFIG_CACHE_ENABLED FALSE
-RUN Rscript -e "install.packages(c('remotes', 'renv'))"
 
-WORKDIR /usr/local/renv
+# Copy the renv.lock file from the host environment to the image
 COPY renv.lock renv.lock
-# restore with PPM repo set for binary installs
-RUN Rscript -e "renv::restore()" \
-  && rm -rf ~/.local/share/renv \
-  && rm -rf /tmp/downloaded_packages \
-  && rm -rf /tmp/Rtmp*
 
-WORKDIR /home/rstudio
+# restore from renv.lock file and clean up to reduce image size
+RUN Rscript -e 'renv::restore()' && \
+  rm -rf ~/.cache/R/renv && \
+  rm -rf /tmp/downloaded_packages && \
+  rm -rf /tmp/Rtmp*
