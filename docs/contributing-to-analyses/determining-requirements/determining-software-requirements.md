@@ -35,7 +35,7 @@ Here, we will limit our discussion to the most common commands we expect you to 
 #### Initializing `renv` in a module
 
 !!! note
-    If you [used `--use-renv` when creating your analysis module](../analysis-modules/creating-a-module.md#the-use-renv-flag), this step has been taken care of.
+    If you [used `--use-renv` when creating your analysis module](../analysis-modules/creating-a-module.md#use-renv), this step has been taken care of.
 
 To start using `renv` in your analysis module, you can run the following R command from the root directory of your analysis module:
 
@@ -67,7 +67,7 @@ You should periodically update the lockfile to make sure all dependencies are ca
 renv::snapshot()
 ```
 
-When prompted, respond `y` to save the new packages in your lockfile.
+When prompted, respond `y` to save the new packages in your `renv.lock` file.
 Commit the changes to your lockfile to the repository.
 
 You can use [`renv::status()`](https://rstudio.github.io/renv/reference/status.html) at any time to check if there are inconsistencies between the module dependencies and the lockfile.
@@ -81,7 +81,7 @@ For example, `ggplot2` needs the `svglite` package to save `.svg` files, but tha
 You can make `renv` include a package by loading it in a file called `dependencies.R` in a directory called `components` within your analysis.
 
 !!! note
-    If you [used `--use-renv` when creating your analysis module](../analysis-modules/creating-a-module.md#the-use-renv-flag), `components/dependencies.R` was already created.
+    If you [used `--use-renv` when creating your analysis module](../analysis-modules/creating-a-module.md#use-renv), `components/dependencies.R` was already created.
 
 For instance, if you wanted to make sure `renv` was keeping track of the `scuttle` and `svglite` packages, your module's `components/dependencies.R` would include the following:
 
@@ -93,15 +93,16 @@ library(svglite)
 #### Restoring dependencies
 
 If you are switching between your computer and Amazon Web Services or running another contributor's module, it can be helpful to restore dependencies using a module's lockfile.
-To do so, use the following command ([reference](https://rstudio.github.io/renv/reference/restore.html)):
+To do so, use [`renv::restore()` function](https://rstudio.github.io/renv/reference/restore.html):
 
 ```r
 renv::restore()
 ```
 
-## Managing software dependencies in Python with conda
+## Managing software dependencies with conda
 
-We strongly recommend using [conda](https://docs.conda.io/en/latest/) and [`conda-lock`](https://conda.github.io/conda-lock/) to manage dependencies for any module written primarily in Python.
+We strongly recommend using [conda](https://docs.conda.io/en/latest/) and [`conda-lock`](https://conda.github.io/conda-lock/) to manage dependencies for any module written primarily in Python, as well as for standalone software packages that do not depend on a specific language.
+Many useful bioinformatics tools are available through [Bioconda](https://bioconda.github.io/), which should already be configured as a conda channel.
 These instructions assume you have already [installed conda and set up your base environment](../../technical-setup/environment-setup/setup-conda.md).
 
 ### Module-specific conda environments
@@ -299,12 +300,12 @@ conda config --env --set subdir osx-64
     - Finally, use the `conda-lock install --no-validate-platform` command above to update your environment using the newly-created lockfile.
 
 
-### Using `session_info.show()`
+### Using `session_info.show()` in Python
 
 The [`session-info`](https://pypi.org/project/session-info/) Python package can be used to report version information about Python and loaded modules.
-If you [created a module using `--use-jupyter` or `--use-python`](../analysis-modules/creating-a-module.md#the-use-jupyter-flag), `session-info` was automatically included in the module's conda environment.
+If you [created a module using `--use-jupyter` or `--use-python`](../analysis-modules/creating-a-module.md#use-Jupyter), `session-info` was automatically included in the module's conda environment.
 
-Import `session-info` by placing the following in [the Setup section of your Jupyter notebook](../analysis-modules/notebook-structure.md#jupyter-notebooks) or in the [load packages section of your script](../analysis-modules/script-structure.md#organizing-your-scripts):
+Import `session-info` by placing the following in [the Setup section of your Jupyter notebook](../analysis-modules/notebook-structure.md#jupyter-notebooks) or in the [load packages section of your script](../analysis-modules/script-structure.md):
 
 ```python
 import session_info
@@ -322,7 +323,7 @@ session_info.show()
 
 Using a script instead?
 
-Import `contextlib` by placing the following in the [load packages section of your script](../analysis-modules/script-structure.md#organizing-your-scripts):
+Import `contextlib` by placing the following in the [load packages section of your script](../analysis-modules/script-structure.md):
 
 ```python
 import contextlib

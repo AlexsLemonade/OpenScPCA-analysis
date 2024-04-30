@@ -68,7 +68,7 @@ Each example below shows the resulting module file structure when using each fla
 
 ### Flags to create an R module
 
-#### The `--use-r` flag
+#### The `--use-r` flag { #use-r }
 
 Use this flag to add a template R notebook to your module:
 
@@ -103,7 +103,7 @@ Use this flag to add a template R notebook to your module:
 
 
 
-#### The `--use-renv` flag
+#### The `--use-renv` flag { #use-renv }
 
 !!! info
     The `hello-r` example module was created with this flag.
@@ -157,11 +157,11 @@ Use this flag to:
 
 ### Flags to create a Python module
 
-#### The `--use-jupyter` flag
+#### The `--use-jupyter` flag { #use-Jupyter }
 
 !!! info
     The `hello-python` example module was created with this flag.
-    Learn more about [using conda to manage your Python environment](../determining-requirements/determining-software-requirements.md#managing-software-dependencies-in-python-with-conda).
+    Learn more about [using conda to manage your Python environment](../determining-requirements/determining-software-requirements.md#managing-software-dependencies-with-conda).
 
 Use this flag to:
 
@@ -208,7 +208,7 @@ Use this flag to:
 
 </div>
 
-#### The `--use-conda` flag
+#### The `--use-conda` flag { #use-conda }
 
 Use this flag to initialize a conda environment in your module, but without a template script or notebook.
 The conda environment will be named `openscpca-<module name>`.
