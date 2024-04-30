@@ -140,6 +140,8 @@ nav:
       - software-platforms/aws/working-with-volumes.md
       - software-platforms/aws/starting-development-on-lsfr.md
       - software-platforms/aws/working-with-snapshots.md
+    - Docker:
+      - software-platforms/docker/docker-images.md
     - Additional project tools:
       - software-platforms/general-tools/index.md
       - software-platforms/general-tools/writing-in-markdown.md
