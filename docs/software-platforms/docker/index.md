@@ -37,5 +37,5 @@ Follow the instructions to [Install Docker Desktop on Mac](https://docs.docker.c
 To enable Docker on the WSL 2 side of your computer, you will need to turn on Docker's built-in [WSL 2 feature](https://docs.docker.com/desktop/wsl/).
 Once enabled, you will be able to run Docker from the Ubuntu terminal.
 
-Follow the instructions to [install and enable Docker Desktop WSL 2](https://docs.docker.com/desktop/wsl/#turn-on-docker-desktop-wsl-2) instrutions on the Docker website.
+Follow the instructions to [install and enable Docker Desktop WSL 2](https://docs.docker.com/desktop/wsl/#turn-on-docker-desktop-wsl-2) instructions on the Docker website.
 
