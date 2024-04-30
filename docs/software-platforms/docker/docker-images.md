@@ -20,7 +20,7 @@ For the easiest setup, you should have one of the two following kind of environm
 
 
 
-You will also need to have [Docker installed on your computer](../../technical-setup/environment-setup/install-docker.md) to build and test the images.
+You will also need to have [Docker installed on your computer](index.md#how-to-install-docker) to build and test the images.
 
 ## Docker template files
 

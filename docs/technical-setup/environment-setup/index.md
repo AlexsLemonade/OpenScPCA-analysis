@@ -22,10 +22,10 @@ If you are planning to work on your local computer, you will need to take these 
     - This will allow you to make contributions in Git
 - [Configure the AWS CLI](./configure-aws-cli.md)
     - You can only complete this step if the Data Lab has [created an Amazon Web Services account for you](../../getting-started/accessing-resources/index.md).
-- [Optional] [Install Docker](./install-docker.md)
+- [Optional] [Install Docker](../../software-platforms/docker/index.md#how-to-install-docker)
     - This allows you to run your analysis modules inside a Docker container, ensuring reproducibility across machines.
 - [Optional] If you plan on writing or contributing to R-based modules, you should also [download and install R and RStudio, along with a few handy R packages](./install-r-rstudio.md)
 
 ## Setting up on Lightsail for Research
 
-If you are planning to work on a Lightsail for Research instance, please refer to the [Lightsail for Research documentation](../../software-platforms/aws/index.md#lsfr-virtual-computing-with-aws).
+If you are planning to work on a Lightsail for Research instance, please refer to the [Lightsail for Research documentation](../../software-platforms/aws/index.md#lightsail-for-research-virtual-computing-with-aws).

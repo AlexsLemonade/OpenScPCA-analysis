@@ -60,7 +60,7 @@ There are also some additional files in the skeleton that are useful to be aware
 
 - **`Dockerfile`**
     - This is the analysis module's [Dockerfile](https://docs.docker.com/reference/dockerfile/) and contains the commands that Docker uses to build the module's Docker image.
-    - For more information on how OpenScPCA uses `Docker` images, [please see our `Docker` documentation](../../technical-setup/environment-setup/install-docker.md).
+    - For more information on how OpenScPCA uses `Docker` images, [please see our `Docker` documentation](../../software-platforms/docker/index.md).
 - Hidden files **`.gitignore`** and **`.dockerignore`**
     - We have set up these files to tell Git and Docker, respectively, to ignore certain files that do not belong in version control or in the module's Docker image.
     - These files will likely be automatically hidden from you, and you don't really have to worry about it.

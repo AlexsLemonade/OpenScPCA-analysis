@@ -35,7 +35,7 @@ Here, we will limit our discussion to the most common commands we expect you to 
 #### Initializing `renv` in a module
 
 !!! note
-    If you [used `--use-renv` when creating your analysis module](../analysis-modules/creating-a-module.md#the-use-renv-flag), this step has been taken care of.
+    If you [used `--use-renv` when creating your analysis module](../analysis-modules/creating-a-module.md#use-renv), this step has been taken care of.
 
 To start using `renv` in your analysis module, you can run the following R command from the root directory of your analysis module:
 
@@ -81,7 +81,7 @@ For example, `ggplot2` needs the `svglite` package to save `.svg` files, but tha
 You can make `renv` include a package by loading it in a file called `dependencies.R` in a directory called `components` within your analysis.
 
 !!! note
-    If you [used `--use-renv` when creating your analysis module](../analysis-modules/creating-a-module.md#the-use-renv-flag), `components/dependencies.R` was already created.
+    If you [used `--use-renv` when creating your analysis module](../analysis-modules/creating-a-module.md#use-renv), `components/dependencies.R` was already created.
 
 For instance, if you wanted to make sure `renv` was keeping track of the `scuttle` and `svglite` packages, your module's `components/dependencies.R` would include the following:
 
@@ -303,9 +303,9 @@ conda config --env --set subdir osx-64
 ### Using `session_info.show()` in Python
 
 The [`session-info`](https://pypi.org/project/session-info/) Python package can be used to report version information about Python and loaded modules.
-If you [created a module using `--use-jupyter` or `--use-python`](../analysis-modules/creating-a-module.md#the-use-jupyter-flag), `session-info` was automatically included in the module's conda environment.
+If you [created a module using `--use-jupyter` or `--use-python`](../analysis-modules/creating-a-module.md#use-jupyter), `session-info` was automatically included in the module's conda environment.
 
-Import `session-info` by placing the following in [the Setup section of your Jupyter notebook](../analysis-modules/notebook-structure.md#jupyter-notebooks) or in the [load packages section of your script](../analysis-modules/script-structure.md#organizing-your-scripts):
+Import `session-info` by placing the following in [the Setup section of your Jupyter notebook](../analysis-modules/notebook-structure.md#jupyter-notebooks) or in the [load packages section of your script](../analysis-modules/script-structure.md):
 
 ```python
 import session_info
@@ -323,7 +323,7 @@ session_info.show()
 
 Using a script instead?
 
-Import `contextlib` by placing the following in the [load packages section of your script](../analysis-modules/script-structure.md#organizing-your-scripts):
+Import `contextlib` by placing the following in the [load packages section of your script](../analysis-modules/script-structure.md):
 
 ```python
 import contextlib
