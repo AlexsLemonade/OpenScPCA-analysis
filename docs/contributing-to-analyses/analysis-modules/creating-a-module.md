@@ -157,7 +157,7 @@ Use this flag to:
 
 ### Flags to create a Python module
 
-#### The `--use-jupyter` flag { #use-jupyter }
+#### The `--use-jupyter` flag { #use-Jupyter }
 
 !!! info
     The `hello-python` example module was created with this flag.

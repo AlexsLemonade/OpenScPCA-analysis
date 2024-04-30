@@ -303,7 +303,7 @@ conda config --env --set subdir osx-64
 ### Using `session_info.show()` in Python
 
 The [`session-info`](https://pypi.org/project/session-info/) Python package can be used to report version information about Python and loaded modules.
-If you [created a module using `--use-jupyter` or `--use-python`](../analysis-modules/creating-a-module.md#use-jupyter), `session-info` was automatically included in the module's conda environment.
+If you [created a module using `--use-jupyter` or `--use-python`](../analysis-modules/creating-a-module.md#use-Jupyter), `session-info` was automatically included in the module's conda environment.
 
 Import `session-info` by placing the following in [the Setup section of your Jupyter notebook](../analysis-modules/notebook-structure.md#jupyter-notebooks) or in the [load packages section of your script](../analysis-modules/script-structure.md):
 
