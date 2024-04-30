@@ -38,6 +38,8 @@ The base image you choose will depend on the software requirements of your analy
 You should aim to use a publicly available base image that is in active development and well-maintained in order to ensure that your image is secure and up-to-date.
 You should always use a *versioned* base image to ensure that your analysis module is reproducible, i.e., not the one tagged as `latest`.
 
+We present some recommended base images for R and conda-based environments below, but you may need to choose a different base image depending on your specific requirements.
+
 ## Additional software
 
 If your analysis module requires additional software that is not available in the base image, you will need to install it in the Dockerfile.
