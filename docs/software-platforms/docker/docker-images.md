@@ -2,7 +2,7 @@
 
 This page provides some guidance on creating Docker images for an OpenScPCA analysis module.
 
-Having a Docker image for your analysis module is a key part of ensuring that your analysis is as easily reproducible as possible.
+Having a Docker image for your analysis module is a key part of ensuring that your analysis is as reproducible as possible.
 
 Note that creating docker images is not required for contributing to OpenScPCA, but it can be useful for testing and sharing your analysis module with others.
 Each analysis module will ultimately be updated to include a Docker image before producing final results, but this does not need to be done by the module author.
