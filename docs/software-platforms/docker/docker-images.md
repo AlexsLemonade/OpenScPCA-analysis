@@ -22,7 +22,9 @@ For the easiest setup, you should have one of the two following kind of environm
 
 You will also need to have [Docker installed on your computer](index.md#how-to-install-docker) to build and test the images.
 
-## Docker template files
+## Analysis module Dockerfiles
+
+### Docker template files
 
 When you [create an analysis module](../../contributing-to-analyses/analysis-modules/creating-a-module.md), a template `Dockerfile` and a `.dockerignore` file will be created in the root of the analysis module.
 
@@ -32,22 +34,28 @@ The `.dockerignore` file specifies files and directories that should *not* be in
 By default, we've set up this file to ignore all files except environment files (e.g., `renv.lock`, `environment.yml`, `conda-lock.yml`).
 This will keep the build environment small and prevent unnecessary files from being included in the image.
 
-## Base images
+### Base images
 
 The base image you choose will depend on the software requirements of your analysis module.
 You should aim to use a publicly available base image that is in active development and well-maintained in order to ensure that your image is secure and up-to-date.
 
-You should always use a *versioned* base image to ensure that your analysis module is reproducible, i.e., not the one tagged as `latest`.
+!!! tip
+    You should always use a *versioned* base image to ensure that your analysis module is reproducible, i.e., not the one tagged as `latest`.
 
-We present some recommended base images for R and conda-based environments below, but you may need to choose a different base image depending on your specific requirements.
+We present some recommended base images for R and conda-based environments in the examples below, but you may need to choose a different base image depending on your specific requirements.
 
-## Additional software
+### Additional software
 
 If your analysis module requires additional software that is not available in the base image, you will need to install it in the Dockerfile.
 The easiest way to do this is likely to be to use the same tool (`renv`, `conda`, etc.) that you used to define the software environment for your analysis module.
 If necessary, you can also include statements to install other software using the system package manager (e.g., `apt-get` for Debian-based images).
 
-## R-based images
+## Example Dockerfiles
+
+Below are some example Dockerfiles for R and conda-based environments that use the `renv.lock` and `conda-lock.yml` files, respectively, to install required software in the image.
+Note that these are relatively minimal examples, and do not include elements like `LABEL` statements which that normally be found in a final Dockerfile.
+
+### R-based images
 
 If you are working with R, you will likely want to use one of the [`rocker/r-ver` images](https://hub.docker.com/r/rocker/r-ver/tags) or a [`bioconductor/r-ver` image](https://hub.docker.com/r/bioconductor/r-ver/tags).
 These are Docker images that provide complete R environments tied to a specific version of R and/or Bioconductor.
@@ -84,7 +92,7 @@ RUN Rscript -e 'renv::restore()' && \
 ```
 
 
-## Conda-based images
+### Conda-based images
 
 If you are working with conda, you will likely want to use one of the [`continuumio/miniconda3` images](https://hub.docker.com/r/continuumio/miniconda3/tags).
 Since the conda environment files should define the version of Python itself, you should not need to worry too much about the specific version of the base image, but you should still use a versioned image for reproducibility.
