@@ -10,10 +10,9 @@ This section provides information about using some of OpenScPCA's core software 
 
 ### Docker
 
-> _Documentation coming soon!_
-
-- The OpenScPCA project uses Docker containers to create reproducible analysis modules.
-- This section explains how to use Docker as an OpenScPCA contributor.
+- The OpenScPCA project uses [Docker images](docker/index.md) to create reproducible analysis modules.
+- For initial setup information, see the [Docker installation instructions](docker/index.md#how-to-install-docker).
+- If you are creating your own Docker images for an analysis module, see our [Docker image guidelines](docker/docker-images.md).
 
 
 ### [Additional project tools](./general-tools/index.md)
