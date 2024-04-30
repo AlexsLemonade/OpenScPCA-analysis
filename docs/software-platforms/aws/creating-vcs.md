@@ -110,11 +110,14 @@ We recommend waiting ~10 minutes before accessing the instance.
 It takes time to create the instance and for all software to be installed.
 
 1. To access a virtual computer, you will need to navigate to Lightsail for Research.
-Search for Lightsail for Research using the search bar and then select the product.
+Search for "Lightsail for Research" using the search bar and then select the product.
 
     <figure markdown="span">
         ![Search for Lightsail](../../img/creating-vcs-6.png){width="600"}
     </figure>
+
+    !!! warning
+        Be sure to search for "Lightsail for Research" and _not_ just "Lightsail," which is a different product.
 
 1. This will take you directly to a page that lists your virtual computers.
 You should see the virtual computer you created with the instance name that you provided during set up.
