@@ -1,0 +1,318 @@
+---
+title: "Explore tumor cell classification with CellAssign"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+params:
+  sample_id: SCPCS000490
+  library_id: SCPCL000822
+---
+
+## Introduction 
+
+This notebook looks at classifying tumor cells with `CellAssign` in a Ewing sarcoma sample, `r {params$sample_id}`. 
+
+- We use `CellAssign` with both a full list of marker genes and filtered list of marker genes. 
+- We then compare the average gene expression of all marker genes between tumor and other cells. 
+- Finally we use `CellAssign` with marker genes from [Visser et al.](https://doi.org/10.1158/2767-9764.CRC-23-0027) specified in the supplemental methods. 
+
+## Setup
+
+```{r packages}
+suppressMessages(
+  # load required packages
+  library(SingleCellExperiment),
+  library(ggplot2)
+)
+```
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The current data directory, found within the repository base directory
+data_dir <- file.path(repository_base, "data", "current")
+sample_dir <- file.path(data_dir, "SCPCP000015", params$sample_id)
+
+# The path to this module
+module_base <- file.path(repository_base, "analyses", "ewings-cell-type")
+```
+
+
+```{r paths}
+# Input files
+sce_filename <- glue::glue("{params$library_id}_processed.rds")
+sce_file <- file.path(sample_dir, sce_filename)
+
+anndata_filename <- glue::glue("{params$library_id}_processed_rna.hdf5")
+anndata_file <- file.path(sample_dir, anndata_filename)
+
+# tumor marker genes
+tumor_markers_file <- file.path(module_base, "references", "tumor-marker-genes.tsv")
+# all markers 
+all_markers_file <- file.path(module_base, "references", "all-marker-genes.tsv")
+
+# Output reference matrix files
+ref_dir <- file.path(module_base, "references", "cellassign_refs")
+
+tumor_markers_mtx_file <- file.path(ref_dir, "tumor-marker-cellassign.tsv")
+filtered_markers_mtx_file <- file.path(ref_dir, "filtered-tumor-marker-cellassign.tsv")
+visser_markers_mtx_file <- file.path(ref_dir, "visser-all-marker-cellassign.tsv")
+
+# output predictions from cellassign 
+results_dir <- file.path(module_base, "results")
+cellassign_predictions_file <- file.path(results_dir, "cellassign-tumor-predictions.tsv")
+filtered_predictions_file <- file.path(results_dir, "filtered-cellassign-tumor-predictions.tsv")
+visser_predictions_file <- file.path(results_dir, "visser-cellassign-predictions.tsv")
+
+
+```
+
+```{r}
+# read in processed sce
+sce <- readr::read_rds(sce_file)
+
+# read in tumor marker genes table 
+tumor_markers_df <- readr::read_tsv(tumor_markers_file) |> 
+  # account for genes being from multiple sources
+  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |> 
+  dplyr::distinct()
+
+# read in all maker genes 
+all_markers_df <- readr::read_tsv(all_markers_file) |> 
+  # account for genes being from multiple sources
+  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |> 
+  dplyr::distinct()
+```
+
+Define some helper functions for creating a reference matrix and obtaining cell type annotations from `CellAssign` predictions. 
+
+```{r}
+# function for creating a binary matrix with cell types as columns and marker genes as rows 
+build_binary_mtx <- function(marker_genes_df,
+                             gene_col, 
+                             cell_type_col) {
+ 
+  binary_mtx <- marker_genes_df |>
+  dplyr::select({{cell_type_col}}, {{gene_col}}) |> 
+  unique() |> 
+  tidyr::pivot_wider(
+    id_cols = {{gene_col}},
+    names_from = {{cell_type_col}},
+    values_from = {{cell_type_col}},
+    values_fn = length,
+    values_fill = 0
+  ) |>
+  # add a column with no marker genes
+  # cell assign will assign cells to "other" when no other cell types are appropriate
+  dplyr::mutate(other = 0) 
+  
+  return(binary_mtx)
+}
+
+# function to get assigned cell type based on max prediction returned by CellAssign 
+get_celltype_assignment <- function(predictions){
+  # get individual cell type assignments
+  # those with the max prediction 
+  celltype_assignments <- predictions |>
+    tidyr::pivot_longer(
+      !barcode,
+      names_to = "celltype",
+      values_to = "prediction"
+    ) |>
+    dplyr::group_by(barcode) |>
+    dplyr::slice_max(prediction, n = 1) |>
+    dplyr::ungroup()
+  
+  return(celltype_assignments)
+}
+```
+
+
+
+## Analysis content
+
+### Run CellAssign with only tumor marker genes
+
+First let's see if we can use `CellAssign` to classify cells as tumor or normal using just the list of tumor marker genes.
+
+First, we need to create a binary matrix with two columns, "tumor" and "other". 
+The "other" will refer to any normal cells. 
+
+```{r}
+tumor_ref_mtx <- build_binary_mtx(tumor_markers_df, 
+                                  gene_col = "ensembl_gene_id",
+                                  cell_type_col = "cell_type")
+
+# export matrix 
+readr::write_tsv(tumor_ref_mtx, tumor_markers_mtx_file)
+```
+
+Now run `CellAssign` with the full marker gene list as the reference. 
+
+```{r, eval=FALSE}
+cellassign_call <- glue::glue(
+  "python scripts/run-cellassign.py",
+  "--anndata_file '{anndata_file}'",
+  "--output_predictions '{cellassign_predictions_file}'",
+  "--reference '{tumor_markers_mtx_file}'"
+)
+
+system(cellassign_call)
+```
+
+
+We can then read in the predictions file and find the predicted cell type for each cell, either "tumor" or "other". 
+
+```{r}
+# read in predictions file
+tumor_predictions <- readr::read_tsv(cellassign_predictions_file)
+
+# get cell type assignments 
+tumor_celltype_assignments <- get_celltype_assignment(tumor_predictions)
+
+# create a table of assignments 
+table(tumor_celltype_assignments$celltype)
+```
+
+Looking at this, it appears that `CellAssign` is classifying all cells as "other"? 
+I find this hard to believe since this sample was taken directly from a Ewing sarcoma tumor, so there are bound to be tumor cells. 
+
+
+### Run CellAssign with a filtered set of tumor marker genes
+
+In looking at the original UMAP there are quite a few genes that have very low expression across all cells, so perhaps they are adding noise to the model. 
+Although this is a bit circular, we could restrict our list of marker genes to be only those that have a high mean gene expression in our dataset? 
+I would expect that when we do that, we are able to identify more tumor cells that line up with what we would expect based on gene expression patterns. 
+
+```{r}
+# grab the mean gene expression for all marker genes 
+rowdata_df <- rowData(sce) |> 
+  as.data.frame() |> 
+  dplyr::filter(gene_symbol %in% marker_genes_df$gene_symbol)
+rowdata_df
+```
+
+```{r}
+# what's the mean gene expression of all genes in this sample for reference
+mean(rowData(sce)$mean)
+```
+
+
+There are a few genes that have low gene expression < 1. 
+Let's try and filter out those genes and then use `CellAssign`. 
+
+```{r}
+# get list of marker genes to keep
+filtered_markers <- rowdata_df |> 
+  dplyr::filter(mean > 1) |> 
+  dplyr::pull(gene_ids)
+
+# filter binary mtx 
+filtered_ref_mtx <- tumor_ref_mtx |> 
+  dplyr::filter(ensembl_gene_id %in% filtered_markers)
+
+readr::write_tsv(filtered_ref_mtx, filtered_markers_mtx_file)
+```
+
+
+```{r, eval=FALSE}
+cellassign_call <- glue::glue(
+  "python scripts/run-cellassign.py",
+  "--anndata_file '{anndata_file}'",
+  "--output_predictions '{filtered_predictions_file}'",
+  "--reference '{filtered_markers_mtx_file}'"
+)
+
+system(cellassign_call)
+```
+
+
+Now we can read in the predictions for the filtered marker gene list. 
+
+```{r}
+filtered_predictions <- readr::read_tsv(filtered_predictions_file)
+
+filtered_celltype_assignments <- get_celltype_assignment(filtered_predictions)
+
+table(filtered_celltype_assignments$celltype)
+```
+
+Now we are seeing a few more tumor cells, let's see where they are? 
+
+```{r}
+celltype_df <- marker_mean_exp |> 
+  dplyr::left_join(celltype_assignments, by = c("barcodes" = "barcode"))
+
+ggplot(celltype_df, aes(x = UMAP1, UMAP2, color = celltype)) +
+  geom_point(size = 0.5, alpha = 0.5) + 
+  theme_bw()
+```
+
+Not quite where I would expect to see tumor cells. 
+Let's look at the mean expression of marker genes between tumor and other cells as classified by `CellAssign`. 
+
+```{r}
+ggplot(celltype_df, aes(x = mean_exp, fill = celltype)) +
+  geom_density() +
+  facet_grid(rows = vars(celltype)) +
+  theme_bw()
+```
+
+Unlike what I would expect, the "other" cells appear to have higher expression of marker genes? 
+Maybe using `CellAssign` with only two options and a small set of marker genes doesn't work in the way we would expect. 
+
+### Run CellAssign with tumor markers and all marker genes from Visser et al.
+
+```{r}
+visser_ref_mtx <- build_binary_mtx(all_markers_df, 
+                                   gene_col = "ensembl_gene_id",
+                                   cell_type_col = "cell_type")
+
+# export matrix 
+readr::write_tsv(visser_ref_mtx, visser_markers_mtx_file)
+```
+
+Now run `CellAssign` with the full marker gene list as the reference. 
+
+```{r, eval=FALSE}
+cellassign_call <- glue::glue(
+  "python scripts/run-cellassign.py ",
+  "--anndata_file '{anndata_file}' ",
+  "--output_predictions '{visser_predictions_file}' ",
+  "--reference '{visser_markers_mtx_file}'"
+)
+
+system(cellassign_call)
+```
+
+```{r}
+visser_predictions <- readr::read_tsv(visser_predictions_file)
+
+visser_celltype_assignments <- get_celltype_assignment(visser_predictions)
+
+table(visser_celltype_assignments$celltype)
+```
+
+
+## Conclusions 
+
+- Using `CellAssign` with the same list of marker genes doesn't identify any tumor cells. 
+- Using `CellAssign` with a restricted list of marker genes identfies tumor cells that have lower marker gene expression than other cells. 
+This is opposite of the assignment we obtained using manual annotation. 
+
+```{r}
+
+```
+
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
