@@ -68,10 +68,10 @@ The last step is to create an `openscpca` conda environment and install several 
 <!-- Comment to force above to be bullets, next to be numbers -->
 
 
-1. To create this environment, navigate in terminal with `cd` to the `OpenScPCA-analysis` repository.
+1. To create this environment, navigate in the terminal with `cd` to the `OpenScPCA-analysis` repository.
     - Again, if you open a [terminal in GitKraken](../../software-platforms/general-tools/using-the-terminal.md#gitkraken), you will automatically be in the repository folder.
 
-1. Enter the following command in terminal:
+1. Enter the following command in the terminal:
     - You may be prompted to enter **`y`** or **`n`** (yes or no) during this setup.
     If/when this prompt appears, you should hit **`y`** to give conda permissions to proceed.
 
@@ -89,6 +89,7 @@ The last step is to create an `openscpca` conda environment and install several 
         If you experience package conflicts when running this command, we recommend you go back to setting up a dedicated `openscpca` environment.
 
 1. Activate the environment with the following command:
+
     ```sh
     conda activate openscpca
     ```
