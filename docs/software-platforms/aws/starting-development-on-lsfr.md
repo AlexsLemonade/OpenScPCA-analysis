@@ -52,9 +52,7 @@ conda config --add channels conda-forge
 conda config --set channel_priority strict
 ```
 
-You will not have permission to install programs into your `base` environment as described in [the conda setup documentation](../../technical-setup/environment-setup/setup-conda.md).
-
-Instead, you need to first create a conda environment using the `environment.yml` in the root of the repository.
+Create an `openscpca` conda environment using the `environment.yml` file in the root of the `OpenScPCA-analysis` repository.
 Use the following command in Terminal, replacing `{your disk's name}` (including the curly brackets) with the name of the disk you cloned the repository to:
 
 ```sh
