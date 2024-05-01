@@ -71,14 +71,23 @@ The last step is to create an `openscpca` conda environment and install several 
 1. To create this environment, navigate in the terminal with `cd` to the `OpenScPCA-analysis` repository.
     - Again, if you open a [terminal in GitKraken](../../software-platforms/general-tools/using-the-terminal.md#gitkraken), you will automatically be in the repository folder.
 
-1. Enter the following command in the terminal:
-    - You may be prompted to enter **`y`** or **`n`** (yes or no) during this setup.
-    If/when this prompt appears, you should hit **`y`** to give conda permissions to proceed.
+1. Enter the following command in the terminal to create the `openscpca` environment and install the packages into it:
 
     ```sh
     conda env create -f environment.yml
     ```
 
+    When the process is complete, you'll see this message in the terminal providing the commands to activate and deactivate the environment:
+
+    ```{ .console .no-copy title="Output message after conda environment install"}
+    # To activate this environment, use
+    #
+    #     $ conda activate openscpca
+    #
+    # To deactivate an active environment, use
+    #
+    #     $ conda deactivate
+    ```
 
     ??? info "Prefer to modify your base environment instead?"
         While we recommended creating an `openscpca` environment, this is not strictly necessary.
@@ -88,23 +97,21 @@ The last step is to create an `openscpca` conda environment and install several 
         ```
         If you experience package conflicts when running this command, we recommend you go back to setting up a dedicated `openscpca` environment.
 
-1. Activate the environment with the following command:
+
+
+1. As indicated in the message, activate the environment with the following command:
 
     ```sh
     conda activate openscpca
     ```
 
+    At this point, your terminal prompt will have a prefix `(openscpca)`, which lets you know that you are in that conda environment.
+    In general, this is how conda indicates which environment, if any, the terminal is working in.
+    <figure markdown="span">
+        ![Activate the openscpca environment](../../img/conda-activate-openscpca.png){width="300"}
+    </figure>
+
     !!! tip "Activating the `openscpca` conda environment"
         Whenever you are developing for OpenScPCA, you should work from this activated conda environment unless you are using a module-specific conda environment.
         At the start of any coding session, run `conda activate openscpca` to activate this environment.
         If you wish to deactivate the environment, you can run `conda deactivate`.
-
-
-1. You should see these messages in the terminal which indicate successful installation:
-
-    <figure markdown="span">
-        ![Conda completed install output.](../../img/conda-success.png){width="275"}
-    </figure>
-
-
-All set! 🎉
