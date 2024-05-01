@@ -1,6 +1,6 @@
 # Developing on Lightsail for Research
 
-Once you have [created a virtual computer](creating-vcs.md), [attached a disk](working-with-volumes.md), and [accessed the operating system](creating-vcs.md#how-to-access-a-virtual-computer) you are ready to start development on Lightsail for Research by taking the following steps:
+Once you have [created a virtual computer](creating-vcs.md), [attached a disk](working-with-volumes.md), and [accessed the operating system](accessing-vcs.md) you are ready to start development on Lightsail for Research by taking the following steps:
 
 1. Cloning the repository to your virtual computer
 2. Creating and activating a conda environment
@@ -73,3 +73,6 @@ Now that you've installed `pre-commit` into the `openscpca` environment as descr
 ## Start analyzing
 
 You're ready to start developing on your virtual computer!
+
+Based on the settings `ShutdownIdlePercent` and `ShutdownTimePeriod` you specified when you originally [created the virtual computer](./creating-vcs.md), your computer will shut down automatically after a certain period of low CPU activity.
+To instead manually shut down the computer when you're done with a coding session, click the `Stop computer` button from the same screen where you [accessed the virtual computer](./accessing-vcs.md).
