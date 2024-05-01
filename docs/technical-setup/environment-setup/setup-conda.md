@@ -88,7 +88,7 @@ The last step is to create an `openscpca` conda environment and install several 
         ```
         If you experience package conflicts when running this command, we recommend you go back to setting up a dedicated `openscpca` environment.
 
-2. Activate the environment with the following command:
+1. Activate the environment with the following command:
     ```sh
     conda activate openscpca
     ```
