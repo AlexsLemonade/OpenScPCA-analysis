@@ -55,11 +55,19 @@ source(jaccard_functions)
 
 ```{r paths}
 # Input files
-sce_filename <- glue::glue("{params$library_id}_processed_annotated.rds")
+sce_filename <- glue::glue("{params$library_id}_processed.rds")
 sce_file <- file.path(sample_dir, sce_filename)
 
 marker_genes <- file.path(module_base, "references", "tumor-marker-genes.tsv")
+
+# output tumor/normal classifications
+results_dir <- file.path(module_base, "results", "marker_gene_analysis")
+fs::dir_create(results_dir)
+
+classifications_filename <- glue::glue("{params$library_id}_tumor_normal_classifications.tsv")
+output_classifications_file <- file.path(results_dir, classifications_filename)
 ```
+
 
 ```{r}
 # read in processed sce
@@ -484,6 +492,21 @@ CCND1 and CD99 appear to have similar expression across both groups of cells, wh
 - It's likely that ADGRG2, HES1, NROB1, and STEAP1 will not be informative in assigning tumor cells. 
 - We may be weary of genes like CD99 too as expression is more consistent across cells rather than specific to a group of cells. 
 - Endothelial cells as identified by SingleR and CellAssign generally have low expression of these marker genes and muscle cells have higher expression of marker genes. 
+
+## Save outputs 
+
+```{r}
+# get a dataframe with barcodes, sum_classification and cluster_classification 
+celltype_classification_df <- celltype_classification_df |> 
+  dplyr::select(
+    barcodes,
+    marker_gene_classification = sum_classification, 
+    cluster_classification
+  )
+
+readr::write_tsv(celltype_classification_df, output_classifications_file)
+```
+
 
 ## Session Info
 
