@@ -38,7 +38,7 @@ You should see the virtual computer you created with the instance name that you 
 
         ??? tip "Working with `VSCodium` virtual computers"
             When you launch a `VSCodium` computer via `Access operating system`, you will _not_ be able to use or access VSCodium itself.
-            You can only acccess VSCodium if you use the `Launch VSCodium` button.
+            You can only access VSCodium if you use the `Launch VSCodium` button.
 
             If you need to use both VSCodium and other computer applications (e.g., GitKraken) at the same time, you can have two separate windows open at the same time: One opened with `Access operating system` to be able to use GitKraken, and one opened with `Launch VSCodium` to be able to use VSCodium.
 
