@@ -41,6 +41,7 @@ If you already have conda on your system, you do not need to re-install it.
 Next, you will need to set certain conda settings and install a few packages that will allow you to contribute to OpenScPCA in general.
 
 1. [Open a terminal (command line prompt)](../../software-platforms/general-tools/using-the-terminal.md) to interact with conda.
+    - We recommend opening a [terminal from GitKraken](../../software-platforms/general-tools/using-the-terminal.md#gitkraken) since you'll need to run some of these steps from the `OpenScPCA-analysis` folder.
 
 1. Copy and paste the following code into the terminal, and hit enter.
 These commands will set the [recommended channels](https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/channels.html) conda should use to search for software.
@@ -55,26 +56,50 @@ These commands will set the [recommended channels](https://docs.conda.io/project
     ```
 
 
-1. The last step is to install the packages that you will need to contribute to OpenScPCA into your `base` conda environment.
-`base` is the default conda environment, the one that will be active when you first open your terminal.
-Copy and paste the following command into the terminal, and hit enter.
+### Create an `openscpca` conda environment
+
+The last step is to create an `openscpca` conda environment and install several packages, as specified in the `environment.yml` in the root of the repository, which are generally needed for OpenScPCA development:
+
+- The [`awscli` package](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html) will allow you to interact with [data stored in the Amazon Web Services (AWS) S3 bucket](../../software-platforms/aws/index.md)
+- The [`conda-lock` package](https://conda.github.io/conda-lock/) is used to create fully reproducible, cross-platform [conda environments for analysis modules](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#managing-software-dependencies-with-conda)
+- The [`jq` package](https://jqlang.github.io/jq/) provides JSON parsing capabilities
+- The [`pre-commit` package](https://pre-commit.com) will allow you to use [pre-commit hooks when contributing to analysis modules](../../contributing-to-analyses/working-with-git/making-commits.md#pre-commit-checks)
+
+<!-- Comment to force above to be bullets, next to be numbers -->
+
+
+1. To create this environment, navigate in terminal with `cd` to the `OpenScPCA-analysis` repository.
+    - Again, if you open a [terminal in GitKraken](../../software-platforms/general-tools/using-the-terminal.md#gitkraken), you will automatically be in the repository folder.
+
+1. Enter the following command in terminal:
+    - You may be prompted to enter **`y`** or **`n`** (yes or no) during this setup.
+    If/when this prompt appears, you should hit **`y`** to give conda permissions to proceed.
 
     ```sh
-    conda install awscli conda-lock jq pre-commit
+    conda env create -f environment.yml
     ```
-    <!-- Do we want to suggest this instead? `conda env update --name base --file environment.yml`? -->
-
-    - The [`awscli` package](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html) will allow you to interact with [data stored in the Amazon Web Services (AWS) S3 bucket](../../software-platforms/aws/index.md)
-    - The [`conda-lock` package](https://conda.github.io/conda-lock/) is used to create fully reproducible, cross-platform [conda environments for analysis modules](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#managing-software-dependencies-with-conda)
-    - The [`jq` package](https://jqlang.github.io/jq/) provides JSON parsing capabilities
-    - The [`pre-commit` package](https://pre-commit.com) will allow you to use [pre-commit hooks when contributing to analysis modules](../../contributing-to-analyses/working-with-git/making-commits.md#pre-commit-checks)
-
-    !!! note
-        You may be prompted to enter **`y`** or **`n`** (yes or no) during this setup.
-        If/when this prompt appears, you should hit **`y`** to give conda permissions to proceed.
 
 
-1. At the end of the installation, you should see these messages in the terminal which indicate successful installation:
+    ??? info "Prefer to modify your base environment instead?"
+        While we recommended creating an `openscpca` environment, this is not strictly necessary.
+        If you prefer to add these packages to your base environment, use this command instead:
+        ```sh
+        conda env update -n base -f environment.yml
+        ```
+        If you experience package conflicts when running this command, we recommend you go back to setting up a dedicated `openscpca` environment.
+
+2. Activate the environment with the following command:
+    ```sh
+    conda activate openscpca
+    ```
+
+    !!! tip "Activating the `openscpca` conda environment"
+        Whenever you are developing for OpenScPCA, you should work from this activated conda environment unless you are using a module-specific conda environment.
+        At the start of any coding session, run `conda activate openscpca` to activate this environment.
+        If you wish to deactivate the environment, you can run `conda deactivate`.
+
+
+1. You should see these messages in the terminal which indicate successful installation:
 
     <figure markdown="span">
         ![Conda completed install output.](../../img/conda-success.png){width="275"}
