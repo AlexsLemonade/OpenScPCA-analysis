@@ -567,7 +567,7 @@ rowsums <- panglao_tumor_ref_mtx |>
   dplyr::select(-ensembl_gene_id) |> 
   rowSums()
 
-panglao_tumor_ref_mtx <- panglao_tumor_ref_mtx[which(rowsums > 1),]
+panglao_tumor_ref_mtx <- panglao_tumor_ref_mtx[-which(rowsums > 1),]
 
 # export matrix 
 readr::write_tsv(panglao_tumor_ref_mtx, panglao_markers_mtx_file)
@@ -598,7 +598,7 @@ table(panglao_celltype_assignments$celltype)
 ```
 
 This is definitely not what I expected... 
-It looks like most cells are categorized as "other" with a few categorized as tumor. 
+It looks like most cells are categorized as "other" with a few categorized as tumor and only 1 endothlial cell. 
 I would have thought that at least some cells would be endothelial or fibroblast. 
 
 ```{r}
@@ -617,8 +617,8 @@ ggplot(celltype_df, aes(x = UMAP1, UMAP2, color = panglao_cellassign_annotations
 ```
 
 Again, it looks like cells that were classified as normal are considered tumor here. 
-I think if we want to use CellAssign, we will need to spend more time carefully curating a marker gene list that includes all possible cell types for these samples. 
-Another alternative is to use the CellAssign annotations that we already have to help guide which cells may be tumor or normal. 
+I think if we want to use `CellAssign`, we will need to spend more time carefully curating a marker gene list that includes all possible cell types for these samples. 
+Another alternative is to use the `CellAssign` annotations that we already have to help guide which cells may be tumor or normal. 
 For example, we expect that muscle cells will be tumor cells. 
 
 ## Conclusions 
