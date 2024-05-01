@@ -26,20 +26,20 @@ Note that installing GitKraken will also provide you with Git itself.
 1. Set up GitKraken on your machine by [directly signing in with your GitHub account](https://help.gitkraken.com/gitkraken-client/github-gitkraken-client/#sign-in-with-github).
 This will automatically provide you with the credentials you need to interact with GitHub without further setup.
 
-### Install GitKraken on Windows with WSL2
+### Install GitKraken on Windows with WSL 2
 
-??? note "Update WSL2 if needed"
-    Before installing GitKraken, make sure your WSL2 installation is up to date by running this command in Windows PowerShell (not in Ubuntu).
+??? note "Update WSL 2 if needed"
+    Before installing GitKraken, make sure your WSL 2 installation is up to date by running this command in Windows PowerShell (not in Ubuntu).
     When launching PowerShell, make sure you are [running as an administrator](https://learn.microsoft.com/en-us/powershell/scripting/windows-powershell/starting-windows-powershell?view=powershell-7.4#with-administrative-privileges-run-as-administrator).
 
     ```sh
     wsl --update
     ```
 
-    Still need to install WSL2?
-    [Follow these instructions first](./install-wsl2.md).
+    Still need to install WSL 2?
+    [Follow these instructions first](./install-wsl-2.md).
 
-You will [install GitKraken as a Linux application](https://help.gitkraken.com/gitkraken-client/how-to-install/#deb) into the WSL2 side of your computer.
+You will [install GitKraken as a Linux application](https://help.gitkraken.com/gitkraken-client/how-to-install/#deb) into the WSL 2 side of your computer.
 
 All of the following installation steps are commands that you should run in the Ubuntu terminal.
 
@@ -70,7 +70,7 @@ All of the following installation steps are commands that you should run in the 
 1. The final step is to set up GitKraken on your machine by [directly signing in with your GitHub account](https://help.gitkraken.com/gitkraken-client/github-gitkraken-client/#sign-in-with-github).
 This will automatically provide you with the credentials you need to interact with GitHub without further setup.
     - Note that you may need to manually copy/paste the Token displayed in your browser into GitKraken to complete the sign-in.
-    - You can also refer to the [GitKraken website](https://help.gitkraken.com/gitkraken-client/windows-subsystem-for-linux) for additional considerations (some of which are more advanced) for using GitKraken with WSL2.
+    - You can also refer to the [GitKraken website](https://help.gitkraken.com/gitkraken-client/windows-subsystem-for-linux) for additional considerations (some of which are more advanced) for using GitKraken with WSL 2.
 
 
 
@@ -101,6 +101,6 @@ For this, launch a Terminal window, enter the command shown below, and follow th
 xcode-select --install
 ```
 
-### Install Git on Windows in WSL2
+### Install Git on Windows in WSL 2
 
-Git is automatically installed as part of WSL2, so you don't need to install anything else.
+Git is automatically installed as part of WSL 2, so you don't need to install anything else.

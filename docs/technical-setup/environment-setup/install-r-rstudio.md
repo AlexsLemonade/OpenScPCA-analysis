@@ -42,9 +42,9 @@ These tools are available from the [R for macOS website](https://mac.r-project.o
 1. Install the **GNU Fortran compiler**.
 Click the link on the [Tools - R for Mac OS](https://mac.r-project.org/tools/) page to download the `gfortran` installer package and follow all installation instructions.
 
-### Install R on Windows with WSL2
+### Install R on Windows with WSL 2
 
-These instructions will install R on the WSL2 side of your computer.
+These instructions will install R on the WSL 2 side of your computer.
 
 1. Copy and paste this code into the Ubuntu terminal to install R:
 
@@ -87,9 +87,9 @@ This website shows Step 1 as installing R itself, which you can skip and proceed
 Click the download link and follow all instructions to complete the installation.
 
 
-### Install RStudio Server on Windows with WSL2
+### Install RStudio Server on Windows with WSL 2
 
-Because there is no native way to use the RStudio IDE within WSL2's Ubuntu operating system, you will instead need to install the RStudio Server.
+Because there is no native way to use the RStudio IDE within WSL 2's Ubuntu operating system, you will instead need to install the RStudio Server.
 
 This will provide essentially the same experience as working with RStudio Desktop, except you will access the IDE through your browser instead of through a built-in GUI.
 
@@ -135,10 +135,10 @@ You can start and stop the server by running the following lines in the Ubuntu t
     ```
 
 To use the RStudio Server, navigate to `http://localhost:8787` in your browser.
-You will be prompted to sign into the server with a username and password; use the username and password credentials you created when you [installed Ubuntu](../install-wsl2.md#installation-instructions).
+You will be prompted to sign into the server with a username and password; use the username and password credentials you created when you [installed Ubuntu](../install-wsl-2.md#installation-instructions).
 
 Once you log in, you will see an RStudio IDE in the browser which you can use as you normally would use RStudio Desktop!
-Because the server is installed on the WSL2 side of your computer, you can fully interact with your Linux file system via RStudio Server's built-in terminal just the same as the Ubuntu terminal application.
+Because the server is installed on the WSL 2 side of your computer, you can fully interact with your Linux file system via RStudio Server's built-in terminal just the same as the Ubuntu terminal application.
 
 
 

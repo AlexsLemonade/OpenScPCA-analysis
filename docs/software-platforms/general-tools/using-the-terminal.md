@@ -50,9 +50,9 @@ Note that [Apple provides some additional instructions](https://support.apple.co
 (PS: You can also change the look of the terminal by [customizing your terminal profile](https://support.apple.com/guide/terminal/profiles-change-terminal-windows-trml107/mac).)
 
 
-### Accessing the terminal on WSL2 on Windows
+### Accessing the terminal on WSL 2 on Windows
 
-Make sure that you have taken all the necessary steps to [install WSL2](../../technical-setup/install-wsl2.md).
+Make sure that you have taken all the necessary steps to [install WSL 2](../../technical-setup/install-wsl-2.md).
 
 To access the Ubuntu terminal, we recommend using the ["Terminal" application](https://learn.microsoft.com/en-us/windows/terminal/).
 This application opens all types of shells, aka command line prompts, in the same window.

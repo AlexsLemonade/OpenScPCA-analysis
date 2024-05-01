@@ -28,4 +28,14 @@ We will also use Docker images to run the analysis modules in the `OpenScPCA-nf`
 
 ## How to install Docker
 
-Follow the platform-specific instructions [to download and install Docker Desktop](https://docs.docker.com/get-docker/) from the Docker website.
+### macOS users
+
+Follow the instructions to [Install Docker Desktop on Mac](https://docs.docker.com/desktop/install/mac-install/) on the Docker website.
+
+### Windows users
+
+To enable Docker on the WSL 2 side of your computer, you will need to turn on Docker's built-in [WSL 2 feature](https://docs.docker.com/desktop/wsl/).
+Once enabled, you will be able to run Docker from the Ubuntu terminal.
+
+Follow the instructions to [install Docker Desktop and enable the WSL 2 feature](https://docs.docker.com/desktop/wsl/#turn-on-docker-desktop-wsl-2) on the Docker website.
+
