@@ -136,6 +136,7 @@ nav:
       - software-platforms/aws/joining-aws.md
       - software-platforms/aws/working-with-s3-buckets.md
       - software-platforms/aws/creating-vcs.md
+      - software-platforms/aws/accessing-vcs.md
       - software-platforms/aws/working-with-volumes.md
       - software-platforms/aws/starting-development-on-lsfr.md
       - software-platforms/aws/working-with-snapshots.md

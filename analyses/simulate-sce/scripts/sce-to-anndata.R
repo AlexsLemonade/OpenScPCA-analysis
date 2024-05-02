@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 # This script takes a directory containing SingleCellExperiment objects as `rds` files and converts each
-# object to an AnnData object or objects saved as an hdf5 file.
+# object to an AnnData object or objects saved as an h5ad file.
 # RNA and ADT data (if present) are saved as separate AnnData objects.
 
 # The AnnData objects being exported by this script is formatted to fit CZI schema: 3.0.0
@@ -38,7 +38,7 @@ suppressPackageStartupMessages({
 
 outfile_name <- function(sce_filename, feature) {
   # create the output file name for each feature
-  suffix <- glue::glue("_{feature}.hdf5")
+  suffix <- glue::glue("_{feature}.h5ad")
   feature_filename <- stringr::str_replace(sce_filename, ".rds$", suffix)
   return(feature_filename)
 }

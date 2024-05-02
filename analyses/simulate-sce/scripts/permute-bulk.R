@@ -21,7 +21,7 @@ option_list <- list(
     c("-o", "--output_dir"),
     type = "character",
     default = NULL,
-    help = "The output directory. Output files will be given the same names as input"
+    help = "The output directory for the permuted bulk data. Output files will be given the same names as input"
   ),
   make_option(
     c("--seed"),
