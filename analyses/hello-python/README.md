@@ -16,7 +16,7 @@ bash run_hello-python.sh
 
 ## Input files
 
-- `data/current/{projects}/**/*_processed_rna.hdf5`: processed `SingleCellExperiment` objects from an ScPCA data release.
+- `data/current/{projects}/**/*_processed_rna.h5ad`: processed `SingleCellExperiment` objects from an ScPCA data release.
 
 These input files can be obtained by running the `download-data.py` script in the `scripts` directory with the following arguments:
 
