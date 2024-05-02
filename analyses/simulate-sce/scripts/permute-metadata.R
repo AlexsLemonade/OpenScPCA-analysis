@@ -17,7 +17,7 @@ option_list <- list(
     c("-o", "--output_file"),
     type = "character",
     default = NULL,
-    help = "The output file path."
+    help = "The output file path for the permuted metadata file."
   ),
   make_option(
     c("--seed"),
