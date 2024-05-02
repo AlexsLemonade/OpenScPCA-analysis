@@ -16,6 +16,7 @@ params:
 This notebook looks at classifying tumor cells with `CellAssign` in a Ewing sarcoma sample, `r {params$sample_id}`. 
 
 We use `CellAssign` with a variety of references: 
+
 - A full list of tumor marker genes only. 
 - A filtered list of tumor marker genes only. 
 - Tumor marker genes and non-tumor marker genes from [Visser et al.](https://doi.org/10.1158/2767-9764.CRC-23-0027) specified in the supplemental methods. 
@@ -27,11 +28,11 @@ We also look at marker gene expression in the assigned cells.
 ## Setup
 
 ```{r packages}
-suppressMessages(
+suppressPackageStartupMessages({
   # load required packages
-  library(SingleCellExperiment),
+  library(SingleCellExperiment)
   library(ggplot2)
-)
+})
 ```
 
 
@@ -320,6 +321,7 @@ ComplexHeatmap::Heatmap(
   show_heatmap_legend = TRUE,
 )
 ```
+
 As expected, it looks like CellAssign is assigning very few cells to tumor that overlap with the tumor cells annotated with marker gene analysis. 
 It looks like most tumor cells are being classified as normal with the marker gene analysis. 
 
@@ -477,7 +479,7 @@ celltypes <- unique(all_markers_df$cell_type)
 
 # for each cell type, plot each individual marker as a UMAP 
 celltypes |> 
-  purrr::walk(\(celltype){
+  purrr::map(\(celltype){
     plot_df <- marker_gene_exp_df |> 
       dplyr::filter(cell_type == celltype)
     
