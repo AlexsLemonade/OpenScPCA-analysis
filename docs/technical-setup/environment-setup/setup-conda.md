@@ -123,9 +123,6 @@ These are specified in the `environment.yml` in the root of the repository, and 
 
     At this point, your terminal prompt will show the prefix `(openscpca)`, which lets you know that you are in that conda environment.
     In general, this is how conda indicates which environment, if any, the terminal is working in.
-    <figure markdown="span">
-        ![Activate the openscpca environment](../../img/conda-activate-openscpca.png){width="300"}
-    </figure>
 
     !!! tip "Activating the `openscpca` conda environment"
         Whenever you are developing for OpenScPCA, you should work from either the `openscpa` conda environment or [a module-specific conda environment](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#managing-software-dependencies-with-conda).
