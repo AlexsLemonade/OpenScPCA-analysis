@@ -82,7 +82,7 @@ nav:
       - getting-started/accessing-resources/getting-access-to-compute.md
   - Technical setup:           # Fork/clone, local environment setup
     - technical-setup/index.md
-    - technical-setup/install-wsl2.md
+    - technical-setup/install-wsl-2.md
     - technical-setup/install-a-git-client.md
     - technical-setup/fork-the-repo.md
     - technical-setup/clone-the-repo.md
