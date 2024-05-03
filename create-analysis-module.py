@@ -10,6 +10,8 @@ import subprocess
 import sys
 from typing import Union
 
+R_VERSION="4.4.0"
+BIOC_VERSION="3.19"
 
 def copy_file_with_tag_replacement(
     src: Union[pathlib.Path, str],
@@ -195,15 +197,15 @@ def main() -> None:
 
     if args.use_renv:
         # initialize a new renv environment
-        renv_script = """
+        renv_script = f"""
             if (!requireNamespace("renv", quietly = TRUE))
                 install.packages("renv")
             renv::scaffold(
                 repos = list(CRAN = "https://p3m.dev/cran/latest"),
                 settings = list(
                     ppm.enabled = TRUE,
-                    r.version = "4.4.0",
-                    bioconductor.version = "3.19"
+                    r.version = "{R_VERSION}",
+                    bioconductor.version = "{BIOC_VERSION}"
                 )
             )
         """
