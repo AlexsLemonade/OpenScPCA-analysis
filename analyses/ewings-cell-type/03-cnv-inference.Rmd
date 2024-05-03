@@ -36,8 +36,11 @@ sample_dir <- file.path(data_dir, "SCPCP000015", params$sample_id)
 
 # The path to this module
 module_base <- file.path(repository_base, "analyses", "ewings-cell-type")
+```
 
-# source in helper functions
+
+```{r}
+# source in helper functions for make_jaccard_matrix() and jaccard()
 jaccard_functions <- file.path(module_base, "scripts", "utils", "jaccard-functions.R")
 source(jaccard_functions)
 ```
@@ -52,63 +55,53 @@ sce_file <- file.path(sample_dir, sce_filename)
 classifications_filename <- glue::glue("{params$library_id}_tumor_normal_classifications.tsv")
 classifications_file <- file.path(module_base, "results", "marker_gene_analysis", classifications_filename)
 
-# output files 
+# copykat results 
+results_dir <- file.path(module_base, "results", "copykat", params$library_id)
+results_filenames <- c(
+  no_ref = glue::glue("{params$library_id}_no_normal_copykat_prediction.txt"), 
+  with_ref = glue::glue("{params$library_id}_with_normal_copykat_prediction.txt")
+) 
+ck_results_files <- file.path(results_dir, results_filenames) |> 
+  purrr::set_names(names(results_filenames))
 ```
 
 
 ```{r}
 # read in processed sce
 sce <- readr::read_rds(sce_file)
+
+# read in tumor normal classifications 
+manual_classifications_df <- readr::read_tsv(classifications_file)
+
+# read in ck results 
+ck_results_df <- ck_results_files |> 
+  purrr::map(readr::read_tsv) |> 
+  dplyr::bind_rows(.id = "reference_used")
 ```
 
 
-## Analysis content
-
-### CopyKAT
-
-```{r}
-ck_results <- copykat::copykat(rawmat = as.matrix(counts(sce)),
-                               id.type = "E", 
-                               n.cores = 4)
-```
-
-Save these results so we don't need to re-run! 
-```{r}
-table(ck_results$prediction$copykat.pred)
-# temp save ck_results 
-readr::write_rds(ck_results, "results/SCPCL000490_copykat_results.rds")
-```
+## CopyKAT results
 
 ```{r}
 umap_df <- sce |> 
   scuttle::makePerCellDF(use.dimred = "UMAP") |> 
   # replace UMAP.1 with UMAP1
   dplyr::rename_with(
-        \(x) stringr::str_replace(x, "^UMAP\\.", "UMAP"),
-        starts_with("UMAP")
+        \(x) stringr::str_replace(x, "^UMAP\\.", "UMAP")
       )
 
-ck_preds <- ck_results$prediction |> 
-  dplyr::rename(
-    barcodes = cell.names
-  )
-
 cnv_df <- umap_df |> 
-  dplyr::left_join(ck_preds)
+  # first add manual annotations
+  dplyr::left_join(manual_classifications_df) |> 
+  # now add copykat results
+  dplyr::left_join(ck_results_df, by = c("barcodes" = "cell.names"))
 ```
 
 ```{r}
 ggplot(cnv_df, aes(x = UMAP1, y = UMAP2, color = copykat.pred)) +
   geom_point(alpha = 0.5, size = 0.5) +
-  theme_bw()
-```
-
-```{r}
-# read in tumor normal classifications 
-manual_classifications_df <- readr::read_tsv(classifications_file)
-
-cnv_df <- cnv_df |> 
-  dplyr::left_join(manual_classifications_df)
+  theme_bw() +
+  facet_wrap(vars(reference_used))
 ```
 
 ```{r}
@@ -117,14 +110,155 @@ caret_df <- cnv_df |>
   dplyr::mutate(copykat = ifelse(
     # use str_detect for test data
     copykat.pred == "diploid", "Normal", "Tumor"
-  ))
+  )) |> 
+  split(cnv_df$reference_used)
 
-caret::confusionMatrix(table(caret_df$marker_gene_classification, 
-      caret_df$copykat))
+
+caret_df |> 
+  purrr::imap(\(df, ref_type){
+    glue::glue("\n\n================== {ref_type} ====================")
+    caret::confusionMatrix(
+      table(
+        df$marker_gene_classification, 
+        df$copykat)
+    )
+  })
 ```
 
-Look at how many cells are aneuploid vs. diploid
-Compare tumor vs. normal from manual to copykat using confusion matrix 
+```{r}
+# calculate Jaccard similarity index for each reference type
+ref_types <- c("no_ref", "with_ref")
+jaccard_matrices <- ref_types |>
+  purrr::map(\(ref_type) {
+    jaccard_df <- cnv_df |> 
+      dplyr::filter(reference_used == ref_type)
+    
+    make_jaccard_matrix(
+      cnv_df,
+      "marker_gene_classification",
+      "copykat.pred"
+    )
+  }) |> 
+  purrr::set_names(ref_types)
+```
+
+```{r}
+# Set heatmap padding option
+heatmap_padding <- 0.2
+ComplexHeatmap::ht_opt(TITLE_PADDING = grid::unit(heatmap_padding, "in"))
+
+# heatmaps comparing tumor/normal annotations manually vs. copyKAT
+heatmap <- jaccard_matrices |>
+  purrr::imap(
+    \(jaccard_mtx, ref_type) {
+      ComplexHeatmap::Heatmap(
+        t(jaccard_mtx), # transpose because matrix rows are in common & we want a vertical arrangement
+        col = circlize::colorRamp2(c(0, 1), colors = c("white", "darkslateblue")),
+        border = TRUE,
+        ## Row parameters
+        cluster_rows = TRUE,
+        row_title = ref_type,
+        row_title_gp = grid::gpar(fontsize = 12),
+        row_title_side = "left",
+        row_names_side = "left",
+        row_dend_side = "right",
+        row_names_gp = grid::gpar(fontsize = 10),
+        ## Column parameters
+        cluster_columns = FALSE,
+        column_title = "",
+        column_title_gp = grid::gpar(fontsize = 12),
+        column_names_side = "bottom",
+        column_names_gp = grid::gpar(fontsize = 10),
+        column_names_rot = 90,
+        ## Legend parameters
+        heatmap_legend_param = list(
+          title = "Jaccard index",
+          direction = "vertical",
+          legend_width = unit(1.5, "in")
+        ),
+        show_heatmap_legend = ref_type == "no_ref",
+      )
+    }) |>
+  # concatenate vertically into HeatmapList object
+  purrr::reduce(ComplexHeatmap::`%v%`) |>
+  ComplexHeatmap::draw(
+    heatmap_legend_side = "right",
+    # add a margin to the heatmap so labels don't get cut off
+    padding = unit(c(2, 20, 2, 2), "mm")
+  )
+```
+
+Now compare to CellAssign and SingleR annotations. 
+
+```{r}
+celltype_columns <- c(
+  "singler_celltype_annotation",
+  "cellassign_celltype_annotation"
+)
+
+# create jaccard matrices for SingleR and CellAssign compared to tumor/normal 
+jaccard_matrices <- celltype_columns |>
+  purrr::map(\(name) {
+    make_jaccard_matrix(
+      cnv_df,
+      "copykat.pred",
+      name
+    )
+  }) |> 
+  purrr::set_names("SingleR", "CellAssign")
+```
 
 
-Try and repeat but with providing a baseline reference 
+```{r, fig.height=10, fig.width=7}
+# Set heatmap padding option
+heatmap_padding <- 0.2
+ComplexHeatmap::ht_opt(TITLE_PADDING = grid::unit(heatmap_padding, "in"))
+
+# list of heatmaps looking at SingleR/ CellAssign vs tumor/normal 
+heatmap <- jaccard_matrices |>
+  purrr::imap(
+    \(celltype_mat, celltype_method) {
+      ComplexHeatmap::Heatmap(
+        t(celltype_mat), # transpose because matrix rows are in common & we want a vertical arrangement
+        col = circlize::colorRamp2(c(0, 1), colors = c("white", "darkslateblue")),
+        border = TRUE,
+        ## Row parameters
+        cluster_rows = TRUE,
+        row_title = celltype_method,
+        row_title_gp = grid::gpar(fontsize = 12),
+        row_title_side = "left",
+        row_names_side = "left",
+        row_dend_side = "right",
+        row_names_gp = grid::gpar(fontsize = 10),
+        ## Column parameters
+        cluster_columns = FALSE,
+        column_title = "",
+        column_title_gp = grid::gpar(fontsize = 12),
+        column_names_side = "bottom",
+        column_names_gp = grid::gpar(fontsize = 10),
+        column_names_rot = 90,
+        ## Legend parameters
+        heatmap_legend_param = list(
+          title = "Jaccard index",
+          direction = "vertical",
+          legend_width = unit(1.5, "in")
+        ),
+        show_heatmap_legend = celltype_method == "SingleR",
+      )
+    }) |>
+  # concatenate vertically into HeatmapList object
+  purrr::reduce(ComplexHeatmap::`%v%`) |>
+  ComplexHeatmap::draw(
+    heatmap_legend_side = "right",
+    # add a margin to the heatmap so labels don't get cut off
+    padding = unit(c(2, 20, 2, 2), "mm")
+  )
+```
+
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
