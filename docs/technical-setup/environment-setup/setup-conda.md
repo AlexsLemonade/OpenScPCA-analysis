@@ -28,13 +28,24 @@ There are two main reasons we use conda for OpenScPCA:
 We recommend installing [Miniconda](https://docs.anaconda.com/free/miniconda/index.html) to obtain conda.
 Miniconda is lightweight version of the full conda platform and includes the conda tool itself, Python, and a few other commonly-used packages.
 
-To install Miniconda, [download the installer for your operating system](https://docs.anaconda.com/free/miniconda/), and follow all instructions.
+If you already have conda on your system, you do not need to re-install it.
+
+
+### Install Miniconda on macOS
+
+To install Miniconda, [download the graphical installer for macOS](https://docs.anaconda.com/free/miniconda/miniconda-install/), and follow all instructions.
 
   - If you are on a macOS computer, be sure to download one of the links ending in `pkg`, _not `bash`_:
-    - Apple Silicon (M1-3) mac users should download `Miniconda3 macOS Apple M1 64-bit pkg`
-    - Intel mac users should download `Miniconda3 macOS Intel x86 64-bit pkg`
+    - Apple Silicon (M1-3) Mac users should download `Miniconda3 macOS Apple M1 64-bit pkg`
+    - Intel Mac users should download `Miniconda3 macOS Intel x86 64-bit pkg`
 
-If you already have conda on your system, you do not need to re-install it.
+### Install Miniconda on Windows with WSL 2
+
+To install Miniconda onto the WSL 2 side of your Windows machine, you will need to follow the [Quick command line install instructions for Linux](https://docs.anaconda.com/free/miniconda/#quick-command-line-install).
+
+- Copy and paste all commands, in order, into the [Ubuntu terminal](../../software-platforms/general-tools/using-the-terminal.md).
+  - Be sure to also take the step to initialize conda for the Bash shell.
+- Then, as prompted, close your terminal and open a new terminal window to complete installation.
 
 ## Set up conda
 
