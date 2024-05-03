@@ -119,6 +119,7 @@ copykat_normal_result <- copykat(
   rawmat = as.matrix(counts(sce)),
   id.type = "E", 
   sam.name = glue::glue("{library_id}_with_normal"),
+  norm.cell.names = all_normal_cells,
   plot.genes = FALSE,
   output.seg = FALSE,
   n.cores = opt$threads
