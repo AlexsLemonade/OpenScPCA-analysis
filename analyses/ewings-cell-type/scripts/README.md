@@ -14,3 +14,10 @@ python run-cellassign.py \
   --output_predictions <path to output tsv file> \
   --reference <path to marker gene reference>
 ```
+
+## Utils
+
+The `utils` folder contains Rscripts with any helper functions that are used in `scripts` and notebooks for this module.
+
+1. `jaccard-functions.R`: These functions are used to calculate the Jaccard similarity index between groups of cells.
+These functions are taken directly from https://github.com/AlexsLemonade/scpca-nf/blob/main/templates/qc_report/celltypes_supplemental_report.rmd.

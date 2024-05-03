@@ -3,7 +3,11 @@
 ## Description
 
 This module will include code to annotate cell types in the Ewing sarcoma samples from SCPCP000015 present on the ScPCA Portal.
-<!--TODO: Fill out more information of the steps involved in cell typing -->
+
+Currently this module includes analysis notebooks used to explore cell typing methods.
+
+1. `01-marker-gene-tumor-classification.Rmd`: This notebook looks at marker gene expression in SCPCS000490.
+Tumor cells are classified using manual annotation based on marker gene expression and clustering.
 
 ## Usage
 
@@ -12,8 +16,15 @@ What commands are needed to execute all steps in the analysis?
 
 ## Input files
 
-This module requires the processed `SingleCellExperiment` objects (`_processed.rds`) from SCPCP0000015.
+This module requires the processed `SingleCellExperiment` objects (`_processed.rds`) and processed `AnnData` objects (`.hdf5` files) from SCPCP0000015.
+These files were obtained using the `download-data.py` script:
 
+```sh
+# download SCE objects
+./download-data.py --projects SCPCP000015
+# download AnnData objects
+./download-data.py --projects SCPCP000015 --format "AnnData"
+```
 This module also requires `references/tumor_marker_genes.tsv` which contains a list of marker genes for identifying Ewing sarcoma tumor cells.
 
 ## Output files
