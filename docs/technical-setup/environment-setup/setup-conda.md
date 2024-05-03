@@ -93,8 +93,8 @@ These are specified in the `environment.yml` in the root of the repository, and 
     When the process is complete, you'll see the following message in the terminal, which includes the commands to activate and deactivate the environment:
 
     ```{ .console .no-copy title="Output message after conda environment install"}
-    Preparing transaction: done                                                                                                                                 
-    Verifying transaction: done                                                                                                                                 
+    Preparing transaction: done
+    Verifying transaction: done
     Executing transaction: done
     # To activate this environment, use
     #
@@ -128,6 +128,6 @@ These are specified in the `environment.yml` in the root of the repository, and 
     </figure>
 
     !!! tip "Activating the `openscpca` conda environment"
-        Whenever you are developing for OpenScPCA, you should work from either the `openscpa` conda environment or a module-specific conda environment.
+        Whenever you are developing for OpenScPCA, you should work from either the `openscpa` conda environment or [a module-specific conda environment](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#managing-software-dependencies-with-conda).
         At the start of any coding session, run `conda activate openscpca` to activate this environment.
         If you wish to deactivate the environment, you can run `conda deactivate`.
