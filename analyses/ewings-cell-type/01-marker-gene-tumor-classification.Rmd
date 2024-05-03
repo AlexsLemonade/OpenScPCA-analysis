@@ -152,30 +152,17 @@ It looks like the highest gene expression is seen in the larger group of cells o
 ggplot(umap_df, aes(x = gene_expression, fill = gene_symbol)) +
   geom_density() +
   theme_bw() +
-  facet_wrap(vars(gene_symbol))
+  facet_wrap(vars(gene_symbol)) +
+  theme(legend.position = "none")
 ```
 
 Now we will transform each of the gene expression vectors by generating z-scores. 
 Then we might be able to find a cut off we can use across samples for if marker genes are present in a cell or not. 
 
-```{r}
-# get the z-scores for all genes, transforming across each column that contains expression for a given gene 
-transformed_exp_df <- umap_df |> 
-  dplyr::select(barcodes, gene_symbol, gene_expression) |> 
-  tidyr::pivot_wider(
-    names_from = "gene_symbol",
-    values_from = "gene_expression") |> 
-  dplyr::mutate(across(!barcodes, ~ scale(.x))) |> 
-  tidyr::pivot_longer(
-    cols = - barcodes,
-    names_to = "gene_symbol",
-    values_to = "transformed_gene_expression"
-  )
-
-# add the transformed gene expression back to the main df used for plotting
 umap_df <- umap_df |> 
-  dplyr::left_join(transformed_exp_df, by = c("barcodes", "gene_symbol"))
-```
+  dplyr::group_by(gene_symbol) |>
+  dplyr::mutate(transformed_gene_expression = scale(gene_expression)[, 1] |>
+  dplyr::ungroup()
 
 Now we can create the same density plot but looking at z-scores. 
 
@@ -183,7 +170,8 @@ Now we can create the same density plot but looking at z-scores.
 ggplot(umap_df, aes(x = transformed_gene_expression, fill = gene_symbol)) +
   geom_density() +
   theme_bw() +
-  facet_wrap(vars(gene_symbol))
+  facet_wrap(vars(gene_symbol)) +
+  theme(legend.position = "none")
 ```
 
 It looks like some marker genes have distinct groups of cells with z-score > 0, while other marker genes may not be as informative. 
