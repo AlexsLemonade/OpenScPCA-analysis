@@ -21,7 +21,7 @@ parser.add_argument(
     "--anndata_file",
     dest="anndata_file",
     required=True,
-    help="Path to HDF5 file with processed AnnData object to annotate",
+    help="Path to H5AD file with processed AnnData object to annotate",
 )
 parser.add_argument(
     "-o",

@@ -111,7 +111,7 @@ simulate_sce <- function(sce, ncells, replacement_metadata, processed) {
 
   # define a subset of cells to simulate
   ncells <- min(ncells, ncol(sce))
-  cell_subset <- sample.int(ncol(sce), ncells)
+  cell_subset <- sample(colnames(sce), ncells)
   sce_sim <- sce[, cell_subset]
 
   ### Reduce and remove metadata -----------------------------------------------
@@ -136,10 +136,12 @@ simulate_sce <- function(sce, ncells, replacement_metadata, processed) {
 
   # reduce the cell type data matrices, if present
   if (!is.null(metadata(sce_sim)$singler_results)) {
-    metadata(sce_sim)$singler_results <- metadata(sce_sim)$singler_results[cell_subset, ]
+    sim_cells <- cell_subset[cell_subset %in% rownames(metadata(sce_sim)$singler_results)]
+    metadata(sce_sim)$singler_results <- metadata(sce_sim)$singler_results[sim_cells, ]
   }
   if (!is.null(metadata(sce_sim)$cellassign_predictions)) {
-    metadata(sce_sim)$cellassign_predictions <- metadata(sce_sim)$cellassign_predictions[cell_subset, ]
+    sim_cells <- cell_subset[cell_subset %in% rownames(metadata(sce_sim)$cellassign_predictions)]
+    metadata(sce_sim)$cellassign_predictions <- metadata(sce_sim)$cellassign_predictions[sim_cells, ]
   }
 
   # Adjust cluster/cell type labels --------------------------------------------
@@ -247,7 +249,8 @@ simulate_sce <- function(sce, ncells, replacement_metadata, processed) {
 
 set.seed(opts$seed)
 
-metadata <- readr::read_tsv(opts$metadata_file, show_col_types = FALSE)
+# make sure sex is read as a character to prevent all females -> logical false
+metadata <- readr::read_tsv(opts$metadata_file, col_types = readr::cols(sex = "c"))
 
 # get file list
 sce_files <- list.files(
