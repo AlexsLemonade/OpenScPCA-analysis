@@ -9,6 +9,8 @@ anonymize
 anonymized
 authenticator
 benchmarking
+Bioconda
+Bioconductor
 bioinformatics
 Bleijs
 Carpentries

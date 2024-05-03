@@ -5,3 +5,4 @@
 !/renv.lock
 !/requirements.txt
 !/environment.yml
+!/conda-lock.yml

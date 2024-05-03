@@ -101,37 +101,3 @@ Use the below table to help pick the most appropriate instance type for your com
 | GPU-XL | 4 | 16 GB | $2.37 |
 | GPU-2XL | 8 | 32 GB | $2.64 |
 | GPU-4XL | 16 | 64 GB | $3.18 |
-
-
-## How to access a virtual computer
-
-Once you have created your virtual computer, you will be able to access and launch the computer on a web browser.
-We recommend waiting ~10 minutes before accessing the instance.
-It takes time to create the instance and for all software to be installed.
-
-1. To access a virtual computer, you will need to navigate to Lightsail for Research.
-Search for Lightsail for Research using the search bar and then select the product.
-
-    <figure markdown="span">
-        ![Search for Lightsail](../../img/creating-vcs-6.png){width="600"}
-    </figure>
-
-1. This will take you directly to a page that lists your virtual computers.
-You should see the virtual computer you created with the instance name that you provided during set up.
-
-    <figure markdown="span">
-        ![List of computers](../../img/creating-vcs-7.png){width="600"}
-    </figure>
-
-1. To launch the computer, click `Start computer`.
-When the computer is ready, use the drop-down menu in the lower right-hand side to select `Access operating system`.
-
-    <figure markdown="span">
-        ![Start computer](../../img/creating-vcs-8.png){width="600"}
-    </figure>
-
-    You can also use `Launch RStudio` or `Launch VSCodium`, but if you do that you will have access to _only_ that application instead of the Ubuntu desktop and all installed applications.
-
-1. A new window should open in your browser with the Ubuntu desktop view.
-
-See [Working with storage volumes in Lightsail for Research](working-with-volumes.md) and [Getting started with development on Lightsail for Research](starting-development-on-lsfr.md) for next steps.

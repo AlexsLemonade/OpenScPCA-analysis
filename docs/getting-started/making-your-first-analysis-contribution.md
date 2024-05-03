@@ -1,7 +1,7 @@
 # Making your first analysis contribution
 
 
-<!-- These images intentionally do not use HTML formatting --> 
+<!-- These images intentionally do not use HTML formatting -->
 
 ![Path from joining to making a contribution- Planning](../img/first-analysis-contribution-planning.png){width="550"}
 
@@ -42,7 +42,7 @@ Together you will continue to develop your analysis plans and make decisions abo
 ### Getting access to resources
 
 * Once you've met [the criteria for Amazon Web Services (AWS) account creation](accessing-resources/index.md#getting-access-to-aws), which includes discussing an analysis, we will create an AWS account for you.
-* You will need to accept the invitation to join [as described in our AWS documentation](../software-platforms/aws/index.md#joining-iam-identity-center) to complete one of the steps in environment setup mentioned below.
+* You will need to accept the invitation to join [as described in our AWS documentation](../software-platforms/aws/joining-aws.md) to complete one of the steps in environment setup mentioned below.
 
 ## Implementation
 
