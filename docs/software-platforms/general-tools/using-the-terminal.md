@@ -9,11 +9,8 @@ The terminal is an interface where you can type commands (rather than "point and
 In the OpenScPCA project, we use the word "terminal" to specifically refer to a UNIX-style terminal, and not for example the Windows PowerShell.
 
 macOS and Linux (which [Lightsail for Research instances](../aws/index.md#lsfr-virtual-computing-with-aws) use) computers come with a built-in terminal application.
-At this time, the OpenScPCA project only supports these two operating systems; Support for Windows is not yet provided.
-If you would like to see Windows supported, please [let us know by filing an issue](https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/new?assignees=&labels=docs-request&projects=&template=04-docs-request.yml&title=Docs+request%3A).
-<!--
-On Windows computers, you will first need to install and setup the [Windows Subsystem for Linux (WSL)](STUB_LINK for WSL instructions) to be able to use the terminal.
--->
+On Windows computers, you will first need to install and setup the [Windows Subsystem for Linux (WSL 2)](../../technical-setup/install-wsl-2.md) to be able to use the terminal.
+
 !!! info "Learn more about the terminal"
 
     If you are new to the terminal, we highly recommend starting with a general introduction.
