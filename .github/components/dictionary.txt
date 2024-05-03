@@ -28,6 +28,7 @@ docstring
 docstrings
 DM
 DNT
+Docker's
 Dockerfile
 doxxing
 dropdown
@@ -69,6 +70,7 @@ merchantability
 Miniconda
 misidentification
 multifactor
+natively
 nonconsensual
 octicons
 onboarded
