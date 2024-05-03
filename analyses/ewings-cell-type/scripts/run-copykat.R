@@ -5,6 +5,7 @@ renv::load(project_root)
 
 library(optparse)
 library(copykat)
+library(SingleCellExperiment)
 
 option_list <- list(
   make_option(
