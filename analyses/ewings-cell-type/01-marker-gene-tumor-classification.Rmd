@@ -55,7 +55,7 @@ module_base <- file.path(repository_base, "analyses", "ewings-cell-type")
 
 
 ```{r}
-# source in helper functions: make_jaccard_matrix and jaccard 
+# source in helper functions: make_jaccard_matrix() and jaccard() 
 jaccard_functions <- file.path(module_base, "scripts", "utils", "jaccard-functions.R")
 source(jaccard_functions)
 ```
@@ -112,8 +112,7 @@ umap_df <- sce |>
   scuttle::makePerCellDF(use.dimred = "UMAP") |> 
   # replace UMAP.1 with UMAP1
   dplyr::rename_with(
-        \(x) stringr::str_replace(x, "^UMAP\\.", "UMAP"),
-        starts_with("UMAP")
+        \(x) stringr::str_replace(x, "^UMAP\\.", "UMAP")
       ) |> 
   # add in marker gene expression to dataframe 
   dplyr::left_join(marker_gene_exp, by = "barcodes") |> 
