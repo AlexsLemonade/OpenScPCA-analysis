@@ -62,6 +62,10 @@ library_id <- metadata(sce)$library_id
 # create output directory if not already present for library id 
 output_dir <- file.path(opt$output_dir, library_id)
 fs::dir_create(output_dir)
+# change working directory of the script to the output directory 
+# this ensures copykat files get saved to the right location
+# there is no option to specify an output directory when running copykat
+setwd(output_dir)
 
 # define paths to output rds files 
 copykat_output <- file.path(output_dir, glue::glue("{library_id}_no_normal.rds"))
@@ -124,8 +128,4 @@ copykat_normal_result <- copykat(
   output.seg = FALSE,
   n.cores = opt$threads
 )
-
-# save full results files 
-readr::write_rds(copykat_result, copykat_output)
-readr::write_rds(copykat_normal_result, copykat_normal_output)
 
