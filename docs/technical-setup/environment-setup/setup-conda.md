@@ -69,7 +69,8 @@ These commands will set the [recommended channels](https://docs.conda.io/project
 
 ### Create an `openscpca` conda environment
 
-The last step is to create an `openscpca` conda environment and install several packages, as specified in the `environment.yml` in the root of the repository, which are generally needed for OpenScPCA development:
+The last step is to create an `openscpca` conda environment and install the packages needed for OpenScPCA development.
+These are specified in the `environment.yml` in the root of the repository, and include:
 
 - The [`awscli` package](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html) will allow you to interact with [data stored in the Amazon Web Services (AWS) S3 bucket](../../software-platforms/aws/index.md)
 - The [`conda-lock` package](https://conda.github.io/conda-lock/) is used to create fully reproducible, cross-platform [conda environments for analysis modules](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#managing-software-dependencies-with-conda)
@@ -88,9 +89,13 @@ The last step is to create an `openscpca` conda environment and install several 
     conda env create -f environment.yml
     ```
 
-    When the process is complete, you'll see this message in the terminal providing the commands to activate and deactivate the environment:
+    You will see a number of status messages flow by as packages are downloaded and installed.
+    When the process is complete, you'll see the following message in the terminal, which includes the commands to activate and deactivate the environment:
 
     ```{ .console .no-copy title="Output message after conda environment install"}
+    Preparing transaction: done                                                                                                                                 
+    Verifying transaction: done                                                                                                                                 
+    Executing transaction: done
     # To activate this environment, use
     #
     #     $ conda activate openscpca
@@ -116,7 +121,7 @@ The last step is to create an `openscpca` conda environment and install several 
     conda activate openscpca
     ```
 
-    At this point, your terminal prompt will have a prefix `(openscpca)`, which lets you know that you are in that conda environment.
+    At this point, your terminal prompt will show the prefix `(openscpca)`, which lets you know that you are in that conda environment.
     In general, this is how conda indicates which environment, if any, the terminal is working in.
     <figure markdown="span">
         ![Activate the openscpca environment](../../img/conda-activate-openscpca.png){width="300"}
