@@ -22,16 +22,21 @@ The main goal of this notebook is only to identify tumor cells, identification a
 - Then we use a z-transform prior to summing expression of all marker genes. 
 Cells with a z-score for any marker gene > 0 are classified as tumor cells. 
 - We look at marker genes for these tumor cells using `scran::findMarkers()` and compare to the tumor markers.
-- Marker gene expression is examined across clusters and tumor and normal cells are classified using clusters rather than individual cells. 
+- Marker gene expression is examined across tumor and normal cells. 
 - Finally, we compare the cells classified as tumor/normal manually to assignments from `SingleR` and `CellAssign`. 
 
 ## Setup
 
 ```{r packages}
-suppressMessages(
+suppressPackageStartupMessages({
   # load required packages
-  library(SingleCellExperiment),
+  library(SingleCellExperiment)
   library(ggplot2)
+})
+
+# Set default ggplot theme
+theme_set(
+  theme_bw()
 )
 ```
 
@@ -46,8 +51,11 @@ sample_dir <- file.path(data_dir, "SCPCP000015", params$sample_id)
 
 # The path to this module
 module_base <- file.path(repository_base, "analyses", "ewings-cell-type")
+```
 
-# source in helper functions
+
+```{r}
+# source in helper functions: make_jaccard_matrix and jaccard 
 jaccard_functions <- file.path(module_base, "scripts", "utils", "jaccard-functions.R")
 source(jaccard_functions)
 ```
@@ -141,35 +149,42 @@ ggplot(umap_df, aes(x = UMAP1, y = UMAP2, color = gene_expression)) +
       legend.title = element_text(size = 9),
       legend.text = element_text(size = 8)
     ) +
-    guides(colour = guide_colorbar(title.position = "bottom", title.hjust = 0.5)) +
-  theme_bw()
+    guides(colour = guide_colorbar(title.position = "bottom", title.hjust = 0.5)) 
 ```
 
 Looking at this plot, there is definitely some variation in the expression of marker genes. 
 It looks like the highest gene expression is seen in the larger group of cells on the bottom right of the UMAP. 
 
+We can also look at the distributions for each marker gene. 
+I would expect to see some sort of bimodal distribution separating cells that do and do not have expression of the marker gene. 
+
 ```{r}
 ggplot(umap_df, aes(x = gene_expression, fill = gene_symbol)) +
   geom_density() +
-  theme_bw() +
   facet_wrap(vars(gene_symbol)) +
   theme(legend.position = "none")
 ```
 
+Although we see some slight semblance of a bimodal distribution for most marker genes, it is hard to see and we cannot directly compare gene expression values across genes. 
+This would make it hard to identify a cut off to categorize cells as expression or not expressing the marker gene. 
+
 Now we will transform each of the gene expression vectors by generating z-scores. 
 Then we might be able to find a cut off we can use across samples for if marker genes are present in a cell or not. 
 
+```{r}
 umap_df <- umap_df |> 
   dplyr::group_by(gene_symbol) |>
-  dplyr::mutate(transformed_gene_expression = scale(gene_expression)[, 1] |>
+  # get z-scores for each gene
+  dplyr::mutate(transformed_gene_expression = scale(gene_expression)[, 1]) |>
   dplyr::ungroup()
+```
+
 
 Now we can create the same density plot but looking at z-scores. 
 
 ```{r}
 ggplot(umap_df, aes(x = transformed_gene_expression, fill = gene_symbol)) +
   geom_density() +
-  theme_bw() +
   facet_wrap(vars(gene_symbol)) +
   theme(legend.position = "none")
 ```
@@ -199,8 +214,7 @@ marker_sum_exp <- umap_df |>
 # plot mean gene expression 
 ggplot(marker_sum_exp, aes(x = UMAP1, y = UMAP2, color = sum_exp)) +
   geom_point(size = 0.5, alpha = 0.5) +
-  scale_color_viridis_c() +
-  theme_bw()
+  scale_color_viridis_c()
 ```
 Similar to the individual plots, it looks like there is one group of cells on the bottom right that has the highest marker gene expression. 
 We would anticipate that these are most likely to be the tumor cells. 
@@ -213,8 +227,7 @@ marker_sum_exp <- marker_sum_exp |>
   dplyr::mutate(sum_classification = dplyr::if_else(sum_exp > 0, "Tumor", "Normal"))
 
 ggplot(marker_sum_exp, aes(x = UMAP1, y = UMAP2, color = sum_classification)) +
-  geom_point(size = 0.5, alpha = 0.5) +
-  theme_bw()
+  geom_point(size = 0.5, alpha = 0.5)
 ```
 
 This gives us a rough idea of cells that may be classified as tumor cells. 
@@ -229,8 +242,7 @@ celltype_df <- umap_df |>
 # do all marker genes so differences between tumor/normal or only a subset? 
 ggplot(celltype_df, aes(x=transformed_gene_expression, color = sum_classification)) +
   geom_density() +
-  facet_wrap(vars(gene_symbol)) +
-  theme_bw()
+  facet_wrap(vars(gene_symbol)) 
 ```
 
 It looks like ADGRG2, HES1, NROB1, and STEAP1 don't show a lot of difference between cells that might be tumor vs. normal cells and are generally lowly expressed.
@@ -264,6 +276,7 @@ markers <- scran::findMarkers(sce,
 tumor_markers <- markers$Tumor |> 
   as.data.frame() |> 
   tibble::rownames_to_column("ensembl_gene_id") |> 
+  # join to get gene symbols to print out later
   dplyr::left_join(marker_genes_df) |>
   # just take those with FDR < 0.05 and logFC > 1.5
   dplyr::filter(FDR < 0.05, summary.logFC > 1.5) |> 
@@ -277,87 +290,42 @@ marker_gene_intersect <- tumor_markers |>
 marker_gene_intersect
 ```
 
-### Using clusters and marker gene expression to annotate tumor cells
+### Looking at marker genes across tumor cells
 
-We anticipate that the tumor cells and normal cells would cluster separately. 
-First, let's just plot the cluster assignments alone.  
+We would expect that cells we are labeling as tumor cells have expression of the tumor marker genes. 
+Cells labeled as normal should not have expression of the markers. 
 
-These are clusters calculated in `scpca-nf` and its probable that these aren't the best clusters to use. 
-Separately, we will evaluate clustering for these samples, but for now we will look at the clusters we have. 
-
-```{r}
-# plot clusters on UMAP
-ggplot(marker_sum_exp, aes(x = UMAP1, y = UMAP2, color = cluster)) +
-  geom_point(size = 0.5, alpha = 0.5) +
-  theme_bw()
-```
-
-It looks like our large group of cells on the bottom right is comprised of a few clusters while most other groups of cells are a single cluster. 
-
-We can then look at marker gene expression across clusters.
-Below we visualize the total number of cells in each cluster that are classified as tumor or normal using the sum of marker gene expression. 
+Below we visualize the total number of cells that are classified as tumor or normal using the sum of marker gene expression. 
 Then for each set of cells, how many of those actually express each marker gene. 
 
-We expect to see two things: 
-
-- Tumor cells and normal cells tend to separate by cluster. 
-- Good marker genes will be expressed in tumor cells but not normal cells. 
+We expect that good marker genes will be expressed in tumor cells but not normal cells. 
 
 ```{r, fig.height=10, fig.width=10}
-cluster_plot_df <- celltype_df |> 
+marker_plot_df <- celltype_df |> 
   dplyr::mutate(gene_expresed = dplyr::if_else(transformed_gene_expression > 0, TRUE, FALSE)) |> 
-  dplyr::select(gene_symbol, gene_expresed, sum_classification, cluster)
+  dplyr::select(gene_symbol, gene_expresed, sum_classification)
 
-ggplot(cluster_plot_df, aes(x = sum_classification, fill = gene_expresed)) +
+ggplot(marker_plot_df, aes(x = sum_classification, fill = gene_expresed)) +
   geom_bar(stat = "count") +
-  facet_grid(rows = vars(gene_symbol),
-             cols = vars(cluster)) +
+  facet_grid(rows = vars(gene_symbol)) +
   scale_fill_manual(values = c("grey", "blue")) +
   theme_classic()
   
 ```
 
-Looking at this, most clusters are made up mostly of either normal or tumor. 
-Also, genes like ADGRG2 and HES1 do not seem specific to tumor cells. There are normal and tumor cells that express the gene and not very many tumor cells actually have expression of ADGRG2. 
+Looking at this might help give us an idea of genes that are more specifically expressed in tumor cells. 
+Genes like ADGRG2 and HES1 do not seem specific to tumor cells. 
+There are normal and tumor cells that express the gene and not very many tumor cells actually have expression of ADGRG2. 
 STEAP1 and NROB1 although not expressed in very many tumor cells, look to be specific to tumor cells which is promising. 
 
-CD99 and CCND1 are expressed in a high proportion of tumor cells but are also expressed in quite a few groups of normal cells. 
+CD99, CAV1, and CCND1 are expressed in a high proportion of tumor cells but are also expressed in quite a few normal cells. 
 This is consistent with the literature for CD99 that it is expressed in normal cells, just at a lower level than in Ewing's cells. 
 
+KDSR, MAPT, NKX2-2, PAPPA, and PRKCB all seem to have a high proportion of tumor cells expressing the gene and a low proportion of normal cells that express the gene. 
+PRKCB and MAPT are also 2 of the top genes identified using the marker analysis. 
+
 Almost all genes have at least some expression in normal cells. 
-Perhaps those cells should also be categorized as tumor cells, or they do have some baseline expression in normal cells which is possible. 
-
-Now we can classify the cells based on clustering and marker gene expression. 
-
-```{r}
-# plot marker gene expression across all clusters 
-ggplot(marker_sum_exp, aes(x = sum_exp, fill = cluster)) +
-  geom_density() +
-  facet_grid(rows = vars(cluster)) +
-  theme_bw()
-```
-
-Looking at this there are definitely clusters with higher sum expression of the marker genes than other cells. 
-If the cluster has a median expression > 0 then all cells in that cluster will get assigned as tumor cells. 
-
-```{r}
-# classify clusters as tumor/normal 
-cluster_classification_df <- marker_sum_exp |> 
-  dplyr::group_by(cluster) |> 
-  # calculate the median mean gene expression across all cells in a cluster
-  dplyr::summarise(median_cluster_exp = median(sum_exp)) |> 
-  # use 0.75 as the cutoff for tumor/normal 
-  dplyr::mutate(cluster_classification = dplyr::if_else(median_cluster_exp > 0, "Tumor", "Normal"))
-
-# get individual cell classifications
-celltype_classification_df <- marker_sum_exp |> 
-  dplyr::left_join(cluster_classification_df)
-
-# umap showing tumor and normal cells 
-ggplot(celltype_classification_df, aes(x = UMAP1, y = UMAP2, color = cluster_classification)) +
-  geom_point(size = 0.5, alpha = 0.5) +
-  theme_bw()
-```
+Perhaps those cells should also be categorized as tumor cells, or they just have some baseline expression in normal cells which is possible. 
 
 ### Compare with SingleR and CellAssign classifictions 
 
@@ -447,7 +415,7 @@ For CellAssign, all tumor cells are pulmonary vascular smooth muscle cells.
 We also see tha normal cells contain some smooth muscle cells, but mostly are fibroblasts and endothelial cells. 
 
 Looking at the heatmap in the supplemental report, the endothelial cells called by SingleR and CellAssign have a lot of overlap. 
-Let's look at expression of marker genes in these endothlial cells compared to cells that are categorized as smooth muscle cells. 
+Let's look at expression of marker genes in these endothelial cells compared to cells that are categorized as smooth muscle cells. 
 
 ```{r}
 select_celltype_df <- celltypes_df |> 
@@ -465,8 +433,7 @@ annotation_plot_df <- umap_df |>
 
 ggplot(annotation_plot_df, aes(x = transformed_gene_expression, color = automated_annotation)) +
   geom_density() +
-  facet_wrap(vars(gene_symbol)) +
-  theme_bw()
+  facet_wrap(vars(gene_symbol)) 
 ```
 
 Consistent with previous findings, ADGRG2, HES1, NROB1, and STEAP1 don't seem to show any expression in either groups of cells. 
@@ -474,8 +441,7 @@ CCND1 and CD99 appear to have similar expression across both groups of cells, wh
 
 ## Conclusions 
 
-- We do see variation in marker gene expression across cells, suggesting that there are both tumor and normal cells here. - Using a z-score cut-off identifies a group of cells that appear to be tumor. 
-- This mostly lines up with the default clustering that has been performed, where tumor and normal cells have been separated.
+- We do see variation in marker gene expression across cells, suggesting that there are both tumor and normal cells here. - Using a z-score cut-off identifies a group of cells that appear to be tumor. .
 - The top marker genes for the "tumor" cells contain PRKCB and MAPT, two of the marker genes in our gene list. 
 - It's likely that ADGRG2, HES1, NROB1, and STEAP1 will not be informative in assigning tumor cells. 
 - We may be weary of genes like CD99 too as expression is more consistent across cells rather than specific to a group of cells. 
@@ -485,14 +451,13 @@ CCND1 and CD99 appear to have similar expression across both groups of cells, wh
 
 ```{r}
 # get a dataframe with barcodes, sum_classification and cluster_classification 
-celltype_classification_df <- celltype_classification_df |> 
+celltypes_df <- celltypes_df |> 
   dplyr::select(
     barcodes,
-    marker_gene_classification = sum_classification, 
-    cluster_classification
+    marker_gene_classification = sum_classification
   )
 
-readr::write_tsv(celltype_classification_df, output_classifications_file)
+readr::write_tsv(celltypes_df, output_classifications_file)
 ```
 
 
