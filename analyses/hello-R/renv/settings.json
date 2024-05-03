@@ -1,5 +1,5 @@
 {
-  "bioconductor.version": "3.18",
+  "bioconductor.version": "3.19",
   "ppm.enabled": true,
-  "r.version": "4.3.3"
+  "r.version": "4.4.0"
 }
