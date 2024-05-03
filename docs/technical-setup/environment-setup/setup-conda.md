@@ -128,6 +128,6 @@ These are specified in the `environment.yml` in the root of the repository, and 
     </figure>
 
     !!! tip "Activating the `openscpca` conda environment"
-        Whenever you are developing for OpenScPCA, you should work from this activated conda environment unless you are using a module-specific conda environment.
+        Whenever you are developing for OpenScPCA, you should work from either the `openscpa` conda environment or a module-specific conda environment.
         At the start of any coding session, run `conda activate openscpca` to activate this environment.
         If you wish to deactivate the environment, you can run `conda deactivate`.
