@@ -72,8 +72,8 @@ You will want to include the following steps in your Dockerfile:
 A simple `Dockerfile` for an R-based analysis module that uses `renv` for its environment might look like this:
 
 ```Dockerfile
-# Base image on the Bioconductor 3.18 image
-FROM bioconductor/r-ver:3.18
+# Base image on the Bioconductor 3.19 image
+FROM bioconductor/r-ver:3.19
 
 # Install renv to enable later package installation
 RUN Rscript -e "install.packages('renv')"
