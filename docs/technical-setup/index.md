@@ -4,7 +4,7 @@ This section provides instructions for technical aspects of setup.
 
 All of these steps are required setup when working locally on your computer (or server).
 
-If you are planning to work on a Lightsail for Research instance, please instead refer to the [Lightsail for Research documentation](../../software-platforms/aws/index.md#lightsail-for-research-virtual-computing-with-aws) for setup instructions.
+If you are planning to work on a Lightsail for Research instance, please instead refer to the [Lightsail for Research documentation](../software-platforms/aws/index.md#lightsail-for-research-virtual-computing-with-aws) for setup instructions.
 
 
 ## Local setup steps
