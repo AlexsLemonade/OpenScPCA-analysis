@@ -4,6 +4,7 @@ This section of the documentation walks you through additional setup steps that 
 
 This section assumes that you have already taken these setup steps:
 
+- If you are working on a Windows computer, [install WSL 2](../install-wsl-2.md)
 - Download, install, and set up your [Git client](../install-a-git-client.md)
 - [Fork the `AlexsLemonade/OpenScPCA-analysis` repository](../fork-the-repo.md)
 - [Clone your fork](../clone-the-repo.md) to your computer
