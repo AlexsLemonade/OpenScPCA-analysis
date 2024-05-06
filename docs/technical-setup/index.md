@@ -15,16 +15,16 @@ To prepare to contribute to OpenScPCA, please do the following in order:
 1. Download and set up a [Git client](./install-a-git-client.md)
 1. [Fork the `AlexsLemonade/OpenScPCA-analysis` repository](./fork-the-repo.md)
 1. [Clone your fork](./clone-the-repo.md) to your computer
-1. Set up [additional dependencies](environment-setup/index.md) that you'll need to contribute to OpenScPCA:
-      - [Download, install, and set up conda](./setup-conda.md)
+1. Set up [additional dependencies](./environment-setup/index.md) that you'll need to contribute to OpenScPCA:
+      - [Download, install, and set up conda](./environment-setup/setup-conda.md)
         - OpenScPCA uses conda to manage your software environment and dependencies.
         - Installing conda also provides you with Python and other tools you need to write or contribute to Python-based modules
-      - [Set up `pre-commit`](./setup-precommit.md)
+      - [Set up `pre-commit`](./environment-setup/setup-precommit.md)
         - This will allow you to make contributions in Git
-      - [Configure the AWS command line interface (CLI)](./configure-aws-cli.md)
-        - You can only complete this step if the Data Lab has [created an Amazon Web Services account for you](../../getting-started/accessing-resources/index.md)
-      - [Optional] If you plan on writing or contributing to R-based modules, you should also [download and install R and RStudio, along with a few handy R packages](./install-r-rstudio.md)
-      - [Optional] [Install Docker](../../software-platforms/docker/index.md#how-to-install-docker)
+      - [Configure the AWS command line interface (CLI)](./environment-setup/configure-aws-cli.md)
+        - You can only complete this step if the Data Lab has [created an Amazon Web Services account for you](../getting-started/accessing-resources/index.md)
+      - [Optional] If you plan on writing or contributing to R-based modules, you should also [download and install R and RStudio, along with a few handy R packages](./environment-setup/install-r-rstudio.md)
+      - [Optional] [Install Docker](../software-platforms/docker/index.md#how-to-install-docker)
         - This allows you to run your analysis modules inside a Docker container, ensuring reproducibility across machines
 
 ## Special considerations for Windows users
