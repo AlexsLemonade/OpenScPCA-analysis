@@ -82,7 +82,7 @@ if not args.output_predictions.endswith(".tsv"):
     raise ValueError("--output_predictions must provide a file path ending in tsv")
 
 # read in references as marker gene tables
-ref_matrix = pd.read_csv(args.reference, sep="\t", index_col="ensembl_id")
+ref_matrix = pd.read_csv(args.reference, sep="\t", index_col="ensembl_gene_id")
 
 # file path to annotated sce
 annotated_adata = adata.read_h5ad(args.anndata_file)
