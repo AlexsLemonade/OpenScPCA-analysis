@@ -9,6 +9,10 @@ Currently this module includes analysis notebooks used to explore cell typing me
 1. `01-marker-gene-tumor-classification.Rmd`: This notebook looks at marker gene expression in SCPCS000490.
 Tumor cells are classified using manual annotation based on marker gene expression and clustering.
 
+3. `03-copykat.Rmd`: This notebook looks at using `CopyKAT` to annotate tumor and normal cells in SCPCS000490.
+`CopyKAT` is run using the `scripts/run-copykat.R` script and outputs are evaluated in this notebook.
+This includes comparing annotations to those obtained from marker gene annotation in `01-marker-gene-tumor-classification.Rmd`.
+
 ## Usage
 
 Please provide instructions on how to run the analysis module.
