@@ -155,7 +155,7 @@ caret_df |>
 ```
 
 Looking at these results, we see that cells classified as tumor cells using marker genes are mostly overlapping with cells that are aneuploid in CopyKAT, which is what we expect! 
-We also see that the Kappa values range are close to 1, indicating almost perfect agreement. 
+We also see that the Kappa values are close to 1, indicating almost perfect agreement. 
 
 It also looks like there isn't a difference between using the reference and not using the reference. 
 The reference Kappa is .1 higher, but I don't think that's enough to argue that you need to use a reference. 
