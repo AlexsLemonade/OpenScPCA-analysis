@@ -31,5 +31,5 @@ Please refer to these pages to learn more about setting up and using LSfR:
 - [Accessing a virtual computer](./accessing-vcs.md)
 - [Working with LSfR volumes](./working-with-volumes.md)
 - [Developing analyses on LSfR](./starting-development-on-lsfr.md)
-    - You can also find instructions for setting up your virtual computers for OpenScPCA development on this page.
+    - You can also find instructions for setting up virtual computers for OpenScPCA development on this page.
 - [Using snapshots on LSfR](./working-with-snapshots.md)

@@ -11,7 +11,7 @@ If you are planning to work on a Lightsail for Research instance, please instead
 
 To prepare to contribute to OpenScPCA, please do the following in order:
 
-1. If you are on a Windows machine, you will need to [install WSL 2](./install-wsl-2.md), as described below.
+1. If you are on a Windows machine, [install WSL 2](./install-wsl-2.md), as described below.
 1. Download and set up a [Git client](./install-a-git-client.md)
 1. [Fork the `AlexsLemonade/OpenScPCA-analysis` repository](./fork-the-repo.md)
 1. [Clone your fork](./clone-the-repo.md) to your computer
