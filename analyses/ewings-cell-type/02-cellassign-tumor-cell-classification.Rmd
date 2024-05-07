@@ -91,46 +91,29 @@ visser_predictions_file <- file.path(preds_results_dir, "visser-cellassign-predi
 panglao_predictions_file <- file.path(preds_results_dir, "panglao-endo-fibro-predictions.tsv")
 ```
 
-```{r}
-# read in processed sce
-sce <- readr::read_rds(sce_file)
-
-# read in tumor marker genes table 
-tumor_markers_df <- readr::read_tsv(tumor_markers_file) |> 
-  # account for genes being from multiple sources
-  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |> 
-  dplyr::distinct()
-
-# read in all marker genes 
-all_markers_df <- readr::read_tsv(all_markers_file) |> 
-  # account for genes being from multiple sources
-  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |> 
-  dplyr::distinct()
-```
-
 Define some helper functions for creating a reference matrix and obtaining cell type annotations from `CellAssign` predictions. 
 
 ```{r}
 # function for creating a binary matrix with cell types as columns and marker genes as rows 
-build_binary_mtx <- function(marker_genes_df,
-                             gene_col, 
-                             cell_type_col) {
- 
-  binary_mtx <- marker_genes_df |>
-  dplyr::select({{cell_type_col}}, {{gene_col}}) |> 
-  unique() |> 
-  tidyr::pivot_wider(
-    id_cols = {{gene_col}},
-    names_from = {{cell_type_col}},
-    values_from = {{cell_type_col}},
-    values_fn = length,
-    values_fill = 0
-  ) |>
-  # add a column with no marker genes
-  # cell assign will assign cells to "other" when no other cell types are appropriate
-  dplyr::mutate(other = 0) 
+build_binary_df <- function(marker_genes_df,
+                            gene_col, 
+                            cell_type_col) {
   
-  return(binary_mtx)
+  binary_df <- marker_genes_df |>
+    dplyr::select({{cell_type_col}}, {{gene_col}}) |> 
+    unique() |> 
+    tidyr::pivot_wider(
+      id_cols = {{gene_col}},
+      names_from = {{cell_type_col}},
+      values_from = {{cell_type_col}},
+      values_fn = length,
+      values_fill = 0
+    ) |>
+    # add a column with no marker genes
+    # cell assign will assign cells to "other" when no other cell types are appropriate
+    dplyr::mutate(other = 0) 
+  
+  return(binary_df)
 }
 
 # function to get assigned cell type based on max prediction returned by CellAssign 
@@ -151,6 +134,22 @@ get_celltype_assignment <- function(predictions){
 }
 ```
 
+```{r}
+# read in processed sce
+sce <- readr::read_rds(sce_file)
+
+# read in tumor marker genes table 
+tumor_markers_df <- readr::read_tsv(tumor_markers_file) |> 
+  # account for genes being from multiple sources
+  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |> 
+  dplyr::distinct()
+
+# read in all marker genes 
+all_markers_df <- readr::read_tsv(all_markers_file) |> 
+  # account for genes being from multiple sources
+  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |> 
+  dplyr::distinct()
+```
 
 
 ## Analysis content
@@ -163,7 +162,7 @@ We need to create a binary matrix with two columns, "tumor" and "other".
 The "other" will refer to any normal cells. 
 
 ```{r}
-tumor_ref_mtx <- build_binary_mtx(tumor_markers_df, 
+tumor_ref_mtx <- build_binary_df(tumor_markers_df, 
                                   gene_col = "ensembl_gene_id",
                                   cell_type_col = "cell_type")
 
@@ -197,6 +196,15 @@ tumor_celltype_assignments <- get_celltype_assignment(tumor_predictions)
 # create a table of assignments 
 table(tumor_celltype_assignments$celltype)
 ```
+
+```{r}
+# heatmap of prediction scores 
+tumor_predictions |>
+  dplyr::select(-barcode) |> 
+  as.matrix() |> 
+  pheatmap::pheatmap(show_rownames = FALSE)
+```
+
 
 Looking at this, it appears that `CellAssign` is classifying all cells as "other"? 
 I find this hard to believe since this sample was taken directly from a Ewing sarcoma tumor, so there are bound to be tumor cells. 
@@ -261,10 +269,20 @@ filtered_celltype_assignments <- get_celltype_assignment(filtered_predictions)
 table(filtered_celltype_assignments$celltype)
 ```
 
+
+```{r}
+# heatmap of prediction scores 
+filtered_predictions |>
+  dplyr::select(-barcode) |> 
+  as.matrix() |> 
+  pheatmap::pheatmap(show_rownames = FALSE)
+```
+
 Now we are seeing a few more tumor cells, let's see where they are on the UMAP. 
 
 ```{r}
 # first read in tumor normal classifications 
+# obtained from manual classification in `01-marker-gene-tumor-classifications.Rmd`
 classifications_df <- readr::read_tsv(classifications_file)
 
 filtered_celltype_assignments <- filtered_celltype_assignments |> 
@@ -274,11 +292,10 @@ celltype_df <- sce |>
   scuttle::makePerCellDF(use.dimred = "UMAP") |> 
   # replace UMAP.1 with UMAP1
   dplyr::rename_with(
-        \(x) stringr::str_replace(x, "^UMAP\\.", "UMAP"),
-        starts_with("UMAP")
+        \(x) stringr::str_replace(x, "^UMAP\\.", "UMAP")
       ) |> 
   # join with tumor normal
-  dplyr::left_join(classifications_df) |> 
+  dplyr::left_join(classifications_df, by = "barcodes") |> 
   # join with filtered cell type assignments from cellassign 
   dplyr::left_join(filtered_celltype_assignments, by = c("barcodes" = "barcode"))
 
@@ -362,7 +379,7 @@ Below we will use CellAssign but with all tumor marker genes and all marker gene
 
 ```{r}
 # build the reference matrix 
-visser_ref_mtx <- build_binary_mtx(all_markers_df, 
+visser_ref_mtx <- build_binary_df(all_markers_df, 
                                    gene_col = "ensembl_gene_id",
                                    cell_type_col = "cell_type")
 
@@ -390,6 +407,16 @@ visser_celltype_assignments <- get_celltype_assignment(visser_predictions)
 
 table(visser_celltype_assignments$celltype)
 ```
+
+```{r}
+# heatmap of prediction scores 
+visser_predictions |>
+  dplyr::select(-barcode) |> 
+  as.matrix() |> 
+  pheatmap::pheatmap(show_rownames = FALSE)
+```
+
+
 Here we see that there are still only a few hundred tumor cells and most cells are endothelial cells. 
 Generally, I expect that there to be a large portion of tumor cells with much fewer cells from normal cell types. 
 
@@ -560,7 +587,7 @@ panglao_tumor_markers_df <- rowData(sce) |>
 
 ```{r}
 # build the reference matrix 
-panglao_tumor_ref_mtx <- build_binary_mtx(panglao_tumor_markers_df, 
+panglao_tumor_ref_mtx <- build_binary_df(panglao_tumor_markers_df, 
                                           gene_col = "ensembl_gene_id",
                                           cell_type_col = "cell_type")
 
@@ -598,6 +625,15 @@ panglao_celltype_assignments <- get_celltype_assignment(panglao_predictions)
 # create a table of assignments 
 table(panglao_celltype_assignments$celltype)
 ```
+
+```{r}
+# heatmap of prediction scores 
+panglao_predictions |>
+  dplyr::select(-barcode) |> 
+  as.matrix() |> 
+  pheatmap::pheatmap(show_rownames = FALSE)
+```
+
 
 This is definitely not what I expected... 
 It looks like most cells are categorized as "other" with a few categorized as tumor and only 1 endothlial cell. 
