@@ -2,7 +2,7 @@
 
 ### Why didn't the sample/project I specified when running the [data download script](../getting-started/accessing-resources/getting-access-to-data.md#using-the-download-data-script) download?
 
-First, we recommend using the `--dryrun` flag when running the script to check which files _would_ be downloaded, to confirm that there is nothing wrong with your internet connection and that youare properly [logged into your AWS profile](../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
+First, we recommend using the `--dryrun` flag when running the script to check which files _would_ be downloaded, to confirm that there is nothing wrong with your internet connection and that you are properly [logged into your AWS profile](../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
 
 If you specify a sample or project ID that is not present in the OpenScPCA data release, then nothing will download, but the script will not explicitly fail or warn you about this.
 
