@@ -198,11 +198,22 @@ table(tumor_celltype_assignments$celltype)
 ```
 
 ```{r}
+# first read in tumor normal classifications 
+# obtained from manual classification in `01-marker-gene-tumor-classifications.Rmd`
+classifications_df <- readr::read_tsv(classifications_file)
+
+# get annotations for heatmaps
+annotation_df <- data.frame(
+  marker_gene_classification = classifications_df$marker_gene_classification,
+  row.names = classifications_df$barcodes
+)
+
 # heatmap of prediction scores 
 tumor_predictions |>
-  dplyr::select(-barcode) |> 
+  tibble::column_to_rownames("barcode") |> 
   as.matrix() |> 
-  pheatmap::pheatmap(show_rownames = FALSE)
+  pheatmap::pheatmap(show_rownames = FALSE,
+                     annotation_row = annotation_df)
 ```
 
 
@@ -273,18 +284,15 @@ table(filtered_celltype_assignments$celltype)
 ```{r}
 # heatmap of prediction scores 
 filtered_predictions |>
-  dplyr::select(-barcode) |> 
+  tibble::column_to_rownames("barcode") |> 
   as.matrix() |> 
-  pheatmap::pheatmap(show_rownames = FALSE)
+  pheatmap::pheatmap(show_rownames = FALSE,
+                     annotation_row = annotation_df)
 ```
 
 Now we are seeing a few more tumor cells, let's see where they are on the UMAP. 
 
 ```{r}
-# first read in tumor normal classifications 
-# obtained from manual classification in `01-marker-gene-tumor-classifications.Rmd`
-classifications_df <- readr::read_tsv(classifications_file)
-
 filtered_celltype_assignments <- filtered_celltype_assignments |> 
   dplyr::rename(filtered_cellassign_annotations = celltype)
 
@@ -411,9 +419,10 @@ table(visser_celltype_assignments$celltype)
 ```{r}
 # heatmap of prediction scores 
 visser_predictions |>
-  dplyr::select(-barcode) |> 
+  tibble::column_to_rownames("barcode") |> 
   as.matrix() |> 
-  pheatmap::pheatmap(show_rownames = FALSE)
+  pheatmap::pheatmap(show_rownames = FALSE,
+                     annotation_row = annotation_df)
 ```
 
 
@@ -629,9 +638,10 @@ table(panglao_celltype_assignments$celltype)
 ```{r}
 # heatmap of prediction scores 
 panglao_predictions |>
-  dplyr::select(-barcode) |> 
+  tibble::column_to_rownames("barcode") |> 
   as.matrix() |> 
-  pheatmap::pheatmap(show_rownames = FALSE)
+  pheatmap::pheatmap(show_rownames = FALSE,
+                     annotation_row = annotation_df)
 ```
 
 
