@@ -101,7 +101,7 @@ tumor_markers_df <- readr::read_tsv(tumor_markers_file) |>
   dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |> 
   dplyr::distinct()
 
-# read in all maker genes 
+# read in all marker genes 
 all_markers_df <- readr::read_tsv(all_markers_file) |> 
   # account for genes being from multiple sources
   dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |> 
@@ -141,10 +141,10 @@ get_celltype_assignment <- function(predictions){
     tidyr::pivot_longer(
       !barcode,
       names_to = "celltype",
-      values_to = "prediction"
+      values_to = "score"
     ) |>
     dplyr::group_by(barcode) |>
-    dplyr::slice_max(prediction, n = 1) |>
+    dplyr::slice_max(score, n = 1) |>
     dplyr::ungroup()
   
   return(celltype_assignments)
@@ -176,9 +176,9 @@ Now run `CellAssign` with the full marker gene list as the reference.
 ```{r, eval=FALSE}
 cellassign_call <- glue::glue(
   "python scripts/run-cellassign.py",
-  "--anndata_file '{anndata_file}'",
-  "--output_predictions '{cellassign_predictions_file}'",
-  "--reference '{tumor_markers_mtx_file}'"
+  " --anndata_file '{anndata_file}'",
+  " --output_predictions '{cellassign_predictions_file}'",
+  " --reference '{tumor_markers_mtx_file}'"
 )
 
 system(cellassign_call)
@@ -242,9 +242,9 @@ readr::write_tsv(filtered_ref_mtx, filtered_markers_mtx_file)
 ```{r, eval=FALSE}
 cellassign_call <- glue::glue(
   "python scripts/run-cellassign.py",
-  "--anndata_file '{anndata_file}'",
-  "--output_predictions '{filtered_predictions_file}'",
-  "--reference '{filtered_markers_mtx_file}'"
+  " --anndata_file '{anndata_file}'",
+  " --output_predictions '{filtered_predictions_file}'",
+  " --reference '{filtered_markers_mtx_file}'"
 )
 
 system(cellassign_call)
@@ -282,7 +282,7 @@ celltype_df <- sce |>
   # join with filtered cell type assignments from cellassign 
   dplyr::left_join(filtered_celltype_assignments, by = c("barcodes" = "barcode"))
 
-ggplot(celltype_df, aes(x = UMAP1, UMAP2, color = filtered_cellassign_annotations)) +
+ggplot(celltype_df, aes(x = UMAP1, y = UMAP2, color = filtered_cellassign_annotations)) +
   geom_point(size = 0.5, alpha = 0.5) + 
   theme_bw()
 ```
@@ -373,10 +373,10 @@ readr::write_tsv(visser_ref_mtx, visser_markers_mtx_file)
 
 ```{r, eval=FALSE}
 cellassign_call <- glue::glue(
-  "python scripts/run-cellassign.py ",
-  "--anndata_file '{anndata_file}' ",
-  "--output_predictions '{visser_predictions_file}' ",
-  "--reference '{visser_markers_mtx_file}'"
+  "python scripts/run-cellassign.py",
+  " --anndata_file '{anndata_file}'",
+  " --output_predictions '{visser_predictions_file}'",
+  " --reference '{visser_markers_mtx_file}'"
 )
 
 system(cellassign_call)
@@ -578,10 +578,10 @@ readr::write_tsv(panglao_tumor_ref_mtx, panglao_markers_mtx_file)
 
 ```{r, eval=FALSE}
 cellassign_call <- glue::glue(
-  "python scripts/run-cellassign.py ",
-  "--anndata_file '{anndata_file}' ",
-  "--output_predictions '{panglao_predictions_file}' ",
-  "--reference '{panglao_markers_mtx_file}' "
+  "python scripts/run-cellassign.py",
+  " --anndata_file '{anndata_file}'",
+  " --output_predictions '{panglao_predictions_file}'",
+  " --reference '{panglao_markers_mtx_file}'"
 )
 
 system(cellassign_call)
