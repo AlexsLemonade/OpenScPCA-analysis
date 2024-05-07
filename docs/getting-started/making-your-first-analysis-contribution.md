@@ -48,12 +48,9 @@ Together you will continue to develop your analysis plans and make decisions abo
 
 ### Create local setup
 
-Before starting your analysis, you will need to [set up your local environment](../technical-setup/index.md).
+Before starting any analyses, you need to set up your local environment.
 
-* Download and set up a [Git client](../technical-setup/install-a-git-client.md)
-* [Fork the `AlexsLemonade/OpenScPCA-analysis` repository](../technical-setup/fork-the-repo.md)
-* [Clone your fork](../technical-setup/clone-the-repo.md) to your computer
-* Set up [additional dependencies](../technical-setup/environment-setup/index.md) on your computer that you'll need to contribute to OpenScPCA
+Please [refer to these linked instructions](../technical-setup/index.md) for the specific setup steps you need to take.
 
 ### Scope work
 

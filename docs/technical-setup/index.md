@@ -15,7 +15,7 @@ To prepare to contribute to OpenScPCA, please do the following in order:
 1. Download and set up a [Git client](./install-a-git-client.md)
 1. [Fork the `AlexsLemonade/OpenScPCA-analysis` repository](./fork-the-repo.md)
 1. [Clone your fork](./clone-the-repo.md) to your computer
-1. Set up [additional dependencies](./environment-setup/index.md) that you'll need to contribute to OpenScPCA:
+2. Set up additional dependencies that you'll need to contribute to OpenScPCA:
       - [Download, install, and set up conda](./environment-setup/setup-conda.md)
         - OpenScPCA uses conda to manage your software environment and dependencies.
         - Installing conda also provides you with Python and other tools you need to write or contribute to Python-based modules
