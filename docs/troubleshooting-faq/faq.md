@@ -49,6 +49,7 @@ In the example output below, the most recent release is `2024-05-01`.
     ```
 
 1. All data is stored on S3 in `s3://openscpca-data-release/{release name}/`.
+To list all available files, you'll need to use the AWS CLI [in a terminal](../software-platforms/general-tools/using-the-terminal.md) and run `aws s3 ls` to list the contents of a given S3 bucket.
 Therefore, you can list files in a given release as, for example,
     ```bash
     # List all releases in the 2024-05-01 release
@@ -71,7 +72,7 @@ Therefore, you can list files in a given release as, for example,
         If you omit the slash and just run `aws s3 ls s3://openscpca-data-release/2024-05-01 --profile openscpca`, the output will only list the directory itself, and not its contents.
 
 
-2. From there, you can continue to listing the next level of nested files and directories (prefixes).
+1. From there, you can continue to list the next level of nested files and directories (prefixes).
 For example, you can list all files in the `SCPCS000001` sample from the `SCPCP000001` project with:
 
     ```bash
