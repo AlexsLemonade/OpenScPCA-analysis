@@ -62,7 +62,7 @@ In the example output below, the most recent release is `2024-05-01`.
 
     !!! tip "Don't forget the trailing slash!"
         The trailing slash at the end of `s3://openscpca-data-release/2024-05-01/` is necessary for contents to be listed.
-        If you omit the slash and just run `aws s3 ls s3://openscpca-data-release/2024-05-01/ --profile openscpca`, the output will only list the directory itself, and not its contents.
+        If you omit the slash and just run `aws s3 ls s3://openscpca-data-release/2024-05-01 --profile openscpca`, the output will only list the directory itself, and not its contents.
 
 
 1. From there, you can continue to listing the next level of nested files and prefixes (all prefixed with `PRE`).
