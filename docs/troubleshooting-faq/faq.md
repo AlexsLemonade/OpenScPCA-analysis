@@ -25,12 +25,10 @@ Data files in each release are organized on S3 as:
     └── single_cell_metadata.tsv
 ```
 
-To list all available files, you'll need to use the AWS CLI [in a terminal](../software-platforms/general-tools/using-the-terminal.md) and run `aws s3 ls` to list the contents of a given S3 bucket.
-Don't forget to [log into your AWS `openscpca` profile first](../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session)!
-
 
 1. First, find the names of all the data releases, which are named based on their release date in [ISO 8601 format](https://en.wikipedia.org/wiki/ISO_8601).
-You can use the [`download-data.py`](../getting-started/accessing-resources/getting-access-to-data.md#download-data-structure) script with the `--list-releases` flag to do this:
+You can use the [`download-data.py`](../getting-started/accessing-resources/getting-access-to-data.md#download-data-structure) script with the `--list-releases` flag to do this. 
+Don't forget to [log into your AWS `openscpca` profile first](../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session)!
 
     ```bash
     # Ensure you are in the top-level of the repository
