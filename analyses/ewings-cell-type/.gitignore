@@ -7,4 +7,6 @@
 !/scratch/.gitkeep
 
 # Ignore any large reference files
-/references/*.gtf*
+references/infercnv_refs/*.gtf.gz
+references/infercnv_refs/*gene_order.txt
+
