@@ -8,7 +8,7 @@ This will confirm that there is nothing wrong with your internet connection and 
 If running the script with `--dryrun` states that _only_ the `DATA_USAGE.md` file is being downloaded, this means the data files you are attempting to download do not exist.
 There are two main reasons why this might occur:
 
-1. Not all projects are available in `AnnData` format.
+1. Not all samples are available in `AnnData` format.
 If you are attempting to download `AnnData` format, please [consult the ScPCA documentation](https://scpca.readthedocs.io/en/stable/faq.html#which-samples-can-i-download-as-anndata-objects) to learn more about which types of projects do not have `AnnData` files.
 1. The sample or project ID(s) that you specified during download do(es) not exist.
 
