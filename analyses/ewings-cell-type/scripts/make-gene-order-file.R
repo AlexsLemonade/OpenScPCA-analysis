@@ -9,13 +9,13 @@ option_list <- list(
   make_option(
     opt_str = c("--gtf_file"),
     type = "character",
-    default = file.path(project_root, "references", "Homo_sapiens.GRCh38.104.gtf.gz"),
+    default = file.path(project_root, "references", "infercnv_refs", "Homo_sapiens.GRCh38.104.gtf.gz"),
     help = "Path to gtf file to create gene order file."
   ),
   make_option(
     opt_str = c("--gene_order_file"),
     type = "character",
-    default = file.path(project_root, "references", "Homo_sapiens.GRCh38.104.gene_order.txt"),
+    default = file.path(project_root, "references", "infercnv_refs", "Homo_sapiens.GRCh38.104.gene_order.txt"),
     help = "Path to save gene order file as tab delimited .txt file with no column headers.
       Columns are: Ensembl gene id, chr, start, stop."
   )
