@@ -4,7 +4,10 @@ on:
   push:
     paths:
       - 'Dockerfile'
-  workflow_dispatch: 
+  workflow_dispatch:
+permissions:
+      id-token: write   # This is required for requesting the JWT
+      contents: read    # This is required for actions/checkout
 
 jobs:
   build:
@@ -19,9 +22,9 @@ jobs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ vars.AWS_REGION }}
+        role-to-assume: arn:aws:iam::992382809252:role/GithubOpenId
+        role-session-name: githubActionSession
+        aws-region: us-east-1
       
     - name: Login to Amazon ECR
       id: login-ecr
