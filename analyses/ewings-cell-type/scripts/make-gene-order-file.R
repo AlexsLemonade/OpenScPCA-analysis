@@ -9,32 +9,43 @@ option_list <- list(
   make_option(
     opt_str = c("--gtf_file"),
     type = "character",
-    default = file.path(project_root, "references", "infercnv_refs", "Homo_sapiens.GRCh38.104.gtf.gz"),
-    help = "Path to gtf file to create gene order file."
+    default = "s3://scpca-references/homo_sapiens/ensembl-104/annotation/Homo_sapiens.GRCh38.104.gtf.gz",
+    help = "URI to gtf file to create gene order file."
   ),
   make_option(
-    opt_str = c("--gene_order_file"),
+    opt_str = c("--local_ref_dir"),
     type = "character",
-    default = file.path(project_root, "references", "infercnv_refs", "Homo_sapiens.GRCh38.104.gene_order.txt"),
-    help = "Path to save gene order file as tab delimited .txt file with no column headers.
-      Columns are: Ensembl gene id, chr, start, stop."
+    default = file.path(project_root, "references", "infercnv_refs"), 
+    help = "Directory to use for saving GTF file and gene order file."
   )
 )
 
 # Parse options
 opt <- parse_args(OptionParser(option_list = option_list))
 
-# check that input exists 
-if(!file.exists(opt$gtf_file)){
-  stop("--gtf_file does not exist.")
-}
+# create ref directory if doesn't already exist 
+fs::dir_create(opt$local_ref_dir)
 
-# create gene order file 
-gtf <- rtracklayer::import(opt$gtf_file, feature.type = "gene")
+# sync gtf file to local directory 
+gtf_filename <- stringr::word(opt$gtf_file, -1, sep = "/")
 
+local_gtf_file <- file.path(opt$local_ref_dir, gtf_filename)
+sync_call <- glue::glue('aws s3 cp {opt$gtf_file} {local_gtf_file}')
+system(sync_call)
+
+# define gene order file name using gtf file 
+gtf_basename <- stringr::str_remove(gtf_filename, ".gtf.gz")
+gene_order_filename <- glue::glue("{gtf_basename}.gene_order.txt")
+gene_order_file <- file.path(opt$local_ref_dir, gene_order_filename)
+
+# read in gtf file
+gtf <- rtracklayer::import(local_gtf_file, feature.type = "gene")
+
+# format gene order file 
 gtf_df <- gtf |> 
   as.data.frame() |> 
   dplyr::select(gene_id, seqnames, start, end) |> 
   dplyr::mutate(seqnames = glue::glue("chr{seqnames}"))
 
-readr::write_tsv(gtf_df, opt$gene_order_file, col_names = FALSE)
+# export gene order file 
+readr::write_tsv(gtf_df, gene_order_file, col_names = FALSE)

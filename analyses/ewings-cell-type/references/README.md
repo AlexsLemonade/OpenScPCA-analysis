@@ -1,10 +1,6 @@
 # Reference files
 
 This directory contains reference files used for cell typing Ewing sarcoma samples from SCPCP000015.
-All files saved here can also be found in `s3://researcher-211125375652-us-east-2/ewings-cell-type/references`.
-
-Note that some files may be too big to be stored in the remote repository, and are only in the S3 results bucket.
-All references will need to be synced to the local repository before using any scripts that require larger references.
 
 ## Tumor marker genes
 
@@ -46,9 +42,8 @@ The `infercnv_refs` folder contains any references needed to run `InferCNV`.
 This file is a tab delimited `.txt` file with no column headers.
 The columns correspond to Ensembl gene id, chromosome, start, and stop.
 
-The gene order file, `Homo_sapiens.GRCh38.104.gene_order.txt`, was created using the `scripts/make-gene-order-file.R` script with
-the reference gtf file, `Homo_sapiens.GRCh38.104.gtf.gz`, as input.
-**Note that these files are not present in the remote repository and must be synced using `scripts/sync-references.R` prior to running scripts that use these references.**
+The gene order file, `Homo_sapiens.GRCh38.104.gene_order.txt`, is too large to store on the remote repository.
+If you need to run any analysis for `InferCNV`, this file can be created by running `scripts/make-gene-order-file.R` with default parameters.
 
 The other required input for `InferCNV` is an annotation file with two columns and no column headers.
 The first column contains the cell barcode and the second contains the annotation for that cell (either `reference` or `unknown`).
