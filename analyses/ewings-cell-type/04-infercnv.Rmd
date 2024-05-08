@@ -1,0 +1,91 @@
+---
+title: "Copy number inference with InferCNV"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+params:
+  sample_id: SCPCS000490
+  library_id: SCPCL000822
+---
+
+## Introduction 
+
+
+## Setup
+
+```{r packages}
+suppressPackageStartupMessages({
+  # load required packages
+  library(SingleCellExperiment)
+  library(ggplot2)
+})
+```
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The current data directory, found within the repository base directory
+data_dir <- file.path(repository_base, "data", "current")
+sample_dir <- file.path(data_dir, "SCPCP000015", params$sample_id)
+
+# The path to this module
+module_base <- file.path(repository_base, "analyses", "ewings-cell-type")
+```
+
+
+```{r base paths}
+# source in helper functions
+jaccard_functions <- file.path(module_base, "scripts", "utils", "jaccard-functions.R")
+source(jaccard_functions)
+```
+
+
+```{r paths}
+# Input files
+sce_filename <- glue::glue("{params$library_id}_processed.rds")
+sce_file <- file.path(sample_dir, sce_filename)
+
+# tumor normal classifications 
+classifications_results_dir <- file.path(module_base, "results", "marker_gene_analysis")
+classifications_filename <- glue::glue("{params$library_id}_tumor_normal_classifications.tsv")
+classifications_file <- file.path(classifications_results_dir, classifications_filename)
+
+# output from running infercnv 
+```
+
+```{r}
+sce <- readr::read_rds(sce_file)
+```
+
+
+```{r}
+# create the infercnv object
+infercnv_obj <- infercnv::CreateInfercnvObject(raw_counts_matrix=counts(sce),
+                                               annotations_file=annotations_file,
+                                               delim="\t",
+                                               gene_order_file=gene_order_file,
+                                               ref_group_names=c("endothelial"))
+
+```
+```{r}
+# perform infercnv operations to reveal cnv signal
+infercnv_obj <- infercnv::run(infercnv_obj,
+                              cutoff=0.1,  # use 1 for smart-seq, 0.1 for 10x-genomics
+                              out_dir=infer_results_dir,  # dir is auto-created for storing outputs
+                              denoise=T,
+                              HMM=T ,
+                              report_by = "cell"
+)
+```
+
+```{r}
+infercnv_obj@observation_grouped_cell_indices
+
+infercnv_obj@expr.data[1:5, 1:5]
+```
+
