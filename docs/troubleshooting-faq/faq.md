@@ -2,12 +2,17 @@
 
 ### Why didn't the sample/project I specified when running the [data download script](../getting-started/accessing-resources/getting-access-to-data.md#using-the-download-data-script) download?
 
-First, we recommend using the `--dryrun` flag when running the script to check which files _would_ be downloaded.
+First, we recommend using the `--dryrun` flag when running the `download-data.py` script to check which files _would_ be downloaded.
 This will confirm that there is nothing wrong with your internet connection and that you are properly [logged into your AWS profile](../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
 
-If you specify a sample or project ID that is not present in the OpenScPCA data release, then nothing will download, but the script will not explicitly fail or warn you about this.
+If running the script with `--dryrun` states that _only_ the `DATA_USAGE.md` file is being downloaded, this means the data files you are attempting to download do not exist.
+There are two main reasons why this might occur:
 
-Therefore, you may wish to list some of the files in the data release S3 bucket to confirm the sample/project files you are trying to download exist.
+1. Not all projects are available in `AnnData` format.
+If you are attempting to download `AnnData` format, please [consult the ScPCA documentation](https://scpca.readthedocs.io/en/stable/faq.html#which-samples-can-i-download-as-anndata-objects) to learn more about which types of projects do not have `AnnData` files.
+1. The sample or project ID(s) that you specified during download do(es) not exist.
+
+Therefore, you may wish to list some of the files in the data release S3 bucket to confirm the sample/project files you are trying to download actually exist.
 
 Data files in each release are organized on S3 as:
 ```{ .console .no-copy title="Release file structure"}
@@ -45,7 +50,8 @@ In the example output below, the most recent release is `2024-05-01`.
     2024-05-01
     ```
 
-1. You can list files in a given release as, for example,
+1. All data is stored on S3 in `s3://openscpca-data-release/{release name}/`.
+Therefore, you can list files in a given release as, for example,
     ```bash
     # List all releases in the 2024-05-01 release
     # If you're _not_ working on Lightsail for Research, specify your AWS profile name with `--profile openscpca`
@@ -60,12 +66,14 @@ In the example output below, the most recent release is `2024-05-01`.
     PRE SCPCP000004/
     ```
 
+    Note that the `PRE` prefix appears for directories that are inside the overall data release bucket, `s3://openscpca-data-release`.
+
     !!! tip "Don't forget the trailing slash!"
         The trailing slash at the end of `s3://openscpca-data-release/2024-05-01/` is necessary for contents to be listed.
         If you omit the slash and just run `aws s3 ls s3://openscpca-data-release/2024-05-01 --profile openscpca`, the output will only list the directory itself, and not its contents.
 
 
-1. From there, you can continue to listing the next level of nested files and prefixes (all prefixed with `PRE`).
+2. From there, you can continue to listing the next level of nested files and directories (prefixes).
 For example, you can list all files in the `SCPCS000001` sample from the `SCPCP000001` project with:
 
     ```bash
