@@ -15,6 +15,7 @@ from typing import List
 os.system("")
 
 RELEASE_BUCKET = "openscpca-data-release"
+RESULTS_BUCKET = "openscpca-nf-workflow-results"
 TEST_BUCKET = "openscpca-temp-simdata"  # TODO: change to correct bucket
 
 
@@ -26,7 +27,16 @@ def add_parent_dirs(patterns: List[str], dirs: List[str]) -> List[str]:
     for pattern in patterns:
         # Prepend only if the pattern starts with a wildcard
         if pattern.startswith("*"):
-            parent_patterns += [f"*{d}/{pattern}" for d in dirs]
+            parent_patterns += [
+                # add parent directory exact or final sample in multiplexed
+                f"*{d}/{pattern}"
+                for d in dirs
+            ]
+            parent_patterns += [
+                # add partial parent directory for multiplexed samples
+                f"*{d}_*/{pattern}"
+                for d in dirs
+            ]
         else:
             parent_patterns += [pattern]
     return parent_patterns
@@ -42,10 +52,15 @@ def main() -> None:
         help="List the available release versions and exit.",
     )
     parser.add_argument(
+        "--list-results",
+        action="store_true",
+        help="List the available results modules and exit.",
+    )
+    parser.add_argument(
         "--release",
         type=str,
         help="The release version to download. Defaults to 'current'.",
-        default=None,  # default is set in the script
+        default="current",
     )
     parser.add_argument(
         "--test-data",
@@ -97,6 +112,13 @@ def main() -> None:
         " A comma separated list of Sample IDs to download."
         " Defaults to all. Can not be combined with `--projects`."
         " If specified, bulk files are always excluded.",
+    )
+    parser.add_argument(
+        "--module_results",
+        type=str,
+        default=None,
+        help="The results modules to download."
+        " A comma separated list of results modules to download.",
     )
     parser.add_argument(
         "--dryrun",
@@ -155,9 +177,10 @@ def main() -> None:
         sys.exit(1)
     elif args.test_data:
         bucket = TEST_BUCKET
+        results_bucket = TEST_BUCKET
     else:
         bucket = RELEASE_BUCKET
-        args.release = args.release or "current"
+        results_bucket = RESULTS_BUCKET
 
     # Check that projects and samples are not requested together
     if args.projects and args.samples:
@@ -193,7 +216,7 @@ def main() -> None:
         print(ls_result.stderr, file=sys.stderr)
         sys.exit(1)
     # get only date-based versions or "test" and remove the trailing slash
-    date_re = re.compile(r"((\d{4}-\d{2}-\d{2})|(test))/?")
+    date_re = re.compile(r"PRE\s+(20\d{2}-[01]\d-[0123]\d|test)/$")
     all_releases = [
         m.group(1)
         for m in (date_re.search(line) for line in ls_result.stdout.splitlines())
@@ -207,7 +230,7 @@ def main() -> None:
 
     # list the current releases and exit if that was what was requested
     if args.list_releases:
-        print("Available release dates:", "\n".join(current_releases), sep="\n")
+        print("Available release dates:\n", "\n".join(current_releases), sep="\n")
         return
 
     # get the release to use or exit if it is not available
@@ -219,12 +242,43 @@ def main() -> None:
         release = args.release
     else:
         print(
-            f"Release dated '{args.release}' is not available. Available release dates are:",
+            f"Release dated '{args.release}' is not available. Available release dates are:\n",
             "\n".join(all_releases),
             sep="\n",
             file=sys.stderr,
         )
         sys.exit(1)
+
+    # list results modules and exit if that was what was requested
+    if args.list_results or args.module_results:
+        ls_results_cmd = ["aws", "s3", "ls", f"s3://{results_bucket}/{release}/"]
+        if args.profile:
+            ls_results_cmd += ["--profile", args.profile]
+        if args.test_data:
+            ls_results_cmd += ["--no-sign-request"]
+    module_results = subprocess.run(ls_results_cmd, capture_output=True, text=True)
+    if ls_result.returncode:
+        print(
+            "Error listing results modules from the OpenScPCA results bucket.",
+            " Ensure you have the correct AWS permissions to access OpenScPCA data.",
+            file=sys.stderr,
+        )
+        print(ls_result.stderr, file=sys.stderr)
+        sys.exit(1)
+    # get only prefixes and remove the trailing slash
+    module_re = re.compile(r"PRE\s+(\w+)/")
+    modules = [
+        m.group(1)
+        for m in (module_re.search(line) for line in module_results.stdout.splitlines())
+        if m
+    ]
+    if args.list_results:
+        print(
+            f"Available module results for release {release}:\n",
+            "\n".join(modules),
+            sep="\n",
+        )
+        return
 
     ### Download the data ###
     # Build the basic sync command
