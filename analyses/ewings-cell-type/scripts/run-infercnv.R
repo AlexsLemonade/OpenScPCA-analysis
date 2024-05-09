@@ -148,6 +148,20 @@ infercnv_obj <- infercnv::run(infercnv_obj,
                               out_dir=output_dir, 
                               denoise=T,
                               HMM=T ,
-                              HMM_report_by = "cell",
                               save_rds = FALSE # don't save the intermediate rds files 
+)
+
+infercnv_obj_no_ref <- infercnv::CreateInfercnvObject(raw_counts_matrix=counts(sce),
+                                                      annotations_file=opt$annotations_file,
+                                                      delim="\t",
+                                                      gene_order_file=opt$gene_order_file,
+                                                      ref_group_names=NULL)
+
+# run infercnv and report by cell rather than group 
+infercnv_obj_no_ref <- infercnv::run(infercnv_obj_no_ref,
+                                     cutoff=0.1,  # use 1 for smart-seq, 0.1 for 10x-genomics
+                                     out_dir=file.path(output_dir, "no_reference"), 
+                                     denoise=T,
+                                     HMM=T ,
+                                     save_rds = FALSE # don't save the intermediate rds files 
 )
