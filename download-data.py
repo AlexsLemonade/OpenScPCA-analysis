@@ -115,6 +115,9 @@ def get_download_size(
     include_patterns: List[str] = ["*"],
     profile: str = "",
 ) -> int:
+    """
+    Get the total size of files that will be downloaded from AWS S3 that match the include patterns.
+    """
     ls_cmd = ["aws", "s3", "ls", f"s3://{bucket}/{release}/", "--recursive"]
     if profile:
         ls_cmd += ["--profile", profile]
@@ -130,11 +133,23 @@ def get_download_size(
         print(file_list.stderr, file=sys.stderr)
     total_size = 0
     for line in file_list.stdout.splitlines():
-        print(line)
         size, file = line.split()[-2:]
         if any(fnmatch.fnmatch(file, pattern) for pattern in include_patterns):
             total_size += int(size)
     return total_size
+
+
+def make_size_human(size: int) -> str:
+    """
+    Convert a size in bytes to something human readable.
+    """
+    for unit in ["B", "KiB", "MiB", "GiB", "TiB"]:
+        if size < 1024.0 or unit == "TiB":
+            break
+        size /= 1024.0
+    if unit == "B":
+        return f"{size:.0f} B"
+    return f"{size:.2f} {unit}"
 
 
 def add_parent_dirs(patterns: List[str], dirs: List[str]) -> List[str]:
@@ -221,6 +236,13 @@ def download_release_data(
 
     subprocess.run(sync_cmd, check=True)
 
+    download_size = get_download_size(
+        bucket=bucket,
+        release=release,
+        include_patterns=patterns,
+        profile=profile,
+    )
+
     ### Print summary messages ###
     print("\n\n\033[1mDownload Summary\033[0m")  # bold
     print("Release:", release)
@@ -231,6 +253,10 @@ def download_release_data(
         print("Data download location:", download_dir)
     else:
         print("Downloaded data to:", download_dir)
+    print(
+        "Total download size (includes previous downloads):",
+        make_size_human(download_size),
+    )
 
     ### Update current link to point to new or test data if required ###
     # only do this if we are using test data or the specified release is "current" or "latest", not for specific dates
@@ -268,6 +294,12 @@ def download_results(
     )
     subprocess.run(sync_cmd, check=True)
 
+    download_size = get_download_size(
+        bucket=bucket,
+        release=release,
+        include_patterns=patterns,
+        profile=profile,
+    )
     ### Print summary messages ###
     print("\n\n\033[1mDownload Summary\033[0m")  # bold
     print("Release:", release)
@@ -276,6 +308,10 @@ def download_results(
         print("Data download location:", download_dir)
     else:
         print("Downloaded data to:", download_dir)
+    print(
+        "Total download size (includes previous downloads):",
+        make_size_human(download_size),
+    )
 
     ### Update current link to point to new or test data  if required ###
     # only do this if we are using test data or the specified release is "current" or "latest", not for specific dates
