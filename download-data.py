@@ -9,7 +9,7 @@ import pathlib
 import re
 import subprocess
 import sys
-from typing import List
+from typing import List, Set
 
 # enable text formatting on Windows
 os.system("")
@@ -40,6 +40,152 @@ def add_parent_dirs(patterns: List[str], dirs: List[str]) -> List[str]:
         else:
             parent_patterns += [pattern]
     return parent_patterns
+
+
+def download_release_data(
+    bucket: str,
+    release: str,
+    formats: Set[str],
+    includes: Set[str],
+    include_reports: bool,
+    projects: Set[str],
+    samples: Set[str],
+    data_dir: pathlib.Path,
+    dryrun: bool,
+    profile: str,
+    update_current: bool,
+) -> None:
+    """
+    Download data for a specific release of OpenScPCA.
+    """
+    # Build the basic sync command
+    sync_cmd = [
+        "aws",
+        "s3",
+        "sync",
+        f"s3://{bucket}/{release}/",
+        f"{data_dir}/{release}/",
+        "--exact-timestamps",  # replace if a file has changed at all
+        "--no-progress",  # don't show progress animations
+        "--exclude",
+        "*",  # exclude everything by default
+    ]
+
+    # Always include json, tsv metadata files and DATA_USAGE.md
+    patterns = ["*.json", "*.tsv", "DATA_USAGE.md"]
+
+    # separate bulk from other includes
+    include_bulk = "bulk" in includes
+    includes = includes - {"bulk"}
+
+    if include_reports:
+        patterns += ["*.html"]
+
+    if "sce" in formats:
+        patterns += [f"*_{level}.rds" for level in includes]
+
+    if "anndata" in formats:
+        patterns += [f"*_{level}_*.h5ad" for level in includes]
+        patterns += [f"*_{level}_*.hdf5" for level in includes]
+
+    # If projects or samples are specified, extend the file-only patterns to specify parent directories
+    if projects:
+        patterns = add_parent_dirs(patterns, projects)
+    elif samples:
+        patterns = add_parent_dirs(patterns, samples)
+
+    # if samples are specified, bulk is excluded, as it is not associated with individual samples
+    if include_bulk and not samples:
+        if projects:
+            patterns += [f"{project}/*_bulk_*.tsv" for project in projects]
+        else:
+            patterns += ["*_bulk_*.tsv"]
+
+    ### Add patterns to the sync command and run it! ###
+    for p in patterns:
+        sync_cmd += ["--include", p]
+
+    if dryrun:
+        sync_cmd += ["--dryrun"]
+
+    if profile:
+        sync_cmd += ["--profile", profile]
+
+    if bucket == TEST_BUCKET:
+        sync_cmd += ["--no-sign-request"]
+
+    subprocess.run(sync_cmd, check=True)
+
+    ### Print summary messages ###
+    print("\n\n\033[1mDownload Summary\033[0m")  # bold
+    print("Release:", release)
+    print("Data Format:", ", ".join(formats))
+    print("Processing levels:", ", ".join(includes))
+    print("Downloaded data to:", data_dir / release)
+
+    ### Update current link to point to new or test data if required
+    ### Update current link to point to new or test data ###
+    # only do this if we are using test data or the specified release is "current" or "latest", not for specific dates
+    if update_current and not dryrun:
+        # update the current symlink
+        current_symlink = data_dir / "current"
+        current_symlink.unlink(missing_ok=True)
+        current_symlink.symlink_to(release)
+        print(f"Updated 'current' symlink to point to '{release}'.")
+
+
+def get_releases(bucket: str, profile: str) -> List[str]:
+    """
+    Get the list of available releases from the OpenScPCA data bucket.
+    """
+    ls_cmd = ["aws", "s3", "ls", f"s3://{bucket}/"]
+    if profile:
+        ls_cmd += ["--profile", profile]
+    if bucket == TEST_BUCKET:
+        ls_cmd += ["--no-sign-request"]
+    ls_result = subprocess.run(ls_cmd, capture_output=True, text=True)
+    if ls_result.returncode:
+        print(
+            "Error listing release versions from the OpenScPCA release bucket.",
+            " Ensure you have the correct AWS permissions to access OpenScPCA data.",
+            file=sys.stderr,
+        )
+        print(ls_result.stderr, file=sys.stderr)
+        sys.exit(1)
+    # get only date-based versions and remove the trailing slash
+    date_re = re.compile(r"PRE\s+(20\d{2}-[01]\d-[0123]\d)/$")
+    return [
+        m.group(1)
+        for m in (date_re.search(line) for line in ls_result.stdout.splitlines())
+        if m
+    ]
+
+
+def get_results_modules(bucket: str, release: str, profile: str) -> List[str]:
+    """
+    Get the list of available results modules from the OpenScPCA results bucket.
+    """
+    ls_cmd = ["aws", "s3", "ls", f"s3://{bucket}/{release}/"]
+    if profile:
+        ls_cmd += ["--profile", profile]
+    if bucket == TEST_BUCKET:
+        ls_cmd += ["--no-sign-request"]
+    ls_result = subprocess.run(ls_cmd, capture_output=True, text=True)
+    if ls_result.returncode:
+        print(
+            "Error listing results modules from the OpenScPCA results bucket.",
+            " Ensure you have the correct AWS permissions to access OpenScPCA data.",
+            file=sys.stderr,
+        )
+        print(ls_result.stderr, file=sys.stderr)
+        sys.exit(1)
+    # get only prefixes and remove the trailing slash
+    module_re = re.compile(r"PRE\s+(\w+)/")
+    return [
+        m.group(1)
+        for m in (module_re.search(line) for line in ls_result.stdout.splitlines())
+        if m
+    ]
 
 
 def main() -> None:
@@ -196,37 +342,14 @@ def main() -> None:
             file=sys.stderr,
         )
 
-    # pull bulk to its own variable and remove from includes set
-    include_bulk = "bulk" in includes
-    includes = includes - {"bulk"}
-
     ### List the available releases ###
-    ls_cmd = ["aws", "s3", "ls", f"s3://{bucket}/"]
-    if args.profile:
-        ls_cmd += ["--profile", args.profile]
-    if args.test_data:
-        ls_cmd += ["--no-sign-request"]
-    ls_result = subprocess.run(ls_cmd, capture_output=True, text=True)
-    if ls_result.returncode:
-        print(
-            "Error listing release versions from the OpenScPCA release bucket.",
-            " Ensure you have the correct AWS permissions to access OpenScPCA data.",
-            file=sys.stderr,
-        )
-        print(ls_result.stderr, file=sys.stderr)
-        sys.exit(1)
-    # get only date-based versions or "test" and remove the trailing slash
-    date_re = re.compile(r"PRE\s+(20\d{2}-[01]\d-[0123]\d|test)/$")
-    all_releases = [
-        m.group(1)
-        for m in (date_re.search(line) for line in ls_result.stdout.splitlines())
-        if m
-    ]
+    all_releases = get_releases(bucket=bucket, profile=args.profile)
 
-    # hide any future releases
+    # hide any future releases and sort in reverse order
     current_releases = [
         r for r in all_releases if r <= datetime.date.today().isoformat()
     ]
+    current_releases.sort(reverse=True)
 
     # list the current releases and exit if that was what was requested
     if args.list_releases:
@@ -237,7 +360,7 @@ def main() -> None:
     if args.test_data:
         release = "test"
     elif args.release.lower() in ["current", "latest"]:
-        release = max(current_releases)
+        release = current_releases[0]
     elif args.release in all_releases:  # allow downloads from the future
         release = args.release
     else:
@@ -251,27 +374,9 @@ def main() -> None:
 
     # list results modules and exit if that was what was requested
     if args.list_results or args.module_results:
-        ls_results_cmd = ["aws", "s3", "ls", f"s3://{results_bucket}/{release}/"]
-        if args.profile:
-            ls_results_cmd += ["--profile", args.profile]
-        if args.test_data:
-            ls_results_cmd += ["--no-sign-request"]
-    module_results = subprocess.run(ls_results_cmd, capture_output=True, text=True)
-    if ls_result.returncode:
-        print(
-            "Error listing results modules from the OpenScPCA results bucket.",
-            " Ensure you have the correct AWS permissions to access OpenScPCA data.",
-            file=sys.stderr,
+        modules = get_results_modules(
+            bucket=results_bucket, release=release, profile=args.profile
         )
-        print(ls_result.stderr, file=sys.stderr)
-        sys.exit(1)
-    # get only prefixes and remove the trailing slash
-    module_re = re.compile(r"PRE\s+(\w+)/")
-    modules = [
-        m.group(1)
-        for m in (module_re.search(line) for line in module_results.stdout.splitlines())
-        if m
-    ]
     if args.list_results:
         print(
             f"Available module results for release {release}:\n",
@@ -281,79 +386,21 @@ def main() -> None:
         return
 
     ### Download the data ###
-    # Build the basic sync command
-    sync_cmd = [
-        "aws",
-        "s3",
-        "sync",
-        f"s3://{bucket}/{release}/",
-        f"{args.data_dir}/{release}/",
-        "--exact-timestamps",  # replace if a file has changed at all
-        "--no-progress",  # don't show progress animations
-        "--exclude",
-        "*",  # exclude everything by default
-    ]
-
-    # Always include json, tsv metadata files and DATA_USAGE.md
-    patterns = ["*.json", "*.tsv", "DATA_USAGE.md"]
-
-    if args.include_reports:
-        patterns += ["*.html"]
-
-    if "sce" in formats:
-        patterns += [f"*_{level}.rds" for level in includes]
-
-    if "anndata" in formats:
-        patterns += [f"*_{level}_*.h5ad" for level in includes]
-        patterns += [f"*_{level}_*.hdf5" for level in includes]
-
-    # If projects or samples are specified, extend the file-only patterns to specify parent directories
-    if args.projects:
-        patterns = add_parent_dirs(patterns, args.projects.split(","))
-    elif args.samples:
-        patterns = add_parent_dirs(patterns, args.samples.split(","))
-
-    # if samples are specified, bulk is excluded, as it is not associated with individual samples
-    if include_bulk and not args.samples:
-        if args.projects:
-            patterns += [
-                f"{project}/*_bulk_*.tsv" for project in args.projects.split(",")
-            ]
-        else:
-            patterns += ["*_bulk_*.tsv"]
-
-    ### Add patterns to the sync command and run it! ###
-    for p in patterns:
-        sync_cmd += ["--include", p]
-
-    if args.dryrun:
-        sync_cmd += ["--dryrun"]
-
-    if args.profile:
-        sync_cmd += ["--profile", args.profile]
-
-    if args.test_data:
-        sync_cmd += ["--no-sign-request"]
-
-    subprocess.run(sync_cmd, check=True)
-
-    ### Print summary messages ###
-    print("\n\n\033[1mDownload Summary\033[0m")  # bold
-    print("Release:", release)
-    print("Data Format:", ", ".join(formats))
-    print("Processing levels:", ", ".join(includes))
-    print("Downloaded data to:", args.data_dir / release)
-
-    ### Update current link to point to new or test data ###
-    # only do this if we are using test data or the specified release is "current" or "latest", not for specific dates
-    if (
-        args.test_data or args.release.lower() in ["current", "latest"]
-    ) and not args.dryrun:
-        # update the current symlink
-        current_symlink = args.data_dir / "current"
-        current_symlink.unlink(missing_ok=True)
-        current_symlink.symlink_to(release)
-        print(f"Updated 'current' symlink to point to '{release}'.")
+    if not args.module_results:
+        download_release_data(
+            bucket=bucket,
+            release=release,
+            formats=formats,
+            includes=includes,
+            include_reports=args.include_reports,
+            projects=args.projects.split(",") if args.projects else [],
+            samples=args.samples.split(",") if args.samples else [],
+            data_dir=args.data_dir,
+            dryrun=args.dryrun,
+            profile=args.profile,
+            update_current=args.test_data
+            or args.release.lower() in ["current", "latest"],
+        )
 
 
 if __name__ == "__main__":
