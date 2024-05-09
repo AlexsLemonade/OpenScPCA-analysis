@@ -379,6 +379,7 @@ ggplot(cnv_df, aes(x= UMAP1, y = UMAP2, color = proportion_scaled_dupli_chr1)) +
   theme_bw() +
   scale_color_viridis_c()
 ```
+
 Now when we look at the proportion, we see that only the group of tumor cells on the bottom seem to have a higher proportion of genes in chr8 that have a gain in expression. 
 Based on the papers, we should see a gain in the whole chr8 and chr12, not just one arm or specific genes, so we expect a high value for the proportion. 
 We see this for chr8 but not in chr12. 
@@ -387,6 +388,7 @@ I think with the combination of marker gene expression and CNVs, the bottom grou
 
 ## Do the same thing but without a reference set of cells? 
 
+## Conclusions 
 
 ## Session Info
 
