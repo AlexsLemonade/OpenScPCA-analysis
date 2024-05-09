@@ -42,6 +42,60 @@ def add_parent_dirs(patterns: List[str], dirs: List[str]) -> List[str]:
     return parent_patterns
 
 
+def get_releases(bucket: str, profile: str) -> List[str]:
+    """
+    Get the list of available releases from the OpenScPCA data bucket.
+    """
+    ls_cmd = ["aws", "s3", "ls", f"s3://{bucket}/"]
+    if profile:
+        ls_cmd += ["--profile", profile]
+    if bucket == TEST_BUCKET:
+        ls_cmd += ["--no-sign-request"]
+    ls_result = subprocess.run(ls_cmd, capture_output=True, text=True)
+    if ls_result.returncode:
+        print(
+            "Error listing release versions from the OpenScPCA release bucket.",
+            " Ensure you have the correct AWS permissions to access OpenScPCA data.",
+            file=sys.stderr,
+        )
+        print(ls_result.stderr, file=sys.stderr)
+        sys.exit(1)
+    # get only date-based versions and remove the trailing slash
+    date_re = re.compile(r"PRE\s+(20\d{2}-[01]\d-[0123]\d)/$")
+    return [
+        m.group(1)
+        for m in (date_re.search(line) for line in ls_result.stdout.splitlines())
+        if m
+    ]
+
+
+def get_results_modules(bucket: str, release: str, profile: str) -> List[str]:
+    """
+    Get the list of available results modules from the OpenScPCA results bucket.
+    """
+    ls_cmd = ["aws", "s3", "ls", f"s3://{bucket}/{release}/"]
+    if profile:
+        ls_cmd += ["--profile", profile]
+    if bucket == TEST_BUCKET:
+        ls_cmd += ["--no-sign-request"]
+    ls_result = subprocess.run(ls_cmd, capture_output=True, text=True)
+    if ls_result.returncode:
+        print(
+            "Error listing results modules from the OpenScPCA results bucket.",
+            " Ensure you have the correct AWS permissions to access OpenScPCA data.",
+            file=sys.stderr,
+        )
+        print(ls_result.stderr, file=sys.stderr)
+        sys.exit(1)
+    # get only prefixes and remove the trailing slash
+    module_re = re.compile(r"PRE\s+(\w+)/")
+    return [
+        m.group(1)
+        for m in (module_re.search(line) for line in ls_result.stdout.splitlines())
+        if m
+    ]
+
+
 def download_release_data(
     bucket: str,
     release: str,
@@ -134,58 +188,60 @@ def download_release_data(
         print(f"Updated 'current' symlink to point to '{release}'.")
 
 
-def get_releases(bucket: str, profile: str) -> List[str]:
+def download_results(
+    bucket: str,
+    release: str,
+    modules: Set[str],
+    data_dir: pathlib.Path,
+    dryrun: bool,
+    profile: str,
+    update_current: bool,
+) -> None:
     """
-    Get the list of available releases from the OpenScPCA data bucket.
+    Download results for a specific release of OpenScPCA.
     """
-    ls_cmd = ["aws", "s3", "ls", f"s3://{bucket}/"]
-    if profile:
-        ls_cmd += ["--profile", profile]
-    if bucket == TEST_BUCKET:
-        ls_cmd += ["--no-sign-request"]
-    ls_result = subprocess.run(ls_cmd, capture_output=True, text=True)
-    if ls_result.returncode:
-        print(
-            "Error listing release versions from the OpenScPCA release bucket.",
-            " Ensure you have the correct AWS permissions to access OpenScPCA data.",
-            file=sys.stderr,
-        )
-        print(ls_result.stderr, file=sys.stderr)
-        sys.exit(1)
-    # get only date-based versions and remove the trailing slash
-    date_re = re.compile(r"PRE\s+(20\d{2}-[01]\d-[0123]\d)/$")
-    return [
-        m.group(1)
-        for m in (date_re.search(line) for line in ls_result.stdout.splitlines())
-        if m
+    # Build the basic sync command
+    sync_cmd = [
+        "aws",
+        "s3",
+        "sync",
+        f"s3://{bucket}/{release}/",
+        f"{data_dir}/{release}/results/",
+        "--exact-timestamps",  # replace if a file has changed at all
+        "--no-progress",  # don't show progress animations
+        "--exclude",
+        "*",  # exclude everything by default
     ]
 
+    for module in modules:
+        sync_cmd += ["--include", f"{module}/*"]
 
-def get_results_modules(bucket: str, release: str, profile: str) -> List[str]:
-    """
-    Get the list of available results modules from the OpenScPCA results bucket.
-    """
-    ls_cmd = ["aws", "s3", "ls", f"s3://{bucket}/{release}/"]
+    if dryrun:
+        sync_cmd += ["--dryrun"]
+
     if profile:
-        ls_cmd += ["--profile", profile]
+        sync_cmd += ["--profile", profile]
+
     if bucket == TEST_BUCKET:
-        ls_cmd += ["--no-sign-request"]
-    ls_result = subprocess.run(ls_cmd, capture_output=True, text=True)
-    if ls_result.returncode:
-        print(
-            "Error listing results modules from the OpenScPCA results bucket.",
-            " Ensure you have the correct AWS permissions to access OpenScPCA data.",
-            file=sys.stderr,
-        )
-        print(ls_result.stderr, file=sys.stderr)
-        sys.exit(1)
-    # get only prefixes and remove the trailing slash
-    module_re = re.compile(r"PRE\s+(\w+)/")
-    return [
-        m.group(1)
-        for m in (module_re.search(line) for line in ls_result.stdout.splitlines())
-        if m
-    ]
+        sync_cmd += ["--no-sign-request"]
+
+    subprocess.run(sync_cmd, check=True)
+
+    ### Print summary messages ###
+    print("\n\n\033[1mDownload Summary\033[0m")  # bold
+    print("Release:", release)
+    print("Modules:", ", ".join(modules))
+    print("Downloaded data to:", data_dir / release / "results")
+
+    ### Update current link to point to new or test data if required
+    ### Update current link to point to new or test data ###
+    # only do this if we are using test data or the specified release is "current" or "latest", not for specific dates
+    if update_current and not dryrun:
+        # update the current symlink
+        current_symlink = data_dir / "current"
+        current_symlink.unlink(missing_ok=True)
+        current_symlink.symlink_to(release)
+        print(f"Updated 'current' symlink to point to '{release}'.")
 
 
 def main() -> None:
@@ -206,7 +262,7 @@ def main() -> None:
         "--release",
         type=str,
         help="The release version to download. Defaults to 'current'.",
-        default="current",
+        default="",  # set in code
     )
     parser.add_argument(
         "--test-data",
@@ -260,7 +316,7 @@ def main() -> None:
         " If specified, bulk files are always excluded.",
     )
     parser.add_argument(
-        "--module_results",
+        "--module-results",
         type=str,
         default=None,
         help="The results modules to download."
@@ -325,6 +381,7 @@ def main() -> None:
         bucket = TEST_BUCKET
         results_bucket = TEST_BUCKET
     else:
+        args.release = args.release or "current"
         bucket = RELEASE_BUCKET
         results_bucket = RESULTS_BUCKET
 
@@ -374,16 +431,29 @@ def main() -> None:
 
     # list results modules and exit if that was what was requested
     if args.list_results or args.module_results:
-        modules = get_results_modules(
+        all_modules = get_results_modules(
             bucket=results_bucket, release=release, profile=args.profile
         )
     if args.list_results:
         print(
             f"Available module results for release {release}:\n",
-            "\n".join(modules),
+            "\n".join(all_modules),
             sep="\n",
         )
         return
+
+    # check that the requested modules are available
+    if args.module_results:
+        modules = set(args.module_results.split(","))
+        if not modules.issubset(all_modules):
+            print(
+                f"One or more requested modules are not available for release {release}.",
+                "Available modules are:\n",
+                "\n".join(all_modules),
+                sep="\n",
+                file=sys.stderr,
+            )
+            sys.exit(1)
 
     ### Download the data ###
     if not args.module_results:
@@ -395,6 +465,17 @@ def main() -> None:
             include_reports=args.include_reports,
             projects=args.projects.split(",") if args.projects else [],
             samples=args.samples.split(",") if args.samples else [],
+            data_dir=args.data_dir,
+            dryrun=args.dryrun,
+            profile=args.profile,
+            update_current=args.test_data
+            or args.release.lower() in ["current", "latest"],
+        )
+    else:
+        download_results(
+            bucket=results_bucket,
+            release=release,
+            modules=modules,
             data_dir=args.data_dir,
             dryrun=args.dryrun,
             profile=args.profile,
