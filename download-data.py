@@ -36,8 +36,8 @@ def get_releases(bucket: str, profile: str) -> List[str]:
             " Ensure you have the correct AWS permissions to access OpenScPCA data.",
             file=sys.stderr,
         )
-        print(ls_result.stderr, file=sys.stderr)
-        sys.exit(1)
+    ls_result.check_returncode()
+
     # get only date-based versions and remove the trailing slash
     date_re = re.compile(r"PRE\s+(20\d{2}-[01]\d-[0123]\d)/$")
     return [
@@ -63,8 +63,8 @@ def get_results_modules(bucket: str, release: str, profile: str) -> List[str]:
             " Ensure you have the correct AWS permissions to access OpenScPCA data.",
             file=sys.stderr,
         )
-        print(ls_result.stderr, file=sys.stderr)
-        sys.exit(1)
+    ls_result.check_returncode()
+
     # get only prefixes and remove the trailing slash
     module_re = re.compile(r"PRE\s+(\w+)/")
     return [
@@ -124,13 +124,8 @@ def get_download_size(
     if bucket == TEST_BUCKET:
         ls_cmd += ["--no-sign-request"]
     file_list = subprocess.run(ls_cmd, capture_output=True, text=True)
-    if file_list.returncode:
-        print(
-            "Error listing files in the OpenScPCA release bucket.",
-            " Ensure you have the correct AWS permissions to access OpenScPCA data.",
-            file=sys.stderr,
-        )
-        print(file_list.stderr, file=sys.stderr)
+    file_list.check_returncode()
+
     total_size = 0
     for line in file_list.stdout.splitlines():
         size, file = line.split()[-2:]
@@ -178,15 +173,15 @@ def add_parent_dirs(patterns: List[str], dirs: List[str]) -> List[str]:
 def download_release_data(
     bucket: str,
     release: str,
+    data_dir: pathlib.Path,
     formats: Set[str],
     includes: Set[str],
-    include_reports: bool,
-    projects: Set[str],
-    samples: Set[str],
-    data_dir: pathlib.Path,
-    dryrun: bool,
-    profile: str,
-    update_current: bool,
+    include_reports: bool = False,
+    projects: Set[str] = {},
+    samples: Set[str] = {},
+    dryrun: bool = False,
+    profile: str = "",
+    update_current: bool = True,
 ) -> None:
     """
     Download data for a specific release of OpenScPCA.
@@ -273,16 +268,28 @@ def download_results(
     release: str,
     modules: Set[str],
     data_dir: pathlib.Path,
-    dryrun: bool,
-    profile: str,
-    update_current: bool,
+    projects: Set[str] = {},
+    samples: Set[str] = {},
+    dryrun: bool = False,
+    profile: str = "",
+    update_current: bool = True,
 ) -> None:
     """
     Download results for a specific release of OpenScPCA.
     """
 
     download_dir = data_dir / release / "results"
-    patterns = [f"{module}/*" for module in modules]
+    if projects and samples:
+        raise ValueError("Projects and samples cannot be specified together.")
+
+    patterns = [
+        [f"{module}/*{project}*" for module in modules] for project in projects
+    ]  # will be empty if no projects specified
+    patterns += [
+        [f"{module}/*{sample}*" for module in modules] for sample in samples
+    ]  # will be empty if no samples specified
+    if not patterns:
+        patterns = [f"{module}/*" for module in modules]
 
     sync_cmd = build_sync_cmd(
         bucket=bucket,
@@ -300,6 +307,7 @@ def download_results(
         include_patterns=patterns,
         profile=profile,
     )
+
     ### Print summary messages ###
     print("\n\n\033[1mDownload Summary\033[0m")  # bold
     print("Release:", release)
@@ -470,7 +478,20 @@ def main() -> None:
             "Using both `--projects` and `--samples` options together is not supported.",
             file=sys.stderr,
         )
-        sys.exit(1)
+
+    # check project and sample names
+    projects = {p.strip() for p in args.projects.split(",")}
+    samples = {s.strip() for s in args.samples.split(",")}
+    if not all(p.startswith("SCPCP") for p in projects):
+        print(
+            "Some project ids do not start with 'SCPCP' as expected.",
+            file=sys.stderr,
+        )
+    if not all(s.startswith("SCPS") or s.endswith(" ") for s in samples):
+        print(
+            "Some sample ids do not start with 'SCPCS' as expected.",
+            file=sys.stderr,
+        )
 
     if args.samples and "bulk" in includes:
         print(
@@ -539,12 +560,12 @@ def main() -> None:
         download_release_data(
             bucket=bucket,
             release=release,
+            data_dir=args.data_dir,
             formats=formats,
             includes=includes,
             include_reports=args.include_reports,
             projects=args.projects.split(",") if args.projects else [],
             samples=args.samples.split(",") if args.samples else [],
-            data_dir=args.data_dir,
             dryrun=args.dryrun,
             profile=args.profile,
             update_current=args.test_data
