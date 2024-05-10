@@ -176,7 +176,7 @@ def download_release_data(
     release: str,
     data_dir: pathlib.Path,
     formats: Set[str],
-    includes: Set[str],
+    stages: Set[str],
     include_reports: bool = False,
     projects: Set[str] = {},
     samples: Set[str] = {},
@@ -193,19 +193,19 @@ def download_release_data(
     # Always include json, tsv metadata files and DATA_USAGE.md
     patterns = ["*.json", "*.tsv", "DATA_USAGE.md"]
 
-    # separate bulk from other includes
-    include_bulk = "bulk" in includes
-    includes = includes - {"bulk"}
+    # separate bulk from other stages
+    include_bulk = "bulk" in stages
+    stages = stages - {"bulk"}
 
     if include_reports:
         patterns += ["*.html"]
 
     if "sce" in formats:
-        patterns += [f"*_{level}.rds" for level in includes]
+        patterns += [f"*_{level}.rds" for level in stages]
 
     if "anndata" in formats:
-        patterns += [f"*_{level}_*.h5ad" for level in includes]
-        patterns += [f"*_{level}_*.hdf5" for level in includes]
+        patterns += [f"*_{level}_*.h5ad" for level in stages]
+        patterns += [f"*_{level}_*.hdf5" for level in stages]
 
     # If projects or samples are specified, extend the file-only patterns to specify parent directories
     if projects:
@@ -243,7 +243,7 @@ def download_release_data(
     print("\n\n\033[1mDownload Summary\033[0m")  # bold
     print("Release:", release)
     print("Data Format:", ", ".join(formats))
-    print("Processing levels:", ", ".join(includes))
+    print("Processing levels:", ", ".join(stages))
     if projects:
         print("Projects:", ", ".join(projects))
     if samples:
@@ -376,14 +376,14 @@ def main() -> None:
         default="SCE",
     )
     parser.add_argument(
-        "--include",
+        "--process-stage",
         type=str,
         default="processed",
         help=(
-            "The level of processing for the experiment files to include."
+            "The stage of processing for the experiment files to include."
             " One or more of 'processed', 'filtered', 'unfiltered', or 'bulk'."
             " Defaults to 'processed'."
-            " For more than one level, use a comma separated list with no spaces."
+            " For more than one level, use a comma separated list."
         ),
     )
     parser.add_argument(
@@ -456,11 +456,11 @@ def main() -> None:
         sys.exit(1)
 
     # Check include levels are valid & make a set
-    include_levels = {"unfiltered", "filtered", "processed", "bulk"}
-    includes = {x.lower() for x in args.include.split(",")}
-    if not all(x in include_levels for x in includes):
+    process_stages = {"unfiltered", "filtered", "processed", "bulk"}
+    stages = {x.strip().lower() for x in args.process_stage.split(",")}
+    if not all(x in process_stages for x in stages):
         print(
-            f"Include option '{args.include}' is not valid.",
+            f"process-stage option '{args.process_stage}' is not valid.",
             "Must be 'processed', 'filtered','unfiltered', 'filtered', 'bulk', or a comma separated list of those.",
             file=sys.stderr,
         )
@@ -502,7 +502,7 @@ def main() -> None:
             file=sys.stderr,
         )
 
-    if args.samples and "bulk" in includes:
+    if args.samples and "bulk" in stages:
         print(
             "Bulk data is not available for individual samples, so bulk data will be skipped.",
             file=sys.stderr,
@@ -571,7 +571,7 @@ def main() -> None:
             release=release,
             data_dir=args.data_dir,
             formats=formats,
-            includes=includes,
+            stages=stages,
             include_reports=args.include_reports,
             projects=args.projects.split(",") if args.projects else [],
             samples=args.samples.split(",") if args.samples else [],
