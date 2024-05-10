@@ -350,6 +350,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--list-results",
+        "--list-modules",
         action="store_true",
         help="List the available results modules and exit.",
     )
