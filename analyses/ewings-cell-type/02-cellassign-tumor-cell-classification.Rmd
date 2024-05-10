@@ -216,6 +216,26 @@ tumor_predictions |>
                      annotation_row = annotation_df)
 ```
 
+```{r}
+tumor_celltype_assignments <- tumor_celltype_assignments |> 
+  dplyr::rename(cellassign_annotations = celltype)
+
+celltype_df <- sce |> 
+  scuttle::makePerCellDF(use.dimred = "UMAP") |> 
+  # replace UMAP.1 with UMAP1
+  dplyr::rename_with(
+        \(x) stringr::str_replace(x, "^UMAP\\.", "UMAP")
+      ) |> 
+  # join with tumor normal
+  dplyr::left_join(classifications_df, by = "barcodes") |> 
+  # join with filtered cell type assignments from cellassign 
+  dplyr::left_join(tumor_celltype_assignments, by = c("barcodes" = "barcode"))
+
+ggplot(celltype_df, aes(x = UMAP1, y = UMAP2, color = cellassign_annotations)) +
+  geom_point(size = 0.5, alpha = 0.5) + 
+  theme_bw()
+```
+
 
 Looking at this, it appears that `CellAssign` is classifying all cells as "other"? 
 I find this hard to believe since this sample was taken directly from a Ewing sarcoma tumor, so there are bound to be tumor cells. 
