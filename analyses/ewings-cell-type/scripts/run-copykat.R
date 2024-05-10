@@ -49,9 +49,7 @@ opt <- parse_args(OptionParser(option_list = option_list))
 # Set up -----------------------------------------------------------------------
 
 # make sure path to sce file exists
-if(!file.exists(opt$sce_file)){
-  stop("--sce_file does not exist.")
-}
+stopifnot("sce_file does not exist" = file.exists(opt$sce_file))
 
 # read in sce file
 sce <- readr::read_rds(opt$sce_file)

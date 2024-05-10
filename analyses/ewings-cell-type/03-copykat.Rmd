@@ -129,8 +129,9 @@ Below we directly compare the annotations obtained using manual classification o
 To do this, we will calculate the confusion matrix using `caret::confusionMatrix()`. 
 
 ```{r}
-caret_df <- cnv_df |> 
+filtered_cnv_df <- cnv_df |> 
   dplyr::filter(copykat.pred != "not.defined") |> 
+caret_df_list <- filtered_cnv_df |> 
   dplyr::mutate(copykat = ifelse(
     # use str_detect for test data
     copykat.pred == "diploid", "Normal", "Tumor"
