@@ -172,7 +172,7 @@
     },
     "DelayedArray": {
       "Package": "DelayedArray",
-      "Version": "0.30.0",
+      "Version": "0.30.1",
       "Source": "Bioconductor",
       "Repository": "Bioconductor 3.19",
       "Requirements": [
@@ -188,7 +188,7 @@
         "stats",
         "stats4"
       ],
-      "Hash": "9141899d1bb4ce53e036810eb217721f"
+      "Hash": "395472c65cd9d606a1a345687102f299"
     },
     "DelayedMatrixStats": {
       "Package": "DelayedMatrixStats",
@@ -445,7 +445,7 @@
     },
     "SparseArray": {
       "Package": "SparseArray",
-      "Version": "1.4.1",
+      "Version": "1.4.3",
       "Source": "Bioconductor",
       "Repository": "Bioconductor 3.19",
       "Requirements": [
@@ -462,7 +462,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "c309b75cfb1f52407e40ebbd151af932"
+      "Hash": "97e01fd020665f2b0c6bd182b0ab68c2"
     },
     "SummarizedExperiment": {
       "Package": "SummarizedExperiment",
