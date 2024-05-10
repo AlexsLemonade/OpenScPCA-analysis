@@ -1,5 +1,8 @@
 #!/usr/bin/env Rscript
 
+# This script is used to run CopyKAT on a given ScPCA library 
+# The output will be found in `outdir`/`results_prefix` and all files will be labeled with the `library_id`
+
 project_root <- here::here()
 renv::load(project_root)
 
@@ -14,26 +17,22 @@ option_list <- list(
     help = "Path to RDS file containing a processed SingleCellExperiment object from scpca-nf"
   ),
   make_option(
-    opt_str = c("--singler_normal_cells"),
+    opt_str = c("--normal_cells"),
     type = "character",
     default = NULL,
-    help = "Comma separated list of normal cell types to pull from SingleR annotations to use as reference.
-      If both singler_normal_cells and cellassign_normal_cells are used,
-      the intersection of cells from both will be used as the normal reference."
+    help = "Optional file that contains a list of cell barcodes that correspond to normal cells and will be used as a reference"
   ),
   make_option(
-    opt_str = c("--cellassign_normal_cells"),
+    opt_str = c("--results_dir"),
     type = "character",
     default = NULL,
-    help = "Comma separated list of normal cell types to pull from CellAssign annotations to use as reference.
-      If both singler_normal_cells and cellassign_normal_cells are used,
-      the intersection of cells from both will be used as the normal reference."
+    help = "Folder within `--copykat_results_prefix/library_id` to save copyKAT results"
   ),
   make_option(
-    opt_str = c("--output_dir"),
+    opt_str = c("--copykat_results_prefix"),
     type = "character",
     default = file.path(project_root, "results", "copykat"),
-    help = "path to folder to save all output files"
+    help = "path to folder where all copykat results live"
   ),
   make_option(
     opt_str = c("-t", "--threads"),
@@ -51,83 +50,46 @@ opt <- parse_args(OptionParser(option_list = option_list))
 # make sure path to sce file exists
 stopifnot("sce_file does not exist" = file.exists(opt$sce_file))
 
+# check that results dir was provided 
+stopifnot("Must provide a --results_dir to save results" = is.null(opt$results_dir))
+
 # read in sce file
 sce <- readr::read_rds(opt$sce_file)
 
-# get library id and construct output directory
+# get library id to use as prefix for all output file names 
 library_id <- metadata(sce)$library_id
 
-# create output directory if not already present for library id
-output_dir <- file.path(opt$output_dir, library_id)
+# contstruct and create output folder if not already present 
+output_dir <- file.path(opt$copykat_results_prefix, library_id, opt$results_dir) 
 fs::dir_create(output_dir)
+
 # change working directory of the script to the output directory
 # this ensures copykat files get saved to the right location
 # there is no option to specify an output directory when running copykat
 setwd(output_dir)
 
-# define paths to output rds files
-copykat_output <- file.path(output_dir, glue::glue("{library_id}_no_normal.rds"))
-copykat_normal_output <- file.path(output_dir, glue::glue("{library_id}_with_normal.rds"))
+# Run CopyKAT ------------------------------------------------------------------
 
-coldata_df <- colData(sce) |>
-  as.data.frame()
-
-# get list of singleR cell types
-if(!is.null(opt$singler_normal_cells)){
-  singler_normal_cells <- stringr::str_split(opt$singler_normal_cells, pattern = ",") |>
-    unlist()
-  if(!all(singler_normal_cells %in% unique(sce$singler_celltype_annotation))){
-    stop("--singler_normal_cells must be present in the singler_celltype_annotation column of the SCE object.")
-  }
-
-  singler_cells <- coldata_df |>
-    dplyr::filter(singler_celltype_annotation %in% singler_normal_cells) |>
-    dplyr::pull(barcodes)
-
+# if normal cells exist then read in and set option for running copyKAT
+if(!is.null(opt$normal_cells)){
+  
+  # make sure normal cells file exists 
+  stopifnot("normal_cells file does not exist" = file.exists(opt$normal_cells))
+  normal_cells <- readLines(opt$normal_cells)
+  
 } else {
-  singler_cells <- c()
+  # otherwise set normal cells to default 
+  normal_cells <- ""
 }
-
-# get list of CelllAssign cell types
-if(!is.null(opt$cellassign_normal_cells)){
-  cellassign_normal_cells <- stringr::str_split(opt$cellassign_normal_cells, pattern = ",") |>
-    unlist()
-  if(!all(cellassign_normal_cells %in% unique(sce$cellassign_celltype_annotation))){
-    stop("--cellassign_normal_cells must be present in the cellassign_celltype_annotation column of the SCE object.")
-  }
-
-  cellassign_cells <- coldata_df |>
-    dplyr::filter(cellassign_celltype_annotation %in% cellassign_normal_cells) |>
-    dplyr::pull(barcodes)
-} else {
-  cellassign_cells <- c()
-}
-
-# create vector of cells that should be used as normal reference
-all_normal_cells <- intersect(singler_cells, cellassign_cells)
 
 # Run copyKat without normal cells 
 copykat_result <- copykat(
   rawmat = as.matrix(counts(sce)),
   id.type = "E",
-  sam.name = glue::glue("{library_id}_no_normal"),
+  sam.name = library_id,
+  norm.cell.names = normal_cells,
   plot.genes = FALSE,
   output.seg = FALSE,
   n.cores = opt$threads
 )
-
-# if normal cells are provided, then run again with normal reference
-if (length(all_normal_cells) > 0){
-  
-  copykat_normal_result <- copykat(
-    rawmat = as.matrix(counts(sce)),
-    id.type = "E",
-    sam.name = glue::glue("{library_id}_with_normal"),
-    norm.cell.names = all_normal_cells,
-    plot.genes = FALSE,
-    output.seg = FALSE,
-    n.cores = opt$threads
-  )
-  
-}
 
