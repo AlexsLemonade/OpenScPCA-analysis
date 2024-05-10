@@ -21,6 +21,7 @@ This produced results from `CopyKAT` both with and without a normal reference.
 These results are read into this notebook and used to: 
 
 - Visualize diploid and anueploid cells on the UMAP. 
+- Evaluate common copy number gains and losses in Ewing sarcoma. 
 - Calculate the confusion matrix comparing manual annotations of tumor cells to using `CopyKAT` to annotate tumor cells. 
 - Compare the annotations from `CopyKAT` to cell type annotations from `SingleR` and `CellAssign`. 
 
@@ -68,12 +69,23 @@ classifications_file <- file.path(module_base, "results", "marker_gene_analysis"
 
 # copykat results 
 results_dir <- file.path(module_base, "results", "copykat", params$library_id)
-results_filenames <- c(
-  no_ref = glue::glue("{params$library_id}_no_normal_copykat_prediction.txt"), 
-  with_ref = glue::glue("{params$library_id}_with_normal_copykat_prediction.txt")
-) 
-ck_results_files <- file.path(results_dir, results_filenames) |> 
-  purrr::set_names(names(results_filenames))
+
+# predictions files 
+predictions_file <- glue::glue("{params$library_id}_copykat_prediction.txt")
+
+predictions_paths <- c(
+  no_ref = file.path(results_dir, "no_normal", predictions_file),
+  with_ref = file.path(results_dir, "endothelial_normal", predictions_file)
+)
+
+# full results gene by cell 
+full_ck_result_file <- glue::glue("{params$library_id}_copykat_CNA_raw_results_gene_by_cell.txt")
+  
+full_ck_result_paths <- c(
+  no_ref = file.path(results_dir, "no_normal", full_ck_result_file),
+  with_ref = file.path(results_dir, "endothelial_normal", full_ck_result_file)
+)
+
 ```
 
 
@@ -84,14 +96,31 @@ sce <- readr::read_rds(sce_file)
 # read in tumor normal classifications 
 manual_classifications_df <- readr::read_tsv(classifications_file)
 
-# read in ck results from both reference types (no_normal and with_normal)
-ck_results_df <- ck_results_files |> 
+# read in ck predictions from both reference types (no_normal and with_normal)
+ck_results_df <- predictions_paths |> 
+  purrr::map(readr::read_tsv) |> 
+  dplyr::bind_rows(.id = "reference_used")
+
+# read in full gene by cell copy number detection results 
+full_ck_results_df <- full_ck_result_paths |> 
   purrr::map(readr::read_tsv) |> 
   dplyr::bind_rows(.id = "reference_used")
 ```
 
 
 ## CopyKAT results
+
+Below we look at the heatmaps produced by `CopyKAT`. 
+
+### Heatmap without reference
+
+![](`r file.path(results_dir, "no_normal", "SCPCL000822_copykat_heatmap.jpeg")`)
+
+### Heatmap with endothelial cells as reference
+
+![](`r file.path(results_dir, "endothelial_normal", "SCPCL000822_copykat_heatmap.jpeg")`)
+
+Both of these heatmaps appear to show some increase in observed CNVs in aneuploid vs. diploid which is to be expected. 
 
 ### UMAP
 
@@ -123,6 +152,88 @@ ggplot(cnv_df, aes(x = UMAP1, y = UMAP2, color = copykat.pred)) +
 If we look at the UMAPs shown in `01-marker-gene-tumor-classification.Rmd`, the cells that are labeled aneuploid here are consistent with where we saw marker gene expession for tumor cells. 
 It also looks like there is not a visible difference between using a reference of normal cells and not using a reference. 
 
+## Validate common CNAs found in Ewing sarcoma
+
+To validate some of these annotations, we can also look at some commonly found copy number variations found in Ewing sarcoma patients. 
+There are a few known copy number variations in Ewing's sarcoma: 
+
+- Gain of Chr8
+- Gain of Chr12
+- Gain of Chr1p
+- Loss of Chr16q
+
+Although these are the most frequent, there are patients who do not have any of these alterations and patients that only have some of these alterations. 
+See [Tirode et al.,](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4264969/) and [Crompton et al.](https://doi.org/10.1158/2159-8290.CD-13-1037). 
+
+`CopyKAT` outputs a matrix that contains the estimated copy numbers for each gene in each cell. 
+We can read that in and look at the mean estimated copy numbers for each chromosome across each cell. 
+We might expect that tumor cells would show an increased estimated copy number in Chr8, Chr12, and/or Chf 1 and a loss of Chr16. 
+
+```{r}
+# for every cell, calculate the mean detection level across all genes in a given chromosome
+full_cnv_df <- full_ck_results_df |> 
+  tidyr::pivot_longer(cols = -c(
+    reference_used,
+    abspos, 
+    chromosome_name, 
+    start_position, 
+    end_position, 
+    ensembl_gene_id, 
+    hgnc_symbol, 
+    band),
+                      names_to = "barcodes",
+                      values_to = "cnv_detection") |> 
+  dplyr::group_by(chromosome_name, barcodes, reference_used) |> 
+  dplyr::summarise(mean_cnv_detection = mean(cnv_detection)) 
+
+# filter to only have cnvs found in Ewings to keep things a bit smaller when joining
+ewings_chrs <- c(1, 8, 12, 16)
+
+ewings_cnv_df <- full_cnv_df |> 
+  dplyr::filter(chromosome_name %in% ewings_chrs)
+
+# join with 
+cnv_df <- cnv_df |> 
+  dplyr::left_join(ewings_cnv_df, by = c("barcodes", "reference_used"))
+```
+
+```{r}
+# create faceted UMAPs showing estimation of CNV detection across each chr of interest 
+ewings_chrs |> 
+  purrr::map(\(chr){
+    plot_df <- cnv_df |> 
+      dplyr::filter(chromosome_name == chr)
+    
+    ggplot(plot_df, aes(x = UMAP1, y = UMAP2, color = mean_cnv_detection)) +
+      geom_point(alpha = 0.5, size = 0.5) +
+      theme_bw() +
+      scale_color_viridis_c() +
+      facet_wrap(vars(reference_used)) + 
+      labs(title = glue::glue("chr{chr}"))
+  })
+```
+
+Looking at the UMAPs, I don't see any really obvious differences between CNV estimation and groups of cells. 
+Let's look at the distribution of CNV estimation in cells that are called aneuploid and diploid by `CopyKAT`. 
+
+```{r}
+# create faceted density plots showing estimation of CNV detection across each chr of interest 
+# colored by aneuploid/diploid estimation 
+ewings_chrs |> 
+  purrr::map(\(chr){
+    plot_df <- cnv_df |> 
+      dplyr::filter(chromosome_name == chr)
+    
+    ggplot(plot_df, aes(x = mean_cnv_detection, color = copykat.pred)) +
+      geom_density() +
+      theme_bw() +
+      facet_wrap(vars(reference_used)) + 
+      labs(title = glue::glue("chr{chr}"))
+  })
+```
+
+It looks like there is a slight increase in chr8 and chr12 indicating maybe a copy number gain for those chromosomes in aneuploid cells, but nothing striking. 
+
 ### Confusion Matrix
 
 Below we directly compare the annotations obtained using manual classification of tumor and normal cells to annotating cells with `CopyKAT`. 
@@ -130,7 +241,8 @@ To do this, we will calculate the confusion matrix using `caret::confusionMatrix
 
 ```{r}
 filtered_cnv_df <- cnv_df |> 
-  dplyr::filter(copykat.pred != "not.defined") |> 
+  dplyr::filter(copykat.pred != "not.defined")
+  
 caret_df_list <- filtered_cnv_df |> 
   dplyr::mutate(copykat = ifelse(
     # use str_detect for test data
@@ -144,9 +256,8 @@ caret_df_list <- filtered_cnv_df |>
   split(cnv_df$reference_used)
 
 
-caret_df |> 
+caret_df_list |> 
   purrr::imap(\(df, ref_type){
-    glue::glue("\n\n================== {ref_type} ====================")
     caret::confusionMatrix(
       table(
         df$marker_gene_classification, 
@@ -167,19 +278,15 @@ Given the confusion matrix, I would expect to see good agreement between marker 
 
 ```{r}
 # calculate Jaccard similarity index for each reference type
-ref_types <- c("no_ref", "with_ref")
-jaccard_matrices <- ref_types |>
-  purrr::map(\(ref_type) {
-    jaccard_df <- cnv_df |> 
-      dplyr::filter(reference_used == ref_type)
+jaccard_matrices <- caret_df_list |>
+  purrr::map(\(df) {
     
     make_jaccard_matrix(
-      cnv_df,
+      df,
       "marker_gene_classification",
       "copykat.pred"
     )
-  }) |> 
-  purrr::set_names(ref_types)
+  })
 ```
 
 ```{r}
@@ -314,6 +421,7 @@ These are consistent with the cell types that we see normal cells line up with i
 ## Conclusions
 
 - `CopyKAT` seems to do a good job in this Ewing sarcoma sample of identifying aneuploid and diploid cells. 
+- There is some small evidence of copy number gains in Chr8 and Chr12 which is consistent with findings in Ewing sarcoma patients. 
 - The annotations from `CopyKAT` mostly line up with annotations obtained using marker gene annotation. 
 - Using a reference of normal cells doesn't change the overall results but does reduce the run time for `CopyKAT`. 
 
