@@ -66,7 +66,7 @@ def get_results_modules(bucket: str, release: str, profile: str) -> List[str]:
     ls_result.check_returncode()
 
     # get only prefixes and remove the trailing slash
-    module_re = re.compile(r"PRE\s+(\w+)/")
+    module_re = re.compile(r"PRE\s+([\S]+)/")
     return [
         m.group(1)
         for m in (module_re.search(line) for line in ls_result.stdout.splitlines())
@@ -90,9 +90,10 @@ def build_sync_cmd(
         download_dir,
         "--exact-timestamps",  # replace if a file has changed at all
         "--no-progress",  # don't show progress animations
-        "--exclude",
-        "*",  # exclude everything by default
     ]
+
+    if include_patterns:
+        sync_cmd += ["--exclude", "*"]
 
     for pattern in include_patterns:
         sync_cmd += ["--include", pattern]
@@ -243,7 +244,10 @@ def download_release_data(
     print("Release:", release)
     print("Data Format:", ", ".join(formats))
     print("Processing levels:", ", ".join(includes))
-    print("Projects:", ", ".join(projects) if projects else "All")
+    if projects:
+        print("Projects:", ", ".join(projects))
+    if samples:
+        print("Samples:", ", ".join(samples))
     if dryrun:
         print("Data download location:", download_dir)
     else:
@@ -283,13 +287,13 @@ def download_results(
         raise ValueError("Projects and samples cannot be specified together.")
 
     patterns = [
-        [f"{module}/*{project}*" for module in modules] for project in projects
+        f"*{m}/*{p}*" for m in modules for p in projects
     ]  # will be empty if no projects specified
     patterns += [
-        [f"{module}/*{sample}*" for module in modules] for sample in samples
+        f"*{m}/*{s}*" for m in modules for s in samples
     ]  # will be empty if no samples specified
     if not patterns:
-        patterns = [f"{module}/*" for module in modules]
+        patterns = [f"{m}/*" for m in modules]
 
     sync_cmd = build_sync_cmd(
         bucket=bucket,
@@ -312,6 +316,10 @@ def download_results(
     print("\n\n\033[1mDownload Summary\033[0m")  # bold
     print("Release:", release)
     print("Results Modules:", ", ".join(modules))
+    if projects:
+        print("Projects:", ", ".join(projects))
+    if samples:
+        print("Samples:", ", ".join(samples))
     if dryrun:
         print("Data download location:", download_dir)
     else:
@@ -379,14 +387,17 @@ def main() -> None:
         ),
     )
     parser.add_argument(
-        "--include-reports",
-        action="store_true",
-        help="Include html report files in the download.",
+        "--module-results",
+        "--modules",
+        type=str,
+        default="",
+        help="The results modules to download."
+        " A comma separated list of results modules to download.",
     )
     parser.add_argument(
         "--projects",
         type=str,
-        default=None,
+        default="",
         help=(
             "The project(s) to download."
             " A comma separated list of Project IDs to download."
@@ -396,23 +407,16 @@ def main() -> None:
     parser.add_argument(
         "--samples",
         type=str,
-        default=None,
+        default="",
         help="The sample(s) to download."
         " A comma separated list of Sample IDs to download."
         " Defaults to all. Can not be combined with `--projects`."
         " If specified, bulk files are always excluded.",
     )
     parser.add_argument(
-        "--module-results",
-        type=str,
-        default=None,
-        help="The results modules to download."
-        " A comma separated list of results modules to download.",
-    )
-    parser.add_argument(
-        "--dryrun",
+        "--include-reports",
         action="store_true",
-        help="Perform a dry run of the download: show what would be done but do not download anything.",
+        help="Include html report files in the download.",
     )
     parser.add_argument(
         "--data-dir",
@@ -424,9 +428,14 @@ def main() -> None:
         default=pathlib.Path(__file__).parent / "data",
     )
     parser.add_argument(
+        "--dryrun",
+        action="store_true",
+        help="Perform a dry run of the download: show what would be done but do not download anything.",
+    )
+    parser.add_argument(
         "--profile",
         type=str,
-        default=None,
+        default="",
         help="The AWS profile to use for the download. Uses the current default profile if undefined.",
     )
 
@@ -480,14 +489,14 @@ def main() -> None:
         )
 
     # check project and sample names
-    projects = {p.strip() for p in args.projects.split(",")}
-    samples = {s.strip() for s in args.samples.split(",")}
-    if not all(p.startswith("SCPCP") for p in projects):
+    projects = {p.strip() for p in args.projects.split(",")} if args.projects else {}
+    samples = {s.strip() for s in args.samples.split(",")} if args.samples else {}
+    if projects and not all(p.startswith("SCPCP") for p in projects):
         print(
             "Some project ids do not start with 'SCPCP' as expected.",
             file=sys.stderr,
         )
-    if not all(s.startswith("SCPS") or s.endswith(" ") for s in samples):
+    if samples and not all(s.startswith("SCPS") for s in samples):
         print(
             "Some sample ids do not start with 'SCPCS' as expected.",
             file=sys.stderr,
@@ -577,6 +586,8 @@ def main() -> None:
             release=release,
             modules=modules,
             data_dir=args.data_dir,
+            projects=projects,
+            samples=samples,
             dryrun=args.dryrun,
             profile=args.profile,
             update_current=args.test_data
