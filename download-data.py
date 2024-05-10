@@ -461,7 +461,7 @@ def main() -> None:
     if not all(x in process_stages for x in stages):
         print(
             f"process-stage option '{args.process_stage}' is not valid.",
-            "Must be 'processed', 'filtered','unfiltered', 'filtered', 'bulk', or a comma separated list of those.",
+            "Must be 'processed', 'filtered','unfiltered', 'bulk', or a comma separated list of those.",
             file=sys.stderr,
         )
         sys.exit(1)
