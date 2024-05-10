@@ -152,7 +152,7 @@ ggplot(cnv_df, aes(x = UMAP1, y = UMAP2, color = copykat.pred)) +
 If we look at the UMAPs shown in `01-marker-gene-tumor-classification.Rmd`, the cells that are labeled aneuploid here are consistent with where we saw marker gene expession for tumor cells. 
 It also looks like there is not a visible difference between using a reference of normal cells and not using a reference. 
 
-## Validate common CNAs found in Ewing sarcoma
+### Validate common CNAs found in Ewing sarcoma
 
 To validate some of these annotations, we can also look at some commonly found copy number variations found in Ewing sarcoma patients. 
 There are a few known copy number variations in Ewing's sarcoma: 
@@ -181,8 +181,8 @@ full_cnv_df <- full_ck_results_df |>
     ensembl_gene_id, 
     hgnc_symbol, 
     band),
-                      names_to = "barcodes",
-                      values_to = "cnv_detection") |> 
+    names_to = "barcodes",
+    values_to = "cnv_detection") |> 
   dplyr::group_by(chromosome_name, barcodes, reference_used) |> 
   dplyr::summarise(mean_cnv_detection = mean(cnv_detection)) 
 
