@@ -77,6 +77,10 @@ if(!is.null(opt$normal_cells)){
   stopifnot("normal_cells file does not exist" = file.exists(opt$normal_cells))
   normal_cells <- readLines(opt$normal_cells)
   
+  # check that all normal cells are in colnames of sce 
+  stopifnot("All barcodes in the normal_cells file are not found in the sce object" = 
+              all(normal_cells %in% colnames(sce)))
+  
 } else {
   # otherwise set normal cells to default 
   normal_cells <- ""
