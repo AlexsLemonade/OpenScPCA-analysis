@@ -86,6 +86,7 @@ ref_matrix = pd.read_csv(args.reference, sep="\t", index_col="ensembl_gene_id")
 
 # file path to annotated sce
 annotated_adata = adata.read_h5ad(args.anndata_file)
+annotated_adata.X = annotated_adata.raw.X # make sure to use raw counts
 
 # subset anndata to contain only genes in the reference file
 # note that the gene names must be the rownames of the reference matrix
