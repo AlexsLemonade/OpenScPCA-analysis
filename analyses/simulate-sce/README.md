@@ -18,7 +18,7 @@ Data from projects to be processed should be downloaded from the OpenScPCA relea
 You will want all types of data for this module, so you can run the following command to download all processing levels in both formats from the latest release:
 
 ```bash
-./download-data.py --include "filtered,unfiltered,processed" --format "sce,anndata"
+./download-data.py --process-stage "filtered,unfiltered,processed" --format "sce,anndata"
 ```
 
 ## Running the scripts
