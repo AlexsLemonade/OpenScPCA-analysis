@@ -1,0 +1,49 @@
+name: Docker Image CI
+
+on:
+  push:
+    paths:
+      - 'Dockerfile'
+  workflow_dispatch:
+permissions:
+      id-token: write   # This is required for requesting the JWT
+      contents: read    # This is required for actions/checkout
+
+jobs:
+  build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    environment: 'prod'     
+ 
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+      
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: arn:aws:iam::992382809252:role/GithubOpenId
+        role-session-name: githubActionSession
+        aws-region: us-east-1
+      
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+      with:
+        registry-type: public
+        registry: public.ecr.aws/openscpca
+      
+    - name: Build Docker Image
+      run: docker build -t ${{ vars.REPO_NAME }} .
+      
+    - name: Tag Docker Image
+      run: docker tag ${{ vars.REPO_NAME }}:latest public.ecr.aws/openscpca/${{ vars.REPO_NAME }}:${{ github.run_number }}
+      
+    - name: Push Docker Image to ECR
+      run: docker push public.ecr.aws/openscpca/${{ vars.REPO_NAME }}:${{ github.run_number }}
+      
+    - name: Tag Docker Image to Latest
+      run: docker tag ${{ vars.REPO_NAME }}:latest public.ecr.aws/openscpca/${{ vars.REPO_NAME }}:latest
+      
+    - name: Push Docker Image to ECR
+      run: docker push public.ecr.aws/openscpca/${{ vars.REPO_NAME }}:latest
