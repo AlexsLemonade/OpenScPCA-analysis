@@ -366,33 +366,13 @@ def main() -> None:
         " To switch back, rerun this script with the `--release current` option.",
     )
     parser.add_argument(
-        "--format",
-        type=str,
-        help=(
-            "The format to download the data in. Either 'SCE' or 'AnnData'."
-            " Defaults to 'SCE'."
-            " For more than one format, use a comma separated list with no spaces."
-        ),
-        default="SCE",
-    )
-    parser.add_argument(
-        "--process-stage",
-        type=str,
-        default="processed",
-        help=(
-            "The stage of processing for the experiment files to include."
-            " One or more of 'processed', 'filtered', 'unfiltered', or 'bulk'."
-            " Defaults to 'processed'."
-            " For more than one level, use a comma separated list."
-        ),
-    )
-    parser.add_argument(
         "--module-results",
         "--modules",
         type=str,
         default="",
         help="The results modules to download."
-        " A comma separated list of results modules to download.",
+        " A comma separated list of results modules to download."
+        "\nWhen this option is selected, the `--process-stage` and `--include-reports` options are ignored.",
     )
     parser.add_argument(
         "--projects",
@@ -412,6 +392,27 @@ def main() -> None:
         " A comma separated list of Sample IDs to download."
         " Defaults to all. Can not be combined with `--projects`."
         " If specified, bulk files are always excluded.",
+    )
+    parser.add_argument(
+        "--format",
+        type=str,
+        help=(
+            "The format to download the data in. Either 'SCE' or 'AnnData'."
+            " Defaults to 'SCE'."
+            " For more than one format, use a comma separated list with no spaces."
+        ),
+        default="SCE",
+    )
+    parser.add_argument(
+        "--process-stage",
+        type=str,
+        default="processed",
+        help=(
+            "The stage of processing for the data files to include."
+            " One or more of 'processed', 'filtered', 'unfiltered', or 'bulk'."
+            " Defaults to 'processed'."
+            " For more than one level, use a comma separated list."
+        ),
     )
     parser.add_argument(
         "--include-reports",
