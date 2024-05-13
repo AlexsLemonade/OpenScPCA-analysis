@@ -72,7 +72,7 @@ def main() -> None:
             " One or more of 'processed', 'filtered', 'unfiltered', or 'bulk'."
             " Defaults to 'processed'."
             " For more than one level, use a comma separated list with no spaces."
-        ),
+        )
     )
     parser.add_argument(
         "--include-reports",
@@ -87,7 +87,7 @@ def main() -> None:
             "The project(s) to download."
             " A comma separated list of Project IDs to download."
             " Defaults to all. Can not be combined with `--samples`."
-        ),
+        )
     )
     parser.add_argument(
         "--samples",
@@ -97,6 +97,11 @@ def main() -> None:
         " A comma separated list of Sample IDs to download."
         " Defaults to all. Can not be combined with `--projects`."
         " If specified, bulk files are always excluded.",
+    )
+    parser.add_argument(
+        "--metadata_only",
+        action="store_true",
+        help="Only download metadata files. Do not download any data.",
     )
     parser.add_argument(
         "--dryrun",
@@ -192,6 +197,7 @@ def main() -> None:
         )
         print(ls_result.stderr, file=sys.stderr)
         sys.exit(1)
+
     # get only date-based versions or "test" and remove the trailing slash
     date_re = re.compile(r"((\d{4}-\d{2}-\d{2})|(test))/?")
     all_releases = [
@@ -243,30 +249,36 @@ def main() -> None:
     # Always include json, tsv metadata files and DATA_USAGE.md
     patterns = ["*.json", "*.tsv", "DATA_USAGE.md"]
 
-    if args.include_reports:
-        patterns += ["*.html"]
+    # Only include other files if metadata_only is not false
+    # If metadata_only is true, overwrite other defaults for Download Summary printing
+    if args.metadata_only:
+        formats = ["N/A"]
+        includes = ["N/A"]
+    else:
+        if args.include_reports:
+            patterns += ["*.html"]
 
-    if "sce" in formats:
-        patterns += [f"*_{level}.rds" for level in includes]
+        if "sce" in formats:
+            patterns += [f"*_{level}.rds" for level in includes]
 
-    if "anndata" in formats:
-        patterns += [f"*_{level}_*.h5ad" for level in includes]
-        patterns += [f"*_{level}_*.hdf5" for level in includes]
+        if "anndata" in formats:
+            patterns += [f"*_{level}_*.h5ad" for level in includes]
+            patterns += [f"*_{level}_*.hdf5" for level in includes]
 
-    # If projects or samples are specified, extend the file-only patterns to specify parent directories
-    if args.projects:
-        patterns = add_parent_dirs(patterns, args.projects.split(","))
-    elif args.samples:
-        patterns = add_parent_dirs(patterns, args.samples.split(","))
-
-    # if samples are specified, bulk is excluded, as it is not associated with individual samples
-    if include_bulk and not args.samples:
+        # If projects or samples are specified, extend the file-only patterns to specify parent directories
         if args.projects:
-            patterns += [
-                f"{project}/*_bulk_*.tsv" for project in args.projects.split(",")
-            ]
-        else:
-            patterns += ["*_bulk_*.tsv"]
+            patterns = add_parent_dirs(patterns, args.projects.split(","))
+        elif args.samples:
+            patterns = add_parent_dirs(patterns, args.samples.split(","))
+
+        # if samples are specified, bulk is excluded, as it is not associated with individual samples
+        if include_bulk and not args.samples:
+            if args.projects:
+                patterns += [
+                    f"{project}/*_bulk_*.tsv" for project in args.projects.split(",")
+                ]
+            else:
+                patterns += ["*_bulk_*.tsv"]
 
     ### Add patterns to the sync command and run it! ###
     for p in patterns:
@@ -285,6 +297,8 @@ def main() -> None:
 
     ### Print summary messages ###
     print("\n\n\033[1mDownload Summary\033[0m")  # bold
+    if args.metadata_only:
+        print("\x1B[3mNo data downloaded; only metadata\x1B[0m\n")  # italics
     print("Release:", release)
     print("Data Format:", ", ".join(formats))
     print("Processing levels:", ", ".join(includes))
