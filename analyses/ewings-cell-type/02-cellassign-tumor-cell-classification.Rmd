@@ -18,7 +18,7 @@ This notebook looks at classifying tumor cells with `CellAssign` in a Ewing sarc
 We use `CellAssign` with a variety of references: 
 
 - A full list of tumor marker genes only. 
-- A filtered list of tumor marker genes only. 
+- A filtered list of marker genes. 
 - Tumor marker genes and non-tumor marker genes from [Visser et al.](https://doi.org/10.1158/2767-9764.CRC-23-0027) specified in the supplemental methods. 
 - Tumor marker genes and marker genes from endothelial cells and fibroblast marker genes in PanglaoDB. 
 
@@ -46,8 +46,11 @@ sample_dir <- file.path(data_dir, "SCPCP000015", params$sample_id)
 
 # The path to this module
 module_base <- file.path(repository_base, "analyses", "ewings-cell-type")
+```
 
-# source in helper functions
+
+```{r}
+# source in helper functions make_jaccard_matrix() and jaccard()
 jaccard_functions <- file.path(module_base, "scripts", "utils", "jaccard-functions.R")
 source(jaccard_functions)
 ```
@@ -149,6 +152,10 @@ all_markers_df <- readr::read_tsv(all_markers_file) |>
   # account for genes being from multiple sources
   dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |> 
   dplyr::distinct()
+
+# read in tumor normal classifications 
+# obtained from manual classification in `01-marker-gene-tumor-classifications.Rmd`
+classifications_df <- readr::read_tsv(classifications_file)
 ```
 
 
@@ -185,6 +192,8 @@ system(cellassign_call)
 
 
 We can then read in the predictions file and find the predicted cell type for each cell, either "tumor" or "other". 
+Then we'll show a heatmap of the scores for each cell and cell type. 
+Included in that heatmap will be annotation of which cells were classified as tumor or normal using the manual classification.
 
 ```{r}
 # read in predictions file
@@ -198,10 +207,6 @@ table(tumor_celltype_assignments$celltype)
 ```
 
 ```{r}
-# first read in tumor normal classifications 
-# obtained from manual classification in `01-marker-gene-tumor-classifications.Rmd`
-classifications_df <- readr::read_tsv(classifications_file)
-
 # get annotations for heatmaps
 annotation_df <- data.frame(
   marker_gene_classification = classifications_df$marker_gene_classification,
@@ -216,10 +221,85 @@ tumor_predictions |>
                      annotation_row = annotation_df)
 ```
 
+It looks like we might have pretty good agreement between the annotations from `CellAssign` and manual annotations. 
+Let's also look at the cell annotations on a UMAP and then look at the confusion matrix. 
 
-Looking at this, it appears that `CellAssign` is classifying all cells as "other"? 
-I find this hard to believe since this sample was taken directly from a Ewing sarcoma tumor, so there are bound to be tumor cells. 
+```{r}
+# rename cell type column 
+tumor_celltype_assignments <- tumor_celltype_assignments |> 
+  dplyr::rename(cellassign_annotations = celltype)
 
+# create a dataframe to use for plotting with UMAP and cell information 
+celltype_df <- sce |> 
+  scuttle::makePerCellDF(use.dimred = "UMAP") |> 
+  # replace UMAP.1 with UMAP1
+  dplyr::rename_with(
+        \(x) stringr::str_replace(x, "^UMAP\\.", "UMAP")
+      ) |> 
+  # join with tumor normal
+  dplyr::left_join(classifications_df, by = "barcodes") |> 
+  # join with filtered cell type assignments from cellassign 
+  dplyr::left_join(tumor_celltype_assignments, by = c("barcodes" = "barcode"))
+```
+
+
+```{r}
+ggplot(celltype_df, aes(x = UMAP1, y = UMAP2, color = cellassign_annotations)) +
+  geom_point(size = 0.5, alpha = 0.5) + 
+  theme_bw()
+```
+
+```{r}
+# prep annotations for confusion matrix
+celltype_df <- celltype_df |> 
+  dplyr::mutate(cellassign_annotations = ifelse(
+    # make sure annotations match marker gene annotations
+    cellassign_annotations == "tumor", "Tumor", "Normal"
+  )) |> 
+  # make tumor the positive class
+  dplyr::mutate(
+    cellassign_annotations = forcats::fct_relevel(cellassign_annotations, "Tumor"),
+    marker_gene_classification = forcats::fct_relevel(marker_gene_classification, "Tumor")
+  ) 
+
+caret::confusionMatrix(
+  table(
+    celltype_df$marker_gene_classification, 
+    celltype_df$cellassign_annotations)
+)
+```
+
+This looks pretty good! 
+There is quite a bit of agreement between classifying cells manually with marker genes vs. classifying cells with `CellAssign` and using the marker genes. 
+
+To confirm that the cells with tumor cells have higher expression of marker genes, let's look at the mean expression of marker genes between tumor and other cells as classified by `CellAssign`. 
+
+```{r}
+# get marker gene expression 
+marker_gene_exp <- logcounts(sce[tumor_markers_df$ensembl_gene_id, ]) |>
+  as.matrix() |>
+  t() |>
+  as.data.frame() |>
+  tibble::rownames_to_column("barcodes")
+
+marker_gene_exp_df <- celltype_df |> 
+  dplyr::left_join(marker_gene_exp, by = "barcodes") |> 
+  tidyr::pivot_longer(
+    cols = starts_with("ENSG"),
+    names_to = "ensembl_gene_id",
+    values_to = "gene_expression"
+  ) |> 
+  dplyr::group_by(barcodes) |> 
+  dplyr::mutate(mean_exp = mean(gene_expression))
+  
+
+ggplot(marker_gene_exp_df, aes(x = mean_exp, fill = cellassign_annotations)) +
+  geom_density() +
+  facet_grid(rows = vars(cellassign_annotations)) +
+  theme_bw()
+```
+
+As expected, we see that cells classified as tumor cells have higher expression of the tumor marker genes. 
 
 ### Run CellAssign with a filtered set of tumor marker genes
 
@@ -290,100 +370,12 @@ filtered_predictions |>
                      annotation_row = annotation_df)
 ```
 
-Now we are seeing a few more tumor cells, let's see where they are on the UMAP. 
-
-```{r}
-filtered_celltype_assignments <- filtered_celltype_assignments |> 
-  dplyr::rename(filtered_cellassign_annotations = celltype)
-
-celltype_df <- sce |> 
-  scuttle::makePerCellDF(use.dimred = "UMAP") |> 
-  # replace UMAP.1 with UMAP1
-  dplyr::rename_with(
-        \(x) stringr::str_replace(x, "^UMAP\\.", "UMAP")
-      ) |> 
-  # join with tumor normal
-  dplyr::left_join(classifications_df, by = "barcodes") |> 
-  # join with filtered cell type assignments from cellassign 
-  dplyr::left_join(filtered_celltype_assignments, by = c("barcodes" = "barcode"))
-
-ggplot(celltype_df, aes(x = UMAP1, y = UMAP2, color = filtered_cellassign_annotations)) +
-  geom_point(size = 0.5, alpha = 0.5) + 
-  theme_bw()
-```
-
-Not quite where I would expect to see tumor cells. 
-Let's see how many tumor cells overlap with our manual classifications using the Jaccard similarity index. 
-
-```{r}
-jaccard_mtx <- make_jaccard_matrix(celltype_df, "filtered_cellassign_annotations", "marker_gene_classification")
-
-ComplexHeatmap::Heatmap(
-  t(jaccard_mtx), # transpose because matrix rows are in common & we want a vertical arrangement
-  col = circlize::colorRamp2(c(0, 1), colors = c("white", "darkslateblue")),
-  border = TRUE,
-  ## Row parameters
-  cluster_rows = FALSE,
-  row_title = "Marker gene",
-  row_title_gp = grid::gpar(fontsize = 12),
-  row_title_side = "left",
-  row_names_side = "left",
-  row_dend_side = "right",
-  row_names_gp = grid::gpar(fontsize = 10),
-  ## Column parameters
-  cluster_columns = FALSE,
-  column_title = "CellAssign",
-  column_title_gp = grid::gpar(fontsize = 12),
-  column_names_side = "bottom",
-  column_names_gp = grid::gpar(fontsize = 10),
-  column_names_rot = 90,
-  ## Legend parameters
-  heatmap_legend_param = list(
-    title = "Jaccard index",
-    direction = "vertical",
-    legend_width = unit(1.5, "in")
-  ),
-  show_heatmap_legend = TRUE,
-)
-```
-
-As expected, it looks like CellAssign is assigning very few cells to tumor that overlap with the tumor cells annotated with marker gene analysis. 
-It looks like most tumor cells are being classified as normal with the marker gene analysis. 
-
-Let's look at the mean expression of marker genes between tumor and other cells as classified by `CellAssign`. 
-
-```{r}
-# get marker gene expression 
-marker_gene_exp <- logcounts(sce[filtered_markers, ]) |>
-  as.matrix() |>
-  t() |>
-  as.data.frame() |>
-  tibble::rownames_to_column("barcodes")
-
-marker_gene_exp_df <- celltype_df |> 
-  dplyr::left_join(marker_gene_exp, by = "barcodes") |> 
-  tidyr::pivot_longer(
-    cols = starts_with("ENSG"),
-    names_to = "ensembl_gene_id",
-    values_to = "gene_expression"
-  ) |> 
-  dplyr::group_by(barcodes) |> 
-  dplyr::mutate(mean_exp = mean(gene_expression))
-  
-
-ggplot(marker_gene_exp_df, aes(x = mean_exp, fill = filtered_cellassign_annotations)) +
-  geom_density() +
-  facet_grid(rows = vars(filtered_cellassign_annotations)) +
-  theme_bw()
-```
-
-Unlike what I would expect, the "other" cells appear to have higher expression of marker genes? 
-Maybe using `CellAssign` with only two options and a small set of marker genes doesn't work in the way we would expect. 
+Interestingly, `CellAssign` doesn't seem to like using such a limited list of marker genes and assigns all cells as "other". 
 
 ### Run CellAssign with tumor markers and all marker genes from Visser et al.
 
-Perhaps we need to add a few more cell types, rather than just have the two options. 
-Below we will use CellAssign but with all tumor marker genes and all marker genes in Visser et al. for non-tumor cells. 
+We can also test to see if classifying tumor cells works with adding a few more cell types, rather than just have the two options. 
+Below we will use `CellAssign` but with all tumor marker genes and all marker genes in Visser et al. for non-tumor cells. 
 
 ```{r}
 # build the reference matrix 
@@ -425,11 +417,9 @@ visser_predictions |>
                      annotation_row = annotation_df)
 ```
 
+Interestingly when we use this reference we actually see that most cells are classified as other, with some cells being classified into the different normal cell types. 
 
-Here we see that there are still only a few hundred tumor cells and most cells are endothelial cells. 
-Generally, I expect that there to be a large portion of tumor cells with much fewer cells from normal cell types. 
-
-Below we will look at which cells are assigned to which cell type and then compare assignments between CellAssign and manual marker gene assignment. 
+Below we will look at which cells are assigned to which cell type and then compare assignments between `CellAssign` and manual marker gene assignment. 
 
 ```{r}
 # first rename column to combine with cell type df 
@@ -479,7 +469,35 @@ ComplexHeatmap::Heatmap(
 ```
 
 Again, we don't see much overlap of cells that we are classifying as tumor manually to the tumor cells being classified by CellAssign. 
-We do see that the majority of the immune and mesenchymal-like cells fall into the "normal" category, but this isn't the case for endothelial cells. 
+We do see that the majority of the immune and mesenchymal-like cells fall into the "normal" category. 
+
+The one cell type that is identified here and in the `CellAssign` annotations with the reference from `scpca-nf` is Endothelial cells. 
+Let's compare the classifications of Endothelial cells between the two references. 
+
+```{r}
+# prep annotations for confusion matrix
+celltype_df <- celltype_df |> 
+  dplyr::mutate(
+    caret_visser_annotations = ifelse(
+      # make sure annotations match marker gene annotations
+      visser_cellassign_annotations == "endothelial cells", "Endothelial cells", "Other"
+    ),
+    caret_cellassign_annotations = ifelse(
+      cellassign_celltype_annotation == "Endothelial cells", "Endothelial cells", "Other"
+    ),  
+    # make tumor the positive class
+    caret_visser_annotations = forcats::fct_relevel(caret_visser_annotations, "Endothelial cells"),
+    caret_cellassign_annotations = forcats::fct_relevel(caret_cellassign_annotations, "Endothelial cells")
+  ) 
+
+caret::confusionMatrix(
+  table(
+    celltype_df$caret_cellassign_annotations, 
+    celltype_df$caret_visser_annotations)
+)
+```
+
+The good news is although tumor cells aren't getting classified, the same group of cells is getting classified as Endothelial cells, even with the smaller list of marker genes. 
 
 Below, we look at the individual expression of each marker genes in the cells. 
 These plots are grouped to show all marker genes for a given cell type in a single panel. 
@@ -545,7 +563,7 @@ celltypes |>
   })
 ```
 
-Interestingly, the endothelial and MSC like markers seem to be localized to a small group of cells, where as CellAssign assigns most cells to endothelial cells. 
+In comparing these UMAPs to the UMAP showing the cell type annotations with the Visser reference, it does appear that Endothelial cells are expressing the marker genes and that the MSC-like cells are expressing the expected marker genes. 
 
 Below we look at the expression of marker genes for each cell type across all cells identified to be each type by CellAssign. 
 We would expect to see expression of the marker genes for tumor cells to be higher in the cells that are identified to be tumor cells compared to other cell types. 
@@ -565,9 +583,7 @@ ggplot(grouped_celltype_df, aes(x = mean_exp, color = cell_type)) +
   )
 ```
 
-It looks like the only real difference between groups is that the endothelial cells have higher expression of the tumor markers then other cells? 
-However the tumor cells do not show increased expression of the tumor marker genes. 
-This really is not what I would expect... maybe we need a larger reference... 
+It looks like the "other" cells actually have high expression of the tumor marker genes and instead should be classified as tumor cells. 
 
 
 ### Run CellAssign with markers from PanglaoDB
@@ -644,10 +660,7 @@ panglao_predictions |>
                      annotation_row = annotation_df)
 ```
 
-
-This is definitely not what I expected... 
-It looks like most cells are categorized as "other" with a few categorized as tumor and only 1 endothlial cell. 
-I would have thought that at least some cells would be endothelial or fibroblast. 
+Although only 2 cells are classified as Fibroblasts, we do see a group of Endothelial cells and then tumor cells that line up with our manual annotations of tumor/normal. 
 
 ```{r}
 # first rename column to combine with cell type df 
@@ -664,20 +677,56 @@ ggplot(celltype_df, aes(x = UMAP1, UMAP2, color = panglao_cellassign_annotations
 
 ```
 
-Again, it looks like cells that were classified as normal are considered tumor here. 
-I think if we want to use `CellAssign`, we will need to spend more time carefully curating a marker gene list that includes all possible cell types for these samples. 
-Another alternative is to use the `CellAssign` annotations that we already have to help guide which cells may be tumor or normal. 
-For example, we expect that muscle cells will be tumor cells. 
+The UMAP tells me that we are classifying the same group of endothelial cells as we did in `scpca-nf` with `CellAssign` and that the tumor cells line up with the manual annotations of tumor cells (muscle cells in `CellAssign`).
+
+Let's directly compare these annotations to the `CellAssign` annotations obtained from `scpca-nf`. 
+
+```{r}
+# get jaccard similarity index 
+jaccard_mtx <- make_jaccard_matrix(celltype_df, "cellassign_celltype_annotation", "panglao_cellassign_annotations")
+
+ComplexHeatmap::Heatmap(
+  t(jaccard_mtx), # transpose because matrix rows are in common & we want a vertical arrangement
+  col = circlize::colorRamp2(c(0, 1), colors = c("white", "darkslateblue")),
+  border = TRUE,
+  ## Row parameters
+  cluster_rows = FALSE,
+  row_title = "Panglao + marker genes",
+  row_title_gp = grid::gpar(fontsize = 12),
+  row_title_side = "left",
+  row_names_side = "left",
+  row_dend_side = "right",
+  row_names_gp = grid::gpar(fontsize = 10),
+  ## Column parameters
+  cluster_columns = FALSE,
+  column_title = "scpca-nf CellAssign",
+  column_title_gp = grid::gpar(fontsize = 12),
+  column_names_side = "bottom",
+  column_names_gp = grid::gpar(fontsize = 10),
+  column_names_rot = 90,
+  ## Legend parameters
+  heatmap_legend_param = list(
+    title = "Jaccard index",
+    direction = "vertical",
+    legend_width = unit(1.5, "in")
+  ),
+  show_heatmap_legend = TRUE,
+)
+```
+
+It looks like combining some of the marker genes from PanglaoDB with marker genes does a good job of capturing the endothelial cells and tumor cells. 
+It doesn't capture the Fibroblasts, but instead classifies those as other.  
+
+If we want to combine annotation of both tumor cells and normal cells, we may consider using the full PanglaoDB marker gene references we have and adding tumor marker genes to that list. 
+However, this will be more computationally expensive since those references are quite large. 
 
 ## Conclusions 
 
-- Using `CellAssign` with the same list of marker genes doesn't identify any tumor cells. 
-- Using `CellAssign` with a restricted list of marker genes identfies tumor cells that have lower marker gene expression than other cells. 
-This is opposite of the assignment we obtained using manual annotation. 
-- Using `CellAssign` with an expanded list of marker genes from Visser et al., identifies all cell types, but the majority are endothelial cells. 
+- Using `CellAssign` with a list of tumor markers identifies tumor cells similar to manual annotations. 
+- Using `CellAssign` with a restricted list of marker genes doesn't identify any tumor cells. 
+- Using `CellAssign` with an expanded list of marker genes from Visser et al., identifies some normal cell types, but struggles to identify any tumor cells. 
 This doesn't match up with what's expected based on marker gene expression in the sample. 
-- Using `CellAssign` with the Panglao markers and tumor markers identifies mostly normal cells and very few tumor cells. 
-Again, the cells labeled as tumor cells are opposite of the manual annotation. 
+- Using `CellAssign` with the Panglao markers and tumor markers identifies endothelial cells and tumor cells similar to what we would expect.  
 
 ## Session Info
 
