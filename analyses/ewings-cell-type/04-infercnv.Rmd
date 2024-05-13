@@ -64,9 +64,12 @@ classifications_filename <- glue::glue("{params$library_id}_tumor_normal_classif
 classifications_file <- file.path(classifications_results_dir, classifications_filename)
 
 # output from running infercnv 
-infer_cnv_dir <- file.path(module_base, "results", "infercnv", "SCPCL000822")
+results_dir <- file.path(module_base, "results", "infercnv", params$library_id)
 
-# add code to read in both ref and no ref? 
+all_results_dir_list <- c(
+  no_ref = file.path(results_dir, "no_reference"),
+  with_ref = file.path(results_dir, "endothelial_reference")
+)
 ```
 
 ```{r}
@@ -79,14 +82,34 @@ manual_classifications_df <- readr::read_tsv(classifications_file)
 
 ## InferCNV Heatmap 
 
-Below is the heatmap produced by `InferCNV` showing the CNV's for each cell. 
+### Endothelial cells as reference 
+
+Below is the heatmap produced by `InferCNV` showing the CNV's for each cell using endothelial cells as a reference. 
 Each row is a cell and each column is a gene. 
 The top group contains all cells that were used as the reference group and the bottom is all other cells. 
 The color indicates the relative expression intensity of each gene with the darker colors either indicating a gain of expression or loss of expression compared to the reference cells. 
 
-![InferCNV Heatmap - Endothelial cells as reference](results/infercnv/SCPCL000822/infercnv.png)
+![InferCNV Heatmap - Endothelial cells as reference](`r file.path(all_results_dir_list["with_ref"], "infercnv.png")`)
+
 From this heatmap we see that there is a distinct group of cells within the bottom portion of the plot that appear to have a lot more CNVs than the rest of the cells. 
 It's probable that these correspond to the tumor cells, but `InferCNV` does not provide any classification of cells as tumor or normal, it just provides information on copy number variations. 
+
+### No reference
+
+Below is the heatmap produced by `InferCNV` showing the CNV's for each cell without using a reference. 
+
+From the [`InferCNV` documentation](https://github.com/broadinstitute/inferCNV/wiki/Running-InferCNV): 
+
+> Note, if you do not have reference cells, you can set ref_group_names=NULL, in which case the average signal across all cells will be used to define the baseline. This can work well when there are sufficient differences among the cells included (ie. they do not all show a chromosomal deletion at the same place).
+
+Given this information, I wouldn't expect the CNV inference to work well because we see that all cells that do have prominent CNVs have the same CNVs. 
+There is not a lot of variation. 
+
+![InferCNV Heatmap - No reference](`r file.path(all_results_dir_list["no_ref"], "infercnv.png")`)
+
+Looking at this we see a small group of cells that may have some variations, but they are different from the variations seen above. 
+I don't know that using this without a reference is the best call since it's unlikely that it will identify distinct groups of cells from tumors with quiet genomes with no baseline. 
+The rest of the analysis will use the results from running `InferCNV` with endothelial cells as the reference. 
 
 ## Using CNVs to annotate tumor cells 
 
@@ -103,6 +126,8 @@ To map the information about CNVs to individual cells, they recommend using the 
 So we will start by converting our processed SCE object to a Seurat object, incorporate the CNV information, and then add the CNV information to the SCE object. 
 
 ```{r}
+infer_cnv_dir <- all_results_dir_list["with_ref"]
+
 # first create a Seurat object from our SCE object
 seurat_obj <- scpcaTools::sce_to_seurat(sce)
 
@@ -135,7 +160,12 @@ If `has_cnv` is TRUE if either `has_loss` or `has_dupli` is TRUE.
 
 See [the comments in this issue](https://github.com/broadinstitute/infercnv/issues/208) explaining what the contents of the columns are. 
 
+One approach to classifying tumor cells is to look for cells that have a lot of CNVs. 
+Let's start by just summing up the total CNVs/cell and plotting that. 
+
+
 ```{r}
+# make df for plotting
 coldata_df <- sce |> 
   scuttle::makePerCellDF(use.dimred = "UMAP") |> 
   # replace UMAP.1 with UMAP1
@@ -143,14 +173,10 @@ coldata_df <- sce |>
         \(x) stringr::str_replace(x, "^UMAP\\.", "UMAP")
       )
 
-# remove MT and GL chr 
+# remove MT and GL chr, comments in docs recommend that these are not useful and can be inaccurate 
 chr_columns_to_keep <- which(!stringr::str_detect(names(coldata_df), "chrMT|chrGL000219.1"))
 cnv_df <- coldata_df[, chr_columns_to_keep]
 ```
-
-
-One approach to classifying tumor cells is to look for cells that have a lot of CNVs. 
-Let's start by just summing up the total CNVs/cell and plotting that. 
 
 
 ```{r}
@@ -239,7 +265,11 @@ ggplot(cnv_df, aes(x = scaled_mean_proportion, color = cnv_classification)) +
 Interestingly, the cells we labeled as tumor have a higher mean proportion value then those that we labeled as normal. 
 I'm not really sure which is "better" to use the mean proportion or just the detection of CNVs to call tumor cells. 
 
+For the rest of the notebook, we will use the classifications of tumor cells based on the sum of the total CNV occurrences. 
+
 ## Compare InferCNV annotations to manual annotations 
+
+Below we can compare these annotations from InferCNV to classifying tumor cells manually with marker genes. 
 
 ```{r}
 all_classifications_df <- cnv_df |> 
@@ -257,6 +287,10 @@ caret::confusionMatrix(
   )
 )
 ```
+
+This looks pretty consistent with what we see when we annotate cells manually. 
+
+We can also compare to the existing annotations obtained using `SingleR` and `CellAssign` as part of `scpca-nf`. 
 
 ```{r}
 celltype_columns <- c(
@@ -321,6 +355,8 @@ heatmap <- jaccard_matrices |>
   )
 ```
 
+This looks as we expect with mostly muscle cells lining up with tumor cells. 
+
 ## Check for known CNVs in Ewing's 
 
 There are a few known copy number variations in Ewing's sarcoma: 
@@ -332,6 +368,8 @@ There are a few known copy number variations in Ewing's sarcoma:
 
 Although these are the most frequent, there are patients who do not have any of these alterations and patients that only have some of these alterations. 
 See [Tirode et al.,](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4264969/) and [Crompton et al.](https://doi.org/10.1158/2159-8290.CD-13-1037). 
+
+Below we will plot whether or not the gain or loss is present in each cell according to `InferCNV`. 
 
 ```{r}
 # umaps showing where cells are with gains/losses 
@@ -360,6 +398,8 @@ From this we see that the group of tumor cells at the bottom have chr8 and chr1 
 It doesn't look like any cells have loss of chr16. 
 The other interesting thing is that there is a group of cells that have gains of chr8, chr1, and chr12 that we did not classify as tumor cells. Should they be... 
 
+We can also look at the proportion of the chromosome with the gain. 
+
 ```{r}
 ggplot(cnv_df, aes(x= UMAP1, y = UMAP2, color = proportion_scaled_dupli_chr8)) +
   geom_point(alpha = 0.5, size = 0.5) +
@@ -383,12 +423,16 @@ ggplot(cnv_df, aes(x= UMAP1, y = UMAP2, color = proportion_scaled_dupli_chr1)) +
 Now when we look at the proportion, we see that only the group of tumor cells on the bottom seem to have a higher proportion of genes in chr8 that have a gain in expression. 
 Based on the papers, we should see a gain in the whole chr8 and chr12, not just one arm or specific genes, so we expect a high value for the proportion. 
 We see this for chr8 but not in chr12. 
+However, when you look at the heatmap you see that most of Chr8 is included in the gain, but only a small part of Chr12 has a gain, so these plots are not surprising. 
 
-I think with the combination of marker gene expression and CNVs, the bottom group of cells represent the tumor cells. 
-
-## Do the same thing but without a reference set of cells? 
+I think with using the combination of marker gene expression and CNVs, the bottom group of cells represent the tumor cells. 
 
 ## Conclusions 
+
+- If we have a known group of normal cells, `InferCNV` can be helpful in identifying cells that could be tumor cells, e.g., cells that have a high number of CNVs. 
+- Using `InferCNV` without a group of normal cells does not seem feasible for this particular sample since all tumor cells appear to have the same set of CNVs with little variation. 
+- We can define tumor cells by setting a cutoff for the number of CNVs that must be present in a cell, but I'm not sure how transferrable this is to other samples. 
+- `InferCNV` can be helpful in looking at specific CNVs that are expected in a tumor type, something that is harder to look at in a tool like `CopyKAT`. 
 
 ## Session Info
 
