@@ -167,7 +167,7 @@ See [Tirode et al.,](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4264969/) and 
 
 `CopyKAT` outputs a matrix that contains the estimated copy numbers for each gene in each cell. 
 We can read that in and look at the mean estimated copy numbers for each chromosome across each cell. 
-We might expect that tumor cells would show an increased estimated copy number in Chr8, Chr12, and/or Chf 1 and a loss of Chr16. 
+We might expect that tumor cells would show an increased estimated copy number in Chr8, Chr12, and/or Chr 1 and a loss of Chr16. 
 
 ```{r}
 # for every cell, calculate the mean detection level across all genes in a given chromosome

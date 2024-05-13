@@ -41,7 +41,7 @@ option_list <- list(
   make_option(
     opt_str = c("--output_filename"),
     type = "character",
-    help = "filename to use for saved list of normal cells. Will be saved inside `--output_dir/library_id`.
+    help = "filename to use for saved list of normal cells. Will be saved inside `<output_dir>/library_id`.
       Must end in `.txt`"
   )
 )

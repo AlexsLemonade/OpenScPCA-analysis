@@ -5,7 +5,3 @@
 # Ignore the scratch directory (but keep it present)
 /scratch/*
 !/scratch/.gitkeep
-
-# Ignore html files 
-/*.html
-
