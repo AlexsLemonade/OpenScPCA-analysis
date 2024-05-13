@@ -1,5 +1,7 @@
-# Results directory instructions
+# Results directory
 
-Files in the results directory should not be directly committed to the repository.
+- `benchmark-times_{x}-cores.tsv` is created by `scripts/00_benchmark-methods.R`
+  - This file contains time (in seconds) benchmarks for each of four doublet detect methods as run on `{x}` cores across 4 processed samples per ScPCA project of varying library sizes
+  - Sample diagnoses and processed cell counts are also included
+    - Note that only `scDblFinder` uses parallel processing
 
-Instead, copy results files to an S3 bucket and add a link to the S3 location in this README file.
