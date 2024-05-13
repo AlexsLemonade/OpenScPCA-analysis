@@ -11,6 +11,10 @@ Tumor cells are classified using manual annotation based on marker gene expressi
 2. `02-cellassign-tumor-cell-classification.Rmd`: This notebook looks at using `CellAssign` to identify tumor cells using a variety of marker gene references.
 Annotations from `CellAssign` are als compared to manual annotations identified in `01-marker-gene-tumor-classification.Rmd`.
 
+3. `03-copykat.Rmd`: This notebook looks at using `CopyKAT` to annotate tumor and normal cells in SCPCS000490.
+`CopyKAT` is run using the `scripts/run-copykat.R` script and outputs are evaluated in this notebook.
+This includes comparing annotations to those obtained from marker gene annotation in `01-marker-gene-tumor-classification.Rmd`.
+
 ## Usage
 
 Please provide instructions on how to run the analysis module.
