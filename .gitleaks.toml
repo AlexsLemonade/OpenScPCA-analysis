@@ -1,0 +1,7 @@
+title = "gitleaks config for OpenScPCA"
+[extend]
+useDefault = true
+
+[allowlist]
+regexTarget = "line"
+regexes = ['''(?i)<img src="data:image\/.+;base64,.+?\s\/>''']
