@@ -1,0 +1,8 @@
+title = "gitleaks config for OpenScPCA"
+[extend]
+useDefault = true
+
+[allowlist]
+# skip base64 encoded images, which might have substrings that look like tokens
+regexTarget = "line"
+regexes = ['''(?i)<img src="data:image\/.+;base64,.+?".+\/>''']
