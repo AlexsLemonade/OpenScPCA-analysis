@@ -131,7 +131,10 @@ def get_download_size(
     total_size = 0
     for line in file_list.stdout.splitlines():
         size, file = line.split()[-2:]
-        if any(fnmatch.fnmatch(file, pattern) for pattern in include_patterns):
+        if any(
+            fnmatch.fnmatch(file, release + "/" + pattern)
+            for pattern in include_patterns
+        ):
             total_size += int(size)
     return total_size
 
@@ -280,7 +283,7 @@ def download_results(
     update_current: bool = True,
 ) -> None:
     """
-    Download results for a specific release of OpenScPCA.
+    Download workflow results for a specific release of OpenScPCA.
     """
 
     download_dir = data_dir / release / "results"
@@ -288,10 +291,10 @@ def download_results(
         raise ValueError("Projects and samples cannot be specified together.")
 
     patterns = [
-        f"*{m}/*{p}*" for m in modules for p in projects
+        f"{m}/*{p}*" for m in modules for p in projects
     ]  # will be empty if no projects specified
     patterns += [
-        f"*{m}/*{s}*" for m in modules for s in samples
+        f"{m}/*{s}*" for m in modules for s in samples
     ]  # will be empty if no samples specified
     if not patterns:
         patterns = [f"{m}/*" for m in modules]
