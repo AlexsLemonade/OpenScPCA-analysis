@@ -54,9 +54,6 @@ opt <- parse_args(OptionParser(option_list = option_list))
 # make sure path to sce file exists
 stopifnot("sce_file does not exist" = file.exists(opt$sce_file))
 
-# make sure output filename has the correct extension 
-stopifnot("output_filename must have .txt extension" = stringr::str_detect(opt$output_filename, ".txt$"))
-
 # read in sce file
 sce <- readr::read_rds(opt$sce_file)
 
