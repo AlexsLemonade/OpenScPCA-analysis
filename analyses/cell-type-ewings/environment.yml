@@ -1,4 +1,4 @@
-name: "openscpca-ewings-cell-type"
+name: "openscpca-cell-type-ewings"
 channels:
   - conda-forge
   - bioconda
