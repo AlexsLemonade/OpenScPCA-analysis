@@ -47,7 +47,7 @@ data_dir <- file.path(repository_base, "data", "current")
 sample_dir <- file.path(data_dir, "SCPCP000015", params$sample_id)
 
 # The path to this module
-module_base <- file.path(repository_base, "analyses", "ewings-cell-type")
+module_base <- file.path(repository_base, "analyses", "cell-type-ewings")
 ```
 
 
@@ -183,7 +183,8 @@ full_cnv_df <- full_ck_results_df |>
 
 # join with cnv info
 cnv_df <- cnv_df |> 
-  dplyr::left_join(full_cnv_df, by = c("barcodes", "reference_used"))
+  dplyr::left_join(full_cnv_df, by = c("barcodes", "reference_used")) |> 
+  dplyr::filter(!is.na(chrom))
 ```
 
 Let's look at the distribution of CNV estimation in cells that are called aneuploid and diploid by `CopyKAT`. 
