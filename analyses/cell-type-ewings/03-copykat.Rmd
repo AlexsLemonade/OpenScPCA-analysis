@@ -79,7 +79,7 @@ predictions_paths <- c(
 )
 
 # full results gene by cell 
-full_ck_result_file <- glue::glue("{params$library_id}_copykat_CNA_raw_results_gene_by_cell.txt")
+full_ck_result_file <- glue::glue("{params$library_id}_copykat_CNA_results.txt")
   
 full_ck_result_paths <- c(
   no_ref = file.path(results_dir, "no_normal", full_ck_result_file),
@@ -167,72 +167,41 @@ See [Tirode et al.,](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4264969/) and 
 
 `CopyKAT` outputs a matrix that contains the estimated copy numbers for each gene in each cell. 
 We can read that in and look at the mean estimated copy numbers for each chromosome across each cell. 
-We might expect that tumor cells would show an increased estimated copy number in Chr8, Chr12, and/or Chf 1 and a loss of Chr16. 
+We might expect that tumor cells would show an increased estimated copy number in Chr8, Chr12, and/or Chr 1 and a loss of Chr16. 
 
 ```{r}
 # for every cell, calculate the mean detection level across all genes in a given chromosome
 full_cnv_df <- full_ck_results_df |> 
   tidyr::pivot_longer(cols = -c(
     reference_used,
-    abspos, 
-    chromosome_name, 
-    start_position, 
-    end_position, 
-    ensembl_gene_id, 
-    hgnc_symbol, 
-    band),
+    chrom
+    ),
     names_to = "barcodes",
     values_to = "cnv_detection") |> 
-  dplyr::group_by(chromosome_name, barcodes, reference_used) |> 
+  dplyr::group_by(chrom, barcodes, reference_used) |> 
   dplyr::summarise(mean_cnv_detection = mean(cnv_detection)) 
 
-# filter to only have cnvs found in Ewings to keep things a bit smaller when joining
-ewings_chrs <- c(1, 8, 12, 16)
-
-ewings_cnv_df <- full_cnv_df |> 
-  dplyr::filter(chromosome_name %in% ewings_chrs)
-
-# join with 
+# join with cnv info
 cnv_df <- cnv_df |> 
-  dplyr::left_join(ewings_cnv_df, by = c("barcodes", "reference_used"))
+  dplyr::left_join(full_cnv_df, by = c("barcodes", "reference_used"))
 ```
 
-```{r}
-# create faceted UMAPs showing estimation of CNV detection across each chr of interest 
-ewings_chrs |> 
-  purrr::map(\(chr){
-    plot_df <- cnv_df |> 
-      dplyr::filter(chromosome_name == chr)
-    
-    ggplot(plot_df, aes(x = UMAP1, y = UMAP2, color = mean_cnv_detection)) +
-      geom_point(alpha = 0.5, size = 0.5) +
-      theme_bw() +
-      scale_color_viridis_c() +
-      facet_wrap(vars(reference_used)) + 
-      labs(title = glue::glue("chr{chr}"))
-  })
-```
-
-Looking at the UMAPs, I don't see any really obvious differences between CNV estimation and groups of cells. 
 Let's look at the distribution of CNV estimation in cells that are called aneuploid and diploid by `CopyKAT`. 
 
-```{r}
+```{r, fig.height=15, fig.width=10}
 # create faceted density plots showing estimation of CNV detection across each chr of interest 
 # colored by aneuploid/diploid estimation 
-ewings_chrs |> 
-  purrr::map(\(chr){
-    plot_df <- cnv_df |> 
-      dplyr::filter(chromosome_name == chr)
-    
-    ggplot(plot_df, aes(x = mean_cnv_detection, color = copykat.pred)) +
+ggplot(cnv_df, aes(x = mean_cnv_detection, color = copykat.pred)) +
       geom_density() +
       theme_bw() +
-      facet_wrap(vars(reference_used)) + 
-      labs(title = glue::glue("chr{chr}"))
-  })
+      facet_grid(rows = vars(chrom), 
+                 cols = vars(reference_used))
 ```
 
-It looks like there is a slight increase in chr8 and chr12 indicating maybe a copy number gain for those chromosomes in aneuploid cells, but nothing striking. 
+It looks like the largest increases are in chr8 and chr21. 
+Chr8 is one of the more common CNA's in Ewing's so this is a good sign. 
+
+Chr12 may show some increase, but Chr1 and Chr16 don't show any real differences. 
 
 ### Confusion Matrix
 

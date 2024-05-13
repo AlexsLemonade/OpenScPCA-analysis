@@ -15,7 +15,7 @@ python run-cellassign.py \
   --reference <path to marker gene reference>
 ```
 
-2. `identify-normal-cells.R`: This script is used to generate a list of normal cells to use as references for downstream copy number inference methods.
+2. `select-normal-cells.R`: This script is used to generate a list of normal cells to use as references for downstream copy number inference methods.
 Any files produced from this script are saved in `references/normal_cell_lists`.
 
 To create a list of cells use the `--singler_normal_cells` and/or  `--cellassign_normal_cells` arguments.
@@ -26,7 +26,7 @@ In addition to providing a list of cell types, you must also provide an input `S
 The following command specifies using cells annotated as endothelial cells in both `SingleR` and `CellAssign` as the normal reference:
 
 ```sh
-Rscript identify-normal-cells.R \
+Rscript select-normal-cells.R \
   --sce_file <path to processed sce file> \
   --singler_normal_cells "endothelial cell" \
   --cellassign_normal_cells "Endothelial cells" \
@@ -48,7 +48,7 @@ Rscript run-copykat.R \
 
 `CopyKAT` can also accept a vector of cells to use as the baseline reference for assigning cells as diploid or aneuploid.
 To provide a list of cell types to use as a baseline, provide a `.txt` file with the list of barcodes corresponding to normal cells using the `--normal_cells` argument.
-This file can be created by running `identify-normal-cells.R`.
+This file can be created by running `select-normal-cells.R`.
 
 The following command runs `CopyKAT` with an input list of cells to use as the normal cell reference:
 
