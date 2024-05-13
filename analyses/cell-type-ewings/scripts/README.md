@@ -76,7 +76,7 @@ The files output from running `InferCNV` are saved in `results/infercnv/{library
 
 To run `InferCNV`, an [annotations file](https://github.com/broadinstitute/inferCNV/wiki/File-Definitions#sample-annotation-file) containing all cell barcodes and associated annotations must be created.
 This file is created as part of this script and saved to the specified path using `--annotations_file`.
-If a list of normal cell barcodes are provided (output from `identify-normal-cells.R`), then all normal cells will be annotated as "reference" and all other cells will be denoted as "unknown".
+If a list of normal cell barcodes are provided (output from `select-normal-cells.R`), then all normal cells will be annotated as "reference" and all other cells will be denoted as "unknown".
 If no normal cells are provided, then all cells will be labeled as "unknown" and `InferCNV` will be run with `ref_group_names = NULL`.
 
 This script also requires a gene order file (created by `make-gene-order-file.R`).
