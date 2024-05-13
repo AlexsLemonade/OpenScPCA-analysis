@@ -28,26 +28,22 @@ option_list <- list(
       Columns are: Ensembl gene id, chr, start, stop."
   ),
   make_option(
-    opt_str = c("--singler_normal_cells"),
+    opt_str = c("--normal_cells"),
     type = "character",
     default = NULL,
-    help = "Comma separated list of normal cell types to pull from SingleR annotations to use as reference.
-      If both singler_normal_cells and cellassign_normal_cells are used,
-      the intersection of cells from both will be used as the normal reference."
+    help = "Optional file that contains a list of cell barcodes that correspond to normal cells and will be used as a reference"
   ),
   make_option(
-    opt_str = c("--cellassign_normal_cells"),
+    opt_str = c("--results_dir"),
     type = "character",
     default = NULL,
-    help = "Comma separated list of normal cell types to pull from CellAssign annotations to use as reference.
-      If both singler_normal_cells and cellassign_normal_cells are used,
-      the intersection of cells from both will be used as the normal reference."
+    help = "Folder within `--infercnv_results_prefix/library_id` to save infercnv results"
   ),
   make_option(
-    opt_str = c("--output_dir"),
+    opt_str = c("--infercnv_results_prefix"),
     type = "character",
     default = file.path(project_root, "results", "infercnv"),
-    help = "path to folder to save all output files"
+    help = "path to folder where all infercnv results live"
   ),
   make_option(
     opt_str = c("-t", "--threads"),
@@ -75,57 +71,35 @@ sce <- readr::read_rds(opt$sce_file)
 library_id <- metadata(sce)$library_id
 
 # create output directory if not already present for library id
-output_dir <- file.path(opt$output_dir, library_id)
+output_dir <- file.path(opt$infercnv_results_prefix, library_id, opt$results_dir)
 fs::dir_create(output_dir)
 
 # Define normal cells ----------------------------------------------------------
 
-# make sure normal cells are defined 
-if(is.null(opt$singler_normal_cells) && is.null(opt$cellassign_normal_cells)){
-  stop("Must provide at least one normal cell type to use with either --singler_normal_cells or --cellassign_normal_cells")
-}
-
-coldata_df <- colData(sce) |> 
-  as.data.frame()
-
-#  get list of singleR cell types
-if(!is.null(opt$singler_normal_cells)){
-  singler_normal_cells <- stringr::str_split(opt$singler_normal_cells, pattern = ",") |>
-    unlist()
-  if(!all(singler_normal_cells %in% unique(sce$singler_celltype_annotation))){
-    stop("--singler_normal_cells must be present in the singler_celltype_annotation column of the SCE object.")
-  }
+if(!is.null(opt$normal_cells)){
   
-  singler_cells <- coldata_df |>
-    dplyr::filter(singler_celltype_annotation %in% singler_normal_cells) |>
-    dplyr::pull(barcodes)
+  # make sure normal cells file exists 
+  stopifnot("normal_cells file does not exist" = file.exists(opt$normal_cells))
+  normal_cells <- readLines(opt$normal_cells)
+  
+  # check that all normal cells are in colnames of sce 
+  stopifnot("All barcodes in the normal_cells file are not found in the sce object" = 
+              all(normal_cells %in% colnames(sce)))
+  
+  # define reference 
+  ref_name <- "reference"
   
 } else {
-  singler_cells <- c()
+  # otherwise set normal cells to default 
+  normal_cells <- ""
+  # define reference 
+  ref_name <- NULL
 }
-
-# get list of CelllAssign cell types
-if(!is.null(opt$cellassign_normal_cells)){
-  cellassign_normal_cells <- stringr::str_split(opt$cellassign_normal_cells, pattern = ",") |>
-    unlist()
-  if(!all(cellassign_normal_cells %in% unique(sce$cellassign_celltype_annotation))){
-    stop("--cellassign_normal_cells must be present in the cellassign_celltype_annotation column of the SCE object.")
-  }
-  
-  cellassign_cells <- coldata_df |>
-    dplyr::filter(cellassign_celltype_annotation %in% cellassign_normal_cells) |>
-    dplyr::pull(barcodes)
-} else {
-  cellassign_cells <- c()
-}
-
-# create vector of cells that should be used as normal reference
-all_normal_cells <- intersect(singler_cells, cellassign_cells)
 
 # pull out normal cells and create annotations
 annotation_df <- coldata_df |> 
   dplyr::mutate(annotations = dplyr::if_else(
-    barcodes %in% all_normal_cells,
+    barcodes %in% normal_cells,
     "reference",
     "unknown"
   )) |> 
@@ -140,7 +114,7 @@ infercnv_obj <- infercnv::CreateInfercnvObject(raw_counts_matrix=counts(sce),
                                                annotations_file=opt$annotations_file,
                                                delim="\t",
                                                gene_order_file=opt$gene_order_file,
-                                               ref_group_names=c("reference"))
+                                               ref_group_names=ref_name)
 
 # run infercnv and report by cell rather than group 
 infercnv_obj <- infercnv::run(infercnv_obj,
@@ -148,20 +122,6 @@ infercnv_obj <- infercnv::run(infercnv_obj,
                               out_dir=output_dir, 
                               denoise=T,
                               HMM=T ,
-                              save_rds = FALSE # don't save the intermediate rds files 
-)
-
-infercnv_obj_no_ref <- infercnv::CreateInfercnvObject(raw_counts_matrix=counts(sce),
-                                                      annotations_file=opt$annotations_file,
-                                                      delim="\t",
-                                                      gene_order_file=opt$gene_order_file,
-                                                      ref_group_names=NULL)
-
-# run infercnv and report by cell rather than group 
-infercnv_obj_no_ref <- infercnv::run(infercnv_obj_no_ref,
-                                     cutoff=0.1,  # use 1 for smart-seq, 0.1 for 10x-genomics
-                                     out_dir=file.path(output_dir, "no_reference"), 
-                                     denoise=T,
-                                     HMM=T ,
-                                     save_rds = FALSE # don't save the intermediate rds files 
+                              save_rds = FALSE, # don't save the intermediate rds files 
+                              num_threads = opt$threads
 )
