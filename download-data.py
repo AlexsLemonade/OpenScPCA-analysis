@@ -32,8 +32,9 @@ def get_releases(bucket: str, profile: str) -> List[str]:
     ls_result = subprocess.run(ls_cmd, capture_output=True, text=True)
     if ls_result.returncode:
         print(
-            "Error listing release versions from the OpenScPCA release bucket.",
-            " Ensure you have the correct AWS permissions to access OpenScPCA data.",
+            "Error listing release versions from the OpenScPCA release bucket.\n",
+            "Ensure you have the correct AWS permissions to access OpenScPCA data.\n"
+            "Make sure you have the correct profile active (or use the --profile option), and run `aws sso login` before running this script.\n",
             file=sys.stderr,
         )
     ls_result.check_returncode()
