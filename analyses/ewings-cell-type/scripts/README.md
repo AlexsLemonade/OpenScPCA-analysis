@@ -60,6 +60,37 @@ Rscript run-copykat.R \
   --threads 4
 ```
 
+4. `make-gene-order-file.R`: This script is used to generate the [gene order file](https://github.com/broadinstitute/inferCNV/wiki/File-Definitions#gene-ordering-file) needed for running `InferCNV` with `run-infercnv.R`.
+This script downloads the GTF file used to create the original index used in `scpca-nf` (Ensembl v104) from the public bucket `s3://scpca-references`.
+This file is then converted to the required gene order formatted file for `InferCNV` and saved to `references/infercnv_refs`.
+
+To run this script use the following command:
+
+```sh
+Rscript make-gene-order-file.R
+```
+
+5. `run-infercnv.R`: This script is used to run [`InferCNV`](https://github.com/broadinstitute/inferCNV/wiki) on a processed `SingleCellExperiment` object.
+`InferCNV` is run with a gene cutoff of 0.1 and all other default settings.
+The files output from running `InferCNV` are saved in `results/infercnv/{library_id}/{infercnv_results_prefix}`, where `infercnv_results_prefix` is specified at the command line and `library_id` is taken from the `library_id` stored in the processed `SingleCellExperiment` object.
+
+To run `InferCNV`, an [annotations file](https://github.com/broadinstitute/inferCNV/wiki/File-Definitions#sample-annotation-file) containing all cell barcodes and associated annotations must be created.
+This file is created as part of this script and saved to the specified path using `--annotations_file`.
+If a list of normal cell barcodes are provided (output from `identify-normal-cells.R`), then all normal cells will be annotated as "reference" and all other cells will be denoted as "unknown".
+If no normal cells are provided, then all cells will be labeled as "unknown" and `InferCNV` will be run with `ref_group_names = NULL`.
+
+This script also requires a gene order file (created by `make-gene-order-file.R`).
+
+To run this script use the following command:
+
+```sh
+Rscript run-infercnv.Rmd \
+  --annotations_file <path to save annotations file> \
+  --normal_cells <path to file with list of normal cell barcodes> \
+  --results_dir <name of folder to save results> \
+  --threads 4
+```
+
 ## Utils
 
 The `utils` folder contains Rscripts with any helper functions that are used in `scripts` and notebooks for this module.
