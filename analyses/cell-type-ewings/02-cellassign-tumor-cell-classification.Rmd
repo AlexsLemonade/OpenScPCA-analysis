@@ -45,7 +45,7 @@ data_dir <- file.path(repository_base, "data", "current")
 sample_dir <- file.path(data_dir, "SCPCP000015", params$sample_id)
 
 # The path to this module
-module_base <- file.path(repository_base, "analyses", "ewings-cell-type")
+module_base <- file.path(repository_base, "analyses", "cell-type-ewings")
 ```
 
 
