@@ -71,6 +71,10 @@ all_results_dir_list <- c(
   with_ref = file.path(results_dir, "endothelial_reference")
 )
 
+# png ref files 
+png_files <- file.path(all_results_dir_list, glue::glue("{params$library_id}_infercnv.png")) |> 
+  purrr::set_names(names(all_results_dir_list))
+
 # with ref cnv metadata file 
 cnv_metadata_file <- file.path(results_dir, "endothelial_reference", glue::glue("{params$library_id}_cnv-metadata.tsv"))
 ```
@@ -95,7 +99,7 @@ Each row is a cell and each column is a gene.
 The top group contains all cells that were used as the reference group and the bottom is all other cells. 
 The color indicates the relative expression intensity of each gene with the darker colors either indicating a gain of expression or loss of expression compared to the reference cells. 
 
-![InferCNV Heatmap - Endothelial cells as reference](`r file.path(all_results_dir_list["with_ref"], "infercnv.png")`)
+![InferCNV Heatmap - Endothelial cells as reference](`r png_files["with_ref"]`)
 
 From this heatmap we see that there is a distinct group of cells within the bottom portion of the plot that appear to have a lot more CNVs than the rest of the cells. 
 It's probable that these correspond to the tumor cells, but `InferCNV` does not provide any classification of cells as tumor or normal, it just provides information on copy number variations. 
@@ -111,7 +115,7 @@ From the [`InferCNV` documentation](https://github.com/broadinstitute/inferCNV/w
 Given this information, I wouldn't expect the CNV inference to work well because we see that all cells that do have prominent CNVs have the same CNVs. 
 There is not a lot of variation. 
 
-![InferCNV Heatmap - No reference](`r file.path(all_results_dir_list["no_ref"], "infercnv.png")`)
+![InferCNV Heatmap - No reference](`r png_files["no_ref"]`)
 
 Looking at this we see a small group of cells that may have some variations, but they are different from the variations seen above. 
 I don't know that using this without a reference is the best call since it's unlikely that it will identify distinct groups of cells from tumors with quiet genomes with no baseline. 
