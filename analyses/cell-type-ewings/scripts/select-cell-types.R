@@ -33,14 +33,9 @@ option_list <- list(
     help = "Comma separated list of cell types to pull from annotations present and save as tumor cells."
   ),
   make_option(
-    opt_str = c("--output_dir"),
-    type = "character",
-    help = "path to folder to save output cell file"
-  ),
-  make_option(
     opt_str = c("--output_filename"),
     type = "character",
-    help = "filename to use for saved table of cell barcodes. Will be saved inside `<output_dir>`"
+    help = "Full path to file to store saved table of cell barcodes."
   )
 )
 
@@ -60,9 +55,8 @@ stopifnot("Either normal_cells or tumor_cells must be provided" =
 sce <- readr::read_rds(opt$sce_file)
 
 # create output directory if not already present
-fs::dir_create(opt$output_dir)
-output_cell_file <- file.path(opt$output_dir, opt$output_filename)
-
+output_dir <- dir(opt$output_filename)
+fs::dir_create(output_dir)
 
 # Create table of reference cells ----------------------------------------------
 
@@ -108,6 +102,6 @@ ref_table_df <- coldata_df |>
                      names_from = celltype_method)
 
 # export table of reference cells 
-readr::write_tsv(ref_table_df, output_cell_file)
+readr::write_tsv(ref_table_df, opt$output_filename)
 
 

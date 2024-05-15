@@ -15,7 +15,7 @@ The full list of marker genes can be found in `references/tumor-marker-genes.tsv
 ## Usage
 
 To annotate tumor and normal cells in the Ewing's sarcoma samples from SCPCP000015, run the `annotate-tumor-cells-workflow.sh` workflow.
-This workflow requires the following arguments:
+This workflow requires a TSV file with one row per library to annotate and the following columns:
 
 - `sample_id`: Unique sample ID.
 The `sample_id` corresponds to the folder name containing data files for that sample after using `download-data.py`.
@@ -28,14 +28,13 @@ Any cell types used here will be used for comparing to tumor cells annotated in 
 To identify the cell type annotations to specify as input for `normal_celltypes` and `tumor_celltypes`, use the plots found in `<library_id>_celltype-report.html`.
 These can be downloaded using the `--include_reports` option in `download-data.py`.
 
+Running the workflow with the default arguments will use the `sample_metadata.tsv` file in the root directory of this module.
+
 Example of running the workflow:
 
 ```sh
 ./annotate-tumor-cells-workflow.sh \
-  --sample_id "SCPCS000490" \
-  --library_id "SCPCL000822" \
-  --normal_celltypes "Endothelial cells,endothelial cell" \
-  --tumor_celltypes "Pulmonary vascular smooth muscle cells,smooth muscle cell"
+  --sample_metadata "sample_metadata.tsv"
 ```
 
 ## Input files
