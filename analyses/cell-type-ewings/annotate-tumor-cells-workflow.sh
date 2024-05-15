@@ -1,5 +1,42 @@
 #!/usr/bin/env bash
 
+####
+: '
+This workflow will identify tumor cells in a single library.
+Tumor cell annotations are obtained by:
+
+- manually identifying cells that express marker genes
+- Running CellAssign with a list of tumor marker genes
+- Running CopyKAT to identify aneuploid cells
+
+Before running this workflow, you must download both the processed `SingleCellExperiment` objects and `AnnData` objects with `download-data.py`.
+Do this for any samples you would like to run through this workflow.
+
+To run the workflow on an individual sample provide the following arguments:
+
+sample_id: Unique sample ID (name of folder containing libray data)
+library_id: Unique library ID (prefix of data files)
+normal_celltypes: Comma separated list of cell types annotated with either `SingleR` or `CellAssign` to use as a reference list of normal cells.
+tumor_celltypes: Comma separated list of cell typs annotated with either `SingleR` or `CellAssign` that are expected to align with tumor cells.
+Any cell types used here will be used for comparing to tumor cells annotated in this workflow.
+
+Optionally, you can include the `data_dir` column. Use this if you want to use a different release other than `current` after downloading data.
+
+A set of reports summarizing the tumor cell annotations and a TSV file containing annotations from all used methods will be saved to the `results_dir`.
+The default `results_dir` is `results/annotate_tumor_cells_output/<sample_id>`.
+
+Example of running the workflow:
+
+./annotate-tumor-cells-workflow.sh \
+  --sample_id "SCPCS000490" \
+  --library_id "SCPCL000822" \
+  --normal_celltypes "Endothelial cells,endothelial cell" \
+  --tumor_celltypes "Pulmonary vascular smooth muscle cells,smooth muscle cell"
+
+'
+
+####
+
 set -euo pipefail
 
 # this script lives in the root of the module directory
