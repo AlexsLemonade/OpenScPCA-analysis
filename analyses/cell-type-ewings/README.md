@@ -75,6 +75,7 @@ annotat_tumor_cells_output
 Additionally, for each library a reference TSV will be generated containing a table of cell types from `SingleR` and `CellAssign` that are expected to line up with tumor and normal cells.
 This table will be saved in `references/cell_lists/<sample_id>/<library_id>_reference-cells.tsv` and contains the following columns:
 
+|  |   |
 | -------- | -------- |
 | `barcodes` | Cell barcode |
 | `reference_cell_class` | Indicates if the cell should be uses as a Normal or Tumor cell reference |
