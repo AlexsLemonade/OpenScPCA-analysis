@@ -42,7 +42,7 @@ data_dir <- file.path(repository_base, "data", "current")
 sample_dir <- file.path(data_dir, "SCPCP000015", params$sample_id)
 
 # The path to this module
-module_base <- file.path(repository_base, "analyses", "ewings-cell-type")
+module_base <- file.path(repository_base, "analyses", "cell-type-ewings")
 ```
 
 
@@ -70,11 +70,17 @@ all_results_dir_list <- c(
   no_ref = file.path(results_dir, "no_reference"),
   with_ref = file.path(results_dir, "endothelial_reference")
 )
+
+# with ref cnv metadata file 
+cnv_metadata_file <- file.path(results_dir, "endothelial_reference", glue::glue("{params$library_id}_cnv-metadata.tsv"))
 ```
 
 ```{r}
 # read in sce object
 sce <- readr::read_rds(sce_file)
+
+# read in cnv metadata 
+cnv_metadata_df <- readr::read_tsv(cnv_metadata_file)
 
 # read in tumor normal classifications 
 manual_classifications_df <- readr::read_tsv(classifications_file)
@@ -120,27 +126,22 @@ From the [`InferCNV` documentation](https://github.com/broadinstitute/inferCNV/w
 
 > CNV regions with mean posterior probabilities of being normal (no CNV) that are above a maximum threshold are removed as likely false positive predictions.
 
-The predictions information lies in a few files that live in the output directory. 
-We want to know which cells had CNVs and how many CNVs were found. 
-To map the information about CNVs to individual cells, they recommend using the `infercnv::add_to_seurat()` function which takes the output directory from running `InferCNV` and reads in all necessary files and adds the per cell CNV information to the `meta.data`. 
-So we will start by converting our processed SCE object to a Seurat object, incorporate the CNV information, and then add the CNV information to the SCE object. 
+Before we can make any plots we need to add some metadata that contains CNV information on a per cell level to the cell metadata.
 
 ```{r}
-infer_cnv_dir <- all_results_dir_list["with_ref"]
+# make df for plotting
+coldata_df <- sce |> 
+  scuttle::makePerCellDF(use.dimred = "UMAP") |> 
+  # replace UMAP.1 with UMAP1
+  dplyr::rename_with(
+        \(x) stringr::str_replace(x, "^UMAP\\.", "UMAP")
+      ) |> 
+  # add in per cell cnv information 
+  dplyr::left_join(cnv_metadata_df, by = c("barcodes"))
 
-# first create a Seurat object from our SCE object
-seurat_obj <- scpcaTools::sce_to_seurat(sce)
-
-# add in the CNV information 
-# this adds new columns to the meta.data indicating presence of CNVs for each chromosome
-seurat_obj <- infercnv::add_to_seurat(seurat_obj = seurat_obj,
-                                      infercnv_output_path = infer_cnv_dir)
-
-# grab metadata from Seurat and add back to SCE 
-seurat_metadata <- seurat_obj@meta.data |> 
-  dplyr::select(-c(orig.ident, nCount_RNA, nFeature_RNA))
-
-colData(sce) <- DataFrame(seurat_metadata, row.names = seurat_metadata$barcodes)
+# remove MT and GL chr, comments in docs recommend that these are not useful and can be inaccurate 
+chr_columns_to_keep <- which(!stringr::str_detect(names(coldata_df), "chrMT|chrGL000219.1"))
+cnv_df <- coldata_df[, chr_columns_to_keep]
 ```
 
 The metadata that we added includes the following columns for each chromosome: 
@@ -162,21 +163,6 @@ See [the comments in this issue](https://github.com/broadinstitute/infercnv/issu
 
 One approach to classifying tumor cells is to look for cells that have a lot of CNVs. 
 Let's start by just summing up the total CNVs/cell and plotting that. 
-
-
-```{r}
-# make df for plotting
-coldata_df <- sce |> 
-  scuttle::makePerCellDF(use.dimred = "UMAP") |> 
-  # replace UMAP.1 with UMAP1
-  dplyr::rename_with(
-        \(x) stringr::str_replace(x, "^UMAP\\.", "UMAP")
-      )
-
-# remove MT and GL chr, comments in docs recommend that these are not useful and can be inaccurate 
-chr_columns_to_keep <- which(!stringr::str_detect(names(coldata_df), "chrMT|chrGL000219.1"))
-cnv_df <- coldata_df[, chr_columns_to_keep]
-```
 
 
 ```{r}
