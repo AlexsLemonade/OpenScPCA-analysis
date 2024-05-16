@@ -80,7 +80,7 @@ marker_genes <- file.path(module_base, "references", "tumor-marker-genes.tsv")
 # output tumor/normal classifications
 fs::dir_create(params$results_dir)
 
-classifications_filename <- glue::glue("{params$library_id}_tumor_normal_classifications.tsv")
+classifications_filename <- glue::glue("{params$library_id}_tumor-normal-classifications.tsv")
 output_classifications_file <- file.path(params$results_dir, classifications_filename)
 ```
 
@@ -313,7 +313,7 @@ ggplot(marker_plot_df, aes(x = sum_classification, fill = gene_expresed)) +
 
 Looking at this might help give us an idea of genes that are specifically expressed in only tumor cells. 
 
-### Compare with SingleR and CellAssign classifictions 
+### Compare with SingleR and CellAssign classifications 
 
 The last thing we will do here is compare the manual annotations with the annotations from `SingleR` and `CellAssign`. 
 

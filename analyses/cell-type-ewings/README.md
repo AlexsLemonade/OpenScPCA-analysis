@@ -12,29 +12,37 @@ The full list of marker genes can be found in `references/tumor-marker-genes.tsv
 - Use the list of tumor marker genes to classify tumor cells with [`CellAssign`](https://docs.scvi-tools.org/en/stable/user_guide/models/cellassign.html).
 - Identify copy number variations and annotate tumor cells using [`CopyKAT`](https://github.com/navinlabcode/copykat).
 
+## Sample metadata
+
+The `sample-metadata.tsv` file is a TSV file containing information about the samples that have been processed through the workflows or analysis in this module.
+Each row represents a unique sample and library combination.
+The following columns are present in this file:
+
+|  |   |
+| --- | ---- |
+|`sample_id`| Unique sample ID. The `sample_id` corresponds to the folder name containing data files for that sample after using `download-data.py`. |
+| `library_id` | Unique library ID. The `library_id` will match the prefix of all data files (`.rds` and `.h5ad`) downloaded using `download-data.py`. |
+| `normal_celltypes`| A comma separated list of cell types annotated with either `SingleR` or `CellAssign` used to create a reference list of normal cells |
+| `tumor_celltypes`| A comma separated list of cell typs annotated with either `SingleR` or `CellAssign` that are expected to align with tumor cells. |
+
+**Note:** To identify the cell type annotations to use for `normal_celltypes` and `tumor_celltypes`, reference the plots found in `<library_id>_celltype-report.html`.
+These can be downloaded using the `--include_reports` option in `download-data.py`.
+
 ## Usage
 
 To annotate tumor and normal cells in the Ewing's sarcoma samples from SCPCP000015, run the `annotate-tumor-cells-workflow.sh` workflow.
-This workflow requires a TSV file with one row per library to annotate and the following columns:
+The following arguments are optional and can be used to run this workflow on additional samples (default sample is `SCPCS000490`):
 
-- `sample_id`: Unique sample ID.
-The `sample_id` corresponds to the folder name containing data files for that sample after using `download-data.py`.
-- `library_id`: Unique library ID.
-The `library_id` will match the prefix of all data files (`.rds` and `.h5ad`) downloaded using `download-data.py`.
-- `normal_celltypes`: A comma separated list of cell types annotated with either `SingleR` or `CellAssign` to use as a reference list of normal cells.
-- `tumor_celltypes`: A comma separated list of cell typs annotated with either `SingleR` or `CellAssign` that are expected to align with tumor cells.
+- `sample_id`: Unique sample ID (name of folder containing libray data)
+- `normal_celltypes`: Comma separated list of cell types annotated with either `SingleR` or `CellAssign` to use as a reference list of normal cells. This should correspond to the value found in `sample-metadata.tsv` for this sample.
+- `tumor_celltypes`: Comma separated list of cell typs annotated with either `SingleR` or `CellAssign` that are expected to align with tumor cells.
 Any cell types used here will be used for comparing to tumor cells annotated in this workflow.
+This should correspond to the value found in `sample-metadata.tsv` for this sample.
 
-To identify the cell type annotations to specify as input for `normal_celltypes` and `tumor_celltypes`, use the plots found in `<library_id>_celltype-report.html`.
-These can be downloaded using the `--include_reports` option in `download-data.py`.
-
-Running the workflow with the default arguments will use the `sample_metadata.tsv` file in the root directory of this module.
-
-Example of running the workflow:
+Example of running the workflow with a different sample:
 
 ```sh
-./annotate-tumor-cells-workflow.sh \
-  --sample_metadata "sample_metadata.tsv"
+sample_id="SCPCS000491" ./annotate-tumor-cells-workflow.sh
 ```
 
 ## Input files
@@ -50,8 +58,8 @@ These files were obtained using the `download-data.py` script:
 ```
 This module also requires the following reference files:
 
-- `references/tumor_marker_genes.tsv` which contains a list of marker genes for identifying Ewing sarcoma tumor cells.
-- `references/all-marker-genes.tsv` which contains a list of marker genes for identifying both normal and Ewing sarcoma tumor cells as described in [Visser, Beligs, _et al._ (2023)](https://doi.org/10.1158/2767-9764.CRC-23-0027).
+- `references/tumor-marker-genes.tsv`: This file contains a list of marker genes for identifying Ewing sarcoma tumor cells.
+- `references/all-marker-genes.tsv`: This file contains a list of marker genes for identifying both normal and Ewing sarcoma tumor cells as described in [Visser, Beligs, _et al._ (2023)](https://doi.org/10.1158/2767-9764.CRC-23-0027).
 
 ## Output files
 
@@ -63,15 +71,16 @@ Running the `annotate-tumor-cells-workflow.sh` will generate the following outpu
 annotat_tumor_cells_output
 └── sample_id
     ├── <library_id>_marker-gene-report.html
-    └── <library_id>_tumor_normal_classifications.tsv
+    └── <library_id>_tumor-normal-classifications.tsv
 ```
 
 - `<library_id>_marker-gene-report.html`: A rendered report summarizing use of marker genes to classify tumor cells.
-- `<library_id>_tumor_normal_classifications.tsv`: A TSV file containing all barcodes for that library and the final annotation obtained from marker gene classification as either `Tumor` or `Normal`.
+- `<library_id>_tumor-normal-classifications.tsv`: A TSV file containing all barcodes for that library and the final annotation obtained from marker gene classification as either `Tumor` or `Normal`.
 
 ### Reference files
 
-Additionally, for each library a reference TSV will be generated containing a table of cell types from `SingleR` and `CellAssign` that are expected to line up with tumor and normal cells.
+Additionally, a reference TSV will be generated for each library containing a table of cell types from `SingleR` and `CellAssign`.
+This file contains any cell barcodes expected to line up with tumor or normal cell types specified with the `normal_celltypes` and `tumor_celltypes` arguments when running `annotate-tumor-cells-workflow.sh`.
 This table will be saved in `references/cell_lists/<sample_id>/<library_id>_reference-cells.tsv` and contains the following columns:
 
 |  |   |

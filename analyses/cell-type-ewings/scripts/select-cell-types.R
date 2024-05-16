@@ -56,10 +56,6 @@ stopifnot(
 # read in sce file
 sce <- readr::read_rds(opt$sce_file)
 
-# create output directory if not already present
-output_dir <- dir(opt$output_filename)
-fs::dir_create(output_dir)
-
 # Create table of reference cells ----------------------------------------------
 
 # possible annotation columns 

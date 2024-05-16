@@ -12,26 +12,18 @@ Tumor cell annotations are obtained by:
 Before running this workflow, you must download both the processed `SingleCellExperiment` objects and `AnnData` objects with `download-data.py`.
 Do this for any samples you would like to run through this workflow.
 
-Then create a tsv file with the following columns for each sample that you would like to run through the worfklow:
+The following arguments are optional and can be used to run this workflow on additional samples (Default sample is "SCPCS000490"):
 
 sample_id: Unique sample ID (name of folder containing libray data)
-library_id: Unique library ID (prefix of data files)
 normal_celltypes: Comma separated list of cell types annotated with either `SingleR` or `CellAssign` to use as a reference list of normal cells.
 tumor_celltypes: Comma separated list of cell typs annotated with either `SingleR` or `CellAssign` that are expected to align with tumor cells.
 Any cell types used here will be used for comparing to tumor cells annotated in this workflow.
-If you do not wish to provide any tumor cell types, leave blank.
 
-The path to this file should be provided when running the workflow using the --sample_metadata argument.
+A set of reports summarizing the tumor cell annotations and a TSV file containing annotations from all used methods will be saved to `results/annotate_tumor_cells_output`.
 
-Optionally, you can include the `data_dir` argument. Use this if you want to use a different release other than `current` after downloading data.
+Example of running the workflow with a different sample:
 
-A set of reports summarizing the tumor cell annotations and a TSV file containing annotations from all used methods will be saved to the `results_dir`.
-The default `results_dir` is `results/annotate_tumor_cells_output`.
-
-Example of running the workflow:
-
-./annotate-tumor-cells-workflow.sh \
-  --sample_metadata "sample_metadata.tsv"
+sample_id="SCPCS000491" ./annotate-tumor-cells-workflow.sh
 
 '
 ####
@@ -67,6 +59,7 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
 
     # define output directory for ref file
     cell_lists_dir="$ref_dir/cell_lists/$sample_id"
+    mkdir -p $cell_lists_dir
     # define output reference file
     reference_cell_file="$cell_lists_dir/${library_id}_reference-cells.tsv"
 
