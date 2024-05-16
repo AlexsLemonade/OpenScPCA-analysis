@@ -23,7 +23,7 @@ option_list <- list(
   make_option(
     opt_str = c("--normal_cells"),
     type = "character",
-    default = NULL,
+    default = "",
     help = "Comma separated list of cell types to pull from annotations present and save as normal cells."
   ),
   make_option(
@@ -44,12 +44,14 @@ opt <- parse_args(OptionParser(option_list = option_list))
 
 # Set up -----------------------------------------------------------------------
 
-# make sure path to sce file exists
-stopifnot("sce_file does not exist" = file.exists(opt$sce_file))
+stopifnot(
+  # make sure path to sce file exists
+  "sce_file does not exist" = file.exists(opt$sce_file)),
 
-# check that either normal or tumor cell types are provided 
-stopifnot("Either normal_cells or tumor_cells must be provided" = 
-            !is.null(opt$normal_cells) || !is.null(opt$tumor_cells))
+  # check that either normal or tumor cell types are provided 
+  "Either normal_cells or tumor_cells must be provided" = 
+    !is.null(opt$normal_cells) || !is.null(opt$tumor_cells)
+)       
 
 # read in sce file
 sce <- readr::read_rds(opt$sce_file)
@@ -76,8 +78,7 @@ coldata_df <- colData(sce) |>
 
 # get list of normal and tumor cell types to save as refernences 
 if(!is.null(opt$normal_cells)){
-  normal_cell_types <- stringr::str_split(opt$normal_cells, pattern = ",") |>
-    unlist()
+  normal_cell_types <- stringr::str_split_1(opt$normal_cells, pattern = ",")
 } else {
   normal_cell_types <- ""
 }
@@ -93,10 +94,11 @@ if(!is.null(opt$tumor_cells)){
 ref_table_df <- coldata_df |> 
   dplyr::mutate(reference_cell_class = dplyr::case_when(
     celltype %in% normal_cell_types ~ "Normal",
-    celltype %in% tumor_cell_types ~ "Tumor"
+    celltype %in% tumor_cell_types ~ "Tumor",
+    .default = "NA"
   )) |> 
   # remove any that weren't tumor or normal 
-  dplyr::filter(!is.na(reference_cell_class)) |> 
+  dplyr::filter(reference_cell_class != "NA") |> 
   # get one row per barcode and one column for each annotation type 
   tidyr::pivot_wider(values_from = celltype,
                      names_from = celltype_method)
