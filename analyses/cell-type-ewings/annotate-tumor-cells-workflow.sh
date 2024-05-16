@@ -31,45 +31,39 @@ The default `results_dir` is `results/annotate_tumor_cells_output`.
 Example of running the workflow:
 
 ./annotate-tumor-cells-workflow.sh \
-  --sample_metadata sample_metadata.tsv
+  --sample_metadata "sample_metadata.tsv"
 
 '
 ####
 
 set -euo pipefail
 
+# input variables
+sample_id=${sample_id:-"SCPCS000490"}
+normal_celltypes=${normal_celltypes:-"Endothelial cells,endothelial cell"}
+tumor_celltypes=${tumor_celltypes:-"Pulmonary vascular smooth muscle cells,smooth muscle cell"}
+
 # this script lives in the root of the module directory
 # use this to define other default paths
 cd $(dirname "$0")
 module_directory=$(pwd)
 
-# build paths to directories for input/output
-workflow_results_dir="$module_directory/results/annotate_tumor_cells_output"
-sample_metadata="$module_directory/sample_metadata.tsv"
+# path to input data folder
+data_dir="../../data/current/SCPCP000015"
 
-# define paths to store ref and grab data
-ref_dir="$module_directory/references"
-data_dir="$module_directory/../../data/current/SCPCP000015"
-
-# grab variables from command line
-while [ $# -gt 0 ]; do
-    if [[ $1 == *'--'* ]]; then
-        v="${1/--/}"
-        declare $v="$2"
-    fi
-    shift
-done
+# results and refs
+ref_dir="${module_directory}/references"
+workflow_results_dir="${module_directory}/results/annotate_tumor_cells_output"
 
 # define paths to notebooks and scripts run in the workflow
-notebook_dir="$module_directory/template_notebooks"
-scripts_dir="$module_directory/scripts"
+notebook_dir="template_notebooks"
+scripts_dir="scripts"
 
-# Run the workflow for each sample in the sample metadata file
-# be sure to skip the header
-sed 1d $sample_metadata | while read -r sample_id library_id normal_celltypes tumor_celltypes
-do
+# Run the workflow for each library in the sample directory
+for sce in $data_dir/$sample_id/*_processed.rds; do
 
-    echo $sample_id
+    # define library ID
+    library_id=$(basename $sce | sed 's/_processed.rds$//')
 
     # define output directory for ref file
     cell_lists_dir="$ref_dir/cell_lists/$sample_id"
@@ -80,9 +74,10 @@ do
     sample_results_dir="${workflow_results_dir}/${sample_id}"
 
     # Create table with reference cell types
+    echo "Starting workflow for $sample_id, $library_id"
     echo "Saving cell references..."
     Rscript $scripts_dir/select-cell-types.R \
-      --sce_file "$data_dir/$sample_id/${library_id}_processed.rds" \
+      --sce_file "$sce" \
       --normal_cells "${normal_celltypes}" \
       --tumor_cells "${tumor_celltypes}" \
       --output_filename "${reference_cell_file}"
@@ -99,5 +94,4 @@ do
                         reference_cell_file = '$reference_cell_file'), \
           envir = new.env()) \
     "
-    echo "Done"
 done

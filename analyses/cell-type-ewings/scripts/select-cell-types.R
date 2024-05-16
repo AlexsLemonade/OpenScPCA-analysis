@@ -50,7 +50,7 @@ stopifnot(
 
   # check that either normal or tumor cell types are provided 
   "Either normal_cells or tumor_cells must be provided" = 
-    opt$normal_cells == "" || opt$tumor_cells == ""
+    opt$normal_cells != "" || opt$tumor_cells != ""
 )       
 
 # read in sce file
@@ -79,7 +79,7 @@ coldata_df <- colData(sce) |>
 # get list of normal and tumor cell types to save as refernences 
 normal_cell_types <- stringr::str_split_1(opt$normal_cells, pattern = ",")
 
-tumor_cell_types <- stringr::str_split(opt$tumor_cells, pattern = ",")
+tumor_cell_types <- stringr::str_split_1(opt$tumor_cells, pattern = ",")
 
 # label cells as either tumor or normal based on which cell type was annotated 
 ref_table_df <- coldata_df |> 
