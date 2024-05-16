@@ -31,13 +31,16 @@ def get_results_modules(bucket: str, release: str, profile: str) -> List[str]:
     if bucket == TEST_BUCKET:
         ls_cmd += ["--no-sign-request"]
     ls_result = subprocess.run(ls_cmd, capture_output=True, text=True)
-    if ls_result.returncode:
+    if ls_result.returncode:  # authentication errors, usually
         print(
-            "Error listing results modules from the OpenScPCA results bucket.",
-            " Ensure you have the correct AWS permissions to access OpenScPCA data.",
+            "Error listing release versions from the OpenScPCA bucket.\n\n"
+            "Make sure you have the correct profile active (or use the --profile option)"
+            " and run `aws sso login` before running this script.\n\n"
+            "AWS Error: ",
+            ls_result.stderr,  # print the AWS error text too
             file=sys.stderr,
         )
-    ls_result.check_returncode()
+        sys.exit(ls_result.returncode)
 
     # get only prefixes and remove the trailing slash
     module_re = re.compile(r"PRE\s+([\S]+)/")
@@ -277,11 +280,20 @@ def main() -> None:
         return
 
     # check that the requested modules are available
-    modules = set(args.module_results.split(","))
-    if not modules.issubset(all_modules):
+    modules = {p.strip() for p in args.projects.split(",")} if args.projects else set()
+    if not (modules and modules.issubset(all_modules)):
+        if args.modules:
+            print(
+                f"One or more requested modules are not available for release {release}.",
+                file=sys.stderr,
+            )
+        else:
+            print(
+                "At least one results module must be specified with --modules.",
+                file=sys.stderr,
+            )
         print(
-            f"One or more requested modules are not available for release {release}.",
-            "Available modules are:\n",
+            "\nAvailable modules are:",
             "\n".join(all_modules),
             sep="\n",
             file=sys.stderr,

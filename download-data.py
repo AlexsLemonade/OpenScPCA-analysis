@@ -29,14 +29,16 @@ def get_releases(bucket: str, profile: str) -> List[str]:
     if bucket == TEST_BUCKET:
         ls_cmd += ["--no-sign-request"]
     ls_result = subprocess.run(ls_cmd, capture_output=True, text=True)
-    if ls_result.returncode:
+    if ls_result.returncode:  # authentication errors, usually
         print(
-            "Error listing release versions from the OpenScPCA bucket.\n",
-            "Ensure you have the correct AWS permissions to access OpenScPCA data.\n"
-            "Make sure you have the correct profile active (or use the --profile option), and run `aws sso login` before running this script.\n",
+            "Error listing release versions from the OpenScPCA bucket.\n\n"
+            "Make sure you have the correct profile active (or use the --profile option)"
+            " and run `aws sso login` before running this script.\n\n"
+            "AWS Error: ",
+            ls_result.stderr,  # print the AWS error text too
             file=sys.stderr,
         )
-    ls_result.check_returncode()
+        sys.exit(ls_result.returncode)
 
     # get only date-based versions and remove the trailing slash
     date_re = re.compile(r"PRE\s+(20\d{2}-[01]\d-[0123]\d)/$")
