@@ -12,7 +12,7 @@ Methods used in this module include the following:
 
 ## Usage
 
-- `script/00_benchmark-methods.R` runs four methods for doublet detection across a selection of ScPCA datasets of varying library sizes across all projects.
+- `script/00_benchmark-methods.R` runs four methods for doublet detection across a selection of (non-multiplexed) ScPCA datasets of varying library sizes across all projects.
   - This script takes a single argument, `--cores`, specifying the number of cores to use when running `scDblFinder`.
 
 ## Input files
