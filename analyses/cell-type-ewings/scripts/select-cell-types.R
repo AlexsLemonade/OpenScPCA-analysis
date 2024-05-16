@@ -29,7 +29,7 @@ option_list <- list(
   make_option(
     opt_str = c("--tumor_cells"),
     type = "character",
-    default = NULL,
+    default = "",
     help = "Comma separated list of cell types to pull from annotations present and save as tumor cells."
   ),
   make_option(
@@ -46,11 +46,11 @@ opt <- parse_args(OptionParser(option_list = option_list))
 
 stopifnot(
   # make sure path to sce file exists
-  "sce_file does not exist" = file.exists(opt$sce_file)),
+  "sce_file does not exist" = file.exists(opt$sce_file),
 
   # check that either normal or tumor cell types are provided 
   "Either normal_cells or tumor_cells must be provided" = 
-    !is.null(opt$normal_cells) || !is.null(opt$tumor_cells)
+    opt$normal_cells == "" || opt$tumor_cells == ""
 )       
 
 # read in sce file
@@ -77,18 +77,9 @@ coldata_df <- colData(sce) |>
                       values_to = "celltype")
 
 # get list of normal and tumor cell types to save as refernences 
-if(!is.null(opt$normal_cells)){
-  normal_cell_types <- stringr::str_split_1(opt$normal_cells, pattern = ",")
-} else {
-  normal_cell_types <- ""
-}
+normal_cell_types <- stringr::str_split_1(opt$normal_cells, pattern = ",")
 
-if(!is.null(opt$tumor_cells)){
-  tumor_cell_types <- stringr::str_split(opt$tumor_cells, pattern = ",") |>
-    unlist()
-} else {
-  tumor_cell_types <- ""
-}
+tumor_cell_types <- stringr::str_split(opt$tumor_cells, pattern = ",")
 
 # label cells as either tumor or normal based on which cell type was annotated 
 ref_table_df <- coldata_df |> 
