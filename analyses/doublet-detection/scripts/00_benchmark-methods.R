@@ -2,6 +2,7 @@
 # Seven libraries (where possible) of varying library sizes per project are identified, and doublets are detected in each.
 # Outputs a TSV of run times in seconds for each library and SCE objects with doublet inferences in the colData for subsequent analysis.
 
+
 # Load libraries -------------------
 library(scds)
 library(scDblFinder)
@@ -9,61 +10,73 @@ library(optparse)
 
 # Define function to detect doublets using four methods ---------
 
-benchmark_doublets <- function(sce_file_path, sample_id, output_dir) {
+benchmark_doublets <- function(input_sce_file, sample_id, output_dir) {
 
-  sce <- readRDS(sce_file_path)
+  if (!(file.exists(input_sce_file))) {
+    stop(glue::glue("Missing SCE file for {sample_id}"))
+  }
 
-  # scDblFinder, with a bonus cxds variant in the `cxds_score` column
-  # https://github.com/plger/scDblFinder/blob/99b947a49a4f3f3bd1a2203fe2296a6dc143fe11/R/misc.R#L266-L274
-  #
-  # Note further, this warns "scDblFinder might not work well with very low numbers of cells." when <100 cells
-  start.time <- Sys.time()
-  sce <- scDblFinder(
-    sce,
-    clusters = sce$clusters,
-    BPPARAM = BiocParallel::MulticoreParam(opts$cores)
-  )
-  end.time <- Sys.time()
-  scdbl_time <- (end.time - start.time) |>
-    as.numeric(units = "secs") |>
-    round(2)
-
-  # csds
-  start.time <- Sys.time()
-  sce <- cxds(sce)
-  end.time <- Sys.time()
-  cxds_time <- (end.time - start.time) |>
-    as.numeric(units = "secs") |>
-    round(2)
-
-  # bsds
-  start.time <- Sys.time()
-  sce <- bcds(sce)
-  end.time <- Sys.time()
-  bsds_time <- (end.time - start.time) |>
-    as.numeric(units = "secs") |>
-    round(2)
-
-  # hybrid
-  start.time <- Sys.time()
-  sce <- cxds_bcds_hybrid(sce)
-  end.time <- Sys.time()
-  hybrid_time <- (end.time - start.time) |>
-    as.numeric(units = "secs") |>
-    round(2)
-
-
-
-  # Save the SCE with predictions
-  readr::write_rds(sce, file.path(
+  output_sce_path <- file.path(
     output_dir,
     glue::glue("{sample_id}-doublet-benchmark.rds")
-  ))
+  )
+  if (file.exists(output_sce_path)) {
+    sce <- readRDS(output_sce_path)
+  } else {
 
+    sce <- readRDS(input_sce_file)
+
+    # scDblFinder, with a bonus cxds variant in the `cxds_score` column
+    # https://github.com/plger/scDblFinder/blob/99b947a49a4f3f3bd1a2203fe2296a6dc143fe11/R/misc.R#L266-L274
+    #
+    # Note further, this warns "scDblFinder might not work well with very low numbers of cells." when <100 cells
+    start.time <- Sys.time()
+    sce <- scDblFinder(
+      sce,
+      clusters = sce$clusters,
+      BPPARAM = BiocParallel::MulticoreParam(opts$cores)
+    )
+    end.time <- Sys.time()
+    metadata(sce)$scdbl_time <- (end.time - start.time) |>
+      as.numeric(units = "secs") |>
+      round(2)
+
+    # hybrid
+    start.time <- Sys.time()
+    sce <- cxds_bcds_hybrid(sce)
+    end.time <- Sys.time()
+    metadata(sce)$hybrid_time <- (end.time - start.time) |>
+      as.numeric(units = "secs") |>
+      round(2)
+
+    # csds
+    start.time <- Sys.time()
+    sce <- cxds(sce)
+    end.time <- Sys.time()
+    metadata(sce)$cxds_time <- (end.time - start.time) |>
+      as.numeric(units = "secs") |>
+      round(2)
+
+    # bsds
+    start.time <- Sys.time()
+    sce <- bcds(sce)
+    end.time <- Sys.time()
+    metadata(sce)$bsds_time <- (end.time - start.time) |>
+      as.numeric(units = "secs") |>
+      round(2)
+
+    # Save the SCE with doublet results
+    readr::write_rds(sce, file.path(
+      output_dir,
+      glue::glue("{sample_id}-doublet-benchmark.rds")
+    ))
+  }
+
+  # Create and return tibble of runtimes
   return(
     tibble::tribble(
-      ~scpca_sample_id, ~scdblfinder_s, ~cxds_s,   ~bsds_s,  ~hybrid_s,
-      sample_id,  scdbl_time,    cxds_time,  bsds_time, hybrid_time
+      ~scpca_sample_id, ~scdblfinder_s, ~cxds_s,       ~bsds_s,       ~hybrid_s,
+      sample_id,        metadata(sce)$scdbl_time, metadata(sce)$cxds_time, metadata(sce)$bsds_time, metadata(sce)$hybrid_time
     )
   )
 
@@ -131,9 +144,11 @@ sample_df <- metadata_files |>
 # We'll keep 7 libraries per project (or all libraries, if < 10 total)
 # across a range of library sizes - rank each and select bottom 2, middle 3, top 2
 
+min_cells <- 50
+
 libraries_to_benchmark <- sample_df |>
-  # keep only libraries with >= 50 cells
-  dplyr::filter(processed_cells >= 50) |>
+  # keep only libraries with >= min_cells cells
+  dplyr::filter(processed_cells >= min_cells) |>
   dplyr::group_by(project_id) |>
   dplyr::mutate(n_samples = dplyr::n()) |>
   dplyr::arrange(processed_cells) |>
@@ -143,6 +158,7 @@ libraries_to_benchmark <- sample_df |>
     (n_samples -2):n_samples # top 2
   )
 ) |>
+  dplyr::ungroup() |>
   # remove duplicates for projects with <10 libraries
   dplyr::distinct() |>
   dplyr::select(-n_samples) |>
@@ -154,17 +170,20 @@ libraries_to_benchmark <- sample_df |>
 # Print samples as a comma-sep list for data download
 #print(paste0(libraries_to_benchmark$scpca_sample_id, collapse = ","))
 
-
 # Run initial doublet detection methods ------------------------------------
 
 sample_files <- libraries_to_benchmark$file_path
 names(sample_files) <- libraries_to_benchmark$scpca_sample_id
 
-sample_files |>
+times_df <- sample_files |>
   purrr::imap(benchmark_doublets, output_dir) |>
-  dplyr::bind_rows() |>
-  dplyr::inner_join(
-    libraries_to_benchmark |>
-      dplyr::select(-file_path)
+  # combine runtime results with sample metadata
+  dplyr::bind_rows()
+
+libraries_to_benchmark |>
+  dplyr::select(-file_path) |>
+  dplyr::left_join(
+    times_df,
+    by = "scpca_sample_id"
   ) |>
   readr::write_tsv(benchmark_tsv)

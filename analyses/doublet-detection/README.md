@@ -8,12 +8,12 @@ Methods used in this module include the following:
 
 - [`scDBlFinder`](https://bioconductor.org/packages/release/bioc/html/scDblFinder.html)
 - [`scds`](https://bioconductor.org/packages/release/bioc/html/scds.html)
-Please provide a description of your module, including:
 
 
 ## Usage
 
-_Forthcoming._
+- `script/00_benchmark-methods.R` runs four methods for doublet detection across a selection of ScPCA datasets of varying library sizes across all projects.
+  - This script takes a single argument, `--cores`, specifying the number of cores to use when running `scDblFinder`.
 
 ## Input files
 
@@ -23,7 +23,10 @@ Eventually, we'd like to run all ScPCA datasets through doublet detection, but t
 
 ## Output files
 
-_Forthcoming._
+- `results/benchmark-times_4-cores.tsv` is created by `script/00_benchmark-methods.R`, invoked as:
+```bash
+Rscript scripts/00_benchmark-methods.R --cores 4
+```
 
 ## Software requirements
 
@@ -32,4 +35,4 @@ A Dockerfile created using [these guidelines](https://openscpca.readthedocs.io/e
 
 ## Computational resources
 
-_Forthcoming._
+This analysis can be run on a laptop.
