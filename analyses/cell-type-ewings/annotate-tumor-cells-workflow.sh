@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 ####
 : '
@@ -46,6 +46,11 @@ data_dir="../../data/current/SCPCP000015"
 # results and refs
 ref_dir="${module_directory}/references"
 workflow_results_dir="${module_directory}/results/annotate_tumor_cells_output"
+sample_results_dir="${workflow_results_dir}/${sample_id}"
+
+# define output directory for ref file
+cell_lists_dir="$ref_dir/cell_lists/$sample_id"
+mkdir -p $cell_lists_dir
 
 # define paths to notebooks and scripts run in the workflow
 notebook_dir="template_notebooks"
@@ -57,14 +62,9 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
     # define library ID
     library_id=$(basename $sce | sed 's/_processed.rds$//')
 
-    # define output directory for ref file
-    cell_lists_dir="$ref_dir/cell_lists/$sample_id"
-    mkdir -p $cell_lists_dir
     # define output reference file
     reference_cell_file="$cell_lists_dir/${library_id}_reference-cells.tsv"
 
-    # directory to save all results for sample
-    sample_results_dir="${workflow_results_dir}/${sample_id}"
 
     # Create table with reference cell types
     echo "Starting workflow for $sample_id, $library_id"

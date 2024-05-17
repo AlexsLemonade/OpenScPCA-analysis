@@ -53,8 +53,8 @@ These files were obtained using the `download-data.py` script:
 ```sh
 # download SCE objects
 ./download-data.py --projects SCPCP000015
-# download AnnData objects
-./download-data.py --projects SCPCP000015 --format "AnnData"
+# download both SCE and AnnData objects
+./download-data.py --projects SCPCP000015 --format "SCE,AnnData"
 ```
 This module also requires the following reference files:
 
@@ -68,8 +68,8 @@ This module also requires the following reference files:
 Running the `annotate-tumor-cells-workflow.sh` will generate the following output files in `results/annotate_tumor_cells_output` for each sample/library combination.
 
 ```
-annotat_tumor_cells_output
-└── sample_id
+annotate_tumor_cells_output
+└── <sample_id>
     ├── <library_id>_marker-gene-report.html
     └── <library_id>_tumor-normal-classifications.tsv
 ```
@@ -95,7 +95,7 @@ This table will be saved in `references/cell_lists/<sample_id>/<library_id>_refe
 All notebooks and R scripts are run using the `ewings-cell-type.Rproj`.
 The `renv.lock` file contains all package and version information.
 
-All python scripts must be run using the conda environment, `openscpca-cell-type-ewings`.
+All Python scripts must be run using the conda environment `openscpca-cell-type-ewings`.
 To create and activate this environment from the `.yml` file use:
 
 ```sh

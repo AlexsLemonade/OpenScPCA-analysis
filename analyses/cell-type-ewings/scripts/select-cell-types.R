@@ -73,15 +73,15 @@ coldata_df <- colData(sce) |>
                       values_to = "celltype")
 
 # get list of normal and tumor cell types to save as refernences 
-normal_cell_types <- stringr::str_split_1(opt$normal_cells, pattern = ",")
+normal_cell_types <- stringr::str_split_1(opt$normal_cells, pattern = ",") |> tolower()
 
-tumor_cell_types <- stringr::str_split_1(opt$tumor_cells, pattern = ",")
+tumor_cell_types <- stringr::str_split_1(opt$tumor_cells, pattern = ",") |> tolower()
 
 # label cells as either tumor or normal based on which cell type was annotated 
 ref_table_df <- coldata_df |> 
   dplyr::mutate(reference_cell_class = dplyr::case_when(
-    celltype %in% normal_cell_types ~ "Normal",
-    celltype %in% tumor_cell_types ~ "Tumor",
+    tolower(celltype) %in% normal_cell_types ~ "Normal",
+    tolower(celltype) %in% tumor_cell_types ~ "Tumor",
     .default = "NA"
   )) |> 
   # remove any that weren't tumor or normal 
