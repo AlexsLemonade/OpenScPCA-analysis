@@ -43,24 +43,35 @@ module_directory=$(pwd)
 # path to input data folder
 data_dir="../../data/current/SCPCP000015"
 
+# define paths to notebooks and scripts run in the workflow
+notebook_dir="template_notebooks"
+scripts_dir="scripts"
+
 # define results directories
 workflow_results_dir="${module_directory}/results/annotate_tumor_cells_output"
 sample_results_dir="${workflow_results_dir}/${sample_id}"
+
+cellassign_results_dir="${sample_results_dir}/cellassign"
+mkdir -p $cellassign_results_dir
 
 # define output directory for ref file
 ref_dir="${module_directory}/references"
 cell_lists_dir="$ref_dir/cell_lists/$sample_id"
 mkdir -p $cell_lists_dir
 
-# define paths to notebooks and scripts run in the workflow
-notebook_dir="template_notebooks"
-scripts_dir="scripts"
+# cellassign refs
+tumor_only_ref="${ref_dir}/cellassign_refs/tumor-marker_cellassign.tsv"
+visser_ref="${ref_dir}/cellassign_refs/visser-all-marker_cellassign.tsv"
+panglao_ref="${ref_dir}/cellassign_refs/panglao-endo-fibro_cellassign.tsv"
 
 # Run the workflow for each library in the sample directory
 for sce in $data_dir/$sample_id/*_processed.rds; do
 
     # define library ID
     library_id=$(basename $sce | sed 's/_processed.rds$//')
+
+    # path to anndata
+    anndata_file="$data_dir/$sample_id/${library_id}_rna.h5ad"
 
     # define output reference file
     reference_cell_file="$cell_lists_dir/${library_id}_reference-cells.tsv"
@@ -84,6 +95,51 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
                         library_id = '$library_id', \
                         results_dir = '$sample_results_dir', \
                         reference_cell_file = '$reference_cell_file'), \
+          envir = new.env()) \
+    "
+
+    # run cell assign for each reference
+
+    tumor_only_prediction="${cellassign_results_dir}/${library_id}_tumor-only-predictions.tsv"
+    visser_prediction="${cellassign_results_dir}/${library_id}_visser-predictions.tsv"
+    panglao_prediction="${cellassign_results_dir}/${library_id}_panglao-predictions.tsv"
+
+    python "$scripts_dir/run_cellassign.py" \
+      --anndata_file $anndata_file \
+      --output_predictions "${tumor_only_prediction}"
+      --reference "${tumor_only_ref}" \
+      --seed 2024 \
+      --threads 4
+
+    python "$scripts_dir/run_cellassign.py" \
+      --anndata_file $anndata_file \
+      --output_predictions "${visser_prediction}"
+      --reference "${visser_ref}" \
+      --seed 2024 \
+      --threads 4
+
+    python "$scripts_dir/run_cellassign.py" \
+      --anndata_file $anndata_file \
+      --output_predictions "${panglao_prediction}"
+      --reference "${panglao_ref}" \
+      --seed 2024 \
+      --threads 4
+
+    # render report
+    Rscript -e "rmarkdown::render('$notebook_dir/02-cellassign.Rmd', \
+          clean = TRUE, \
+          output_dir = '$sample_results_dir', \
+          output_file = '${library_id}_cellassign-report.html', \
+          params = list(sample_id = '$sample_id', \
+                        library_id = '$library_id', \
+                        results_dir = '$sample_results_dir', \
+                        tumor_markers_file = '$tumor_only_ref', \
+                        visser_markers_file = '$visser_ref', \
+                        marker_gene_classification = '$sample_results_dir/${library_id}_tumor-normal-classifications.tsv', \
+                        tumor_marker_predictions = '$tumor_only_prediction', \
+                        visser_marker_predictions = '$visser_prediction', \
+                        panglao_predictions = '$panglao_prediction' \
+                        ), \
           envir = new.env()) \
     "
 done
