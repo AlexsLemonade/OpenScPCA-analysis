@@ -255,18 +255,6 @@ def main() -> None:
         help="List the available release versions and exit.",
     )
     parser.add_argument(
-        "--release",
-        type=str,
-        help="The release version to download. Defaults to 'current'.",
-        default="",  # set in code
-    )
-    parser.add_argument(
-        "--test-data",
-        action="store_true",
-        help="Download test data from the test bucket and direct the `current` symlink to the test data directory."
-        " To switch back, rerun this script with the `--release current` option.",
-    )
-    parser.add_argument(
         "--projects",
         type=str,
         default="",
@@ -305,6 +293,18 @@ def main() -> None:
             " Defaults to 'processed'."
             " For more than one level, use a comma separated list."
         ),
+    )
+    parser.add_argument(
+        "--release",
+        type=str,
+        help="The release version to download. Defaults to 'current'.",
+        default="",  # set in code
+    )
+    parser.add_argument(
+        "--test-data",
+        action="store_true",
+        help="Download test data from the test bucket and direct the `current` symlink to the test data directory."
+        " To switch back, rerun this script with the `--release current` option.",
     )
     parser.add_argument(
         "--include-reports",

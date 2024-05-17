@@ -138,18 +138,6 @@ def main() -> None:
         help="List the available results modules and exit.",
     )
     parser.add_argument(
-        "--release",
-        type=str,
-        help="The release version to download. Defaults to 'current'.",
-        default="",  # set in code
-    )
-    parser.add_argument(
-        "--test-data",
-        action="store_true",
-        help="Download test data from the test bucket and direct the `current` symlink to the test data directory."
-        " To switch back, rerun this script with the `--release current` option.",
-    )
-    parser.add_argument(
         "--modules",
         type=str,
         default="",
@@ -174,6 +162,18 @@ def main() -> None:
         " A comma separated list of Sample IDs to download."
         " Defaults to all. Can not be combined with `--projects`."
         " If specified, bulk files are always excluded.",
+    )
+    parser.add_argument(
+        "--release",
+        type=str,
+        help="The release version to download. Defaults to 'current'.",
+        default="",  # set in code
+    )
+    parser.add_argument(
+        "--test-data",
+        action="store_true",
+        help="Download test data from the test bucket and direct the `current` symlink to the test data directory."
+        " To switch back, rerun this script with the `--release current` option.",
     )
     parser.add_argument(
         "--data-dir",
@@ -280,9 +280,9 @@ def main() -> None:
         return
 
     # check that the requested modules are available
-    modules = {p.strip() for p in args.projects.split(",")} if args.projects else set()
+    modules = {m.strip() for m in args.modules.split(",")} if args.modules else set()
     if not (modules and modules.issubset(all_modules)):
-        if args.modules:
+        if modules:
             print(
                 f"One or more requested modules are not available for release {release}.",
                 file=sys.stderr,
