@@ -15,22 +15,31 @@ python run-cellassign.py \
   --reference <path to marker gene reference>
 ```
 
-2. `select-normal-cells.R`: This script is used to generate a list of normal cells to use as references for downstream copy number inference methods.
-Any files produced from this script are saved in `references/normal_cell_lists`.
+2. `select-cell-types.R`: This script is used to generate a table of normal and tumor cells to use as references for downstream analysis and copy number inference methods.
+The files produced from this script are saved in `references/cell_lists/<sample_id>/<library_id>_reference-cells.tsv`.
+The output table contains the following columns:
 
-To create a list of cells use the `--singler_normal_cells` and/or  `--cellassign_normal_cells` arguments.
-If using both `--singler_normal_cells` and `--cellassign_normal_cells`, the cells present in both groups will be used as the normal reference.
+|  |   |
+| -------- | -------- |
+| `barcodes` | Cell barcode |
+| `reference_cell_class` | Indicates if the cell should be uses as a Normal or Tumor cell reference |
+| `cellassign_celltype_annotation` | Original annotation as obtained by `CellAssign` in the processed `SingleCellExperiment` object |
+| `singler_celltype_annotation` | Original annotation as obtained by `SingleR` in the processed `SingleCellExperiment` object
 
-In addition to providing a list of cell types, you must also provide an input `SingleCellExperiment` object with columns containing cell type annotations and a `output_filename` to use for naming the file with normal cell barcodes.
+To create a table of cells use the `--normal_cells` and/or  `--tumor_cells` arguments.
+Any cells that have the same annotation as the annotation provided with the `--normal_cells` argument will be labeled as "Normal".
+Any cells that have the same annotation as the annotation provided with the `--tumor_cells` argument will be labeled as "Tumor".
 
-The following command specifies using cells annotated as endothelial cells in both `SingleR` and `CellAssign` as the normal reference:
+In addition to providing a list of cell types, you must also provide an input `SingleCellExperiment` object with columns containing cell type annotations and a `output_filename` with the full path to save the reference file.
+
+The following command specifies using cells annotated as endothelial cells as the normal reference and muscle cells as the tumor reference:
 
 ```sh
 Rscript select-normal-cells.R \
   --sce_file <path to processed sce file> \
-  --singler_normal_cells "endothelial cell" \
-  --cellassign_normal_cells "Endothelial cells" \
-  --output_filename "all-endothlial-cells.txt"
+  --normal_cells "endothelial cell" \
+  --tumor_cells "smooth-muscle-cell" \
+  --output_filename "references/cell_lists/<sample_id>/<library_id>_reference-cells.tsv"
 ```
 
 3. `run-copykat.R`: This script is used to run [`CopyKAT`](https://github.com/navinlabcode/copykat) on a processed `SingleCellExperiment` object.
