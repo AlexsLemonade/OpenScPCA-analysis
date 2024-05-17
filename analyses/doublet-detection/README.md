@@ -23,10 +23,10 @@ Eventually, we'd like to run all ScPCA datasets through doublet detection, but t
 
 ## Output files
 
-- `results/benchmark-times_4-cores.tsv` is created by `script/00_benchmark-methods.R`, invoked as:
-```bash
-Rscript scripts/00_benchmark-methods.R --cores 4
-```
+- `results/benchmark-results` contains two TSV files created by `script/00_benchmark-methods.R` with default parameters
+  - `benchmark_runtimes.tsv` contains time (in seconds) benchmarks for each of four doublet detect across libraries, as well as some library metadata
+  - `benchmark_results.tsv` contains output from those four doublet detection methods where each line is a cell from a given library
+
 
 ## Software requirements
 

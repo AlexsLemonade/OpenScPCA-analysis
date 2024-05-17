@@ -1,7 +1,5 @@
 # Results directory
 
-- `benchmark-times_{x}-cores.tsv` is created by `scripts/00_benchmark-methods.R`
-  - This file contains time (in seconds) benchmarks for each of four doublet detect methods as run on `{x}` cores across 4 processed samples per (non-multiplexed) ScPCA project of varying library sizes
-  - Sample diagnoses and processed cell counts are also included
-    - Note that only `scDblFinder` uses parallel processing
-
+- Files in `benchmark-results` are created by `scripts/00_benchmark-methods.R`, using 4 cores for `scDblFinder`
+  - `benchmark_runtimes.tsv` contains time (in seconds) benchmarks for each of four doublet detect across libraries, as well as some library metadata
+  - `benchmark_results.tsv` contains output from those four doublet detection methods where each line is a cell from a given library

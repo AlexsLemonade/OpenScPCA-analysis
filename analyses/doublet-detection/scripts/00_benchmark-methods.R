@@ -1,6 +1,9 @@
 # This script runs four doublet detection approaches on a set of selected samples, for non-multiplexed projects
 # Seven libraries (where possible) of varying library sizes per project are identified, and doublets are detected in each.
-# Outputs a TSV of run times in seconds for each library and SCE objects with doublet inferences in the colData for subsequent analysis.
+# Outputs two TSVs to `../results`:
+#  - TSV of runtimes in seconds for each library
+#  - TSV of doublet detection results for each library
+# SCEs with doublet inferences are also saved in `../scratch/benchmark-sces`
 
 
 # Load libraries -------------------
@@ -8,21 +11,40 @@ library(scds)
 library(scDblFinder)
 library(optparse)
 
-# Define function to detect doublets using four methods ---------
+# Define functions to detect doublets using four methods ---------
 
-benchmark_doublets <- function(input_sce_file, sample_id, output_dir) {
+capture_time <- function(start_time, end_time) {
+  # Helper function to determine runtime given `start_time` and `end_time` values as calculated with `Sys.time()`
+  # This function returns a numeric value, representing runtime in seconds
+  (end_time - start_time) |>
+    as.numeric(units = "secs") |>
+    round(2)
+}
+
+
+benchmark_doublets <- function(input_sce_file,
+                               library_id,
+                               scratch_dir) {
+  # Run doublet detection methods on a given input SCE file
+  # This function exports two TSVs into the scratch directory containing runtime and doublet results, to support faster script re-execution
+  # This function returns a list of two data frames:
+  #  - `results` contains the results from each doublet detection methods
+  #  - `runtime` contains the runtime, in seconds, for each doublet detection method
 
   if (!(file.exists(input_sce_file))) {
-    stop(glue::glue("Missing SCE file for {sample_id}"))
+    stop(glue::glue("Missing SCE file for {library_id}"))
   }
 
-  output_sce_path <- file.path(
-    output_dir,
-    glue::glue("{sample_id}-doublet-benchmark.rds")
+  library_results_tsv <- file.path(
+    scratch_dir,
+    glue::glue("{library_id}_benchmark-results.tsv")
   )
-  if (file.exists(output_sce_path)) {
-    sce <- readRDS(output_sce_path)
-  } else {
+  library_runtime_tsv <- file.path(
+    scratch_dir,
+    glue::glue("{library_id}_benchmark-runtime.tsv")
+  )
+
+  if (!file.exists(library_results_tsv) & !file.exists(library_runtime_tsv)) {
 
     sce <- readRDS(input_sce_file)
 
@@ -37,48 +59,67 @@ benchmark_doublets <- function(input_sce_file, sample_id, output_dir) {
       BPPARAM = BiocParallel::MulticoreParam(opts$cores)
     )
     end.time <- Sys.time()
-    metadata(sce)$scdbl_time <- (end.time - start.time) |>
-      as.numeric(units = "secs") |>
-      round(2)
+    metadata(sce)$scdbl_time <- capture_time(start.time, end.time)
+    scdbl_df <- tibble::tribble(
+      ~barcode,
+      sce$barcodes,
+    )
 
     # hybrid
     start.time <- Sys.time()
     sce <- cxds_bcds_hybrid(sce)
     end.time <- Sys.time()
-    metadata(sce)$hybrid_time <- (end.time - start.time) |>
-      as.numeric(units = "secs") |>
-      round(2)
+    metadata(sce)$hybrid_time <- capture_time(start.time, end.time)
 
-    # csds
+    # cxds
     start.time <- Sys.time()
     sce <- cxds(sce)
     end.time <- Sys.time()
-    metadata(sce)$cxds_time <- (end.time - start.time) |>
-      as.numeric(units = "secs") |>
-      round(2)
+    metadata(sce)$cxds_time <- capture_time(start.time, end.time)
 
-    # bsds
+    # bcds
     start.time <- Sys.time()
     sce <- bcds(sce)
     end.time <- Sys.time()
-    metadata(sce)$bsds_time <- (end.time - start.time) |>
-      as.numeric(units = "secs") |>
-      round(2)
+    metadata(sce)$bcds_time <- capture_time(start.time, end.time)
 
     # Save the SCE with doublet results
     readr::write_rds(sce, file.path(
-      output_dir,
-      glue::glue("{sample_id}-doublet-benchmark.rds")
+      scratch_dir,
+      glue::glue("{library_id}-doublet-benchmark.rds")
     ))
+
+
+  results_df <- tibble::tribble(
+    ~scpca_library_id, ~barcode,     ~scdbl_class,          ~scdbl_cxds,               ~sbdbl_score,           ~cxds_score,    ~bcds_score,    ~hybrid_score,
+    library_id,       sce$barcodes, sce$scDblFinder.class, sce$scDblFinder.cxds_score, sce$scDblFinder.score, sce$cxds_score, sce$bcds_score, sce$hybrid_score
+  ) |>
+    tidyr::unnest(cols = -scpca_library_id)
+
+  runtimes_df <- tibble::tribble(
+    ~scpca_library_id, ~scdbl_s,                  ~cxds_s,                 ~bcds_s,                 ~hybrid_s,
+    library_id,        metadata(sce)$scdbl_time, metadata(sce)$cxds_time, metadata(sce)$bcds_time, metadata(sce)$hybrid_time
+  )
+
+  # memory purge
+  rm(sce)
+
+  # save them into scratch
+  readr::write_tsv(results_df, library_results_tsv)
+  readr::write_tsv(runtimes_df, library_runtime_tsv)
+
+  } else {
+
+    # If sample was already processed, just read its results in
+    results_df <- readr::read_tsv(library_results_tsv)
+    runtimes_df <- readr::read_tsv(library_runtime_tsv)
   }
 
-  # Create and return tibble of runtimes
   return(
-    tibble::tribble(
-      ~scpca_sample_id, ~scdblfinder_s, ~cxds_s,       ~bsds_s,       ~hybrid_s,
-      sample_id,        metadata(sce)$scdbl_time, metadata(sce)$cxds_time, metadata(sce)$bsds_time, metadata(sce)$hybrid_time
-    )
-  )
+    list(
+    "results" = results_df,
+    "runtimes" = runtimes_df
+  ))
 
 }
 
@@ -95,19 +136,24 @@ option_list <- list(
 opts <- parse_args(OptionParser(option_list = option_list))
 
 
-# Define paths ------------------
+# Define paths and set seed ------------------
 repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 data_dir <- file.path(repository_base, "data", "current")
 module_base <- file.path(repository_base, "analyses", "doublet-detection")
 
-# directory to save SCEs with doublet detection results
-output_dir <- file.path(module_base, "scratch", "benchmark-sces")
+# directory to save doublet detection results
+output_dir <- file.path(module_base, "results", "benchmark-results")
 fs::dir_create(output_dir)
 
-# output TSV file with benchmarking times
-benchmark_tsv <- file.path(module_base,
-                           "results",
-                           glue::glue("benchmark-times_{opts$cores}-cores.tsv"))
+# directory to save temporary files
+scratch_dir <- file.path(module_base, "scratch", "benchmark-sces")
+fs::dir_create(scratch_dir)
+
+# output files
+benchmark_runtime_tsv <- file.path(output_dir, "benchmark_runtimes.tsv")
+benchmark_results_tsv <- file.path(output_dir, "benchmark_results.tsv")
+
+set.seed(11)
 
 # Read in all sample metadata -----------------
 metadata_files <- list.files(
@@ -129,8 +175,6 @@ sample_df <- metadata_files |>
         dplyr::select(scpca_sample_id,
                       scpca_library_id,
                       diagnosis,
-                      #unfiltered_cells,
-                      #filtered_cells = filtered_cell_count,
                       processed_cells) |>
         dplyr::mutate(project_id = project_id) |>
         dplyr::select(project_id, everything())
@@ -154,10 +198,9 @@ libraries_to_benchmark <- sample_df |>
   dplyr::arrange(processed_cells) |>
   dplyr::slice(c(
     1:2, # bottom 2
-    (floor(n_samples/2) - 1):(floor(n_samples/2) + 1), # roughly middle 3,
-    (n_samples -2):n_samples # top 2
-  )
-) |>
+    (floor(n_samples/2) - 1):(floor(n_samples/2) + 1), # roughly middle 3
+    (n_samples - 1):n_samples # top 2
+  )) |>
   dplyr::ungroup() |>
   # remove duplicates for projects with <10 libraries
   dplyr::distinct() |>
@@ -170,20 +213,36 @@ libraries_to_benchmark <- sample_df |>
 # Print samples as a comma-sep list for data download
 #print(paste0(libraries_to_benchmark$scpca_sample_id, collapse = ","))
 
-# Run initial doublet detection methods ------------------------------------
+# Run doublet detection methods and export results ------------------------------------
 
-sample_files <- libraries_to_benchmark$file_path
-names(sample_files) <- libraries_to_benchmark$scpca_sample_id
+sce_files <- libraries_to_benchmark$file_path
+names(sce_files) <- libraries_to_benchmark$scpca_library_id
 
-times_df <- sample_files |>
-  purrr::imap(benchmark_doublets, output_dir) |>
-  # combine runtime results with sample metadata
+doublet_output <- sce_files|>
+  purrr::imap(benchmark_doublets, scratch_dir)
+
+runtime_df <- doublet_output |>
+  purrr::map(\(x) x$runtimes) |>
   dplyr::bind_rows()
 
+result_df <- doublet_output |>
+  purrr::map(\(x) x$results) |>
+  dplyr::bind_rows()
+
+
+# Export runtimes, combined with some sample metadata
 libraries_to_benchmark |>
   dplyr::select(-file_path) |>
-  dplyr::left_join(
-    times_df,
-    by = "scpca_sample_id"
+  dplyr::inner_join(
+    runtime_df,
+    by = "scpca_library_id"
   ) |>
-  readr::write_tsv(benchmark_tsv)
+  readr::write_tsv(benchmark_runtime_tsv)
+
+# Export results
+readr::write_tsv(
+  result_df,
+  benchmark_results_tsv
+)
+
+
