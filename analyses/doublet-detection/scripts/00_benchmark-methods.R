@@ -1,6 +1,9 @@
+#!/usr/bin/env Rscript
+
 # This script runs four doublet detection approaches on a set of selected samples, for non-multiplexed projects
+# Methods include scDblFinder, scds::cxds, scds::bcds, and scds::hybrid.
 # Seven libraries (where possible) of varying library sizes per project are identified, and doublets are detected in each.
-# Outputs two TSVs to `../results`:
+# The script outputs two TSVs to `../results`:
 #  - TSV of runtimes in seconds for each library
 #  - TSV of doublet detection results for each library
 # SCEs with doublet inferences are also saved in `../scratch/benchmark-sces`
@@ -25,7 +28,7 @@ capture_time <- function(start_time, end_time) {
 benchmark_doublets <- function(input_sce_file,
                                library_id,
                                scratch_dir) {
-  # Run doublet detection methods on a given input SCE file
+  # Run doublet detection methods on a given input SCE file and its library_id
   # This function exports two TSVs into the scratch directory containing runtime and doublet results, to support faster script re-execution
   # This function returns a list of two data frames:
   #  - `results` contains the results from each doublet detection methods
