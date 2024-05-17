@@ -14,16 +14,18 @@ The full list of marker genes can be found in `references/tumor-marker-genes.tsv
 
 ## Sample metadata
 
-The `sample-metadata.tsv` file is a TSV file containing information about the samples that have been processed through the workflows or analysis in this module.
+The `sample-metadata.tsv` file is a TSV file containing information about samples used as input for workflows or analysis in this module.
+This is manually updated as new samples are used in analysis.
+
 Each row represents a unique sample and library combination.
 The following columns are present in this file:
 
 |  |   |
 | --- | ---- |
-|`sample_id`| Unique sample ID. The `sample_id` corresponds to the folder name containing data files for that sample after using `download-data.py`. |
-| `library_id` | Unique library ID. The `library_id` will match the prefix of all data files (`.rds` and `.h5ad`) downloaded using `download-data.py`. |
-| `normal_celltypes`| A comma separated list of cell types annotated with either `SingleR` or `CellAssign` used to create a reference list of normal cells |
-| `tumor_celltypes`| A comma separated list of cell typs annotated with either `SingleR` or `CellAssign` that are expected to align with tumor cells. |
+|`scpca_sample_id`| Unique sample ID. The `sample_id` corresponds to the folder name containing data files for that sample after using `download-data.py`. |
+|`scpca_library_id` | Unique library ID. The `library_id` will match the prefix of all data files (`.rds` and `.h5ad`) downloaded using `download-data.py`. |
+|`normal_celltypes`| A comma separated list of cell types annotated with either `SingleR` or `CellAssign` used to create a reference list of normal cells |
+|`tumor_celltypes`| A comma separated list of cell typs annotated with either `SingleR` or `CellAssign` that are expected to align with tumor cells. |
 
 **Note:** To identify the cell type annotations to use for `normal_celltypes` and `tumor_celltypes`, reference the plots found in `<library_id>_celltype-report.html`.
 These can be downloaded using the `--include_reports` option in `download-data.py`.
@@ -42,7 +44,7 @@ This should correspond to the value found in `sample-metadata.tsv` for this samp
 Example of running the workflow with a different sample:
 
 ```sh
-sample_id="SCPCS000491" ./annotate-tumor-cells-workflow.sh
+sample_id="SCPCS000491" ./annotate-tumor-cells.sh
 ```
 
 ## Input files
@@ -51,8 +53,6 @@ This module requires the processed `SingleCellExperiment` objects (`_processed.r
 These files were obtained using the `download-data.py` script:
 
 ```sh
-# download SCE objects
-./download-data.py --projects SCPCP000015
 # download both SCE and AnnData objects
 ./download-data.py --projects SCPCP000015 --format "SCE,AnnData"
 ```
@@ -65,7 +65,7 @@ This module also requires the following reference files:
 
 ### Final output
 
-Running the `annotate-tumor-cells-workflow.sh` will generate the following output files in `results/annotate_tumor_cells_output` for each sample/library combination.
+Running the `annotate-tumor-cells.sh` will generate the following output files in `results/annotate_tumor_cells_output` for each sample/library combination.
 
 ```
 annotate_tumor_cells_output
@@ -80,7 +80,7 @@ annotate_tumor_cells_output
 ### Reference files
 
 Additionally, a reference TSV will be generated for each library containing a table of cell types from `SingleR` and `CellAssign`.
-This file contains any cell barcodes expected to line up with tumor or normal cell types specified with the `normal_celltypes` and `tumor_celltypes` arguments when running `annotate-tumor-cells-workflow.sh`.
+This file contains any cell barcodes expected to line up with tumor or normal cell types specified with the `normal_celltypes` and `tumor_celltypes` arguments when running `annotate-tumor-cells.sh`.
 This table will be saved in `references/cell_lists/<sample_id>/<library_id>_reference-cells.tsv` and contains the following columns:
 
 |  |   |
@@ -105,4 +105,4 @@ conda activate openscpca-cell-type-ewings
 
 ## Computational resources
 
-It is recommended to have access to at least 4 CPUs for running `annotate-tumor-cells-workflow.sh`.
+It is recommended to have access to at least 4 CPUs for running `annotate-tumor-cells.sh`.

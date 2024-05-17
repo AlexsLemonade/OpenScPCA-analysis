@@ -23,7 +23,7 @@ A set of reports summarizing the tumor cell annotations and a TSV file containin
 
 Example of running the workflow with a different sample:
 
-sample_id="SCPCS000491" ./annotate-tumor-cells-workflow.sh
+sample_id="SCPCS000491" ./annotate-tumor-cells.sh
 
 '
 ####
@@ -43,12 +43,12 @@ module_directory=$(pwd)
 # path to input data folder
 data_dir="../../data/current/SCPCP000015"
 
-# results and refs
-ref_dir="${module_directory}/references"
+# define results directories
 workflow_results_dir="${module_directory}/results/annotate_tumor_cells_output"
 sample_results_dir="${workflow_results_dir}/${sample_id}"
 
 # define output directory for ref file
+ref_dir="${module_directory}/references"
 cell_lists_dir="$ref_dir/cell_lists/$sample_id"
 mkdir -p $cell_lists_dir
 
@@ -64,7 +64,6 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
 
     # define output reference file
     reference_cell_file="$cell_lists_dir/${library_id}_reference-cells.tsv"
-
 
     # Create table with reference cell types
     echo "Starting workflow for $sample_id, $library_id"
