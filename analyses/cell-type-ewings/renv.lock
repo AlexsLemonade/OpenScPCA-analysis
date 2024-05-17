@@ -427,7 +427,7 @@
     },
     "RcppArmadillo": {
       "Package": "RcppArmadillo",
-      "Version": "0.12.8.2.1",
+      "Version": "0.12.8.3.0",
       "Source": "Repository",
       "Repository": "RSPM",
       "Requirements": [
@@ -437,7 +437,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "d5448fb24fb114c4da1275a37a571f37"
+      "Hash": "1eb4a0603478b5557b77d75534251371"
     },
     "RcppHNSW": {
       "Package": "RcppHNSW",
@@ -1084,7 +1084,7 @@
     },
     "dqrng": {
       "Package": "dqrng",
-      "Version": "0.3.2",
+      "Version": "0.4.0",
       "Source": "Repository",
       "Repository": "RSPM",
       "Requirements": [
@@ -1093,7 +1093,7 @@
         "Rcpp",
         "sitmo"
       ],
-      "Hash": "824df2aeba88d701df5e79018b35b815"
+      "Hash": "b31198e6268008976689b196bf9d883f"
     },
     "e1071": {
       "Package": "e1071",
@@ -1164,17 +1164,17 @@
     },
     "farver": {
       "Package": "farver",
-      "Version": "2.1.1",
+      "Version": "2.1.2",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "8106d78941f34855c440ddb946b8f7a5"
+      "Repository": "RSPM",
+      "Hash": "680887028577f3fa2a81e410ed0d6e42"
     },
     "fastmap": {
       "Package": "fastmap",
-      "Version": "1.1.1",
+      "Version": "1.2.0",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "f7736a18de97dea803bde0a2daaafb27"
+      "Repository": "RSPM",
+      "Hash": "aa5e1cd11c2d15497494c5292d7ffcc8"
     },
     "fontawesome": {
       "Package": "fontawesome",
@@ -1937,23 +1937,6 @@
       ],
       "Hash": "ea2475b073243d9d338aa8f086ce973e"
     },
-    "pheatmap": {
-      "Package": "pheatmap",
-      "Version": "1.0.12",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R",
-        "RColorBrewer",
-        "grDevices",
-        "graphics",
-        "grid",
-        "gtable",
-        "scales",
-        "stats"
-      ],
-      "Hash": "db1fb0021811b6693741325bbe916e58"
-    },
     "optparse": {
       "Package": "optparse",
       "Version": "1.7.5",
@@ -2003,6 +1986,23 @@
         "utils"
       ],
       "Hash": "5410df8d22bd36e616f2a2343dbb328c"
+    },
+    "pheatmap": {
+      "Package": "pheatmap",
+      "Version": "1.0.12",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "RColorBrewer",
+        "grDevices",
+        "graphics",
+        "grid",
+        "gtable",
+        "scales",
+        "stats"
+      ],
+      "Hash": "db1fb0021811b6693741325bbe916e58"
     },
     "pillar": {
       "Package": "pillar",
@@ -2458,7 +2458,7 @@
     },
     "segmented": {
       "Package": "segmented",
-      "Version": "2.0-4",
+      "Version": "2.1-0",
       "Source": "Repository",
       "Repository": "RSPM",
       "Requirements": [
@@ -2466,7 +2466,7 @@
         "R",
         "nlme"
       ],
-      "Hash": "9eba7c56e52b8881642a26ed6845c3e7"
+      "Hash": "c25459f92b3c69c10d842b75e3960dd5"
     },
     "shape": {
       "Package": "shape",
@@ -2803,7 +2803,7 @@
     },
     "xfun": {
       "Package": "xfun",
-      "Version": "0.43",
+      "Version": "0.44",
       "Source": "Repository",
       "Repository": "RSPM",
       "Requirements": [
@@ -2811,7 +2811,7 @@
         "stats",
         "tools"
       ],
-      "Hash": "ab6371d8653ce5f2f9290f4ec7b42a8e"
+      "Hash": "317a0538d32f4a009658bcedb7923f4b"
     },
     "xtable": {
       "Package": "xtable",
