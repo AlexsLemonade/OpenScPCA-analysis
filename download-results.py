@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Script for downloading data from an OpenScPCA data release
+# Script for downloading results from the OpenScPCA-nf workflow results bucket
 
 import argparse
 import datetime
@@ -23,7 +23,7 @@ TEST_BUCKET = "openscpca-temp-simdata"  # TODO: change to correct bucket
 
 def get_results_modules(bucket: str, release: str, profile: str) -> List[str]:
     """
-    Get the list of available results modules from the OpenScPCA results bucket.
+    Get the list of available results modules from the OpenScPCA workflow results bucket.
     """
     ls_cmd = ["aws", "s3", "ls", f"s3://{bucket}/{release}/"]
     if profile:
@@ -125,7 +125,7 @@ def download_results(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Download data for OpenScPCA.",
+        description="Download workflow results for OpenScPCA.",
     )
     parser.add_argument(
         "--list-releases",
@@ -135,14 +135,14 @@ def main() -> None:
     parser.add_argument(
         "--list-modules",
         action="store_true",
-        help="List the available results modules and exit.",
+        help="List the available workflow module results and exit.",
     )
     parser.add_argument(
         "--modules",
         type=str,
         default="",
         help="The results modules to download."
-        " A comma separated list of results modules to download.",
+        " A comma separated list of workflow modules to download results from.",
     )
     parser.add_argument(
         "--projects",
@@ -150,7 +150,7 @@ def main() -> None:
         default="",
         help=(
             "The project(s) to download."
-            " A comma separated list of Project IDs to download."
+            " A comma separated list of Project IDs to download results from."
             " Defaults to all. Can not be combined with `--samples`."
         ),
     )
@@ -159,7 +159,7 @@ def main() -> None:
         type=str,
         default="",
         help="The sample(s) to download."
-        " A comma separated list of Sample IDs to download."
+        " A comma separated list of Sample IDs to download results from."
         " Defaults to all. Can not be combined with `--projects`."
         " If specified, bulk files are always excluded.",
     )
