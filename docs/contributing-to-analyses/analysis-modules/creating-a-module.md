@@ -89,7 +89,7 @@ Use this flag to add a template R notebook to your module:
 │   └── README.md
 ├── plots
 │   └── ...
-├── scratchIG
+├── scratch
 │   └── ...
 ├── README.md
 ├── notebook-template.Rmd
