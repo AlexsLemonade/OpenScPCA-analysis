@@ -16,7 +16,7 @@ from typing import List, Set
 os.system("")
 
 RELEASE_BUCKET = "openscpca-data-release"
-TEST_BUCKET = "openscpca-temp-simdata"  # TODO: change to correct bucket
+TEST_BUCKET = "openscpca-test-data-release-public-access"
 
 
 def get_releases(bucket: str, profile: str) -> List[str]:

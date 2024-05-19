@@ -18,7 +18,7 @@ download_data = __import__("download-data")
 os.system("")
 
 RESULTS_BUCKET = "openscpca-nf-workflow-results"
-TEST_BUCKET = "openscpca-temp-simdata"  # TODO: change to correct bucket
+TEST_RESULTS_BUCKET = "openscpca-test-workflow-results-public-access"
 
 
 def get_results_modules(bucket: str, release: str, profile: str) -> List[str]:
@@ -28,7 +28,7 @@ def get_results_modules(bucket: str, release: str, profile: str) -> List[str]:
     ls_cmd = ["aws", "s3", "ls", f"s3://{bucket}/{release}/"]
     if profile:
         ls_cmd += ["--profile", profile]
-    if bucket == TEST_BUCKET:
+    if bucket == TEST_RESULTS_BUCKET:
         ls_cmd += ["--no-sign-request"]
     ls_result = subprocess.run(ls_cmd, capture_output=True, text=True)
     if ls_result.returncode:  # authentication errors, usually
@@ -208,7 +208,7 @@ def main() -> None:
         )
         sys.exit(1)
     elif args.test_data:
-        results_bucket = TEST_BUCKET
+        results_bucket = TEST_RESULTS_BUCKET
     else:
         args.release = args.release or "current"
         results_bucket = RESULTS_BUCKET
