@@ -12,3 +12,6 @@ Annotations from `CellAssign` are als compared to manual annotations identified 
 `CopyKAT` is run using the `scripts/run-copykat.R` script and outputs are evaluated in this notebook.
 This includes comparing annotations to those obtained from marker gene annotation in `01-marker-gene-tumor-classification.Rmd`.
 
+4. `04-infercnv.Rmd`: This notebook looks at using `InferCNV` to identify CNVs and annotate tumor and normal cells in SCPCS000490.
+`InferCNV` is run using `scripts/run-infercnv.R` and outputs are evaluated in this notebook.
+This includes comparing annotations to those obtained from marker gene annotation in `01-marker-gene-tumor-classification.Rmd`.
