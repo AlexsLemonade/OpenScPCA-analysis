@@ -21,19 +21,22 @@ RESULTS_BUCKET = "openscpca-nf-workflow-results"
 TEST_RESULTS_BUCKET = "openscpca-test-workflow-results-public-access"
 
 
-def get_results_modules(bucket: str, release: str, profile: str) -> List[str]:
+def get_results_modules(
+    bucket: str, release: str, profile: str, test_data: bool
+) -> List[str]:
     """
     Get the list of available results modules from the OpenScPCA workflow results bucket.
     """
     ls_cmd = ["aws", "s3", "ls", f"s3://{bucket}/{release}/"]
     if profile:
         ls_cmd += ["--profile", profile]
-    if bucket == TEST_RESULTS_BUCKET:
+    if test_data:
         ls_cmd += ["--no-sign-request"]
     ls_result = subprocess.run(ls_cmd, capture_output=True, text=True)
     if ls_result.returncode:  # authentication errors, usually
+        print(" ".join(ls_cmd))
         print(
-            "Error listing release versions from the OpenScPCA bucket.\n\n"
+            "Error listing modules available in the OpenScPCA workflow results bucket.\n\n"
             "Make sure you have the correct profile active (or use the --profile option)"
             " and run `aws sso login` before running this script.\n\n"
             "AWS Error: ",
@@ -54,6 +57,7 @@ def get_results_modules(bucket: str, release: str, profile: str) -> List[str]:
 def download_results(
     bucket: str,
     release: str,
+    test_data: bool,
     modules: Set[str],
     data_dir: pathlib.Path,
     projects: Set[str] = {},
@@ -82,6 +86,7 @@ def download_results(
     sync_cmd = download_data.build_sync_cmd(
         bucket=bucket,
         release=release,
+        test_data=test_data,
         download_dir=download_dir,
         include_patterns=patterns,
         dryrun=dryrun,
@@ -92,6 +97,7 @@ def download_results(
     download_size = download_data.get_download_size(
         bucket=bucket,
         release=release,
+        test_data=test_data,
         include_patterns=patterns,
         profile=profile,
     )
@@ -236,7 +242,7 @@ def main() -> None:
 
     ### List the available releases or modules ###
     all_releases = download_data.get_releases(
-        bucket=results_bucket, profile=args.profile
+        bucket=results_bucket, profile=args.profile, test_data=args.test_data
     )
 
     # hide any future releases and sort in reverse order
@@ -268,7 +274,10 @@ def main() -> None:
 
     # list results modules and exit if that was what was requested
     all_modules = get_results_modules(
-        bucket=results_bucket, release=release, profile=args.profile
+        bucket=results_bucket,
+        release=release,
+        test_data=args.test_data,
+        profile=args.profile,
     )
 
     if args.list_modules:
@@ -304,6 +313,7 @@ def main() -> None:
     download_results(
         bucket=results_bucket,
         release=release,
+        test_data=args.test_data,
         modules=modules,
         data_dir=args.data_dir,
         projects=projects,

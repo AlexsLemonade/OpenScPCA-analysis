@@ -19,14 +19,14 @@ RELEASE_BUCKET = "openscpca-data-release"
 TEST_BUCKET = "openscpca-test-data-release-public-access"
 
 
-def get_releases(bucket: str, profile: str) -> List[str]:
+def get_releases(bucket: str, profile: str, test_data: bool) -> List[str]:
     """
     Get the list of available releases from an OpenScPCA bucket.
     """
     ls_cmd = ["aws", "s3", "ls", f"s3://{bucket}/"]
     if profile:
         ls_cmd += ["--profile", profile]
-    if bucket == TEST_BUCKET:
+    if test_data:
         ls_cmd += ["--no-sign-request"]
     ls_result = subprocess.run(ls_cmd, capture_output=True, text=True)
     if ls_result.returncode:  # authentication errors, usually
@@ -52,6 +52,7 @@ def get_releases(bucket: str, profile: str) -> List[str]:
 def build_sync_cmd(
     bucket: str,
     release: str,
+    test_data: bool,
     download_dir: pathlib.Path,
     include_patterns: List[str] = [],
     dryrun: bool = False,
@@ -79,7 +80,7 @@ def build_sync_cmd(
     if profile:
         sync_cmd += ["--profile", profile]
 
-    if bucket == TEST_BUCKET:
+    if test_data:
         sync_cmd += ["--no-sign-request"]
 
     return sync_cmd
@@ -88,6 +89,7 @@ def build_sync_cmd(
 def get_download_size(
     bucket: str,
     release: str,
+    test_data: bool,
     include_patterns: List[str] = ["*"],
     profile: str = "",
 ) -> int:
@@ -97,7 +99,7 @@ def get_download_size(
     ls_cmd = ["aws", "s3", "ls", f"s3://{bucket}/{release}/", "--recursive"]
     if profile:
         ls_cmd += ["--profile", profile]
-    if bucket == TEST_BUCKET:
+    if test_data:
         ls_cmd += ["--no-sign-request"]
     file_list = subprocess.run(ls_cmd, capture_output=True, text=True)
     file_list.check_returncode()
@@ -152,6 +154,7 @@ def add_parent_dirs(patterns: List[str], dirs: List[str]) -> List[str]:
 def download_release_data(
     bucket: str,
     release: str,
+    test_data: bool,
     data_dir: pathlib.Path,
     formats: Set[str],
     stages: Set[str],
@@ -202,6 +205,7 @@ def download_release_data(
     sync_cmd = build_sync_cmd(
         bucket=bucket,
         release=release,
+        test_data=test_data,
         download_dir=download_dir,
         include_patterns=patterns,
         dryrun=dryrun,
@@ -213,6 +217,7 @@ def download_release_data(
     download_size = get_download_size(
         bucket=bucket,
         release=release,
+        test_data=test_data,
         include_patterns=patterns,
         profile=profile,
     )
@@ -399,7 +404,9 @@ def main() -> None:
         )
 
     ### List the available releases or modules ###
-    all_releases = get_releases(bucket=bucket, profile=args.profile)
+    all_releases = get_releases(
+        bucket=bucket, profile=args.profile, test_data=args.test_data
+    )
 
     # hide any future releases and sort in reverse order
     current_releases = [
@@ -432,6 +439,7 @@ def main() -> None:
     download_release_data(
         bucket=bucket,
         release=release,
+        test_data=args.test_data,
         data_dir=args.data_dir,
         formats=formats,
         stages=stages,
