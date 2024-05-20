@@ -35,16 +35,10 @@ option_list <- list(
       Any cells with Normal in the reference_cell_class column will be used as a reference for InferCNV"
   ),
   make_option(
-    opt_str = c("--results_dir"),
+    opt_str = c("--output_dir"),
     type = "character",
     default = NULL,
-    help = "Folder within `--infercnv_results_prefix/library_id` to save infercnv results"
-  ),
-  make_option(
-    opt_str = c("--infercnv_results_prefix"),
-    type = "character",
-    default = file.path(project_root, "results", "infercnv"),
-    help = "path to folder where final infercnv results live"
+    help = "Folder to save final infercnv results"
   ),
   make_option(
     opt_str = c("--scratch_dir"),
@@ -72,27 +66,26 @@ stopifnot("--sce_file does not exist." = file.exists(opt$sce_file))
 # read in sce file
 sce <- readr::read_rds(opt$sce_file)
 
-# get library id and construct output directory
+# get library id and construct scratch directory
 library_id <- metadata(sce)$library_id
 
 # create output and scratch directory if not already present for library id
-output_dir <- file.path(opt$infercnv_results_prefix, library_id, opt$results_dir)
-fs::dir_create(output_dir)
+fs::dir_create(opt$output_dir)
 
-# scratch directory organized the same way that final results are 
-scratch_dir <- file.path(opt$scratch_dir, library_id, opt$results_dir)
+# organize scratch by library id
+scratch_dir <- file.path(opt$scratch_dir, library_id)
 fs::dir_create(scratch_dir)
 
 # define output metadata file 
-cnv_metadata_file <- file.path(output_dir, glue::glue("{library_id}_cnv-metadata.tsv"))
+cnv_metadata_file <- file.path(opt$output_dir, glue::glue("{library_id}_cnv-metadata.tsv"))
 
 # define output infercnv obj
 scratch_obj_file <- file.path(scratch_dir, "run.final.infercnv_obj")
-output_obj_file <- file.path(output_dir, glue::glue("{library_id}_cnv-obj.rds"))
+output_obj_file <- file.path(opt$output_dir, glue::glue("{library_id}_cnv-obj.rds"))
 
 # png file to save 
 scratch_png <- file.path(scratch_dir, "infercnv.png")
-output_png <- file.path(output_dir, glue::glue("{library_id}_infercnv.png"))
+output_png <- file.path(opt$output_dir, glue::glue("{library_id}_infercnv.png"))
 
 # Define normal cells ----------------------------------------------------------
 
@@ -101,7 +94,8 @@ if(!is.null(opt$reference_cell_file)){
   # make sure normal cells file exists 
   stopifnot("reference file does not exist" = file.exists(opt$reference_cell_file))
   normal_cells <- readr::read_tsv(opt$reference_cell_file) |> 
-    dplyr::filter(reference_cell_class == "Normal")
+    dplyr::filter(reference_cell_class == "Normal") |> 
+    dplyr::pull(barcodes)
   
   # check that all normal cells are in colnames of sce 
   stopifnot("All barcodes in the normal_cells file are not found in the sce object" = 
