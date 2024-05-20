@@ -10,7 +10,7 @@ The code here is not fully current with that script, but has been left here for 
 The data used in this notebook was previously downloaded with the following command:
 
 ```
-./download-data.py --include "filtered,unfiltered,processed" --format "sce,anndata"
+./download-data.py --process-stage "filtered,unfiltered,processed" --format "sce,anndata"
 ```
 
 Note that we will only use the SCE data, but having the AnnData is useful for comparison in the final output.
