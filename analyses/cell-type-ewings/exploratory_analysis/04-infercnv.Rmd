@@ -192,6 +192,7 @@ Let's start by just summing up the total number of chromosomes with CNVs per cel
 # grab any columns that have has_cnv 
 has_cnv_cols <- names(all_cnv_df)[startsWith(colnames(all_cnv_df), "has_cnv")]
 
+# don't include the normal cells that were provided as reference in scaling 
 reference_cells_only <- all_cnv_df |> 
   dplyr::filter(stringr::str_detect(subcluster, "reference")) |> 
   dplyr::mutate(has_cnv = NA,
@@ -233,6 +234,9 @@ ggplot(cnv_df, aes(x= z_scaled_cnv)) +
 ```
 
 Looking at the scaled number of CNVs it does look like we could use 0 as the cutoff and call any cell that has > 0 CNVs (after scaling) as tumor and all other cells as normal. 
+
+In the below plot we label all non-reference cells as either tumor or normal. 
+Cells that are NA are those that were already classified as reference cells. 
 
 ```{r}
 # add cnv classification 
