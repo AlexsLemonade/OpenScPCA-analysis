@@ -73,7 +73,9 @@ all_results_dir_list <- list(
 
 # png ref files 
 png_files <- all_results_dir_list |>
-  purrr::map_chr(\(dir) file.path(dir, glue::glue("{params$library_id}_infercnv.png"))) |> 
+  purrr::map_chr(\(dir) file.path(dir, glue::glue("{params$library_id}_infercnv.png")))
+
+png_files |> 
   # make sure png files exists
   purrr::map(\(file)
     stopifnot("Missing PNG file" = file.exists(file))
@@ -102,6 +104,7 @@ manual_classifications_df <- readr::read_tsv(classifications_file)
 final_cnv_obj <- readr::read_rds(final_cnv_obj_file)
 ```
 
+
 ## InferCNV Heatmap 
 
 ### Endothelial cells as reference 
@@ -109,7 +112,7 @@ final_cnv_obj <- readr::read_rds(final_cnv_obj_file)
 Below is the heatmap produced by `InferCNV` showing the CNV's for each cell using endothelial cells as a reference. 
 Each row is a cell and each column is a gene. 
 The top group contains all cells that were used as the reference group and the bottom is all other cells. 
-The color indicates the relative expression intensity of each gene with the darker colors either indicating a gain of expression or loss of expression compared to the reference cells. 
+The color indicates the relative expression intensity of each gene with the darker colors either indicating a gain of expression or loss of expression compared to the reference cells.
 
 From the [`InferCNV` documentation](https://github.com/broadinstitute/inferCNV/wiki/Interpreting-the-figure): 
 
