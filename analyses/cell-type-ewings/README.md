@@ -11,6 +11,10 @@ Currently, we use a variety of methods to annotate tumor cells independently:
 The full list of marker genes can be found in `references/tumor-marker-genes.tsv`.
 - Use the list of tumor marker genes to classify tumor cells with [`CellAssign`](https://docs.scvi-tools.org/en/stable/user_guide/models/cellassign.html).
 - Identify copy number variations and annotate tumor cells using [`CopyKAT`](https://github.com/navinlabcode/copykat).
+- Identify copy number variations using [`InferCNV`]().
+This returns a proportion of each chromosome with a CNV detected.
+We then calculate the mean proportion for each cell across all chromsomes and weight by the number of genes in a chromosome.
+Cells with a mean proportion > 0.1 are called as tumor cells.
 
 ## Sample metadata
 
