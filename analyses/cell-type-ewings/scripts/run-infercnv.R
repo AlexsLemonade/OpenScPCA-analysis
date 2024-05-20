@@ -28,10 +28,11 @@ option_list <- list(
       Columns are: Ensembl gene id, chr, start, stop."
   ),
   make_option(
-    opt_str = c("--normal_cells"),
+    opt_str = c("--reference_cell_file"),
     type = "character",
     default = NULL,
-    help = "Optional file that contains a list of cell barcodes that correspond to normal cells and will be used as a reference"
+    help = "Optional file that contains a table of cell barcodes. 
+      Any cells with Normal in the reference_cell_class column will be used as a reference for InferCNV"
   ),
   make_option(
     opt_str = c("--results_dir"),
@@ -66,9 +67,7 @@ opt <- parse_args(OptionParser(option_list = option_list))
 # Set up -----------------------------------------------------------------------
 
 # make sure path to sce file exists
-if(!file.exists(opt$sce_file)){
-  stop("--sce_file does not exist.")
-}
+stopifnot("--sce_file does not exist." = file.exists(opt$sce_file))
 
 # read in sce file
 sce <- readr::read_rds(opt$sce_file)
@@ -93,11 +92,12 @@ output_png <- file.path(output_dir, glue::glue("{library_id}_infercnv.png"))
 
 # Define normal cells ----------------------------------------------------------
 
-if(!is.null(opt$normal_cells)){
+if(!is.null(opt$reference_cell_file)){
   
   # make sure normal cells file exists 
-  stopifnot("normal_cells file does not exist" = file.exists(opt$normal_cells))
-  normal_cells <- readLines(opt$normal_cells)
+  stopifnot("reference file does not exist" = file.exists(opt$reference_cell_file))
+  normal_cells <- readr::read_tsv(opt$reference_cell_file) |> 
+    dplyr::filter(reference_cell_class == "Normal")
   
   # check that all normal cells are in colnames of sce 
   stopifnot("All barcodes in the normal_cells file are not found in the sce object" = 
@@ -125,47 +125,35 @@ readr::write_tsv(annotation_df, opt$annotations_file, col_names = FALSE)
 
 # Run inferCNV -----------------------------------------------------------------
 
-# # create the infercnv object
-# infercnv_obj <- infercnv::CreateInfercnvObject(raw_counts_matrix=counts(sce),
-#                                                annotations_file=opt$annotations_file,
-#                                                delim="\t",
-#                                                gene_order_file=opt$gene_order_file,
-#                                                ref_group_names=ref_name)
-# 
-# # run infercnv and report by cell rather than group 
-# infercnv_obj <- infercnv::run(infercnv_obj,
-#                               cutoff=0.1,  # use 1 for smart-seq, 0.1 for 10x-genomics
-#                               out_dir=scratch_dir, # save all intermediate files to scratch dir
-#                               denoise=T,
-#                               HMM=T ,
-#                               save_rds = FALSE, # don't save the intermediate rds files 
-#                               num_threads = opt$threads
-# )
+# create the infercnv object
+infercnv_obj <- infercnv::CreateInfercnvObject(raw_counts_matrix=counts(sce),
+                                               annotations_file=opt$annotations_file,
+                                               delim="\t",
+                                               gene_order_file=opt$gene_order_file,
+                                               ref_group_names=ref_name)
+
+# run infercnv and report by cell rather than group
+infercnv_obj <- infercnv::run(infercnv_obj,
+                              cutoff=0.1,  # use 1 for smart-seq, 0.1 for 10x-genomics
+                              out_dir=scratch_dir, # save all intermediate files to scratch dir
+                              denoise=T,
+                              HMM=T ,
+                              save_rds = FALSE, # don't save the intermediate rds files
+                              num_threads = opt$threads
+)
 
 # Save final results -----------------------------------------------------------
 
-# first create a Seurat object from our SCE object
-seurat_obj <- scpcaTools::sce_to_seurat(sce)
-
-# add in the CNV information 
-# this adds new columns to the meta.data indicating presence of CNVs for each chromosome
-seurat_obj <- infercnv::add_to_seurat(seurat_obj = seurat_obj,
+# create table with barcodes and CNVs for each chromosome
+infercnv::add_to_seurat(seurat_obj = NULL,
                                       infercnv_output_path = scratch_dir)
 
-# grab metadata from Seurat and save to TSV 
-coldata_df <- seurat_obj@meta.data
+# define path to output cnv metadata file saved in scratch dir
+scratch_metadata_file <- file.path(scratch_dir, "map_metadata_from_infercnv.txt")
 
-# get a vector of columns that have CNV information 
-cnv_info_cols <- names(coldata_df)[startsWith(colnames(coldata_df), "has_cnv") | 
-                                     startsWith(colnames(coldata_df), "proportion")]
-
-# trim coldata to barcodes and cnv information 
-cnv_df <- coldata_df |> 
-  dplyr::select(barcodes, all_of(cnv_info_cols))
-
-# save metadata file 
-readr::write_tsv(cnv_df, cnv_metadata_file)
+# copy metadata file to output directory 
+fs::file_copy(scratch_metadata_file, cnv_metadata_file, overwrite = TRUE)
 
 # copy png file to output directory 
-fs::file_copy(scratch_png, output_png)
+fs::file_copy(scratch_png, output_png, overwrite = TRUE)
 
