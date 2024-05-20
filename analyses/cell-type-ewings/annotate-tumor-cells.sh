@@ -60,9 +60,13 @@ cell_lists_dir="$ref_dir/cell_lists/$sample_id"
 mkdir -p $cell_lists_dir
 
 # cellassign refs
-tumor_only_ref="${ref_dir}/cellassign_refs/tumor-marker_cellassign.tsv"
-visser_ref="${ref_dir}/cellassign_refs/visser-all-marker_cellassign.tsv"
-panglao_ref="${ref_dir}/cellassign_refs/panglao-endo-fibro_cellassign.tsv"
+all_refs=(
+  "${ref_dir}/cellassign_refs/tumor-marker_cellassign.tsv"
+  "${ref_dir}/cellassign_refs/visser-all-marker_cellassign.tsv"
+  "${ref_dir}/cellassign_refs/panglao-endo-fibro_cellassign.tsv"
+)
+
+# Rscript $scripts_dir/generate-cellassign-refs.R
 
 # Run the workflow for each library in the sample directory
 for sce in $data_dir/$sample_id/*_processed.rds; do
@@ -71,59 +75,57 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
     library_id=$(basename $sce | sed 's/_processed.rds$//')
 
     # path to anndata
-    anndata_file="$data_dir/$sample_id/${library_id}_rna.h5ad"
+    anndata_file="$data_dir/$sample_id/${library_id}_processed_rna.h5ad"
 
     # define output reference file
     reference_cell_file="$cell_lists_dir/${library_id}_reference-cells.tsv"
 
     # Create table with reference cell types
-    echo "Starting workflow for $sample_id, $library_id"
-    echo "Saving cell references..."
-    Rscript $scripts_dir/select-cell-types.R \
-      --sce_file "$sce" \
-      --normal_cells "${normal_celltypes}" \
-      --tumor_cells "${tumor_celltypes}" \
-      --output_filename "${reference_cell_file}"
+    #echo "Starting workflow for $sample_id, $library_id"
+    #echo "Saving cell references..."
+    #Rscript $scripts_dir/select-cell-types.R \
+    #  --sce_file "$sce" \
+    #  --normal_cells "${normal_celltypes}" \
+    #  --tumor_cells "${tumor_celltypes}" \
+    #  --output_filename "${reference_cell_file}"
+#
+    ## Obtain manual annotations
+    #echo "Getting manual annotations..."
+    #Rscript -e "rmarkdown::render('$notebook_dir/01-marker-genes.Rmd', \
+    #      clean = TRUE, \
+    #      output_dir = '$sample_results_dir', \
+    #      output_file = '${library_id}_marker-gene-report.html', \
+    #      params = list(sample_id = '$sample_id', \
+    #                    library_id = '$library_id', \
+    #                    results_dir = '$sample_results_dir', \
+    #                    reference_cell_file = '$reference_cell_file'), \
+    #      envir = new.env()) \
+    #"
 
-    # Obtain manual annotations
-    echo "Getting manual annotations..."
-    Rscript -e "rmarkdown::render('$notebook_dir/01-marker-genes.Rmd', \
-          clean = TRUE, \
-          output_dir = '$sample_results_dir', \
-          output_file = '${library_id}_marker-gene-report.html', \
-          params = list(sample_id = '$sample_id', \
-                        library_id = '$library_id', \
-                        results_dir = '$sample_results_dir', \
-                        reference_cell_file = '$reference_cell_file'), \
-          envir = new.env()) \
-    "
+    # run cell assign for each reference and save predictions file to array
+    all_predictions=()
 
-    # run cell assign for each reference
+    for i in ${!all_refs[@]}; do
 
-    tumor_only_prediction="${cellassign_results_dir}/${library_id}_tumor-only-predictions.tsv"
-    visser_prediction="${cellassign_results_dir}/${library_id}_visser-predictions.tsv"
-    panglao_prediction="${cellassign_results_dir}/${library_id}_panglao-predictions.tsv"
+      # grab reference name
+      ref_name=$(echo $(basename ${all_refs[$i]}) | sed -e "s/\_cellassign.tsv//")
+      echo $ref_name
 
-    python "$scripts_dir/run_cellassign.py" \
-      --anndata_file $anndata_file \
-      --output_predictions "${tumor_only_prediction}"
-      --reference "${tumor_only_ref}" \
-      --seed 2024 \
-      --threads 4
+      # create output predictions file and add to array
+      predictions_file="${cellassign_results_dir}/${library_id}_${ref_name}_predictions.tsv"
+      all_predictions[$i]=$predictions_file
 
-    python "$scripts_dir/run_cellassign.py" \
-      --anndata_file $anndata_file \
-      --output_predictions "${visser_prediction}"
-      --reference "${visser_ref}" \
-      --seed 2024 \
-      --threads 4
-
-    python "$scripts_dir/run_cellassign.py" \
-      --anndata_file $anndata_file \
-      --output_predictions "${panglao_prediction}"
-      --reference "${panglao_ref}" \
-      --seed 2024 \
-      --threads 4
+      # only run cellassign if the predictions file doesn't exist already
+      if [ ! -f $predictions_file ]; then
+        echo "Running CellAssign for ${library_id} with ${ref_name}"
+        python "$scripts_dir/run-cellassign.py" \
+          --anndata_file $anndata_file \
+          --output_predictions "${predictions_file}" \
+          --reference "${all_refs[$i]}" \
+          --seed 2024 \
+          --threads 4
+      fi
+    done
 
     # render report
     Rscript -e "rmarkdown::render('$notebook_dir/02-cellassign.Rmd', \
@@ -133,12 +135,12 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
           params = list(sample_id = '$sample_id', \
                         library_id = '$library_id', \
                         results_dir = '$sample_results_dir', \
-                        tumor_markers_file = '$tumor_only_ref', \
-                        visser_markers_file = '$visser_ref', \
+                        tumor_markers_file = '${all_refs[0]}', \ # tumor refs
+                        visser_markers_file = '${all_refs[1]}', \ # visser refs
                         marker_gene_classification = '$sample_results_dir/${library_id}_tumor-normal-classifications.tsv', \
-                        tumor_marker_predictions = '$tumor_only_prediction', \
-                        visser_marker_predictions = '$visser_prediction', \
-                        panglao_predictions = '$panglao_prediction' \
+                        tumor_marker_predictions = '${predictions_file[0]}', \ # tumor predictions
+                        visser_marker_predictions = '${predictions_file[1]}', \ # visser predictions
+                        panglao_predictions = '${predictions_file[2]}' \ #panglao predictions
                         ), \
           envir = new.env()) \
     "
