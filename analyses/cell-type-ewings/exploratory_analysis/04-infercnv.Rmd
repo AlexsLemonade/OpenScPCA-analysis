@@ -72,11 +72,18 @@ all_results_dir_list <- list(
 )
 
 # png ref files 
-png_files <- file.path(all_results_dir_list, glue::glue("{params$library_id}_infercnv.png")) |> 
-  purrr::set_names(names(all_results_dir_list))
+png_files <- all_results_dir_list |>
+  purrr::map_chr(\(dir) file.path(dir, glue::glue("{params$library_id}_infercnv.png"))) |> 
+  # make sure png files exists
+  purrr::map(\(file)
+    stopifnot("Missing PNG file" = file.exists(file))
+  )
 
 # with ref cnv metadata file 
 cnv_metadata_file <- file.path(results_dir, "endothelial_reference", glue::glue("{params$library_id}_cnv-metadata.tsv"))
+
+# full infercnv object with information on genes/ chr to use later 
+final_cnv_obj_file <- file.path(results_dir, "endothelial_reference", glue::glue("{params$library_id}_cnv-obj.rds"))
 ```
 
 ```{r}
@@ -84,10 +91,15 @@ cnv_metadata_file <- file.path(results_dir, "endothelial_reference", glue::glue(
 sce <- readr::read_rds(sce_file)
 
 # read in cnv metadata 
-cnv_metadata_df <- readr::read_tsv(cnv_metadata_file)
+# use read.delim instead of readr because we want the rownames to be read in properly 
+cnv_metadata_df <- read.delim(cnv_metadata_file) |> 
+  tibble::rownames_to_column("barcodes")
 
 # read in tumor normal classifications 
 manual_classifications_df <- readr::read_tsv(classifications_file)
+
+# read in cnv object 
+final_cnv_obj <- readr::read_rds(final_cnv_obj_file)
 ```
 
 ## InferCNV Heatmap 
@@ -98,6 +110,13 @@ Below is the heatmap produced by `InferCNV` showing the CNV's for each cell usin
 Each row is a cell and each column is a gene. 
 The top group contains all cells that were used as the reference group and the bottom is all other cells. 
 The color indicates the relative expression intensity of each gene with the darker colors either indicating a gain of expression or loss of expression compared to the reference cells. 
+
+From the [`InferCNV` documentation](https://github.com/broadinstitute/inferCNV/wiki/Interpreting-the-figure): 
+
+> The normal cells in the top heatmap define baseline expression for genes in normal cells. This baseline distribution of normal gene expression is subtracted from both the normal cells from which was defined as well as the tumor cells. Afterwards, the normal cell expression heatmap should be largely devoid of signal, with the exception of certain outlier gene expression values in certain cells. Removing this baseline of normal expression signal from the tumor cells should reveal those chromosomal regions that have significantly more or less expression than the normal cells, highlighting likely amplified or deleted whole chromosomes or large chromosomal regions.
+
+The dendogram on the left side is hierarchical clustering of all non-reference cells. 
+The color annotation next to it indicates subdivisions of the dendogram by cutting it in `k_obs_groups` groups, with the default `k_obs_groups` = 1. 
 
 ![InferCNV Heatmap - Endothelial cells as reference](`r png_files["with_ref"]`)
 
@@ -144,8 +163,8 @@ coldata_df <- sce |>
   dplyr::left_join(cnv_metadata_df, by = c("barcodes"))
 
 # remove MT and GL chr, comments in docs recommend that these are not useful and can be inaccurate 
-chr_columns_to_keep <- which(!stringr::str_detect(names(coldata_df), "chrMT|chrGL000219.1"))
-cnv_df <- coldata_df[, chr_columns_to_keep]
+chr_columns_to_keep <- which(!stringr::str_detect(names(coldata_df), "chrMT|chrGL000219.1|chrGL000194.1"))
+all_cnv_df <- coldata_df[, chr_columns_to_keep]
 ```
 
 The metadata that we added includes the following columns for each chromosome: 
@@ -166,17 +185,26 @@ If `has_cnv` is TRUE if either `has_loss` or `has_dupli` is TRUE.
 See [the comments in this issue](https://github.com/broadinstitute/infercnv/issues/208) explaining what the contents of the columns are. 
 
 One approach to classifying tumor cells is to look for cells that have a lot of CNVs. 
-Let's start by just summing up the total CNVs/cell and plotting that. 
+Let's start by just summing up the total number of chromosomes with CNVs per cell and plotting that. 
 
 
 ```{r}
 # grab any columns that have has_cnv 
-has_cnv_cols <- names(cnv_df)[startsWith(colnames(cnv_df), "has_cnv")]
+has_cnv_cols <- names(all_cnv_df)[startsWith(colnames(all_cnv_df), "has_cnv")]
 
-cnv_df <- cnv_df |>
+reference_cells_only <- all_cnv_df |> 
+  dplyr::filter(stringr::str_detect(subcluster, "reference")) |> 
+  dplyr::mutate(has_cnv = NA,
+                z_scaled_cnv = NA)
+
+unknown_cells_only <- all_cnv_df |>
+  dplyr::filter(stringr::str_detect(subcluster, "unknown")) |> 
   # get total number of chromosomes with cnvs per cell and then scale that number 
   dplyr::mutate(has_cnv = rowSums(across(has_cnv_cols)),
-                scaled_cnv = scale(has_cnv))
+                z_scaled_cnv = scale(has_cnv))
+
+# combine back together for plotting 
+cnv_df <- bind_rows(reference_cells_only, unknown_cells_only)
 ```
 
 
@@ -188,6 +216,7 @@ ggplot(cnv_df, aes(x = UMAP1, y= UMAP2, color = has_cnv)) +
   scale_color_viridis_c()
 ```
 This shows that the total CNVs are highest in the group of cells that correspond to the same cells that are manually annotated as tumor cells, which is promising. 
+Those cells in grey (bottom left) are cells used as a reference. 
 If we were to use total CNVs we would need some sort of cut off for the number. 
 Let's look at the distribution of total CNVs and also the scaled total CNVs to see if we can identify a cut off. 
 
@@ -197,7 +226,7 @@ ggplot(cnv_df, aes(x = has_cnv)) +
   theme_bw() +
   labs(x = "Total number of CNVs")
 
-ggplot(cnv_df, aes(x= scaled_cnv)) + 
+ggplot(cnv_df, aes(x= z_scaled_cnv)) + 
   geom_density() +
   theme_bw() +
   labs(x = "z-scaled chromosome CNV count")
@@ -208,7 +237,7 @@ Looking at the scaled number of CNVs it does look like we could use 0 as the cut
 ```{r}
 # add cnv classification 
 cnv_df <- cnv_df |> 
-  dplyr::mutate(cnv_classification = dplyr::if_else(scaled_cnv > 0, "Tumor", "Normal"))
+  dplyr::mutate(cnv_classification = dplyr::if_else(z_scaled_cnv > 0, "Tumor", "Normal"))
 
 ggplot(cnv_df, aes(x = UMAP1, y= UMAP2, color = cnv_classification)) +
   geom_point(alpha = 0.5, size = 0.5) +
@@ -220,10 +249,20 @@ Another option is to use the scaled proportion of CNVs which tells us the propor
 ```{r}
 proportion_cols <- names(cnv_df)[startsWith(colnames(cnv_df), "proportion_scaled_cnv")]
 
-# get mean proportion of cnvs per cell and then scale that number 
+# get total number of genes per chromosome to use in weighted mean 
+chr_weights <- final_cnv_obj@gene_order |> 
+  as.data.frame() |> 
+  dplyr::count(chr) |> 
+  # only keep chr 1-22, drops MT and GL chr
+  dplyr::filter(chr %in% glue::glue("chr{seq(1,22)}")) |> 
+  dplyr::pull(n)
+
+# get mean proportion of cnvs per cell weighted by chromsome size (number of genes)
 cnv_df <- cnv_df |> 
-  dplyr::mutate(mean_proportion = rowMeans(across(proportion_cols)),
-                scaled_mean_proportion = scale(mean_proportion))
+  dplyr::rowwise() |> 
+  # calculate weighted mean, excluding normal cells 
+  dplyr::mutate(mean_proportion = ifelse(!is.na(has_cnv), weighted.mean(across(proportion_cols), num_genes_df$n), NA)) |> 
+  dplyr::ungroup()
 ```
 
 ```{r}
@@ -231,31 +270,37 @@ ggplot(cnv_df, aes(x = UMAP1, y= UMAP2, color = mean_proportion)) +
   geom_point(alpha = 0.5, size = 0.5) +
   theme_bw() +
   scale_color_viridis_c()
-
-ggplot(cnv_df, aes(x = UMAP1, y= UMAP2, color = scaled_mean_proportion)) +
-  geom_point(alpha = 0.5, size = 0.5) +
-  theme_bw() +
-  scale_color_viridis_c()
 ```
 
 ```{r}
-ggplot(cnv_df, aes(x = scaled_mean_proportion)) +
+ggplot(cnv_df, aes(x = mean_proportion)) +
   geom_density() +
   theme_bw()
 ```
-It looks like maybe we could again use 0 as the cutoff here and anything above 0 is a tumor cell. 
+It looks like we could use a cutoff of 0.1 here to classify tumor/normal cells. 
 Let's see how this matches up with the tumor/normal classifications we defined just using total CNVs. 
 
 ```{r}
-ggplot(cnv_df, aes(x = scaled_mean_proportion, color = cnv_classification)) +
+ggplot(cnv_df, aes(x = mean_proportion, color = cnv_classification)) +
   geom_density() +
   theme_bw()
 ```
 
-Interestingly, the cells we labeled as tumor have a higher mean proportion value then those that we labeled as normal. 
+As expected, the cells we labeled as tumor have a higher mean proportion value then those that we labeled as normal. 
 I'm not really sure which is "better" to use the mean proportion or just the detection of CNVs to call tumor cells. 
 
-For the rest of the notebook, we will use the classifications of tumor cells based on the sum of the total CNV occurrences. 
+```{r}
+# add cnv classification 
+cnv_df <- cnv_df |> 
+  dplyr::mutate(cnv_mean_classification = dplyr::if_else(mean_proportion > 0.1, "Tumor", "Normal"))
+
+ggplot(cnv_df, aes(x = UMAP1, y= UMAP2, color = cnv_mean_classification)) +
+  geom_point(alpha = 0.5, size = 0.5) +
+  theme_bw() 
+```
+
+
+For the rest of the notebook, we will use the classifications of tumor cells based on the mean proportion of total CNV occurrences. 
 
 ## Compare InferCNV annotations to manual annotations 
 
@@ -266,7 +311,7 @@ all_classifications_df <- cnv_df |>
   dplyr::left_join(manual_classifications_df) |>
   # relevel classifications for confusion matrix 
   dplyr::mutate(
-    cnv_classification = forcats::fct_relevel(cnv_classification, "Tumor"),
+    cnv_classification = forcats::fct_relevel(cnv_mean_classification, "Tumor"),
     marker_gene_classification = forcats::fct_relevel(marker_gene_classification, "Tumor")
   )
 
@@ -293,7 +338,7 @@ jaccard_matrices <- celltype_columns |>
   purrr::map(\(name) {
     make_jaccard_matrix(
       cnv_df,
-      "cnv_classification",
+      "cnv_mean_classification",
       name
     )
   }) |> 
