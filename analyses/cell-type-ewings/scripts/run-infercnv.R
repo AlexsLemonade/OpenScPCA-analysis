@@ -87,7 +87,7 @@ fs::dir_create(scratch_dir)
 cnv_metadata_file <- file.path(output_dir, glue::glue("{library_id}_cnv-metadata.tsv"))
 
 # define output infercnv obj
-scratch_obj_file <- file.;path(scratch_dir, "run.final.infercnv_obj")
+scratch_obj_file <- file.path(scratch_dir, "run.final.infercnv_obj")
 output_obj_file <- file.path(output_dir, glue::glue("{library_id}_cnv-obj.rds"))
 
 # png file to save 
@@ -157,6 +157,9 @@ scratch_metadata_file <- file.path(scratch_dir, "map_metadata_from_infercnv.txt"
 
 # copy metadata file to output directory 
 fs::file_copy(scratch_metadata_file, cnv_metadata_file, overwrite = TRUE)
+
+# copy final object to output directory 
+fs::file_copy(scratch_obj_file, output_obj_file)
 
 # copy png file to output directory 
 fs::file_copy(scratch_png, output_png, overwrite = TRUE)
