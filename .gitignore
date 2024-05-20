@@ -4,6 +4,9 @@
 
 # root data directory
 /data/
+# standard results directories (keep the readme)
+/analyses/*/results/*
+!/analyses/*/results/README.md
 
 # Data files (may be added if needed for a specific module)
 *.rds
