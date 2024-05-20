@@ -30,8 +30,10 @@ fs::dir_create(opt$local_ref_dir)
 gtf_filename <- stringr::word(opt$gtf_file, -1, sep = "/")
 
 local_gtf_file <- file.path(opt$local_ref_dir, gtf_filename)
-sync_call <- glue::glue('aws s3 cp {opt$gtf_file} {local_gtf_file}')
-system(sync_call)
+if(!file.exists(local_gtf_file)){
+  sync_call <- glue::glue('aws s3 cp {opt$gtf_file} {local_gtf_file}')
+  system(sync_call)
+}
 
 # define gene order file name using gtf file 
 gtf_basename <- stringr::str_remove(gtf_filename, ".gtf.gz")
