@@ -66,7 +66,7 @@ classifications_file <- file.path(classifications_results_dir, classifications_f
 # output from running infercnv 
 results_dir <- file.path(module_base, "results", "infercnv", params$library_id)
 
-all_results_dir_list <- c(
+all_results_dir_list <- list(
   no_ref = file.path(results_dir, "no_reference"),
   with_ref = file.path(results_dir, "endothelial_reference")
 )
@@ -174,7 +174,7 @@ Let's start by just summing up the total CNVs/cell and plotting that.
 has_cnv_cols <- names(cnv_df)[startsWith(colnames(cnv_df), "has_cnv")]
 
 cnv_df <- cnv_df |>
-  # get total number of cnvs per cell and then scale that number 
+  # get total number of chromosomes with cnvs per cell and then scale that number 
   dplyr::mutate(has_cnv = rowSums(across(has_cnv_cols)),
                 scaled_cnv = scale(has_cnv))
 ```
@@ -200,7 +200,7 @@ ggplot(cnv_df, aes(x = has_cnv)) +
 ggplot(cnv_df, aes(x= scaled_cnv)) + 
   geom_density() +
   theme_bw() +
-  labs(x = "Scaled number of CNVS")
+  labs(x = "z-scaled chromosome CNV count")
 ```
 
 Looking at the scaled number of CNVs it does look like we could use 0 as the cutoff and call any cell that has > 0 CNVs (after scaling) as tumor and all other cells as normal. 

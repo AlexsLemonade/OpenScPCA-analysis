@@ -114,14 +114,12 @@ if(!is.null(opt$normal_cells)){
 }
 
 # pull out normal cells and create annotations
-annotation_df <- colData(sce) |> 
-  as.data.frame() |> 
+annotation_df <- data.frame(barcodes = colData(sce)$barcodes) |> 
   dplyr::mutate(annotations = dplyr::if_else(
     barcodes %in% normal_cells,
     "reference",
     "unknown"
-  )) |> 
-  dplyr::select(barcodes, annotations)
+  )) 
 
 readr::write_tsv(annotation_df, opt$annotations_file, col_names = FALSE)
 
@@ -169,6 +167,5 @@ cnv_df <- coldata_df |>
 readr::write_tsv(cnv_df, cnv_metadata_file)
 
 # copy png file to output directory 
-copy_command <- glue::glue("cp {scratch_png} {output_png}")
-system(copy_command)
+fs::file_copy(scratch_png, output_png)
 
