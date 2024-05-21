@@ -9,8 +9,6 @@ output:
 params:
   sample_id: SCPCS000490
   library_id: SCPCL000822
-  tumor_markers_file: "../references/tumor-marker-genes.tsv"
-  visser_markers_file: "../references/visser-all-marker-genes.tsv"
   marker_gene_classification: "../results/annotate_tumor_cells_output/SCPCS000490/SCPCL000822_tumor-normal-classifications.tsv"
   tumor_marker_predictions: "../results/annotate_tumor_cells_output/SCPCS000490/cellassign/SCPCL000822_tumor-only-predictions.tsv"
   visser_marker_predictions: "../results/annotate_tumor_cells_output/SCPCS000490/cellassign/SCPCL000822_visser-predictions.tsv"
@@ -66,6 +64,9 @@ source(jaccard_functions)
 sce_filename <- glue::glue("{params$library_id}_processed.rds")
 sce_file <- file.path(sample_dir, sce_filename)
 
+tumor_markers_file <- file.path(module_base, "references", "tumor-marker-genes.tsv")
+visser_markers_file <- file.path(module_base, "references", "visser-all-marker-genes.tsv")
+
 # output annotations
 cellassign_annotations_file <- file.path(params$results_dir, glue::glue("{params$library_id}_cellassign-annotations.tsv"))
 ```
@@ -96,13 +97,13 @@ get_celltype_assignment <- function(predictions){
 sce <- readr::read_rds(sce_file)
 
 # read in tumor marker genes table 
-tumor_markers_df <- readr::read_tsv(params$tumor_markers_file) |> 
+tumor_markers_df <- readr::read_tsv(tumor_markers_file) |> 
   # account for genes being from multiple sources
   dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |> 
   dplyr::distinct()
 
 # read in all marker genes 
-visser_markers_df <- readr::read_tsv(params$visser_markers_file) |> 
+visser_markers_df <- readr::read_tsv(visser_markers_file) |> 
   # account for genes being from multiple sources
   dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |> 
   dplyr::distinct()
@@ -112,6 +113,7 @@ visser_markers_df <- readr::read_tsv(params$visser_markers_file) |>
 classifications_df <- readr::read_tsv(params$marker_gene_classification)
 tumor_predictions <- readr::read_tsv(params$tumor_marker_predictions)
 visser_predictions <- readr::read_tsv(params$visser_marker_predictions)
+panglao_predictions <- readr::read_tsv(params$panglao_predictions)
 ```
 
 
@@ -230,9 +232,7 @@ We can also test to see if classifying tumor cells works with adding a few more 
 Below we will use `CellAssign` but with all tumor marker genes and all marker genes in Visser et al. for non-tumor cells. 
 
 ```{r}
-# read in predictions and get cell type assignments 
-visser_predictions <- readr::read_tsv(visser_predictions_file)
-
+# get cell type assignments 
 visser_celltype_assignments <- get_celltype_assignment(visser_predictions)
 
 table(visser_celltype_assignments$celltype)
@@ -357,13 +357,13 @@ marker_gene_exp_df <- celltype_df |>
     names_to = "ensembl_gene_id",
     values_to = "gene_expression"
   ) |> 
-  dplyr::left_join(all_markers_df)
+  dplyr::left_join(visser_markers_df)
 ```
 
 
 ```{r}
 # get a list of all celltypes in the reference
-celltypes <- unique(all_markers_df$cell_type)
+celltypes <- unique(visser_markers_df$cell_type)
 
 # for each cell type, plot each individual marker as a UMAP 
 celltypes |> 
@@ -425,9 +425,6 @@ So we will use a reference that takes the markers for Endothelial cells and Fibr
 
 
 ```{r}
-# read in predictions file
-panglao_predictions <- readr::read_tsv(params$panglao_predictions)
-
 # get cell type assignments 
 panglao_celltype_assignments <- get_celltype_assignment(panglao_predictions)
 
