@@ -205,9 +205,6 @@ cnv_df <- all_cnv_df |>
       rowSums(across(has_cnv_cols))
     ),
     z_scaled_cnv = scale(has_cnv))
-
-# combine back together for plotting 
-cnv_df <- bind_rows(reference_cells_only, unknown_cells_only)
 ```
 
 
@@ -267,7 +264,11 @@ chr_weights <- final_cnv_obj@gene_order |>
 cnv_df <- cnv_df |> 
   dplyr::rowwise() |> 
   # calculate weighted mean, excluding normal cells 
-  dplyr::mutate(mean_proportion = ifelse(!is.na(has_cnv), weighted.mean(across(proportion_cols), num_genes_df$n), NA)) |> 
+  dplyr::mutate(
+    mean_proportion = ifelse(
+      !is.na(has_cnv), 
+      weighted.mean(across(proportion_cols), chr_weights), 
+      NA)) |> 
   dplyr::ungroup()
 ```
 
@@ -411,55 +412,49 @@ There are a few known copy number variations in Ewing's sarcoma:
 Although these are the most frequent, there are patients who do not have any of these alterations and patients that only have some of these alterations. 
 See [Tirode et al.,](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4264969/) and [Crompton et al.](https://doi.org/10.1158/2159-8290.CD-13-1037). 
 
-Below we will plot whether or not the gain or loss is present in each cell according to `InferCNV`. 
+First we will compare the proportions across each chromosome between cells we have labeled as tumor or normal. 
+Then we will look specifically at the chromosomes commonly affected in Ewing sarcoma. 
 
 ```{r}
-# umaps showing where cells are with gains/losses 
-ggplot(cnv_df, aes(x= UMAP1, y = UMAP2, color = has_dupli_chr8)) +
-  geom_point(alpha = 0.5, size = 0.5) +
-  labs(title = "Chr8 gain") +
-  theme_bw()
+# prepare a data frame with one row per chromosome per cell for plotting
+proportion_df <- cnv_df |> 
+  # select only relevant columns for plotting
+  dplyr::select(barcodes, UMAP1, UMAP2, cnv_mean_classification, all_of(proportion_cols)) |> 
+  tidyr::pivot_longer(cols = all_of(proportion_cols),
+    names_to = "chromosome",
+    values_to = "proportion") |> 
+  # remove extra string in front of chr 
+  dplyr::mutate(
+    chromosome = stringr::str_remove(chromosome, "proportion_scaled_cnv_chr"),
+    # turn into numeric for easy ordering in plot 
+    chromosome = as.numeric(chromosome)
+  )
 
-ggplot(cnv_df, aes(x= UMAP1, y = UMAP2, color = has_dupli_chr12)) +
-  geom_point(alpha = 0.5, size = 0.5) +
-  labs(title = "Chr12 gain") +
-  theme_bw()
-
-ggplot(cnv_df, aes(x= UMAP1, y = UMAP2, color = has_dupli_chr1)) +
-  geom_point(alpha = 0.5, size = 0.5) +
-  labs(title = "Chr1 gain") +
-  theme_bw()
-
-ggplot(cnv_df, aes(x= UMAP1, y = UMAP2, color = has_loss_chr16)) +
-  geom_point(alpha = 0.5, size = 0.5) +
-  labs(title = "Chr16 loss") +
-  theme_bw()
 ```
 
-From this we see that the group of tumor cells at the bottom have chr8 and chr1 gains with some having gains of chr12. 
-It doesn't look like any cells have loss of chr16. 
-The other interesting thing is that there is a group of cells that have gains of chr8, chr1, and chr12 that we did not classify as tumor cells. Should they be... 
+```{r, fig.height=10, fig.width=10}
+ggplot(proportion_df, aes(x = proportion, color = cnv_mean_classification)) +
+  geom_density() +
+  theme_bw() +
+  facet_wrap(vars(chromosome), ncol = 3)
+```
 
-We can also look at the proportion of the chromosome with the gain. 
+This shows us that Chr1, Chr8, and Chr12 all appear to have a gain in the proportion of the chromosome with a CNV between tumor and normal cells. 
+There are a few other chromosomes that also have alterations (Chr3, Chr4, etc.) with another set of chromosomes that appear to be unaffected. 
+This includes Chr16. 
+
+Below we plot only Chr1, Chr8, Chr12, and Chr16 and look at the proportion on a UMAP. 
 
 ```{r}
-ggplot(cnv_df, aes(x= UMAP1, y = UMAP2, color = proportion_scaled_dupli_chr8)) +
-  geom_point(alpha = 0.5, size = 0.5) +
-  labs(title = "Chr8 gain") +
-  theme_bw() +
-  scale_color_viridis_c()
+ewings_chr_df <- proportion_df |> 
+  dplyr::filter(chromosome %in% c(1,8,12,16))
 
-ggplot(cnv_df, aes(x= UMAP1, y = UMAP2, color = proportion_scaled_dupli_chr12)) +
+ggplot(ewings_chr_df, aes(x = UMAP1, y=UMAP2 , color = proportion)) +
   geom_point(alpha = 0.5, size = 0.5) +
-  labs(title = "Chr12 gain") +
   theme_bw() +
+  facet_wrap(vars(chromosome)) +
   scale_color_viridis_c()
-
-ggplot(cnv_df, aes(x= UMAP1, y = UMAP2, color = proportion_scaled_dupli_chr1)) +
-  geom_point(alpha = 0.5, size = 0.5) +
-  labs(title = "Chr1 gain") +
-  theme_bw() +
-  scale_color_viridis_c()
+  
 ```
 
 Now when we look at the proportion, we see that only the group of tumor cells on the bottom seem to have a higher proportion of genes in chr8 that have a gain in expression. 
