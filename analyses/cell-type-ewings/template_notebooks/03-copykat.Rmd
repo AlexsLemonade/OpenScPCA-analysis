@@ -9,6 +9,9 @@ output:
 params:
   sample_id: SCPCS000490
   library_id: SCPCL000822
+  marker_gene_classification: "../results/annotate_tumor_cells_output/SCPCS000490/SCPCL000822_tumor-normal-classifications.tsv"
+  no_ref_copykat_results: "../results/annotate_tumor_cells_output/SCPCS000490/no_reference"
+  with_ref_copykat_results: "../results/annotate_tumor_cells_output/SCPCS000490/with_reference"
 ---
 
 
@@ -16,8 +19,7 @@ params:
 
 This notebook explores using [`CopyKAT`](https://github.com/navinlabcode/copykat) to estimate tumor and normal cells in `r params$sample_id` from SCPCP000015. 
 
-`CopyKAT` was run using the `run-copykat.R` script and specifying endothelial cells from both `SingleR` and `CellAssign` as the normal reference. 
-This produced results from `CopyKAT` both with and without a normal reference. 
+`CopyKAT` was run using the `run-copykat.R` script with and without a normal reference. 
 These results are read into this notebook and used to: 
 
 - Visualize diploid and anueploid cells on the UMAP. 
@@ -63,29 +65,19 @@ source(jaccard_functions)
 sce_filename <- glue::glue("{params$library_id}_processed.rds")
 sce_file <- file.path(sample_dir, sce_filename)
 
-# tumor/normal classifications 
-classifications_filename <- glue::glue("{params$library_id}_tumor_normal_classifications.tsv")
-classifications_file <- file.path(module_base, "results", "marker_gene_analysis", classifications_filename)
+obj_file <- glue::glue("{params$library_id}_final-copykat.rds")
+png_file <- glue::glue("{params$libary_id}_heatmap-copykat.png")
 
-# copykat results 
-results_dir <- file.path(module_base, "results", "copykat", params$library_id)
+copykat_objs <- c(
+  no_ref = file.path(params$no_ref_copykat_results, obj_file),
+  with_ref = file.path(params$with_ref_coypkat_results, obj_file)
+) |> 
+  purrr::map(readr::read_rds)
 
-# predictions files 
-predictions_file <- glue::glue("{params$library_id}_copykat_prediction.txt")
-
-predictions_paths <- c(
-  no_ref = file.path(results_dir, "no_normal", predictions_file),
-  with_ref = file.path(results_dir, "endothelial_normal", predictions_file)
+png_list <- c(
+  no_ref = file.path(params$no_ref_copykat_results, png_file),
+  with_ref = file.path(params$with_ref_copykat_results, png_file)
 )
-
-# full results gene by cell 
-full_ck_result_file <- glue::glue("{params$library_id}_copykat_CNA_results.txt")
-  
-full_ck_result_paths <- c(
-  no_ref = file.path(results_dir, "no_normal", full_ck_result_file),
-  with_ref = file.path(results_dir, "endothelial_normal", full_ck_result_file)
-)
-
 ```
 
 
@@ -94,16 +86,22 @@ full_ck_result_paths <- c(
 sce <- readr::read_rds(sce_file)
 
 # read in tumor normal classifications 
-manual_classifications_df <- readr::read_tsv(classifications_file)
+manual_classifications_df <- readr::read_tsv(params$marker_gene_classification)
 
 # read in ck predictions from both reference types (no_normal and with_normal)
-ck_results_df <- predictions_paths |> 
-  purrr::map(readr::read_tsv) |> 
+ck_results_df <- copykat_objs |> 
+  purrr::map(\(obj){
+    obj$prediction |> 
+      as.data.frame()
+  }) |> 
   dplyr::bind_rows(.id = "reference_used")
 
 # read in full gene by cell copy number detection results 
-full_ck_results_df <- full_ck_result_paths |> 
-  purrr::map(readr::read_tsv) |> 
+full_ck_results_df <- copykat_objs |> 
+  purrr::map(\(obj){
+    obj$CNAmat |> 
+      as.data.frame()
+  }) |> 
   dplyr::bind_rows(.id = "reference_used")
 ```
 
@@ -114,13 +112,11 @@ Below we look at the heatmaps produced by `CopyKAT`.
 
 ### Heatmap without reference
 
-![](`r file.path(results_dir, "no_normal", "SCPCL000822_copykat_heatmap.jpeg")`)
+![](`r png_list["no_ref"]`)
 
 ### Heatmap with endothelial cells as reference
 
-![](`r file.path(results_dir, "endothelial_normal", "SCPCL000822_copykat_heatmap.jpeg")`)
-
-Both of these heatmaps appear to show some increase in observed CNVs in aneuploid vs. diploid which is to be expected. 
+![](`r png_list["with_ref"]`)9
 
 ### UMAP
 
@@ -149,8 +145,6 @@ ggplot(cnv_df, aes(x = UMAP1, y = UMAP2, color = copykat.pred)) +
   facet_wrap(vars(reference_used))
 ```
 
-If we look at the UMAPs shown in `01-marker-gene-tumor-classification.Rmd`, the cells that are labeled aneuploid here are consistent with where we saw marker gene expession for tumor cells. 
-It also looks like there is not a visible difference between using a reference of normal cells and not using a reference. 
 
 ### Validate common CNAs found in Ewing sarcoma
 
@@ -199,10 +193,6 @@ ggplot(cnv_df, aes(x = mean_cnv_detection, color = copykat.pred)) +
                  cols = vars(reference_used))
 ```
 
-It looks like the largest increases are in chr8 and chr21. 
-Chr8 is one of the more common CNA's in Ewing's so this is a good sign. 
-
-Chr12 may show some increase, but Chr1 and Chr16 don't show any real differences. 
 
 ### Confusion Matrix
 
@@ -236,15 +226,8 @@ caret_df_list |>
   })
 ```
 
-Looking at these results, we see that cells classified as tumor cells using marker genes are mostly overlapping with cells that are aneuploid in CopyKAT, which is what we expect! 
-We also see that the Kappa values are close to 1, indicating almost perfect agreement. 
-
-It also looks like there isn't a difference between using the reference and not using the reference. 
-The reference Kappa is .1 higher, but I don't think that's enough to argue that you need to use a reference. 
-The one thing to note is that using a reference cut the run time for `CopyKAT` in half, so that is one benefit. 
 
 We can also calculate the Jaccard similarity index to visualize the amount of cells that have overlapping annotations. 
-Given the confusion matrix, I would expect to see good agreement between marker gene and `CopyKAT` annotations. 
 
 ```{r}
 # calculate Jaccard similarity index for each reference type
@@ -305,7 +288,6 @@ heatmap <- jaccard_matrices |>
   )
 ```
 
-As expected, it looks like cells classified as tumor cells using marker gene annotation are classified as `aneuploid` with `CopyKAT`. 
 
 ### Compare CopyKAT to SingleR and CellAssign
 
@@ -381,19 +363,6 @@ heatmap <- jaccard_matrices |>
   )
 ```
 
-
-We see that aneuploid cells are mostly muscle cells in both `CellAssign` and `SingleR`. 
-In `SingleR` there are some other cell types that were assigned that have a few anueploid cells (chondrocytes, neurons, and fibroblasts). 
-
-For diploid cells, we see the most overlap with fibroblasts, endothelial cells, and macrophages. 
-These are consistent with the cell types that we see normal cells line up with in `01-marker-gene-tumor-classification.Rmd`. 
-
-## Conclusions
-
-- `CopyKAT` seems to do a good job in this Ewing sarcoma sample of identifying aneuploid and diploid cells. 
-- There is some small evidence of copy number gains in Chr8 and Chr12 which is consistent with findings in Ewing sarcoma patients. 
-- The annotations from `CopyKAT` mostly line up with annotations obtained using marker gene annotation. 
-- Using a reference of normal cells doesn't change the overall results but does reduce the run time for `CopyKAT`. 
 
 ## Session Info
 
