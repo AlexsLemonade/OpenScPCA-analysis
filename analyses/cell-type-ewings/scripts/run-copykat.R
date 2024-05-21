@@ -111,7 +111,7 @@ copykat_result <- copykat(
 )
 
 # Save outputs 
-readr::write_rds(copykat_result, copykat_output_file)
+readr::write_rds(copykat_result, copykat_output_obj)
 
 # copy over png file 
 fs::file_copy(scratch_png, output_png, overwrite = TRUE)
