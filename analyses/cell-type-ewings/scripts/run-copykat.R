@@ -52,7 +52,7 @@ opt <- parse_args(OptionParser(option_list = option_list))
 stopifnot("sce_file does not exist" = file.exists(opt$sce_file))
 
 # check that results dir was provided 
-stopifnot("Must provide a --results_dir to save results" = is.null(opt$results_dir))
+stopifnot("Must provide a --results_dir to save results" = !is.null(opt$results_dir))
 
 # read in sce file
 sce <- readr::read_rds(opt$sce_file)
@@ -61,13 +61,18 @@ sce <- readr::read_rds(opt$sce_file)
 library_id <- metadata(sce)$library_id
 
 # contstruct and create output folder if not already present 
-fs::dir_create(opt$output_dir)
-
-# path to output copykat object 
-copykat_output_file <- file.path(opt$results_dir, glue::glue("{library_id}_final-copykat.rds"))
+fs::dir_create(opt$results_dir)
 
 # define scratch directory 
 scratch_dir <- file.path(opt$scratch_dir, library_id)
+
+# path to output copykat object 
+copykat_output_obj <- file.path(opt$results_dir, glue::glue("{library_id}_final-copykat.rds"))
+
+# path to scratch and final png file to copy over 
+png_file <- glue::glue("{library_id}_copykat_heatmap.png")
+scratch_png <- file.path(opt$scratch_dir, png_file)
+output_png <- file.path(opt$results_dir, png_file)
 
 # change working directory of the script to the scratch directory
 # this ensures copykat files get saved to the right location
@@ -107,3 +112,7 @@ copykat_result <- copykat(
 
 # Save outputs 
 readr::write_rds(copykat_result, copykat_output_file)
+
+# copy over png file 
+fs::file_copy(scratch_png, output_png, overwrite = TRUE)
+
