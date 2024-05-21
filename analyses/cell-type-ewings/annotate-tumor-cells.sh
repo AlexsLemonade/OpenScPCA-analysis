@@ -161,6 +161,26 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
     echo "Running CopyKAT with no reference..."
     Rscript $scripts_dir/run-copykat.R \
       --sce_file "$sce" \
-      --results_dir "$sample_results_dir/no_reference" \
+      --results_dir "$sample_results_dir/copykat/no_reference" \
       --threads $threads
+
+    echo "Running CopyKAT with a reference..."
+    Rscript $scripts_dir/run-copykat.R \
+      --sce_file "$sce" \
+      --reference_cell_file "$reference_cell_file" \
+      --results_dir "$sample_results_dir/copykat/with_reference" \
+      --threads $threads
+
+    echo "Rendering CopyKAT report..."
+    Rscript -e "rmarkdown::render('$notebook_dir/03-copykat.Rmd', \
+          clean = TRUE, \
+          output_dir = '$sample_results_dir', \
+          output_file = '${library_id}_copykat-report.html', \
+          params = list(sample_id = '$sample_id', \
+                        library_id = '$library_id', \
+                        marker_gene_classification = '$sample_results_dir/${library_id}_tumor-normal-classifications.tsv', \
+                        no_ref_copykat_results = '$sample_results_dir/copykat/no_reference', \
+                        with_ref_coypkat_results = '$sample_results_dir/copykat/with_reference'), \
+          envir = new.env()) \
+    "
 done
