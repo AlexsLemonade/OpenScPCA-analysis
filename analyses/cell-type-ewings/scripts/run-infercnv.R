@@ -144,7 +144,7 @@ infercnv_obj <- infercnv::run(infercnv_obj,
 
 # create table with barcodes and CNVs for each chromosome
 infercnv::add_to_seurat(seurat_obj = NULL,
-                                      infercnv_output_path = scratch_dir)
+                        infercnv_output_path = scratch_dir)
 
 # define path to output cnv metadata file saved in scratch dir
 scratch_metadata_file <- file.path(scratch_dir, "map_metadata_from_infercnv.txt")
