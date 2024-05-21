@@ -78,6 +78,8 @@ fs::dir_create(scratch_dir)
 
 # define output metadata file 
 cnv_metadata_file <- file.path(opt$output_dir, glue::glue("{library_id}_cnv-metadata.tsv"))
+# define path to output cnv metadata file saved in scratch dir
+scratch_metadata_file <- file.path(scratch_dir, "map_metadata_from_infercnv.txt")
 
 # define output infercnv obj
 scratch_obj_file <- file.path(scratch_dir, "run.final.infercnv_obj")
@@ -145,9 +147,6 @@ infercnv_obj <- infercnv::run(infercnv_obj,
 # create table with barcodes and CNVs for each chromosome
 infercnv::add_to_seurat(seurat_obj = NULL,
                         infercnv_output_path = scratch_dir)
-
-# define path to output cnv metadata file saved in scratch dir
-scratch_metadata_file <- file.path(scratch_dir, "map_metadata_from_infercnv.txt")
 
 # copy metadata file to output directory 
 fs::file_copy(scratch_metadata_file, cnv_metadata_file, overwrite = TRUE)
