@@ -69,10 +69,10 @@ scratch_dir <- file.path(opt$scratch_dir, library_id)
 # path to output copykat object 
 copykat_output_obj <- file.path(opt$results_dir, glue::glue("{library_id}_final-copykat.rds"))
 
-# path to scratch and final png file to copy over 
-png_file <- glue::glue("{library_id}_copykat_heatmap.png")
-scratch_png <- file.path(opt$scratch_dir, png_file)
-output_png <- file.path(opt$results_dir, png_file)
+# path to scratch and final heatmap file to copy over 
+jpeg_file <- glue::glue("{library_id}_copykat_heatmap.jpeg")
+scratch_jpeg <- file.path(opt$scratch_dir, jpeg_file)
+output_jpeg <- file.path(opt$results_dir, jpeg_file)
 
 # change working directory of the script to the scratch directory
 # this ensures copykat files get saved to the right location
@@ -114,5 +114,5 @@ copykat_result <- copykat(
 readr::write_rds(copykat_result, copykat_output_obj)
 
 # copy over png file 
-fs::file_copy(scratch_png, output_png, overwrite = TRUE)
+fs::file_copy(scratch_jpeg, output_jpeg, overwrite = TRUE)
 
