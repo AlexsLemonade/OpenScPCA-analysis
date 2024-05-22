@@ -30,26 +30,26 @@ sample_id="SCPCS000491" ./annotate-tumor-cells.sh
 
 set -euo pipefail
 
-# input variables
-sample_id=${sample_id:-"SCPCS000490"}
-normal_celltypes=${normal_celltypes:-"Endothelial cells,endothelial cell"}
-tumor_celltypes=${tumor_celltypes:-"Pulmonary vascular smooth muscle cells,smooth muscle cell"}
-threads=${threads:-4}
-
 # this script lives in the root of the module directory
 # use this to define other default paths
 cd $(dirname "$0")
 module_directory=$(pwd)
 
-# path to input data folder
-data_dir="../../data/current/SCPCP000015"
+# input variables
+sample_id=${sample_id:-"SCPCS000490"}
+normal_celltypes=${normal_celltypes:-"Endothelial cells,endothelial cell"}
+tumor_celltypes=${tumor_celltypes:-"Pulmonary vascular smooth muscle cells,smooth muscle cell"}
+data_dir=${data_dir:-"../../data/current/SCPCP000015"}
+workflow_results_dir=${workflow_results_dir:-"${module_directory}/results/annotate_tumor_cells_output"}
+threads=${threads:-4}
+
+echo $workflow_results_dir
 
 # define paths to notebooks and scripts run in the workflow
 notebook_dir="template_notebooks"
 scripts_dir="scripts"
 
 # define results directories
-workflow_results_dir="${module_directory}/results/annotate_tumor_cells_output"
 sample_results_dir="${workflow_results_dir}/${sample_id}"
 
 cellassign_results_dir="${sample_results_dir}/cellassign"
