@@ -88,7 +88,7 @@ ref_matrix = pd.read_csv(args.reference, sep="\t", index_col="ensembl_gene_id")
 annotated_adata = adata.read_h5ad(args.anndata_file)
 if annotated_adata.raw is not None:
     # make sure to use raw counts if they exist
-    annotated_adata.X = annotated_adata.raw.X 
+    annotated_adata.X = annotated_adata.raw.X
 
 # subset anndata to contain only genes in the reference file
 # note that the gene names must be the rownames of the reference matrix
@@ -109,8 +109,11 @@ subset_adata.X = subset_adata.X.tocsr()
 lib_size = annotated_adata.X.sum(1)
 subset_adata.obs["size_factor"] = lib_size / np.mean(lib_size)
 
-# only run CellAssign if enough cells
-if subset_adata.n_obs < 30:
+# check that shared genes are expressed
+gene_exp = subset_adata.X.sum(1)
+
+# only run CellAssign if enough cells and genes are expressed
+if subset_adata.n_obs < 30 or gene_exp.sum() == 0:
     # make a predictions file that just has the barcode column
     barcodes_column = subset_adata.obs_names.to_list()
     predictions = pd.DataFrame(barcodes_column, columns=["barcode"])
