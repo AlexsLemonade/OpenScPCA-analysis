@@ -1,8 +1,20 @@
 #!/usr/bin/env Rscript
 
 library(SingleCellExperiment)
+library(optparse)
 
 # Setup ------
+
+# Parse options
+option_list <- list(
+  make_option(
+    c("-c", "--cores"),
+    type = "character",
+    help = "Number of cores to use during scDblFinder inference."
+  )
+)
+opts <- parse_args(OptionParser(option_list = option_list))
+
 
 # Define directories
 module_base <- file.path(
@@ -10,7 +22,6 @@ module_base <- file.path(
   "analyses",
   "doublet-detection"
 )
-
 data_dir <- file.path(module_base, "scratch", "benchmark_datasets")
 result_dir <- file.path(module_base, "results", "benchmark_results")
 fs::dir_create(result_dir)
@@ -73,7 +84,7 @@ datanames |>
       output_sce_file <- file.path(result_dir, glue::glue("{dataname}_sce.rds"))
 
       readRDS(input_sce_file) |>
-        run_scdblfinder() |>
+        run_scdblfinder(cores = opts$cores) |>
         readr::write_rds(output_sce_file)
     }
   )

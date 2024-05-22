@@ -18,6 +18,6 @@ Each script exports results to `results/benchmark_results`:
 
 Use these command to run each script:
 ```sh
-Rscript 01a_detect-doublets.R
+Rscript 01a_detect-doublets.R --cores 4 # for example, using 4 cores
 python3 01a_detect-doublets.py
 ```
