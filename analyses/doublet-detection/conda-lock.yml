@@ -13,10 +13,10 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 297a259907b2c5b6c23ca8711639f2562d3433200b3d7b525b8cf4c62cdceca0
-    osx-arm64: 8cd9a1c7ae0db897f61a5cff8d2f2c809c05d376aa4e5606706356c1043f69c8
-    osx-64: d45610431b820e12199e78135be210b5160ff170c0c12f75a45722efc845dced
-    win-64: b95e0995b522481479e5854d4c5e42a572d066e90edf2f5fb41719eae5da856b
+    linux-64: b7a066ad9888aeba2e62e3cf9097cf47f7974a9d5fcce434785b7734c762a143
+    osx-arm64: 1e1bcf49edd6221050586f635c716b33658867c4eeacb7ddb8cb6d146a69d8c5
+    osx-64: 035fa823453ba896d83dbe19f78bbc12ceb0e6caa9b3115482d19ba84cc8a0ed
+    win-64: 51b81ab9133d8113bf9f712162d845e99ceaa78398ad31e3b5eaca327200b0a1
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -8791,6 +8791,54 @@ package:
   hash:
     md5: b9a4dacf97241704529131a0dfc0494f
     sha256: 06c77cb03e5dde2d939b216c99dd2db52ea93a4c7c599f3882f136005c359c7b
+  category: main
+  optional: false
+- name: pyprojroot
+  version: 0.3.0
+  manager: conda
+  platform: linux-64
+  dependencies:
+    python: '>=3.7'
+  url: https://conda.anaconda.org/conda-forge/noarch/pyprojroot-0.3.0-pyhd8ed1ab_0.conda
+  hash:
+    md5: a8cf267fb068e62490a8ae9f7918c7f0
+    sha256: 560cabb0d3e917d732ce729709f53407407e4b9f8d8e2ea0f399482e9406c26c
+  category: main
+  optional: false
+- name: pyprojroot
+  version: 0.3.0
+  manager: conda
+  platform: osx-64
+  dependencies:
+    python: '>=3.7'
+  url: https://conda.anaconda.org/conda-forge/noarch/pyprojroot-0.3.0-pyhd8ed1ab_0.conda
+  hash:
+    md5: a8cf267fb068e62490a8ae9f7918c7f0
+    sha256: 560cabb0d3e917d732ce729709f53407407e4b9f8d8e2ea0f399482e9406c26c
+  category: main
+  optional: false
+- name: pyprojroot
+  version: 0.3.0
+  manager: conda
+  platform: osx-arm64
+  dependencies:
+    python: '>=3.7'
+  url: https://conda.anaconda.org/conda-forge/noarch/pyprojroot-0.3.0-pyhd8ed1ab_0.conda
+  hash:
+    md5: a8cf267fb068e62490a8ae9f7918c7f0
+    sha256: 560cabb0d3e917d732ce729709f53407407e4b9f8d8e2ea0f399482e9406c26c
+  category: main
+  optional: false
+- name: pyprojroot
+  version: 0.3.0
+  manager: conda
+  platform: win-64
+  dependencies:
+    python: '>=3.7'
+  url: https://conda.anaconda.org/conda-forge/noarch/pyprojroot-0.3.0-pyhd8ed1ab_0.conda
+  hash:
+    md5: a8cf267fb068e62490a8ae9f7918c7f0
+    sha256: 560cabb0d3e917d732ce729709f53407407e4b9f8d8e2ea0f399482e9406c26c
   category: main
   optional: false
 - name: pysocks

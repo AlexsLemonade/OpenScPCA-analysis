@@ -11,3 +11,4 @@ dependencies:
   - pre-commit=3.6
   - scrublet=0.2.3
   - anndata=0.10.7
+  - pyprojroot==0.3.0
