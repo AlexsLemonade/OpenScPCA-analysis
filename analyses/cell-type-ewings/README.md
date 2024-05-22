@@ -73,15 +73,40 @@ Running the `annotate-tumor-cells.sh` will generate the following output files i
 
 ```
 annotate_tumor_cells_output
-└── <sample_id>
+├── <sample_id>
+    ├── <library_id>_cellassign-classifications.tsv
+    ├── <library_id>_cellassign-report.html
+    ├── <library_id>_copykat-classifications.tsv
+    ├── <library_id>_copykat-report.html
+    ├── <library_id>_infercnv-classifications.tsv
+    ├── <library_id>_infercnv-report.html
     ├── <library_id>_marker-gene-report.html
-    └── <library_id>_tumor-normal-classifications.tsv
+    ├── <library_id>_tumor-normal-classifications.tsv
+    ├── annotations
+    │   └── <library_id>_reference-cells.tsv
+    ├── cellassign
+    │   ├── <library_id>_panglao-endo-fibro_predictions.tsv
+    │   ├── <library_id>_tumor-marker_predictions.tsv
+    │   └── <library_id>_visser-all-marker_predictions.tsv
+    ├── copykat
+    │   ├── no_reference
+    │   │   ├── <library_id>_copykat_heatmap.jpeg
+    │   │   └── <library_id>_final-copykat.rds
+    │   └── with_reference
+    │       ├── <library_id>_copykat_heatmap.jpeg
+    │       └── <library_id>_final-copykat.rds
+    └── infercnv
+        ├── <library_id>_cnv-metadata.tsv
+        ├── <library_id>_cnv-obj.rds
+        └── <library_id>_infercnv.png
 ```
 
-- `<library_id>_marker-gene-report.html`: A rendered report summarizing use of marker genes to classify tumor cells.
-- `<library_id>_tumor-normal-classifications.tsv`: A TSV file containing all barcodes for that library and the final annotation obtained from marker gene classification as either `Tumor` or `Normal`.
+All `.html` files are rendered reports summarizing use of each method (indicated in the filename) to classify tumor cells.
+All `classifications.tsv` file contain the final annotation as reported by each method.
+The `annotations` folder contains the reference table indicating which cells were used as "normal" or "tumor" cells in various anlaysis.
+See [below](#annotation-files) for more information on this table.
 
-### Reference files
+### Annotation files
 
 Additionally, a reference TSV will be generated for each library containing a table of cell types from `SingleR` and `CellAssign`.
 This file contains any cell barcodes expected to line up with tumor or normal cell types specified with the `normal_celltypes` and `tumor_celltypes` arguments when running `annotate-tumor-cells.sh`.

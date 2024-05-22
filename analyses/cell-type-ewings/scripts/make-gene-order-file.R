@@ -17,6 +17,12 @@ option_list <- list(
     type = "character",
     default = file.path(project_root, "references", "infercnv_refs"), 
     help = "Directory to use for saving GTF file and gene order file."
+  ), 
+  make_option(
+    opt_str = c("--scratch_dir"),
+    type = "character",
+    default = file.path(project_root, "scratch"),
+    help = "Path to store copied GTF file"
   )
 )
 
@@ -29,7 +35,7 @@ fs::dir_create(opt$local_ref_dir)
 # sync gtf file to local directory 
 gtf_filename <- basename(opt$gtf_file)
 
-local_gtf_file <- file.path(opt$local_ref_dir, gtf_filename)
+local_gtf_file <- file.path(opt$scratch_dir, gtf_filename)
 if(!file.exists(local_gtf_file)){
   sync_call <- glue::glue('aws s3 cp {opt$gtf_file} {local_gtf_file}')
   system(sync_call)
