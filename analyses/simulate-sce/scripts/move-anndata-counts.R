@@ -21,7 +21,7 @@ opts <- parse_args(OptionParser(option_list = option_list))
 
 anndata_files <- list.files(
   opts$dir,
-  pattern = "_processed_.+\.h5ad$",
+  pattern = "_processed_.+\\.h5ad$",
   recursive = TRUE,
   full.names = TRUE
 )
@@ -34,7 +34,7 @@ on.exit(basiliskStop(proc))
 
 # run a function in the basilisk environment to move elements of files
 basiliskRun(proc, fun = function(files){
-  adata <- reticulate::import(anndata)
+  adata <- reticulate::import("anndata")
   for(afile in files){
     h5ad <- adata$read_h5ad(afile)
     if (!is.null(h5ad$layers$get("logcounts"))){
