@@ -68,7 +68,7 @@ tumor_markers_file <- file.path(module_base, "references", "tumor-marker-genes.t
 visser_markers_file <- file.path(module_base, "references", "visser-all-marker-genes.tsv")
 
 # output annotations
-cellassign_annotations_file <- file.path(params$results_dir, glue::glue("{params$library_id}_cellassign-annotations.tsv"))
+cellassign_annotations_file <- file.path(params$results_dir, glue::glue("{params$library_id}_cellassign-classifications.tsv"))
 ```
 
 Define some helper functions for creating a reference matrix and obtaining cell type annotations from `CellAssign` predictions. 
@@ -491,6 +491,18 @@ ComplexHeatmap::Heatmap(
   ),
   show_heatmap_legend = TRUE,
 )
+```
+
+## Save annotations
+
+```{r}
+celltype_df <- celltype_df |> 
+  dplyr::select(barcodes, 
+                marker_gene_cellassign_annotations = cellassign_annotations, 
+                visser_cellassign_annotations, 
+                panglao_cellassign_annotations)
+
+readr::write_tsv(celltype_df, cellassign_annotations_file)
 ```
 
 ## Session Info
