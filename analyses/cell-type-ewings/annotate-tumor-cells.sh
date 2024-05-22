@@ -47,14 +47,18 @@ data_dir="../../data/current/SCPCP000015"
 workflow_results_dir="${module_directory}/results/annotate_tumor_cells_output"
 sample_results_dir="${workflow_results_dir}/${sample_id}"
 
-# define output directory for ref file
-ref_dir="${module_directory}/references"
-cell_lists_dir="$ref_dir/cell_lists/$sample_id"
-mkdir -p $cell_lists_dir
+# define output directory for any annotations file
+# this is where reference cell tables and annotations files (for InferCNV) will be saved
+annotation_dir="$sample_results_dir/annotations"
+mkdir -p $annotation_dir
 
 # define paths to notebooks and scripts run in the workflow
 notebook_dir="template_notebooks"
 scripts_dir="scripts"
+
+# Run preparation scripts to create any references that only need to be created once
+# Make gene order file
+Rscript $scripts_dir/make-gene-order-file.R
 
 # Run the workflow for each library in the sample directory
 for sce in $data_dir/$sample_id/*_processed.rds; do
@@ -62,8 +66,10 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
     # define library ID
     library_id=$(basename $sce | sed 's/_processed.rds$//')
 
+    # Create ref table ---------------------------------------------------
+
     # define output reference file
-    reference_cell_file="$cell_lists_dir/${library_id}_reference-cells.tsv"
+    reference_cell_file="$annotation_dir/${library_id}_reference-cells.tsv"
 
     # Create table with reference cell types
     echo "Starting workflow for $sample_id, $library_id"
@@ -73,6 +79,8 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
       --normal_cells "${normal_celltypes}" \
       --tumor_cells "${tumor_celltypes}" \
       --output_filename "${reference_cell_file}"
+
+    # Marker gene annotation --------------------------------------------
 
     # Obtain manual annotations
     echo "Getting manual annotations..."
@@ -86,4 +94,33 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
                         reference_cell_file = '$reference_cell_file'), \
           envir = new.env()) \
     "
+
+
+    # InferCNV -------------------------------------------------------
+
+    # define annotations file
+    annotations_file="$annotation_dir/${library_id}_normal-annotations.txt"
+
+    # Run InferCNV
+    echo "running InferCNV..."
+    Rscript $scripts_dir/run-infercnv.Rmd \
+      --sce_file "$sce" \
+      --annotations_file "$annotations_file" \
+      --reference_cell_file "$reference_cell_file" \
+      --output_dir "$sample_results_dir/infercnv" \
+      --threads 4
+
+    # render infercnv notebook with results
+    Rscript -e "rmarkdown::render('$notebook_dir/04-infercnv.Rmd', \
+          clean = TRUE, \
+          output_dir = '$sample_results_dir', \
+          output_file = '${library_id}_infercnv-report.html', \
+          params = list(sample_id = '$sample_id', \
+                        library_id = '$library_id', \
+                        marker_gene_classification_file = '$sample_results_dir/${library_id}_tumor-normal-classifications.tsv', \
+                        results_dir = '$sample_results_dir', \
+                        infercnv_dir = '$sample_results_dir/infercnv'), \
+          envir = new.env()) \
+    "
+
 done

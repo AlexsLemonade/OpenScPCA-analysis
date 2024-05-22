@@ -5,3 +5,8 @@
 # Ignore the scratch directory (but keep it present)
 /scratch/*
 !/scratch/.gitkeep
+
+# Ignore any large reference files
+references/infercnv_refs/*.gtf.gz
+references/infercnv_refs/*gene_order.txt
+
