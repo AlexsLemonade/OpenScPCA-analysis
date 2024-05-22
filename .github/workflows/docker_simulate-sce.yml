@@ -47,6 +47,13 @@ jobs:
         with:
           registry-type: public
 
+      - name: Create ECR repository if needed
+        id: create-ecr
+        if: github.event_name == 'push'
+        run: |
+          aws ecr-public describe-repositories --repository-names ${{ env.MODULE }} \
+          || aws ecr-public create-repository --repository-name ${{ env.MODULE }}
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
