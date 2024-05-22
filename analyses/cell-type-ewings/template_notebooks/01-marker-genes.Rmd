@@ -147,6 +147,15 @@ umap_df <- sce |>
 
 
 ```{r}
+if(sum(umap_df$gene_expression) == 0){
+  has_marker_gene_exp <- FALSE
+} else {
+  has_marker_gene_exp <- TRUE
+}
+```
+
+
+```{r, eval=has_marker_gene_exp}
 # faceted umap showing a umap panel for each marker gene 
 ggplot(umap_df, aes(x = UMAP1, y = UMAP2, color = gene_expression)) +
     geom_point(alpha = 0.1, size = 0.2) +
@@ -172,7 +181,7 @@ ggplot(umap_df, aes(x = UMAP1, y = UMAP2, color = gene_expression)) +
 We can also look at the distributions for each marker gene. 
 We would expect to see some sort of bimodal distribution separating cells that do and do not have expression of the marker gene. 
 
-```{r}
+```{r, eval=has_marker_gene_exp}
 ggplot(umap_df, aes(x = gene_expression, fill = gene_symbol)) +
   geom_density() +
   facet_wrap(vars(gene_symbol)) +
@@ -181,7 +190,7 @@ ggplot(umap_df, aes(x = gene_expression, fill = gene_symbol)) +
 
 Now we will transform each of the gene expression vectors by generating z-scores and use a cutoff of z-score > 0 to call tumor cells. 
 
-```{r}
+```{r, eval=has_marker_gene_exp}
 umap_df <- umap_df |> 
   dplyr::group_by(gene_symbol) |>
   # get z-scores for each gene
@@ -190,7 +199,7 @@ umap_df <- umap_df |>
 ```
 
 
-```{r}
+```{r, eval=has_marker_gene_exp}
 ggplot(umap_df, aes(x = transformed_gene_expression, fill = gene_symbol)) +
   geom_density() +
   facet_wrap(vars(gene_symbol)) +
@@ -206,7 +215,7 @@ This also means the sum of all z-scores > 0.
 
 Below, we can get the sum of the transformed gene expression of all marker genes and plot in a single UMAP. 
 
-```{r}
+```{r, eval=has_marker_gene_exp}
 # calculate sum gene expression across all marker genes in list 
 marker_sum_exp <- umap_df |> 
   dplyr::group_by(barcodes) |> 
@@ -223,7 +232,7 @@ ggplot(marker_sum_exp, aes(x = UMAP1, y = UMAP2, color = sum_exp)) +
 
 Now let's classify any cell that has a sum of marker genes > 0 (after z-transformation) as tumor cells. 
 
-```{r}
+```{r, eval=has_marker_gene_exp}
 # classify tumor cells based on presence of any marker genes 
 marker_sum_exp <- marker_sum_exp |> 
   dplyr::mutate(sum_classification = dplyr::if_else(sum_exp > 0, "Tumor", "Normal"))
@@ -235,7 +244,7 @@ ggplot(marker_sum_exp, aes(x = UMAP1, y = UMAP2, color = sum_classification)) +
 This gives us a rough idea of cells that may be classified as tumor cells. 
 Let's look at the expression of each marker gene in tumor vs. normal cells and see if we see distinct separation between all of them or only a subset. 
 
-```{r}
+```{r, eval=has_marker_gene_exp}
 # add cell types from sum classification to plotting df 
 celltype_df <- umap_df |> 
   dplyr::left_join(marker_sum_exp)
@@ -253,7 +262,7 @@ ggplot(celltype_df, aes(x=transformed_gene_expression, color = sum_classificatio
 Below, we will use `scran::findMarkers()` to find any markers between tumor and normal cells. 
 Since we used marker genes to classify tumor cells, we expect that at least some of the top markers would be from our list of tumor markers. 
 
-```{r}
+```{r, eval=has_marker_gene_exp}
 # add in tumor/normal classification to colData of SCE 
 celltypes_only_df <- marker_sum_exp |> 
   dplyr::select(barcodes, sum_classification)
@@ -269,7 +278,7 @@ markers <- scran::findMarkers(sce,
                               pval.type = "all") 
 ```
 
-```{r}
+```{r, eval=has_marker_gene_exp}
 # pull out top markers for tumor cells 
 tumor_markers <- markers$Tumor |> 
   as.data.frame() |> 
@@ -298,7 +307,7 @@ Then for each set of cells, how many of those actually express each marker gene.
 
 We expect that good marker genes will be expressed in tumor cells but not normal cells. 
 
-```{r, fig.height=10, fig.width=10}
+```{r, fig.height=10, fig.width=10, eval=has_marker_gene_exp}
 marker_plot_df <- celltype_df |> 
   dplyr::mutate(gene_expresed = dplyr::if_else(transformed_gene_expression > 0, TRUE, FALSE)) |> 
   dplyr::select(gene_symbol, gene_expresed, sum_classification)
@@ -319,7 +328,7 @@ The last thing we will do here is compare the manual annotations with the annota
 
 Let's create a heatmap looking at the Jaccard similarity index between each of the assigned cell types and the tumor/normal classification.  
 
-```{r}
+```{r, eval=has_marker_gene_exp}
 # get all assigned cell types in one dataframe 
 celltypes_df <- as.data.frame(colData(sce)) |> 
   dplyr::select(barcodes, singler_celltype_annotation, cellassign_celltype_annotation) |> 
@@ -343,7 +352,7 @@ jaccard_matrices <- celltype_columns |>
 ```
 
 
-```{r, fig.height=10, fig.width=7}
+```{r, fig.height=10, fig.width=7, eval=has_marker_gene_exp}
 # Set heatmap padding option
 heatmap_padding <- 0.2
 ComplexHeatmap::ht_opt(TITLE_PADDING = grid::unit(heatmap_padding, "in"))
@@ -390,7 +399,7 @@ heatmap <- jaccard_matrices |>
 ```
 
 
-```{r}
+```{r, eval=has_marker_gene_exp}
 # plot comparing marker gene expression in cells annotated as "normal" and "tumor" by SingleR and CellAssign 
 # use already identified normal/tumor cell types 
 if(!is.null(ref_cells_df)){
@@ -435,14 +444,24 @@ if(!is.null(ref_cells_df)){
 ## Save outputs 
 
 ```{r}
-# get a dataframe with barcodes, sum_classification and cluster_classification 
-celltypes_df <- celltypes_df |> 
-  dplyr::select(
-    barcodes,
-    marker_gene_classification = sum_classification
+if(has_marker_gene_exp){
+  # get a dataframe with barcodes, sum_classification and cluster_classification 
+  celltypes_df <- celltypes_df |> 
+    dplyr::select(
+      barcodes,
+      marker_gene_classification = sum_classification
+    )
+  
+  readr::write_tsv(celltypes_df, output_classifications_file)
+} else{
+  # save marker gene classification as NA if no expression 
+  celltypes_df <- data.frame(
+    barcodes = umap_df$barcodes,
+    marker_gene_classification = NA
   )
-
-readr::write_tsv(celltypes_df, output_classifications_file)
+  
+  readr::write_tsv(celltypes_df, output_classifications_file)
+}
 ```
 
 
