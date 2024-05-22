@@ -10,12 +10,6 @@ library(optparse)
 
 option_list <- list(
   make_option(
-    opt_str = c("--local_ref_dir"),
-    type = "character",
-    default = file.path(project_root, "references"),
-    help = "Path to where reference files live"
-  ),
-  make_option(
     opt_str = "--all_markers",
     type = "character",
     default = file.path(project_root, "references", "visser-all-marker-genes.tsv"),
@@ -37,6 +31,12 @@ option_list <- list(
     type = "character",
     default = file.path(project_root, "references", "cellassign_refs"),
     help = "Directory to save all reference matrix files"
+  ),
+  make_option(
+    opt_str = c("--scratch_dir"),
+    type = "character",
+    default = file.path(project_root, "scratch"),
+    help = "Path to store copied GTF file"
   )
 )
 
@@ -95,9 +95,11 @@ panglao_markers_df <- readr::read_tsv(opt$panglao_file) |>
 # sync gtf file to local directory 
 gtf_filename <- stringr::word(opt$gtf_file, -1, sep = "/")
 
-local_gtf_file <- file.path(opt$local_ref_dir, gtf_filename)
-sync_call <- glue::glue('aws s3 cp {opt$gtf_file} {local_gtf_file}')
-system(sync_call)
+local_gtf_file <- file.path(opt$scratch_dir, gtf_filename)
+if(!file.exists(local_gtf_file)){
+  sync_call <- glue::glue('aws s3 cp {opt$gtf_file} {local_gtf_file}')
+  system(sync_call) 
+}
 
 # Prep panglao df --------------------------------------------------------------
 
