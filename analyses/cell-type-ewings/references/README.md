@@ -33,3 +33,19 @@ Both of these files were created in `01-marker-gene-classification-cellassign.Rm
 2. `filtered-tumor-marker-cellassign.tsv`: This file contains a binary matrix with only the genes that have mean gene expression > 1 in SCPCS000490.
 3. `visser-all-marker-cellassign.tsv`: This file contains a binary matrix with all marker genes in `tumor-marker-genes.tsv` and all markers for normal cells identified in the Supplemental methods of [Visser et al.,](https://doi.org/10.1158/2767-9764.CRC-23-0027).
 4. `panglao-endo-fibro-cellassign.tsv`: This file contains a binary matrix with all marker genes for endothelial cells and fibroblasts from `PanglaoDB_markers_2020-03-27.tsv` and all tumor markes from `tumor-marker-genes.tsv`.
+
+## InferCNV references
+
+The `infercnv_refs` folder contains any references needed to run `InferCNV`.
+
+`InferCNV` requires a gene order file contianing all genes and the start and stop positions for those genes.
+This file is a tab delimited `.txt` file with no column headers.
+The columns correspond to Ensembl gene id, chromosome, start, and stop.
+
+The gene order file, `Homo_sapiens.GRCh38.104.gene_order.txt`, is too large to store on the remote repository.
+If you need to run any analysis for `InferCNV`, this file can be created by running `scripts/make-gene-order-file.R` with default parameters.
+
+The other required input for `InferCNV` is an annotation file with two columns and no column headers.
+The first column contains the cell barcode and the second contains the annotation for that cell (either `reference` or `unknown`).
+These files are specific for each library and depend on which cells are denoted as the reference.
+Each library contains a folder with any annotations file used to run `InferCNV` for that library.
