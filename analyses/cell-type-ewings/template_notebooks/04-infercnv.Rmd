@@ -208,10 +208,7 @@ We will call any tumor cell as those with a total number of cnvs greater than th
 
 ```{r}
 # get mean value for has_cnv, excluding any NAs
-mean_cnv <- cnv_df |> 
-  dplyr::filter(!is.na(has_cnv)) |> 
-  dplyr::pull(has_cnv) |> 
-  mean()
+mean_cnv <- mean(cnv_df$has_cnv, na.rm=TRUE)
 
 # add cnv classification 
 cnv_df <- cnv_df |> 
@@ -277,10 +274,8 @@ Below we will call tumor cells based on those that have a mean scaled proportion
 
 ```{r}
 # get mean value for mean_proportion, excluding any NAs
-all_mean_proportion <- cnv_df |> 
-  dplyr::filter(!is.na(mean_proportion)) |> 
-  dplyr::pull(mean_proportion) |> 
-  mean()
+all_mean_proportion <- mean(cnv_df$mean_proportion, na.rm = TRUE)
+
 
 # add cnv classification 
 cnv_df <- cnv_df |> 
