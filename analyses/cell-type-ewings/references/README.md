@@ -16,7 +16,7 @@ Only genes that were consistently expressed across Ewing sarcoma tumor cells wit
 
 ## All marker genes
 
-`all-marker-genes.tsv` contains a list of marker genes used to identify tumor cells and normal cells.
+`visser-all-marker-genes.tsv` contains a list of marker genes used to identify tumor cells and normal cells.
 This currently contains all genes in `tumor-marker-genes.tsv` and genes used to identify normal cells in [Visser, Beligs, _et al._ (2023)](https://doi.org/10.1158/2767-9764.CRC-23-0027) as indicated in the supplemental methods.
 
 ## Panglao marker genes
@@ -29,10 +29,10 @@ The `cellassign_refs` folder contains any binary matrices that are used as refer
 
 Both of these files were created in `01-marker-gene-classification-cellassign.Rmd`:
 
-1. `tumor-marker-cellassign.tsv`: This file contains a binary matrix with all genes in `tumor-marker-genes.tsv`.
-2. `filtered-tumor-marker-cellassign.tsv`: This file contains a binary matrix with only the genes that have mean gene expression > 1 in SCPCS000490.
-3. `visser-all-marker-cellassign.tsv`: This file contains a binary matrix with all marker genes in `tumor-marker-genes.tsv` and all markers for normal cells identified in the Supplemental methods of [Visser et al.,](https://doi.org/10.1158/2767-9764.CRC-23-0027).
-4. `panglao-endo-fibro-cellassign.tsv`: This file contains a binary matrix with all marker genes for endothelial cells and fibroblasts from `PanglaoDB_markers_2020-03-27.tsv` and all tumor markes from `tumor-marker-genes.tsv`.
+1. `tumor-marker_cellassign.tsv`: This file contains a binary matrix with all genes in `tumor-marker-genes.tsv`.
+2. `filtered-tumor-marker_cellassign.tsv`: This file contains a binary matrix with only the genes that have mean gene expression > 1 in SCPCS000490.
+3. `visser-all-marker_cellassign.tsv`: This file contains a binary matrix with all marker genes in `tumor-marker-genes.tsv` and all markers for normal cells identified in the Supplemental methods of [Visser et al.,](https://doi.org/10.1158/2767-9764.CRC-23-0027).
+4. `panglao-endo-fibro_cellassign.tsv`: This file contains a binary matrix with all marker genes for endothelial cells and fibroblasts from `PanglaoDB_markers_2020-03-27.tsv` and all tumor markes from `tumor-marker-genes.tsv`.
 
 ## InferCNV references
 

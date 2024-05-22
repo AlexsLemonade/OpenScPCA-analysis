@@ -34,6 +34,7 @@ set -euo pipefail
 sample_id=${sample_id:-"SCPCS000490"}
 normal_celltypes=${normal_celltypes:-"Endothelial cells,endothelial cell"}
 tumor_celltypes=${tumor_celltypes:-"Pulmonary vascular smooth muscle cells,smooth muscle cell"}
+threads=${threads:-4}
 
 # this script lives in the root of the module directory
 # use this to define other default paths
@@ -43,28 +44,50 @@ module_directory=$(pwd)
 # path to input data folder
 data_dir="../../data/current/SCPCP000015"
 
+# define paths to notebooks and scripts run in the workflow
+notebook_dir="template_notebooks"
+scripts_dir="scripts"
+
 # define results directories
 workflow_results_dir="${module_directory}/results/annotate_tumor_cells_output"
 sample_results_dir="${workflow_results_dir}/${sample_id}"
+
+cellassign_results_dir="${sample_results_dir}/cellassign"
+mkdir -p $cellassign_results_dir
 
 # define output directory for any annotations file
 # this is where reference cell tables and annotations files (for InferCNV) will be saved
 annotation_dir="$sample_results_dir/annotations"
 mkdir -p $annotation_dir
 
-# define paths to notebooks and scripts run in the workflow
-notebook_dir="template_notebooks"
-scripts_dir="scripts"
+# define output directory for refrence matrix files
+ref_dir="${module_directory}/references"
+
+# cellassign refs
+tumor_only_ref="${ref_dir}/cellassign_refs/tumor-marker_cellassign.tsv"
+visser_ref="${ref_dir}/cellassign_refs/visser-all-marker_cellassign.tsv"
+panglao_ref="${ref_dir}/cellassign_refs/panglao-endo-fibro_cellassign.tsv"
 
 # Run preparation scripts to create any references that only need to be created once
-# Make gene order file
-Rscript $scripts_dir/make-gene-order-file.R
+
+# generate cell assign refs to use only one time
+if [[ ! -f $tumor_only_ref || ! -f $visser_ref || ! -f $panglao_ref ]]; then
+  Rscript $scripts_dir/generate-cellassign-refs.R
+fi
+
+# Make gene order file if it's not already present
+if [ ! -f "$ref_dir/infercnv_refs/Homo_sapiens.GRCh38.104.gene_order.txt" ]; then
+  Rscript $scripts_dir/make-gene-order-file.R
+fi
 
 # Run the workflow for each library in the sample directory
 for sce in $data_dir/$sample_id/*_processed.rds; do
 
     # define library ID
     library_id=$(basename $sce | sed 's/_processed.rds$//')
+
+    # path to anndata
+    anndata_file="$data_dir/$sample_id/${library_id}_processed_rna.h5ad"
 
     # Create ref table ---------------------------------------------------
 
@@ -95,6 +118,92 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
           envir = new.env()) \
     "
 
+    # CellAssign ---------------------------------------------------------
+    # define output predictions files
+    tumor_only_predictions="${cellassign_results_dir}/${library_id}_tumor-marker_predictions.tsv"
+    visser_predictions="${cellassign_results_dir}/${library_id}_visser-all-marker_predictions.tsv"
+    panglao_predictions="${cellassign_results_dir}/${library_id}_panglao-endo-fibro_predictions.tsv"
+
+    # run cellassign for each reference
+    # only run cellassign if the predictions file doesn't exist already
+    if [ ! -f $tumor_only_predictions ]; then
+      echo "Running CellAssign for ${library_id} with ${tumor_only_ref}"
+      conda run -n openscpca-cell-type-ewings python "$scripts_dir/run-cellassign.py" \
+        --anndata_file $anndata_file \
+        --output_predictions "${tumor_only_predictions}" \
+        --reference "${tumor_only_ref}" \
+        --seed 2024 \
+        --threads $threads
+    fi
+
+    if [ ! -f $visser_predictions ]; then
+      echo "Running CellAssign for ${library_id} with ${visser_ref}"
+      conda run -n openscpca-cell-type-ewings python "$scripts_dir/run-cellassign.py" \
+        --anndata_file $anndata_file \
+        --output_predictions "${visser_predictions}" \
+        --reference "${visser_ref}" \
+        --seed 2024 \
+        --threads $threads
+    fi
+
+    if [ ! -f $panglao_predictions ]; then
+      echo "Running CellAssign for ${library_id} with ${panglao_ref}"
+      conda run -n openscpca-cell-type-ewings python "$scripts_dir/run-cellassign.py" \
+        --anndata_file $anndata_file \
+        --output_predictions "${panglao_predictions}" \
+        --reference "${panglao_ref}" \
+        --seed 2024 \
+        --threads $threads
+    fi
+
+
+    # render report
+    echo "Rendering CellAssign summary report..."
+    Rscript -e "rmarkdown::render('$notebook_dir/02-cellassign.Rmd', \
+          clean = TRUE, \
+          output_dir = '$sample_results_dir', \
+          output_file = '${library_id}_cellassign-report.html', \
+          params = list(sample_id = '$sample_id', \
+                        library_id = '$library_id', \
+                        results_dir = '$sample_results_dir', \
+                        marker_gene_classification = '$sample_results_dir/${library_id}_tumor-normal-classifications.tsv', \
+                        tumor_marker_predictions = '$tumor_only_predictions', \
+                        visser_marker_predictions = '$visser_predictions', \
+                        panglao_predictions = '$panglao_predictions'), \
+          envir = new.env()) \
+    "
+
+    # CopyKAT ----------------------------------------------------------
+    if [ ! -f "$sample_results_dir/copykat/no_reference/${library_id}_final-copykat.rds" ]; then
+      echo "Running CopyKAT with no reference..."
+      Rscript $scripts_dir/run-copykat.R \
+        --sce_file "$sce" \
+        --results_dir "$sample_results_dir/copykat/no_reference" \
+        --threads $threads
+    fi
+
+    if [ ! -f "$sample_results_dir/copykat/with_reference/${library_id}_final-copykat.rds" ]; then
+      echo "Running CopyKAT with a reference..."
+      Rscript $scripts_dir/run-copykat.R \
+        --sce_file "$sce" \
+        --reference_cell_file "$reference_cell_file" \
+        --results_dir "$sample_results_dir/copykat/with_reference" \
+        --threads $threads
+    fi
+
+    echo "Rendering CopyKAT report..."
+    Rscript -e "rmarkdown::render('$notebook_dir/03-copykat.Rmd', \
+          clean = TRUE, \
+          output_dir = '$sample_results_dir', \
+          output_file = '${library_id}_copykat-report.html', \
+          params = list(sample_id = '$sample_id', \
+                        library_id = '$library_id', \
+                        marker_gene_classification = '$sample_results_dir/${library_id}_tumor-normal-classifications.tsv', \
+                        no_ref_copykat_results = '$sample_results_dir/copykat/no_reference', \
+                        with_ref_copykat_results = '$sample_results_dir/copykat/with_reference'), \
+          envir = new.env()) \
+    "
+
 
     # InferCNV -------------------------------------------------------
 
@@ -102,13 +211,15 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
     annotations_file="$annotation_dir/${library_id}_normal-annotations.txt"
 
     # Run InferCNV
-    echo "running InferCNV..."
-    Rscript $scripts_dir/run-infercnv.Rmd \
-      --sce_file "$sce" \
-      --annotations_file "$annotations_file" \
-      --reference_cell_file "$reference_cell_file" \
-      --output_dir "$sample_results_dir/infercnv" \
-      --threads 4
+    if [ ! -f "$sample_results_dir/infercnv/${library_id}_cnv-obj.rds" ]; then
+      echo "running InferCNV..."
+      Rscript $scripts_dir/run-infercnv.Rmd \
+        --sce_file "$sce" \
+        --annotations_file "$annotations_file" \
+        --reference_cell_file "$reference_cell_file" \
+        --output_dir "$sample_results_dir/infercnv" \
+        --threads 4
+    fi
 
     # render infercnv notebook with results
     Rscript -e "rmarkdown::render('$notebook_dir/04-infercnv.Rmd', \
@@ -117,7 +228,7 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
           output_file = '${library_id}_infercnv-report.html', \
           params = list(sample_id = '$sample_id', \
                         library_id = '$library_id', \
-                        marker_gene_classification_file = '$sample_results_dir/${library_id}_tumor-normal-classifications.tsv', \
+                        marker_gene_classification = '$sample_results_dir/${library_id}_tumor-normal-classifications.tsv', \
                         results_dir = '$sample_results_dir', \
                         infercnv_dir = '$sample_results_dir/infercnv'), \
           envir = new.env()) \

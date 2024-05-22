@@ -9,8 +9,8 @@ output:
 params:
   sample_id: SCPCS000490
   library_id: SCPCL000822
-  marker_genes_classification_file: "../results/annotate_tumor_cells_output/SCPCS000490/SCPCL000822_tumor-normal-classifications.tsv"
-  infercnv_dir: "../results/annotate_tumor_cells_output/SCPCS000490/infercnv/endothelial_reference"
+  marker_gene_classification: "../results/annotate_tumor_cells_output/SCPCS000490/SCPCL000822_tumor-normal-classifications.tsv"
+  infercnv_dir: "../results/annotate_tumor_cells_output/SCPCS000490/infercnv"
   results_dir: "../results/annotate_tumor_cells_output/SCPCS000490"
 ---
 
@@ -65,10 +65,10 @@ sce_file <- file.path(sample_dir, sce_filename)
 png_file <-file.path(params$infercnv_dir, glue::glue("{params$library_id}_infercnv.png"))
 
 # with ref cnv metadata file 
-cnv_metadata_file <- file.path(params$infercnv_dir, "endothelial_reference", glue::glue("{params$library_id}_cnv-metadata.tsv"))
+cnv_metadata_file <- file.path(params$infercnv_dir, glue::glue("{params$library_id}_cnv-metadata.tsv"))
 
 # full infercnv object with information on genes/ chr to use later 
-final_cnv_obj_file <- file.path(params$infercnv_dir, "endothelial_reference", glue::glue("{params$library_id}_cnv-obj.rds"))
+final_cnv_obj_file <- file.path(params$infercnv_dir, glue::glue("{params$library_id}_cnv-obj.rds"))
 
 # output classifications file 
 infercnv_results_file <- file.path(params$results_dir, glue::glue("{params$library_id}_infercnv-classifications.tsv"))
@@ -81,7 +81,7 @@ stopifnot(
   "PNG file with heatmap is missing" = file.exists(png_file),
   "CNV metadata file is missing" = file.exists(cnv_metadata_file),
   "Final InferCNV object is missing" = file.exists(final_cnv_obj_file),
-  "Marker gene classifications are missing" = file.exists(params$marker_genes_classification_file)
+  "Marker gene classifications are missing" = file.exists(params$marker_gene_classification)
 )
 ```
 
@@ -96,7 +96,7 @@ cnv_metadata_df <- read.delim(cnv_metadata_file) |>
   tibble::rownames_to_column("barcodes")
 
 # read in tumor normal classifications 
-manual_classifications_df <- readr::read_tsv(params$marker_genes_classification_file)
+manual_classifications_df <- readr::read_tsv(params$marker_gene_classification)
 
 # read in cnv object 
 final_cnv_obj <- readr::read_rds(final_cnv_obj_file)
