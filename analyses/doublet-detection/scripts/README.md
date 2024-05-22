@@ -10,3 +10,14 @@ Use this command to run the bash script:
 ```sh
 bash 00a_download-benchmark-data.sh
 ```
+
+2. `01a_detect-doublets.R` and `01b_detect-doublets.py` detect doublets using R-based (`scDblFinder`) and Python-based (`scrublet`) methods, respectively.
+Each script exports results to `results/benchmark_results`:
+- `01a_detect-doublets.R` exports SCE files with `scDblFinder` results
+- `01b_detect-doublets.py` exports TSV files with `scrublet` results
+
+Use these command to run each script:
+```sh
+Rscript 01a_detect-doublets.R
+python3 01a_detect-doublets.py
+```
