@@ -2,7 +2,7 @@ name: Build docker image for simulate-sce
 env:
   MODULE: simulate-sce
   MODULE_PATH: analyses/simulate-sce
-  REGISTRY: openscpca
+  REGISTRY_ALIAS: openscpca
 
 on:
   pull_request:
@@ -16,6 +16,7 @@ on:
   push:
     branches:
       - main
+      - jashapiro/* # This is for testing purposes
     paths:
       - analyses/simulate-sce/Dockerfile
       - analyses/simulate-sce/.dockerignore
@@ -53,17 +54,18 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: public.ecr.aws/${{ env.REGISTRY }}/${{ env.MODULE }}
-          # tag with semver for releases (will also tag latest), edge for main branch
+          images: public.ecr.aws/${{ env.REGISTRY_ALIAS }}/${{ env.MODULE }}
+          # tag with semver for releases (will also tag latest), edge for main branch, ref for pr
           tags: |
             type=semver,pattern={{raw}}
             type=edge,branch=main
+            type=ref,event=branch
 
       - name: Build and push image
         uses: docker/build-push-action@v5
         with:
           context: "{{defaultContext}}:${{ env.MODULE_PATH }}"
-          push: ${{ github.event_name == 'push' }}
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
