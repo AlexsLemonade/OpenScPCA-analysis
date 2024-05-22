@@ -203,8 +203,7 @@ cnv_df <- all_cnv_df |>
       stringr::str_detect(subcluster, "reference"), 
       NA_real_, 
       rowSums(across(has_cnv_cols))
-    ),
-    z_scaled_cnv = scale(has_cnv))
+    ))
 ```
 
 
@@ -218,29 +217,32 @@ ggplot(cnv_df, aes(x = UMAP1, y= UMAP2, color = has_cnv)) +
 This shows that the total CNVs are highest in the group of cells that correspond to the same cells that are manually annotated as tumor cells, which is promising. 
 Those cells in grey (bottom left) are cells used as a reference. 
 If we were to use total CNVs we would need some sort of cut off for the number. 
-Let's look at the distribution of total CNVs and also the scaled total CNVs to see if we can identify a cut off. 
+Let's look at the distribution of total CNVs to see if we can identify a cut off. 
 
 ```{r}
 ggplot(cnv_df, aes(x = has_cnv)) +
   geom_freqpoly(binwidth = 1, center = 0) +
   theme_bw() +
   labs(x = "Total number of CNVs")
-
-ggplot(cnv_df, aes(x= z_scaled_cnv)) + 
-  geom_density() +
-  theme_bw() +
-  labs(x = "z-scaled chromosome CNV count")
 ```
 
-Looking at the scaled number of CNVs it does look like we could use 0 as the cutoff and call any cell that has > 0 CNVs (after scaling) as tumor and all other cells as normal. 
+We will call any tumor cell as those with a total number of cnvs greater than the mean(number of cnvs). 
 
 In the below plot we label all non-reference cells as either tumor or normal. 
 Cells that are NA are those that were already classified as reference cells. 
 
 ```{r}
+# get mean value for has_cnv, excluding any NAs
+mean_cnv <- cnv_df |> 
+  dplyr::filter(!is.na(has_cnv)) |> 
+  dplyr::pull(has_cnv) |> 
+  mean()
+
 # add cnv classification 
 cnv_df <- cnv_df |> 
-  dplyr::mutate(cnv_classification = dplyr::if_else(has_cnv > mean(has_cnv), "Tumor", "Normal"))
+  dplyr::mutate(cnv_classification = dplyr::case_when(is.na(has_cnv) ~ "Reference",
+                                                      has_cnv > mean_cnv ~ "Tumor",
+                                                      has_cnv <= mean_cnv ~ "Normal"))
 
 ggplot(cnv_df, aes(x = UMAP1, y= UMAP2, color = cnv_classification)) +
   geom_point(alpha = 0.5, size = 0.5) +
@@ -285,7 +287,6 @@ ggplot(cnv_df, aes(x = mean_proportion)) +
   theme_bw()
 ```
 
-It looks like we could use a cutoff of 0.1 here to classify tumor/normal cells. 
 Let's see how this matches up with the tumor/normal classifications we defined just using total CNVs. 
 
 ```{r}
@@ -297,10 +298,20 @@ ggplot(cnv_df, aes(x = mean_proportion, color = cnv_classification)) +
 As expected, the cells we labeled as tumor have a higher mean proportion value then those that we labeled as normal. 
 I'm not really sure which is "better" to use the mean proportion or just the detection of CNVs to call tumor cells. 
 
+Below we will call tumor cells based on those that have a mean scaled proportion higher than the mean of all proportions. 
+
 ```{r}
+# get mean value for mean_proportion, excluding any NAs
+all_mean_proportion <- cnv_df |> 
+  dplyr::filter(!is.na(mean_proportion)) |> 
+  dplyr::pull(mean_proportion) |> 
+  mean()
+
 # add cnv classification 
 cnv_df <- cnv_df |> 
-  dplyr::mutate(cnv_mean_classification = dplyr::if_else(mean_proportion > 0.1, "Tumor", "Normal"))
+  dplyr::mutate(cnv_mean_classification = dplyr::case_when(is.na(mean_proportion) ~ "Reference",
+                                                           mean_proportion > all_mean_proportion ~ "Tumor",
+                                                           mean_proportion <= all_mean_proportion ~ "Normal"))
 
 ggplot(cnv_df, aes(x = UMAP1, y= UMAP2, color = cnv_mean_classification)) +
   geom_point(alpha = 0.5, size = 0.5) +
@@ -318,6 +329,7 @@ Below we can compare these annotations from InferCNV to classifying tumor cells 
 all_classifications_df <- cnv_df |> 
   dplyr::left_join(manual_classifications_df) |>
   # relevel classifications for confusion matrix 
+  dplyr::filter(cnv_mean_classification != "Reference") |> 
   dplyr::mutate(
     cnv_classification = forcats::fct_relevel(cnv_mean_classification, "Tumor"),
     marker_gene_classification = forcats::fct_relevel(marker_gene_classification, "Tumor")
@@ -441,7 +453,6 @@ ggplot(proportion_df, aes(x = proportion, color = cnv_mean_classification)) +
 
 This shows us that Chr1, Chr8, and Chr12 all appear to have a gain in the proportion of the chromosome with a CNV between tumor and normal cells. 
 There are a few other chromosomes that also have alterations (Chr3, Chr4, etc.) with another set of chromosomes that appear to be unaffected. 
-This includes Chr16. 
 
 Below we plot only Chr1, Chr8, Chr12, and Chr16 and look at the proportion on a UMAP. 
 

@@ -173,14 +173,15 @@ Let's start by just summing up the total number of chromosomes with CNVs per cel
 # grab any columns that have has_cnv 
 has_cnv_cols <- names(all_cnv_df)[startsWith(colnames(all_cnv_df), "has_cnv")]
 
-cnv_df <- all_cnv_df |> 
+# don't include the normal cells that were provided as reference in scaling 
+cnv_df <- all_cnv_df |>
+  # get total number of chromosomes with cnvs per cell and then scale that number 
   dplyr::mutate(
     has_cnv = ifelse(
       stringr::str_detect(subcluster, "reference"), 
       NA_real_, 
       rowSums(across(has_cnv_cols))
-    ),
-    z_scaled_cnv = scale(has_cnv))
+    ))
 ```
 
 
@@ -194,26 +195,29 @@ ggplot(cnv_df, aes(x = UMAP1, y= UMAP2, color = has_cnv)) +
 
 Those cells in grey (bottom left) are cells used as a reference. 
 If we were to use total CNVs we would need some sort of cut off for the number. 
-Let's look at the distribution of total CNVs and also the scaled total CNVs to see if we can identify a cut off. 
+Let's look at the distribution of total CNVs to see if we can identify a cut off. 
 
 ```{r}
 ggplot(cnv_df, aes(x = has_cnv)) +
-  geom_density() +
+  geom_freqpoly(binwidth = 1, center = 0) +
   theme_bw() +
   labs(x = "Total number of CNVs")
-
-ggplot(cnv_df, aes(x= z_scaled_cnv)) + 
-  geom_density() +
-  theme_bw() +
-  labs(x = "z-scaled chromosome CNV count")
 ```
 
-Looking at the scaled number of CNVs we will use 0 as the cutoff and call any cell that has > 0 CNVs (after scaling) as tumor and all other cells as normal. 
+We will call any tumor cell as those with a total number of cnvs greater than the mean(number of cnvs). 
 
 ```{r}
+# get mean value for has_cnv, excluding any NAs
+mean_cnv <- cnv_df |> 
+  dplyr::filter(!is.na(has_cnv)) |> 
+  dplyr::pull(has_cnv) |> 
+  mean()
+
 # add cnv classification 
 cnv_df <- cnv_df |> 
-  dplyr::mutate(cnv_classification = dplyr::if_else(z_scaled_cnv > 0, "Tumor", "Normal"))
+  dplyr::mutate(cnv_classification = dplyr::case_when(is.na(has_cnv) ~ "Reference",
+                                                      has_cnv > mean_cnv ~ "Tumor",
+                                                      has_cnv <= mean_cnv ~ "Normal"))
 
 ggplot(cnv_df, aes(x = UMAP1, y= UMAP2, color = cnv_classification)) +
   geom_point(alpha = 0.5, size = 0.5) +
@@ -258,7 +262,6 @@ ggplot(cnv_df, aes(x = mean_proportion)) +
   theme_bw()
 ```
 
-We will use a cutoff of 0.1 here to classify tumor/normal cells. 
 Let's see how this matches up with the tumor/normal classifications we defined just using total CNVs. 
 
 In the below plot we label all non-reference cells as either tumor or normal. 
@@ -270,10 +273,20 @@ ggplot(cnv_df, aes(x = mean_proportion, color = cnv_classification)) +
   theme_bw()
 ```
 
+Below we will call tumor cells based on those that have a mean scaled proportion higher than the mean of all proportions. 
+
 ```{r}
+# get mean value for mean_proportion, excluding any NAs
+all_mean_proportion <- cnv_df |> 
+  dplyr::filter(!is.na(mean_proportion)) |> 
+  dplyr::pull(mean_proportion) |> 
+  mean()
+
 # add cnv classification 
 cnv_df <- cnv_df |> 
-  dplyr::mutate(cnv_mean_classification = dplyr::if_else(mean_proportion > 0.1, "Tumor", "Normal"))
+  dplyr::mutate(cnv_mean_classification = dplyr::case_when(is.na(mean_proportion) ~ "Reference",
+                                                           mean_proportion > all_mean_proportion ~ "Tumor",
+                                                           mean_proportion <= all_mean_proportion ~ "Normal"))
 
 ggplot(cnv_df, aes(x = UMAP1, y= UMAP2, color = cnv_mean_classification)) +
   geom_point(alpha = 0.5, size = 0.5) +
@@ -291,6 +304,7 @@ Below we can compare these annotations from InferCNV to classifying tumor cells 
 all_classifications_df <- cnv_df |> 
   dplyr::left_join(manual_classifications_df) |>
   # relevel classifications for confusion matrix 
+  dplyr::filter(cnv_mean_classification != "Reference") |> 
   dplyr::mutate(
     cnv_classification = forcats::fct_relevel(cnv_mean_classification, "Tumor"),
     marker_gene_classification = forcats::fct_relevel(marker_gene_classification, "Tumor")
@@ -403,7 +417,7 @@ proportion_df <- cnv_df |>
 
 ```{r, fig.height=10, fig.width=10}
 ggplot(proportion_df, aes(x = proportion, color = cnv_mean_classification)) +
-  geom_density() +
+  geom_density(bounds = c(0,1), bw = 0.05) +
   theme_bw() +
   facet_wrap(vars(chromosome), ncol = 3)
 ```
