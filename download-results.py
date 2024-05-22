@@ -234,7 +234,7 @@ def main() -> None:
             "Some project ids do not start with 'SCPCP' as expected.",
             file=sys.stderr,
         )
-    if samples and not all(s.startswith("SCPS") for s in samples):
+    if samples and not all(s.startswith("SCPCS") for s in samples):
         print(
             "Some sample ids do not start with 'SCPCS' as expected.",
             file=sys.stderr,
