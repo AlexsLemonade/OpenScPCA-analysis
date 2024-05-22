@@ -16,12 +16,12 @@ on:
   push:
     branches:
       - main
-      - jashapiro/* # This is for testing purposes
-    paths:
-      - analyses/simulate-sce/Dockerfile
-      - analyses/simulate-sce/.dockerignore
-      - analyses/simulate-sce/renv.lock
-      - analyses/simulate-sce/conda-lock.yml
+      - jashapiro/docker-simulate-sce # This is for testing purposes
+    # paths:
+    #   - analyses/simulate-sce/Dockerfile
+    #   - analyses/simulate-sce/.dockerignore
+    #   - analyses/simulate-sce/renv.lock
+    #   - analyses/simulate-sce/conda-lock.yml
 
 permissions:
   id-token: write # This is required for requesting the JWT
