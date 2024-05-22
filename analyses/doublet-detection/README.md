@@ -7,27 +7,42 @@ This module explores doublet detection across ScPCA datasets.
 Methods used in this module include the following:
 
 - [`scDBlFinder`](https://bioconductor.org/packages/release/bioc/html/scDblFinder.html)
-- [`scds`](https://bioconductor.org/packages/release/bioc/html/scds.html)
-Please provide a description of your module, including:
+- [`scrublet`](https://github.com/swolock/scrublet)
 
 
 ## Usage
 
-_Forthcoming._
+To run this module, first create the `openscpca-doublet-detection` conda environment, and then activate it:
+
+```sh
+# create the environment
+conda-lock install --name openscpca-doublet-detection conda-lock.yml
+
+# activate the environment
+conda activate openscpca-doublet-detection
+```
+
+Then, run the following bash script:
+
+```sh
+./run_doublet-detection.sh
+```
 
 ## Input files
 
-_Forthcoming._
+This module currently uses input data from [a Zenodo repository](https://doi.org/10.5281/zenodo.4562782) to explore doublet detection methods.
 
 Eventually, we'd like to run all ScPCA datasets through doublet detection, but this is still TBD for this specific module.
 
 ## Output files
 
-_Forthcoming._
+- `results/benchmark_results`
+    - `{dataset_name}_sce.rds`: SCE files with `scDblFinder` inferences
+    - `{dataset_name}_scrublet.tsv`: TSV files with `scrublet` inferences
 
 ## Software requirements
 
-This module uses `renv` to manage software dependencies.
+This module uses both `renv` and `conda` to manage software dependencies.
 A Dockerfile created using [these guidelines](https://openscpca.readthedocs.io/en/latest/software-platforms/docker/docker-images/#r-based-images) is also provided.
 
 ## Computational resources
