@@ -16,12 +16,11 @@ on:
   push:
     branches:
       - main
-      - jashapiro/docker-simulate-sce # This is for testing purposes
-    # paths:
-    #   - analyses/simulate-sce/Dockerfile
-    #   - analyses/simulate-sce/.dockerignore
-    #   - analyses/simulate-sce/renv.lock
-    #   - analyses/simulate-sce/conda-lock.yml
+    paths:
+      - analyses/simulate-sce/Dockerfile
+      - analyses/simulate-sce/.dockerignore
+      - analyses/simulate-sce/renv.lock
+      - analyses/simulate-sce/conda-lock.yml
 
 permissions:
   id-token: write # This is required for requesting the JWT
@@ -62,17 +61,17 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: public.ecr.aws/${{ env.REGISTRY_ALIAS }}/${{ env.MODULE }}
-          # tag with semver for releases (will also tag latest), edge for main branch, ref for pr
+          # tag with semver for releases latest for main branch, ref for prs (tags with branch name)
           tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{raw}}
-            type=edge,branch=main
-            type=ref,event=branch
+            type=ref,event=pr
 
       - name: Build and push image
         uses: docker/build-push-action@v5
         with:
           context: "{{defaultContext}}:${{ env.MODULE_PATH }}"
-          push: true
+          push: ${{ github.event_name == 'push'}}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
