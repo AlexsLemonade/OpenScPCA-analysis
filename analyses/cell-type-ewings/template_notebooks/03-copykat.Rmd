@@ -10,8 +10,10 @@ params:
   sample_id: SCPCS000490
   library_id: SCPCL000822
   marker_gene_classification: "../results/annotate_tumor_cells_output/SCPCS000490/SCPCL000822_tumor-normal-classifications.tsv"
-  no_ref_copykat_results: "../results/annotate_tumor_cells_output/SCPCS000490/no_reference"
-  with_ref_copykat_results: "../results/annotate_tumor_cells_output/SCPCS000490/with_reference"
+  no_ref_copykat_results: "../results/annotate_tumor_cells_output/SCPCS000490/copykat/no_reference"
+  with_ref_copykat_results: "../results/annotate_tumor_cells_output/SCPCS000490/copykat/with_reference"
+  reference_cell_file: "../results/annotate_tumor_cells_output/SCPCS000490/annotations/SCPCL000822_reference-cells.tsv"
+  results_dir: "../results/annotate_tumor_cells_output/SCPCS000490"
 ---
 
 
@@ -70,7 +72,7 @@ png_file <- glue::glue("{params$libary_id}_copykat_heatmap.jpeg")
 
 copykat_objs <- c(
   no_ref = file.path(params$no_ref_copykat_results, obj_file),
-  with_ref = file.path(params$with_ref_coypkat_results, obj_file)
+  with_ref = file.path(params$with_ref_copykat_results, obj_file)
 ) |> 
   purrr::map(readr::read_rds)
 
@@ -78,6 +80,9 @@ png_list <- c(
   no_ref = file.path(params$no_ref_copykat_results, png_file),
   with_ref = file.path(params$with_ref_copykat_results, png_file)
 )
+
+# output classifications file 
+copykat_results_file <- file.path(params$results_dir, glue::glue("{params$library_id}_copykat-classifications.tsv"))
 ```
 
 
@@ -87,6 +92,11 @@ sce <- readr::read_rds(sce_file)
 
 # read in tumor normal classifications 
 manual_classifications_df <- readr::read_tsv(params$marker_gene_classification)
+
+# read in ref cells 
+normal_cells <- readr::read_tsv(params$reference_cell_file) |> 
+  dplyr::filter(reference_cell_class == "Normal") |> 
+  dplyr::pull(barcodes)
 
 # read in ck predictions from both reference types (no_normal and with_normal)
 ck_results_df <- copykat_objs |> 
@@ -135,7 +145,14 @@ cnv_df <- umap_df |>
   # first add manual annotations
   dplyr::left_join(manual_classifications_df) |> 
   # now add copykat results
-  dplyr::left_join(ck_results_df, by = c("barcodes" = "cell.names"))
+  dplyr::left_join(ck_results_df, by = c("barcodes" = "cell.names")) |> 
+  dplyr::mutate(
+    copykat.pred = dplyr::if_else(
+      # label any reference cells that were used 
+      (barcodes %in% normal_cells) & (reference_used == "with_ref"), 
+      "reference", 
+      copykat.pred)
+  )
 ```
 
 ```{r}
@@ -201,7 +218,7 @@ To do this, we will calculate the confusion matrix using `caret::confusionMatrix
 
 ```{r}
 filtered_cnv_df <- cnv_df |> 
-  dplyr::filter(copykat.pred != "not.defined")
+  dplyr::filter(!(copykat.pred %in% c("not.defined", "reference")))
   
 caret_df_list <- filtered_cnv_df |> 
   dplyr::mutate(copykat = ifelse(
@@ -361,6 +378,22 @@ heatmap <- jaccard_matrices |>
     # add a margin to the heatmap so labels don't get cut off
     padding = unit(c(2, 20, 2, 2), "mm")
   )
+```
+
+## Save annotations 
+
+```{r}
+celltype_df <- cnv_df |> 
+  dplyr::select(barcodes, 
+                reference_used,
+                copykat.pred) |> 
+  dplyr::distinct() |> 
+  tidyr::pivot_wider(
+    names_from = reference_used,
+    values_from = copykat.pred
+  )
+
+readr::write_tsv(celltype_df, copykat_results_file)
 ```
 
 
