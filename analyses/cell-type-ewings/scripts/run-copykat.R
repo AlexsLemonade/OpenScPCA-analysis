@@ -71,7 +71,7 @@ copykat_output_obj <- file.path(opt$results_dir, glue::glue("{library_id}_final-
 
 # path to scratch and final heatmap file to copy over 
 jpeg_file <- glue::glue("{library_id}_copykat_heatmap.jpeg")
-scratch_jpeg <- file.path(opt$scratch_dir, jpeg_file)
+scratch_jpeg <- file.path(scratch_dir, jpeg_file)
 output_jpeg <- file.path(opt$results_dir, jpeg_file)
 
 # change working directory of the script to the scratch directory
