@@ -222,7 +222,7 @@ Let's look at the distribution of total CNVs and also the scaled total CNVs to s
 
 ```{r}
 ggplot(cnv_df, aes(x = has_cnv)) +
-  geom_density() +
+  geom_freqpoly(binwidth = 1, center = 0) +
   theme_bw() +
   labs(x = "Total number of CNVs")
 
@@ -240,7 +240,7 @@ Cells that are NA are those that were already classified as reference cells.
 ```{r}
 # add cnv classification 
 cnv_df <- cnv_df |> 
-  dplyr::mutate(cnv_classification = dplyr::if_else(z_scaled_cnv > 0, "Tumor", "Normal"))
+  dplyr::mutate(cnv_classification = dplyr::if_else(has_cnv > mean(has_cnv), "Tumor", "Normal"))
 
 ggplot(cnv_df, aes(x = UMAP1, y= UMAP2, color = cnv_classification)) +
   geom_point(alpha = 0.5, size = 0.5) +
@@ -434,7 +434,7 @@ proportion_df <- cnv_df |>
 
 ```{r, fig.height=10, fig.width=10}
 ggplot(proportion_df, aes(x = proportion, color = cnv_mean_classification)) +
-  geom_density() +
+  geom_density(bounds = c(0,1), bw = 0.05) +
   theme_bw() +
   facet_wrap(vars(chromosome), ncol = 3)
 ```

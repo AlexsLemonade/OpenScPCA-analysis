@@ -27,7 +27,7 @@ opt <- parse_args(OptionParser(option_list = option_list))
 fs::dir_create(opt$local_ref_dir)
 
 # sync gtf file to local directory 
-gtf_filename <- stringr::word(opt$gtf_file, -1, sep = "/")
+gtf_filename <- basename(opt$gtf_file)
 
 local_gtf_file <- file.path(opt$local_ref_dir, gtf_filename)
 if(!file.exists(local_gtf_file)){
