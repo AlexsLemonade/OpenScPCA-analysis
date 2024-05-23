@@ -6,7 +6,7 @@ from pathlib import Path
 import pyprojroot
 
 # Function to run scrublet
-def run_scrublet(adata: anndata) -> tuple[float, str]:
+def run_scrublet(adata: anndata.Anndata) -> tuple[float, str]:
     """
         Run scrublet on a counts matrix from an AnnData object, following https://github.com/swolock/scrublet?tab=readme-ov-file#quick-start
         Returns a tuple of (barcodes, doublet_scores, predicted_doublets)
@@ -19,16 +19,19 @@ def run_scrublet(adata: anndata) -> tuple[float, str]:
     doublet_scores_str = [str(x) for x in doublet_scores]
     predicted_doublets_str = [("doublet" if x else "singlet") for x in predicted_doublets]
 
-    return( (list(adata.obs_names), doublet_scores_str, predicted_doublets_str) )
+    results = {"barcodes" : adata.obs_names, "scrublet_score" : doublet_scores_str, "scrublet_prediction" : predicted_doublets_str}
+    results_df = pd.DataFrame(results)
+
+    return(results_df)
 
 def main() -> None:
 
     # Define directories
     openscpca_base = pyprojroot.find_root(pyprojroot.has_dir(".git"))
-    module_base = Path(openscpca_base / "analyses/doublet-detection")
+    module_base = openscpca_base / "analyses" / "doublet-detection"
 
-    data_dir = Path(module_base / "scratch/benchmark_datasets")
-    result_dir = Path(module_base / "results/benchmark_results")
+    data_dir = module_base / "scratch" / "benchmark_datasets"
+    result_dir = module_base / "results" / "benchmark_results"
     result_dir.mkdir(parents = True, exist_ok = True)
 
     datanames = ["hm-6k", "pbmc-1B-dm", "pdx-MULTI", "HMEC-orig-MULTI"]
@@ -37,12 +40,12 @@ def main() -> None:
         input_anndata = dataname + "_anndata.h5ad"
         result_tsv = dataname + "_scrublet.tsv"
 
-        adata = anndata.read_h5ad( Path(data_dir / input_anndata) )
+        adata = anndata.read_h5ad( data_dir / input_anndata )
         scrub_results = run_scrublet(adata)
 
-        with open(Path(result_dir / result_tsv), "w") as f:
+        with open(result_dir / result_tsv, "w") as f:
             f.write("barcode\tdoublet_score\tpredicted_doublets\n")
-            for x in range(len(scrub_results[0])):
-                f.write("\t".join( [scrub_results[0][x], scrub_results[1][x], scrub_results[2][x]] ) + "\n")
+scrub_results.to_csv(result_tsv, sep="\t", index=False)
 
-main()
+if __name__ == "__main__":
+    main()

@@ -6,9 +6,9 @@
 set -euo pipefail
 
 SCRIPT_DIR=$(dirname "${BASH_SOURCE[0]}")
-OUTDIR=../scratch/benchmark_datasets
-
 cd ${SCRIPT_DIR}
+
+OUTDIR=../scratch/benchmark_datasets
 
 # Download and unzip `real_datasets.zip` archive from https://doi.org/10.5281/zenodo.4562782
 wget https://zenodo.org/records/4562782/files/real_datasets.zip
