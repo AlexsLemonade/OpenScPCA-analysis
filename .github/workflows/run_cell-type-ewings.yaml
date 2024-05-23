@@ -53,6 +53,9 @@ jobs:
 
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-activate-base: true
+          activate-environment: ""
 
       - name: Install and activate locked conda environment
         run: |
