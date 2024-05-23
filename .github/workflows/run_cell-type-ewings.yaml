@@ -53,11 +53,9 @@ jobs:
 
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3
-
-      - name: Install and activate locked conda environment
-        run: |
-          conda install conda-lock
-          conda-lock install --name test ${MODULE_PATH}/conda-lock.yml
+        with:
+          activate-environment: test
+          environment-file: ${{ env.MODULE_PATH }}/conda-lock.yml
 
       - name: Run analysis
         run: |
