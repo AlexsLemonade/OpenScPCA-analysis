@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
+# This script runs scrublet on a given AnnData file and exports results as a TSV.
+
 
 import argparse
 import anndata
 import scrublet
 import pandas
 from pathlib import Path
-import pyprojroot
 import sys
 
 # Function to run scrublet
@@ -37,34 +38,31 @@ def main() -> None:
         description="Detect doublets on a set of AnnData objects using scrublet.",
     )
     parser.add_argument(
-        "--datasets",
+        "--dataset_name",
         type=str,
         default="",
-        help="Names of datasets to process as a comma-separated list."
-               " Datasets are expected to be named `{name}_anndata.h5ad`."
+        help="Name of dataset to process, where the associated file is expected to be named `{name}_anndata.h5ad`."
     )
     parser.add_argument(
         "--data_dir",
         type=Path,
-        help="The directory containing input H5AD files."
+        help="The directory containing input H5AD input file."
     )
     parser.add_argument(
         "--results_dir",
         type=Path,
-        help="The directory to export TSV files with doublet inferences."
+        help="The directory to export TSV file with doublet inferences."
     )
 
     args = parser.parse_args()
 
     # Prepare input arguments
-    dataset_names = [p.strip() for p in args.datasets.split(",")] if args.datasets else []
-    if len(dataset_names) == 0:
+    if args.dataset_name == "":
         print(
-            "Datasets must be provided with the `--datasets` flag.",
+            "Datasets must be provided with the `--dataset_name` flag.",
             file=sys.stderr
         )
         sys.exit(1)
-
     if not args.data_dir.exists():
         print(
             "A correct path to the input data must be provided with --data_dir.",
@@ -73,14 +71,13 @@ def main() -> None:
         sys.exit(1)
     args.results_dir.mkdir(parents = True, exist_ok = True)
 
-    # Run scrublet on each dataset and export the results
-    for dataname in dataset_names:
-        input_anndata = dataname + "_anndata.h5ad"
-        result_tsv = dataname + "_scrublet.tsv"
+    # Run scrublet and export the results
+    input_anndata = args.dataset_name + "_anndata.h5ad"
+    result_tsv = args.dataset_name + "_scrublet.tsv"
 
-        adata = anndata.read_h5ad( args.data_dir / input_anndata )
-        scrub_results = run_scrublet(adata)
-        scrub_results.to_csv( args.results_dir / result_tsv, sep="\t", index=False )
+    adata = anndata.read_h5ad( args.data_dir / input_anndata )
+    scrub_results = run_scrublet(adata)
+    scrub_results.to_csv( args.results_dir / result_tsv, sep="\t", index=False )
 
 if __name__ == "__main__":
     main()
