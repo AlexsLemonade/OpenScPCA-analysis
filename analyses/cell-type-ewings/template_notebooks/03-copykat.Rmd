@@ -68,7 +68,7 @@ sce_filename <- glue::glue("{params$library_id}_processed.rds")
 sce_file <- file.path(sample_dir, sce_filename)
 
 obj_file <- glue::glue("{params$library_id}_final-copykat.rds")
-png_file <- glue::glue("{params$libary_id}_copykat_heatmap.jpeg")
+png_file <- glue::glue("{params$library_id}_copykat_heatmap.jpeg")
 
 copykat_objs <- c(
   no_ref = file.path(params$no_ref_copykat_results, obj_file),
