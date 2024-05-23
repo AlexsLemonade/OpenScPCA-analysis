@@ -150,6 +150,7 @@ umap_df <- sce |>
 # test if _any_ marker genes have expression
 if(sum(umap_df$gene_expression) == 0){
   has_marker_gene_exp <- FALSE
+  message("No marker gene expression detected, so all plots of marker genes will be skipped.")
 } else {
   has_marker_gene_exp <- TRUE
 }

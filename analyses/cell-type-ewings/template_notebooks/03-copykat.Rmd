@@ -96,6 +96,8 @@ manual_classifications_df <- readr::read_tsv(params$marker_gene_classification)
 # check if marker gene annotations are present 
 if(all(is.na(manual_classifications_df$marker_gene_classification))){
   has_marker_gene <- FALSE
+  message("No annotations were available using only marker gene expression. 
+          Any plots comparing CopyKAT to marker gene annotation will be skipped.")
 } else {
   has_marker_gene <- TRUE 
 }
