@@ -44,7 +44,7 @@ jobs:
 
       - name: Install additional system dependencies
         run: |
-          sudo apt-get install -y libcurl4-openssl-dev libglpk40
+          sudo apt-get install -y libcurl4-openssl-dev libglpk40 jags
 
       - name: Set up renv
         uses: r-lib/actions/setup-renv@v2
