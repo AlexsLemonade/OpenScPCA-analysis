@@ -124,3 +124,4 @@ output_tsv_file <- file.path(opts$results_dir, glue::glue("{opts$dataset_name}_s
 readRDS(input_sce_file) |>
   run_scdblfinder(cores = opts$cores) |>
   readr::write_tsv(output_tsv_file)
+ 
