@@ -18,6 +18,11 @@ sample_id: Unique sample ID (name of folder containing libray data)
 normal_celltypes: Comma separated list of cell types annotated with either `SingleR` or `CellAssign` to use as a reference list of normal cells.
 tumor_celltypes: Comma separated list of cell typs annotated with either `SingleR` or `CellAssign` that are expected to align with tumor cells.
 Any cell types used here will be used for comparing to tumor cells annotated in this workflow.
+data_dir: Directory containing SCE and AnnData objects to use for a given project.
+This is the full path to the project folder.
+Default is `../../data/current/SCPCP000015`.
+workflow_results_dir: Full path to folder to store outputs from the workflow.
+By default, all results will be stored in `results/annotate_tumor_cells_output`.
 
 A set of reports summarizing the tumor cell annotations and a TSV file containing annotations from all used methods will be saved to `results/annotate_tumor_cells_output`.
 
@@ -199,6 +204,7 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
           params = list(sample_id = '$sample_id', \
                         library_id = '$library_id', \
                         marker_gene_classification = '$sample_results_dir/${library_id}_tumor-normal-classifications.tsv', \
+                        reference_cell_file = '$reference_cell_file', \
                         no_ref_copykat_results = '$sample_results_dir/copykat/no_reference', \
                         with_ref_copykat_results = '$sample_results_dir/copykat/with_reference'), \
           envir = new.env()) \
@@ -213,7 +219,7 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
     # Run InferCNV
     if [ ! -f "$sample_results_dir/infercnv/${library_id}_cnv-obj.rds" ]; then
       echo "running InferCNV..."
-      Rscript $scripts_dir/run-infercnv.Rmd \
+      Rscript $scripts_dir/run-infercnv.R \
         --sce_file "$sce" \
         --annotations_file "$annotations_file" \
         --reference_cell_file "$reference_cell_file" \
