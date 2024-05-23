@@ -7,6 +7,7 @@ import scrublet
 import pandas
 from pathlib import Path
 import pyprojroot
+import sys
 
 # Function to run scrublet
 def run_scrublet(adata: anndata.AnnData) -> pandas.DataFrame:
@@ -43,18 +44,14 @@ def main() -> None:
                " Datasets are expected to be named `{name}_anndata.h5ad`."
     )
     parser.add_argument(
-        "--input-dir",
+        "--data_dir",
         type=Path,
-        help=(
-            "The directory containing input H5AD files."
-        )
+        help="The directory containing input H5AD files."
     )
     parser.add_argument(
-        "--output-dir",
+        "--results_dir",
         type=Path,
-        help=(
-            "The directory to export TSV files with doublet inferences."
-        )
+        help="The directory to export TSV files with doublet inferences."
     )
 
     args = parser.parse_args()
@@ -67,16 +64,23 @@ def main() -> None:
             file=sys.stderr
         )
         sys.exit(1)
-    args.output_dir.mkdir(parents = True, exist_ok = True)
+
+    if not args.data_dir.exists():
+        print(
+            "A correct path to the input data must be provided with --data_dir.",
+            file=sys.stderr
+        )
+        sys.exit(1)
+    args.results_dir.mkdir(parents = True, exist_ok = True)
 
     # Run scrublet on each dataset and export the results
     for dataname in dataset_names:
         input_anndata = dataname + "_anndata.h5ad"
         result_tsv = dataname + "_scrublet.tsv"
 
-        adata = anndata.read_h5ad( args.input_dir / input_anndata )
+        adata = anndata.read_h5ad( args.data_dir / input_anndata )
         scrub_results = run_scrublet(adata)
-        scrub_results.to_csv( args.output_dir / result_tsv, sep="\t", index=False )
+        scrub_results.to_csv( args.results_dir / result_tsv, sep="\t", index=False )
 
 if __name__ == "__main__":
     main()
