@@ -11,7 +11,7 @@ from pathlib import Path
 import sys
 
 # Function to run scrublet
-def run_scrublet(adata: anndata.AnnData) -> pandas.DataFrame:
+def run_scrublet(adata: anndata.AnnData, random_seed: int) -> pandas.DataFrame:
     """
         Run scrublet on a counts matrix from an AnnData object, following https://github.com/swolock/scrublet?tab=readme-ov-file#quick-start
         Returns a dataframe with the following columns:
@@ -20,7 +20,7 @@ def run_scrublet(adata: anndata.AnnData) -> pandas.DataFrame:
             - `scrublet_prediction` is the predicted droplet status ("doublet" or "singlet"), based on an automatically-set threshold
     """
 
-    scrub = scrublet.Scrublet(adata.X)
+    scrub = scrublet.Scrublet(adata.X, random_state = random_seed)
     # predicted_doublets is boolean array, where True are predicted doublets and False are predicted singlets
     doublet_scores, predicted_doublets = scrub.scrub_doublets()
 
@@ -53,7 +53,12 @@ def main() -> None:
         type=Path,
         help="The directory to export TSV file with doublet inferences."
     )
-
+    parser.add_argument(
+        "--random_seed",
+        type=int,
+        default=2024,
+        help="Random seed to ensure reproducibility."
+    )
     args = parser.parse_args()
 
     # Prepare input arguments
@@ -76,7 +81,7 @@ def main() -> None:
     result_tsv = args.dataset_name + "_scrublet.tsv"
 
     adata = anndata.read_h5ad( args.data_dir / input_anndata )
-    scrub_results = run_scrublet(adata)
+    scrub_results = run_scrublet(adata, args.random_seed)
     scrub_results.to_csv( args.results_dir / result_tsv, sep="\t", index=False )
 
 if __name__ == "__main__":
