@@ -65,6 +65,7 @@ fs::dir_create(opt$results_dir)
 
 # define scratch directory 
 scratch_dir <- file.path(opt$scratch_dir, library_id)
+fs::dir_create(scratch_dir)
 
 # path to output copykat object 
 copykat_output_obj <- file.path(opt$results_dir, glue::glue("{library_id}_final-copykat.rds"))

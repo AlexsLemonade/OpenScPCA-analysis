@@ -93,6 +93,15 @@ sce <- readr::read_rds(sce_file)
 # read in tumor normal classifications 
 manual_classifications_df <- readr::read_tsv(params$marker_gene_classification)
 
+# check if marker gene annotations are present 
+if(all(is.na(manual_classifications_df$marker_gene_classification))){
+  has_marker_gene <- FALSE
+  message("No annotations were available using only marker gene expression. 
+          Any plots comparing CopyKAT to marker gene annotation will be skipped.")
+} else {
+  has_marker_gene <- TRUE 
+}
+
 # read in ref cells 
 normal_cells <- readr::read_tsv(params$reference_cell_file) |> 
   dplyr::filter(reference_cell_class == "Normal") |> 
@@ -216,9 +225,11 @@ ggplot(cnv_df, aes(x = mean_cnv_detection, color = copykat.pred)) +
 Below we directly compare the annotations obtained using manual classification of tumor and normal cells to annotating cells with `CopyKAT`. 
 To do this, we will calculate the confusion matrix using `caret::confusionMatrix()`. 
 
-```{r}
+```{r, eval=has_marker_gene}
 filtered_cnv_df <- cnv_df |> 
-  dplyr::filter(!(copykat.pred %in% c("not.defined", "reference")))
+  dplyr::filter(!(copykat.pred %in% c("not.defined", "reference")),
+                # filter any low confidence calls
+                !stringr::str_detect(copykat.pred, "low.conf"))
   
 caret_df_list <- filtered_cnv_df |> 
   dplyr::mutate(copykat = ifelse(
@@ -246,7 +257,7 @@ caret_df_list |>
 
 We can also calculate the Jaccard similarity index to visualize the amount of cells that have overlapping annotations. 
 
-```{r}
+```{r, eval=has_marker_gene}
 # calculate Jaccard similarity index for each reference type
 jaccard_matrices <- caret_df_list |>
   purrr::map(\(df) {
@@ -259,7 +270,7 @@ jaccard_matrices <- caret_df_list |>
   })
 ```
 
-```{r}
+```{r, eval=has_marker_gene}
 # Set heatmap padding option
 heatmap_padding <- 0.2
 ComplexHeatmap::ht_opt(TITLE_PADDING = grid::unit(heatmap_padding, "in"))
