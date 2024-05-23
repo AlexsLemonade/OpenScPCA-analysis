@@ -46,7 +46,7 @@ def main() -> None:
     parser.add_argument(
         "--data_dir",
         type=Path,
-        help="The directory containing input H5AD input file."
+        help="The directory containing H5AD input file."
     )
     parser.add_argument(
         "--results_dir",
