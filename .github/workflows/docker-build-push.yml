@@ -1,0 +1,50 @@
+name: Build all docker images
+env:
+  REGISTRY_ALIAS: openscpca
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*.*.*"
+    branches:
+      - main
+      - jashapiro/docker-allinone
+    paths:
+      - "analyses/*/Dockerfile"
+      - "analyses/*/.dockerignore"
+      - "analyses/*/renv.lock"
+      - "analyses/*/conda-lock.yml"
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+
+jobs:
+  get-modules:
+    name: Get module names
+    runs-on: ubuntu-latest
+    outputs:
+      modules: ${{ steps.get-modules.outputs.modules }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Find changed modules names
+        id: find-modules
+        run: |
+          git diff --name-only origin/main...HEAD | \
+          grep -E 'Dockerfile|\.dockerignore|renv.lock|conda-lock.yml' | \
+          cut -d '/' -f 2 | \
+          sort | uniq | \
+          jq -Rcn '[inputs]' > modules.json
+
+      - name: Set modules output
+        id: get-modules
+        run: |
+          if $(jq -e '. | length == 0' modules.json); then
+            echo "::set-output name=modules::all"
+          else
+            echo "::set-output name=modules::$(cat modules.json)"
+          fi
+          echo "modules=$(cat modules.json)" >> $GITHUB_OUTPUT
