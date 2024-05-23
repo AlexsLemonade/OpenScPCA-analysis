@@ -1,33 +1,44 @@
-name: Build docker image for {{ MODULE_NAME }}
+# This is a workflow to build the docker image for the {{ openscpca_module }} module
+
+# Replace {{ openscpca_module }} throughout the file and otherwise customize to the needs of the particular module
+
+# Docker modules are run based on three triggers:
+# - On pull requests where code for the docker image has changed, for testing only
+# - On merges into `main`, when the docker image will be pushed to the OpenScPCA docker server
+# - When a release tag is created in the OpenScPCA-analysis repository
+#
+# At initialization, all triggers are inactive
+
+name: Build docker image for {{ openscpca_module }}
 env:
-  MODULE: "{{ MODULE_NAME }}"
-  MODULE_PATH: analyses/{{ MODULE_NAME }}
+  MODULE: "{{ openscpca_module }}"
+  MODULE_PATH: analyses/{{ openscpca_module }}
   REGISTRY_ALIAS: openscpca
 
 concurrency:
   # only one run per branch at a time
-  group: "{{ MODULE_NAME }}-${{ github.ref }}"
+  group: "{{ openscpca_module }}-${{ github.ref }}"
   cancel-in-progress: true
 
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - analyses/{{ MODULE_NAME }}/Dockerfile
-      - analyses/{{ MODULE_NAME }}/.dockerignore
-      - analyses/{{ MODULE_NAME }}/renv.lock
-      - analyses/{{ MODULE_NAME }}/conda-lock.yml
-  push:
-    tags:
-      - "v*.*.*"
-    branches:
-      - main
-    paths:
-      - analyses/{{ MODULE_NAME }}/Dockerfile
-      - analyses/{{ MODULE_NAME }}/.dockerignore
-      - analyses/{{ MODULE_NAME }}/renv.lock
-      - analyses/{{ MODULE_NAME }}/conda-lock.yml
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - "analyses/{{ openscpca_module }}/Dockerfile"
+  #     - "analyses/{{ openscpca_module }}/.dockerignore"
+  #     - "analyses/{{ openscpca_module }}/renv.lock"
+  #     - "analyses/{{ openscpca_module }}/conda-lock.yml"
+  # push:
+  #   tags:
+  #     - "v*.*.*"
+  #   branches:
+  #     - main
+  #   paths:
+  #     - "analyses/{{ openscpca_module }}/Dockerfile"
+  #     - "analyses/{{ openscpca_module }}/.dockerignore"
+  #     - "analyses/{{ openscpca_module }}/renv.lock"
+  #     - "analyses/{{ openscpca_module }}/conda-lock.yml"
 
 permissions:
   id-token: write # This is required for requesting the JWT
