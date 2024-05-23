@@ -3,7 +3,7 @@ FROM bioconductor/r-ver:3.19
 
 # Labels following the Open Containers Initiative (OCI) recommendations
 # For more information, see https://specs.opencontainers.org/image-spec/annotations/?v=v1.0.1
-LABEL org.opencontainers.image.title="ccdl/openscpca-simulate-sce"
+LABEL org.opencontainers.image.title="openscpca/simulate-sce"
 LABEL org.opencontainers.image.description="Docker image for the OpenScPCA analysis module 'simulate-sce'"
 LABEL org.opencontainers.image.authors="OpenScPCA scpca@ccdatalab.org"
 LABEL org.opencontainers.image.source="https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/simulate-sce"

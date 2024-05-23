@@ -76,17 +76,26 @@ Define some helper functions for creating a reference matrix and obtaining cell 
 ```{r}
 # function to get assigned cell type based on max prediction returned by CellAssign 
 get_celltype_assignment <- function(predictions){
-  # get individual cell type assignments
-  # those with the max prediction 
-  celltype_assignments <- predictions |>
-    tidyr::pivot_longer(
-      !barcode,
-      names_to = "celltype",
-      values_to = "score"
-    ) |>
-    dplyr::group_by(barcode) |>
-    dplyr::slice_max(score, n = 1) |>
-    dplyr::ungroup()
+  
+  # if no predictions, assign every cell to NA
+  if(length(colnames(predictions)) == 1){
+    celltype_assignments <- data.frame(
+      barcode = predictions$barcode,
+      celltype = NA
+    )
+  } else {
+    # get individual cell type assignments
+    # those with the max prediction 
+    celltype_assignments <- predictions |>
+      tidyr::pivot_longer(
+        !barcode,
+        names_to = "celltype",
+        values_to = "score"
+      ) |>
+      dplyr::group_by(barcode) |>
+      dplyr::slice_max(score, n = 1) |>
+      dplyr::ungroup() 
+  }
   
   return(celltype_assignments)
 }
@@ -116,6 +125,17 @@ visser_predictions <- readr::read_tsv(params$visser_marker_predictions)
 panglao_predictions <- readr::read_tsv(params$panglao_predictions)
 ```
 
+```{r}
+# check if marker gene annotations are present 
+if(all(is.na(classifications_df$marker_gene_classification))){
+  has_marker_gene <- FALSE
+  message("No annotations were available using only marker gene expression. 
+          Any plots comparing CellAssign to marker gene annotation will be skipped.")
+} else {
+  has_marker_gene <- TRUE 
+}
+```
+
 
 ## Analysis content
 
@@ -131,17 +151,32 @@ Included in that heatmap will be annotation of which cells were classified as tu
 # get cell type assignments 
 tumor_celltype_assignments <- get_celltype_assignment(tumor_predictions)
 
-# create a table of assignments 
-table(tumor_celltype_assignments$celltype)
+if(all(is.na(tumor_celltype_assignments$celltype))){
+  has_tumor_assignments <- FALSE
+  message("No CellAssign assignments found for tumor marker genes.")
+} else {
+ # create a table of assignments 
+  table(tumor_celltype_assignments$celltype) 
+  has_tumor_assignments <- TRUE
+}
+
 ```
 
 ```{r}
-# get annotations for heatmaps
-annotation_df <- data.frame(
-  marker_gene_classification = classifications_df$marker_gene_classification,
-  row.names = classifications_df$barcodes
-)
+# define annotations to use in all heatmaps
+if(has_marker_gene){
+  # get annotations for heatmaps
+  annotation_df <- data.frame(
+    marker_gene_classification = classifications_df$marker_gene_classification,
+    row.names = classifications_df$barcodes
+  ) 
+} else {
+  annotation_df <- NULL
+}
+```
 
+
+```{r, eval=has_tumor_assignments}
 # heatmap of prediction scores 
 tumor_predictions |>
   tibble::column_to_rownames("barcode") |> 
@@ -171,13 +206,13 @@ celltype_df <- sce |>
 ```
 
 
-```{r}
+```{r, eval=has_tumor_assignments}
 ggplot(celltype_df, aes(x = UMAP1, y = UMAP2, color = cellassign_annotations)) +
   geom_point(size = 0.5, alpha = 0.5) + 
   theme_bw()
 ```
 
-```{r}
+```{r, eval=has_tumor_assignments}
 # prep annotations for confusion matrix
 celltype_df <- celltype_df |> 
   dplyr::mutate(cellassign_annotations = ifelse(
@@ -200,7 +235,7 @@ caret::confusionMatrix(
 
 To confirm that the cells with tumor cells have higher expression of marker genes, let's look at the mean expression of marker genes between tumor and other cells as classified by `CellAssign`. 
 
-```{r}
+```{r, eval=has_marker_gene}
 # get marker gene expression 
 marker_gene_exp <- logcounts(sce[tumor_markers_df$ensembl_gene_id, ]) |>
   as.matrix() |>
@@ -235,10 +270,17 @@ Below we will use `CellAssign` but with all tumor marker genes and all marker ge
 # get cell type assignments 
 visser_celltype_assignments <- get_celltype_assignment(visser_predictions)
 
-table(visser_celltype_assignments$celltype)
+if(all(is.na(visser_celltype_assignments$celltype))){
+  has_visser_assignments <- FALSE
+  message("No CellAssign assignments found for tumor marker genes.")
+} else {
+ # create a table of assignments 
+  table(visser_celltype_assignments$celltype) 
+  has_visser_assignments <- TRUE
+}
 ```
 
-```{r}
+```{r, eval=has_visser_assignments}
 # heatmap of prediction scores 
 visser_predictions |>
   tibble::column_to_rownames("barcode") |> 
@@ -428,11 +470,17 @@ So we will use a reference that takes the markers for Endothelial cells and Fibr
 # get cell type assignments 
 panglao_celltype_assignments <- get_celltype_assignment(panglao_predictions)
 
-# create a table of assignments 
-table(panglao_celltype_assignments$celltype)
+if(all(is.na(panglao_celltype_assignments$celltype))){
+  has_panglao_assignments <- FALSE
+  message("No CellAssign assignments found for tumor marker genes.")
+} else {
+ # create a table of assignments 
+  table(panglao_celltype_assignments$celltype) 
+  has_panglao_assignments <- TRUE
+}
 ```
 
-```{r}
+```{r, eval=has_panglao_assignments}
 # heatmap of prediction scores 
 panglao_predictions |>
   tibble::column_to_rownames("barcode") |> 
