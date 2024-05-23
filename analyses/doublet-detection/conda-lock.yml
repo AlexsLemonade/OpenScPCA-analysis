@@ -13,9 +13,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: b7a066ad9888aeba2e62e3cf9097cf47f7974a9d5fcce434785b7734c762a143
-    osx-arm64: 1e1bcf49edd6221050586f635c716b33658867c4eeacb7ddb8cb6d146a69d8c5
-    osx-64: 035fa823453ba896d83dbe19f78bbc12ceb0e6caa9b3115482d19ba84cc8a0ed
+    linux-64: 440529186ec13bd3abec7ee7c5d41706609b461defb996f2d6e3f8a5ba2f6d74
+    osx-arm64: 235b53d19ee39976fa342749447f4d2e96be6cc22e065d9c53b9de2b61046899
+    osx-64: b8ab40a5ba945492156b45512b5c7d4ea89222f2f40857bbec4cfac8c5512fc5
     win-64: 51b81ab9133d8113bf9f712162d845e99ceaa78398ad31e3b5eaca327200b0a1
   channels:
   - url: conda-forge
@@ -982,7 +982,7 @@ package:
   category: main
   optional: false
 - name: awscli
-  version: 2.15.55
+  version: 2.15.56
   manager: conda
   platform: linux-64
   dependencies:
@@ -1000,14 +1000,14 @@ package:
     ruamel.yaml: '>=0.15.0,<=0.17.21'
     ruamel.yaml.clib: '>=0.2.0,<=0.2.7'
     urllib3: '>=1.25.4,<1.27'
-  url: https://conda.anaconda.org/conda-forge/linux-64/awscli-2.15.55-py311h38be061_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/awscli-2.15.56-py311h38be061_0.conda
   hash:
-    md5: d24060dbc565dea5efcea066165f7d0b
-    sha256: 88efc5cd70552905a71bc8c5c2b810c44c4c9c5b42dceb8077ef9b304d53a610
+    md5: 1da9b590d158162038f3f7e73729ce29
+    sha256: 2d34602680718299a07a714697b6c10d19d2725bef7c2bf1e683156eec468919
   category: main
   optional: false
 - name: awscli
-  version: 2.15.55
+  version: 2.15.56
   manager: conda
   platform: osx-64
   dependencies:
@@ -1025,14 +1025,14 @@ package:
     ruamel.yaml: '>=0.15.0,<=0.17.21'
     ruamel.yaml.clib: '>=0.2.0,<=0.2.7'
     urllib3: '>=1.25.4,<1.27'
-  url: https://conda.anaconda.org/conda-forge/osx-64/awscli-2.15.55-py311h6eed73b_0.conda
+  url: https://conda.anaconda.org/conda-forge/osx-64/awscli-2.15.56-py311h6eed73b_0.conda
   hash:
-    md5: 8263322891d55872903b94d9b764c669
-    sha256: 0cd95fc9cbe6a6937b7882d8f56485f39760e913c8140e2aab4eebd5ddb52b0f
+    md5: bdf59c94a90aed341a59f0e240f69510
+    sha256: 4618d31b7263c9bcede857d6d241232fb94df6713b6038d0b0aa76f98d180e3b
   category: main
   optional: false
 - name: awscli
-  version: 2.15.55
+  version: 2.15.56
   manager: conda
   platform: osx-arm64
   dependencies:
@@ -1050,10 +1050,10 @@ package:
     ruamel.yaml: '>=0.15.0,<=0.17.21'
     ruamel.yaml.clib: '>=0.2.0,<=0.2.7'
     urllib3: '>=1.25.4,<1.27'
-  url: https://conda.anaconda.org/conda-forge/osx-arm64/awscli-2.15.55-py311h267d04e_0.conda
+  url: https://conda.anaconda.org/conda-forge/osx-arm64/awscli-2.15.56-py311h267d04e_0.conda
   hash:
-    md5: 771f0adb84b10386a3c320b674201635
-    sha256: e5d456166603fb2d9fc3088aa6501eab96d26cee94c8605606c8de677c930ce6
+    md5: 64cdaef68b1d503b64d767c1d636700a
+    sha256: ead7e8c902a2c46316ac6c86e76ca814383b37c7e8ccfd4e295320f2b19ae84e
   category: main
   optional: false
 - name: awscli
@@ -7755,10 +7755,10 @@ package:
   dependencies:
     ca-certificates: ''
     libgcc-ng: '>=12'
-  url: https://conda.anaconda.org/conda-forge/linux-64/openssl-3.3.0-h4ab18f5_2.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/openssl-3.3.0-h4ab18f5_3.conda
   hash:
-    md5: b8934d399b56d73e323403e183d009c5
-    sha256: e56d9121f553f16ef21d2664c569cd50336291fa1458be5e5c654553a43737e7
+    md5: 12ea6d0d4ed54530eaed18e4835c1f7c
+    sha256: 33dcea0ed3a61b2de6b66661cdd55278640eb99d676cd129fbff3e53641fa125
   category: main
   optional: false
 - name: openssl
@@ -7768,10 +7768,10 @@ package:
   dependencies:
     __osx: '>=10.13'
     ca-certificates: ''
-  url: https://conda.anaconda.org/conda-forge/osx-64/openssl-3.3.0-h87427d6_2.conda
+  url: https://conda.anaconda.org/conda-forge/osx-64/openssl-3.3.0-h87427d6_3.conda
   hash:
-    md5: fa4859f58b1810d77089b0482c886da0
-    sha256: 8a690c05bf3e1016a7dfc44d9b508e9883bbc7bcf5569e9e808c1e028ebb72ab
+    md5: ec504fefb403644d893adffb6e7a2dbe
+    sha256: 58ffbdce44ac18c6632a2ce1531d06e3fb2e855d40728ba3a2b709158b9a1c33
   category: main
   optional: false
 - name: openssl
@@ -7781,10 +7781,10 @@ package:
   dependencies:
     __osx: '>=11.0'
     ca-certificates: ''
-  url: https://conda.anaconda.org/conda-forge/osx-arm64/openssl-3.3.0-hfb2fe0b_2.conda
+  url: https://conda.anaconda.org/conda-forge/osx-arm64/openssl-3.3.0-hfb2fe0b_3.conda
   hash:
-    md5: c9602073e34599f40b8c4ce9e19cabf6
-    sha256: 503b34722d53224c5ebbabd0ffba2681287a810f9b129adb717dc6f6eb193752
+    md5: 730f618b008b3c13c1e3f973408ddd67
+    sha256: 6f41c163ab57e7499dff092be4498614651f0f6432e12c2b9f06859a8bc39b75
   category: main
   optional: false
 - name: openssl
@@ -9836,7 +9836,7 @@ package:
   category: main
   optional: false
 - name: scipy
-  version: 1.13.0
+  version: 1.13.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -9850,18 +9850,18 @@ package:
     numpy: '>=1.19,<3'
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/scipy-1.13.0-py311h517d4fd_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/scipy-1.13.1-py311h517d4fd_0.conda
   hash:
-    md5: a86b8bea39e292a23b2cf9a750f49ea1
-    sha256: dd14400515cf0ee248293b85a0f4b9f989a430f28e5611db5dff2eee56127816
+    md5: 764b0e055f59dbd7d114d32b8c6e55e6
+    sha256: f2312e5565f39308639f982729c151c2c75d5eaf86ac2863e19765f9797f7f3b
   category: main
   optional: false
 - name: scipy
-  version: 1.13.0
+  version: 1.13.1
   manager: conda
   platform: osx-64
   dependencies:
-    __osx: '>=10.9'
+    __osx: '>=10.13'
     libblas: '>=3.9.0,<4.0a0'
     libcblas: '>=3.9.0,<4.0a0'
     libcxx: '>=16'
@@ -9871,14 +9871,14 @@ package:
     numpy: '>=1.19,<3'
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
-  url: https://conda.anaconda.org/conda-forge/osx-64/scipy-1.13.0-py311hd5d9b8d_1.conda
+  url: https://conda.anaconda.org/conda-forge/osx-64/scipy-1.13.1-py311h40a1ab3_0.conda
   hash:
-    md5: a6c59edf565f6e1484913893ddfffe19
-    sha256: be28ef6313697646211ca2e64850c137ff1cac7f06c9a7a26b8393b58ba616d5
+    md5: e7f86277ec9b453bdf2fc1ef54740033
+    sha256: 058a04f1c13a6812884c1bcc9295b2b259ef48685ad30ce8c24e86226e7a43b4
   category: main
   optional: false
 - name: scipy
-  version: 1.13.0
+  version: 1.13.1
   manager: conda
   platform: osx-arm64
   dependencies:
@@ -9892,10 +9892,10 @@ package:
     numpy: '>=1.19,<3'
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
-  url: https://conda.anaconda.org/conda-forge/osx-arm64/scipy-1.13.0-py311hceeca8c_1.conda
+  url: https://conda.anaconda.org/conda-forge/osx-arm64/scipy-1.13.1-py311hceeca8c_0.conda
   hash:
-    md5: be406411b55eab396da245dbf63eb865
-    sha256: 466ef6d19091ad5a8dce8c499cc54d29f0dcb396331900b2080424d52fa15232
+    md5: af2deddee1cc1f11a8a5799a64ecfe3a
+    sha256: 5fd68198ac99720a1cfc3d5e4f534909917ab02b5feb8bc6a70553f54ae65fb7
   category: main
   optional: false
 - name: scipy
@@ -9945,8 +9945,8 @@ package:
   platform: osx-64
   dependencies:
     python: ''
-    pandas: ''
     numpy: ''
+    pandas: ''
     scipy: ''
     matplotlib-base: ''
     scikit-learn: ''
@@ -9966,8 +9966,8 @@ package:
   platform: osx-arm64
   dependencies:
     python: ''
-    pandas: ''
     numpy: ''
+    pandas: ''
     scipy: ''
     matplotlib-base: ''
     scikit-learn: ''

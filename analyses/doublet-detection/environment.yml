@@ -16,3 +16,4 @@ dependencies:
   - scrublet=0.2.3
   - anndata=0.10.7
   - pyprojroot==0.3.0
+  - pandas=2.2.2
