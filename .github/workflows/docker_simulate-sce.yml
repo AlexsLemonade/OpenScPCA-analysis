@@ -63,7 +63,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: public.ecr.aws/${{ env.REGISTRY_ALIAS }}/${{ env.MODULE }}
-          # tag with semantic version for releases/tags, "latest" for main branch pushes, and the branch name for PRs
+          # tag with 'latest' for main branch pushes, semantic version for releases/tags, and the branch name for PRs
           # PR tags are just for convenience and to avoid warnings, as those builds are not pushed
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
