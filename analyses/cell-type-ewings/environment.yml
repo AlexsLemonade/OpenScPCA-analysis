@@ -17,4 +17,5 @@ dependencies:
   - anndata
   - pip
   - pip:
+    - torch
     - scvi-tools
