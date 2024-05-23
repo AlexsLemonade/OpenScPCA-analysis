@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# Download and format ground-truth datasets for use in benchmarking
-# Files are saved to ../scratch/benchmark_datasets
+# Download and format ground-truth datasets for use in benchmarking from https://doi.org/10.5281/zenodo.4562782 (`real_datasets`)
+# This script takes one argument, the output directory where data should be saved
 
 set -euo pipefail
 
 SCRIPT_DIR=$(dirname "${BASH_SOURCE[0]}")
-cd ${SCRIPT_DIR}
+OUTDIR=$1
 
-OUTDIR=../scratch/benchmark_datasets
+cd ${SCRIPT_DIR}
 
 # Download and unzip `real_datasets.zip` archive from https://doi.org/10.5281/zenodo.4562782
 wget https://zenodo.org/records/4562782/files/real_datasets.zip
