@@ -13,9 +13,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 440529186ec13bd3abec7ee7c5d41706609b461defb996f2d6e3f8a5ba2f6d74
-    osx-arm64: 235b53d19ee39976fa342749447f4d2e96be6cc22e065d9c53b9de2b61046899
-    osx-64: b8ab40a5ba945492156b45512b5c7d4ea89222f2f40857bbec4cfac8c5512fc5
+    linux-64: 26532400e93761183d05c22355b6653e2542c021fa79c4d4692f4bd16d2b94d2
+    osx-arm64: b119dcedf83f7e803fdba2ddc06fc7f7ede88dab6df6cd5076930f9cc69850fc
+    osx-64: 7d390dad5ae8a75583d5fbecb4db651b693f51543748d05fb1475efce3cd6d45
     win-64: 51b81ab9133d8113bf9f712162d845e99ceaa78398ad31e3b5eaca327200b0a1
   channels:
   - url: conda-forge
@@ -8796,42 +8796,6 @@ package:
 - name: pyprojroot
   version: 0.3.0
   manager: conda
-  platform: linux-64
-  dependencies:
-    python: '>=3.7'
-  url: https://conda.anaconda.org/conda-forge/noarch/pyprojroot-0.3.0-pyhd8ed1ab_0.conda
-  hash:
-    md5: a8cf267fb068e62490a8ae9f7918c7f0
-    sha256: 560cabb0d3e917d732ce729709f53407407e4b9f8d8e2ea0f399482e9406c26c
-  category: main
-  optional: false
-- name: pyprojroot
-  version: 0.3.0
-  manager: conda
-  platform: osx-64
-  dependencies:
-    python: '>=3.7'
-  url: https://conda.anaconda.org/conda-forge/noarch/pyprojroot-0.3.0-pyhd8ed1ab_0.conda
-  hash:
-    md5: a8cf267fb068e62490a8ae9f7918c7f0
-    sha256: 560cabb0d3e917d732ce729709f53407407e4b9f8d8e2ea0f399482e9406c26c
-  category: main
-  optional: false
-- name: pyprojroot
-  version: 0.3.0
-  manager: conda
-  platform: osx-arm64
-  dependencies:
-    python: '>=3.7'
-  url: https://conda.anaconda.org/conda-forge/noarch/pyprojroot-0.3.0-pyhd8ed1ab_0.conda
-  hash:
-    md5: a8cf267fb068e62490a8ae9f7918c7f0
-    sha256: 560cabb0d3e917d732ce729709f53407407e4b9f8d8e2ea0f399482e9406c26c
-  category: main
-  optional: false
-- name: pyprojroot
-  version: 0.3.0
-  manager: conda
   platform: win-64
   dependencies:
     python: '>=3.7'
@@ -9769,10 +9733,10 @@ package:
     python_abi: 3.11.*
     scipy: ''
     threadpoolctl: '>=3.1.0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/scikit-learn-1.5.0-py311he08f58d_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/scikit-learn-1.5.0-py311he08f58d_1.conda
   hash:
-    md5: 733e6764138e9c6acd950f8d6e7ee5a8
-    sha256: ccf42f937ff2a4d40909c97085834bd7aa02db063855c1a1e09b3a1ad570ebbc
+    md5: d55e4dde3b30272090f33ddd367c580b
+    sha256: 8f4150216761b2dcd5d55066c74c46fd3a2bc823178c730acd18bf050f85ef8a
   category: main
   optional: false
 - name: scikit-learn
@@ -9783,16 +9747,16 @@ package:
     __osx: '>=10.13'
     joblib: '>=1.2.0'
     libcxx: '>=16'
-    llvm-openmp: '>=18.1.5'
+    llvm-openmp: '>=16.0.6'
     numpy: '>=1.19,<3'
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
     scipy: ''
     threadpoolctl: '>=3.1.0'
-  url: https://conda.anaconda.org/conda-forge/osx-64/scikit-learn-1.5.0-py311h3c3ac6d_0.conda
+  url: https://conda.anaconda.org/conda-forge/osx-64/scikit-learn-1.5.0-py311h3c3ac6d_1.conda
   hash:
-    md5: 7adf36ee804ce0c1820a00fb40199cb3
-    sha256: 1e729337d97740405aec2ef32f45640aafed21f9d3374c1a826a267e22aae4a7
+    md5: d8edd327c45efef9fb9319c85c08226d
+    sha256: b056a9cc59711b2f86d114289a3d8800e9057ebc15a2bd0659f4c8326b8a89fe
   category: main
   optional: false
 - name: scikit-learn
@@ -9803,16 +9767,16 @@ package:
     __osx: '>=11.0'
     joblib: '>=1.2.0'
     libcxx: '>=16'
-    llvm-openmp: '>=18.1.5'
+    llvm-openmp: '>=16.0.6'
     numpy: '>=1.19,<3'
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
     scipy: ''
     threadpoolctl: '>=3.1.0'
-  url: https://conda.anaconda.org/conda-forge/osx-arm64/scikit-learn-1.5.0-py311hbfb48bc_0.conda
+  url: https://conda.anaconda.org/conda-forge/osx-arm64/scikit-learn-1.5.0-py311hbfb48bc_1.conda
   hash:
-    md5: ec5c9d61205bc077bc193230363cd8df
-    sha256: 142b83d5853a009f7aa2f433cc6262d8bfc331277fea3d64e0d9b49c44473368
+    md5: f80b6aacea4b2e164efeb011e619015d
+    sha256: 95fe4cf505effa93a734508b77fef4bba0e6d396f8d0a077b10d4f5873fca561
   category: main
   optional: false
 - name: scikit-learn
@@ -10372,45 +10336,45 @@ package:
   category: main
   optional: false
 - name: tifffile
-  version: 2024.5.10
+  version: 2024.5.22
   manager: conda
   platform: linux-64
   dependencies:
     imagecodecs: '>=2023.8.12'
     numpy: '>=1.19.2'
     python: '>=3.9'
-  url: https://conda.anaconda.org/conda-forge/noarch/tifffile-2024.5.10-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/tifffile-2024.5.22-pyhd8ed1ab_0.conda
   hash:
-    md5: 125438a8b679e4c08ee8f244177216c9
-    sha256: e64d5a4d49854ebc12469caa8c4138f959cb32f43a1541a358a6db4c406e8f9b
+    md5: 3930cabe8ca8c8594026fa8768cae75c
+    sha256: 9481c766e09829cc8c3ab99f6f8a2392988df53c1579ecb327e4933feede147d
   category: main
   optional: false
 - name: tifffile
-  version: 2024.5.10
+  version: 2024.5.22
   manager: conda
   platform: osx-64
   dependencies:
     python: '>=3.9'
     numpy: '>=1.19.2'
     imagecodecs: '>=2023.8.12'
-  url: https://conda.anaconda.org/conda-forge/noarch/tifffile-2024.5.10-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/tifffile-2024.5.22-pyhd8ed1ab_0.conda
   hash:
-    md5: 125438a8b679e4c08ee8f244177216c9
-    sha256: e64d5a4d49854ebc12469caa8c4138f959cb32f43a1541a358a6db4c406e8f9b
+    md5: 3930cabe8ca8c8594026fa8768cae75c
+    sha256: 9481c766e09829cc8c3ab99f6f8a2392988df53c1579ecb327e4933feede147d
   category: main
   optional: false
 - name: tifffile
-  version: 2024.5.10
+  version: 2024.5.22
   manager: conda
   platform: osx-arm64
   dependencies:
     python: '>=3.9'
     numpy: '>=1.19.2'
     imagecodecs: '>=2023.8.12'
-  url: https://conda.anaconda.org/conda-forge/noarch/tifffile-2024.5.10-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/tifffile-2024.5.22-pyhd8ed1ab_0.conda
   hash:
-    md5: 125438a8b679e4c08ee8f244177216c9
-    sha256: e64d5a4d49854ebc12469caa8c4138f959cb32f43a1541a358a6db4c406e8f9b
+    md5: 3930cabe8ca8c8594026fa8768cae75c
+    sha256: 9481c766e09829cc8c3ab99f6f8a2392988df53c1579ecb327e4933feede147d
   category: main
   optional: false
 - name: tifffile
