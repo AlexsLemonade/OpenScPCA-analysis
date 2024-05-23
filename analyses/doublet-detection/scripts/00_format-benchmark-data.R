@@ -15,44 +15,47 @@
 project_root <- here::here()
 renv::load(project_root)
 
-
 library(optparse)
-library(SingleCellExperiment)
-library(zellkonverter)
 
 
 option_list <- list(
   make_option(
-    c("-d", "--dir"),
+    "--dataset_name",
+    type = "character",
+    help = "Name of dataset to process."
+  ),
+  make_option(
+    c("--input_dir"),
     type = "character",
     help = "Directory containing data files to format."
+  ),
+  make_option(
+    c("--output_dir"),
+    type = "character",
+    help = "Directory to save formatted files to."
   )
 )
 opts <- parse_args(OptionParser(option_list = option_list))
+fs::dir_create(opts$output_dir)
 
-
-
-# We're only focusing on these datasets for benchmarking
-datanames <- c("hm-6k", "pbmc-1B-dm", "pdx-MULTI", "HMEC-orig-MULTI")
-
-# Perform conversion
-datanames |>
-  purrr::walk(
-    \(dataname) {
-      input_file <- file.path(opts$dir, glue::glue("{dataname}.rds"))
-      output_sce_file <- file.path(opts$dir, glue::glue("{dataname}_sce.rds"))
-      output_anndata_file <- file.path(opts$dir, glue::glue("{dataname}_anndata.h5ad"))
-
-      dat <- readRDS(input_file)
-      mat <- dat[[1]]
-      calls <- dat[[2]]
-
-      # Create and export SCE
-      sce <- SingleCellExperiment(assays = list(counts = mat))
-      sce$ground_truth_doublets <- calls
-      readr::write_rds(sce, output_sce_file)
-
-      # Export AnnData version
-      writeH5AD(sce, output_anndata_file)
-    }
+input_file <- file.path(opts$input_dir, glue::glue("{opts$dataset_name}.rds"))
+if (!file.exists(input_file)) {
+  stop(
+    glue::glue("Input file could not be found at: `{input_file}`.")
   )
+}
+
+output_sce_file <- file.path(opts$output_dir, glue::glue("{opts$dataset_name}_sce.rds"))
+output_anndata_file <- file.path(opts$output_dir, glue::glue("{opts$dataset_name}_anndata.h5ad"))
+
+dat <- readRDS(input_file)
+mat <- dat[[1]] # raw counts matrix
+calls <- dat[[2]] # "singlet" or "doublet"
+
+# Create and export SCE
+sce <- SingleCellExperiment::SingleCellExperiment(assays = list(counts = mat))
+sce$ground_truth_doublets <- calls
+readr::write_rds(sce, output_sce_file)
+
+# Export AnnData version
+zellkonverter::writeH5AD(sce, output_anndata_file)
