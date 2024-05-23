@@ -1,51 +1,82 @@
 #!/usr/bin/env python3
 
+
+import argparse
 import anndata
-import scrublet as scr
+import scrublet
+import pandas
 from pathlib import Path
 import pyprojroot
 
 # Function to run scrublet
-def run_scrublet(adata: anndata.Anndata) -> tuple[float, str]:
+def run_scrublet(adata: anndata.AnnData) -> pandas.DataFrame:
     """
         Run scrublet on a counts matrix from an AnnData object, following https://github.com/swolock/scrublet?tab=readme-ov-file#quick-start
-        Returns a tuple of (barcodes, doublet_scores, predicted_doublets)
+        Returns a dataframe with the following columns:
+            - `barcodes` is the droplet's unique barcode
+            - `scrublet_score` is the probability that each droplet is a doublet
+            - `scrublet_prediction` is the predicted droplet status ("doublet" or "singlet"), based on an automatically-set threshold
     """
 
-    scrub = scr.Scrublet(adata.X)
+    scrub = scrublet.Scrublet(adata.X)
+    # predicted_doublets is boolean array, where True are predicted doublets and False are predicted singlets
     doublet_scores, predicted_doublets = scrub.scrub_doublets()
 
-    # stringify
-    doublet_scores_str = [str(x) for x in doublet_scores]
+    # convert True/False to string values
     predicted_doublets_str = [("doublet" if x else "singlet") for x in predicted_doublets]
 
-    results = {"barcodes" : adata.obs_names, "scrublet_score" : doublet_scores_str, "scrublet_prediction" : predicted_doublets_str}
-    results_df = pd.DataFrame(results)
+    results = {"barcodes" : adata.obs_names, "scrublet_score" : doublet_scores, "scrublet_prediction" : predicted_doublets_str}
+    results_df = pandas.DataFrame(results)
 
     return(results_df)
 
 def main() -> None:
 
-    # Define directories
-    openscpca_base = pyprojroot.find_root(pyprojroot.has_dir(".git"))
-    module_base = openscpca_base / "analyses" / "doublet-detection"
+    parser = argparse.ArgumentParser(
+        description="Detect doublets on a set of AnnData objects using scrublet.",
+    )
+    parser.add_argument(
+        "--datasets",
+        type=str,
+        default="",
+        help="Names of datasets to process as a comma-separated list."
+               " Datasets are expected to be named `{name}_anndata.h5ad`."
+    )
+    parser.add_argument(
+        "--input-dir",
+        type=Path,
+        help=(
+            "The directory containing input H5AD files."
+        )
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        help=(
+            "The directory to export TSV files with doublet inferences."
+        )
+    )
 
-    data_dir = module_base / "scratch" / "benchmark_datasets"
-    result_dir = module_base / "results" / "benchmark_results"
-    result_dir.mkdir(parents = True, exist_ok = True)
+    args = parser.parse_args()
 
-    datanames = ["hm-6k", "pbmc-1B-dm", "pdx-MULTI", "HMEC-orig-MULTI"]
+    # Prepare input arguments
+    dataset_names = [p.strip() for p in args.datasets.split(",")] if args.datasets else []
+    if len(dataset_names) == 0:
+        print(
+            "Datasets must be provided with the `--datasets` flag.",
+            file=sys.stderr
+        )
+        sys.exit(1)
+    args.output_dir.mkdir(parents = True, exist_ok = True)
 
-    for dataname in datanames:
+    # Run scrublet on each dataset and export the results
+    for dataname in dataset_names:
         input_anndata = dataname + "_anndata.h5ad"
         result_tsv = dataname + "_scrublet.tsv"
 
-        adata = anndata.read_h5ad( data_dir / input_anndata )
+        adata = anndata.read_h5ad( args.input_dir / input_anndata )
         scrub_results = run_scrublet(adata)
-
-        with open(result_dir / result_tsv, "w") as f:
-            f.write("barcode\tdoublet_score\tpredicted_doublets\n")
-scrub_results.to_csv(result_tsv, sep="\t", index=False)
+        scrub_results.to_csv( args.output_dir / result_tsv, sep="\t", index=False )
 
 if __name__ == "__main__":
     main()
