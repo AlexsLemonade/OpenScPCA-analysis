@@ -13,15 +13,17 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: cb997c1a4c8f46af3f3bcbeb9d1d8d7e6d8cb00ed1f03996c601cb1c0c830565
-    osx-64: 74c2187c5a1bf9beb589a366193b5b164afbf5f8dbc6889877ddaa1ec32486bd
-    osx-arm64: 213ab50861d96d1747ac5985ca86afe43928cc37787f49eced217cdc4c863614
+    linux-64: 2ba52d3db3351616b048111f431b876536ec7441f4503c0a13ad3fe34f1717e8
+    osx-64: e70d56c542bc601cb830deedbf86475f01e6da16279868f89ce9d50218d5597f
+    osx-arm64: 29c444d38241b6b819a81dd17d1b468372592bb4391535c8ca4d3a9463295ffd
   channels:
   - url: conda-forge
     used_env_vars: []
   - url: bioconda
     used_env_vars: []
   - url: defaults
+    used_env_vars: []
+  - url: pytorch
     used_env_vars: []
   platforms:
   - linux-64
@@ -689,7 +691,7 @@ package:
   category: main
   optional: false
 - name: awscli
-  version: 2.15.56
+  version: 2.15.57
   manager: conda
   platform: linux-64
   dependencies:
@@ -707,14 +709,14 @@ package:
     ruamel.yaml: '>=0.15.0,<=0.17.21'
     ruamel.yaml.clib: '>=0.2.0,<=0.2.7'
     urllib3: '>=1.25.4,<1.27'
-  url: https://conda.anaconda.org/conda-forge/linux-64/awscli-2.15.56-py311h38be061_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/awscli-2.15.57-py311h38be061_0.conda
   hash:
-    md5: 1da9b590d158162038f3f7e73729ce29
-    sha256: 2d34602680718299a07a714697b6c10d19d2725bef7c2bf1e683156eec468919
+    md5: c0879a3f22fc7b58b9b0f1312001d3c3
+    sha256: fa2cfc1f6d8e19b6f7ffc0953f9c5d6350868c7ec6ebcbc8ee410b69f8b8c0a6
   category: main
   optional: false
 - name: awscli
-  version: 2.15.56
+  version: 2.15.57
   manager: conda
   platform: osx-64
   dependencies:
@@ -732,14 +734,14 @@ package:
     ruamel.yaml: '>=0.15.0,<=0.17.21'
     ruamel.yaml.clib: '>=0.2.0,<=0.2.7'
     urllib3: '>=1.25.4,<1.27'
-  url: https://conda.anaconda.org/conda-forge/osx-64/awscli-2.15.56-py311h6eed73b_0.conda
+  url: https://conda.anaconda.org/conda-forge/osx-64/awscli-2.15.57-py311h6eed73b_0.conda
   hash:
-    md5: bdf59c94a90aed341a59f0e240f69510
-    sha256: 4618d31b7263c9bcede857d6d241232fb94df6713b6038d0b0aa76f98d180e3b
+    md5: d652cc46e4ef691142b5c9a0e36a1262
+    sha256: b11428a09adb895d70bc7682c6df408b08059af13c4568c3a9fb1460ab6b104a
   category: main
   optional: false
 - name: awscli
-  version: 2.15.56
+  version: 2.15.57
   manager: conda
   platform: osx-arm64
   dependencies:
@@ -757,10 +759,10 @@ package:
     ruamel.yaml: '>=0.15.0,<=0.17.21'
     ruamel.yaml.clib: '>=0.2.0,<=0.2.7'
     urllib3: '>=1.25.4,<1.27'
-  url: https://conda.anaconda.org/conda-forge/osx-arm64/awscli-2.15.56-py311h267d04e_0.conda
+  url: https://conda.anaconda.org/conda-forge/osx-arm64/awscli-2.15.57-py311h267d04e_0.conda
   hash:
-    md5: 64cdaef68b1d503b64d767c1d636700a
-    sha256: ead7e8c902a2c46316ac6c86e76ca814383b37c7e8ccfd4e295320f2b19ae84e
+    md5: c06d31c2a576871b230fc340ea218418
+    sha256: 568d114491394076e96b0de2b2bd59a0aa250b8211c5e79add689c3ab6b4a16d
   category: main
   optional: false
 - name: awscrt
@@ -1740,48 +1742,6 @@ package:
   hash:
     md5: 09ebc937e6441f174bf76ea8f3b789ce
     sha256: 2c10a11166f3199795efb6ceceb4dd4557c38f40d568df8af2b829e4597dc360
-  category: main
-  optional: false
-- name: cuda-version
-  version: '11.8'
-  manager: conda
-  platform: linux-64
-  dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/cuda-version-11.8-h70ddcb2_3.conda
-  hash:
-    md5: 670f0e1593b8c1d84f57ad5fe5256799
-    sha256: 53e0ffc14ea2f2b8c12320fd2aa38b01112763eba851336ff5953b436ae61259
-  category: main
-  optional: false
-- name: cudatoolkit
-  version: 11.8.0
-  manager: conda
-  platform: linux-64
-  dependencies:
-    __glibc: '>=2.17,<3.0.a0'
-    libgcc-ng: '>=12'
-    libstdcxx-ng: '>=12'
-  url: https://conda.anaconda.org/conda-forge/linux-64/cudatoolkit-11.8.0-h4ba93d1_13.conda
-  hash:
-    md5: eb43f5f1f16e2fad2eba22219c3e499b
-    sha256: 1797bacaf5350f272413c7f50787c01aef0e8eb955df0f0db144b10be2819752
-  category: main
-  optional: false
-- name: cudnn
-  version: 8.9.7.29
-  manager: conda
-  platform: linux-64
-  dependencies:
-    __glibc: '>=2.17,<3.0.a0'
-    cuda-version: '>=11.0,<12.0a0'
-    cudatoolkit: 11.*
-    libgcc-ng: '>=12'
-    libstdcxx-ng: '>=12'
-    libzlib: '>=1.2.13,<1.3.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/cudnn-8.9.7.29-hbc23b4c_3.conda
-  hash:
-    md5: 4a2d5fab2871d95544de4e1752948d0f
-    sha256: c553234d447d9938556f067aba7a4686c8e5427e03e740e67199da3782cc420c
   category: main
   optional: false
 - name: dbus
@@ -3524,43 +3484,6 @@ package:
     sha256: 2b1b24c98d15a6a3ad54cf7c8fef1ddccf84b7c557cde08235aaeffd1ff50ee8
   category: main
   optional: false
-- name: libmagma
-  version: 2.7.2
-  manager: conda
-  platform: linux-64
-  dependencies:
-    __glibc: '>=2.17'
-    _openmp_mutex: '>=4.5'
-    cudatoolkit: '>=11.8,<12'
-    libblas: '>=3.9.0,<4.0a0'
-    libgcc-ng: '>=12'
-    liblapack: '>=3.9.0,<4.0a0'
-    libstdcxx-ng: '>=12'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libmagma-2.7.2-h09b5827_2.conda
-  hash:
-    md5: f6de79234f35c2fcc2e49dc66436601d
-    sha256: 4dd54775f2cfa9c09f4b4cc58a6db00bad50b30e65adf62ffe4213a30d962766
-  category: main
-  optional: false
-- name: libmagma_sparse
-  version: 2.7.2
-  manager: conda
-  platform: linux-64
-  dependencies:
-    __glibc: '>=2.17'
-    _openmp_mutex: '>=4.5'
-    cudatoolkit: '>=11.8,<12'
-    libblas: '>=3.9.0,<4.0a0'
-    libgcc-ng: '>=12'
-    liblapack: '>=3.9.0,<4.0a0'
-    libmagma: '>=2.7.2,<2.7.3.0a0'
-    libstdcxx-ng: '>=12'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libmagma_sparse-2.7.2-h09b5827_3.conda
-  hash:
-    md5: 53157a5777c664896654d8dbc9fd6bf9
-    sha256: ee4a2367446763e6a4ef6d2fa5aea06adfd4ff44853f7390a02b0da77c6f129c
-  category: main
-  optional: false
 - name: libnghttp2
   version: 1.58.0
   manager: conda
@@ -3805,22 +3728,17 @@ package:
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     _openmp_mutex: '>=4.5'
-    cudatoolkit: '>=11.8,<12'
-    cudnn: '>=8.9.7.29,<9.0a0'
     libcblas: '>=3.9.0,<4.0a0'
     libgcc-ng: '>=12'
-    libmagma: '>=2.7.2,<2.7.3.0a0'
-    libmagma_sparse: '>=2.7.2,<2.7.3.0a0'
     libprotobuf: '>=4.25.3,<4.25.4.0a0'
     libstdcxx-ng: '>=12'
     libuv: '>=1.48.0,<2.0a0'
     mkl: '>=2023.2.0,<2024.0a0'
-    nccl: '>=2.21.5.1,<3.0a0'
     sleef: '>=3.5.1,<4.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libtorch-2.3.0-cuda118_hb1906df_300.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libtorch-2.3.0-cpu_mkl_hff68eba_100.conda
   hash:
-    md5: 2099b9eea64471b11ca68079b920d792
-    sha256: 2c2d8fcef18902ea6881ff46b970beb3ca36ac5696a688c8c2e16af3e8399d9e
+    md5: 37c09fab4d27a1fc9f1b00df204c0510
+    sha256: ae99a38871bae39e28eb2fff8e8c04ae538ad403c74967f88d822a5888d70106
   category: main
   optional: false
 - name: libtorch
@@ -4322,20 +4240,6 @@ package:
   hash:
     md5: 70959cd1db3cf77b2a27a0836cfd08a7
     sha256: 1d5c42c7f271779e450d095c49598ce7214a7089f229e59f0b78d8703de67059
-  category: main
-  optional: false
-- name: nccl
-  version: 2.21.5.1
-  manager: conda
-  platform: linux-64
-  dependencies:
-    cuda-version: '>=11.8,<12.0a0'
-    libgcc-ng: '>=12'
-    libstdcxx-ng: '>=12'
-  url: https://conda.anaconda.org/conda-forge/linux-64/nccl-2.21.5.1-h6103f9b_0.conda
-  hash:
-    md5: 05381b62b2faed9609fb68b27cd575aa
-    sha256: 64d0992b9e442f6e92c0fed7584c68bf48d43c741bb589d4afee450d41f805ca
   category: main
   optional: false
 - name: ncurses
@@ -5392,24 +5296,18 @@ package:
   manager: conda
   platform: linux-64
   dependencies:
-    __cuda: ''
     __glibc: '>=2.17,<3.0.a0'
     _openmp_mutex: '>=4.5'
-    cudatoolkit: '>=11.8,<12'
-    cudnn: '>=8.9.7.29,<9.0a0'
     filelock: ''
     fsspec: ''
     jinja2: ''
     libcblas: '>=3.9.0,<4.0a0'
     libgcc-ng: '>=12'
-    libmagma: '>=2.7.2,<2.7.3.0a0'
-    libmagma_sparse: '>=2.7.2,<2.7.3.0a0'
     libprotobuf: '>=4.25.3,<4.25.4.0a0'
     libstdcxx-ng: '>=12'
     libtorch: 2.3.0.*
     libuv: '>=1.48.0,<2.0a0'
     mkl: '>=2023.2.0,<2024.0a0'
-    nccl: '>=2.21.5.1,<3.0a0'
     networkx: ''
     numpy: '>=1.23.5,<2.0a0'
     python: '>=3.11,<3.12.0a0'
@@ -5417,10 +5315,10 @@ package:
     sleef: '>=3.5.1,<4.0a0'
     sympy: ''
     typing_extensions: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/pytorch-2.3.0-cuda118_py311h6c9cb27_300.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pytorch-2.3.0-cpu_mkl_py311h9835ca6_100.conda
   hash:
-    md5: 78355037e83b5eaa0f0df6c7bfa72042
-    sha256: b7a00b85926f7fcc2c35f75942787930e4bb33a58a7f4d6e5224aad92d930b21
+    md5: 146a20d6e63b931f4095c798eed7d3bc
+    sha256: 609c9c8944093d995d922a89a1b7f4bddf31fe06c7095127c0e21503a330de5a
   category: main
   optional: false
 - name: pytorch
@@ -7859,7 +7757,7 @@ package:
   category: main
   optional: false
 - name: orbax-checkpoint
-  version: 0.5.13
+  version: 0.5.14
   manager: pip
   platform: linux-64
   dependencies:
@@ -7874,13 +7772,13 @@ package:
     tensorstore: '>=0.1.51'
     nest-asyncio: '*'
     protobuf: '*'
-  url: https://files.pythonhosted.org/packages/f9/3d/f1a996e0e63cb0a35ea62ca9082cb5301536217b20bdcb6ccb51ab2d6bff/orbax_checkpoint-0.5.13-py3-none-any.whl
+  url: https://files.pythonhosted.org/packages/22/95/f46e18b909838ff4550bbf742dda0afb3db9384faf36dd4f642d300bd779/orbax_checkpoint-0.5.14-py3-none-any.whl
   hash:
-    sha256: 201d00cae5c086ad9120ee0f75bd79f8c1f3b5a44d62f07bc12ae8db2505e7ff
+    sha256: 78669617821081f5e455d50bf576891f1b60ca018262502584b6febc65b4881e
   category: main
   optional: false
 - name: orbax-checkpoint
-  version: 0.5.13
+  version: 0.5.14
   manager: pip
   platform: osx-64
   dependencies:
@@ -7895,13 +7793,13 @@ package:
     tensorstore: '>=0.1.51'
     nest-asyncio: '*'
     protobuf: '*'
-  url: https://files.pythonhosted.org/packages/f9/3d/f1a996e0e63cb0a35ea62ca9082cb5301536217b20bdcb6ccb51ab2d6bff/orbax_checkpoint-0.5.13-py3-none-any.whl
+  url: https://files.pythonhosted.org/packages/22/95/f46e18b909838ff4550bbf742dda0afb3db9384faf36dd4f642d300bd779/orbax_checkpoint-0.5.14-py3-none-any.whl
   hash:
-    sha256: 201d00cae5c086ad9120ee0f75bd79f8c1f3b5a44d62f07bc12ae8db2505e7ff
+    sha256: 78669617821081f5e455d50bf576891f1b60ca018262502584b6febc65b4881e
   category: main
   optional: false
 - name: orbax-checkpoint
-  version: 0.5.13
+  version: 0.5.14
   manager: pip
   platform: osx-arm64
   dependencies:
@@ -7916,9 +7814,9 @@ package:
     tensorstore: '>=0.1.51'
     nest-asyncio: '*'
     protobuf: '*'
-  url: https://files.pythonhosted.org/packages/f9/3d/f1a996e0e63cb0a35ea62ca9082cb5301536217b20bdcb6ccb51ab2d6bff/orbax_checkpoint-0.5.13-py3-none-any.whl
+  url: https://files.pythonhosted.org/packages/22/95/f46e18b909838ff4550bbf742dda0afb3db9384faf36dd4f642d300bd779/orbax_checkpoint-0.5.14-py3-none-any.whl
   hash:
-    sha256: 201d00cae5c086ad9120ee0f75bd79f8c1f3b5a44d62f07bc12ae8db2505e7ff
+    sha256: 78669617821081f5e455d50bf576891f1b60ca018262502584b6febc65b4881e
   category: main
   optional: false
 - name: protobuf
