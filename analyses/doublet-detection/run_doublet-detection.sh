@@ -37,9 +37,9 @@ for dataset in "${bench_datasets[@]}"; do
     ./scripts/00_format-benchmark-data.R --dataset_name ${dataset} --input_dir ${BENCH_DATA_DIR}/raw --output_dir ${DATASET_DIR}
 
     # Infer doublets with scDblFinder
-    ./scripts/01a_detect-doublets.R --dataset_name ${dataset} --data_dir ${DATASET_DIR} --results_dir ${BENCH_RESULTS_DIR}
+    ./scripts/01a_run-scdblfinder.R --dataset_name ${dataset} --data_dir ${DATASET_DIR} --results_dir ${BENCH_RESULTS_DIR}
 
     # Infer doublets with scrublet
-    ./scripts/01b_detect-doublets.py --dataset_name ${dataset} --data_dir ${DATASET_DIR} --results_dir ${BENCH_RESULTS_DIR}
+    ./scripts/01b_run-scrublet.py --dataset_name ${dataset} --data_dir ${DATASET_DIR} --results_dir ${BENCH_RESULTS_DIR}
 
 done
