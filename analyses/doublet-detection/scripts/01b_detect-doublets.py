@@ -62,7 +62,7 @@ def main() -> None:
     args = parser.parse_args()
 
     # Prepare input arguments
-    if args.dataset_name == "":
+    if not args.dataset_name:
         print(
             "Datasets must be provided with the `--dataset_name` flag.",
             file=sys.stderr
@@ -77,7 +77,7 @@ def main() -> None:
     args.results_dir.mkdir(parents = True, exist_ok = True)
 
     # Run scrublet and export the results
-    input_anndata = args.dataset_name + "_anndata.h5ad"
+    input_anndata = args.data_dir / args.dataset_name + "_anndata.h5ad"
     result_tsv = args.dataset_name + "_scrublet.tsv"
 
     adata = anndata.read_h5ad( args.data_dir / input_anndata )
