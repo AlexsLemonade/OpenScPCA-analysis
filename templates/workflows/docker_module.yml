@@ -2,12 +2,10 @@
 
 # Replace {{ openscpca_module }} throughout the file and otherwise customize to the needs of the particular module
 
-# Docker modules are run based on three triggers:
-# - On pull requests where code for the docker image has changed, for testing only
-# - On merges into `main`, when the docker image will be pushed to the OpenScPCA docker server
-# - When a release tag is created in the OpenScPCA-analysis repository
+# Docker modules are run on pull requests when code for files that affect the Docker image have changed.
+# If other files are used during the Docker build, they should be added to `paths`
 #
-# At initialization, all triggers are inactive
+# At module initialization, this workflow is inactive, and needs to be activated manually
 
 name: Build docker image for {{ openscpca_module }}
 env:
