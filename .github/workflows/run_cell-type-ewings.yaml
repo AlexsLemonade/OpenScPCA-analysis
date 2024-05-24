@@ -25,6 +25,9 @@ on:
 jobs:
   run-module:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
 
     steps:
       - name: Checkout repo
@@ -53,9 +56,6 @@ jobs:
 
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-activate-base: true
-          activate-environment: ""
 
       - name: Install and activate locked conda environment
         run: |
