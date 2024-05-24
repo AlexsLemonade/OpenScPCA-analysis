@@ -46,12 +46,13 @@ jobs:
       - name: Install dependencies needed to build certain R packages
         run: |
           sudo apt-get update
-          # We need these to build Rhtslib, a dependency of scDblFinder:
-          # https://github.com/samtools/htslib/blob/30c9c50a874059e3dae7ff8c0ad9e8a9258031c8/INSTALL#L31-L41
+          # libcurl4-openssl-dev and lzma-dev are needed for Rhtslib, a dependency of scDblFinder:
+          #    https://github.com/samtools/htslib/blob/30c9c50a874059e3dae7ff8c0ad9e8a9258031c8/INSTALL#L31-L41
+          # libglpk-dev is needed for igraph
           sudo apt-get install \
             libcurl4-openssl-dev \
-            lzma-dev
-            # already present: zlib1g-dev & libbz2-dev
+            lzma-dev \
+            libglpk-dev
 
 
       - name: Set up pandoc
