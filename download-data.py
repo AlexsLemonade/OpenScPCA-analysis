@@ -172,7 +172,7 @@ def download_release_data(
     download_dir = data_dir / release
 
     # Always include json, tsv metadata files and DATA_USAGE.md
-    patterns = ["*.json", "*.tsv", "DATA_USAGE.md"]
+    patterns = ["*.json", "*_metadata.tsv", "DATA_USAGE.md"]
 
     # separate bulk from other stages
     include_bulk = "bulk" in stages
@@ -312,6 +312,13 @@ def main() -> None:
         " To switch back, rerun this script with the `--release current` option.",
     )
     parser.add_argument(
+        "--metadata-only",
+        action="store_true",
+        help="Download only the metadata files and not the data files."
+        " To also download QC reports, combined with the --include-reports option."
+        " Can be combined with --projects, but not with --samples. --format and --process-stage are ignored.",
+    )
+    parser.add_argument(
         "--include-reports",
         action="store_true",
         help="Include html report files in the download.",
@@ -364,7 +371,7 @@ def main() -> None:
         )
         sys.exit(1)
 
-    # Check that only a release to test-data was set, and set buckets and default release
+    # Check that only a release or test-data was set, and set buckets and default release
     if args.release and args.test_data:
         print(
             "Only one of `--release` or `--test-data` can be set.",
@@ -380,6 +387,12 @@ def main() -> None:
     if args.projects and args.samples:
         print(
             "Using both `--projects` and `--samples` options together is not supported.",
+            file=sys.stderr,
+        )
+
+    if args.metadata_only and args.samples:
+        print(
+            "Using both `--metadata-only` and `--samples` options together is not supported.",
             file=sys.stderr,
         )
 
@@ -434,6 +447,10 @@ def main() -> None:
             file=sys.stderr,
         )
         sys.exit(1)
+
+    if args.metadata_only:
+        formats = set()
+        stages = set()
 
     ### Download the data ###
     download_release_data(
