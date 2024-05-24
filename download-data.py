@@ -321,7 +321,8 @@ def main() -> None:
     parser.add_argument(
         "--include-reports",
         action="store_true",
-        help="Include html report files in the download.",
+        help="Include html report files in the download."
+        " Note that test data does not include report files.",
     )
     parser.add_argument(
         "--data-dir",
