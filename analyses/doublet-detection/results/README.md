@@ -1,5 +1,5 @@
-# Results directory instructions
+# Results directory
 
-Files in the results directory should not be directly committed to the repository.
+Results files are available in `s3://researcher-654654257431-us-east-2/doublet-detection/results`
 
-Instead, copy results files to an S3 bucket and add a link to the S3 location in this README file.
+- `benchmark_results` contains TSV files with `scDblFinder` and `scrublet` inferences on ground-truth benchmarking datasets
