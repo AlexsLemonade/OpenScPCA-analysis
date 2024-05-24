@@ -26,27 +26,34 @@ run_scdblfinder <- function(sce,
                             random_seed = NULL,
                             ...) {
 
-# first check that random seed is set for multiple samples 
-if (is.null(sample_var) && is.null(random_seed)) {
-    # See section 1.5.6: https://bioconductor.org/packages/3.19/bioc/vignettes/scDblFinder/inst/doc/scDblFinder.html#usage
-    stop("If multiple samples are present in the input SCE object, a random seed must be provided for reproducibility.")
-}
+  # first check multiple samples, which requires a random seed
+  if (!is.null(sample_var) && is.null(random_seed)) {
+    if (!sample_var %in% colnames(colData(sce))) {
+      stop(
+        glue::glue("The provided sample variable {sample_var} is not present in the input SCE's colData slot.")
+      )
+    }
+    if (is.null(random_seed)) {
+      # See section 1.5.6: https://bioconductor.org/packages/3.19/bioc/vignettes/scDblFinder/inst/doc/scDblFinder.html#usage
+      stop("If multiple samples are present in the input SCE object, a random seed must be provided for reproducibility.")
+    }
+  }
 
-# set up cores
-if (cores == 1) {
-  bp <- BiocParallel::SerialParam(RNGseed = random_seed)
-} else {
-  bp <- BiocParallel::MulticoreParam(cores, RNGseed = random_seed)
-}
+  # set up cores
+  if (cores == 1) {
+    bp <- BiocParallel::SerialParam(RNGseed = random_seed)
+  } else {
+    bp <- BiocParallel::MulticoreParam(cores, RNGseed = random_seed)
+  }
 
-# Run doublet finder 
-result_df <- scDblFinder::scDblFinder(
-  sce,
-  samples = sample_var # Default is NULL so use whatever was provided by the user or default 
-  BPPARAM = bp,
-  returnType = "table", # return df, not sce
-  ...
-)
+  # Run doublet finder
+  result_df <- scDblFinder::scDblFinder(
+    sce,
+    samples = sample_var, # Default is NULL so use whatever was provided by the user or default
+    BPPARAM = bp,
+    returnType = "table", # return df, not sce
+    ...
+  )
 
   result_df <- result_df |>
     as.data.frame() |>
@@ -67,20 +74,18 @@ option_list <- list(
   make_option(
     "--data_dir",
     type = "character",
-    default = "",
     help = "The directory containing the input RDS file."
   ),
   make_option(
     "--results_dir",
     type = "character",
-    default = "",
     help = "The directory to export TSV file with doublet inferences."
   ),
   make_option(
     "--cores",
     type = "integer",
     default = 4,
-    help = "Number of cores to use during scDblFinder inference."
+    help = "Number of cores to use during scDblFinder inference. Only used when there are multiple samples in the SCE."
   ),
   make_option(
     "--random_seed",
@@ -92,13 +97,13 @@ option_list <- list(
 opts <- parse_args(OptionParser(option_list = option_list))
 
 # Check input arguments
-if (opts$dataset_name == "") {
+if (is.null(opts$dataset_name)) {
   stop("Must provide a dataset name with --dataset_name.")
 }
-if (!dir.exists(opts$data_dir)) {
-  stop("Must provide an input path to data files with --data_dir.")
+if (is.null(opts$data_dir)) {
+  stop("Must provide an input path for the SCE file with --data_dir.")
 }
-if (opts$results_dir == "") {
+if (is.null(opts$results_dir)) {
   stop("Must provide an output path for results with --results_dir.")
 }
 
@@ -116,5 +121,7 @@ if (!file.exists(input_sce_file)) {
 output_tsv_file <- file.path(opts$results_dir, glue::glue("{opts$dataset_name}_scdblfinder.tsv"))
 
 readRDS(input_sce_file) |>
-  run_scdblfinder(cores = opts$cores) |>
+  run_scdblfinder(
+    cores = opts$cores
+  ) |>
   readr::write_tsv(output_tsv_file)
