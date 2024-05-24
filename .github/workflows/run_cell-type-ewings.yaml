@@ -56,11 +56,8 @@ jobs:
 
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3
-
-      - name: Install conda environment
-        run: |
-          conda env create -f environment.yml -n test
-          conda activate test
+        with:
+          environment-file: ${{ env.MODULE_PATH }}/environment.yml
 
       - name: Run analysis
         run: |
