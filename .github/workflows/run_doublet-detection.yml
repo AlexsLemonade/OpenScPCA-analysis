@@ -49,9 +49,10 @@ jobs:
           # We need these to build Rhtslib, a dependency of scDblFinder:
           # https://github.com/samtools/htslib/blob/30c9c50a874059e3dae7ff8c0ad9e8a9258031c8/INSTALL#L31-L41
           sudo apt-get install \
-            zlib1g-dev \
-            libbz2-dev \
+            libcurl4-openssl-dev \
             lzma-dev
+            # already present: zlib1g-dev & libbz2-dev
+
 
       - name: Set up pandoc
         uses: r-lib/actions/setup-pandoc@v2
