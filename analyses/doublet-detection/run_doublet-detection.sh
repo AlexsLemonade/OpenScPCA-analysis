@@ -23,14 +23,15 @@ bench_datasets=("hm-6k" "pbmc-1B-dm" "pdx-MULTI" "HMEC-orig-MULTI")
 
 # Download and unzip `real_datasets.zip` archive from https://doi.org/10.5281/zenodo.4562782
 # Files are saved in $BENCH_DATA_DIR/raw
-#wget https://zenodo.org/records/4562782/files/real_datasets.zip
-#unzip real_datasets.zip -d ${BENCH_DATA_DIR}/raw
-#rm real_datasets.zip
+wget https://zenodo.org/records/4562782/files/real_datasets.zip
+unzip real_datasets.zip -d ${BENCH_DATA_DIR}/raw
+rm real_datasets.zip
 
 for dataset in "${bench_datasets[@]}"; do
 
     # formatted SCE and AnnData files will be saved here
     DATASET_DIR=${BENCH_DATA_DIR}/$dataset
+    mkdir -p $DATASET_DIR
 
     # Read raw downloaded data and export SCE, AnnData files
     ./scripts/00_format-benchmark-data.R --dataset_name ${dataset} --input_dir ${BENCH_DATA_DIR}/raw --output_dir ${DATASET_DIR}

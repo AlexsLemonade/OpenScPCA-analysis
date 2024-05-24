@@ -2,11 +2,11 @@
 
 
 # Load libraries and renv environment ------
-library(SingleCellExperiment)
-library(optparse)
-
 project_root <- here::here()
 renv::load(project_root)
+
+library(SingleCellExperiment)
+library(optparse)
 
 
 # Functions -----------
@@ -26,33 +26,27 @@ run_scdblfinder <- function(sce,
                             random_seed = NULL,
                             ...) {
 
-  if (is.null(sample_var)) {
-    # SCE with single sample
-    result_df <- scDblFinder::scDblFinder(
-      sce,
-      BPPARAM = BiocParallel::MulticoreParam(cores),
-      returnType = "table", # return df, not sce
-      ...
-    )
-  } else {
-    if (is.null(random_seed)) {
-      # See section 1.5.6: https://bioconductor.org/packages/3.19/bioc/vignettes/scDblFinder/inst/doc/scDblFinder.html#usage
-      stop("If multiple samples are present in the input SCE object, a random seed must be provided for reproducibility.")
-    }
+# first check that random seed is set for multiple samples 
+if (is.null(sample_var) && is.null(random_seed)) {
+    # See section 1.5.6: https://bioconductor.org/packages/3.19/bioc/vignettes/scDblFinder/inst/doc/scDblFinder.html#usage
+    stop("If multiple samples are present in the input SCE object, a random seed must be provided for reproducibility.")
+}
 
-    if (cores == 1) {
-      bp <- BiocParallel::SerialParam(RNGseed = random_seed)
-    } else {
-      bp <- BiocParallel::MulticoreParam(cores, RNGseed = random_seed)
-    }
-    result_df <- scDblFinder::scDblFinder(
-      sce,
-      samples = sample_var,
-      BPPARAM = bp,
-      returnType = "table", # return df, not sce
-      ...
-    )
-  }
+# set up cores
+if (cores == 1) {
+  bp <- BiocParallel::SerialParam(RNGseed = random_seed)
+} else {
+  bp <- BiocParallel::MulticoreParam(cores, RNGseed = random_seed)
+}
+
+# Run doublet finder 
+result_df <- scDblFinder::scDblFinder(
+  sce,
+  samples = sample_var # Default is NULL so use whatever was provided by the user or default 
+  BPPARAM = bp,
+  returnType = "table", # return df, not sce
+  ...
+)
 
   result_df <- result_df |>
     as.data.frame() |>
