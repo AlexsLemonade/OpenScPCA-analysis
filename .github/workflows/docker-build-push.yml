@@ -53,8 +53,8 @@ jobs:
             # if a workflow_dispatch, build all modules
             echo "modules=$DOCKER_MODULES" >> $GITHUB_OUTPUT
           elif $(jq -e '. | length == 0' modules.json); then
-            # if no modules changed, set to None
-            echo "modules='["None"]'" >> $GITHUB_OUTPUT
+            # if no modules changed, set to modules to ["None"]
+            echo "modules='[\"None\"]'" >> $GITHUB_OUTPUT
           else
             # otherwise, set to changed modules
             echo "modules=$(cat modules.json)" >> $GITHUB_OUTPUT
