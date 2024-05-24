@@ -1,5 +1,7 @@
 #!/usr/bin/env Rscript
 
+# This script runs scDblFinder on an SCE file and exports a TSV file of results.
+
 
 # Load libraries and renv environment ------
 project_root <- here::here()
@@ -88,6 +90,11 @@ option_list <- list(
     help = "Number of cores to use during scDblFinder inference. Only used when there are multiple samples in the SCE."
   ),
   make_option(
+    "--sample_var",
+    type = "character",
+    help = "If multiple samples are present in the SCE, the colData column name with sample ids."
+  ),
+  make_option(
     "--random_seed",
     type = "integer",
     default = 2024,
@@ -122,6 +129,9 @@ output_tsv_file <- file.path(opts$results_dir, glue::glue("{opts$dataset_name}_s
 
 readRDS(input_sce_file) |>
   run_scdblfinder(
-    cores = opts$cores
+    cores = opts$cores,
+    # only used if there are multiple samples
+    sample_var = opts$sample_var, # will be NULL if not provided as input argument
+    random_seed = opts$random_seed
   ) |>
   readr::write_tsv(output_tsv_file)
