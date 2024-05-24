@@ -12,10 +12,10 @@ on:
       - main
       - jashapiro/docker-allinone
     paths:
-      - "analyses/*/Dockerfile"
-      - "analyses/*/.dockerignore"
-      - "analyses/*/renv.lock"
-      - "analyses/*/conda-lock.yml"
+      # - "analyses/*/Dockerfile"
+      # - "analyses/*/.dockerignore"
+      # - "analyses/*/renv.lock"
+      # - "analyses/*/conda-lock.yml"
 
 permissions:
   id-token: write # This is required for requesting the JWT
@@ -26,7 +26,7 @@ jobs:
     name: Get module names
     runs-on: ubuntu-latest
     outputs:
-      modules: ${{ steps.get-modules.outputs.modules }}
+      modules: ${{ fromJson(steps.get-modules.outputs.modules) }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
