@@ -347,7 +347,7 @@ def main() -> None:
     args = parser.parse_args()
 
     ### Validate the arguments ###
-
+    validation_error = False
     # Check formats are valid and make a set
     sce_formats = {"sce", "rds"}
     anndata_formats = {"anndata", "h5ad", "hdf5"}
@@ -358,7 +358,7 @@ def main() -> None:
             "Must be 'SCE', 'AnnData', or a comma separated list of those options.",
             file=sys.stderr,
         )
-        sys.exit(1)
+        validation_error = True
 
     # Check include levels are valid & make a set
     process_stages = {"unfiltered", "filtered", "processed", "bulk"}
@@ -369,7 +369,7 @@ def main() -> None:
             "Must be 'processed', 'filtered','unfiltered', 'bulk', or a comma separated list of those.",
             file=sys.stderr,
         )
-        sys.exit(1)
+        validation_error = True
 
     # Check that only a release or test-data was set, and set buckets and default release
     if args.release and args.test_data:
@@ -377,7 +377,7 @@ def main() -> None:
             "Only one of `--release` or `--test-data` can be set.",
             file=sys.stderr,
         )
-        sys.exit(1)
+        validation_error = True
     elif args.test_data:
         bucket = TEST_BUCKET
     else:
@@ -389,12 +389,17 @@ def main() -> None:
             "Using both `--projects` and `--samples` options together is not supported.",
             file=sys.stderr,
         )
+        validation_error = True
 
     if args.metadata_only and args.samples:
         print(
             "Using both `--metadata-only` and `--samples` options together is not supported.",
             file=sys.stderr,
         )
+        validation_error = True
+
+    if validation_error:
+        sys.exit(1)
 
     # check project and sample names
     projects = {p.strip() for p in args.projects.split(",")} if args.projects else {}
