@@ -66,8 +66,8 @@ def main() -> None:
     args.results_dir.mkdir(parents = True, exist_ok = True)
 
     # Run scrublet and export the results
-    input_anndata = args.data_dir / Path(args.dataset_name + "_anndata.h5ad")
-    result_tsv = args.results_dir / Path(args.dataset_name + "_scrublet.tsv")
+    input_anndata = args.data_dir / (args.dataset_name + "_anndata.h5ad")
+    result_tsv = args.results_dir / (args.dataset_name + "_scrublet.tsv")
 
     if not input_anndata.exists():
         print(
