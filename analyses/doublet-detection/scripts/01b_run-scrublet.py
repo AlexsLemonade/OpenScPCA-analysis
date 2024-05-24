@@ -40,17 +40,19 @@ def main() -> None:
     parser.add_argument(
         "--dataset_name",
         type=str,
-        default="",
+        required=True,
         help="Name of dataset to process, where the associated file is expected to be named `{name}_anndata.h5ad`."
     )
     parser.add_argument(
         "--data_dir",
         type=Path,
+        required=True,
         help="The directory containing H5AD input file."
     )
     parser.add_argument(
         "--results_dir",
         type=Path,
+        required=True,
         help="The directory to export TSV file with doublet inferences."
     )
     parser.add_argument(
@@ -61,28 +63,23 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    # Prepare input arguments
-    if not args.dataset_name:
-        print(
-            "Datasets must be provided with the `--dataset_name` flag.",
-            file=sys.stderr
-        )
-        sys.exit(1)
-    if not args.data_dir.exists():
-        print(
-            "A correct path to the input data must be provided with --data_dir.",
-            file=sys.stderr
-        )
-        sys.exit(1)
     args.results_dir.mkdir(parents = True, exist_ok = True)
 
     # Run scrublet and export the results
-    input_anndata = args.data_dir / args.dataset_name + "_anndata.h5ad"
-    result_tsv = args.dataset_name + "_scrublet.tsv"
+    input_anndata = args.data_dir / Path(args.dataset_name + "_anndata.h5ad")
+    result_tsv = args.results_dir / Path(args.dataset_name + "_scrublet.tsv")
 
-    adata = anndata.read_h5ad( args.data_dir / input_anndata )
+    if not input_anndata.exists():
+        print(
+            "The input AnnData file could not be found at:",
+            input_anndata,
+            file=sys.stderr
+        )
+        sys.exit(1)
+
+    adata = anndata.read_h5ad(input_anndata)
     scrub_results = run_scrublet(adata, args.random_seed)
-    scrub_results.to_csv( args.results_dir / result_tsv, sep="\t", index=False )
+    scrub_results.to_csv(result_tsv, sep="\t", index=False )
 
 if __name__ == "__main__":
     main()
