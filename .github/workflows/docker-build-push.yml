@@ -11,11 +11,11 @@ on:
     branches:
       - main
       - jashapiro/docker-allinone
-    paths:
-      # - "analyses/*/Dockerfile"
-      # - "analyses/*/.dockerignore"
-      # - "analyses/*/renv.lock"
-      # - "analyses/*/conda-lock.yml"
+    # paths:
+    #   - "analyses/*/Dockerfile"
+    #   - "analyses/*/.dockerignore"
+    #   - "analyses/*/renv.lock"
+    #   - "analyses/*/conda-lock.yml"
 
 permissions:
   id-token: write # This is required for requesting the JWT
@@ -54,7 +54,7 @@ jobs:
             echo "modules=$DOCKER_MODULES" >> $GITHUB_OUTPUT
           elif $(jq -e '. | length == 0' modules.json); then
             # if no modules changed, set to None
-            echo "modules='[None]'" >> $GITHUB_OUTPUT
+            echo "modules='["None"]'" >> $GITHUB_OUTPUT
           else
             # otherwise, set to changed modules
             echo "modules=$(cat modules.json)" >> $GITHUB_OUTPUT
