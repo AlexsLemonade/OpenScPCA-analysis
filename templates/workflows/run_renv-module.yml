@@ -21,12 +21,12 @@ concurrency:
 
 on:
   workflow_dispatch:
-  workflow_call:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - "analyses/{{ openscpca_module }}/**"
+  # workflow_call:
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - "analyses/{{ openscpca_module }}/**"
 
 jobs:
   run-module:

@@ -2,9 +2,9 @@ This directory contains template files and directories used by OpenScPCA maintai
 
 - `analysis-module`: The template directory for a new analysis module
 - `jupyter`: Holds a template Jupyter notebook template and an `environment.yml` file to use when creating a new analysis module with the flag `--use_jupyter`
-- `python`: Holds a python script template and an `environment.yml` file to use when creating a new analysis module with the flag `--use_python`
+- `python`: Holds a Python script template and an `environment.yml` file to use when creating a new analysis module with the flag `--use_python`
 - `rmarkdown`: Holds an R Markdown notebooks template and an `environment.yml` file to use when creating a new analysis module with the flag `--use_r` or `--use_renv`
 - `workflows`
-  - `run-analysis-module-R.yml`: The template GitHub Action workflow for running an R-based analysis module with an `renv` environment
-  - `run-analysis-module-python.yml`: The template GitHub Action workflow for running a python-based analysis module with a conda environment
-  - [Forthcoming] `run-analysis-module-docker.yml`: The template GitHub Action workflow for running an analysis module using the module's Dockerfile
+  - `run_renv-module.yml`: The template GitHub Action workflow for running an R-based analysis module with an `renv` environment
+  - `run_conda-module.yml`: The template GitHub Action workflow for running an analysis module with a conda environment
+  - `docker_module.yml`: The template GitHub Action workflow for test building a module's Docker image
