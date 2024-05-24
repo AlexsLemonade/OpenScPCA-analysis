@@ -59,7 +59,7 @@ jobs:
             # otherwise, set to changed modules
             echo "modules=$(cat modules.json)" >> $GITHUB_OUTPUT
           fi
-          echo $GITHUB_OUTPUT
+          cat $GITHUB_OUTPUT
 
   docker-matrix:
     name: Build Docker images
