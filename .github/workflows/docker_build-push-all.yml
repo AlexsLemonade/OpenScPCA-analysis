@@ -10,12 +10,11 @@ on:
       - "v*.*.*"
     branches:
       - main
-      - jashapiro/docker-allinone
-    # paths:
-    #   - "analyses/*/Dockerfile"
-    #   - "analyses/*/.dockerignore"
-    #   - "analyses/*/renv.lock"
-    #   - "analyses/*/conda-lock.yml"
+    paths:
+      - "analyses/*/Dockerfile"
+      - "analyses/*/.dockerignore"
+      - "analyses/*/renv.lock"
+      - "analyses/*/conda-lock.yml"
 
 permissions:
   id-token: write # This is required for requesting the JWT
@@ -40,8 +39,8 @@ jobs:
           git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | \
           grep -E 'Dockerfile|\.dockerignore|renv.lock|conda-lock.yml' | \
           cut -d '/' -f 2 | \
-          sort | uniq \
-          > modules.txt
+          sort | uniq > modules.txt
+          cat modules.txt
           # Use jq to diff with the list of docker modules and export json
           <modules.txt jq -Rcn "$DOCKER_MODULES - ($DOCKER_MODULES - [inputs])" > modules.json
           cat modules.json
@@ -64,6 +63,7 @@ jobs:
   docker-matrix:
     name: Build Docker images
     runs-on: ubuntu-latest
+    environment: prod
     needs: get-modules
     strategy:
       fail-fast: false
@@ -80,44 +80,41 @@ jobs:
           role-session-name: githubActionSession
           aws-region: us-east-1
 
-      # - name: Log in to Amazon ECR
-      #   if: matrix.module != 'None'
-      #   id: login-ecr
-      #   uses: aws-actions/amazon-ecr-login@v2
-      #   with:
-      #     registry-type: public
+      - name: Log in to Amazon ECR
+        if: matrix.module != 'None'
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
 
-      # - name: Create ECR repository if needed
-      #   if: matrix.module != 'None'
-      #   id: create-ecr
-      #   run: |
-      #     aws ecr-public describe-repositories --repository-names ${{ matrix.module }} \
-      #     || aws ecr-public create-repository --repository-name ${{ matrix.module }}
+      - name: Create ECR repository if needed
+        if: matrix.module != 'None'
+        id: create-ecr
+        run: |
+          aws ecr-public describe-repositories --repository-names ${{ matrix.module }} \
+          || aws ecr-public create-repository --repository-name ${{ matrix.module }}
 
-      # - name: Set up Docker Buildx
-      #   if: matrix.module != 'None'
-      #   uses: docker/setup-buildx-action@v3
+      - name: Set up Docker Buildx
+        if: matrix.module != 'None'
+        uses: docker/setup-buildx-action@v3
 
-      # - name: Docker metadata
-      #   if: matrix.module != 'None'
-      #   id: meta
-      #   uses: docker/metadata-action@v5
-      #   with:
-      #     images: public.ecr.aws/${{ env.REGISTRY_ALIAS }}/${{ matrix.module }}
-      #     # tag with 'latest' for main branch pushes, semantic version for releases/tags, and the branch name for PRs
-      #     # PR tags are just for convenience and to avoid warnings, as those builds are not pushed
-      #     tags: |
-      #       type=raw,value=latest,enable={{is_default_branch}}
-      #       type=semver,pattern={{raw}}
-      #       type=ref,event=pr
+      - name: Docker metadata
+        if: matrix.module != 'None'
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: public.ecr.aws/${{ env.REGISTRY_ALIAS }}/${{ matrix.module }}
+          # tag with 'latest' for main branch pushes, semantic version for releases/tags
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{raw}}
 
-      # - name: Build and push image
-      #   if: matrix.module != 'None'
-      #   uses: docker/build-push-action@v5
-      #   with:
-      #     context: "{{defaultContext}}:analyses/${{ matrix.module }}"
-      #     push: ${{ github.event_name == 'push'}}
-      #     tags: ${{ steps.meta.outputs.tags }}
-      #     labels: ${{ steps.meta.outputs.labels }}
-      #     cache-from: type=gha
-      #     cache-to: type=gha,mode=max
+      - name: Build and push image
+        if: matrix.module != 'None'
+        uses: docker/build-push-action@v5
+        with:
+          context: "{{defaultContext}}:analyses/${{ matrix.module }}"
+          push: ${{ github.event_name == 'push'}}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
