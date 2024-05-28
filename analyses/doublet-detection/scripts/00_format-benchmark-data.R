@@ -2,14 +2,18 @@
 
 # This script converts the datasets used for benchmarking into SCE and AnnData objects,
 # mirroring ScPCA dataset format.
+# A TSV file of the ground truth calls is also produced.
 # The original data files were obtained from Zenodo and are named <dataset name>.rds.
 # Each is an RDS object containing a list of two items:
 #  [[1]] A raw counts matrix
 #  [[2]] A vector of doublet/singlet calls for each barcode
-# The exported files are named `<dataset name>-<sce/anndata>.<rds/h5ad>.
+# The exported data files are named `<dataset name>_<sce/anndata>.<rds/h5ad>.
 # Each has a variable `ground_truth_doublets` representing the singlet/doublet calls:
 #   - In the SCE file, this is in the colData slot
 #   - In the AnnData file, this is in the obs slot
+# The exported TSV file is named `<dataset name>_ground-truth.tsv` and has two columns:
+#   - barcodes (keep the `s` for future wrangling)
+#   - ground_truth ("singlet" or "doublet")
 
 # Load renv environment and libraries
 project_root <- rprojroot::find_root(rprojroot::is_renv_project)
@@ -46,6 +50,7 @@ if (!file.exists(input_file)) {
 
 output_sce_file <- file.path(opts$output_dir, glue::glue("{opts$dataset_name}_sce.rds"))
 output_anndata_file <- file.path(opts$output_dir, glue::glue("{opts$dataset_name}_anndata.h5ad"))
+output_truth_file <-  file.path(opts$output_dir, glue::glue("{opts$dataset_name}_ground-truth.tsv"))
 
 dat <- readRDS(input_file)
 mat <- dat[[1]] # raw counts matrix
@@ -58,3 +63,10 @@ readr::write_rds(sce, output_sce_file)
 
 # Export AnnData version
 zellkonverter::writeH5AD(sce, output_anndata_file)
+
+# Export TSV file with true calls
+data.frame(
+  barcodes = colnames(sce),
+  ground_truth = sce$ground_truth_doublets
+) |>
+  readr::write_tsv(output_truth_file)
