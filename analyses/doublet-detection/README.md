@@ -2,7 +2,7 @@
 
 ## Description
 
-This module explores doublet detection across ScPCA datasets.
+This module explores the use of doublet detection methods across ScPCA datasets.
 
 Methods used in this module include the following:
 
