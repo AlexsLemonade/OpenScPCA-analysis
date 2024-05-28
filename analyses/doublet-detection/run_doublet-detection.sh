@@ -14,11 +14,11 @@ NB_DIR=exploratory-analyses # directory with exploratory notebooks
 ###########################################################################################
 
 # Create benchmark directories
-BENCH_DATA_DIR=scratch/benchmark_datasets
+BENCH_DATA_DIR=scratch/benchmark-datasets
 BENCH_RESULTS_DIR=results/benchmark-results
 BENCH_NB_DIR=${BENCH_RESULTS_DIR}/rendered-notebooks
-mkdir -p ${NB_OUT_DIR}
 mkdir -p ${BENCH_DATA_DIR}
+mkdir -p ${BENCH_RESULTS_DIR}
 mkdir -p ${BENCH_NB_DIR}
 
 
