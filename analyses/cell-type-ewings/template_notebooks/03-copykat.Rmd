@@ -9,11 +9,11 @@ output:
 params:
   sample_id: SCPCS000490
   library_id: SCPCL000822
-  marker_gene_classification: "../results/annotate_tumor_cells_output/SCPCS000490/SCPCL000822_tumor-normal-classifications.tsv"
-  no_ref_copykat_results: "../results/annotate_tumor_cells_output/SCPCS000490/copykat/no_reference"
-  with_ref_copykat_results: "../results/annotate_tumor_cells_output/SCPCS000490/copykat/with_reference"
-  reference_cell_file: "../results/annotate_tumor_cells_output/SCPCS000490/annotations/SCPCL000822_reference-cells.tsv"
-  results_dir: "../results/annotate_tumor_cells_output/SCPCS000490"
+  marker_gene_classification: "tumor-normal-classifications.tsv"
+  no_ref_copykat_results: "copykat/no_reference"
+  with_ref_copykat_results: "copykat/with_reference"
+  reference_cell_file: ".reference-cells.tsv"
+  results_dir: "annotate_tumor_cells_output"
 ---
 
 

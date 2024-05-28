@@ -9,11 +9,11 @@ output:
 params:
   sample_id: SCPCS000490
   library_id: SCPCL000822
-  marker_gene_classification: "../results/sim_annotate_tumor/SCPCS000490/SCPCL000822_tumor-normal-classifications.tsv"
-  tumor_marker_predictions: "../results/sim_annotate_tumor/SCPCS000490/cellassign/SCPCL000822_tumor-marker_predictions.tsv"
-  visser_marker_predictions: "../results/sim_annotate_tumor/SCPCS000490/cellassign/SCPCL000822_visser-all-marker_predictions.tsv"
-  panglao_predictions: "../results/sim_annotate_tumor/SCPCS000490/cellassign/SCPCL000822_panglao-endo-fibro_predictions.tsv"
-  results_dir: "../results/sim_annotate_tumor/SCPCS000490"
+  marker_gene_classification: "tumor-normal-classifications.tsv"
+  tumor_marker_predictions: "tumor-marker_predictions.tsv"
+  visser_marker_predictions: "visser-all-marker_predictions.tsv"
+  panglao_predictions: "panglao-endo-fibro_predictions.tsv"
+  results_dir: "annotate_tumor_cells_output"
 ---
 
 ## Introduction 
