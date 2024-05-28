@@ -30,7 +30,7 @@ def main() -> None:
         "module",
         metavar="MODULE",
         type=str,
-        help="The name of the analysis module to sync data from.",
+        help="The name of the analysis module to sync results from.",
     )
     parser.add_argument(
         "--bucket",
