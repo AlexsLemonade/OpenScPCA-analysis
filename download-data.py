@@ -172,7 +172,7 @@ def download_release_data(
     download_dir = data_dir / release
 
     # Always include json, tsv metadata files and DATA_USAGE.md
-    patterns = ["*.json", "*.tsv", "DATA_USAGE.md"]
+    patterns = ["*.json", "*_metadata.tsv", "DATA_USAGE.md"]
 
     # separate bulk from other stages
     include_bulk = "bulk" in stages
@@ -225,8 +225,10 @@ def download_release_data(
     ### Print summary messages ###
     print("\n\n\033[1mDownload Summary\033[0m")  # bold
     print("Release:", release)
-    print("Data Format:", ", ".join(formats))
-    print("Processing levels:", ", ".join(stages))
+    if formats:
+        print("Data Format:", ", ".join(formats))
+    if stages:
+        print("Processing levels:", ", ".join(stages))
     if projects:
         print("Projects:", ", ".join(projects))
     if samples:
@@ -312,9 +314,17 @@ def main() -> None:
         " To switch back, rerun this script with the `--release current` option.",
     )
     parser.add_argument(
+        "--metadata-only",
+        action="store_true",
+        help="Download only the metadata files and not the data files."
+        " To also download QC reports, combine with the --include-reports option."
+        " Can be combined with --projects, but not with --samples. --format and --process-stage are ignored.",
+    )
+    parser.add_argument(
         "--include-reports",
         action="store_true",
-        help="Include html report files in the download.",
+        help="Include html report files in the download."
+        " Note that test data does not include report files.",
     )
     parser.add_argument(
         "--data-dir",
@@ -340,7 +350,7 @@ def main() -> None:
     args = parser.parse_args()
 
     ### Validate the arguments ###
-
+    validation_error = False
     # Check formats are valid and make a set
     sce_formats = {"sce", "rds"}
     anndata_formats = {"anndata", "h5ad", "hdf5"}
@@ -351,7 +361,7 @@ def main() -> None:
             "Must be 'SCE', 'AnnData', or a comma separated list of those options.",
             file=sys.stderr,
         )
-        sys.exit(1)
+        validation_error = True
 
     # Check include levels are valid & make a set
     process_stages = {"unfiltered", "filtered", "processed", "bulk"}
@@ -362,15 +372,15 @@ def main() -> None:
             "Must be 'processed', 'filtered','unfiltered', 'bulk', or a comma separated list of those.",
             file=sys.stderr,
         )
-        sys.exit(1)
+        validation_error = True
 
-    # Check that only a release to test-data was set, and set buckets and default release
+    # Check that only a release or test-data was set, and set buckets and default release
     if args.release and args.test_data:
         print(
             "Only one of `--release` or `--test-data` can be set.",
             file=sys.stderr,
         )
-        sys.exit(1)
+        validation_error = True
     elif args.test_data:
         bucket = TEST_BUCKET
     else:
@@ -382,6 +392,17 @@ def main() -> None:
             "Using both `--projects` and `--samples` options together is not supported.",
             file=sys.stderr,
         )
+        validation_error = True
+
+    if args.metadata_only and args.samples:
+        print(
+            "Using `--metadata-only` and `--samples` options together is not supported.",
+            file=sys.stderr,
+        )
+        validation_error = True
+
+    if validation_error:
+        sys.exit(1)
 
     # check project and sample names
     projects = {p.strip() for p in args.projects.split(",")} if args.projects else {}
@@ -434,6 +455,10 @@ def main() -> None:
             file=sys.stderr,
         )
         sys.exit(1)
+
+    if args.metadata_only:
+        formats = set()
+        stages = set()
 
     ### Download the data ###
     download_release_data(

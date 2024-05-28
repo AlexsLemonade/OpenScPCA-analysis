@@ -19,11 +19,12 @@ concurrency:
 on:
   workflow_dispatch:
   workflow_call:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - analyses/doublet-detection/**
+  #pull_request:
+  #  branches:
+  #    - main
+  #  paths:
+  #    - analyses/doublet-detection/**
+
 jobs:
   run-module:
     runs-on: ubuntu-latest
