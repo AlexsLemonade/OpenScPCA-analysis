@@ -225,8 +225,10 @@ def download_release_data(
     ### Print summary messages ###
     print("\n\n\033[1mDownload Summary\033[0m")  # bold
     print("Release:", release)
-    print("Data Format:", ", ".join(formats))
-    print("Processing levels:", ", ".join(stages))
+    if formats:
+        print("Data Format:", ", ".join(formats))
+    if stages:
+        print("Processing levels:", ", ".join(stages))
     if projects:
         print("Projects:", ", ".join(projects))
     if samples:
