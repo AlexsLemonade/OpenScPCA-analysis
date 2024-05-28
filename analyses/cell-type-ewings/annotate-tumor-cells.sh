@@ -133,7 +133,7 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
     # only run cellassign if the predictions file doesn't exist already
     if [ ! -f $tumor_only_predictions ]; then
       echo "Running CellAssign for ${library_id} with ${tumor_only_ref}"
-      conda run -n openscpca-cell-type-ewings "$scripts_dir/run-cellassign.py" \
+      conda run -n openscpca-cell-type-ewings python "$scripts_dir/run-cellassign.py" \
         --anndata_file $anndata_file \
         --output_predictions "${tumor_only_predictions}" \
         --reference "${tumor_only_ref}" \
