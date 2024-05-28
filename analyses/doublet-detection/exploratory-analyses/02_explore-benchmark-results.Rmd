@@ -4,7 +4,9 @@ params:
 title: "`r glue::glue('Doublet benchmarking results: {params$dataset}')`"
 author: Stephanie J. Spielman
 date: "`r Sys.Date()`"
-output: html_notebook
+output: 
+  html_notebook:
+    toc: true
 ---
 
 The goal of this notebook is to explore doublet inferences run on ground-truth benchmarking data. 
@@ -13,7 +15,7 @@ These three doublet detection methods are explored:
 - `scDblFinder`
 - `scrublet`
 - A version of `cxds` calculated by `scDblFinder`.
-Unlike the other two methods, this one reports only a score and does not attempt to make single/doublet calls, so we use a `0.5` threshold to make `cxds` calls.
+Unlike the other two methods, this one reports only a score and does not attempt to make single/doublet calls, so we use thresholds of 0.5, 0.75, and 0.9 threshold to make `cxds` calls.
 
 This notebook explores inferences made on a single dataset at a time (here, **`r params$dataset`**) with the goal of examining the relationship between scores and accuracy of calls (if made) compared to the ground-truth values.
 Note that ground-truth calls are available only for heterotypic doublets, which these methods are more tuned for in the first place (vs homotypic).
@@ -25,10 +27,12 @@ Note that ground-truth calls are available only for heterotypic doublets, which 
 
 
 ```{r packages}
-library(SingleCellExperiment)
-library(readr)
-library(ggplot2)
-library(caret)
+suppressPackageStartupMessages({
+  library(SingleCellExperiment)
+  library(readr)
+  library(ggplot2)
+  library(caret)
+})
 
 theme_set(theme_bw())
 ```
@@ -40,8 +44,8 @@ theme_set(theme_bw())
 
 ```{r base paths}
 module_base <- rprojroot::find_root(rprojroot::is_renv_project)
-data_dir <- file.path(module_base, "scratch", "benchmark_datasets", params$dataset)
-result_dir <- file.path(module_base, "results", "benchmark_results")
+data_dir <- file.path(module_base, "scratch", "benchmark-datasets", params$dataset)
+result_dir <- file.path(module_base, "results", "benchmark-results")
 ```
 
 #### Input and output files
@@ -62,9 +66,50 @@ truth_tsv <- file.path(
   data_dir, 
   glue::glue("{params$dataset}_ground-truth.tsv")
 )
-
-# Output files
 ```
+
+### Functions
+
+This chunk defines functions to explore doublet detection results
+
+
+```{r functions}
+plot_doublets <- function(df, score_col, pred_col, method_name){
+  # df is expected to contain columns `ground_truth`, `score_col`, and `pred_col`
+  # The column arguments should _not_ be provided as strings
+  ggplot(df) +
+    aes(x = ground_truth,
+        y = {{score_col}}, 
+        color = {{pred_col}}) + 
+    geom_jitter(
+      alpha = 0.2, 
+      width = 0.1
+    ) + 
+    labs(
+      x = "Ground truth call",
+      y = glue::glue("{method_name} score"),
+      color = glue::glue("{method_name} prediction")
+    )
+}
+
+
+assess_doublets <- function(df, pred_col) {
+  # df is expected to contain columns `ground_truth` and `pred_col`
+  # The `pred_col` argument _should_ be provided as a strings
+  
+  caret::confusionMatrix(
+    # truth should be first
+    table(
+      "Truth" = doublet_df$ground_truth,
+      "Prediction" = doublet_df[[pred_col]]
+    ), 
+    positive = "doublet"
+  )
+  
+}
+
+```
+
 
 ### Read and prepare input data
 
@@ -78,10 +123,21 @@ scdbl_df <- read_tsv(scdbl_tsv) |>
     scdbl_score = score, 
     scdbl_prediction  = class
   ) |>
-  # add cxds calls at 0.5 threshold
+  # add cxds calls at three thresholds:
+  # 0.5, 0.75, 0.9
   dplyr::mutate(
-    cxds_prediction = dplyr::if_else(
+    cxds_prediction_0.5 = dplyr::if_else(
       cxds_score >= 0.5,
+      "doublet",
+      "singlet"
+    ),
+    cxds_prediction_0.75 = dplyr::if_else(
+      cxds_score >= 0.75,
+      "doublet",
+      "singlet"
+    ),
+    cxds_prediction_0.9 = dplyr::if_else(
+      cxds_score >= 0.9,
       "doublet",
       "singlet"
     )
@@ -112,94 +168,94 @@ We're particularly interested in "Balanced accuracy," as there is a much higher 
 ### scDblFinder results
 
 ```{r}
-ggplot(doublet_df) +
-  aes(x = ground_truth,
-      y = scdbl_score, 
-      color = scdbl_prediction) + 
-  geom_jitter(
-    alpha = 0.2, 
-    width = 0.1
-  ) + 
-  labs(
-    x = "Ground truth call",
-    y = "scDblFinder score",
-    color = "scDblFinder prediction"
-  )
-
-confusion <-  caret::confusionMatrix(
-    # truth should be first
-    table(
-      "Truth" = doublet_df$ground_truth,
-      "Prediction" = doublet_df$scdbl_prediction
-    ), 
-    positive = "doublet"
+plot_doublets(
+  doublet_df,
+  scdbl_score,
+  scdbl_prediction,
+  "scDblFinder"
 )
 
-print(confusion)
+assess_doublets(
+  doublet_df,
+  "scdbl_prediction"
+) |>
+  print()
 ```
 
 
 ### scrublet results
 
 ```{r}
-ggplot(doublet_df) +
-  aes(x = ground_truth,
-      y = scrublet_score, 
-      color = scrublet_prediction) + 
-  geom_jitter(
-    alpha = 0.2, 
-    width = 0.1
-  ) + 
-  labs(
-    x = "Ground truth call",
-    y = "scrublet score",
-    color = "scrublet prediction"
-  )
-
-confusion <-  caret::confusionMatrix(
-    # truth should be first
-    table(
-      "Truth" = doublet_df$ground_truth,
-      "Prediction" = doublet_df$scrublet_prediction
-    ), 
-    positive = "doublet"
+plot_doublets(
+  doublet_df,
+  scrublet_score,
+  scrublet_prediction,
+  "scrublet"
 )
 
-print(confusion)
+assess_doublets(
+  doublet_df,
+  "scrublet_prediction"
+) |>
+  print()
 ```
 
 
 ### cxds results
 
 > This method does not call droplets as singlet/doublet.
-> Instead, performance is assessed below at a threshold of 0.5.
+> Instead, performance is assessed below at several thresholds:
 
+#### cxds: 0.5 threshold
 
 ```{r}
-ggplot(doublet_df) +
-  aes(x = ground_truth,
-      y = cxds_score, 
-      color = cxds_prediction) + 
-  geom_jitter(
-    alpha = 0.2, 
-    width = 0.1
-  ) + 
-  labs(
-    x = "Ground truth call",
-    y = "cxds score",
-    color = "cxds prediction"
-  )
-
-confusion <-  caret::confusionMatrix(
-    # truth should be first
-    table(
-      "Truth" = doublet_df$ground_truth,
-      "Prediction" = doublet_df$cxds_prediction
-    ), 
-    positive = "doublet"
+plot_doublets(
+  doublet_df,
+  cxds_score,
+  cxds_prediction_0.5,
+  "cxds, 0.5"
 )
 
-print(confusion)
+assess_doublets(
+  doublet_df,
+  "cxds_prediction_0.5"
+) |>
+  print()
+```
+
+
+#### cxds: 0.75 threshold
+
+```{r}
+plot_doublets(
+  doublet_df,
+  cxds_score,
+  cxds_prediction_0.75,
+  "cxds, 0.75"
+)
+
+assess_doublets(
+  doublet_df,
+  "cxds_prediction_0.75"
+) |>
+  print()
+```
+
+#### cxds: 0.9 threshold
+
+```{r}
+plot_doublets(
+  doublet_df,
+  cxds_score,
+  cxds_prediction_0.9,
+  "cxds, 0.9"
+)
+
+assess_doublets(
+  doublet_df,
+  "cxds_prediction_0.9"
+) |>
+  print()
 ```
 
 
