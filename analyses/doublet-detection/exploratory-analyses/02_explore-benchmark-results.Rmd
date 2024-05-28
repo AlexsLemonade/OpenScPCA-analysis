@@ -1,0 +1,211 @@
+---
+params: 
+  dataset: "hm-6k"
+title: "`r glue::glue('Doublet benchmarking results: {params$dataset}')`"
+author: Stephanie J. Spielman
+date: "`r Sys.Date()`"
+output: html_notebook
+---
+
+The goal of this notebook is to explore doublet inferences run on ground-truth benchmarking data. 
+These three doublet detection methods are explored:
+
+- `scDblFinder`
+- `scrublet`
+- A version of `cxds` calculated by `scDblFinder`.
+Unlike the other two methods, this one reports only a score and does not attempt to make single/doublet calls, so we use a `0.5` threshold to make `cxds` calls.
+
+This notebook explores inferences made on a single dataset at a time (here, **`r params$dataset`**) with the goal of examining the relationship between scores and accuracy of calls (if made) compared to the ground-truth values.
+Note that ground-truth calls are available only for heterotypic doublets, which these methods are more tuned for in the first place (vs homotypic).
+
+
+## Setup
+
+### Packages
+
+
+```{r packages}
+library(SingleCellExperiment)
+library(readr)
+library(ggplot2)
+library(caret)
+
+theme_set(theme_bw())
+```
+
+### Paths
+
+
+#### Base directories
+
+```{r base paths}
+module_base <- rprojroot::find_root(rprojroot::is_renv_project)
+data_dir <- file.path(module_base, "scratch", "benchmark_datasets", params$dataset)
+result_dir <- file.path(module_base, "results", "benchmark_results")
+```
+
+#### Input and output files
+
+Set paths to input and output directories and files in the chunk below.
+
+```{r paths}
+# Input files
+scdbl_tsv <- file.path(
+  result_dir, 
+  glue::glue("{params$dataset}_scdblfinder.tsv")
+)
+scrub_tsv <- file.path(
+  result_dir, 
+  glue::glue("{params$dataset}_scrublet.tsv")
+)
+truth_tsv <- file.path(
+  data_dir, 
+  glue::glue("{params$dataset}_ground-truth.tsv")
+)
+
+# Output files
+```
+
+### Read and prepare input data
+
+First, we'll read in and combine TSV files with doublet results.
+
+```{r}
+scdbl_df <- read_tsv(scdbl_tsv) |>
+  dplyr::select(
+    barcodes,
+    cxds_score, 
+    scdbl_score = score, 
+    scdbl_prediction  = class
+  ) |>
+  # add cxds calls at 0.5 threshold
+  dplyr::mutate(
+    cxds_prediction = dplyr::if_else(
+      cxds_score >= 0.5,
+      "doublet",
+      "singlet"
+    )
+  )
+
+scrub_df <- read_tsv(scrub_tsv) 
+
+true_df <- read_tsv(truth_tsv)
+
+doublet_df <- dplyr::inner_join(
+  scdbl_df,
+  scrub_df, 
+  by = "barcodes"
+) |>
+  dplyr::inner_join(
+    true_df, 
+    by = "barcodes"
+  )
+```
+
+## Explore results: Score distributions
+
+Both `scDblFinder` and `scrublet` make doublet calls based on an internally-determined threshold, which may not be optimal. 
+
+These sections explore the score distributions and how they relate to calls, including a confusion matrix and associated performance metrics. 
+We're particularly interested in "Balanced accuracy," as there is a much higher proportion of singlets vs doublets.
+
+### scDblFinder results
+
+```{r}
+ggplot(doublet_df) +
+  aes(x = ground_truth,
+      y = scdbl_score, 
+      color = scdbl_prediction) + 
+  geom_jitter(
+    alpha = 0.2, 
+    width = 0.1
+  ) + 
+  labs(
+    x = "Ground truth call",
+    y = "scDblFinder score",
+    color = "scDblFinder prediction"
+  )
+
+confusion <-  caret::confusionMatrix(
+    # truth should be first
+    table(
+      "Truth" = doublet_df$ground_truth,
+      "Prediction" = doublet_df$scdbl_prediction
+    ), 
+    positive = "doublet"
+)
+
+print(confusion)
+```
+
+
+### scrublet results
+
+```{r}
+ggplot(doublet_df) +
+  aes(x = ground_truth,
+      y = scrublet_score, 
+      color = scrublet_prediction) + 
+  geom_jitter(
+    alpha = 0.2, 
+    width = 0.1
+  ) + 
+  labs(
+    x = "Ground truth call",
+    y = "scrublet score",
+    color = "scrublet prediction"
+  )
+
+confusion <-  caret::confusionMatrix(
+    # truth should be first
+    table(
+      "Truth" = doublet_df$ground_truth,
+      "Prediction" = doublet_df$scrublet_prediction
+    ), 
+    positive = "doublet"
+)
+
+print(confusion)
+```
+
+
+### cxds results
+
+> This method does not call droplets as singlet/doublet.
+> Instead, performance is assessed below at a threshold of 0.5.
+
+
+```{r}
+ggplot(doublet_df) +
+  aes(x = ground_truth,
+      y = cxds_score, 
+      color = cxds_prediction) + 
+  geom_jitter(
+    alpha = 0.2, 
+    width = 0.1
+  ) + 
+  labs(
+    x = "Ground truth call",
+    y = "cxds score",
+    color = "cxds prediction"
+  )
+
+confusion <-  caret::confusionMatrix(
+    # truth should be first
+    table(
+      "Truth" = doublet_df$ground_truth,
+      "Prediction" = doublet_df$cxds_prediction
+    ), 
+    positive = "doublet"
+)
+
+print(confusion)
+```
+
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
