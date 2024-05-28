@@ -37,9 +37,15 @@ Eventually, we'd like to run all ScPCA datasets through doublet detection, but t
 
 ## Output files
 
-- `results/benchmark_results`
-    - `{dataset_name}_sce.tsv`: TSV files with `scDblFinder` inferences
-    - `{dataset_name}_scrublet.tsv`: TSV files with `scrublet` inferences
+Below is the results directory structure, annotated with file descriptions:
+```
+results
+└── benchmark-results
+    ├── {dataset}_scdblfinder.tsv # TSV files with `scDblFinder` inferences
+    ├── {dataset}_scrublet.tsv    # TSV files with `scrublet` inferences
+    └── rendered-notebooks
+        └── {dataset}-results.nb.html # Exploration of doublet detection results for each individual dataset
+```
 
 ## Software requirements
 
