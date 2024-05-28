@@ -4,7 +4,7 @@
 
 
 # Load libraries and renv environment ------
-project_root <- here::here()
+project_root <- rprojroot::find_root(rprojroot::is_renv_project)
 renv::load(project_root)
 
 library(SingleCellExperiment)
