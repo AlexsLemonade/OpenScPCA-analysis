@@ -315,7 +315,7 @@ def main() -> None:
         "--metadata-only",
         action="store_true",
         help="Download only the metadata files and not the data files."
-        " To also download QC reports, combined with the --include-reports option."
+        " To also download QC reports, combine with the --include-reports option."
         " Can be combined with --projects, but not with --samples. --format and --process-stage are ignored.",
     )
     parser.add_argument(
@@ -394,7 +394,7 @@ def main() -> None:
 
     if args.metadata_only and args.samples:
         print(
-            "Using both `--metadata-only` and `--samples` options together is not supported.",
+            "Using `--metadata-only` and `--samples` options together is not supported.",
             file=sys.stderr,
         )
         validation_error = True
