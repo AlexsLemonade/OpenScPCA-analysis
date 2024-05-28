@@ -11,10 +11,9 @@
 #   - In the SCE file, this is in the colData slot
 #   - In the AnnData file, this is in the obs slot
 
-# Load renv
-project_root <- here::here()
+# Load renv environment and libraries
+project_root <- rprojroot::find_root(rprojroot::is_renv_project)
 renv::load(project_root)
-
 library(optparse)
 
 
