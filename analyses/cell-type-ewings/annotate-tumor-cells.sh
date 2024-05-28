@@ -133,7 +133,7 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
     # only run cellassign if the predictions file doesn't exist already
     if [ ! -f $tumor_only_predictions ]; then
       echo "Running CellAssign for ${library_id} with ${tumor_only_ref}"
-      conda run -n openscpca-cell-type-ewings python "$scripts_dir/run-cellassign.py" \
+      python "$scripts_dir/run-cellassign.py" \
         --anndata_file $anndata_file \
         --output_predictions "${tumor_only_predictions}" \
         --reference "${tumor_only_ref}" \
@@ -206,7 +206,8 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
                         marker_gene_classification = '$sample_results_dir/${library_id}_tumor-normal-classifications.tsv', \
                         reference_cell_file = '$reference_cell_file', \
                         no_ref_copykat_results = '$sample_results_dir/copykat/no_reference', \
-                        with_ref_copykat_results = '$sample_results_dir/copykat/with_reference'), \
+                        with_ref_copykat_results = '$sample_results_dir/copykat/with_reference', \
+                        results_dir = '$sample_results_dir'), \
           envir = new.env()) \
     "
 
