@@ -37,7 +37,7 @@ def main() -> None:
         "-b",
         type=str,
         required=False,
-        help="The name of the S3 bucket to sync data to. Will use the OPENSCPCA_RESULTS_BUCKET environment variable if not specified.",
+        help="The name of the S3 bucket to sync results to. Will use the OPENSCPCA_RESULTS_BUCKET environment variable if not specified.",
     )
     parser.add_argument(
         "--skip-plots",
