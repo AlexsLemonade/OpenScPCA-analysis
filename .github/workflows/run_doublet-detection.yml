@@ -66,10 +66,11 @@ jobs:
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3
 
-      - name: Install and activate locked conda environment
+      - name: Install conda-lock and activate locked conda environment
         run: |
           conda install conda-lock
           conda-lock install --name doublet-detection ${MODULE_PATH}/conda-lock.yml
+          conda activate doublet-detection
 
       - name: Run doublet-detection module
         run: |
