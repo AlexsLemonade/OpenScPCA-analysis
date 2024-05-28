@@ -60,7 +60,7 @@ jobs:
       - name: Install and activate locked conda environment
         run: |
           conda install conda-lock
-          conda-lock install --name openscpca-cell-type-ewings ${MODULE_PATH}/conda-lock.yml
+          conda-lock install --name test ${MODULE_PATH}/conda-lock.yml
 
       - name: Run analysis
         run: |

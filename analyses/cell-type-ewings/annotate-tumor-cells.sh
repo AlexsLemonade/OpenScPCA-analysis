@@ -133,7 +133,7 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
     # only run cellassign if the predictions file doesn't exist already
     if [ ! -f $tumor_only_predictions ]; then
       echo "Running CellAssign for ${library_id} with ${tumor_only_ref}"
-      conda run -n openscpca-cell-type-ewings python "$scripts_dir/run-cellassign.py" \
+      python "$scripts_dir/run-cellassign.py" \
         --anndata_file $anndata_file \
         --output_predictions "${tumor_only_predictions}" \
         --reference "${tumor_only_ref}" \
@@ -143,7 +143,7 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
 
     if [ ! -f $visser_predictions ]; then
       echo "Running CellAssign for ${library_id} with ${visser_ref}"
-      conda run -n openscpca-cell-type-ewings python "$scripts_dir/run-cellassign.py" \
+      python "$scripts_dir/run-cellassign.py" \
         --anndata_file $anndata_file \
         --output_predictions "${visser_predictions}" \
         --reference "${visser_ref}" \
@@ -153,7 +153,7 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
 
     if [ ! -f $panglao_predictions ]; then
       echo "Running CellAssign for ${library_id} with ${panglao_ref}"
-      conda run -n openscpca-cell-type-ewings python "$scripts_dir/run-cellassign.py" \
+      python "$scripts_dir/run-cellassign.py" \
         --anndata_file $anndata_file \
         --output_predictions "${panglao_predictions}" \
         --reference "${panglao_ref}" \
