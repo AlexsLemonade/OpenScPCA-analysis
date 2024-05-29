@@ -1962,6 +1962,24 @@
       ],
       "Hash": "5410df8d22bd36e616f2a2343dbb328c"
     },
+    "patchwork": {
+      "Package": "patchwork",
+      "Version": "1.2.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "cli",
+        "ggplot2",
+        "grDevices",
+        "graphics",
+        "grid",
+        "gtable",
+        "rlang",
+        "stats",
+        "utils"
+      ],
+      "Hash": "9c8ab14c00ac07e9e04d1664c0b74486"
+    },
     "pheatmap": {
       "Package": "pheatmap",
       "Version": "1.0.12",
