@@ -103,6 +103,23 @@ This chunk defines functions to explore doublet detection results.
 
 
 ```{r functions}
+print_doublet_table <- function(df, pred_col, is_ground_truth = FALSE) {
+  # Function to print a table of doublet counts and a sentence stating the percentage of doublets
+  # df is expected to contain `pred_col`, should should be provided as a string
+  dub_table <- table(df[[pred_col]])
+  dub_percent <- round(dub_table[["doublet"]]/sum(dub_table), 4) * 100
+  
+  print(dub_table)
+  
+  if (is_ground_truth) {
+    output <- glue::glue("{dub_percent}% of droplets in this dataset are doublets.") 
+  } else {
+    output <- glue::glue("{dub_percent}% of droplets in this dataset were predicted to be doublets.")
+  }
+  
+  return(output)
+}
+
 plot_pca_d <- function(df, color_column, color_lab) {
   # Plot PC with a discrete color variable, showing doublets on top
   # df is expected to contain columns PC1, PC2, and `color_column`
@@ -161,7 +178,7 @@ plot_jitter_scores <- function(df, score_col, pred_col, method_name){
       width = 0.1
     ) + 
     labs(
-      x = "Ground truth call",
+      x = "Ground truth",
       y = glue::glue("{method_name} score"),
       color = glue::glue("{method_name} prediction")
     ) + 
@@ -272,12 +289,12 @@ First, we assess the ground truth doublet distributions to contextualize the dou
 
 
 ```{r}
-dub_table <- table(doublet_df$ground_truth)
-
-dub_percent <- round(dub_table[["doublet"]]/sum(dub_table), 2) * 100
-dub_table
+percent <- print_doublet_table(doublet_df, "ground_truth", is_ground_truth = TRUE)
 ```
-`r dub_percent`% of droplets in this dataset are doublets.
+
+```{r results = "asis"}
+percent
+```
 
 ```{r}
 plot_pca_d(doublet_df, ground_truth, "Ground truth doublets")
@@ -298,11 +315,13 @@ These sections explore the score distributions and how they relate to calls, inc
 
 ### scDblFinder results
 
-
 ```{r}
-table(doublet_df$scdbl_prediction)
+percent <- print_doublet_table(doublet_df, "scdbl_prediction")
 ```
 
+```{r results = "asis"}
+percent
+```
 
 #### Score distributions relative to ground truth
 
@@ -357,6 +376,15 @@ assess_doublets(
 
 
 ### scrublet results
+
+
+```{r}
+percent <- print_doublet_table(doublet_df, "scrublet_prediction")
+```
+
+```{r results = "asis"}
+percent
+```
 
 #### Score distributions relative to ground truth
 
@@ -454,6 +482,15 @@ wrap_plots(pca_c)
 
 #### cxds: 0.5 threshold
 
+```{r}
+percent <- print_doublet_table(doublet_df, "cxds_prediction_0.5")
+```
+
+```{r results = "asis"}
+percent
+```
+
+
 ##### Jitter plot
 
 ```{r}
@@ -479,6 +516,13 @@ assess_doublets(
 
 #### cxds: 0.75 threshold
 
+```{r}
+percent <- print_doublet_table(doublet_df, "cxds_prediction_0.75")
+```
+
+```{r results = "asis"}
+percent
+```
 
 ##### Jitter plot
 
@@ -505,6 +549,13 @@ assess_doublets(
 
 #### cxds: 0.9 threshold
 
+```{r}
+percent <- print_doublet_table(doublet_df, "cxds_prediction_0.9")
+```
+
+```{r results = "asis"}
+percent
+```
 
 ##### Jitter plot
 
