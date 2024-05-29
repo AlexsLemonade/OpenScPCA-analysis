@@ -124,7 +124,7 @@ def main() -> None:
     if args.profile:
         sync_cmd += ["--profile", args.profile]
 
-    sync_result = subprocess.run(sync_cmd, capture_output=True, text=True)
+    sync_result = subprocess.run(sync_cmd)
     if sync_result.returncode:
         print(
             f"Error syncing to S3 bucket '{bucket}'.\n"
