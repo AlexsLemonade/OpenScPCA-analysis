@@ -55,12 +55,11 @@ Your files will be synced to the S3 location `s3://{your bucket name}/{analysis 
 The simplest usage of this script, called from the `OpenScPCA-analysis` repository root folder, is:
 
 ```sh
-scripts/sync-results.py \
-    --module {analysis module name} \
+scripts/sync-results.py {analysis module name} \
     --bucket {name of your bucket}
 ```
 
-- `--module` (or `-m`) is the folder name of the analysis module whose results you want to sync
+- The first argument is the folder name of the analysis module whose results you want to sync
 - `--bucket` (or `-b`) is your [bucket name](#finding-your-bucket-name)
   - You can omit this argument if you have saved your bucket name in the environment variable `OPENSCPCA_RESULTS_BUCKET`
 
@@ -68,8 +67,7 @@ scripts/sync-results.py \
 This flag will not actually sync your files, but it will instead print out which files will be synced to your S3 bucket, and where they will be placed:
 
 ```sh
-scripts/sync-results.py \
-    --module {analysis module name} \
+scripts/sync-results.py {analysis module name} \
     --bucket {name of your researcher bucket} \
     --dryrun
 ```
@@ -82,8 +80,7 @@ By default, if there are any result or plot files that exist on S3 but that you 
 To override this behavior and delete these files from S3 as well (but only for the specified analysis module), use the `--destructive-sync` flag:
 
 ```sh
-scripts/sync-results.py \
-    --module {analysis module name} \
+scripts/sync-results.py {analysis module name} \
     --bucket {name of your researcher bucket} \
     --destructive-sync
 ```
@@ -101,8 +98,7 @@ If you have multiple AWS profiles on your system, it may help to use the `--prof
 For example, if you [configured your OpenScPCA AWS profile](../../technical-setup/environment-setup/configure-aws-cli.md) to be named `openscpca`, you would use:
 
 ```sh
-scripts/sync-results.py \
-    --module {analysis module name} \
+scripts/sync-results.py {analysis module name} \
     --bucket {name of your researcher bucket} \
     --profile openscpca
 ```
