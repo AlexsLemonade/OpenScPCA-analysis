@@ -3,6 +3,7 @@ channels:
   - conda-forge
   - bioconda
   - defaults
+  - pytorch
 platforms:
   - linux-64
   - osx-64
@@ -15,6 +16,7 @@ dependencies:
   - pre-commit=3.6
   - session-info=1.0
   - anndata
+  - pytorch
   - pip
   - pip:
     - scvi-tools

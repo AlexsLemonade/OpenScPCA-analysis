@@ -10,8 +10,8 @@ output:
 params:
   sample_id: SCPCS000490
   library_id: SCPCL000822
-  results_dir: "../results/annotate_tumor_cells_output"
-  reference_cell_file: "../references/cell_lists/SCPCS000490/SCPCL000822_reference-cells.tsv"
+  results_dir: "annotate_tumor_cells_output"
+  reference_cell_file: "reference-cells.tsv"
 ---
 
 

@@ -27,18 +27,17 @@ def main() -> None:
         description="Sync data from an analysis module to your S3 bucket.",
     )
     parser.add_argument(
-        "--module",
-        "-m",
+        "module",
+        metavar="MODULE",
         type=str,
-        required=True,
-        help="The name of the analysis module to sync data from.",
+        help="The name of the analysis module to sync results from.",
     )
     parser.add_argument(
         "--bucket",
         "-b",
         type=str,
         required=False,
-        help="The name of the S3 bucket to sync data to. Will use the OPENSCPCA_RESULTS_BUCKET environment variable if not specified.",
+        help="The name of the S3 bucket to sync results to. Will use the OPENSCPCA_RESULTS_BUCKET environment variable if not specified.",
     )
     parser.add_argument(
         "--skip-plots",
@@ -125,14 +124,15 @@ def main() -> None:
     if args.profile:
         sync_cmd += ["--profile", args.profile]
 
-    sync_result = subprocess.run(sync_cmd)
+    sync_result = subprocess.run(sync_cmd, capture_output=True, text=True)
     if sync_result.returncode:
         print(
-            f"Error syncing to S3 bucket '{bucket}'."
-            " Check that the bucket exists and that you have permission to write to it.",
+            f"Error syncing to S3 bucket '{bucket}'.\n"
+            "Check that the bucket name is correct and that"
+            " you have the correct profile active (or use the --profile option)."
+            " Be sure to have run `aws sso login` before running this script.\n",
             file=sys.stderr,
         )
-        print(sync_result.stderr, file=sys.stderr)
         sys.exit(1)
 
     print("Sync complete.")
