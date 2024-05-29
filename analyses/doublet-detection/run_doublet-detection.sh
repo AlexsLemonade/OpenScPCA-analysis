@@ -8,7 +8,7 @@ set -euo pipefail
 MODULE_DIR=$(dirname "${BASH_SOURCE[0]}")
 cd ${MODULE_DIR}
 
-NB_DIR=exploratory-analyses # directory with exploratory notebooks
+NB_DIR=template-notebooks # directory with template notebooks
 ###########################################################################################
 ########## Step 1: Benchmark doublet detection methods on ground truth datasets ###########
 ###########################################################################################
