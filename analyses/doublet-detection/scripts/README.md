@@ -3,7 +3,6 @@
 This directory contains all scripts used in the module.
 
 1. `00_format-benchmark-data.R` formats ground-truth datasets used to explore doublet detection methods into SCE and AnnData versions.
-It also exports TSV files containing ground-truth doublet calls for each dataset.
 
 Use this command to run the bash script:
 
