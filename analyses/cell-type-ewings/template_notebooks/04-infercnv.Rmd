@@ -9,9 +9,9 @@ output:
 params:
   sample_id: SCPCS000490
   library_id: SCPCL000822
-  marker_gene_classification: "../results/annotate_tumor_cells_output/SCPCS000490/SCPCL000822_tumor-normal-classifications.tsv"
-  infercnv_dir: "../results/annotate_tumor_cells_output/SCPCS000490/infercnv"
-  results_dir: "../results/annotate_tumor_cells_output/SCPCS000490"
+  marker_gene_classification: "tumor-normal-classifications.tsv"
+  infercnv_dir: "infercnv"
+  results_dir: "annotate_tumor_cells_output"
 ---
 
 ## Introduction 

@@ -37,6 +37,13 @@ These can be downloaded using the `--include_reports` option in `download-data.p
 ## Usage
 
 To annotate tumor and normal cells in the Ewing's sarcoma samples from SCPCP000015, run the `annotate-tumor-cells-workflow.sh` workflow.
+**Note:** Before running this workflow be sure to run `renv::restore()`  and activate the conda environment using the following commands:
+
+```sh
+Rscript -e "renv::restore()"
+conda activate openscpca-cell-type-ewings
+```
+
 The following arguments are optional and can be used to run this workflow on additional samples (default sample is `SCPCS000490`):
 
 - `sample_id`: Unique sample ID (name of folder containing libray data)
@@ -134,4 +141,8 @@ conda activate openscpca-cell-type-ewings
 
 ## Computational resources
 
-It is recommended to have access to at least 4 CPUs for running `annotate-tumor-cells.sh`.
+Currently, the `annotate-tumor-cells.sh` can only be run using 1 CPU if running locally.
+Use `threads=1` when running the workflow to specify this.
+
+To increase the speed of the workflow, we recommend running on a computer with at least 12 CPUs.
+If this is the case, you may run the workflow using the default settings of 4 threads.
