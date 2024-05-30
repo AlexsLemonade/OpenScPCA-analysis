@@ -5,3 +5,6 @@
 # Ignore the scratch directory (but keep it present)
 /scratch/*
 !/scratch/.gitkeep
+
+# Ignore template-notebooks HTML files
+template-notebooks/*html
