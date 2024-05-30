@@ -12,7 +12,10 @@ output:
 ---
 
 The goal of this notebook is to explore doublet inferences run on ground-truth benchmarking data. 
-These three doublet detection methods are explored. 
+Importantly, the ground-truth doublets in these benchmarking datasets were themselves called with computational approaches in the context of multiplexed experiments.
+This means the true values are not necessarily entirely accurate.
+
+These three doublet detection methods are explored:
 
 - `scDblFinder`
 - `scrublet`
