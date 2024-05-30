@@ -423,6 +423,17 @@ c_plot <- plot_pca(
 d_plot + c_plot
 ```
 
+#### Jitter plot
+
+```{r}
+plot_jitter_scores(
+  doublet_df,
+  scrublet_score,
+  scrublet_prediction,
+  "scrublet prediction"
+)
+```
+
 
 #### Confusion matrix and performance metrics
 
