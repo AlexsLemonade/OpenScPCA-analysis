@@ -1,6 +1,7 @@
 name: Build all docker images
 env:
   REGISTRY_ALIAS: openscpca
+  # Full list of active docker modules: must be a JSON array as a string
   DOCKER_MODULES: '["hello-python", "hello-r", "simulate-sce"]'
 
 on:
@@ -25,15 +26,23 @@ jobs:
     name: Get module names
     runs-on: ubuntu-latest
     outputs:
-      modules: ${{ fromJson(steps.get-modules.outputs.modules) }}
+      modules: ${{ fromJson(steps.set-modules.outputs.modules) }}
     steps:
+      - name: Set all modules for workflow_dispatch
+        id: all-modules
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "$DOCKER_MODULES" > modules.json
+
       - name: Check out repository
+        # no need for checkout if we are setting the module list manually
+        if: github.event_name != 'workflow_dispatch'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Find changed modules names
         id: find-modules
+        if: github.event_name != 'workflow_dispatch'
         run: |
           # diff to get changed files, then grep for relevant files, cut to get module names, sort and uniq to get unique names
           git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | \
@@ -46,16 +55,13 @@ jobs:
           cat modules.json
 
       - name: Set modules output
-        id: get-modules
+        id: set-modules
         run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            # if a workflow_dispatch, build all modules
-            echo "modules=$DOCKER_MODULES" >> $GITHUB_OUTPUT
-          elif $(jq -e '. | length == 0' modules.json); then
+          if $(jq -e '. | length == 0' modules.json); then
             # if no modules changed, set to modules to ["None"]
             echo "modules='[\"None\"]'" >> $GITHUB_OUTPUT
           else
-            # otherwise, set to changed modules
+            # otherwise, set to changed (or all) modules
             echo "modules=$(cat modules.json)" >> $GITHUB_OUTPUT
           fi
           cat $GITHUB_OUTPUT
