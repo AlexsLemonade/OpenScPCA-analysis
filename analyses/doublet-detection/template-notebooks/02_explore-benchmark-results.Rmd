@@ -135,7 +135,7 @@ plot_pca <- function(df,
   # df is expected to contain columns PC1, PC2, `color_column`, and if color_type == "c" also `pred_column`. These should _not_ be provided as strings
   # By default, this function assumes a discrete color variable (`color_type = "d"`) with two levels. Use `color_type = "c"` for continuous. 
   
-  p <- ggplot(doublet_df) + 
+  p <- ggplot(df) + 
     aes(x = PC1, 
         y = PC2, 
         color = {{color_column}}) +
@@ -151,14 +151,14 @@ plot_pca <- function(df,
     p <- p + 
       scale_color_manual(values = c("black", "lightblue")) + 
     geom_point(
-      data = dplyr::filter(doublet_df, {{color_column}} == "doublet"), 
+      data = dplyr::filter(df, {{color_column}} == "doublet"), 
       color = "black"
     )
   } else if (color_type == "c") {
     p <- p + 
       scale_color_viridis_c(direction = -1) + 
     geom_point(
-      data = dplyr::filter(doublet_df, {{pred_column}} == "doublet"), 
+      data = dplyr::filter(df, {{pred_column}} == "doublet"), 
       aes(color = {{color_column}})
     )
   }
