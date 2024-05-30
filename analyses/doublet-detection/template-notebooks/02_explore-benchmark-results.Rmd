@@ -106,10 +106,8 @@ This chunk defines functions to explore doublet detection results.
 print_doublet_table <- function(df, pred_col, is_ground_truth = FALSE) {
   # Function to print a table of doublet counts and a sentence stating the percentage of doublets
   # df is expected to contain `pred_col`, should should be provided as a string
-  dub_table <- table(df[[pred_col]])
-  dub_percent <- round(dub_table[["doublet"]]/sum(dub_table), 4) * 100
-  
-  print(dub_table)
+  dub_tab <- table(df[[pred_col]])
+  dub_percent <- round(dub_tab[["doublet"]]/sum(dub_tab), 4) * 100
   
   if (is_ground_truth) {
     output <- glue::glue("{dub_percent}% of droplets in this dataset are doublets.") 
@@ -117,53 +115,55 @@ print_doublet_table <- function(df, pred_col, is_ground_truth = FALSE) {
     output <- glue::glue("{dub_percent}% of droplets in this dataset were predicted to be doublets.")
   }
   
-  return(output)
+  return(
+    list(
+      "table" = dub_tab, 
+      "percent" = output
+    )
+  )
 }
 
-plot_pca_d <- function(df, color_column, color_lab) {
-  # Plot PC with a discrete color variable, showing doublets on top
-  # df is expected to contain columns PC1, PC2, and `color_column`
-  # The `color_column` argument should _not_ be provided as a string
-  ggplot(doublet_df) + 
+plot_pca <- function(df, 
+                     color_column, 
+                     pred_column = NULL,
+                     color_type = "d",
+                     color_lab) {
+  # Plot PCs colored by either discrete or continuous color variable, showing doublets on top
+  # df is expected to contain columns PC1, PC2, `color_column`, and if color_type == "c" also `pred_column`. These should _not_ be provided as strings
+  # By default, this function assumes a discrete color variable (`color_type = "d"`) with two levels. Use `color_type = "c"` for continuous. 
+  
+  p <- ggplot(doublet_df) + 
     aes(x = PC1, 
         y = PC2, 
         color = {{color_column}}) +
   geom_point(alpha = 0.5) + 
-  scale_color_manual(values = c("black", "lightblue")) + 
-  # ensure doublets are on top for visibility
-  geom_point(
-    data = dplyr::filter(doublet_df, {{color_column}} == "doublet"), 
-    color = "black"
-  ) + 
   labs(color = color_lab) + 
   theme(
     legend.title.position = "top",
     legend.position = "bottom"
   )
+  
+  # Set the palette, and ensure doublets are on top for visibility
+  if (color_type == "d") {
+    p <- p + 
+      scale_color_manual(values = c("black", "lightblue")) + 
+    geom_point(
+      data = dplyr::filter(doublet_df, {{color_column}} == "doublet"), 
+      color = "black"
+    )
+  } else if (color_type == "c") {
+    p <- p + 
+      scale_color_viridis_c(direction = -1) + 
+    geom_point(
+      data = dplyr::filter(doublet_df, {{pred_column}} == "doublet"), 
+      aes(color = {{color_column}})
+    )
+  }
+  
+  return(p)
 }
 
 
-plot_pca_c <- function(df, color_column, pred_column, color_lab) {
-  # Plot PC with a continuous color variable, showing doublets on top
-  # df is expected to contain columns PC1, PC2, `color_column`, and `pred_column`
-  # The `color_column` and `pred_column` arguments should _not_ be provided as strings
-  ggplot(doublet_df) + 
-    aes(x = PC1, 
-        y = PC2, 
-        color = {{color_column}}) +
-  geom_point(alpha = 0.5) + 
-  scale_color_viridis_c(direction = -1) + 
-  # ensure doublets are on top for visibility
-  geom_point(
-    data = dplyr::filter(doublet_df, {{pred_column}} == "doublet"), 
-    aes(color = {{color_column}})
-  ) + 
-  labs(color = color_lab) + 
-  theme(
-    legend.title.position = "top",
-    legend.position = "bottom"
-  )
-}
 
 plot_jitter_scores <- function(df, score_col, pred_col, method_name){
   # Plot jitter plot of score distributions and predictions, colored by ground truth
@@ -289,15 +289,17 @@ First, we assess the ground truth doublet distributions to contextualize the dou
 
 
 ```{r}
-percent <- print_doublet_table(doublet_df, "ground_truth", is_ground_truth = TRUE)
+dub_tab <- print_doublet_table(doublet_df, "ground_truth", is_ground_truth = TRUE)
+dub_tab$table
 ```
 
 ```{r results = "asis"}
-percent
+dub_tab$percent
 ```
 
+                     
 ```{r}
-plot_pca_d(doublet_df, ground_truth, "Ground truth doublets")
+plot_pca(doublet_df, ground_truth, color_lab = "Ground truth doublets")
 ```
 
 
@@ -316,11 +318,12 @@ These sections explore the score distributions and how they relate to calls, inc
 ### scDblFinder results
 
 ```{r}
-percent <- print_doublet_table(doublet_df, "scdbl_prediction")
+dub_tab <- print_doublet_table(doublet_df, "scdbl_prediction")
+dub_tab$table
 ```
 
 ```{r results = "asis"}
-percent
+dub_tab$percent
 ```
 
 #### Score distributions relative to ground truth
@@ -336,17 +339,19 @@ plot_density_scores(
 #### PCA plots
 
 ```{r fig.width = 8}
-d_plot <- plot_pca_d(
+
+d_plot <- plot_pca(
   doublet_df, 
-  scdbl_prediction,
-  "scDblFinder prediction"
+  color_column = scdbl_prediction,
+  color_lab = "scDblFinder prediction"
 )
   
-c_plot <- plot_pca_c(
+c_plot <- plot_pca(
   doublet_df, 
-  scdbl_score,
-  scdbl_prediction,
-  "scDblFinder score"
+  color_column = scdbl_score,
+  pred_column = scdbl_prediction,
+  color_type = "c",
+  color_lab = "scDblFinder score"
 )
   
 d_plot + c_plot
@@ -379,11 +384,12 @@ assess_doublets(
 
 
 ```{r}
-percent <- print_doublet_table(doublet_df, "scrublet_prediction")
+dub_tab <- print_doublet_table(doublet_df, "scrublet_prediction")
+dub_tab$table
 ```
 
 ```{r results = "asis"}
-percent
+dub_tab$percent
 ```
 
 #### Score distributions relative to ground truth
@@ -400,17 +406,18 @@ plot_density_scores(
 #### PCA plots
 
 ```{r fig.width = 8}
-d_plot <- plot_pca_d(
+d_plot <- plot_pca(
   doublet_df, 
-  scrublet_prediction,
-  "scrublet prediction"
+  color_column = scrublet_prediction,
+  color_lab = "scrublet prediction"
 )
   
-c_plot <- plot_pca_c(
+c_plot <- plot_pca(
   doublet_df, 
-  scrublet_score,
-  scrublet_prediction,
-  "scrublet score"
+  color_column = scrublet_score,
+  pred_column = scrublet_prediction,
+  color_type = "c",
+  color_lab = "scrublet score"
 )
   
 d_plot + c_plot
@@ -455,10 +462,10 @@ prediction_pcas <- cxds_cols |>
     \(col_name) {
       threshold <- stringr::str_remove(col_name, "cxds_prediction_")
         
-      plot_pca_d(
+      plot_pca(
         doublet_df, 
-        !!as.symbol(col_name),
-        glue::glue("cxds prediction at {threshold}")
+        color_column = !!as.symbol(col_name),
+        color_lab = glue::glue("cxds prediction at {threshold}")
       ) +
       labs(title = glue::glue("cxds prediction at {threshold}"))
     }
@@ -469,13 +476,13 @@ wrap_plots(prediction_pcas)
 ```{r}
 # just need a single score pca for this case
 # we'll provide the least stringent predictions; this only affects point layering in the plot
-pca_c <- plot_pca_c(
+plot_pca(
   doublet_df, 
-  cxds_score, 
-  cxds_prediction_0.5,
-  glue::glue("cxds scores")
+  color_column = cxds_score, 
+  pred_column = cxds_prediction_0.5,
+  color_type = "c",
+  color_lab = glue::glue("cxds scores")
 )
-wrap_plots(pca_c)
 ```
 
 
@@ -483,13 +490,13 @@ wrap_plots(pca_c)
 #### cxds: 0.5 threshold
 
 ```{r}
-percent <- print_doublet_table(doublet_df, "cxds_prediction_0.5")
+dub_tab <- print_doublet_table(doublet_df, "cxds_prediction_0.5")
+dub_tab$table
 ```
 
 ```{r results = "asis"}
-percent
+dub_tab$percent
 ```
-
 
 ##### Jitter plot
 
@@ -517,11 +524,12 @@ assess_doublets(
 #### cxds: 0.75 threshold
 
 ```{r}
-percent <- print_doublet_table(doublet_df, "cxds_prediction_0.75")
+dub_tab <- print_doublet_table(doublet_df, "cxds_prediction_0.75")
+dub_tab$table
 ```
 
 ```{r results = "asis"}
-percent
+dub_tab$percent
 ```
 
 ##### Jitter plot
@@ -550,11 +558,12 @@ assess_doublets(
 #### cxds: 0.9 threshold
 
 ```{r}
-percent <- print_doublet_table(doublet_df, "cxds_prediction_0.9")
+dub_tab <- print_doublet_table(doublet_df, "cxds_prediction_0.9")
+dub_tab$table
 ```
 
 ```{r results = "asis"}
-percent
+dub_tab$percent
 ```
 
 ##### Jitter plot
