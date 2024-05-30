@@ -59,7 +59,9 @@ run_scdblfinder <- function(sce,
 
   result_df <- result_df |>
     as.data.frame() |>
-    tibble::rownames_to_column("barcodes")
+    tibble::rownames_to_column("barcodes") |>
+    # remove artifical doublets
+    dplyr::filter(!stringr::str_starts(barcodes, "rDbl"))
 
   return(result_df)
 }

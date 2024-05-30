@@ -37,7 +37,7 @@ gtf_filename <- basename(opt$gtf_file)
 
 local_gtf_file <- file.path(opt$scratch_dir, gtf_filename)
 if(!file.exists(local_gtf_file)){
-  sync_call <- glue::glue('aws s3 cp {opt$gtf_file} {local_gtf_file}')
+  sync_call <- glue::glue('aws s3 cp {opt$gtf_file} {local_gtf_file} --no-sign-request')
   system(sync_call)
 }
 
