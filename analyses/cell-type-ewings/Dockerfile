@@ -14,8 +14,7 @@ ENV RENV_CONFIG_CACHE_ENABLED FALSE
 ARG ENV_NAME=openscpca-cell-type-ewings
 
 # set environment variables to install miniconda
-ENV PATH="/root/miniconda3/bin:${PATH}"
-ARG PATH="/root/miniconda3/bin:${PATH}"
+ENV PATH="/opt/conda/bin:${PATH}"
 
 ### Renv setup
 
@@ -39,13 +38,18 @@ RUN Rscript -e 'renv::restore()' && \
   rm -rf /tmp/downloaded_packages && \
   rm -rf /tmp/Rtmp*
 
-### Conda setup
 # Install miniconda
-RUN wget \
-    https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
-    && mkdir /root/.conda \
-    && bash Miniconda3-latest-Linux-x86_64.sh -b \
-    && rm -f Miniconda3-latest-Linux-x86_64.sh
+# adapted from https://github.com/ContinuumIO/docker-images/blob/main/miniconda3/debian/Dockerfile
+RUN curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
+  && bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda \
+  && rm -f Miniconda3-latest-Linux-x86_64.sh \
+  && ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh  \
+  && echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc  \
+  && find /opt/conda/ -follow -type f -name '*.a' -delete \
+  && find /opt/conda/ -follow -type f -name '*.js.map' -delete
+
+# add conda-lock
+RUN conda install conda-lock
 
 COPY environment.yml environment.yml
 
