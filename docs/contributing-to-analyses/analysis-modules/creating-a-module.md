@@ -60,6 +60,7 @@ To run this script, take these steps:
 
 The `create-analysis-module.py` script will also create two additional files besides your analysis module.
 These files, stored in the repository folder `.github/workflows`, are [GitHub Action workflow files](https://docs.github.com/en/actions) that the OpenScPCA project uses to ensure module reproducibility.
+The workflows are disabled by default.
 
 - `run_{my-module-name}.yml` contains a skeleton workflow for running the analysis module
 - `docker_{my-module-name}.yml` contains a skeleton workflow for building the analysis module's [Dockerfile](../../software-platforms/docker/index.md)
