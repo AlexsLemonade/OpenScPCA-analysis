@@ -8,15 +8,19 @@ set -euo pipefail
 MODULE_DIR=$(dirname "${BASH_SOURCE[0]}")
 cd ${MODULE_DIR}
 
+NB_DIR=template-notebooks # directory with template notebooks
 ###########################################################################################
 ########## Step 1: Benchmark doublet detection methods on ground truth datasets ###########
 ###########################################################################################
 
 # Create benchmark directories
-BENCH_DATA_DIR=scratch/benchmark_datasets
-BENCH_RESULTS_DIR=results/benchmark_results
+BENCH_DATA_DIR=scratch/benchmark-datasets
+BENCH_RESULTS_DIR=results/benchmark-results
+BENCH_NB_DIR=${BENCH_RESULTS_DIR}/rendered-notebooks
 mkdir -p ${BENCH_DATA_DIR}
 mkdir -p ${BENCH_RESULTS_DIR}
+mkdir -p ${BENCH_NB_DIR}
+
 
 # define benchmarking datasets to use
 bench_datasets=("hm-6k" "pbmc-1B-dm" "pdx-MULTI" "HMEC-orig-MULTI")
@@ -42,4 +46,10 @@ for dataset in "${bench_datasets[@]}"; do
     # Infer doublets with scrublet
     ./scripts/01b_run-scrublet.py --dataset_name ${dataset} --data_dir ${DATASET_DIR} --results_dir ${BENCH_RESULTS_DIR}
 
+    # Explore each individual set of doublet results
+    Rscript -e "rmarkdown::render('${NB_DIR}/02_explore-benchmark-results.Rmd',
+            output_dir = '${BENCH_NB_DIR}',
+            output_file = '${dataset}-doublet-results.html',
+            params = list(dataset = '${dataset}'),
+            clean = TRUE)"
 done
