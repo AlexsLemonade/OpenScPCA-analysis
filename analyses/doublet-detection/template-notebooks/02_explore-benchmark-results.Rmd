@@ -217,8 +217,8 @@ assess_doublets <- function(df, pred_col) {
   caret::confusionMatrix(
     # truth should be first
     table(
-      "Truth" = doublet_df$ground_truth,
-      "Prediction" = doublet_df[[pred_col]]
+      "Truth" = df$ground_truth,
+      "Prediction" = df[[pred_col]]
     ), 
     positive = "doublet"
   )
