@@ -1,9 +1,8 @@
-name: "openscpca-cell-type-ewings"
+name: openscpca-doublet-detection
 channels:
   - conda-forge
   - bioconda
   - defaults
-  - pytorch
 platforms:
   - linux-64
   - osx-64
@@ -12,11 +11,8 @@ dependencies:
   - python=3.11
   - awscli=2.15
   - conda-lock=2.5
-  - jq=1.7
+  - jq
   - pre-commit=3.6
-  - session-info=1.0
-  - anndata
-  - pytorch
-  - pip
-  - pip:
-    - scvi-tools
+  - scrublet=0.2.3
+  - anndata=0.10.7
+  - pandas=2.2.2

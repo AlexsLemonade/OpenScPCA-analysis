@@ -1,0 +1,60 @@
+#!/usr/bin/env Rscript
+
+# This script converts the datasets used for benchmarking into SCE and AnnData objects,
+# mirroring ScPCA dataset format.
+# The original data files were obtained from Zenodo and are named <dataset name>.rds.
+# Each is an RDS object containing a list of two items:
+#  [[1]] A raw counts matrix
+#  [[2]] A vector of doublet/singlet calls for each barcode
+# The exported files are named `<dataset name>-<sce/anndata>.<rds/h5ad>.
+# Each has a variable `ground_truth_doublets` representing the singlet/doublet calls:
+#   - In the SCE file, this is in the colData slot
+#   - In the AnnData file, this is in the obs slot
+
+# Load renv environment and libraries
+project_root <- rprojroot::find_root(rprojroot::is_renv_project)
+renv::load(project_root)
+library(optparse)
+
+
+option_list <- list(
+  make_option(
+    "--dataset_name",
+    type = "character",
+    help = "Name of dataset to process."
+  ),
+  make_option(
+    c("--input_dir"),
+    type = "character",
+    help = "Directory containing data files to format."
+  ),
+  make_option(
+    c("--output_dir"),
+    type = "character",
+    help = "Directory to save formatted files to."
+  )
+)
+opts <- parse_args(OptionParser(option_list = option_list))
+fs::dir_create(opts$output_dir)
+
+input_file <- file.path(opts$input_dir, glue::glue("{opts$dataset_name}.rds"))
+if (!file.exists(input_file)) {
+  stop(
+    glue::glue("Input file could not be found at: `{input_file}`.")
+  )
+}
+
+output_sce_file <- file.path(opts$output_dir, glue::glue("{opts$dataset_name}_sce.rds"))
+output_anndata_file <- file.path(opts$output_dir, glue::glue("{opts$dataset_name}_anndata.h5ad"))
+
+dat <- readRDS(input_file)
+mat <- dat[[1]] # raw counts matrix
+calls <- dat[[2]] # "singlet" or "doublet"
+
+# Create and export SCE
+sce <- SingleCellExperiment::SingleCellExperiment(assays = list(counts = mat))
+sce$ground_truth_doublets <- calls
+readr::write_rds(sce, output_sce_file)
+
+# Export AnnData version
+zellkonverter::writeH5AD(sce, output_anndata_file)
