@@ -213,23 +213,27 @@ ggplot(celltype_df, aes(x = UMAP1, y = UMAP2, color = cellassign_annotations)) +
 ```
 
 ```{r, eval=has_tumor_assignments}
-# prep annotations for confusion matrix
-celltype_df <- celltype_df |> 
-  dplyr::mutate(cellassign_annotations = ifelse(
-    # make sure annotations match marker gene annotations
-    cellassign_annotations == "tumor", "Tumor", "Normal"
-  )) |> 
-  # make tumor the positive class
-  dplyr::mutate(
-    cellassign_annotations = forcats::fct_relevel(cellassign_annotations, "Tumor"),
-    marker_gene_classification = forcats::fct_relevel(marker_gene_classification, "Tumor")
+# make sure that we only run if both classes are found in both cell types 
+if(all(c("other", "tumor") %in% celltype_df$cellassign_annotations) &&
+   all(c("Tumor", "Normal") %in% celltype_df$marker_gene_classification)){
+  # prep annotations for confusion matrix
+  celltype_df <- celltype_df |> 
+    dplyr::mutate(cellassign_annotations = ifelse(
+      # make sure annotations match marker gene annotations
+      cellassign_annotations == "tumor", "Tumor", "Normal"
+    )) |> 
+    # make tumor the positive class
+    dplyr::mutate(
+      cellassign_annotations = forcats::fct_relevel(cellassign_annotations, "Tumor"),
+      marker_gene_classification = forcats::fct_relevel(marker_gene_classification, "Tumor")
+    ) 
+  
+  caret::confusionMatrix(
+    table(
+      celltype_df$marker_gene_classification, 
+      celltype_df$cellassign_annotations)
   ) 
-
-caret::confusionMatrix(
-  table(
-    celltype_df$marker_gene_classification, 
-    celltype_df$cellassign_annotations)
-)
+}
 ```
 
 
