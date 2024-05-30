@@ -30,10 +30,23 @@ Then, run the following bash script:
 
 ## Input files
 
-This module currently uses input data from [a Zenodo repository](https://doi.org/10.5281/zenodo.4562782) to explore doublet detection methods.
-Specifically, these datasets are used: `hm-6k`, `pbmc-1B-dm`, `pdx-MULTI`, and `HMEC-orig-MULTI`.
+### Benchmarking input files
 
-Eventually, we'd like to run all ScPCA datasets through doublet detection, but this is still TBD for this specific module.
+This module currently uses input data from [a Zenodo repository](https://doi.org/10.5281/zenodo.4562782) to explore doublet detection methods.
+Specifically, these datasets are used (descriptions from [Xi and Li (2021)](https://doi.org/10.1016/j.cels.2020.11.008)):
+- `hm-6k`
+  - A mixture of human HEK293T and mouse NIH3T3 cells with 6806 droplets
+  - Droplets were annotated as a doublets if the barcode was associated with both human and mouse
+- `HMEC-orig-MULTI`
+  - Human primary mammary epithelial cells (HMECs) with 26426 droplets
+  - Doublets were annotated with the [`MULTI-seq` pipeline](https://github.com/chris-mcginnis-ucsf/MULTI-seq)
+- `pdx-MULTI`
+  - A mixture of human breast cancer cells and mouse immune cells from a PDX mouse model
+  - Doublets were annotated with the [`MULTI-seq` pipeline](https://github.com/chris-mcginnis-ucsf/MULTI-seq)
+- `pbmc-1B-dm`
+  - PMBCs from a patient with systemic lupus erythematosus
+  - Droplets were annotated with `demuxlet`
+
 
 ## Output files
 
