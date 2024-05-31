@@ -1,10 +1,9 @@
-# This is a workflow to all of the analysis module workflows
+# This is a workflow to build and optionally push all module Docker images
 #
-# This workflow will run with the following triggers
-# - Manual trigger
-# - Periodic running on a timer
+# This workflow will run only on manual triggers
 
-name: Run all analysis workflows
+
+name: Build all Docker images
 on:
   workflow_dispatch:
     inputs:
