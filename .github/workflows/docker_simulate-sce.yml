@@ -14,11 +14,12 @@ on:
       - "v*.*.*"
     branches:
       - main
-    paths:
-      - analyses/simulate-sce/Dockerfile
-      - analyses/simulate-sce/.dockerignore
-      - analyses/simulate-sce/renv.lock
-      - analyses/simulate-sce/conda-lock.yml
+      - jashapiro/docker-matrix-multiple
+    # paths:
+    #   - analyses/simulate-sce/Dockerfile
+    #   - analyses/simulate-sce/.dockerignore
+    #   - analyses/simulate-sce/renv.lock
+    #   - analyses/simulate-sce/conda-lock.yml
   workflow_dispatch:
     inputs:
       push-ecr:
