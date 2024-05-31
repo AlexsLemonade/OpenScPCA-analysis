@@ -12,19 +12,23 @@ on:
         required: false
 
 jobs:
-  # Modules to build Docker images for
-  # Note: only 20 modules can be run per workflow
-  simulate-sce:
-    uses: ./.github/workflows/docker_simulate-sce.yml
+  build-docker-modules:
+    name: Build Docker Images
+    uses: ./.github/workflows/build-push-docker-module.yml
+    strategy:
+      fail-fast: false
+      matrix:
+        module:
+          - simulate-sce
     with:
+      module: ${{ matrix.module }}
       push-ecr: ${{ inputs.push-ecr }}
 
-  ## Add additional modules above this comment, and to the needs list below
   check-jobs:
     name: Check Job Status
     if: always()
     needs:
-      - simulate-sce
+      - build-docker-modules
     runs-on: ubuntu-latest
     steps:
       - name: Check for failures or cancelled jobs
