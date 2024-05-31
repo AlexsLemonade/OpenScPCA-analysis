@@ -1,0 +1,33 @@
+# This is a workflow to all of the analysis module workflows
+#
+# This workflow will run with the following triggers
+# - Manual trigger
+# - Periodic running on a timer
+
+name: Run all analysis workflows
+on:
+  workflow_dispatch:
+    inputs:
+      push-ecr:
+        description: "Push to AWS ECR"
+        type: boolean
+        required: false
+
+jobs:
+  # Modules to build Docker images for
+  # Note: only 20 modules can be run per workflow
+  simulate-sce:
+    uses: ./.github/workflows/docker_simulate-sce.yml
+    with:
+      push-ecr: ${{ inputs.push-ecr }}
+
+  ## Add additional modules above this comment, and to the needs list below
+  check-jobs:
+    if: ${{ always() }}
+    needs:
+      - simulate-sce
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for failures or cancelled jobs
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: echo "Job failed" && exit 1

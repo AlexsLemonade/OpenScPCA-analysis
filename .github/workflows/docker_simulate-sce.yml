@@ -23,15 +23,20 @@ on:
       - analyses/simulate-sce/conda-lock.yml
   workflow_dispatch:
     inputs:
-      push:
+      push-ecr:
         description: "Push to AWS ECR"
         type: boolean
         required: false
+  workflow_call:
+    inputs:
+      push-ecr:
+        description: "Push to AWS ECR"
+        type: boolean
 
 jobs:
   test-build:
     name: Test Build Docker Image
-    if: github.event_name == 'pull_request' || !inputs.push
+    if: github.event_name == 'pull_request' || !inputs.push-ecr
     runs-on: ubuntu-latest
 
     steps:
@@ -48,7 +53,7 @@ jobs:
 
   build-push:
     name: Build and Push Docker Image
-    if: github.event_name == 'push' || inputs.push
+    if: github.event_name == 'push' || inputs.push-ecr
     environment: prod
     runs-on: ubuntu-latest
 
