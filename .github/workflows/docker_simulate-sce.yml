@@ -1,6 +1,4 @@
 name: Build docker image for simulate-sce
-env:
-  MODULE: simulate-sce
 
 on:
   pull_request:
@@ -46,52 +44,14 @@ jobs:
       - name: Build image
         uses: docker/build-push-action@v5
         with:
-          context: "{{defaultContext}}:analyses/${{ env.MODULE }}"
+          context: "{{defaultContext}}:analyses/simulate-sce"
           push: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
   build-push:
-    name: Build and Push Docker Image
+    uses: ./.github/workflows/build-push-docker-module.yml
     if: github.event_name == 'push' || inputs.push-ecr
-    environment: prod
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::992382809252:role/GithubOpenId
-          role-session-name: githubActionSession
-          aws-region: us-east-1
-
-      - name: Log in to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-        with:
-          registry-type: public
-
-      - name: Create ECR repository if needed
-        id: create-ecr
-        run: |
-          aws ecr-public describe-repositories --repository-names ${{ env.MODULE }} \
-          || aws ecr-public create-repository --repository-name ${{ env.MODULE }}
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Docker metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: public.ecr.aws/openscpca/${{ env.MODULE }}
-          # tag with 'latest' for main branch pushes, semantic version for releases/tags
-          tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=semver,pattern={{raw}}
-      - name: Build and push image
-        uses: docker/build-push-action@v5
-        with:
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
+    with:
+      module: simulate-sce
+      push-ecr: true
