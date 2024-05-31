@@ -14,30 +14,30 @@ jobs:
   build-push:
     name: Build and Push Docker Image
     if: inputs.push-ecr
-    # environment: prod
+    environment: prod
     runs-on: ubuntu-latest
 
     steps:
-      # - name: Configure AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v4
-      #   with:
-      #     role-to-assume: arn:aws:iam::992382809252:role/GithubOpenId
-      #     role-session-name: githubActionSession
-      #     aws-region: us-east-1
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::992382809252:role/GithubOpenId
+          role-session-name: githubActionSession
+          aws-region: us-east-1
 
-      # - name: Log in to Amazon ECR
-      #   id: login-ecr
-      #   uses: aws-actions/amazon-ecr-login@v2
-      #   with:
-      #     registry-type: public
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
 
-      # - name: Create ECR repository if needed
-      #   id: create-ecr
-      #   run: |
-      #     aws ecr-public describe-repositories --repository-names ${{ inputs.module }} \
-      #     || aws ecr-public create-repository --repository-name ${{ inputs.module }}
-      # - name: Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v3
+      - name: Create ECR repository if needed
+        id: create-ecr
+        run: |
+          aws ecr-public describe-repositories --repository-names ${{ inputs.module }} \
+          || aws ecr-public create-repository --repository-name ${{ inputs.module }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Docker metadata
         id: meta
