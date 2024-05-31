@@ -36,7 +36,7 @@ on:
 jobs:
   test-build:
     name: Test Build Docker Image
-    if: github.event_name == 'pull_request' || !inputs.push-ecr
+    if: github.event_name == 'pull_request' || (contains(github.event_name, 'workflow_') && !inputs.push-ecr)
     runs-on: ubuntu-latest
 
     steps:
