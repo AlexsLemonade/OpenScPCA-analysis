@@ -2,7 +2,6 @@
 #
 # This workflow will run only on manual triggers
 
-
 name: Build all Docker images
 on:
   workflow_dispatch:
@@ -22,7 +21,8 @@ jobs:
 
   ## Add additional modules above this comment, and to the needs list below
   check-jobs:
-    if: ${{ always() }}
+    name: Check Job Status
+    if: always()
     needs:
       - simulate-sce
     runs-on: ubuntu-latest
