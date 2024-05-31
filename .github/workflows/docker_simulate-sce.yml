@@ -1,8 +1,6 @@
 name: Build docker image for simulate-sce
 env:
   MODULE: simulate-sce
-  MODULE_PATH: analyses/simulate-sce
-  REGISTRY_ALIAS: openscpca
 
 on:
   pull_request:
@@ -23,18 +21,39 @@ on:
       - analyses/simulate-sce/.dockerignore
       - analyses/simulate-sce/renv.lock
       - analyses/simulate-sce/conda-lock.yml
-
-permissions:
-  id-token: write # This is required for requesting the JWT
-  contents: read # This is required for actions/checkout
+  workflow_dispatch:
+    inputs:
+      push:
+        description: "Push to AWS ECR"
+        type: boolean
+        required: false
 
 jobs:
-  build:
-    name: Build Docker Image
+  test-build:
+    name: Test Build Docker Image
+    if: github.event_name == 'pull_request' || !inputs.push
     runs-on: ubuntu-latest
 
     steps:
-      - name: Configure AWS Credentials
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v5
+        with:
+          context: "{{defaultContext}}:analyses/${{ env.MODULE }}"
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-push:
+    name: Build and Push Docker Image
+    if: github.event_name == 'push' || inputs.push
+    environment: prod
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::992382809252:role/GithubOpenId
@@ -43,18 +62,15 @@ jobs:
 
       - name: Log in to Amazon ECR
         id: login-ecr
-        if: github.event_name == 'push'
         uses: aws-actions/amazon-ecr-login@v2
         with:
           registry-type: public
 
       - name: Create ECR repository if needed
         id: create-ecr
-        if: github.event_name == 'push'
         run: |
           aws ecr-public describe-repositories --repository-names ${{ env.MODULE }} \
           || aws ecr-public create-repository --repository-name ${{ env.MODULE }}
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -62,20 +78,15 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: public.ecr.aws/${{ env.REGISTRY_ALIAS }}/${{ env.MODULE }}
-          # tag with 'latest' for main branch pushes, semantic version for releases/tags, and the branch name for PRs
-          # PR tags are just for convenience and to avoid warnings, as those builds are not pushed
+          images: public.ecr.aws/openscpca/${{ env.MODULE }}
+          # tag with 'latest' for main branch pushes, semantic version for releases/tags
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{raw}}
-            type=ref,event=pr
-
       - name: Build and push image
         uses: docker/build-push-action@v5
         with:
-          context: "{{defaultContext}}:${{ env.MODULE_PATH }}"
-          push: ${{ github.event_name == 'push'}}
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
-          cache-to: type=gha,mode=max
