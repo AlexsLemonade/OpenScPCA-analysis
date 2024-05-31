@@ -14,12 +14,14 @@ on:
 jobs:
   build-docker-modules:
     name: Build Docker Images
-    uses: ./.github/workflows/build-push-docker-module.yml
     strategy:
       fail-fast: false
       matrix:
+        # add all modules with active docker images here
         module:
+          - hello-python
           - simulate-sce
+    uses: ./.github/workflows/build-push-docker-module.yml
     with:
       module: ${{ matrix.module }}
       push-ecr: ${{ inputs.push-ecr }}
