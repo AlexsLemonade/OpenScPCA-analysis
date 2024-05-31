@@ -51,6 +51,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   build-push:
+    name: Build and Push Docker Image
     uses: ./.github/workflows/build-push-docker-module.yml
     if: github.event_name == 'push' || inputs.push-ecr
     with:
