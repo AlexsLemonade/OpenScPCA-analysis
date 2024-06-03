@@ -189,6 +189,33 @@ names(doublet_df_list) <- dataset_names
 ```
 
 
+## Performance metrics
+
+This section shows performance metrics for the consensus calls for each dataset.
+
+```{r}
+doublet_df_list |>
+  purrr::iwalk( 
+    \(df, dataset) {
+        print(glue::glue("======================== {dataset} ========================"))
+      
+        cat("Table of consensus calls:")
+        print(table(df$consensus_call))
+        
+        cat("\n\n")
+        
+        caret::confusionMatrix(
+          # truth should be first
+          table(
+            "Truth" = df$ground_truth,
+            "Consensus prediction" = df$consensus_call
+          ), 
+          positive = "doublet"
+        ) |>
+        print()
+    }
+  )
+```
 
 
 
