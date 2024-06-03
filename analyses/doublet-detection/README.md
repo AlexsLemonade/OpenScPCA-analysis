@@ -44,7 +44,7 @@ Specifically, these datasets are used (descriptions from [Xi and Li (2021)](http
   - A mixture of human breast cancer cells and mouse immune cells from a PDX mouse model
   - Doublets were annotated with the [`MULTI-seq` pipeline](https://github.com/chris-mcginnis-ucsf/MULTI-seq)
 - `pbmc-1B-dm`
-  - `PMBCs` from a patient with systemic lupus erythematosus
+  - `PBMCs` from a patient with systemic lupus erythematosus
   - Droplets were annotated with `demuxlet`
 
 
