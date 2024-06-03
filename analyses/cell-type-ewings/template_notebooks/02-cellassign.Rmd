@@ -370,11 +370,14 @@ if(has_endothelial){
       caret_cellassign_annotations = forcats::fct_relevel(caret_cellassign_annotations, "Endothelial cells")
     ) 
   
-  caret::confusionMatrix(
-    table(
-      celltype_df$caret_cellassign_annotations, 
-      celltype_df$caret_visser_annotations)
-  ) 
+  if(all("Endothelial cells", "Other") %in% celltype_df$visser_cellassign_annotations &&
+     all("Endothelial cells", "Other") %in% celltype_df$cellassign_celltype_annotation){
+    caret::confusionMatrix(
+      table(
+        celltype_df$caret_cellassign_annotations, 
+        celltype_df$caret_visser_annotations)
+    )  
+  }
 } else {
   message("No endothelial cells were classified by `CellAssign`.")
 }
