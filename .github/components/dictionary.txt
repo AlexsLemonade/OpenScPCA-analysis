@@ -15,6 +15,7 @@ bioinformatics
 Bleijs
 Carpentries
 CellAssign
+chondrocytes
 CLI
 codebase
 conda
@@ -32,10 +33,12 @@ Docker's
 Dockerfile
 doxxing
 dropdown
+ECM
 enforceability
 enure
 et
 ewings
+fibroblasts
 formatters
 Generis
 GFM
@@ -51,6 +54,7 @@ ies
 immunities
 impactful
 indicia
+Jaccard
 JSON
 Jupyter
 LGBTQ
