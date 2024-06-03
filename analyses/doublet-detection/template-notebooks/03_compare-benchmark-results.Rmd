@@ -37,47 +37,51 @@ result_dir <- file.path(module_base, "results", "benchmark-results")
 
 ### Functions
 
-Import shared functions:
 ```{r}
-
-plot_pca <- function(df, 
-                     color_column, 
-                     pred_column = NULL,
-                     color_type = "d",
-                     color_lab) {
-  # Plot PCs colored by either discrete or continuous color variable, showing doublets on top
-  # df is expected to contain columns PC1, PC2, `color_column`, and if color_type == "c" also `pred_column`. These should _not_ be provided as strings
-  # By default, this function assumes a discrete color variable (`color_type = "d"`) with two levels. Use `color_type = "c"` for continuous. 
-  
-  p <- ggplot(df) + 
+plot_pca_calls <- function(df, 
+                           color_column, 
+                           pred_column,
+                           color_lab) {
+  # Plot PCs colored by singlet/doublet, showing doublets on top
+  # df is expected to contain columns PC1, PC2, `color_column`, and `pred_column`. These should _not_ be provided as strings
+  ggplot(df) + 
     aes(x = PC1, 
         y = PC2, 
         color = {{color_column}}) +
-  geom_point(alpha = 0.5) + 
-  labs(color = color_lab) + 
+  geom_point(
+    size = 0.75, 
+    alpha = 0.6
+  ) +
+  scale_color_manual(name = color_lab, values = c("black", "lightblue")) + 
+  geom_point(
+    data = dplyr::filter(df, {{color_column}} == "doublet"), 
+    color = "black",
+    size = 0.75
+  ) +
   theme(
     legend.title.position = "top",
     legend.position = "bottom"
   )
-  
-  # Set the palette, and ensure doublets are on top for visibility
-  if (color_type == "d") {
-    p <- p + 
-      scale_color_manual(values = c("black", "lightblue")) + 
-    geom_point(
-      data = dplyr::filter(df, {{color_column}} == "doublet"), 
-      color = "black"
-    )
-  } else if (color_type == "c") {
-    p <- p + 
-      scale_color_viridis_c(direction = -1) + 
-    geom_point(
-      data = dplyr::filter(df, {{pred_column}} == "doublet"), 
-      aes(color = {{color_column}})
-    )
-  }
-  
-  return(p)
+}
+
+plot_pca_metrics <- function(df, color_column, false_colors) {
+  # Plot PCs colored by performance metric, showing false calls on top
+  # false_colors is a vector of colors used for fn and fp points
+  # df is expected to contain columns PC1, PC2, and `color_column`. This should _not_ be provided as a string.
+  ggplot(df) + 
+    aes(x = PC1, 
+        y = PC2, 
+        color = {{color_column}}) +
+  geom_point(
+    size = 0.75, 
+    alpha = 0.6
+  ) + 
+  geom_point(
+    data = dplyr::filter(df, {{color_column}} %in% false_colors), 
+    size = 0.75
+  ) +
+  scale_color_identity() +
+  theme(legend.position = "none")
 }
 ```
 
@@ -97,6 +101,13 @@ dataset_names <- list.files(result_dir, pattern = "*_scrublet.tsv") |>
 ```
 
 ```{r read_data}
+confusion_colors <- c(
+  "tp" = "lightblue",
+  "tn" = "pink",
+  "fp" = "blue",
+  "fn" = "firebrick2"
+)
+
 # Read in and data for analysis
 doublet_df_list <- dataset_names |>
   purrr::map(
@@ -164,10 +175,10 @@ doublet_df_list <- dataset_names |>
           ), 
           # set associated plotting colors
           call_type_color = dplyr::case_when(
-            call_type == "tp" ~ "blue4",
-            call_type == "tn" ~ "blue",
-            call_type == "fp" ~ "brown1",
-            call_type == "fn" ~ "darkorange1"
+            call_type == "tp" ~ unname(confusion_colors["tp"]),
+            call_type == "tn" ~ unname(confusion_colors["tn"]),
+            call_type == "fp" ~ unname(confusion_colors["fp"]),
+            call_type == "fn" ~ unname(confusion_colors["fn"])
           )
           )
       
@@ -180,38 +191,54 @@ names(doublet_df_list) <- dataset_names
 
 
 
-## Viz: PCA
+
+## Visualizations
+
+### PCA
+
+This section plots the PCA for each dataset, with three color schemes from left to right:
+- Ground truth doublets are shown in black
+- Consensus doublets are shown in black
+- Points are colored as tp, tn, fp, or fn based on comparing the consensus call to the ground truth
 
 
+```{r, fig.width = 12, fig.height = 6}
+# Make a legend for the confusion-colored PCA
+legend_plot <- data.frame(
+  x = factor(names(confusion_colors), levels = names(confusion_colors)), y = 1:4
+) |>
+ ggplot(aes(x = x, y = y, color = x)) + 
+  geom_point(size = 3) + 
+  scale_color_manual(name = "Metric", values = confusion_colors) 
+confusion_legend <- ggpubr::get_legend(legend_plot) |> ggpubr::as_ggplot()
 
-```{r, fig.width = 10}
 doublet_df_list |>
   purrr::iwalk(
     \(df, dataset) {
       
       # First, ground truth
-      p1 <- plot_pca(
+      p1 <- plot_pca_calls(
         df, 
         color_column = ground_truth, 
         color_lab = "Ground truth"
       )
       
       # Second, consensus call
-      p2 <- plot_pca(
+      p2 <- plot_pca_calls(
         df, 
         color_column = consensus_call, 
         color_lab = "Consensus call"
       )
       
       # Third, call type
-      p3 <- ggplot(df) + 
-        aes(x = PC1, y = PC2, color = call_type_color) + 
-        geom_point(alpha = 0.6, size = 0.25) + 
-        scale_color_identity()
-      
+      p3 <- plot_pca_metrics(
+        df,
+        call_type_color,
+        false_colors = unname(c(confusion_colors["fn"], confusion_colors["fp"]))
+      )
 
       # combine and plot
-      plot( p1 + p2 + p3 + plot_annotation(glue::glue("PCA for {dataset}")) )
+      plot( p1 + p2 + p3 + confusion_legend + plot_annotation(glue::glue("PCA for {dataset}")) + plot_layout(ncol=4, widths = c(1,1,1,0.25)) )
     }
   )
 ```
