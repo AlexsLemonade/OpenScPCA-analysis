@@ -8,6 +8,8 @@ AnnData
 anonymize
 anonymized
 authenticator
+barcode
+barcodes
 benchmarking
 Bioconda
 Bioconductor
@@ -22,6 +24,7 @@ config
 Cmd
 CRediT
 Ctrl
+cxds
 designee
 discoverable
 docstring
@@ -44,6 +47,8 @@ GitKraken
 GitKraken's
 Goodspeed
 GPUs
+heterotypic
+homotypic
 HPC
 IAM
 ICJME
