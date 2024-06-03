@@ -81,7 +81,7 @@ Rscript make-gene-order-file.R
 
 5. `run-infercnv.R`: This script is used to run [`InferCNV`](https://github.com/broadinstitute/inferCNV/wiki) on a processed `SingleCellExperiment` object.
 `InferCNV` is run with a gene cutoff of 0.1 and all other default settings.
-The heatmap (saved as `.png`), full object from running `InferCNV` and a table with cell by CNV information are saved to a `results_dir` specified at the commmand line.
+The heatmap (saved as `.png`), full object from running `InferCNV` and a table with cell by CNV information are saved to a `results_dir` specified at the command line.
 
 All other intermediate files are saved to a `scratch_dir`, which by default is `scratch/infercnv/{library_id}`.
 
@@ -104,7 +104,7 @@ Rscript run-infercnv.Rmd \
 
 ## Utils
 
-The `utils` folder contains Rscripts with any helper functions that are used in `scripts` and notebooks for this module.
+The `utils` folder contains scripts with any helper functions that are used in `scripts` and notebooks for this module.
 
 1. `jaccard-functions.R`: These functions are used to calculate the Jaccard similarity index between groups of cells.
 These functions are taken directly from https://github.com/AlexsLemonade/scpca-nf/blob/main/templates/qc_report/celltypes_supplemental_report.rmd.
