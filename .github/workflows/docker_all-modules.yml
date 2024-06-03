@@ -28,7 +28,7 @@ jobs:
       matrix:
         ##### Add all modules with active docker images here ####
         module:
-          - hello-r
+          - hello-R
           - hello-python
           - simulate-sce
     uses: ./.github/workflows/build-push-docker-module.yml
