@@ -37,6 +37,7 @@ doxxing
 dropdown
 enforceability
 enure
+erythematosus
 et
 ewings
 formatters
@@ -126,3 +127,4 @@ WSL
 Xcode
 YAML
 Zappia
+Zenodo
