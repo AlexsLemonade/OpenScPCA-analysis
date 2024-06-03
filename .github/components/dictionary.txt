@@ -8,6 +8,8 @@ AnnData
 anonymize
 anonymized
 authenticator
+barcode
+barcodes
 benchmarking
 Bioconda
 Bioconductor
@@ -22,6 +24,7 @@ config
 Cmd
 CRediT
 Ctrl
+cxds
 designee
 discoverable
 docstring
@@ -34,6 +37,7 @@ doxxing
 dropdown
 enforceability
 enure
+erythematosus
 et
 ewings
 formatters
@@ -44,6 +48,8 @@ GitKraken
 GitKraken's
 Goodspeed
 GPUs
+heterotypic
+homotypic
 HPC
 IAM
 ICJME
@@ -77,6 +83,7 @@ onboarded
 OpenScPCA
 openscpca
 OpenScPCA's
+PDX
 Posit
 Posit's
 PowerShell
@@ -121,3 +128,4 @@ WSL
 Xcode
 YAML
 Zappia
+Zenodo
