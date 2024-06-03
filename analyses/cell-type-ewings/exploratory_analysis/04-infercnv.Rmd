@@ -109,7 +109,7 @@ final_cnv_obj <- readr::read_rds(final_cnv_obj_file)
 
 ### Endothelial cells as reference 
 
-Below is the heatmap produced by `InferCNV` showing the CNV's for each cell using endothelial cells as a reference. 
+Below is the heatmap produced by `InferCNV` showing the CNVs for each cell using endothelial cells as a reference. 
 Each row is a cell and each column is a gene. 
 The top group contains all cells that were used as the reference group and the bottom is all other cells. 
 The color indicates the relative expression intensity of each gene with the darker colors either indicating a gain of expression or loss of expression compared to the reference cells.
@@ -128,7 +128,7 @@ It's probable that these correspond to the tumor cells, but `InferCNV` does not 
 
 ### No reference
 
-Below is the heatmap produced by `InferCNV` showing the CNV's for each cell without using a reference. 
+Below is the heatmap produced by `InferCNV` showing the CNVs for each cell without using a reference. 
 
 From the [`InferCNV` documentation](https://github.com/broadinstitute/inferCNV/wiki/Running-InferCNV): 
 
@@ -215,7 +215,7 @@ ggplot(cnv_df, aes(x = UMAP1, y= UMAP2, color = has_cnv)) +
   scale_color_viridis_c()
 ```
 This shows that the total CNVs are highest in the group of cells that correspond to the same cells that are manually annotated as tumor cells, which is promising. 
-Those cells in grey (bottom left) are cells used as a reference. 
+Those cells in gray (bottom left) are cells used as a reference. 
 If we were to use total CNVs we would need some sort of cut off for the number. 
 Let's look at the distribution of total CNVs to see if we can identify a cut off. 
 

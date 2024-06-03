@@ -370,11 +370,14 @@ if(has_endothelial){
       caret_cellassign_annotations = forcats::fct_relevel(caret_cellassign_annotations, "Endothelial cells")
     ) 
   
-  caret::confusionMatrix(
-    table(
-      celltype_df$caret_cellassign_annotations, 
-      celltype_df$caret_visser_annotations)
-  ) 
+  if(all("Endothelial cells", "Other") %in% celltype_df$visser_cellassign_annotations &&
+     all("Endothelial cells", "Other") %in% celltype_df$cellassign_celltype_annotation){
+    caret::confusionMatrix(
+      table(
+        celltype_df$caret_cellassign_annotations, 
+        celltype_df$caret_visser_annotations)
+    )  
+  }
 } else {
   message("No endothelial cells were classified by `CellAssign`.")
 }
@@ -467,7 +470,7 @@ ggplot(grouped_celltype_df, aes(x = mean_exp, color = cell_type)) +
 
 ### Run CellAssign with markers from PanglaoDB
 
-The last thing we will do here is run CellAssign using some of the same reference that we used when running CellAssign as part of scpca-nf. 
+The last thing we will do here is run CellAssign using some of the same reference that we used when running CellAssign as part of `scpca-nf`. 
 In particular, the majority of non-muscle cells (which we believe to be tumor cells) were identified as either Endothelial cells or Fibroblasts.
 So we will use a reference that takes the markers for Endothelial cells and Fibroblasts from PanglaoDB and combines with the tumor markers. 
 
