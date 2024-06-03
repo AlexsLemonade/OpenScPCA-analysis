@@ -38,6 +38,7 @@ enforceability
 enure
 et
 ewings
+fibroblast
 fibroblasts
 formatters
 Generis
@@ -71,8 +72,10 @@ LSfR
 macOS
 md
 merchantability
+mesenchymal
 Miniconda
 misidentification
+MSC
 multifactor
 natively
 nonconsensual
@@ -81,6 +84,8 @@ onboarded
 OpenScPCA
 openscpca
 OpenScPCA's
+Panglao
+PanglaoDB
 Posit
 Posit's
 PowerShell

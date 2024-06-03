@@ -467,7 +467,7 @@ ggplot(grouped_celltype_df, aes(x = mean_exp, color = cell_type)) +
 
 ### Run CellAssign with markers from PanglaoDB
 
-The last thing we will do here is run CellAssign using some of the same reference that we used when running CellAssign as part of scpca-nf. 
+The last thing we will do here is run CellAssign using some of the same reference that we used when running CellAssign as part of `scpca-nf`. 
 In particular, the majority of non-muscle cells (which we believe to be tumor cells) were identified as either Endothelial cells or Fibroblasts.
 So we will use a reference that takes the markers for Endothelial cells and Fibroblasts from PanglaoDB and combines with the tumor markers. 
 
