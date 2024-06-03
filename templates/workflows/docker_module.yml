@@ -36,7 +36,7 @@ jobs:
       - name: Build image
         uses: docker/build-push-action@v5
         with:
-          context: "{{defaultContext}}:analyses/simulate-sce"
+          context: "{{defaultContext}}:analyses/{{ openscpca_module }}"
           push: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
