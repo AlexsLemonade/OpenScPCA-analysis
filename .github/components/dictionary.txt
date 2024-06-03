@@ -9,6 +9,8 @@ anonymize
 anonymized
 aneuploid
 authenticator
+barcode
+barcodes
 benchmarking
 Beligs
 Bioconda
@@ -32,6 +34,7 @@ CopyKAT
 CRediT
 Crompton
 Ctrl
+cxds
 designee
 dendogram
 discoverable
@@ -47,6 +50,7 @@ ECM
 enforceability
 enure
 Ensembl
+erythematosus
 et
 ewings
 fibroblast
@@ -60,6 +64,8 @@ GitKraken's
 Goodspeed
 GPUs
 GTF
+heterotypic
+homotypic
 HPC
 IAM
 ICJME
@@ -146,3 +152,4 @@ WSL
 Xcode
 YAML
 Zappia
+Zenodo
