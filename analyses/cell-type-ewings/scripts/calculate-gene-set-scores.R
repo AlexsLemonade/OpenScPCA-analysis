@@ -53,14 +53,19 @@ calculate_score <- function(sce, genes_df, geneset_name){
   # create data frame with sum, mean, and scaled values 
   scores_df <- data.frame(
     sum = rowSums(gene_exp),
-    scaled_sum = scale(sum),
     mean = rowMeans(gene_exp),
-    scaled_mean = scale(mean),
     row.names = rownames(gene_exp)
-  )
+  ) |> 
+    dplyr::mutate(
+      # need to use as.numeric to get rid of [,1] which will cause an error when trying to save the tsv 
+      scaled_sum = as.numeric(scale(sum)),
+      scaled_mean = as.numeric(scale(mean))
+    ) 
   
   # use geneset name to set column names 
-  colnames(scores_df) <- glue::glue("{colnames(scores_df)}-{geneset_name}")
+  # only keep the first name of the dataset
+  geneset_id <- stringr::word(geneset_name, sep = "_")
+  colnames(scores_df) <- glue::glue("{colnames(scores_df)}-{geneset_id}")
   
   return(scores_df)
   
@@ -89,10 +94,10 @@ output_file <- file.path(opt$results_dir, glue::glue("{library_id}_gene-set-scor
 # Grab gene sets ---------------------------------------------------------------
 
 # ews gene set list 
-ews_gene_sets <- list(
-  "ZHANG" = "ZHANG_TARGETS_OF_EWSR1_FLI1_FUSION",
-  "RIGGI" = "RIGGI_EWING_SARCOMA_PROGENITOR_UP",
-  "SILIGAN" = "SILIGAN_TARGETS_OF_EWS_FLI1_FUSION_DN"
+ews_gene_sets <- c(
+  "ZHANG_TARGETS_OF_EWSR1_FLI1_FUSION",
+  "RIGGI_EWING_SARCOMA_PROGENITOR_UP",
+  "SILIGAN_TARGETS_OF_EWS_FLI1_FUSION_DN"
 )
 
 # pull gene sets from msigbdr 
