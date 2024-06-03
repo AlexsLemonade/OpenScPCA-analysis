@@ -206,7 +206,7 @@ ggplot(cnv_df, aes(x = UMAP1, y= UMAP2, color = has_cnv)) +
   scale_color_viridis_c()
 ```
 
-Those cells in grey (bottom left) are cells used as a reference. 
+Those cells in gray (bottom left) are cells used as a reference. 
 If we were to use total CNVs we would need some sort of cut off for the number. 
 Let's look at the distribution of total CNVs to see if we can identify a cut off. 
 

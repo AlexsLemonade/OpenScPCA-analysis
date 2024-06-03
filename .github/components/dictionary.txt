@@ -30,6 +30,7 @@ CNA
 CNAs
 CNV
 CNVs
+cnvs
 CopyKAT
 CRediT
 Crompton
