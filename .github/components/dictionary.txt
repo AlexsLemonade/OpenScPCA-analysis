@@ -7,6 +7,7 @@ altExp
 AnnData
 anonymize
 anonymized
+aneuploid
 authenticator
 benchmarking
 Bioconda
@@ -16,12 +17,19 @@ Bleijs
 Carpentries
 CellAssign
 chondrocytes
+chr
 CLI
 codebase
 conda
 config
 Cmd
+CNA
+CNAs
+CNV
+CNVs
+CopyKAT
 CRediT
+Crompton
 Ctrl
 designee
 discoverable
@@ -114,6 +122,7 @@ sublicensable
 symlink
 symlinked
 synched
+Tirode
 trainings
 transferrable
 transphobic
