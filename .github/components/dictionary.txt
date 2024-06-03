@@ -32,6 +32,7 @@ CRediT
 Crompton
 Ctrl
 designee
+dendogram
 discoverable
 docstring
 docstrings
@@ -59,10 +60,12 @@ GPUs
 HPC
 IAM
 ICJME
+ie
 ies
 immunities
 impactful
 indicia
+InferCNV
 Jaccard
 JSON
 Jupyter
