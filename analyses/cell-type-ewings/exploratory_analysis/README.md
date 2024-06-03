@@ -1,6 +1,7 @@
 # Exploratory Analysis
 
 This folder contains all notebooks used to conduct exploratory analysis while cell typing.
+These notebooks all use data from the `2024-05-01` release.
 
 1. `01-marker-gene-tumor-classification.Rmd`: This notebook looks at marker gene expression in `SCPCS000490`.
 Tumor cells are classified using manual annotation based on marker gene expression and clustering.
