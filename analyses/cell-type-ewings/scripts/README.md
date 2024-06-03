@@ -102,6 +102,23 @@ Rscript run-infercnv.Rmd \
   --threads 4
 ```
 
+6. `calculate-gene-set-scores.R`: This script is used to calculate gene set scores from three different EWS-FLI1 target gene lists for a given `SingleCellExperiment` object.
+The sum, z-scaled sum, mean, and z-scaled mean is calculated for each gene set from the `logcounts` assay.
+This script returns a TSV file with one row per cell and one column per gene set metric.
+
+The following gene sets are used in this script:
+  - [ZHANG_TARGETS_OF_EWSR1_FLI1_FUSION](https://www.gsea-msigdb.org/gsea/msigdb/human/geneset/ZHANG_TARGETS_OF_EWSR1_FLI1_FUSION.html)
+  - [RIGGI_EWING_SARCOMA_PROGENITOR_UP](https://www.gsea-msigdb.org/gsea/msigdb/human/geneset/RIGGI_EWING_SARCOMA_PROGENITOR_UP.html?ex=1)
+  - [SILIGAN_TARGETS_OF_EWS_FLI1_FUSION_DN](https://www.gsea-msigdb.org/gsea/msigdb/cards/SILIGAN_TARGETS_OF_EWS_FLI1_FUSION_DN)
+
+To run this script use the following command:
+
+```sh
+Rscript calculate-gene-set-scores.R \
+  --sce_file <path to processed sce file> \
+  --results_dir <full path to folder to save results>
+```
+
 ## Utils
 
 The `utils` folder contains Rscripts with any helper functions that are used in `scripts` and notebooks for this module.
