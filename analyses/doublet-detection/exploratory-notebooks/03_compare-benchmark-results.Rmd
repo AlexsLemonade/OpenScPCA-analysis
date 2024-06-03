@@ -101,6 +101,7 @@ dataset_names <- list.files(result_dir, pattern = "*_scrublet.tsv") |>
 ```
 
 ```{r read_data}
+# used in PCA plots
 confusion_colors <- c(
   "tp" = "lightblue",
   "tn" = "pink",
@@ -270,6 +271,39 @@ doublet_df_list |>
   )
 ```
 
+
+### Upset plots
+
+This section shows upset plots for overlap among methods for each dataset.
+
+```{r}
+pull_barcodes <- function(df, pred_var) {
+  # Helper function to pull out barcodes for doublet calls
+  df$barcodes[df[[pred_var]] == "doublet"]
+}
+
+upset_list <- doublet_df_list |>
+  purrr::iwalk(
+    \(df, dataset) {
+      
+      doublet_barcodes <- list(
+        "scDblFinder" = pull_barcodes(df, "scdbl_prediction"),
+        "scrublet"    = pull_barcodes(df, "scrublet_prediction"),
+        "cxds"        = pull_barcodes(df, "cxds_prediction")
+      )
+      
+      UpSetR::upset(fromList(doublet_barcodes), order.by = "freq") |> print()
+      grid::grid.text( # plot title
+        dataset,
+        x = 0.65, 
+        y = 0.95, 
+        gp = grid::gpar(fontsize=16)
+      ) 
+
+    }
+  )
+
+```
 
 
 ## Session Info
