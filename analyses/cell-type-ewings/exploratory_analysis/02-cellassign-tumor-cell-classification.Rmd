@@ -41,7 +41,7 @@ suppressPackageStartupMessages({
 repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 
 # The current data directory, found within the repository base directory
-data_dir <- file.path(repository_base, "data", "current")
+data_dir <- file.path(repository_base, "data", "2024-05-01")
 sample_dir <- file.path(data_dir, "SCPCP000015", params$sample_id)
 
 # The path to this module
@@ -72,7 +72,7 @@ classifications_file <- file.path(classifications_results_dir, classifications_f
 # tumor marker genes
 tumor_markers_file <- file.path(module_base, "references", "tumor-marker-genes.tsv")
 # all markers 
-all_markers_file <- file.path(module_base, "references", "all-marker-genes.tsv")
+all_markers_file <- file.path(module_base, "references", "visser-all-marker-genes.tsv")
 # panglao markers
 panglao_markers_file <- file.path(module_base, "references", "PanglaoDB_markers_2020-03-27.tsv")
 
@@ -588,7 +588,7 @@ It looks like the "other" cells actually have high expression of the tumor marke
 
 ### Run CellAssign with markers from PanglaoDB
 
-The last thing I'm trying here is to run CellAssign using some of the same reference that we used when running CellAssign as part of scpca-nf. 
+The last thing I'm trying here is to run CellAssign using some of the same reference that we used when running CellAssign as part of `scpca-nf`. 
 In particular, the majority of non-muscle cells (which we believe to be tumor cells) were identified as either Endothelial cells or Fibroblasts.
 So we will create a reference that takes the markers for Endothelial cells and Fibroblasts from PanglaoDB and combines with the tumor markers. 
 

@@ -1,5 +1,5 @@
 ---
-title: "Using CopyKAT to idenfity tumor cells in Ewing sarcoma samples"
+title: "Using CopyKAT to identify tumor cells in Ewing sarcoma samples"
 author: Ally Hawkins
 date: "`r Sys.Date()`"
 output:
@@ -24,7 +24,7 @@ This notebook explores using [`CopyKAT`](https://github.com/navinlabcode/copykat
 `CopyKAT` was run using the `run-copykat.R` script with and without a normal reference. 
 These results are read into this notebook and used to: 
 
-- Visualize diploid and anueploid cells on the UMAP. 
+- Visualize diploid and aneuploid cells on the UMAP. 
 - Evaluate common copy number gains and losses in Ewing sarcoma. 
 - Calculate the confusion matrix comparing manual annotations of tumor cells to using `CopyKAT` to annotate tumor cells. 
 - Compare the annotations from `CopyKAT` to cell type annotations from `SingleR` and `CellAssign`. 

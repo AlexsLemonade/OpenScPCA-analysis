@@ -1,5 +1,5 @@
 ---
-title: "Using CopyKAT to idenfity tumor cells in Ewing sarcoma samples"
+title: "Using CopyKAT to identify tumor cells in Ewing sarcoma samples"
 author: Ally Hawkins
 date: "`r Sys.Date()`"
 output:
@@ -20,7 +20,7 @@ This notebook explores using [`CopyKAT`](https://github.com/navinlabcode/copykat
 This produced results from `CopyKAT` both with and without a normal reference. 
 These results are read into this notebook and used to: 
 
-- Visualize diploid and anueploid cells on the UMAP. 
+- Visualize diploid and aneuploid cells on the UMAP. 
 - Evaluate common copy number gains and losses in Ewing sarcoma. 
 - Calculate the confusion matrix comparing manual annotations of tumor cells to using `CopyKAT` to annotate tumor cells. 
 - Compare the annotations from `CopyKAT` to cell type annotations from `SingleR` and `CellAssign`. 
@@ -43,7 +43,7 @@ suppressPackageStartupMessages({
 repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 
 # The current data directory, found within the repository base directory
-data_dir <- file.path(repository_base, "data", "current")
+data_dir <- file.path(repository_base, "data", "2024-05-01")
 sample_dir <- file.path(data_dir, "SCPCP000015", params$sample_id)
 
 # The path to this module
@@ -149,7 +149,7 @@ ggplot(cnv_df, aes(x = UMAP1, y = UMAP2, color = copykat.pred)) +
   facet_wrap(vars(reference_used))
 ```
 
-If we look at the UMAPs shown in `01-marker-gene-tumor-classification.Rmd`, the cells that are labeled aneuploid here are consistent with where we saw marker gene expession for tumor cells. 
+If we look at the UMAPs shown in `01-marker-gene-tumor-classification.Rmd`, the cells that are labeled aneuploid here are consistent with where we saw marker gene expression for tumor cells. 
 It also looks like there is not a visible difference between using a reference of normal cells and not using a reference. 
 
 ### Validate common CNAs found in Ewing sarcoma
@@ -200,7 +200,7 @@ ggplot(cnv_df, aes(x = mean_cnv_detection, color = copykat.pred)) +
 ```
 
 It looks like the largest increases are in chr8 and chr21. 
-Chr8 is one of the more common CNA's in Ewing's so this is a good sign. 
+Chr8 is one of the more common CNAs in Ewing's so this is a good sign. 
 
 Chr12 may show some increase, but Chr1 and Chr16 don't show any real differences. 
 
@@ -383,7 +383,7 @@ heatmap <- jaccard_matrices |>
 
 
 We see that aneuploid cells are mostly muscle cells in both `CellAssign` and `SingleR`. 
-In `SingleR` there are some other cell types that were assigned that have a few anueploid cells (chondrocytes, neurons, and fibroblasts). 
+In `SingleR` there are some other cell types that were assigned that have a few aneuploid cells (chondrocytes, neurons, and fibroblasts). 
 
 For diploid cells, we see the most overlap with fibroblasts, endothelial cells, and macrophages. 
 These are consistent with the cell types that we see normal cells line up with in `01-marker-gene-tumor-classification.Rmd`. 
