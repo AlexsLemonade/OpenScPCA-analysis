@@ -1,9 +1,14 @@
 # This is a workflow to build and optionally push all module Docker images
 #
-# This workflow will run only on manual triggers
+# This workflow will run on:
+# - Manual trigger
+# - Periodic scheduled runs
 
 name: Build all Docker images
 on:
+  schedule:
+    # run monthly on the 1st
+    - cron: "0 0 1 * *"
   workflow_dispatch:
     inputs:
       push-ecr:
@@ -17,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # add all modules with active docker images here
+        ##### Add all modules with active docker images here ####
         module:
           - hello-python
           - simulate-sce
@@ -33,6 +38,25 @@ jobs:
       - build-docker-modules
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout template file
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github/cron-issue-templates/all-docker-issue-template.md
+          sparse-checkout-cone-mode: false
+
+      - name: Post issue with failed module images
+        if: contains(needs.*.result, 'failure')
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: Analysis module failing in CI
+          content-filepath: |
+            .github/cron-issue-templates/all-docker-issue-template.md
+          labels: |
+            OpenScPCA admin
+            docker
+            ci
+
       - name: Check for failures or cancelled jobs
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
         run: echo "Job failed" && exit 1

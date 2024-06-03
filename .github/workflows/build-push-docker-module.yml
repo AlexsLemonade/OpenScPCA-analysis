@@ -1,4 +1,7 @@
 name: Build and push a docker image for a module
+# This action is meant to be called by other actions,
+# namely the `build-docker-modules` job in `docker_all-modules.yml` and
+# the `build-push` job in `docker_{module}.yml` for each analysis module.
 
 on:
   workflow_call:
