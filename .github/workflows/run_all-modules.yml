@@ -6,8 +6,8 @@
 
 name: Run all analysis workflows
 on:
-  schedule: # run monthly on the 1st
-    - cron: "0 0 1 * *"
+  schedule: # run monthly on the 4th (intended to run after docker images are built)
+    - cron: "0 0 4 * *"
   workflow_dispatch:
 
 jobs:
