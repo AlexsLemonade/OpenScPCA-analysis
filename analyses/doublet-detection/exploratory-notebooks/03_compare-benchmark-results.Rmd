@@ -9,6 +9,19 @@ output:
     code_folding: hide
 ---
 
+This notebook compares doublet results calculated on benchmarking datasets to one another, with the primary goal of addressing these questions:
+
+1. Do methods tend to predict overlapping or distinct sets of doublets on the same dataset?
+2. Is the consensus doublet call across methods predictive of the true doublet status?
+Here, the "consensus doublets" are those droplets which all methods identify as doublets.
+
+There are several items to bear in mind when interpreting these results:
+
+- The ground truth calls themselves to which we are comparing consensus calls may not be entirely accurate, since they were also computationally identified generally with demultiplexing algorithms. 
+- `cxds`, as we are using it, does not have a specific threshold for calling droplets. 
+By contrast, both `scublet` and `scDblFinder` identify a threshold based on the given dataset they are processing. 
+This notebook used a doublet threshold of `>=0.75` for `cxds`, which may not be universally suitable (though choosing a universally suitable threshold is not easy either!).
+
 ## Setup
 
 ### Packages
@@ -86,10 +99,10 @@ plot_pca_metrics <- function(df, color_column, false_colors) {
 ```
 
 
-### Read and prepare input data
+## Read and prepare input data
 
 First, we'll read in and combine doublet results into a list of data frames for each dataset.
-We'll also two columns for each dataset:
+We'll also create new columns for each dataset:
 
 - `consensus_call`, which will be "doublet" if _all_ methods predict "doublet," and "singlet" otherwise
 - `call_type`, which will classify the consensus call as one of "tp", "tn", "fp", or "fn" (true/false positive/negative) 
@@ -190,44 +203,57 @@ names(doublet_df_list) <- dataset_names
 ```
 
 
-## Performance metrics
 
-This section shows performance metrics for the consensus calls for each dataset.
+
+## Upset plots
+
+This section contains upset plots that show overlap across doublet calls from each method, displayed for each dataset.
 
 ```{r}
-doublet_df_list |>
-  purrr::iwalk( 
+pull_barcodes <- function(df, pred_var) {
+  # Helper function to pull out barcodes for doublet calls
+  df$barcodes[df[[pred_var]] == "doublet"]
+}
+
+upset_list <- doublet_df_list |>
+  purrr::iwalk(
     \(df, dataset) {
-        print(glue::glue("======================== {dataset} ========================"))
       
-        cat("Table of consensus calls:")
-        print(table(df$consensus_call))
-        
-        cat("\n\n")
-        
-        caret::confusionMatrix(
-          # truth should be first
-          table(
-            "Truth" = df$ground_truth,
-            "Consensus prediction" = df$consensus_call
-          ), 
-          positive = "doublet"
-        ) |>
-        print()
+      doublet_barcodes <- list(
+        "scDblFinder" = pull_barcodes(df, "scdbl_prediction"),
+        "scrublet"    = pull_barcodes(df, "scrublet_prediction"),
+        "cxds"        = pull_barcodes(df, "cxds_prediction")
+      )
+      
+      UpSetR::upset(fromList(doublet_barcodes), order.by = "freq") |> print()
+      grid::grid.text( # plot title
+        dataset,
+        x = 0.65, 
+        y = 0.95, 
+        gp = grid::gpar(fontsize=16)
+      ) 
+
     }
   )
+
 ```
 
 
 
-## Visualizations
+## Evaluating consensus performance
+
+This section visualizes and evaluates the consensus doublet calls across each dataset.
+
+
 
 ### PCA
 
 This section plots the PCA for each dataset, with three color schemes from left to right:
-- Ground truth doublets are shown in black
-- Consensus doublets are shown in black
-- Points are colored as tp, tn, fp, or fn based on comparing the consensus call to the ground truth
+
+1. Ground truth doublets are shown in black and singlets in blue
+2. Consensus doublets are shown in black and all remaining droplets in blue
+3. Points are colored based on comparing the consensus call to the ground truth as one of:
+  - true positive (`tp`), true negative (`tn`), false positive (`fp`), false negative (`fn`)
 
 
 ```{r, fig.width = 12, fig.height = 6}
@@ -272,37 +298,60 @@ doublet_df_list |>
 ```
 
 
-### Upset plots
+### Performance metrics 
 
-This section shows upset plots for overlap among methods for each dataset.
+This section calculates a confusion matrix and associated statistics on the consensus calls. 
 
 ```{r}
-pull_barcodes <- function(df, pred_var) {
-  # Helper function to pull out barcodes for doublet calls
-  df$barcodes[df[[pred_var]] == "doublet"]
-}
-
-upset_list <- doublet_df_list |>
-  purrr::iwalk(
+metric_df <- doublet_df_list |>
+  purrr::imap( 
     \(df, dataset) {
+        print(glue::glue("======================== {dataset} ========================"))
       
-      doublet_barcodes <- list(
-        "scDblFinder" = pull_barcodes(df, "scdbl_prediction"),
-        "scrublet"    = pull_barcodes(df, "scrublet_prediction"),
-        "cxds"        = pull_barcodes(df, "cxds_prediction")
-      )
-      
-      UpSetR::upset(fromList(doublet_barcodes), order.by = "freq") |> print()
-      grid::grid.text( # plot title
-        dataset,
-        x = 0.65, 
-        y = 0.95, 
-        gp = grid::gpar(fontsize=16)
-      ) 
-
+        cat("Table of consensus calls:")
+        print(table(df$consensus_call))
+        
+        cat("\n\n")
+        
+        confusion_result <- caret::confusionMatrix(
+          # truth should be first
+          table(
+            "Truth" = df$ground_truth,
+            "Consensus prediction" = df$consensus_call
+          ), 
+          positive = "doublet"
+        ) 
+        
+        print(confusion_result)
+        
+        # Extract information we want to present later in a table
+        tibble::tibble(
+          "Dataset name" = dataset,
+          "Kappa" = round(confusion_result$overall["Kappa"], 3), 
+          "Balanced accuracy" = round(confusion_result$byClass["Balanced Accuracy"], 3)
+        )
     }
-  )
+  ) |>
+  dplyr::bind_rows()
+```
 
+
+
+## Conclusions
+
+Overall, methods do not have substantial overlap with out another. 
+They each tend to detect different sets of doublets, leading to fairly small sets of consensus doublets. 
+Further, the consensus doublets called by all three methods have some, but not substantial, overlap with the ground truth. 
+
+For three out of four datasets, `scDblFinder` predicts a much larger number of doublets compared to other methods. 
+For `pdx-MULTI`, however, `cxds` predicts a much larger number of droplets.
+
+The table below summarizes performance of the "consensus caller". 
+Note that, in the [benchmarking paper these datasets were originally analyzed in](https://doi.org/10.1016/j.cels.2020.11.008), `hm-6k` was observed to be one of the "easiest" datasets to classify across methods.  
+Consistent with that observation, it has the highest `kappa` value here, although it is still fairly low - though not as low as the other methods, which are very close to 0. 
+
+```{r}
+metric_df
 ```
 
 
