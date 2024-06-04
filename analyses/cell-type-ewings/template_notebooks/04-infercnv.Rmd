@@ -115,7 +115,7 @@ final_cnv_obj <- readr::read_rds(final_cnv_obj_file)
 
 ### Endothelial cells as reference 
 
-Below is the heatmap produced by `InferCNV` showing the CNV's for each cell using normal cells as a reference. 
+Below is the heatmap produced by `InferCNV` showing the CNVs for each cell using normal cells as a reference. 
 Each row is a cell and each column is a gene. 
 The top group contains all cells that were used as the reference group and the bottom is all other cells. 
 The color indicates the relative expression intensity of each gene with the darker colors either indicating a gain of expression or loss of expression compared to the reference cells. 

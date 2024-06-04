@@ -16,7 +16,7 @@ params:
 
 This notebook looks at expression of marker genes for tumor cells in a Ewing sarcoma sample, `r {params$sample_id}`. 
 We then see if we can use expression of marker genes to manually classify tumor and normal cells.
-The main goal of this notebook is only to identify tumor cells, identification and labelling of the other cells is a separate question that we do not answer here. 
+The main goal of this notebook is only to identify tumor cells, identification and labeling of the other cells is a separate question that we do not answer here. 
 
 - First we look at expression of each of the marker genes across all cells. 
 - Then we use a z-transform prior to summing expression of all marker genes. 
@@ -46,7 +46,7 @@ theme_set(
 repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 
 # The current data directory, found within the repository base directory
-data_dir <- file.path(repository_base, "data", "current")
+data_dir <- file.path(repository_base, "data", "2024-05-01")
 sample_dir <- file.path(data_dir, "SCPCP000015", params$sample_id)
 
 # The path to this module
@@ -244,7 +244,7 @@ ggplot(celltype_df, aes(x=transformed_gene_expression, color = sum_classificatio
   facet_wrap(vars(gene_symbol)) 
 ```
 
-It looks like ADGRG2, HES1, NROB1, and STEAP1 don't show a lot of difference between cells that might be tumor vs. normal cells and are generally lowly expressed.
+It looks like `ADGRG2`, `HES1`, `NROB1`, and `STEAP1` don't show a lot of difference between cells that might be tumor vs. normal cells and are generally lowly expressed.
 CD99 appears to be expressed in both normal and tumor at similar levels. 
 All other genes show differences between the two, although at varying degrees. 
 Again, we should make sure this is consistent across multiple patients before removing these genes as marker genes. 
@@ -313,20 +313,20 @@ ggplot(marker_plot_df, aes(x = sum_classification, fill = gene_expresed)) +
 ```
 
 Looking at this might help give us an idea of genes that are more specifically expressed in tumor cells. 
-Genes like ADGRG2 and HES1 do not seem specific to tumor cells. 
-There are normal and tumor cells that express the gene and not very many tumor cells actually have expression of ADGRG2. 
-STEAP1 and NROB1 although not expressed in very many tumor cells, look to be specific to tumor cells which is promising. 
+Genes like `ADGRG2` and `HES1` do not seem specific to tumor cells. 
+There are normal and tumor cells that express the gene and not very many tumor cells actually have expression of `ADGRG2.` 
+`STEAP1` and `NROB1` although not expressed in very many tumor cells, look to be specific to tumor cells which is promising. 
 
-CD99, CAV1, and CCND1 are expressed in a high proportion of tumor cells but are also expressed in quite a few normal cells. 
-This is consistent with the literature for CD99 that it is expressed in normal cells, just at a lower level than in Ewing's cells. 
+`CD99`, `CAV1`, and `CCND1` are expressed in a high proportion of tumor cells but are also expressed in quite a few normal cells. 
+This is consistent with the literature for `CD99` that it is expressed in normal cells, just at a lower level than in Ewing's cells. 
 
-KDSR, MAPT, NKX2-2, PAPPA, and PRKCB all seem to have a high proportion of tumor cells expressing the gene and a low proportion of normal cells that express the gene. 
-PRKCB and MAPT are also 2 of the top genes identified using the marker analysis. 
+`KDSR`, `MAPT`, `NKX2-2`, `PAPPA`, and `PRKCB` all seem to have a high proportion of tumor cells expressing the gene and a low proportion of normal cells that express the gene. 
+`PRKCB` and `MAPT` are also 2 of the top genes identified using the marker analysis. 
 
 Almost all genes have at least some expression in normal cells. 
 Perhaps those cells should also be categorized as tumor cells, or they just have some baseline expression in normal cells which is possible. 
 
-### Compare with SingleR and CellAssign classifictions 
+### Compare with SingleR and CellAssign classifications 
 
 The last thing we will do here is compare our manual annotations with the annotations using `SingleR` and `CellAssign`. 
 Looking at the annotations and UMAPs in the supplemental report, it looks like our group of "Tumor" cells are classified mostly as "Muscle cells" by both SingleR and CellAssign. 
@@ -411,7 +411,7 @@ Ewing's cells have a neuronal like phenotype and express high levels of ECM gene
 We do see that macrophages and endothelial cells tend to line up with the normal cells, which is expected. 
 
 For CellAssign, all tumor cells are pulmonary vascular smooth muscle cells. 
-We also see tha normal cells contain some smooth muscle cells, but mostly are fibroblasts and endothelial cells. 
+We also see that normal cells contain some smooth muscle cells, but mostly are fibroblasts and endothelial cells. 
 
 Looking at the heatmap in the supplemental report, the endothelial cells called by SingleR and CellAssign have a lot of overlap. 
 Let's look at expression of marker genes in these endothelial cells compared to cells that are categorized as smooth muscle cells. 
@@ -435,15 +435,15 @@ ggplot(annotation_plot_df, aes(x = transformed_gene_expression, color = automate
   facet_wrap(vars(gene_symbol)) 
 ```
 
-Consistent with previous findings, ADGRG2, HES1, NROB1, and STEAP1 don't seem to show any expression in either groups of cells. 
-CCND1 and CD99 appear to have similar expression across both groups of cells, while MAPT and PRKCB seem to have the most distinct expression profiles between muscle and endothelial cells. 
+Consistent with previous findings, `ADGRG2`, `HES1`, `NROB1`, and `STEAP1` don't seem to show any expression in either groups of cells. 
+`CCND1` and `CD99` appear to have similar expression across both groups of cells, while `MAPT` and `PRKCB` seem to have the most distinct expression profiles between muscle and endothelial cells. 
 
 ## Conclusions 
 
 - We do see variation in marker gene expression across cells, suggesting that there are both tumor and normal cells here. - Using a z-score cut-off identifies a group of cells that appear to be tumor. .
 - The top marker genes for the "tumor" cells contain PRKCB and MAPT, two of the marker genes in our gene list. 
-- It's likely that ADGRG2, HES1, NROB1, and STEAP1 will not be informative in assigning tumor cells. 
-- We may be weary of genes like CD99 too as expression is more consistent across cells rather than specific to a group of cells. 
+- It's likely that `ADGRG2`, `HES1`, `NROB1`, and `STEAP1` will not be informative in assigning tumor cells. 
+- We may be weary of genes like `CD99` too as expression is more consistent across cells rather than specific to a group of cells. 
 - Endothelial cells as identified by SingleR and CellAssign generally have low expression of these marker genes and muscle cells have higher expression of marker genes. 
 
 ## Save outputs 
