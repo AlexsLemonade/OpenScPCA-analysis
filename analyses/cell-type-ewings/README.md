@@ -34,7 +34,7 @@ The following columns are present in this file:
 |`scpca_sample_id`| Unique sample ID. The `sample_id` corresponds to the folder name containing data files for that sample after using `download-data.py`. |
 |`scpca_library_id` | Unique library ID. The `library_id` will match the prefix of all data files (`.rds` and `.h5ad`) downloaded using `download-data.py`. |
 |`normal_celltypes`| A comma separated list of cell types annotated with either `SingleR` or `CellAssign` used to create a reference list of normal cells |
-|`tumor_celltypes`| A comma separated list of cell typs annotated with either `SingleR` or `CellAssign` that are expected to align with tumor cells. |
+|`tumor_celltypes`| A comma separated list of cell types annotated with either `SingleR` or `CellAssign` that are expected to align with tumor cells. |
 
 **Note:** To identify the cell type annotations to use for `normal_celltypes` and `tumor_celltypes`, reference the plots found in `<library_id>_celltype-report.html`.
 These can be downloaded using the `--include_reports` option in `download-data.py`.
@@ -51,9 +51,9 @@ conda activate openscpca-cell-type-ewings
 
 The following arguments are optional and can be used to run this workflow on additional samples (default sample is `SCPCS000490`):
 
-- `sample_id`: Unique sample ID (name of folder containing libray data)
+- `sample_id`: Unique sample ID (name of folder containing library data)
 - `normal_celltypes`: Comma separated list of cell types annotated with either `SingleR` or `CellAssign` to use as a reference list of normal cells. This should correspond to the value found in `sample-metadata.tsv` for this sample.
-- `tumor_celltypes`: Comma separated list of cell typs annotated with either `SingleR` or `CellAssign` that are expected to align with tumor cells.
+- `tumor_celltypes`: Comma separated list of cell types annotated with either `SingleR` or `CellAssign` that are expected to align with tumor cells.
 Any cell types used here will be used for comparing to tumor cells annotated in this workflow.
 This should correspond to the value found in `sample-metadata.tsv` for this sample.
 
