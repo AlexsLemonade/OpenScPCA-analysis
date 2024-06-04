@@ -57,6 +57,7 @@ ies
 immunities
 impactful
 indicia
+Jitter
 JSON
 Jupyter
 LGBTQ
@@ -100,9 +101,11 @@ RStudio
 RStudio's
 Rtools
 SaaS
+scDblFinder
 SCE
 ScPCA
 SCPCP
+scrublet
 SemVar
 SingleR
 socio
