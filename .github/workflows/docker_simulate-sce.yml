@@ -1,4 +1,4 @@
-name: Build docker image for simulate-sce
+name: Build Docker image for simulate-sce
 
 concurrency:
   # only one run per branch at a time

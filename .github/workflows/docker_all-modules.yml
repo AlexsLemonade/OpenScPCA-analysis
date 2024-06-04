@@ -1,7 +1,7 @@
 # This is a workflow to build and optionally push all module Docker images
 #
 # The action works by use a GitHub matrix to build all images in parallel.
-# The modules that will have their docker images built are specified in the matrix variable `module`.
+# The modules that will have their Docker images built are specified in the matrix variable `module`.
 # To add modules, update the `module` matrix in the `build-docker-modules` job to include the module directory name.
 #
 # This workflow will run on:
