@@ -18,8 +18,8 @@ The sum, z-scaled sum, mean, and z-scaled mean for each gene set is calculated:
 - Identify copy number variations and annotate tumor cells using [`CopyKAT`](https://github.com/navinlabcode/copykat).
 - Identify copy number variations using [`InferCNV`](https://github.com/broadinstitute/inferCNV/wiki).
 This returns a proportion of each chromosome with a CNV detected.
-We then calculate the mean proportion for each cell across all chromsomes and weight by the number of genes in a chromosome.
-Cells with a mean proportion greater than the mean of all proportion values are called as tumor cells.
+We then calculate the genomic CNV proportion for each cell across all chromosomes, weighted by the number of genes in a chromosome.
+Cells with a genomic CNV proportion greater than the mean  CNV proportion across all cells are called as tumor cells.
 
 ## Sample metadata
 
