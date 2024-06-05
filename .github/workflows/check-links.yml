@@ -4,6 +4,7 @@ on:
     branches:
       - main
       - reproducibility-docs
+      - feature/*
     paths:
       - docs/**
 
