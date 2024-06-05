@@ -80,6 +80,10 @@ nav:
       - getting-started/accessing-resources/index.md
       - getting-started/accessing-resources/getting-access-to-data.md
       - getting-started/accessing-resources/getting-access-to-compute.md
+    - Project tools:
+      - getting-started/project-tools/index.md
+      - getting-started/project-tools/writing-in-markdown.md
+      - getting-started/project-tools/using-the-terminal.md
   - Technical setup:           # Fork/clone, local environment setup
     - technical-setup/index.md
     - technical-setup/install-wsl-2.md
@@ -143,10 +147,6 @@ nav:
     - Docker:
       - software-platforms/docker/index.md
       - software-platforms/docker/docker-images.md
-    - Additional project tools:
-      - software-platforms/general-tools/index.md
-      - software-platforms/general-tools/writing-in-markdown.md
-      - software-platforms/general-tools/using-the-terminal.md
   - Getting Help:      # troubleshooting and FAQ
     - troubleshooting-faq/index.md
     - troubleshooting-faq/faq.md
