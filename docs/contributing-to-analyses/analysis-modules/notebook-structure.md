@@ -135,7 +135,7 @@ count_sce <- function(sce_file) {
 
 ### Analysis steps { #r-analysis-steps }
 
-Once all of the functions are defined, the remainder of the notebook should be a series of code chunks that perform the analysis steps, with [Markdown text](../../software-platforms/general-tools/writing-in-markdown.md) to explain what each step is doing and why.
+Once all of the functions are defined, the remainder of the notebook should be a series of code chunks that perform the analysis steps, with [Markdown text](../../getting-started/project-tools/writing-in-markdown.md) to explain what each step is doing and why.
 Use headings and subheadings as appropriate to break up the analysis into logical sections, and include plots in the notebook to help illustrate the results.
 
 Code chunks should still contain comments to explain logic and implementation.
@@ -251,7 +251,7 @@ Imported function definitions will no longer appear in the output files, which c
 
 ### Analysis steps { #python-analysis-steps }
 
-Once all of the functions are defined, the remainder of the notebook should be a series of cells with code to perform the analysis steps, and [Markdown text](../../software-platforms/general-tools/writing-in-markdown.md) to explain what each step is doing and why.
+Once all of the functions are defined, the remainder of the notebook should be a series of cells with code to perform the analysis steps, and [Markdown text](../../getting-started/project-tools/writing-in-markdown.md) to explain what each step is doing and why.
 Use headings and subheadings as appropriate to break up the analysis into logical sections, and include plots in the notebook to help illustrate the results.
 
 Code cells should still contain comments to explain logic and implementation.
