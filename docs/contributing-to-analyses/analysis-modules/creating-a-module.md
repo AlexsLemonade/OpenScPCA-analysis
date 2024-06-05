@@ -30,8 +30,8 @@ Before running this script, you should determine two things:
 
 To run this script, take these steps:
 
-1. Open a [terminal](../../software-platforms/general-tools/using-the-terminal.md) window.
-    - You may wish to launch terminal [from GitKraken](../../software-platforms/general-tools/using-the-terminal.md#gitkraken) so that you are automatically placed in the repository.
+1. Open a [terminal](../../getting-started/project-tools/using-the-terminal.md) window.
+    - You may wish to launch terminal [from GitKraken](../../getting-started/project-tools/using-the-terminal.md#gitkraken) so that you are automatically placed in the repository.
 
 2. Make sure you are working in your `base` conda environment by running `conda activate base`.
 
