@@ -16,7 +16,7 @@ renv::init()
 
 [The `renv::init()` command](https://rstudio.github.io/renv/reference/init.html) will create and selectively ignore a series of files, including the lockfile `renv.lock` that keeps track of the packages and versions being used.
 
-You can commit any changes introduced by adding and commiting `renv::init()` to the repository.
+You can commit any changes introduced by adding and committing `renv::init()` to the repository.
 
 The `.Rprofile` file created by `renv::init()` will cause `renv` to automatically activate its library if you launch `R` or `Rscript` from your module's root directory.
 As long as you run a module's code from its root directory, the `renv` environment will be active.

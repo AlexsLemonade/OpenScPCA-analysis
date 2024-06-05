@@ -15,4 +15,4 @@ We specifically recommend these two package managers to specify module-specific 
 - The package manager [conda](https://docs.conda.io/en/latest/), along with [`conda-lock`](https://conda.github.io/conda-lock/), for modules containing Python code.
 Conda can also be used to manage standalone software packages that do not depend on a specific language.
 
-When you [create a module with `create-analysis-module.py](../../contributing-to-analyses/analysis-modules/creating-a-module.md), you can use one (or more!) of several [flags](../../contributing-to-analyses/analysis-modules/creating-a-module.md#module-creation-script-flags) to establish your module with an initialized software environment.
+When you [create a module with `create-analysis-module.py`](../../contributing-to-analyses/analysis-modules/creating-a-module.md), you can use one (or more!) of several [flags](../../contributing-to-analyses/analysis-modules/creating-a-module.md#module-creation-script-flags) to establish your module with an initialized software environment.
