@@ -1,6 +1,6 @@
 # Project tools
 
-The OpenScPCA project supports UNIX-based platforms and is largely stuctured around the use of Git (and [GitHub](https://github.com)).
+The OpenScPCA project supports UNIX-based platforms and is largely structured around the use of Git (and [GitHub](https://github.com)).
 Therefore, as a contributor, there are several tools you will need to be familiar with, including:
 
 - Git
