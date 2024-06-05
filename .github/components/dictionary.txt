@@ -30,7 +30,6 @@ CNA
 CNAs
 CNV
 CNVs
-cnvs
 CopyKAT
 CRediT
 Crompton
@@ -64,6 +63,7 @@ GitKraken
 GitKraken's
 Goodspeed
 GPUs
+grey
 GTF
 heterotypic
 homotypic
