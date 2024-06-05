@@ -39,6 +39,10 @@ suppressPackageStartupMessages({
   library(ggplot2)
   library(copykat)
 })
+
+knitr::opts_chunk$set(
+  dev = "jpeg"
+)
 ```
 
 
