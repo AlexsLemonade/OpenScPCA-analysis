@@ -27,7 +27,7 @@ Data files in each release are organized on S3 as:
 
 
 1. First, find the names of all the data releases, which are named based on their release date in [ISO 8601 format](https://en.wikipedia.org/wiki/ISO_8601).
-You can use the [`download-data.py`](../getting-started/accessing-resources/getting-access-to-data.md#download-data-structure) script with the `--list-releases` flag to do this. 
+You can use the [`download-data.py`](../getting-started/accessing-resources/getting-access-to-data.md#download-data-structure) script with the `--list-releases` flag to do this.
 Don't forget to [log into your AWS `openscpca` profile first](../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session)!
 
     ```bash
@@ -49,7 +49,7 @@ In the example output below, the most recent release is `2024-05-01`.
     ```
 
 1. All data is stored on S3 in `s3://openscpca-data-release/{release name}/`.
-To list all available files, you'll need to use the AWS CLI [in a terminal](../software-platforms/general-tools/using-the-terminal.md) and run `aws s3 ls` to list the contents of a given S3 bucket.
+To list all available files, you'll need to use the AWS CLI [in a terminal](../getting-started/project-tools/using-the-terminal.md) and run `aws s3 ls` to list the contents of a given S3 bucket.
 Therefore, you can list files in a given release as, for example,
     ```bash
     # List all releases in the 2024-05-01 release
