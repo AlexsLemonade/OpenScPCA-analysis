@@ -17,7 +17,7 @@ To address this, we use [`conda-lock`](https://conda.github.io/conda-lock/), whi
 
 ## Initializing a module-specific conda environment
 
-When [creating a Python module using `create-analysis-module.py`](../analysis-modules/creating-a-module.md#flags-to-create-a-python-module), a conda environment will be created for that module by default with two effects:
+When [creating a Python module using `create-analysis-module.py`](../../contributing-to-analyses/analysis-modules/creating-a-module.md#flags-to-create-a-python-module), a conda environment will be created for that module by default with two effects:
 
 * A basic `environment.yml` file will already be present in the module's directory
 * A conda environment named `openscpca-{module_name}` will already exist
@@ -45,7 +45,7 @@ conda-lock --file environment.yml
 
 This will create a `conda-lock.yml` file in the module directory that contains the exact versions of all software packages in the environment, including any dependencies that may be specific to a given platform.
 
-You should perform this step before [filing a pull request](../creating-pull-requests/index.md) to ensure that the `conda-lock.yml` file is up-to-date with the current state of your environment.
+You should perform this step before [filing a pull request](../../contributing-to-analyses/creating-pull-requests/index.md) to ensure that the `conda-lock.yml` file is up-to-date with the current state of your environment.
 
 !!! note
     If the `conda-lock` command fails, it may be because a package is not available for one of the platforms listed in the `environment.yml` file.
