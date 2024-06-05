@@ -1,7 +1,5 @@
 # This is a workflow to run the {{ openscpca_module }} module
-
-# Replace {{ openscpca_module }} throughout the file and otherwise customize to the needs of the particular module
-
+#
 # Analysis modules are run based on three triggers:
 # - Manual trigger
 # - On pull requests where code in the module has changed

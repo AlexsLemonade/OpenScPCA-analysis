@@ -1,0 +1,67 @@
+# This is a workflow to build and optionally push all module Docker images
+#
+# The action works by use a GitHub matrix to build all images in parallel.
+# The modules that will have their Docker images built are specified in the matrix variable `module`.
+# To add modules, update the `module` matrix in the `build-docker-modules` job to include the module directory name.
+#
+# This workflow will run on:
+# - Manual trigger
+# - Periodic scheduled runs
+
+name: Build all Docker images
+on:
+  schedule:
+    # run monthly on the 1st
+    - cron: "0 0 1 * *"
+  workflow_dispatch:
+    inputs:
+      push-ecr:
+        description: "Push to AWS ECR"
+        type: boolean
+        required: false
+
+jobs:
+  build-docker-modules:
+    name: Build Docker Images
+    strategy:
+      fail-fast: false
+      matrix:
+        ##### Add all modules with active docker images here ####
+        module:
+          - hello-R
+          - hello-python
+          - simulate-sce
+    uses: ./.github/workflows/build-push-docker-module.yml
+    with:
+      module: ${{ matrix.module }}
+      push-ecr: ${{ inputs.push-ecr }}
+
+  check-jobs:
+    name: Check Job Status
+    if: always()
+    needs:
+      - build-docker-modules
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout template file
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github/cron-issue-templates/all-docker-issue-template.md
+          sparse-checkout-cone-mode: false
+
+      - name: Post issue with failed module images
+        if: contains(needs.*.result, 'failure')
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: Analysis module failing in CI
+          content-filepath: |
+            .github/cron-issue-templates/all-docker-issue-template.md
+          labels: |
+            OpenScPCA admin
+            docker
+            ci
+
+      - name: Check for failures or cancelled jobs
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: echo "Job failed" && exit 1
