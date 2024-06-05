@@ -2,6 +2,9 @@
 /results/*
 !/results/README.md
 
+# Keep any html files from tumor cell annotation 
+!/results/annotate_tumor_cells_output/**/*.html
+
 # Ignore the scratch directory (but keep it present)
 /scratch/*
 !/scratch/.gitkeep
@@ -9,4 +12,5 @@
 # Ignore any large reference files
 references/infercnv_refs/*.gtf.gz
 references/infercnv_refs/*gene_order.txt
+
 

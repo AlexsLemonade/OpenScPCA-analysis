@@ -1,2 +1,5 @@
 scpca_sample_id	scpca_library_id	normal_celltypes	tumor_celltypes
-SCPCS000490	SCPCL000822	"Endothelial cells,endothelial cell"	"Pulmonary vascular smooth muscle cells,smooth muscle cell"
+SCPCS000490	SCPCL000822	Endothelial cells,endothelial cell	Pulmonary vascular smooth muscle cells,smooth muscle cell
+SCPCS000491	SCPCL000823	Gamma delta T cells	smooth muscle cell
+SCPCS000492	SCPCL000824	Fibroblasts,Endothelial cells	smooth muscle cell
+SCPCS000494	SCPCL000826	Fibroblasts,Osteoblasts	smooth muscle cell
