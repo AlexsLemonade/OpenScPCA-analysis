@@ -113,10 +113,6 @@ nav:
       - contributing-to-analyses/analysis-modules/modifying-a-module.md
       - contributing-to-analyses/analysis-modules/notebook-structure.md
       - contributing-to-analyses/analysis-modules/script-structure.md
-    - Determining analysis requirements:
-      - contributing-to-analyses/determining-requirements/index.md
-      - contributing-to-analyses/determining-requirements/determining-software-requirements.md
-      - contributing-to-analyses/determining-requirements/determining-compute-requirements.md
     - Working with Git: # Creating branches, adding commits, all git interactions
       - contributing-to-analyses/working-with-git/index.md
       - contributing-to-analyses/working-with-git/working-with-branches.md
@@ -134,6 +130,13 @@ nav:
     - Code review and merging your pull request:
       - contributing-to-analyses/pr-review-and-merge/index.md
       - contributing-to-analyses/pr-review-and-merge/respond-to-review.md
+  - Ensuring reproducibility:
+    - index.md
+    - Managing module software:
+      - ensuring-repro/managing-software/index.md
+      - ensuring-repro/managing-software/using-renv.md
+      - ensuring-repro/managing-software/using-conda.md
+      - ensuring-repro/managing-software/reporting-dependencies.md
   - Software platforms:            # AWS (S3 & LSfR), Docker, etc
     - software-platforms/index.md
     - Amazon Web Services (AWS):
