@@ -137,7 +137,7 @@ ENTRYPOINT ["bash", "-l", "-c"]
 If your analysis module requires both R and conda environments, you may have to do just a bit more work to set up the Dockerfile, as there is not a single base image that includes both R and conda environments.
 <!-- Should we make one, maybe? -->
 We recommend starting with an R-based image and then installing conda manually.
-In the example below, we are adapting the installation steps used in the [official Miniconda Dockerfile](https://github.com/ContinuumIO/docker-images/blob/main/miniconda3/debian/Dockerfile)
+In the example below, we have adapted the installation steps used in the [official Miniconda Dockerfile](https://github.com/ContinuumIO/docker-images/blob/main/miniconda3/debian/Dockerfile).
 
 ```Dockerfile
 # Dockerfile for an analysis module with both R and conda environments
@@ -220,8 +220,8 @@ Once a module has a complete Docker image, we can add it to the OpenScPCA automa
 These steps will usually be completed by Data Lab staff.
 
 To add a module's Docker image to testing, we first activate the Github Action that builds the Docker image whenever the module's Dockerfile or environment files are updated.
-In the `.github/workflows/` directory, there should be a `docker_your-module.yml` file that was created when the module was initialized.
+In the `.github/workflows/` directory, there should be a `docker_{your-module}.yml` file that was created when the module was initialized.
 To activate the Github Action, we will uncomment the `on:` block at the top of the file and update the file lists to include any files that should trigger a rebuild, such as files that define the software environment or that are otherwise copied into the Docker image.
 
-The module name will also be added to the `modules:` list in the `.github/workflows/docker_all-modules.yml` file.
+The module name will also be added to the `modules:` list in the `.github/workflows/docker_all-modules.yml` workflow file.
 This file is responsible for building all of the Docker images for the OpenScPCA project during periodic testing and when we release tagged versions of the repository.
