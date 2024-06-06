@@ -11,7 +11,7 @@ You should fill out the template for your analysis module and provide the follow
 - Input files
 - Output files
 - Software requirements
-- Computational resources
+- [Computational resources](./compute-requirements.md)
 
 For some examples of analysis module `README.md` files, please see [our example R module](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/hello-R/README.md) and/or [our example Python module](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/hello-python/README.md).
 
@@ -19,9 +19,8 @@ For some examples of analysis module `README.md` files, please see [our example 
 We recommend that as you continue to work on the analysis, you update the `README.md` file with each change.
 For example, if you add a new step in the analysis module, your [pull request](../creating-pull-requests/index.md) should include the code changes and an update to the `README.md` containing a description of that step.
 
-Documentation is just as important as your code!
-The Data Lab _will not_ approve pull requests without proper documentation. <!-- STUB_LINK for approving/reviewing PRs -->
-
+**Documentation is just as important as your code!
+The Data Lab _will not_ [approve pull requests](../pr-review-and-merge/respond-to-review.md) without proper documentation.**
 
 !!! note "Is this your first analysis module?"
     If you are creating your first analysis module, we recommend that you [scope your first pull request](../creating-pull-requests/scoping-pull-requests.md) to contain only:
