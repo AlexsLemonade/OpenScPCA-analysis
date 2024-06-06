@@ -30,7 +30,7 @@ There are certain situations that you will need to use a terminal as part of con
 - [To perform the initial conda setup](../../technical-setup/environment-setup/setup-conda.md)
 - [To set up the `pre-commit` package](../../technical-setup/environment-setup/setup-precommit.md)
 - [To create a new analysis module](../../contributing-to-analyses/analysis-modules/creating-a-module.md)
-- [To manage your environment and software dependencies with conda](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#managing-software-dependencies-in-python-with-conda)
+- [To manage your environment and software dependencies with conda](../../ensuring-repro/managing-software/using-conda.md)
 - [To run an analysis module](../../contributing-to-analyses/analysis-modules/running-a-module.md)
 
 ## How do you access the terminal?

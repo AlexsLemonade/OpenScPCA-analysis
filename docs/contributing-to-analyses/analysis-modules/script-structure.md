@@ -37,7 +37,7 @@ Below, we provide a few additional considerations that are specific to scripts i
 Instead, we recommend using an argument parser to read these paths in from the command line.
     - Below, we provide recommendations for argument parsing in [R scripts](#r-arguments) and [Python scripts](#python-arguments).
  - You may still want to export session information at the end of your script.
-See our additional documentation on how to do this for [R scripts](../determining-requirements/determining-software-requirements.md#in-a-script) and [Python scripts](../determining-requirements/determining-software-requirements.md#in-python-scripts).
+See our additional documentation on how to do this for [R scripts](../../ensuring-repro/managing-software/reporting-dependencies.md#in-r-scripts) and [Python scripts](../../ensuring-repro/managing-software/reporting-dependencies.md#in-python-scripts).
 
 ### Considerations for R scripts
 

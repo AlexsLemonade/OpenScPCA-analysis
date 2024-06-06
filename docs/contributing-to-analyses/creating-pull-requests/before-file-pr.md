@@ -38,9 +38,8 @@ Follow [these instructions to sync your results to S3](../../software-platforms/
 
 ## Determine software and compute requirements
 
-When filling out the [PR template](./pull-request-template.md) you will be asked to provide information on the [computational resources and software requirements](../determining-requirements/index.md) needed for running your proposed analysis.
+When filling out the [PR template](./pull-request-template.md) you will be asked to provide information on the computational and software requirements needed for running your proposed analysis.
 
-See the [documentation on software requirements](../determining-requirements/determining-software-requirements.md) to identify how to track and determine any software requirements.
-Please include any files used to track software requirements, such as `renv.lock` or `environment.yml`, in your PR.
-
-See the [documentation on computational resources](../determining-requirements/determining-compute-requirements.md) to identify the computational resources needed for your analysis.
+- See the [documentation on software dependencies](../../ensuring-repro/managing-software/index.md) for how to track, determine, and report your software requirements.
+    - Please include any files used to track software requirements, such as `renv.lock` and/or `environment.yml` and `conda-lock.yml`, in your PR.
+- See the [documentation on computational resources](../analysis-modules/compute-requirements.md) for how to determine and document computational resources needed for your analysis.

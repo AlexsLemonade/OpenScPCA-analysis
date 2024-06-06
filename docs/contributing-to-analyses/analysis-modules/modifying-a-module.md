@@ -15,8 +15,8 @@ This includes all of:
     - New scripts or notebooks you add to the module
     - Changes to which input data the module consumes
     - Changes to any output files (e.g., results or plots) the module generates
-    - Changes to the module's [compute requirements](../determining-requirements/determining-compute-requirements.md)
+    - Changes to the module's [compute requirements](./compute-requirements.md)
     - Changes to instructions for setting up the module's run environment and/or running the module
-- Make sure any new dependencies have been added to the module's [software environment](../determining-requirements/determining-software-requirements.md).
+- Make sure any new dependencies have been added to the module's [software environment](../../ensuring-repro/managing-software/index.md).
 - Either update or add `README.md` files to any sub-folders you modify or add to the module.
     - For example, if you added a new script to the `scripts` directory, be sure to add a `scripts/README.md` that describes the usage of the new script.

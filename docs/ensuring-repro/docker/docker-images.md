@@ -10,13 +10,13 @@ Data Lab staff will create a Docker image as part of the process of adding the m
 
 ## Prerequisites
 
-Before making a Docker image, you will want to have [defined the software environment](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md) that you will be using for your analysis module.
+Before making a Docker image, you will want to have [defined the software environment](../managing-software/index.md) that you will be using for your analysis module.
 Having the requirements prepared will make creating a fully reproducible Docker image much more straightforward.
 
 For the easiest setup, you should have one of the two following kind of environment definitions:
 
-- an [`renv.lock` file](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#determining-and-managing-software-dependencies-in-r) if you are working with R, or
-- a [conda `environment.yml`](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#module-specific-conda-environments) and/or [`conda-lock.yml` file](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#freezing-dependencies-with-conda-lock) if you are working with Python or other software available through [Bioconda](https://bioconda.github.io).
+- an [`renv.lock` file](../managing-software/using-renv.md) if you are working with R, or
+- a [conda `environment.yml`](../managing-software/using-conda.md) and/or [`conda-lock.yml` file](../managing-software/using-conda.md#conda-and-conda-lock) if you are working with Python or other software available through [Bioconda](https://bioconda.github.io).
 
 
 

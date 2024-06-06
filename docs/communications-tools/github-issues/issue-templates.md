@@ -25,12 +25,12 @@ Have the following information ready when you file:
 
 - A link to the GitHub Discussion where you proposed the analysis
 - A description of the goals of the analysis (e.g., scientific goals, what the code will do)
-- [Software requirements](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md)
+- [Software requirements](../../ensuring-repro/managing-software/index.md)
 - What your first pull request will contain
 
 If you know the following, please include it in your issue when prompted:
 
-- [Compute requirements](../../contributing-to-analyses/determining-requirements/determining-compute-requirements.md)
+- [Compute requirements](../../contributing-to-analyses/analysis-modules/compute-requirements.md)
 - When you expect to file the first pull request
 
 ### Update an analysis

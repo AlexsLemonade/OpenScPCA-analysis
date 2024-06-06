@@ -22,7 +22,7 @@ Using Docker with OpenScPCA is optional, but highly recommended.
 A docker image will be created and available for each analysis module.
 This ensures reproducibility of that analysis module across any machine that is used.
 
-For example, if you work on your analysis locally and on [Lightsail for Research](../aws/index.md#lightsail-for-research-virtual-computing-with-aws), working in a Docker container ensures reproducible results.
+For example, if you work on your analysis locally and on [Lightsail for Research](../../software-platforms/aws/index.md#lightsail-for-research-virtual-computing-with-aws), working in a Docker container ensures reproducible results.
 
 We will also use Docker images to run the analysis modules in the `OpenScPCA-nf` workflow when generating final analysis results.
 
