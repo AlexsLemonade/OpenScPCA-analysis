@@ -30,7 +30,7 @@ Have the following information ready when you file:
 
 If you know the following, please include it in your issue when prompted:
 
-- [Compute requirements](../../contributing-to-analyses/determining-requirements/determining-compute-requirements.md)
+- [Compute requirements](../../contributing-to-analyses/analysis-modules/compute-requirements.md)
 - When you expect to file the first pull request
 
 ### Update an analysis

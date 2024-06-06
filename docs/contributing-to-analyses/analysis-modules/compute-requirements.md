@@ -36,7 +36,7 @@ Methods or benchmarking papers in the literature may also be a good resource for
 
 To get an overview of computational resource usage when running an analysis, you can use the command-line tool [`htop`](https://htop.dev/) on Linux and macOS.
 
-`htop` will be already installed on machines run via [Lightsail for Research](../../software-platforms/aws/index.md#lsfr-virtual-computing-with-aws), but you can [install it via conda](https://anaconda.org/conda-forge/htop) (see our [documentation on conda](determining-software-requirements.md#adding-software-to-the-environment-and-tracking-installed-software)).
+`htop` will be already installed on machines run via [Lightsail for Research](../../software-platforms/aws/index.md#lsfr-virtual-computing-with-aws), but you can [install it via conda](https://anaconda.org/conda-forge/htop) (see our [documentation on conda](../determining-requirements/determining-software-requirements.md#adding-software-to-the-environment-and-tracking-installed-software)).
 
 Check out [this beginner's guide to `htop`](https://spin.atomicobject.com/htop-guide/) for an introduction.
 

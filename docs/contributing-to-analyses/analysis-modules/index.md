@@ -50,7 +50,7 @@ These are the main files and folders you will interact with when writing your an
     - Use this [markdown](../../getting-started/project-tools/writing-in-markdown.md) file to document your analysis module.
   Your `README.md` file should have enough information for other contributors or repository users to learn the following:
         - The scientific goals of the module
-        - The input and output of the module and its [computational resource requirements](../determining-requirements/determining-compute-requirements.md)
+        - The input and output of the module and its [computational resource requirements](./compute-requirements.md)
         - How to run the module
     - Please see the documentation on [documenting your analysis module](./documenting-analysis.md) for more information about adding to this `README.md` file.
 
