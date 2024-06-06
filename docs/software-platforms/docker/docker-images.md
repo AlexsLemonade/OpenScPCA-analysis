@@ -219,7 +219,7 @@ docker buildx build . -t openscpca/your-module:latest --platform linux/amd64
 Once a module has a complete Docker image, we can add it to the OpenScPCA automated tests and the [OpenScPCA Docker registry](https://gallery.ecr.aws/openscpca). <!-- STUB_LINK to testing docs -->
 These steps will usually be completed by Data Lab staff.
 
-To add a module's Docker image to testing, we first activate the Github Action that builds the Docker image whenever the module's Dockerfile or environment files are updated.
+To add a module's Docker image to testing, we first activate the GitHub Action that builds the Docker image whenever the module's Dockerfile or environment files are updated.
 In the `.github/workflows/` directory, there should be a `docker_{your-module}.yml` file that was created when the module was initialized.
 To activate the Github Action, we will uncomment the `on:` block at the top of the file and update the file lists to include any files that should trigger a rebuild, such as files that define the software environment or that are otherwise copied into the Docker image.
 
