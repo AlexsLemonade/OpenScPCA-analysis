@@ -1,7 +1,12 @@
-# Compute requirements
+# Module compute requirements
 
-We use the term **compute requirements** to refer to the computational resources, such as the number of CPUs or the amount of RAM, that are required for your analysis to run.
-Reporting the compute requirements for running your analysis to project organizers helps us plan for allocating resources on Amazon Web Services (AWS) and to determine how to [review your pull requests](../pr-review-and-merge/index.md) (e.g., using our laptops vs. using AWS). <!-- STUB_LINK: may replace with review-specific page -->
+When planning and implementing your analysis module, you will need to consider your module's **compute requirements.**
+This refers to the computational resources, such as the number of CPUs or the amount of RAM, that are required for your analysis to run.
+
+Knowing and reporting this information helps the OpenScPCA project organizers:
+
+- It helps us plan and allocate resources on Amazon Web Services (AWS) to run your module
+- It provides the compute context we need while [reviewing your pull requests](../pr-review-and-merge/index.md) (e.g., can we review using our laptops vs. using AWS).
 
 We will prompt you to report compute requirements throughout the project as described [below](#reporting-compute-requirements).
 
