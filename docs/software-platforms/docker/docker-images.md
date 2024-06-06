@@ -221,7 +221,7 @@ These steps will usually be completed by Data Lab staff.
 
 To add a module's Docker image to testing, we first activate the GitHub Action that builds the Docker image whenever the module's Dockerfile or environment files are updated.
 In the `.github/workflows/` directory, there should be a `docker_{your-module}.yml` file that was created when the module was initialized.
-To activate the Github Action, we will uncomment the `on:` block at the top of the file and update the file lists to include any files that should trigger a rebuild, such as files that define the software environment or that are otherwise copied into the Docker image.
+To activate the GitHub Action, we will uncomment the `on:` block at the top of the file and update the file lists to include any files that should trigger a rebuild, such as files that define the software environment or that are otherwise copied into the Docker image.
 
 The module name will also be added to the `modules:` list in the `.github/workflows/docker_all-modules.yml` workflow file.
 This file is responsible for building all of the Docker images for the OpenScPCA project during periodic testing and when we release tagged versions of the repository.
