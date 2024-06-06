@@ -10,7 +10,7 @@ You should fill out the template for your analysis module and provide the follow
 - Usage (How to [run the analysis](running-a-module.md))
 - Input files
 - Output files
-- Software requirements
+- [Software and package dependencies](./module-dependencies.md)
 - Computational resources
 
 For some examples of analysis module `README.md` files, please see [our example R module](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/hello-R/README.md) and/or [our example Python module](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/hello-python/README.md).
