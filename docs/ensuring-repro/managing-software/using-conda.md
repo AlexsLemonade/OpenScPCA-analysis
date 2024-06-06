@@ -1,4 +1,4 @@
-## Managing software dependencies with conda
+# Managing software dependencies with conda
 
 We strongly recommend using [conda](https://docs.conda.io/en/latest/) and [`conda-lock`](https://conda.github.io/conda-lock/) to manage dependencies for any module written primarily in Python, as well as for standalone software packages that do not depend on a specific language.
 Many useful bioinformatics tools are available through [Bioconda](https://bioconda.github.io/), which should already be configured as a conda channel.
@@ -53,45 +53,7 @@ You should perform this step before [filing a pull request](../../contributing-t
 
     If this happens, see the [Software not available on a specific platform](#software-not-available-on-a-specific-platform) section below for instructions on how to handle this situation.
 
-## Activating existing environments in a module
-
-If you are working with an existing analysis module, it should have a `conda-lock.yml` file present in the module directory.
-You can create and activate the environment on the computer you are using by running the following commands:
-
-```bash
-# Navigate to the module's root directory
-cd analyses/{module_name}/
-conda-lock install --name openscpca-{module_name} conda-lock.yml
-conda activate openscpca-{module_name}
-```
-
-If the `conda-lock.yml` file has been updated since the last time you worked with the repository, you should rerun the `conda-lock install` command to update your environment to the latest version.
-
-Occasionally you may encounter a Python-based module that does not yet have a `conda-lock.yml` file.
-This is most likely to occur early in development of a module when the requirements may still be in flux.
-(If you do find a module that is missing a `conda-lock.yml` file, you may want to [file an issue](../../communications-tools/github-issues/index.md) to let us know.)
-As long as there is an `environment.yml` file, you can still create an environment to work with the module.
-To do so, run the following commands from the module's root directory, replacing `{module_name}` with the name of the module you are working on:
-
-```bash
-# Navigate to the module's root directory
-cd analyses/{module_name}/
-conda env create --name openscpca-{module_name} --file environment.yml
-conda activate openscpca-{module_name}
-```
-
-!!! note
-    During the `conda env create` step, you may see the following warning:
-
-    ```{.console .no-copy}
-    EnvironmentSectionNotValid: The following section on 'environment.yml' is invalid and will be ignored:
-     - platforms
-    ```
-
-    This warning can be safely ignored; proceed with the installation and activate the environment.
-
-
-### Adding software to the environment and tracking installed software
+## Adding packages to the environment
 
 If there is additional software you intend to use or discover is required for a module, you can add it with the `conda install` command when the environment is activated.
 Follow installing with an update to the `environment.yml` file with that package and the dependencies that were installed.
@@ -145,7 +107,7 @@ dependencies:
 
 </div>
 
-#### Finding available software
+### Finding available packages and software
 
 To find software available through conda, you can search the conda repositories with the following command:
 
@@ -156,7 +118,7 @@ conda search {package_name}
 Alternatively, you can search [anaconda.org](https://anaconda.org) for packages and channels.
 
 
-### Software not available on a specific platform
+### Adding dependencies not available on a specific platform
 
 While most conda packages are available for all platforms, there may be some cases where a particular platform does not have a version of a package.
 
@@ -195,3 +157,41 @@ conda config --env --set subdir osx-64
     - Next, remove the `osx-arm64` line from the `platforms:` section of the `environment.yml` file.
     - Then, run `conda-lock --file environment.yml --kind explicit` to create the platform specific lockfiles.
     - Finally, use the `conda-lock install --no-validate-platform` command above to update your environment using the newly-created lockfile.
+
+
+## Activating existing environments in a module
+
+If you are working with an existing analysis module, it should have a `conda-lock.yml` file present in the module directory.
+You can create and activate the environment on the computer you are using by running the following commands:
+
+```bash
+# Navigate to the module's root directory
+cd analyses/{module_name}/
+conda-lock install --name openscpca-{module_name} conda-lock.yml
+conda activate openscpca-{module_name}
+```
+
+If the `conda-lock.yml` file has been updated since the last time you worked with the repository, you should rerun the `conda-lock install` command to update your environment to the latest version.
+
+Occasionally you may encounter a Python-based module that does not yet have a `conda-lock.yml` file.
+This is most likely to occur early in development of a module when the requirements may still be in flux.
+(If you do find a module that is missing a `conda-lock.yml` file, you may want to [file an issue](../../communications-tools/github-issues/index.md) to let us know.)
+As long as there is an `environment.yml` file, you can still create an environment to work with the module.
+To do so, run the following commands from the module's root directory, replacing `{module_name}` with the name of the module you are working on:
+
+```bash
+# Navigate to the module's root directory
+cd analyses/{module_name}/
+conda env create --name openscpca-{module_name} --file environment.yml
+conda activate openscpca-{module_name}
+```
+
+!!! note
+    During the `conda env create` step, you may see the following warning:
+
+    ```{.console .no-copy}
+    EnvironmentSectionNotValid: The following section on 'environment.yml' is invalid and will be ignored:
+     - platforms
+    ```
+
+    This warning can be safely ignored; proceed with the installation and activate the environment.
