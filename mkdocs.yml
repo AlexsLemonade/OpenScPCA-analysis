@@ -151,9 +151,6 @@ nav:
       - software-platforms/aws/working-with-volumes.md
       - software-platforms/aws/starting-development-on-lsfr.md
       - software-platforms/aws/working-with-snapshots.md
-    - Docker:
-      - software-platforms/docker/index.md
-      - software-platforms/docker/docker-images.md
   - Getting Help:      # troubleshooting and FAQ
     - troubleshooting-faq/index.md
     - troubleshooting-faq/faq.md
