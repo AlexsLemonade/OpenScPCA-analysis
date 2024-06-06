@@ -17,18 +17,18 @@ concurrency:
 #     branches:
 #       - main
 #     paths:
-#       - analyses/simulate-sce/Dockerfile
-#       - analyses/simulate-sce/.dockerignore
-#       - analyses/simulate-sce/renv.lock
-#       - analyses/simulate-sce/conda-lock.yml
+#       - analyses/{{ openscpca_module }}/Dockerfile
+#       - analyses/{{ openscpca_module }}/.dockerignore
+#       - analyses/{{ openscpca_module }}/renv.lock
+#       - analyses/{{ openscpca_module }}/conda-lock.yml
 #   push:
 #     branches:
 #       - main
 #     paths:
-#       - analyses/simulate-sce/Dockerfile
-#       - analyses/simulate-sce/.dockerignore
-#       - analyses/simulate-sce/renv.lock
-#       - analyses/simulate-sce/conda-lock.yml
+#       - analyses/{{ openscpca_module }}/Dockerfile
+#       - analyses/{{ openscpca_module }}/.dockerignore
+#       - analyses/{{ openscpca_module }}/renv.lock
+#       - analyses/{{ openscpca_module }}/conda-lock.yml
 #   workflow_dispatch:
 #     inputs:
 #       push-ecr:
