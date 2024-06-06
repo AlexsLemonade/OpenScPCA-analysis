@@ -116,7 +116,6 @@ nav:
     - Determining analysis requirements:
       - contributing-to-analyses/determining-requirements/index.md
       - contributing-to-analyses/determining-requirements/determining-software-requirements.md
-      - contributing-to-analyses/determining-requirements/determining-compute-requirements.md
     - Working with Git: # Creating branches, adding commits, all git interactions
       - contributing-to-analyses/working-with-git/index.md
       - contributing-to-analyses/working-with-git/working-with-branches.md
