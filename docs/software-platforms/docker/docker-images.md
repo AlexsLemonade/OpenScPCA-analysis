@@ -18,9 +18,10 @@ For the easiest setup, you should have one of the two following kind of environm
 - an [`renv.lock` file](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#determining-and-managing-software-dependencies-in-r) if you are working with R, or
 - a [conda `environment.yml`](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#module-specific-conda-environments) and/or [`conda-lock.yml` file](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#freezing-dependencies-with-conda-lock) if you are working with Python or other software available through [Bioconda](https://bioconda.github.io).
 
-
-
 You will also need to have [Docker installed on your computer](index.md#how-to-install-docker) to build and test the images.
+
+!!! tip
+    If you are new to Docker, you may want to check out the [Docker documentation](https://docs.docker.com/get-started/overview/) for a more in-depth introduction to Docker concepts and commands.
 
 ## Analysis module Dockerfiles
 
@@ -85,10 +86,10 @@ ENV RENV_CONFIG_CACHE_ENABLED FALSE
 COPY renv.lock renv.lock
 
 # restore from renv.lock file and clean up to reduce image size
-RUN Rscript -e 'renv::restore()' && \
-  rm -rf ~/.cache/R/renv && \
-  rm -rf /tmp/downloaded_packages && \
-  rm -rf /tmp/Rtmp*
+RUN Rscript -e 'renv::restore()' \
+  && rm -rf ~/.cache/R/renv \
+  && rm -rf /tmp/downloaded_packages \
+  && rm -rf /tmp/Rtmp*
 ```
 
 
@@ -120,8 +121,8 @@ RUN conda install --channel=conda-forge --name=base conda-lock
 COPY conda-lock.yml conda-lock.yml
 
 # restore from conda-lock.yml file and clean up to reduce image size
-RUN conda-lock install -n ${ENV_NAME} && \
-  conda clean --all --yes
+RUN conda-lock install -n ${ENV_NAME} \
+  && conda clean --all --yes
 
 # Activate conda environment on bash launch
 RUN echo "conda activate ${ENV_NAME}" >> ~/.bashrc
