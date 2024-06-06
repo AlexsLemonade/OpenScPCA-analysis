@@ -137,6 +137,9 @@ nav:
       - ensuring-repro/managing-software/using-renv.md
       - ensuring-repro/managing-software/using-conda.md
       - ensuring-repro/managing-software/reporting-dependencies.md
+    - Working with Docker:
+      - ensuring-repro/docker/index.md
+      - ensuring-repro/docker/docker-images.md
   - Software platforms:            # AWS (S3 & LSfR), Docker, etc
     - software-platforms/index.md
     - Amazon Web Services (AWS):
