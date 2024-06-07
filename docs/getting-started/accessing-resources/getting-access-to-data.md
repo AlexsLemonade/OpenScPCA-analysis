@@ -59,7 +59,7 @@ See our documentation [getting access to AWS](index.md#getting-access-to-aws) fo
 The [`download-data.py` script](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/download-data.py) is designed to download files from whatever release you specify to a folder named for the date of that release and [symlink](https://en.wikipedia.org/wiki/Symbolic_link) it to `data/current`.
 
 !!! tip "Log into AWS CLI before running the script"
-    Before running this script, you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
+    Before running this script locally, you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
     To do this, run the following commands in terminal before running the `data-download.py` script, and follow instructions to log in.
 
     ```sh
@@ -181,8 +181,8 @@ You can list all the options for `download-results.py` by running the following 
 ```
 
 !!! tip "Log into AWS CLI before running the script"
-    Before running this script, you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
-    To do this, run the following commands in terminal before running the `data-download.py` script, and follow instructions to log in.
+    Before running this script locally, you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
+    To do this, run the following commands in terminal before running the `results-download.py` script, and follow instructions to log in.
 
     ```sh
     # replace `openscpca` with your AWS CLI profile name if it differs
