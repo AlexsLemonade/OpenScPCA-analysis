@@ -12,10 +12,11 @@ Broadly speaking, there are three kinds of ScPCA data you might wish to work wit
     - You can either use results from completed modules, which you can obtain [following the instructions below](#accessing-scpca-module-results), or you can use results from modules whose development is still in progress.
     - To use results from an in-progress module, you may need to run the module yourself to generate its result files.
 - Test datasets
-    - We provide small files with simulated and/or permutated versions of both ScPCA Portal data, and results from completed modules.
+    - We provide small files with simulated and/or permuted versions of both ScPCA Portal data, and results from completed modules.
     - These data are used for automated testing, but you can also use them while developing your module, before getting access to real data and/or if smaller files would make development more efficient.
 
 This page describes how you can obtain each of these types of data.
+
 
 ## Accessing ScPCA Data
 
@@ -53,9 +54,24 @@ See our documentation [getting access to AWS](index.md#getting-access-to-aws) fo
 
     - [Cloned the repo](../../technical-setup/clone-the-repo.md)
     - [Set up conda](../../technical-setup/environment-setup/setup-conda.md) (note that conda is pre-installed, but not yet set up, on [Lightsail for Research](../../software-platforms/aws/starting-development-on-lsfr.md#create-and-activate-a-conda-environment) instances)
-    - [Configured the AWS CLI and logged in](../../technical-setup/environment-setup/configure-aws-cli.md) OR are [using Lightsail for Research](../../software-platforms/aws/index.md#lsfr-virtual-computing-with-aws) (which doesn't require logging in via the AWS CLI)
+    - [Configured the AWS CLI](../../technical-setup/environment-setup/configure-aws-cli.md) OR are [using Lightsail for Research](../../software-platforms/aws/index.md#lsfr-virtual-computing-with-aws) (which doesn't require logging in via the AWS CLI)
 
 The [`download-data.py` script](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/download-data.py) is designed to download files from whatever release you specify to a folder named for the date of that release and [symlink](https://en.wikipedia.org/wiki/Symbolic_link) it to `data/current`.
+
+!!! tip "Log into AWS CLI before running the script"
+    Before running this script, you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
+    To do this, run the following commands in terminal before running the `data-download.py` script, and follow instructions to log in.
+
+    ```sh
+    # replace `openscpca` with your AWS CLI profile name if it differs
+    export AWS_PROFILE=openscpca
+    aws sso login
+    ```
+
+    The command `export AWS_PROFILE=openscpca` will define your AWS profile name as `openscpca` for the duration of your terminal session.
+    Defining this variable is helpful because the `download-data.py` script also needs your profile name to download data from S3.
+
+    Note that you can also [add this profile definition to your shell profile file](../../technical-setup/environment-setup/configure-aws-cli.md#storing-your-aws-profile-name) so that it will always be defined in any terminal session.
 
 We briefly cover some of the most common use cases below, but we encourage you to review all the options available to you.
 
@@ -65,40 +81,32 @@ You can list all the options for the download data script by running the followi
 ./download-data.py --help
 ```
 
-!!! tip "When to use the `--profile` flag"
-    Use the `--profile` flag to provide the name of the AWS profile you created [configuring the AWS CLI](../../technical-setup/environment-setup/configure-aws-cli.md) (here, we'll assume your profile is named `openscpca`).
-
-    All example commands shown below include the `--profile` flag, but you do _not_ need to use it if:
-
-    - You are working on Lightsail for Research
-    - You have [defined the `AWS_PROFILE` environment variable with your profile name](../../technical-setup/environment-setup/configure-aws-cli.md#storing-your-aws-profile-name)
-
-Assuming you created a profile called `openscpca` when [configuring the AWS CLI](../../technical-setup/environment-setup/configure-aws-cli.md), you can run the download script with all default options to download all processed samples from the most recent release in `SingleCellExperiment` format:
+You can run the download script with all default options to download all processed samples from the most recent release in `SingleCellExperiment` format:
 
 ```sh
-./download-data.py --profile openscpca
+./download-data.py
 ```
 
 If you prefer to work with `AnnData` files, use the `--format` option as follows:
 
 ```sh
-./download-data.py --format AnnData --profile openscpca
+./download-data.py --format AnnData
 ```
 
 To review what samples would be downloaded without performing the download yet, you can use the `--dryrun` option as follows:
 
 ```sh
-./download-data.py --dryrun --profile openscpca
+./download-data.py --dryrun
 ```
 
 If you're only working with a subset of the data, you can use the `--projects` or `--samples` to download select samples (note: these options are mutually exclusive):
 
 ```sh
 # use the --projects option
-./download-data.py --projects SCPCPXXXXXX --profile openscpca
+./download-data.py --projects SCPCPXXXXXX
 
 # use the --samples option
-./download-data.py --samples SCPCSXXXXXX,SCPCSXXXXXY --profile openscpca
+./download-data.py --samples SCPCSXXXXXX,SCPCSXXXXXY
 ```
 
 #### Download data structure
@@ -172,37 +180,43 @@ You can list all the options for `download-results.py` by running the following 
 ./download-results.py --help
 ```
 
-!!! tip "When to use the `--profile` flag"
-    Use the `--profile` flag to provide the name of the AWS profile you created [configuring the AWS CLI](../../technical-setup/environment-setup/configure-aws-cli.md) (here, we'll assume your profile is named `openscpca`).
+!!! tip "Log into AWS CLI before running the script"
+    Before running this script, you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
+    To do this, run the following commands in terminal before running the `data-download.py` script, and follow instructions to log in.
 
-    All example commands shown below include the `--profile` flag, but you do _not_ need to use it if:
+    ```sh
+    # replace `openscpca` with your AWS CLI profile name if it differs
+    export AWS_PROFILE=openscpca
+    aws sso login
+    ```
 
-    - You are working on Lightsail for Research
-    - You have [defined the `AWS_PROFILE` environment variable with your profile name](../../technical-setup/environment-setup/configure-aws-cli.md#storing-your-aws-profile-name)
+    The command `export AWS_PROFILE=openscpca` will define your AWS profile name as `openscpca` for the duration of your terminal session.
+    Defining this variable is helpful because the `download-data.py` script also needs your profile name to download data from S3.
 
+    Note that you can also [add this profile definition to your shell profile file](../../technical-setup/environment-setup/configure-aws-cli.md#storing-your-aws-profile-name) so that it will always be defined in any terminal session.
 Example script usage below assumes you have created a profile called `openscpca` when [configuring the AWS CLI](../../technical-setup/environment-setup/configure-aws-cli.md).
 
 To download all results for one or more modules, use the `--modules` option as follows:
 
 ```sh
 # Get results from a single module
-./download-results.py --modules module-name --profile openscpca
+./download-results.py --modules module-name
 
 # Get results from several modules
-./download-results.py --modules first-module,second-module --profile openscpca
+./download-results.py --modules first-module,second-module
 ```
 
 To list all available modules for which you can download results, you can use the `--list-modules` option as follows.
 This will list all modules available in, by default, the current release:
 
 ```sh
-./download-results.py --list-modules --profile openscpca
+./download-results.py --list-modules
 ```
 
 To review what result files would be downloaded without performing the download yet, you can use the `--dryrun` option as follows:
 
 ```sh
-./download-results.py --modules module-name --dryrun --profile openscpca
+./download-results.py --modules module-name --dryrun
 ```
 
 While the structure of results files varies by module, some modules' results will be organized by project and/or sample.
@@ -210,10 +224,10 @@ For those modules, you can use either the `--projects` or `--samples` flag (noti
 
 ```sh
 # use the --projects option
-./download-results.py --modules module-name --dryrun --projects SCPCPXXXXXX --profile openscpca
+./download-results.py --modules module-name --dryrun --projects SCPCPXXXXXX
 
 # use the --samples option
-./download-results.py --modules module-name --dryrun --samples SCPCSXXXXXX,SCPCSXXXXXY --profile openscpca
+./download-results.py --modules module-name --dryrun --samples SCPCSXXXXXX,SCPCSXXXXXY
 ```
 
 
