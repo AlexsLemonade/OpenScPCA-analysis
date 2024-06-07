@@ -120,6 +120,7 @@ redistributions
 renv
 repo
 reproducibility
+reproducibly
 RStudio
 RStudio's
 Rtools
