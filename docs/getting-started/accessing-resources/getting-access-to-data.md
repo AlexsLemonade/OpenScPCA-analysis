@@ -82,7 +82,15 @@ To review what samples would be downloaded without performing the download yet, 
 ./download-data.py --dryrun --profile openscpca
 ```
 
-If you're only working with a subset of the data, you can use the `--projects` or `--samples` to download select samples (note: these options are mutually exclusive).
+If you're only working with a subset of the data, you can use the `--projects` or `--samples` to download select samples (note: these options are mutually exclusive):
+
+```sh
+# use the --projects option
+./download-data.py --projects SCPCPXXXXXX --profile openscpca
+
+# use the --samples option
+./download-data.py --samples SCPCSXXXXXX,SCPCSXXXXXY --profile openscpca
+```
 
 #### Download data structure
 
@@ -176,18 +184,18 @@ This will list all modules available in, by default, the current release:
 To review what result files would be downloaded without performing the download yet, you can use the `--dryrun` option as follows:
 
 ```sh
-./download-data.py --modules module-name --dryrun --profile openscpca
+./download-results.py --modules module-name --dryrun --profile openscpca
 ```
 
 While the structure of results files varies by module, some modules' results will be organized by project and/or sample.
-For those modules, you can use either the `--project` or `--samples` flag (noting that these options are mutually exclusive) to download results specific to given a project or sample:
+For those modules, you can use either the `--projects` or `--samples` flag (noting that these options are mutually exclusive) to download results specific to one or more projects or samples:
 
 ```sh
-# use the --project option
-./download-data.py --modules module-name --dryrun --project SCPCPXXXXXX --profile openscpca
+# use the --projects option
+./download-results.py --modules module-name --dryrun --projects SCPCPXXXXXX --profile openscpca
 
 # use the --samples option
-./download-data.py --modules module-name --dryrun --samples SCPCSXXXXXX,SCPCSXXXXXY --profile openscpca
+./download-results.py --modules module-name --dryrun --samples SCPCSXXXXXX,SCPCSXXXXXY --profile openscpca
 ```
 
 
