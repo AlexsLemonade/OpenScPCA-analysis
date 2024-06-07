@@ -73,3 +73,19 @@ To use the AWS CLI for this project, you will need to be logged into the `opensc
 (If a browser window doesn't open, follow the instructions in your Terminal.)
 
 1. Click the `Allow access` button on the next screen.
+
+## Storing your AWS profile name
+
+> These instructions are mostly applicable to advanced users, but we're happy to help you set this up if you need assistance!
+
+Optionally, you may wish to save your profile name as an environment variable in your shell profile file (e.g., `~/.bashrc` for Bash users and `~/.zshrc` for Z shell users).
+
+AWS CLI commands will automatically look for the environment variable `AWS_PROFILE`.
+If you define this variable in your profile file, you will not need to specify `--profile openscpca` (or whichever name you used for your profile) when logging into the AWS CLI or running other commands.
+
+To take advantage of this, add this line to your profile file (assuming your profile is named `openscpca`):
+
+```sh
+export AWS_PROFILE=openscpca
+```
+
