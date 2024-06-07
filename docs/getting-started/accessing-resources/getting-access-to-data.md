@@ -13,10 +13,8 @@ Broadly speaking, there are three kinds of ScPCA data you might wish to work wit
     - To use results from an in-progress module, you may need to run the module yourself to generate its result files.
 - Test datasets
     - We provide small files with simulated and/or permuted versions of both ScPCA Portal data, and results from completed modules.
-    - These data are used for automated testing, but you can also use them while developing your module, before getting access to real data and/or if smaller files would make development more efficient.
-
-This page describes how you can obtain each of these types of data.
-
+    - These data are used for automated testing, but you can also use them while developing your module if smaller files helps make development more efficient.
+    - You do not need AWS access to download the test, so you can use this data before you are granted full access to ScPCA data.
 
 ## Accessing ScPCA Data
 
@@ -139,31 +137,8 @@ To list all available releases, you can use the following command from the root 
 The release directory is symlinked to `data/current`.
 This is generally the path you should use in your code.
 
-## Accessing test data
-
-You can also use the [download data script](#using-the-download-data-script) to download the test data for the project by using the `--test-data` option.
-The test data are simulated or permuted data files with the same structure as the real project data, and are generally much smaller than the original data (learn more at the [`simulate-sce`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/simulate-sce) module).
-
-You do not need an AWS account set up to download the test data.
-
-To download test data with all other options set at default, run the following from the root of the repository:
-
-```sh
-./download-data.py --test-data
-```
-
-This will download test data and direct `data/current` symlink to the test data directory.
-
-To switch back to using ScPCA data, rerun the script with the `--release current` option.
-If you already have the most recent data, this will not repeat downloading the data you already have.
-
 
 ## Accessing ScPCA module results
-
-
-    - You can use either results from completed modules, or you can use results from modules that are still in progress<!--STUB_LINK nf --> (Maybe worth saying that you can use other modules' results directly before they are "completed", but you may have to run them yourself?)
-
-
 
 As an analysis modules matures, the Data Lab will port the analysis to a separate repository called [`OpenScPCA-nf`](https://github.com/AlexsLemonade/OpenScPCA-nf).
 This repository holds a [Nextflow workflow](https://www.nextflow.io/) to reproducibly run and generate results from completed analysis modules.
@@ -273,3 +248,36 @@ To list all available releases, you can use the following command from the root 
 The `data/current` directory is symlinked to the current release directory
 .
 This is generally the path you should use in your code.
+
+
+## Accessing test data
+
+The test data are simulated or permuted data files with the same structure as the real project data, and are generally much smaller than the original data (learn more at the [`simulate-sce`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/simulate-sce) module).
+
+You can use the [download data script](#using-the-download-data-script) to download the test data for the project by using the `--test-data` option.
+Similarly, you use the [download result script](#accessing-scpca-module-results) to download ScPCA results from running completed modules on the test data by using the `--test-data` option.
+
+You do not need an AWS account set up to download the test data or results.
+
+To download test data with all other options set at default, run the following from the root of the repository:
+
+```sh
+./download-data.py --test-data
+```
+
+To download a given module's results as generated with the test data, run the following from the root of the repository:
+
+```sh
+./download-results.py --test-data
+```
+
+These commands will download eiter test data or results, respectively, and will update the `data/current` symlink to instead point to the `data/test` directory.
+This means any real ScPCA data or results you had previously downloaded will no longer be in the `data/current` path.
+To switch this symlink path back to ScPCA data or results, rerun either script with the `--release current` option:
+
+```sh
+./download-data.py --release current
+
+./download-results.py --release current
+```
+If you had already downloaded the most recent data or results, this will not repeat downloading the files you already have.
