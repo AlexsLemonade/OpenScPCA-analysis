@@ -179,8 +179,17 @@ To review what result files would be downloaded without performing the download 
 ./download-data.py --modules module-name --dryrun --profile openscpca
 ```
 
-If you wish to only working with a subset of a module's results, you can use the `--projects` or `--samples` options to download select samples (note: these options are mutually exclusive).
-Note that whether this subsetting is possible will depend on whether that module's results have been structured in a manner that reflects this organization. PHRASING HELP PLEASE!
+While the structure of results files varies by module, some modules' results will be organized by project and/or sample.
+For those modules, you can use either the `--project` or `--samples` flag (noting that these options are mutually exclusive) to download results specific to given a project or sample:
+
+```sh
+# use the --project option
+./download-data.py --modules module-name --dryrun --project SCPCPXXXXXX --profile openscpca
+
+# use the --samples option
+./download-data.py --modules module-name --dryrun --samples SCPCSXXXXXX,SCPCSXXXXXY --profile openscpca
+```
+
 
 #### Download result data structure
 
