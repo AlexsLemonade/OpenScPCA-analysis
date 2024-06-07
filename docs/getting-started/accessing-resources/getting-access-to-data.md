@@ -271,7 +271,7 @@ To download a given module's results as generated with the test data, run the fo
 ./download-results.py --test-data
 ```
 
-These commands will download eiter test data or results, respectively, and will update the `data/current` symlink to instead point to the `data/test` directory.
+These commands will download either test data or results, respectively, and will update the `data/current` symlink to instead point to the `data/test` directory.
 This means any real ScPCA data or results you had previously downloaded will no longer be in the `data/current` path.
 To switch this symlink path back to ScPCA data or results, rerun either script with the `--release current` option:
 
