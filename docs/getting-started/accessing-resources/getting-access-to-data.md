@@ -3,15 +3,19 @@
 To participate in the OpenScPCA Project, you will need access to the Single-cell Pediatric Cancer Atlas (ScPCA) data.
 Here, we describe several ways to access data.
 
-Broadly speaking, there are three kinds of data you might wish to work with:
+Broadly speaking, there are three kinds of ScPCA data you might wish to work with:
+
 
 - Data from the ScPCA Portal
     - You can find out more about the contents of files and how they were processed from the ScPCA documentation: <https://scpca.readthedocs.io>
-- Simulated data for testing and/or developing modules
-- Results from completed OpenScPCA analysis modules
+- Results from other OpenScPCA modules
+    - You can either use results from completed modules, which you can obtain [following the instructions below](#accessing-scpca-module-results), or you can use results from modules whose development is still in progress.
+    - To use results from an in-progress module, you may need to run the module yourself to generate its result files.
+- Test datasets
+    - We provide small files with simulated and/or permutated versions of both ScPCA Portal data, and results from completed modules.
+    - These data are used for automated testing, but you can also use them while developing your module, before getting access to real data and/or if smaller files would make development more efficient.
 
-Below, we describe how you can obtain each of these types of data.
-
+This page describes how you can obtain each of these types of data.
 
 ## Accessing ScPCA Data
 
@@ -142,6 +146,11 @@ If you already have the most recent data, this will not repeat downloading the d
 
 
 ## Accessing ScPCA module results
+
+
+    - You can use either results from completed modules, or you can use results from modules that are still in progress<!--STUB_LINK nf --> (Maybe worth saying that you can use other modules' results directly before they are "completed", but you may have to run them yourself?)
+
+
 
 As an analysis modules matures, the Data Lab will port the analysis to a separate repository called [`OpenScPCA-nf`](https://github.com/AlexsLemonade/OpenScPCA-nf).
 This repository holds a [Nextflow workflow](https://www.nextflow.io/) to reproducibly run and generate results from completed analysis modules.
