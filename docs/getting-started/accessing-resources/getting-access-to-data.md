@@ -118,9 +118,9 @@ data
 ├── {Release}
 │       ├── {Project ID}
 │       │   └── {Sample ID}
-│       │       └── {Library files}
-│       ├── bulk_metadata.tsv (if applicable)
-│       ├── bulk_quant.tsv (if applicable)
+│       │   │     └── {Library files}
+│       │   ├── bulk_metadata.tsv (if applicable)
+│       │   └── bulk_quant.tsv (if applicable)
 │       └── single_cell_metadata.tsv
 └── current -> {Release}
 ```
@@ -254,9 +254,9 @@ data
 ├── {Release}
 │       ├── {Project ID}
 │       │   └── {Sample ID}
-│       │       └── {Library files}
-│       ├── bulk_metadata.tsv (if applicable)
-│       ├── bulk_quant.tsv (if applicable)
+│       │   │     └── {Library files}
+│       │   ├── bulk_metadata.tsv (if applicable)
+│       │   └── bulk_quant.tsv (if applicable)
 │       ├── single_cell_metadata.tsv
 |       └── results
 |           └── {Module name}
