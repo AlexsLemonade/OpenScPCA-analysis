@@ -9,8 +9,8 @@ Broadly speaking, there are three kinds of ScPCA data you might wish to work wit
 - Data from the ScPCA Portal
     - You can find out more about the contents of files and how they were processed from the ScPCA documentation: <https://scpca.readthedocs.io>
 - Results from other OpenScPCA modules
-    - You can obtain results from modules that have been added to the OpenScPCA-nf workflow by [following the instructions below](#accessing-scpca-module-results).
-    - To use results from an in-progress module from the OpenScPCA-analysis repository, you may need to run the module yourself to generate its result files.
+    - You can obtain results from modules that have been added to the `OpenScPCA-nf` workflow by [following the instructions below](#accessing-scpca-module-results).
+    - To use results from an in-progress module from the `OpenScPCA-analysis` repository, you may need to run the module yourself to generate its result files.
 - Test datasets
     - We provide reduced-size test files with simulated and/or permuted versions of both ScPCA Portal data and results from completed modules.
     - These data are used for automated testing, but you can also use them while developing your module if smaller files helps make development more efficient.
