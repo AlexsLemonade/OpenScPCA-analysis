@@ -107,6 +107,7 @@ nav:
     - Analysis modules:
       - contributing-to-analyses/analysis-modules/index.md
       - contributing-to-analyses/analysis-modules/creating-a-module.md
+      - contributing-to-analyses/analysis-modules/module-dependencies.md
       - contributing-to-analyses/analysis-modules/running-a-module.md
       - contributing-to-analyses/analysis-modules/documenting-analysis.md
       - contributing-to-analyses/analysis-modules/modifying-a-module.md
