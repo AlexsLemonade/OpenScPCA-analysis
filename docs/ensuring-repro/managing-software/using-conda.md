@@ -1,4 +1,4 @@
-# Managing software dependencies with conda
+# Managing dependencies with conda
 
 We strongly recommend using [conda](https://docs.conda.io/en/latest/) and [`conda-lock`](https://conda.github.io/conda-lock/) to manage dependencies for any module written primarily in Python, as well as for standalone software packages that do not depend on a specific language.
 Many useful bioinformatics tools are available through [Bioconda](https://bioconda.github.io/), which should already be configured as a conda channel.
