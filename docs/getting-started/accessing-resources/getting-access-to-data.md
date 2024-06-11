@@ -81,6 +81,10 @@ You can list all the options for the download data script by running the followi
 
 You can run the download script with all default options to download all processed samples from the most recent release in `SingleCellExperiment` format:
 
+!!! warning
+    **The full data release download is quite large: over 35 GB for `SingleCellExperiment` format, and over 100 GB for `AnnData` format.
+    Please download the full data release with caution!**
+
 ```sh
 ./download-data.py
 ```
