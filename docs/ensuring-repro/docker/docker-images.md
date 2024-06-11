@@ -18,9 +18,10 @@ For the easiest setup, you should have one of the two following kind of environm
 - an [`renv.lock` file](../managing-software/using-renv.md) if you are working with R, or
 - a [conda `environment.yml`](../managing-software/using-conda.md) and/or [`conda-lock.yml` file](../managing-software/using-conda.md#conda-and-conda-lock) if you are working with Python or other software available through [Bioconda](https://bioconda.github.io).
 
-
-
 You will also need to have [Docker installed on your computer](index.md#how-to-install-docker) to build and test the images.
+
+!!! tip
+    If you are new to Docker, you may want to check out the [Docker documentation](https://docs.docker.com/get-started/overview/) for a more in-depth introduction to Docker concepts and commands.
 
 ## Analysis module Dockerfiles
 
@@ -85,10 +86,10 @@ ENV RENV_CONFIG_CACHE_ENABLED FALSE
 COPY renv.lock renv.lock
 
 # restore from renv.lock file and clean up to reduce image size
-RUN Rscript -e 'renv::restore()' && \
-  rm -rf ~/.cache/R/renv && \
-  rm -rf /tmp/downloaded_packages && \
-  rm -rf /tmp/Rtmp*
+RUN Rscript -e 'renv::restore()' \
+  && rm -rf ~/.cache/R/renv \
+  && rm -rf /tmp/downloaded_packages \
+  && rm -rf /tmp/Rtmp*
 ```
 
 
@@ -120,8 +121,8 @@ RUN conda install --channel=conda-forge --name=base conda-lock
 COPY conda-lock.yml conda-lock.yml
 
 # restore from conda-lock.yml file and clean up to reduce image size
-RUN conda-lock install -n ${ENV_NAME} && \
-  conda clean --all --yes
+RUN conda-lock install -n ${ENV_NAME} \
+  && conda clean --all --yes
 
 # Activate conda environment on bash launch
 RUN echo "conda activate ${ENV_NAME}" >> ~/.bashrc
@@ -129,3 +130,98 @@ RUN echo "conda activate ${ENV_NAME}" >> ~/.bashrc
 # Set entrypoint to bash to activate the environment for any commands
 ENTRYPOINT ["bash", "-l", "-c"]
 ```
+
+
+### Images with both R and conda environments
+
+If your analysis module requires both R and conda environments, you may have to do just a bit more work to set up the Dockerfile, as there is not a single base image that includes both R and conda environments.
+<!-- Should we make one, maybe? -->
+We recommend starting with an R-based image and then installing conda manually.
+In the example below, we have adapted the installation steps used in the [official Miniconda Dockerfile](https://github.com/ContinuumIO/docker-images/blob/main/miniconda3/debian/Dockerfile).
+
+```Dockerfile
+# Dockerfile for an analysis module with both R and conda environments
+# Base image on the Bioconductor 3.19 image
+FROM bioconductor/r-ver:3.19
+
+# set a name for the conda environment
+ARG ENV_NAME=openscpca-analysis
+
+# set environment variables to install miniconda
+ENV PATH="/opt/conda/bin:${PATH}"
+
+# Install Miniconda
+# adapted from https://github.com/ContinuumIO/docker-images/blob/main/miniconda3/debian/Dockerfile
+RUN curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
+  && bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda \
+  && ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh  \
+  && echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc  \
+  && rm -f Miniconda3-latest-Linux-x86_64.sh \
+  && find /opt/conda/ -follow -type f -name '*.a' -delete \
+  && find /opt/conda/ -follow -type f -name '*.js.map' -delete
+
+# Install conda-lock
+RUN conda install --channel=conda-forge --name=base conda-lock
+
+# Install renv
+RUN Rscript -e "install.packages('renv')"
+
+# Disable the renv cache to install packages directly into the R library
+ENV RENV_CONFIG_CACHE_ENABLED FALSE
+
+# Copy conda lock file to image
+COPY conda-lock.yml conda-lock.yml
+
+# restore from conda-lock.yml file and clean up to reduce image size
+RUN conda-lock install -n ${ENV_NAME} conda-lock.yml && \
+  conda clean --all --yes
+
+# Copy the renv.lock file from the host environment to the image
+COPY renv.lock renv.lock
+
+# restore from renv.lock file and clean up to reduce image size
+RUN Rscript -e 'renv::restore()' \
+  && rm -rf ~/.cache/R/renv \
+  && rm -rf /tmp/downloaded_packages \
+  && rm -rf /tmp/Rtmp*
+
+# Activate conda environment on bash launch
+RUN echo "conda activate ${ENV_NAME}" >> ~/.bashrc
+
+# Set entrypoint to bash to activate the environment for any commands
+ENTRYPOINT ["bash", "-l", "-c"]
+```
+
+!!! tip
+    Note that we install all of Miniconda, `conda-lock` and `renv` before installing any module-specific packages.
+    This is because these steps are not likely to change often, so we can take advantage of Docker's caching to avoid re-installing them every time we build the image.
+
+## Building Docker images
+
+### Local testing
+
+If you have a `Dockerfile` set up for your analysis module, you can build the Docker image locally to test it.
+To match the infrastructure that the OpenScPCA project uses you should use the `docker buildx` system and the `--platform linux/amd64` flag when building the image.
+The `Dockerfile` should be in the root of the analysis module directory.
+
+The command below will build the Docker image using the `Dockerfile` in the module directory and tag it as `openscpca/your-module:latest`.
+You should replace `your-module` with the name of your analysis module.
+
+```bash
+# move to the module directory
+cd /path/to/your-module
+# build the docker image
+docker buildx build . -t openscpca/your-module:latest --platform linux/amd64
+```
+
+### Automated testing and deployment
+
+Once a module has a complete Docker image, we can add it to the OpenScPCA automated tests and the [OpenScPCA Docker registry](https://gallery.ecr.aws/openscpca). <!-- STUB_LINK to testing docs -->
+These steps will usually be completed by Data Lab staff.
+
+To add a module's Docker image to testing, we first activate the GitHub Action that builds the Docker image whenever the module's Dockerfile or environment files are updated.
+In the `.github/workflows/` directory, there should be a `docker_{your-module}.yml` file that was created when the module was initialized.
+To activate the GitHub Action, we will uncomment the `on:` block at the top of the file and update the file lists to include any files that should trigger a rebuild, such as files that define the software environment or that are otherwise copied into the Docker image.
+
+The module name will also be added to the `modules:` list in the `.github/workflows/docker_all-modules.yml` workflow file.
+This file is responsible for building all of the Docker images for the OpenScPCA project during periodic testing and when we release tagged versions of the repository.
