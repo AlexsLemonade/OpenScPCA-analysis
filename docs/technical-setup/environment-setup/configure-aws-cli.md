@@ -83,9 +83,10 @@ Optionally, you may wish to save your profile name as an environment variable in
 AWS CLI commands will automatically look for the environment variable `AWS_PROFILE`.
 If you define this variable in your profile file, you will not need to specify `--profile openscpca` (or whichever name you used for your profile) when logging into the AWS CLI or running other commands.
 
-To take advantage of this, add this line to your profile file (assuming your profile is named `openscpca`):
+To take advantage of this, you can add this line to your profile file (assuming your profile is named `openscpca`):
 
 ```sh
 export AWS_PROFILE=openscpca
 ```
 
+That said, please be aware that, if you use other AWS accounts, adding this environment variable might conflict with any settings for your other accounts.
