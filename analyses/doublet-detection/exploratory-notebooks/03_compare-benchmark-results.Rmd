@@ -19,7 +19,7 @@ There are several items to bear in mind when interpreting these results:
 
 - The ground truth calls themselves to which we are comparing consensus calls may not be entirely accurate, since they were also computationally identified generally with demultiplexing algorithms. 
 - `cxds`, as we are using it, does not have a specific threshold for calling droplets. 
-By contrast, both `scublet` and `scDblFinder` identify a threshold based on the given dataset they are processing. 
+By contrast, both `scrublet` and `scDblFinder` identify a threshold based on the given dataset they are processing. 
 This notebook used a doublet threshold of `>=0.75` for `cxds`, which may not be universally suitable (though choosing a universally suitable threshold is not easy either!).
 
 ## Setup
@@ -122,7 +122,7 @@ confusion_colors <- c(
   "fn" = "firebrick2"
 )
 
-# Read in and data for analysis
+# Read in data for analysis
 doublet_df_list <- dataset_names |>
   purrr::map(
     \(dataset) {
@@ -157,16 +157,13 @@ doublet_df_list <- dataset_names |>
         dplyr::select(barcodes,
                       ground_truth = ground_truth_doublets, 
                       PC1 = PCA.1, 
-                      PC2 = PCA.2)
-      rm(sce)
-      
-      dataset_df <- scdbl_df |>
+                      PC2 = PCA.2) |> 
         dplyr::left_join(
           scrub_df, 
           by = "barcodes"
         ) |>
         dplyr::left_join(
-          sce_df, 
+          scdbl_df, 
           by = "barcodes"
         ) 
       
@@ -198,8 +195,8 @@ doublet_df_list <- dataset_names |>
       
       return(dataset_df)
     }
-  )
-names(doublet_df_list) <- dataset_names
+  ) |> 
+  purrr::set_names(dataset_names)
 ```
 
 
@@ -339,7 +336,7 @@ metric_df <- doublet_df_list |>
 
 ## Conclusions
 
-Overall, methods do not have substantial overlap with out another. 
+Overall, methods do not have substantial overlap with each other. 
 They each tend to detect different sets of doublets, leading to fairly small sets of consensus doublets. 
 Further, the consensus doublets called by all three methods have some, but not substantial, overlap with the ground truth. 
 
