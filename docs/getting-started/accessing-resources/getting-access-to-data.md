@@ -211,8 +211,7 @@ For those modules, you can use either the `--projects` or `--samples` flag (noti
 
 #### Download result data structure
 
-By default, results will download into the `data` directory in your local copy of the `OpenScPCA-analysis` repository, but this can be customized with the `--data-dir` option.
-
+Results will download into the `data` directory in your local copy of the `OpenScPCA-analysis` repository.
 Result downloads will generally follow this structure:
 
 ```sh
