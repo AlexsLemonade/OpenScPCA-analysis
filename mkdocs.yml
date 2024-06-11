@@ -107,15 +107,13 @@ nav:
     - Analysis modules:
       - contributing-to-analyses/analysis-modules/index.md
       - contributing-to-analyses/analysis-modules/creating-a-module.md
+      - contributing-to-analyses/analysis-modules/module-dependencies.md
       - contributing-to-analyses/analysis-modules/compute-requirements.md
       - contributing-to-analyses/analysis-modules/running-a-module.md
       - contributing-to-analyses/analysis-modules/documenting-analysis.md
       - contributing-to-analyses/analysis-modules/modifying-a-module.md
       - contributing-to-analyses/analysis-modules/notebook-structure.md
       - contributing-to-analyses/analysis-modules/script-structure.md
-    - Determining analysis requirements:
-      - contributing-to-analyses/determining-requirements/index.md
-      - contributing-to-analyses/determining-requirements/determining-software-requirements.md
     - Working with Git: # Creating branches, adding commits, all git interactions
       - contributing-to-analyses/working-with-git/index.md
       - contributing-to-analyses/working-with-git/working-with-branches.md
