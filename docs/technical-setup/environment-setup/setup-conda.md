@@ -83,7 +83,7 @@ These are specified in the `environment.yml` in the root of the repository, and 
 1. To create this environment, navigate in the terminal with `cd` to the `OpenScPCA-analysis` repository.
     - Again, if you open a [terminal in GitKraken](../../getting-started/project-tools/using-the-terminal.md#gitkraken), you will automatically be in the repository folder.
 
-2. Enter the following command in the terminal to create the `openscpca` environment and install the packages into it:
+1. Enter the following command in the terminal to create the `openscpca` environment and install the packages into it:
 
     ```sh
     conda env create -f environment.yml
