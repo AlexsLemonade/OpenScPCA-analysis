@@ -5,7 +5,7 @@ This refers to the computational resources, such as the number of CPUs or the am
 
 Knowing and reporting this information helps the OpenScPCA project organizers:
 
-- It helps us plan and allocate resources on Amazon Web Services (AWS) to run your module
+- It helps us plan and allocate resources on Amazon Web Services (AWS) to run your module.
 - It lets us know what compute resources we need while [reviewing your pull requests](../pr-review-and-merge/index.md) (e.g., can we review using our laptops vs. using AWS).
 
 We will prompt you to report compute requirements throughout the project as described [below](#reporting-compute-requirements).
