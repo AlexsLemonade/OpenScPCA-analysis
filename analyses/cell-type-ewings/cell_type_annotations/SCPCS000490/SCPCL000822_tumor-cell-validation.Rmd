@@ -19,6 +19,91 @@ Using this information, we call any cell that is annotated as a tumor cell by bo
   - Looking at marker gene expression. 
   - Looking at expression of EWS-FLI1 target gene sets. 
   - Confirming presence of known CNVs in Ewing sarcoma
+  
+## Define functions 
+
+```{r}
+# create a heatmap where rows are marker genes or gene sets and columns are cells 
+# this function adds a column annotation since cells are columns 
+plot_gene_heatmap <- function(df, 
+                              row_title = "",
+                              legend_title = "", 
+                              annotation = NULL){
+  
+  # plot heatmap of marker genes 
+  heatmap <- ComplexHeatmap::Heatmap(
+    df,
+    # set the color scale based on min and max values
+    col = circlize::colorRamp2(seq(min(df), max(df), length = 2), colors = c("white", "#00274C")),
+    border = TRUE,
+    ## Row parameters
+    cluster_rows = TRUE,
+    row_title = row_title,
+    row_title_gp = grid::gpar(fontsize = 12),
+    row_title_side = "left",
+    row_names_side = "left",
+    row_dend_side = "right",
+    row_names_gp = grid::gpar(fontsize = 10),
+    ## Column parameters
+    cluster_columns = TRUE,
+    show_column_names = FALSE,
+    bottom_annotation = annotation,
+    heatmap_legend_param = list(
+      title = legend_title
+    )
+  )
+  
+  return(heatmap)
+}
+
+# create a heatmap where rows are cells and columns are chromosomes 
+# this function adds a row annotation since cells are rows 
+plot_cnv_heatmap <- function(df,
+                             cnv_col, 
+                             annotation = NULL,
+                             legend_title = ""){
+  
+  # barcode by chromosome df 
+  cnv_df <- df |> 
+    dplyr::select(barcodes, starts_with(cnv_col)) |> 
+    unique() |> 
+    tibble::column_to_rownames("barcodes")
+  
+  # just get the name of the chromosome as column name 
+  colnames(cnv_df) <- stringr::word(colnames(cnv_df), -1, sep = "_")
+  
+  # do a little bit of column reordering before converting to a matrix
+  cnv_df <- cnv_df |> 
+    dplyr::relocate(chr10, .before = chr11) |> 
+    dplyr::relocate(chr19, .before = chr20) |> 
+    dplyr::relocate(chr21, .before = chr22) |> 
+    as.matrix()
+  
+  heatmap <- ComplexHeatmap::Heatmap(
+    cnv_df,
+    col = circlize::colorRamp2(seq(min(cnv_df), max(cnv_df), length = 2), colors = c("white", "#00274C")),
+    border = TRUE,
+    ## Row parameters
+    cluster_rows = TRUE,
+    row_title = "",
+    row_title_gp = grid::gpar(fontsize = 12),
+    row_title_side = "left",
+    show_row_names = FALSE,
+    row_dend_side = "right",
+    row_names_gp = grid::gpar(fontsize = 10),
+    ## Column parameters
+    cluster_columns = FALSE,
+    show_column_names = TRUE,
+    right_annotation = annotation,
+    heatmap_legend_param = list(
+      title = legend_title
+    )
+  )
+  return(heatmap)
+}
+
+```
+
 
 ## Setup
 
@@ -33,6 +118,15 @@ suppressPackageStartupMessages({
 theme_set(
   theme_bw()
 )
+
+# use jpegs for images 
+knitr::opts_chunk$set(
+  dev = "jpeg"
+)
+
+# quiet messages
+options(readr.show_col_types = FALSE)
+ComplexHeatmap::ht_opt(message = FALSE)
 ```
 
 
@@ -122,8 +216,9 @@ marker_gene_exp <- logcounts(sce[marker_genes, ]) |>
   as.data.frame() |>
   tibble::rownames_to_column("barcodes")
 
-# pull out the UMAP coordinates and make a data frame to use for plotting
-coldata_df <- sce |> 
+# pull out the UMAP coordinates, add in marker genes and classifications 
+# and make a data frame to use for plotting
+classification_df <- sce |> 
   scuttle::makePerCellDF(use.dimred = "UMAP") |> 
   # replace UMAP.1 with UMAP1
   dplyr::rename_with(
@@ -157,14 +252,30 @@ coldata_df <- sce |>
 
 Below is a UMAP showing which cells are labeled as tumor cells using each of the various classification methods. 
 
+- Marker genes only: For each cell, the expression of all marker genes was transformed using a z-transformation and summed together. 
+Any cells with a total marker gene expression value > 0 were called as tumor cells. 
+- CopyKAT - no reference: [`CopyKAT`](https://github.com/navinlabcode/copykat) was run without indicating any reference cells and cells were classified as aneuploid (Tumor) or diploid (Normal). 
+- InferCNV - [`InferCNV`](https://github.com/broadinstitute/inferCNV/wiki) was used to call copy number variations using endothelial and fibroblasts assigned by `CellAssign` as the normal reference group. 
+This returns a proportion of each chromosome with a CNV detected.
+We then calculate the genomic CNV proportion for each cell across all chromosomes, weighted by the number of genes in a chromosome.
+Cells with a genomic CNV proportion greater than the mean  CNV proportion across all cells are called as tumor cells.
+
+
 ```{r}
 # plot tumor cells for each classification method 
-tumor_umap_df <- coldata_df |> 
+tumor_umap_df <- classification_df |> 
   dplyr::select(barcodes, UMAP1, UMAP2, marker_gene_classification, copykat_classification, cnv_proportion_classification) |> 
   tidyr::pivot_longer(
     cols = ends_with("classification"),
     names_to = "method",
     values_to = "classification"
+  ) |> 
+  dplyr::mutate(
+    method = dplyr::case_when(
+      method == "marker_gene_classification" ~ "Marker genes only",
+      method == "copykat_classification" ~ "CopyKAT - no reference",
+      method == "cnv_proportion_classification" ~ "InferCNV proportion"
+    )
   )
 
 ggplot(tumor_umap_df, aes(x = UMAP1, UMAP2, color = classification)) +
@@ -172,29 +283,37 @@ ggplot(tumor_umap_df, aes(x = UMAP1, UMAP2, color = classification)) +
   facet_wrap(vars(method))
 ```
 
-This plot shows us that there is a pretty clear consensus that most of the cells in the bottom left group are tumor cells. 
+This plot shows us that there is a pretty clear consensus that most of the cells in the bottom right group are tumor cells. 
 From the original marker gene analysis we know that not all marker genes are expressed and that there is quite a bit of variance in expression. 
 Because of that and the fact that both CNV inference methods show similar annotations, we will classify any cells that are labeled as tumor by both `CopyKAT` and `InferCNV` as tumor cells. 
 
 ```{r}
 # create a combined classification between inferCNV and copyKAT
-# cells that are classified as tumor by both are kept as tumor, all other are normal 
-coldata_df <- coldata_df |> 
+# cells that are classified as tumor by both are kept as tumor
+# classified by both as normal are normal 
+# in between are classified as unknown
+classification_df <- classification_df |> 
   dplyr::mutate(
-    combined_cnv_classification = dplyr::if_else(
-      cnv_proportion_classification == "Tumor" & copykat_classification == "Tumor",
-      "Tumor",
-      "Normal"
-    ),
-    # there are cells classified as NA by copykat, we want those to be normal 
-    combined_cnv_classification = dplyr::if_else(is.na(copykat_classification) & is.na(combined_cnv_classification), "Normal", combined_cnv_classification)
-  )
+    combined_cnv_classification = dplyr::case_when(
+      # only tumor if both call tumor 
+      cnv_proportion_classification == "Tumor" & copykat_classification == "Tumor" ~ "Tumor",
+      # only normal if both call normal and/or reference
+      cnv_proportion_classification == "Normal" & copykat_classification == "Normal" ~ "Normal",
+      cnv_proportion_classification == "Reference" & copykat_classification == "Normal" ~ "Normal",
+      # if normal/tumor mismatch set to unknown 
+      cnv_proportion_classification == "Normal" & copykat_classification == "Tumor" ~ "Unknown",
+      cnv_proportion_classification == "Tumor" & copykat_classification == "Normal" ~ "Unknown",
+      cnv_proportion_classification == "Reference" &  copykat_classification == "Tumor" ~ "Unknown", 
+      !is.na(cnv_proportion_classification) & is.na(copykat_classification) ~ "Unknown", 
+      is.na(cnv_proportion_classification) & !is.na(copykat_classification) ~ "Unknown",
+      is.na(cnv_proportion_classification) & is.na(copykat_classification) ~ "Unknown"
+    ))
 ```
 
 ```{r}
 # look at which cells are tumor/normal
 # be sure to remove any duplicates 
-coldata_df |> 
+classification_df |> 
   dplyr::select(UMAP1, UMAP2, barcodes, combined_cnv_classification) |>
   dplyr::distinct() |> 
   ggplot(aes(x = UMAP1, y = UMAP2, color = combined_cnv_classification)) +
@@ -202,6 +321,7 @@ coldata_df |>
 ```
 
 The remainder of the notebook will focus on validating that these in fact are tumor cells and all other cells are classified as normal. 
+We will also look at where the unknown cells fall in relation to tumor vs. normal. 
 
 ## Validate tumor cells 
 
@@ -213,10 +333,12 @@ We expect that these should be expressed higher in the tumor cells than in the n
 In this first plot, we show a density plot of marker gene expression coloring by the cell classification (tumor or normal). 
 For this plot, we will include all classifications, including the new combined CNV classification. 
 
+Just a note that the `marker_gene_classification` is a circular since these same marker genes were used to classify those cells. 
+
 ```{r}
 # calculate sum of the scaled gene expression values for plotting 
-marker_density_df <- coldata_df |> 
-  dplyr::select(barcodes, gene_symbol, gene_expression, ends_with("classification")) |> 
+marker_density_df <- classification_df |> 
+  dplyr::select(barcodes, gene_symbol, gene_expression, copykat_classification, cnv_proportion_classification, marker_gene_classification, combined_cnv_classification) |> 
   unique() |> 
   dplyr::group_by(gene_symbol) |>
   # get z-scores for each gene
@@ -231,6 +353,14 @@ marker_density_df <- coldata_df |>
     cols = ends_with("classification"),
     names_to = "method",
     values_to = "classification"
+  ) |> 
+  dplyr::mutate(
+    method = dplyr::case_when(
+      method == "marker_gene_classification" ~ "Marker genes only",
+      method == "copykat_classification" ~ "CopyKAT - no reference",
+      method == "cnv_proportion_classification" ~ "InferCNV proportion",
+      method == "combined_cnv_classification" ~ "CopyKAT and InferCNV"
+    )
   )
 
 ggplot(marker_density_df, aes(x = sum_exp, color = classification)) +
@@ -241,12 +371,14 @@ ggplot(marker_density_df, aes(x = sum_exp, color = classification)) +
 This plot shows us that overall the tumor cells in each method have higher marker gene expression. 
 Although the `InferCNV` alone and combined CNV classifications appear to have the most distinct separation in marker gene expression. 
 
+Another note is that the "Unknown" class appears to have marker gene expression more similar to the normal cells. 
+
 Next, we will plot the expression of each gene in each cell using a heatmap. 
 Here the rows are the marker genes and the columns are the cells with the color indicating the expression of that gene in that cell. 
 
 ```{r}
 # create matrix with marker genes as rows and barcodes as columns
-marker_gene_heatmap <- coldata_df |> 
+marker_gene_heatmap <- classification_df |> 
   dplyr::select(gene_expression, gene_symbol, barcodes) |> 
   tidyr::pivot_wider(values_from = gene_expression, 
                      names_from = barcodes) |> 
@@ -254,38 +386,26 @@ marker_gene_heatmap <- coldata_df |>
   as.matrix()
 
 # create annotation df, make sure that dimensions match up by only getting unique barcodes 
-annotation_df <- coldata_df |> 
+annotation_df <- classification_df |> 
   dplyr::select(barcodes, combined_cnv_classification) |> 
   unique() 
 
 annotation <- ComplexHeatmap::columnAnnotation(
   classification = annotation_df$combined_cnv_classification,
-  col = list(classification = c("Tumor" = "#00274C", "Normal" = "#FFCB05")))
+  col = list(classification = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Unknown" = "grey")))
 ```
 
 
 ```{r}
 # plot heatmap of marker genes 
-ComplexHeatmap::Heatmap(
-  marker_gene_heatmap,
-  col = circlize::colorRamp2(c(0, 1), colors = c("white", "#00274C")),
-  border = TRUE,
-  ## Row parameters
-  cluster_rows = TRUE,
-  row_title = "Marker gene symbol",
-  row_title_gp = grid::gpar(fontsize = 12),
-  row_title_side = "left",
-  row_names_side = "left",
-  row_dend_side = "right",
-  row_names_gp = grid::gpar(fontsize = 10),
-  ## Column parameters
-  cluster_columns = TRUE,
-  show_column_names = FALSE,
-  bottom_annotation = annotation
-)
+plot_gene_heatmap(marker_gene_heatmap, 
+                  row_title = "Marker gene symbol",
+                  legend_title = "Marker gene \nexpression",
+                  annotation = annotation)
 ```
 
 As expected, the tumor cells appear to have more marker genes that are expressed than normal cells. 
+The "Unknown" cells appear to have a small group of cells that cluster with the tumor cells on the right hand side of the plot. 
 
 ### Gene set scores
 
@@ -296,7 +416,7 @@ First we will just look at the gene set scores for each cell on the UMAP.
 
 ```{r}
 # plot tumor cells for each classification method 
-geneset_plot_df <- coldata_df |> 
+geneset_plot_df <- classification_df |> 
   dplyr::select(barcodes, UMAP1, UMAP2, ends_with("classification"), starts_with("mean")) |> 
   tidyr::pivot_longer(
     cols = starts_with("mean"),
@@ -332,6 +452,8 @@ geneset_plot_df |>
 
 For the most part the gene set scores are higher in tumor cells regardless of classification. 
 
+We also see that the "Unknown" cells identified in the combined classification mostly mirror the gene set expression scores for normal cells with maybe a small group of cells having more similar gene set scores to tumor cells. 
+
 Below we make a heatmap of the gene set scores for just the combined CNV classification. 
 Each row is a gene set and each column is a barcode. 
 The color indicates the gene set score for that cell. 
@@ -346,28 +468,17 @@ geneset_heatmap <- geneset_plot_df |>
   tibble::column_to_rownames("geneset") |> 
   as.matrix()
 
-ComplexHeatmap::Heatmap(
-  geneset_heatmap,
-  col = circlize::colorRamp2(c(0, 1), colors = c("white", "#00274C")),
-  border = TRUE,
-  ## Row parameters
-  cluster_rows = TRUE,
-  row_title = "",
-  row_title_gp = grid::gpar(fontsize = 12),
-  row_title_side = "left",
-  row_names_side = "left",
-  row_dend_side = "right",
-  row_names_gp = grid::gpar(fontsize = 10),
-  ## Column parameters
-  cluster_columns = TRUE,
-  show_column_names = FALSE,
-  bottom_annotation = annotation
-)
+# plot heatmap of gene set score 
+plot_gene_heatmap(geneset_heatmap,
+                  annotation = annotation,
+                  legend_title = "Gene set \nscore")
 ```
 
 For the most part we see that cells with higher gene set scores are classified as tumor cells. 
 One thing to note is that the `SILIGAN` gene set appears to have some expression in normal cells. 
 However, if you look at the spots where all three gene sets have higher scores, these apply to tumor cells. 
+
+Again, most of the "Unknown" tumor cells tend to align with normal cells, with a few grouping in the area where cells transition from tumor to normal. 
 
 ### Validate based on CNAs 
 
@@ -388,40 +499,15 @@ The first heatmap looks at the proportion of each chromosome with a CNV that cor
 Here each row is a cell and each column is a chromosome with the color corresponding to the proportion of the chromosome with a gain detected. 
 
 ```{r}
-# get matrix of barcodes by chromosome
-gain_cnv_df <- coldata_df |> 
-  dplyr::select(barcodes, starts_with("proportion_scaled_dupli")) |> 
-  unique() |> 
-  tibble::column_to_rownames("barcodes") |> 
-  as.matrix()
-
-# remove extra characters in colnames, proportion_scaled_dupli
-colnames(gain_cnv_df) <- stringr::word(colnames(gain_cnv_df), -1, sep = "_")
-
 # need to make a new annotation, since we want to annotate the rows here 
 annotation <- ComplexHeatmap::rowAnnotation(classification = annotation_df$combined_cnv_classification,
-                                            col = list(classification = c("Tumor" = "#00274C", "Normal" = "#FFCB05")))
-```
+                                            col = list(classification = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Unknown" = "grey")))
 
-
-```{r}
-ComplexHeatmap::Heatmap(
-  gain_cnv_df,
-  col = circlize::colorRamp2(c(0, 1), colors = c("white", "#00274C")),
-  border = TRUE,
-  ## Row parameters
-  cluster_rows = TRUE,
-  row_title = "",
-  row_title_gp = grid::gpar(fontsize = 12),
-  row_title_side = "left",
-  show_row_names = FALSE,
-  row_dend_side = "right",
-  row_names_gp = grid::gpar(fontsize = 10),
-  ## Column parameters
-  cluster_columns = FALSE,
-  show_column_names = TRUE,
-  right_annotation = annotation
-)
+# plot gains in cnv
+plot_cnv_heatmap(classification_df,
+                 cnv_col = "proportion_scaled_dupli",
+                 annotation = annotation,
+                 legend_title = "Copy number \ngain")
 ```
 
 Here we see a gain in Chr8 and Chr1 in tumor cells compared to normal cells. 
@@ -430,49 +516,75 @@ We also see other chromosomes with amplifications in tumor cells compared to nor
 Below we make the same plot but with only the losses or deletions. 
 
 ```{r}
-# barcode by chromosome mtx with losses 
-loss_cnv_df <- coldata_df |> 
-  dplyr::select(barcodes, starts_with("proportion_scaled_loss")) |> 
-  unique() |> 
-  tibble::column_to_rownames("barcodes") |> 
-  as.matrix()
-  
-colnames(loss_cnv_df) <- stringr::word(colnames(loss_cnv_df), -1, sep = "_")
-```
-
-
-```{r}
-ComplexHeatmap::Heatmap(
-  loss_cnv_df,
-  col = circlize::colorRamp2(c(0, 1), colors = c("white", "#00274C")),
-  border = TRUE,
-  ## Row parameters
-  cluster_rows = TRUE,
-  row_title = "",
-  row_title_gp = grid::gpar(fontsize = 12),
-  row_title_side = "left",
-  show_row_names = FALSE,
-  row_dend_side = "right",
-  row_names_gp = grid::gpar(fontsize = 10),
-  ## Column parameters
-  cluster_columns = FALSE,
-  show_column_names = TRUE,
-  right_annotation = annotation
-)
+# plot loss in cnv
+plot_cnv_heatmap(classification_df, 
+                 cnv_col = "proportion_scaled_loss", 
+                 annotation = annotation, 
+                 legend_title = "Copy number \nloss")
 ```
 
 We do not see the expected loss in Chr16, but this is not present in every patient. 
 Additionally, we had already noted the gain in Chr8 in the tumor cells, so there is still at least one expected CNV present. 
 Again, there is a clear separation of tumor and normal cells in terms of presence of CNVs. 
 
-## Save final tumor annotations
+In both of these plots, the majority of "Unknown" cells cluster between tumor and normal or with the normal cells. 
+
+## Create final tumor annotations
+
+In looking at the plots, it looks like there might be some of the "Unknown" cells that should actually be classified as tumor cells. 
+In particular, we expect those that have a gain in Chr8 are tumor cells, so let's just look at Chr8 gains and see if we can find a cut off to use to categorize our "Unknown" cells. 
+
+```{r}
+#density plot of chr8 gains
+ggplot(classification_df, aes(x = proportion_scaled_dupli_chr8, fill = combined_cnv_classification)) +
+  geom_density() +
+  facet_grid(rows = vars(combined_cnv_classification))
+```
+
+It looks like we have a pretty clear distinction between the `proportion_scaled_dupli_chr8` for normal and tumor cells and we could call any cell with a value > 0.25 as tumor cells and those that are less than 0.25 as normal cells. 
+
+```{r}
+new_classification_df <- classification_df |> 
+  # remove duplicat
+  dplyr::select(-c(gene_symbol, ensembl_gene_id, gene_expression)) |> 
+  dplyr::distinct() |> 
+  dplyr::mutate(
+    combined_cnv_classification = dplyr::case_when(
+      combined_cnv_classification == "Unknown" & proportion_scaled_dupli_chr8 >= 0.25 ~ "Tumor",
+      combined_cnv_classification == "Unknown" & proportion_scaled_dupli_chr8 < 0.25 ~ "Normal",
+      .default = combined_cnv_classification
+    )
+  )
+```
+
+```{r}
+# account for new annotations 
+annotation <- ComplexHeatmap::rowAnnotation(classification = new_classification_df$combined_cnv_classification,
+                                            col = list(classification = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Unknown" = "grey")))
+
+# recreate the cnv heatmap 
+plot_cnv_heatmap(new_classification_df,
+                 cnv_col = "proportion_scaled_dupli",
+                 annotation = annotation,
+                 legend_title = "Copy number \ngain")
+```
+
+It looks like we now have a prety good separation between tumor and normal cells based mostly on Chr8 gain. 
+Before we finish, we'll make a UMAP showing where the final annotations are. 
+
+```{r}
+# look at which cells are tumor/normal
+new_classification_df |> 
+  ggplot(aes(x = UMAP1, y = UMAP2, color = combined_cnv_classification)) +
+  geom_point(alpha = 0.5, size = 0.5)
+```
 
 After validating that the cells classified as tumor by both `CopyKAT` and `InferCNV` show the expected expression patterns and CNV patterns as tumor cells, we can confidently label those cells as tumor cells. 
 We will export these labels to the final annotations file for later use. 
 
 ```{r}
 # export final TSV with annotations 
-final_classifications <- coldata_df |> 
+final_classifications <- classification_df |> 
   dplyr::select(
     cell_barcode = barcodes,
     tumor_cell_classification = combined_cnv_classification
