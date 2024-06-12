@@ -666,12 +666,7 @@ classification_df &lt;- classification_df |&gt;
       cnv_proportion_classification == &quot;Normal&quot; &amp; copykat_classification == &quot;Normal&quot; ~ &quot;Normal&quot;,
       cnv_proportion_classification == &quot;Reference&quot; &amp; copykat_classification == &quot;Normal&quot; ~ &quot;Normal&quot;,
       # if normal/tumor mismatch set to unknown 
-      cnv_proportion_classification == &quot;Normal&quot; &amp; copykat_classification == &quot;Tumor&quot; ~ &quot;Unknown&quot;,
-      cnv_proportion_classification == &quot;Tumor&quot; &amp; copykat_classification == &quot;Normal&quot; ~ &quot;Unknown&quot;,
-      cnv_proportion_classification == &quot;Reference&quot; &amp;  copykat_classification == &quot;Tumor&quot; ~ &quot;Unknown&quot;, 
-      !is.na(cnv_proportion_classification) &amp; is.na(copykat_classification) ~ &quot;Unknown&quot;, 
-      is.na(cnv_proportion_classification) &amp; !is.na(copykat_classification) ~ &quot;Unknown&quot;,
-      is.na(cnv_proportion_classification) &amp; is.na(copykat_classification) ~ &quot;Unknown&quot;
+      .default = &quot;Unknown&quot;
     ))</code></pre>
 <pre class="r"><code># look at which cells are tumor/normal
 # be sure to remove any duplicates 
@@ -945,7 +940,7 @@ expression patterns and CNV patterns as tumor cells, we can confidently
 label those cells as tumor cells. We will export these labels to the
 final annotations file for later use.</p>
 <pre class="r"><code># export final TSV with annotations 
-final_classifications &lt;- classification_df |&gt; 
+final_classifications &lt;- new_classification_df |&gt; 
   dplyr::select(
     cell_barcode = barcodes,
     tumor_cell_classification = combined_cnv_classification

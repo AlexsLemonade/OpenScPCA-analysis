@@ -301,12 +301,7 @@ classification_df <- classification_df |>
       cnv_proportion_classification == "Normal" & copykat_classification == "Normal" ~ "Normal",
       cnv_proportion_classification == "Reference" & copykat_classification == "Normal" ~ "Normal",
       # if normal/tumor mismatch set to unknown 
-      cnv_proportion_classification == "Normal" & copykat_classification == "Tumor" ~ "Unknown",
-      cnv_proportion_classification == "Tumor" & copykat_classification == "Normal" ~ "Unknown",
-      cnv_proportion_classification == "Reference" &  copykat_classification == "Tumor" ~ "Unknown", 
-      !is.na(cnv_proportion_classification) & is.na(copykat_classification) ~ "Unknown", 
-      is.na(cnv_proportion_classification) & !is.na(copykat_classification) ~ "Unknown",
-      is.na(cnv_proportion_classification) & is.na(copykat_classification) ~ "Unknown"
+      .default = "Unknown"
     ))
 ```
 
