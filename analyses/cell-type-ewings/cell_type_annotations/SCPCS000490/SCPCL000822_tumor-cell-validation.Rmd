@@ -584,7 +584,7 @@ We will export these labels to the final annotations file for later use.
 
 ```{r}
 # export final TSV with annotations 
-final_classifications <- classification_df |> 
+final_classifications <- new_classification_df |> 
   dplyr::select(
     cell_barcode = barcodes,
     tumor_cell_classification = combined_cnv_classification
