@@ -1,0 +1,173 @@
+---
+title: "SCPCL000824 - Validation of tumor cells"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+---
+
+## Introduction
+
+In this notebook we compare tumor cell annotations obtained from marker genes, `CopyKAT`, and `InferCNV` to identify a group of tumor cells we are confident in. 
+
+- First we look at the cells that are annotated as tumor cells by each method. 
+Using this information, we call any cell that is annotated as a tumor cell by both `CopyKAT` and `InferCNV` as a tumor cell. 
+- We then validate that these are in fact tumor cells by doing the following: 
+  - Looking at marker gene expression. 
+  - Looking at expression of EWS-FLI1 target gene sets. 
+  - Confirming presence of known CNVs in Ewing sarcoma
+
+## Setup
+
+```{r packages}
+suppressPackageStartupMessages({
+  # load required packages
+  library(SingleCellExperiment)
+  library(ggplot2)
+})
+
+# Set default ggplot theme
+theme_set(
+  theme_bw()
+)
+```
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The current data directory, found within the repository base directory
+data_dir <- file.path(repository_base, "data", "2024-05-01")
+sample_dir <- file.path(data_dir, "SCPCP000015", "SCPCS000492")
+
+# The path to this module
+module_base <- file.path(repository_base, "analyses", "cell-type-ewings")
+```
+
+```{r}
+# Input files
+sce_file <- file.path(sample_dir, "SCPCL000824_processed.rds")
+marker_genes <- file.path(module_base, "references", "tumor-marker-genes.tsv")
+
+# results from annotation workflow 
+results_dir <- file.path(module_base, "results", "annotate_tumor_cells_output", "SCPCS000492")
+
+marker_gene_results_file <- file.path(results_dir, "SCPCL000824_tumor-normal-classifications.tsv")
+copykat_predictions_file <- file.path(results_dir, "SCPCL000824_copykat-classifications.tsv")
+
+infercnv_predictions_file <- file.path(results_dir, "SCPCL000824_infercnv-classifications.tsv")
+infercnv_metadata_file <- file.path(results_dir, "infercnv", "SCPCL000824_cnv-metadata.tsv")
+
+geneset_scores_file <- file.path(results_dir, "SCPCL000824_gene-set-scores.tsv")
+
+# output files 
+final_annotations_dir <- file.path(module_base, "cell_type_annotations", "SCPCS000492")
+fs::dir_create(final_annotations_dir)
+final_annotations_file <- file.path(final_annotations_dir, "SCPCL000824_tumor-classifications.tsv")
+```
+
+```{r}
+# read in all files 
+sce <- readr::read_rds(sce_file)
+
+# read in marker genes table 
+marker_genes_df <- readr::read_tsv(marker_genes) |> 
+  # account for genes being from multiple sources
+  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |> 
+  dplyr::distinct()
+
+marker_gene_results_df <- readr::read_tsv(marker_gene_results_file)
+
+# copykat output
+copykat_results_df <- readr::read_tsv(copykat_predictions_file) |> 
+  # only select no_ref classification and rename to be consistent with naming of other classifications
+  dplyr::select(barcodes, copykat_classification = no_ref) |> 
+  dplyr::mutate(
+    copykat_classification = dplyr::case_when(
+      copykat_classification == "aneuploid" ~ "Tumor",
+      copykat_classification == "diploid" ~ "Normal",
+      TRUE ~ copykat_classification
+    )
+  )
+
+# infercnv output 
+infercnv_results_df <- readr::read_tsv(infercnv_predictions_file)
+infercnv_metadata_df <- read.delim(infercnv_metadata_file) |> 
+  tibble::rownames_to_column("barcodes")
+
+# remove MT and GL chr, comments in docs recommend that these are not useful and can be inaccurate 
+chr_columns_to_keep <- which(!stringr::str_detect(names(infercnv_metadata_df), "chrMT|chrGL"))
+infercnv_metadata_df <- infercnv_metadata_df[, chr_columns_to_keep]
+
+# gene set scores 
+geneset_scores_df <- readr::read_tsv(geneset_scores_file)
+```
+
+```{r}
+# grab all coldata and add in all classifications and results to use for plotting throughout notebook 
+# get list of marker genes to use 
+marker_genes <- marker_genes_df |> 
+  dplyr::filter(cell_type == "tumor") |> 
+  dplyr::pull(ensembl_gene_id)
+
+# get the gene expression counts for all marker genes
+marker_gene_exp <- logcounts(sce[marker_genes, ]) |>
+  as.matrix() |>
+  t() |>
+  as.data.frame() |>
+  tibble::rownames_to_column("barcodes")
+
+# pull out the UMAP coordinates and make a data frame to use for plotting
+classification_df <- sce |> 
+  scuttle::makePerCellDF(use.dimred = "UMAP") |> 
+  # replace UMAP.1 with UMAP1
+  dplyr::rename_with(
+        \(x) stringr::str_replace(x, "^UMAP\\.", "UMAP")
+      ) |> 
+  # add in marker gene expression to dataframe 
+  dplyr::left_join(marker_gene_exp, by = "barcodes") |> 
+  # combine all genes into a single column for easy faceting
+  tidyr::pivot_longer(
+    cols = starts_with("ENSG"),
+    names_to = "ensembl_gene_id",
+    values_to = "gene_expression"
+  ) |> 
+  # join with marker gene df to get gene symbols for plotting 
+  dplyr::left_join(marker_genes_df, by = c("ensembl_gene_id")) |>
+  # get rid of excess columns
+  dplyr::select(barcodes, UMAP1, UMAP2, gene_symbol, ensembl_gene_id, gene_expression) |> 
+  # add in marker gene classifications
+  dplyr::left_join(marker_gene_results_df) |> 
+  # add in copykat results 
+  dplyr::left_join(copykat_results_df) |> 
+  # add in infercnv results and metadata
+  dplyr::left_join(infercnv_results_df) |> 
+  dplyr::left_join(infercnv_metadata_df) |> 
+  # gene set scores 
+  dplyr::left_join(geneset_scores_df)
+```
+
+
+
+## Identify tumor cell population 
+
+Below is a UMAP showing which cells are labeled as tumor cells using each of the various classification methods. 
+
+```{r}
+# plot tumor cells for each classification method 
+tumor_umap_df <- coldata_df |> 
+  dplyr::select(barcodes, UMAP1, UMAP2, marker_gene_classification, copykat_classification, cnv_proportion_classification) |> 
+  tidyr::pivot_longer(
+    cols = ends_with("classification"),
+    names_to = "method",
+    values_to = "classification"
+  )
+
+ggplot(tumor_umap_df, aes(x = UMAP1, UMAP2, color = classification)) +
+  geom_point(size = 0.5, alpha = 0.5) +
+  facet_wrap(vars(method))
+```
+
