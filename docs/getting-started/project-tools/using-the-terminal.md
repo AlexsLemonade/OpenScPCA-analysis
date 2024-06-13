@@ -8,7 +8,7 @@ This page provides some background information on working with the terminal, als
 The terminal is an interface where you can type commands (rather than "point and click") to interact with your operating system.
 In the OpenScPCA project, we use the word "terminal" to specifically refer to a UNIX-style terminal, and not for example the Windows PowerShell.
 
-macOS and Linux (which [Lightsail for Research instances](../../software-platforms/aws/index.md#lsfr-virtual-computing-with-aws) use) computers come with a built-in terminal application.
+macOS and Linux (which [Lightsail for Research instances](../../aws/index.md#lightsail-for-research-virtual-computing-with-aws) use) computers come with a built-in terminal application.
 On Windows computers, you will first need to install and setup the [Windows Subsystem for Linux (WSL 2)](../../technical-setup/install-wsl-2.md) to be able to use the terminal.
 
 !!! info "Learn more about the terminal"

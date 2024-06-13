@@ -1,4 +1,4 @@
-# Accessing virtual computers on Lightsail for Research
+# Accessing virtual computers
 
 Once you have [created your virtual computer](./creating-vcs.md), you will be able to access and launch the computer on a web browser.
 We recommend waiting ~10 minutes before accessing the instance.
