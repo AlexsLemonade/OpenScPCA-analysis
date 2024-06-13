@@ -141,17 +141,17 @@ nav:
     - Working with Docker:
       - ensuring-repro/docker/index.md
       - ensuring-repro/docker/docker-images.md
-  - Software platforms:            # AWS (S3 & LSfR), Docker, etc
-    - software-platforms/index.md
+  - Cloud Compute and Storage:  # AWS
+    - aws/index.md
     - Amazon Web Services (AWS):
-      - software-platforms/aws/index.md
-      - software-platforms/aws/joining-aws.md
-      - software-platforms/aws/working-with-s3-buckets.md
-      - software-platforms/aws/creating-vcs.md
-      - software-platforms/aws/accessing-vcs.md
-      - software-platforms/aws/working-with-volumes.md
-      - software-platforms/aws/starting-development-on-lsfr.md
-      - software-platforms/aws/working-with-snapshots.md
+      - aws/aws/index.md
+      - aws/aws/joining-aws.md
+      - aws/aws/working-with-s3-buckets.md
+      - aws/lsfr/creating-vcs.md
+      - aws/lsfr/accessing-vcs.md
+      - aws/lsfr/working-with-volumes.md
+      - aws/lsfr/starting-development-on-lsfr.md
+      - aws/lsfr/working-with-snapshots.md
   - Getting Help:      # troubleshooting and FAQ
     - troubleshooting-faq/index.md
     - troubleshooting-faq/faq.md
