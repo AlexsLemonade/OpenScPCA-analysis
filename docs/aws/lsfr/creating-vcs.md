@@ -28,7 +28,7 @@ Using a virtual computer allows you to develop and run analyses that require mor
 
 Follow the below steps to create a virtual computer to use with LSfR.
 
-1. Navigate to the [access portal URL from when you set up your user in IAM Identity center](../aws/index.md#joining-iam-identity-center).
+1. Navigate to the [access portal URL from when you set up your user in IAM Identity center](../joining-aws.md.
 After logging in, you will need to select your account and click on `ResearcherRestriction`.
 
     <figure markdown="span">
@@ -57,7 +57,7 @@ Creating an instance via LSfR is _not supported_.
         ![Launch product](../../img/creating-vcs-4.png){width="600"}
     </figure>
 
-1. You will then choose the name and configurations for your virtual computer.
+2. You will then choose the name and configurations for your virtual computer.
 
     - Start by providing a `Provisioned product name`.
     <!--TODO Do we want to provide guidance on names?-->
@@ -79,7 +79,7 @@ Creating an instance via LSfR is _not supported_.
         ![Configure instance](../../img/creating-vcs-5.png){width="600"}
     </figure>
 
-1. Once you have configured your instance, click `Launch product`.
+3. Once you have configured your instance, click `Launch product`.
 You have now created a virtual computer!
 
 ### Choosing an instance size

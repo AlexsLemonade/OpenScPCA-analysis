@@ -37,8 +37,8 @@ See our documentation [getting access to AWS](index.md#getting-access-to-aws) fo
     These instructions assume you have taken the following steps:
 
     - [Cloned the repo](../../technical-setup/clone-the-repo.md)
-    - [Set up conda](../../technical-setup/environment-setup/setup-conda.md) (note that conda is pre-installed, but not yet set up, on [Lightsail for Research](../../software-platforms/aws/starting-development-on-lsfr.md#create-and-activate-a-conda-environment) instances)
-    - [Configured the AWS CLI and logged in](../../technical-setup/environment-setup/configure-aws-cli.md) OR are [using Lightsail for Research](../../software-platforms/aws/index.md#lsfr-virtual-computing-with-aws) (which doesn't require logging in via the AWS CLI)
+    - [Set up conda](../../technical-setup/environment-setup/setup-conda.md) (note that conda is pre-installed, but not yet set up, on [Lightsail for Research](../../aws/lsfr/starting-development-on-lsfr.md#create-and-activate-a-conda-environment) instances)
+    - [Configured the AWS CLI and logged in](../../technical-setup/environment-setup/configure-aws-cli.md) OR are [using Lightsail for Research](../../aws/index.md#lightsail-for-research-virtual-computing-with-aws) (which doesn't require logging in via the AWS CLI)
 
 The [`download-data.py` script](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/download-data.py) is designed to download files from whatever release you specify to a folder named for the date of that release and [symlink](https://en.wikipedia.org/wiki/Symbolic_link) it to `data/current`.
 

@@ -4,7 +4,7 @@ This section provides instructions for technical aspects of setup.
 
 All of these steps are required setup when working locally on your computer (or server).
 
-If you are planning to work on a Lightsail for Research instance, please instead refer to the [Lightsail for Research documentation](../software-platforms/aws/index.md#lightsail-for-research-virtual-computing-with-aws) for setup instructions.
+If you are planning to work on a Lightsail for Research instance, please instead refer to the [Lightsail for Research documentation](../aws/index.md#lightsail-for-research-virtual-computing-with-aws) for setup instructions.
 
 
 ## Local setup steps
@@ -39,7 +39,7 @@ When contributing to OpenScPCA, all data analysis will happen on the WSL 2 side 
 - All applications (e.g., GitKraken and RStudio) need to be installed as Linux applications on your WSL 2 system
 
 _The OpenScPCA project does not support the use of Windows machines without WSL 2._
-Note that all contributors have access to [Lightsail for Research (LSfR)](../software-platforms/aws/index.md#lsfr-virtual-computing-with-aws) instances which run Linux (specifically, Ubuntu), so you can use LSfR if you prefer not to install WSL 2.
+Note that all contributors have access to [Lightsail for Research (LSfR)](../aws/index.md#lightsail-for-research-virtual-computing-with-aws) instances which run Linux (specifically, Ubuntu), so you can use LSfR if you prefer not to install WSL 2.
 
 !!! note "Learn more about WSL 2"
     For more information about WSL 2, please see this [Introduction to Windows Subsystem for Linux](https://learn.microsoft.com/en-us/training/modules/wsl-introduction/).
