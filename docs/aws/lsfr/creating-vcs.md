@@ -1,4 +1,4 @@
-# Creating virtual computers with Lightsail for Research
+# Creating virtual computers
 
 While working on an [analysis module](../../contributing-to-analyses/analysis-modules/index.md), you can develop locally or on a virtual computer with Lightsail for Research (LSfR).
 

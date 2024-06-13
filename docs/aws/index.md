@@ -1,4 +1,4 @@
-# Using cloud storage and compute
+# Cloud storage and compute
 
 We use Amazon Web Services (AWS) to grant contributors access to data and Linux virtual computers.
 
@@ -27,9 +27,9 @@ As an OpenScPCA contributor, you are eligible for a monthly allocation on [Light
 
 Please refer to these pages to learn more about setting up and using LSfR:
 
-- [Creating a virtual computer](./lsfr/creating-vcs.md)
-- [Accessing a virtual computer](./lsfr/accessing-vcs.md)
-- [Working with LSfR volumes](./lsfr/working-with-volumes.md)
-- [Developing analyses on LSfR](./lsfr/starting-development-on-lsfr.md)
-    - You can also find instructions for setting up virtual computers for OpenScPCA development on this page.
-- [Using snapshots on LSfR](./lsfr/working-with-snapshots.md)
+- [Creating virtual computers](./lsfr/creating-vcs.md)
+- [Accessing virtual computers](./lsfr/accessing-vcs.md)
+- [Working with storage volumes](./lsfr/working-with-volumes.md)
+- [Developing on virtual computers](./lsfr/starting-development-on-lsfr.md)
+    - This page also provides instructions for setting up virtual computers after they've been created.
+- [Working with snapshots](./lsfr/working-with-snapshots.md)
