@@ -28,7 +28,7 @@ Using a virtual computer allows you to develop and run analyses that require mor
 
 Follow the below steps to create a virtual computer to use with LSfR.
 
-1. Navigate to the [access portal URL from when you set up your user in IAM Identity center](../joining-aws.md.
+1. Navigate to the [access portal URL from when you set up your user in IAM Identity center](../joining-aws.md)
 After logging in, you will need to select your account and click on `ResearcherRestriction`.
 
     <figure markdown="span">
