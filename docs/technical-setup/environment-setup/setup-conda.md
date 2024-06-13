@@ -73,7 +73,7 @@ The last step is to create an `openscpca` conda environment and install the pack
 These are specified in the `environment.yml` in the root of the repository, and include:
 
 - The [`awscli` package](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html) will allow you to interact with [data stored in the Amazon Web Services (AWS) S3 bucket](../../software-platforms/aws/index.md)
-- The [`conda-lock` package](https://conda.github.io/conda-lock/) is used to create fully reproducible, cross-platform [conda environments for analysis modules](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#managing-software-dependencies-with-conda)
+- The [`conda-lock` package](https://conda.github.io/conda-lock/) is used to create fully reproducible, cross-platform [conda environments for analysis modules](../../ensuring-repro/managing-software/using-conda.md#conda-and-conda-lock)
 - The [`jq` package](https://jqlang.github.io/jq/) provides JSON parsing capabilities
 - The [`pre-commit` package](https://pre-commit.com) will allow you to use [pre-commit hooks when contributing to analysis modules](../../contributing-to-analyses/working-with-git/making-commits.md#pre-commit-checks)
 
@@ -125,6 +125,6 @@ These are specified in the `environment.yml` in the root of the repository, and 
     In general, this is how conda indicates which environment, if any, the terminal is working in.
 
     !!! tip "Activating the `openscpca` conda environment"
-        Whenever you are developing for OpenScPCA, you should work from either the `openscpa` conda environment or [a module-specific conda environment](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#managing-software-dependencies-with-conda).
+        Whenever you are developing for OpenScPCA, you should work from either the `openscpa` conda environment or [a module-specific conda environment](../../ensuring-repro/managing-software/using-conda.md).
         At the start of any coding session, run `conda activate openscpca` to activate this environment.
         If you wish to deactivate the environment, you can run `conda deactivate`.

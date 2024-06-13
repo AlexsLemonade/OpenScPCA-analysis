@@ -54,7 +54,7 @@ Following the Introduction, a **Setup** section should load R packages and defin
 #### Loading packages { #r-loading-packages }
 
 The notebook should not download any R packages; in other words, you should never include the code `install.packages()` in your notebook.
-All packages should already be installed on the system running the notebook, and can be separately tracked using [`renv`](../determining-requirements/determining-software-requirements.md#using-renv).
+All packages should already be installed on the system running the notebook, and can be separately tracked using [`renv`](../../ensuring-repro/managing-software/using-renv.md).
 
 We generally recommend keeping the number of packages loaded with `library()` to a minimum and using the `package::function()` syntax to call functions, to make it clear which package each function comes from.
 However, for some commonly invoked packages such as `SingleCellExperiment` and `ggplot2` this can become burdensome, making loading the package with `library()` more convenient.
@@ -144,7 +144,7 @@ The Markdown text should focus on providing a higher-level overview of the analy
 
 ### Session info { #r-session-info }
 
-The final section of every R Markdown notebook should be a **Session info** section that uses the [`sessionInfo()` function](../determining-requirements/determining-software-requirements.md#using-sessioninfo) to print out the versions of all packages used in the analysis.
+The final section of every R Markdown notebook should be a **Session info** section that uses the [`sessionInfo()` function](../../ensuring-repro/managing-software/reporting-dependencies.md#using-sessioninfo-in-r) to print out the versions of all packages used in the analysis.
 
 !!! tip
     In `hello.Rmd`, we use [the `sessioninfo` package](https://sessioninfo.r-lib.org) to generate a slightly nicer output format using the `sessioninfo::session_info()` function; either approach is fine!
@@ -194,7 +194,7 @@ import session_info
 Avoid renaming packages at import with `as` statements, unless you are performing a standard renaming (e.g., `import pandas as pd`).
 
 Do not install new Python packages within a notebook.
-All packages should instead be [installed and tracked using `conda`](../determining-requirements/determining-software-requirements.md#module-specific-conda-environments).
+All packages should instead be [installed and tracked using `conda`](../../ensuring-repro/managing-software/using-conda.md).
 
 
 #### Setting paths { #python-setting-paths }
@@ -260,4 +260,4 @@ Markdown cells should focus on providing a higher-level overview of the analysis
 
 ### Session info { #python-session-info }
 
-The final section of every Jupyter notebook should be a **Session info** section that uses the [`session_info.show()` function](../determining-requirements/determining-software-requirements.md#using-session_infoshow) to print out the versions of all packages used in the analysis.
+The final section of every Jupyter notebook should be a **Session info** section that uses the [`session_info.show()` function](../../ensuring-repro/managing-software/reporting-dependencies.md#using-session_infoshow-in-python) to print out the versions of all packages used in the analysis.

@@ -131,6 +131,16 @@ nav:
     - Code review and merging your pull request:
       - contributing-to-analyses/pr-review-and-merge/index.md
       - contributing-to-analyses/pr-review-and-merge/respond-to-review.md
+  - Ensuring reproducibility:
+    - index.md
+    - Managing module software:
+      - ensuring-repro/managing-software/index.md
+      - ensuring-repro/managing-software/using-renv.md
+      - ensuring-repro/managing-software/using-conda.md
+      - ensuring-repro/managing-software/reporting-dependencies.md
+    - Working with Docker:
+      - ensuring-repro/docker/index.md
+      - ensuring-repro/docker/docker-images.md
   - Software platforms:            # AWS (S3 & LSfR), Docker, etc
     - software-platforms/index.md
     - Amazon Web Services (AWS):
@@ -142,9 +152,6 @@ nav:
       - software-platforms/aws/working-with-volumes.md
       - software-platforms/aws/starting-development-on-lsfr.md
       - software-platforms/aws/working-with-snapshots.md
-    - Docker:
-      - software-platforms/docker/index.md
-      - software-platforms/docker/docker-images.md
   - Getting Help:      # troubleshooting and FAQ
     - troubleshooting-faq/index.md
     - troubleshooting-faq/faq.md

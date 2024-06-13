@@ -24,7 +24,7 @@ To prepare to contribute to OpenScPCA, please do the following in order:
       - [Configure the AWS command line interface (CLI)](./environment-setup/configure-aws-cli.md)
         - You can only complete this step if the Data Lab has [created an Amazon Web Services account for you](../getting-started/accessing-resources/index.md)
       - [Optional] If you plan on writing or contributing to R-based modules, you should also [download and install R and RStudio, along with a few handy R packages](./environment-setup/install-r-rstudio.md)
-      - [Optional] [Install Docker](../software-platforms/docker/index.md#how-to-install-docker)
+      - [Optional] [Install Docker](../ensuring-repro/docker/index.md#how-to-install-docker)
         - This allows you to run your analysis modules inside a Docker container, ensuring reproducibility across machines
 
 ## Special considerations for Windows users
