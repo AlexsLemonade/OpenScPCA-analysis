@@ -441,7 +441,7 @@ Consistent with previous findings, `ADGRG2`, `HES1`, `NROB1`, and `STEAP1` don't
 ## Conclusions 
 
 - We do see variation in marker gene expression across cells, suggesting that there are both tumor and normal cells here. - Using a z-score cut-off identifies a group of cells that appear to be tumor. .
-- The top marker genes for the "tumor" cells contain PRKCB and MAPT, two of the marker genes in our gene list. 
+- The top marker genes for the "tumor" cells contain `PRKCB` and `MAPT`, two of the marker genes in our gene list. 
 - It's likely that `ADGRG2`, `HES1`, `NROB1`, and `STEAP1` will not be informative in assigning tumor cells. 
 - We may be weary of genes like `CD99` too as expression is more consistent across cells rather than specific to a group of cells. 
 - Endothelial cells as identified by SingleR and CellAssign generally have low expression of these marker genes and muscle cells have higher expression of marker genes. 

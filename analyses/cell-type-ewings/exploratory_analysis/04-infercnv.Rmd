@@ -226,7 +226,7 @@ ggplot(cnv_df, aes(x = has_cnv)) +
   labs(x = "Total number of CNVs")
 ```
 
-We will call any tumor cell as those with a total number of cnvs greater than the mean(number of cnvs). 
+We will call any tumor cell as those with a total number of CNVs greater than the mean(number of CNVs). 
 
 In the below plot we label all non-reference cells as either tumor or normal. 
 Cells that are NA are those that were already classified as reference cells. 
