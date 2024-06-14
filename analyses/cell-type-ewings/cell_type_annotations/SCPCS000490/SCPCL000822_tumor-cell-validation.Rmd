@@ -291,7 +291,7 @@ Because of that and the fact that both CNV inference methods show similar annota
 # create a combined classification between inferCNV and copyKAT
 # cells that are classified as tumor by both are kept as tumor
 # classified by both as normal are normal 
-# in between are classified as unknown
+# in between are classified as ambiguous
 classification_df <- classification_df |> 
   dplyr::mutate(
     combined_cnv_classification = dplyr::case_when(
@@ -300,7 +300,7 @@ classification_df <- classification_df |>
       # only normal if both call normal and/or reference
       cnv_proportion_classification == "Normal" & copykat_classification == "Normal" ~ "Normal",
       cnv_proportion_classification == "Reference" & copykat_classification == "Normal" ~ "Normal",
-      # if normal/tumor mismatch set to unknown 
+      # if normal/tumor mismatch set to ambiguous 
       .default = "Ambiguous"
     ), 
     # set factor order to use for plotting
@@ -318,7 +318,7 @@ classification_df |>
 ```
 
 The remainder of the notebook will focus on validating that these in fact are tumor cells and all other cells are classified as normal. 
-We will also look at where the unknown cells fall in relation to tumor vs. normal. 
+We will also look at where the ambiguous cells fall in relation to tumor vs. normal. 
 
 ## Validate tumor cells 
 
@@ -368,7 +368,7 @@ ggplot(marker_density_df, aes(x = sum_exp, color = classification)) +
 This plot shows us that overall the tumor cells in each method have higher marker gene expression. 
 Although the `InferCNV` alone and combined CNV classifications appear to have the most distinct separation in marker gene expression. 
 
-Another note is that the "Unknown" class appears to have marker gene expression more similar to the normal cells. 
+Another note is that the "Ambiguous" class appears to have marker gene expression more similar to the normal cells. 
 
 Next, we will plot the expression of each gene in each cell using a heatmap. 
 Here the rows are the marker genes and the columns are the cells with the color indicating the expression of that gene in that cell. 
@@ -402,7 +402,7 @@ plot_gene_heatmap(marker_gene_heatmap,
 ```
 
 As expected, the tumor cells appear to have more marker genes that are expressed than normal cells. 
-The "Unknown" cells appear to have a small group of cells that cluster with the tumor cells on the right hand side of the plot. 
+The "Ambiguous" cells appear to have a small group of cells that cluster with the tumor cells on the right hand side of the plot. 
 
 ### Gene set scores
 
@@ -449,7 +449,7 @@ geneset_plot_df |>
 
 For the most part the gene set scores are higher in tumor cells regardless of classification. 
 
-We also see that the "Unknown" cells identified in the combined classification mostly mirror the gene set expression scores for normal cells with maybe a small group of cells having more similar gene set scores to tumor cells. 
+We also see that the "Ambiguous" cells identified in the combined classification mostly mirror the gene set expression scores for normal cells with maybe a small group of cells having more similar gene set scores to tumor cells. 
 
 Below we make a heatmap of the gene set scores for just the combined CNV classification. 
 Each row is a gene set and each column is a barcode. 
@@ -475,7 +475,7 @@ For the most part we see that cells with higher gene set scores are classified a
 One thing to note is that the `SILIGAN` gene set appears to have some expression in normal cells. 
 However, if you look at the spots where all three gene sets have higher scores, these apply to tumor cells. 
 
-Again, most of the "Unknown" tumor cells tend to align with normal cells, with a few grouping in the area where cells transition from tumor to normal. 
+Again, most of the "Ambiguous" tumor cells tend to align with normal cells, with a few grouping in the area where cells transition from tumor to normal. 
 
 ### Validate based on CNAs 
 
@@ -524,15 +524,15 @@ We do not see the expected loss in Chr16, but this is not present in every patie
 Additionally, we had already noted the gain in Chr8 in the tumor cells, so there is still at least one expected CNV present. 
 Again, there is a clear separation of tumor and normal cells in terms of presence of CNVs. 
 
-In both of these plots, the majority of "Unknown" cells cluster between tumor and normal or with the normal cells. 
+In both of these plots, the majority of "Ambiguous" cells cluster between tumor and normal or with the normal cells. 
 
 ## Create final tumor annotations
 
-In looking at the plots, it looks like there might be some of the "Unknown" cells that should actually be classified as tumor cells. 
+In looking at the plots, it looks like there might be some of the "Ambiguous" cells that should actually be classified as tumor cells. 
 In particular, we expect those that have a gain in Chr8 are tumor cells, so let's just look at Chr8 gains and see if we can find a cut off to use to categorize our "Unknown" cells. 
 
 ```{r}
-#density plot of chr8 gains
+# density plot of chr8 gains
 ggplot(classification_df, aes(x = proportion_scaled_dupli_chr8, fill = combined_cnv_classification)) +
   geom_density() +
   facet_grid(rows = vars(combined_cnv_classification))
