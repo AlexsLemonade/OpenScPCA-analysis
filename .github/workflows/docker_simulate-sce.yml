@@ -15,8 +15,6 @@ on:
       - analyses/simulate-sce/renv.lock
       - analyses/simulate-sce/conda-lock.yml
   push:
-    tags:
-      - "v*.*.*"
     branches:
       - main
     paths:

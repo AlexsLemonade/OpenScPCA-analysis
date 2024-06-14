@@ -8,7 +8,7 @@
 ## Prerequisites
 
 WSL 2 requires that you are on Windows 11 or Windows 10 version 2004+ (Build 19041 and higher).
-If you do not have at least these Windows versions, you must use [Lightsail for Research](../software-platforms/aws/index.md#lightsail-for-research-virtual-computing-with-aws) instead.
+If you do not have at least these Windows versions, you must use [Lightsail for Research](../aws/index.md#lightsail-for-research-virtual-computing-with-aws) instead.
 
 
 ## Installation instructions

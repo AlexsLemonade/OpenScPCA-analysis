@@ -28,7 +28,7 @@ You can activate the environment by running the following command:
 conda activate openscpca-{module_name}
 ```
 
-If no `environment.yml` file is present, you can create and activate a new environment for the module by running the following command from the module's root directory, replacing `{module_name}` with the name of the module you are working on:
+If you are working on an existing module for the first time and an `environment.yml` file is present, you can create and activate a new environment for the module by running the following command from the module's root directory, replacing `{module_name}` with the name of the module you are working on:
 
 ```bash
 conda env create --file environment.yml --name openscpca-{module_name}

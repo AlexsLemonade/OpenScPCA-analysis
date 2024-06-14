@@ -39,5 +39,5 @@ Additionally, you can use the [`simulate-sce`](https://github.com/AlexsLemonade/
 - The module requires either `SingleCellExperiment` or `AnnData` objects from the ScPCA Portal as input.
 
 In some cases, an analysis module's input data will be the results/output from a different module.
-These results are stored in an [S3 bucket on Amazon Web Services](../software-platforms/aws/index.md), and are available to contributors.
+These results are stored in an [S3 bucket on Amazon Web Services](../aws/index.md#s3-data-storage-with-aws), and are available to contributors.
 Read more about [getting access to data](accessing-resources/getting-access-to-data.md).

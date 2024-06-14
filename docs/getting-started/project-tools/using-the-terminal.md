@@ -8,7 +8,7 @@ This page provides some background information on working with the terminal, als
 The terminal is an interface where you can type commands (rather than "point and click") to interact with your operating system.
 In the OpenScPCA project, we use the word "terminal" to specifically refer to a UNIX-style terminal, and not for example the Windows PowerShell.
 
-macOS and Linux (which [Lightsail for Research instances](../../software-platforms/aws/index.md#lsfr-virtual-computing-with-aws) use) computers come with a built-in terminal application.
+macOS and Linux (which [Lightsail for Research instances](../../aws/index.md#lightsail-for-research-virtual-computing-with-aws) use) computers come with a built-in terminal application.
 On Windows computers, you will first need to install and setup the [Windows Subsystem for Linux (WSL 2)](../../technical-setup/install-wsl-2.md) to be able to use the terminal.
 
 !!! info "Learn more about the terminal"
@@ -30,7 +30,7 @@ There are certain situations that you will need to use a terminal as part of con
 - [To perform the initial conda setup](../../technical-setup/environment-setup/setup-conda.md)
 - [To set up the `pre-commit` package](../../technical-setup/environment-setup/setup-precommit.md)
 - [To create a new analysis module](../../contributing-to-analyses/analysis-modules/creating-a-module.md)
-- [To manage your environment and software dependencies with conda](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#managing-software-dependencies-in-python-with-conda)
+- [To manage your environment and software dependencies with conda](../../ensuring-repro/managing-software/using-conda.md)
 - [To run an analysis module](../../contributing-to-analyses/analysis-modules/running-a-module.md)
 
 ## How do you access the terminal?

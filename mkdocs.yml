@@ -108,15 +108,12 @@ nav:
       - contributing-to-analyses/analysis-modules/index.md
       - contributing-to-analyses/analysis-modules/creating-a-module.md
       - contributing-to-analyses/analysis-modules/module-dependencies.md
+      - contributing-to-analyses/analysis-modules/compute-requirements.md
       - contributing-to-analyses/analysis-modules/running-a-module.md
       - contributing-to-analyses/analysis-modules/documenting-analysis.md
       - contributing-to-analyses/analysis-modules/modifying-a-module.md
       - contributing-to-analyses/analysis-modules/notebook-structure.md
       - contributing-to-analyses/analysis-modules/script-structure.md
-    - Determining analysis requirements:
-      - contributing-to-analyses/determining-requirements/index.md
-      - contributing-to-analyses/determining-requirements/determining-software-requirements.md
-      - contributing-to-analyses/determining-requirements/determining-compute-requirements.md
     - Working with Git: # Creating branches, adding commits, all git interactions
       - contributing-to-analyses/working-with-git/index.md
       - contributing-to-analyses/working-with-git/working-with-branches.md
@@ -134,20 +131,26 @@ nav:
     - Code review and merging your pull request:
       - contributing-to-analyses/pr-review-and-merge/index.md
       - contributing-to-analyses/pr-review-and-merge/respond-to-review.md
-  - Software platforms:            # AWS (S3 & LSfR), Docker, etc
-    - software-platforms/index.md
-    - Amazon Web Services (AWS):
-      - software-platforms/aws/index.md
-      - software-platforms/aws/joining-aws.md
-      - software-platforms/aws/working-with-s3-buckets.md
-      - software-platforms/aws/creating-vcs.md
-      - software-platforms/aws/accessing-vcs.md
-      - software-platforms/aws/working-with-volumes.md
-      - software-platforms/aws/starting-development-on-lsfr.md
-      - software-platforms/aws/working-with-snapshots.md
-    - Docker:
-      - software-platforms/docker/index.md
-      - software-platforms/docker/docker-images.md
+  - Ensuring reproducibility:
+    - index.md
+    - Managing module software:
+      - ensuring-repro/managing-software/index.md
+      - ensuring-repro/managing-software/using-renv.md
+      - ensuring-repro/managing-software/using-conda.md
+      - ensuring-repro/managing-software/reporting-dependencies.md
+    - Working with Docker:
+      - ensuring-repro/docker/index.md
+      - ensuring-repro/docker/docker-images.md
+  - Cloud storage and compute:  # AWS
+    - aws/index.md
+    - aws/joining-aws.md
+    - aws/working-with-s3-buckets.md
+    - Virtual compute with Lightsail for Research:
+      - aws/lsfr/creating-vcs.md
+      - aws/lsfr/accessing-vcs.md
+      - aws/lsfr/working-with-volumes.md
+      - aws/lsfr/starting-development-on-lsfr.md
+      - aws/lsfr/working-with-snapshots.md
   - Getting Help:      # troubleshooting and FAQ
     - troubleshooting-faq/index.md
     - troubleshooting-faq/faq.md
