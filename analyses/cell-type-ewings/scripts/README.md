@@ -125,3 +125,5 @@ The `utils` folder contains scripts with any helper functions that are used in `
 
 1. `jaccard-functions.R`: These functions are used to calculate the Jaccard similarity index between groups of cells.
 These functions are taken directly from https://github.com/AlexsLemonade/scpca-nf/blob/main/templates/qc_report/celltypes_supplemental_report.rmd.
+
+2. `tumor-validation-helpers.R`: These functions are used in the notebooks found in the `cell_type_annotations` folder that explore and validate tumor cell annotations in individual samples.
