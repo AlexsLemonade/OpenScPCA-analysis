@@ -98,6 +98,7 @@ misidentification
 MSC
 multifactor
 natively
+Nextflow
 nonconsensual
 octicons
 onboarded
@@ -119,6 +120,7 @@ redistributions
 renv
 repo
 reproducibility
+reproducibly
 RStudio
 RStudio's
 Rtools
