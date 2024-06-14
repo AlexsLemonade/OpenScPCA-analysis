@@ -9,7 +9,7 @@ You should fill out the template for your analysis module and provide the follow
 - Description of module goals
 - Usage (How to [run the analysis](running-a-module.md))
 - Input files and their sources. These may include:
-  - ScPCA data files and/or result files from other modules. ([See access instructions](../../getting-started/accessing-resources/getting-access-to-data.md))
+  - ScPCA data files and/or result files from other modules. ([See access instructions.](../../getting-started/accessing-resources/getting-access-to-data.md))
   - External data including links to their origins.
 - Output files
 - [Software and package dependencies](./module-dependencies.md)
