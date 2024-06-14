@@ -19,91 +19,6 @@ Using this information, we call any cell that is annotated as a tumor cell by bo
   - Looking at marker gene expression. 
   - Looking at expression of EWS-FLI1 target gene sets. 
   - Confirming presence of known CNVs in Ewing sarcoma
-  
-## Define functions 
-
-```{r}
-# create a heatmap where rows are marker genes or gene sets and columns are cells 
-# this function adds a column annotation since cells are columns 
-plot_gene_heatmap <- function(df, 
-                              row_title = "",
-                              legend_title = "", 
-                              annotation = NULL){
-  
-  # plot heatmap of marker genes 
-  heatmap <- ComplexHeatmap::Heatmap(
-    df,
-    # set the color scale based on min and max values
-    col = circlize::colorRamp2(seq(min(df), max(df), length = 2), colors = c("white", "#00274C")),
-    border = TRUE,
-    ## Row parameters
-    cluster_rows = TRUE,
-    row_title = row_title,
-    row_title_gp = grid::gpar(fontsize = 12),
-    row_title_side = "left",
-    row_names_side = "left",
-    row_dend_side = "right",
-    row_names_gp = grid::gpar(fontsize = 10),
-    ## Column parameters
-    cluster_columns = TRUE,
-    show_column_names = FALSE,
-    bottom_annotation = annotation,
-    heatmap_legend_param = list(
-      title = legend_title
-    )
-  )
-  
-  return(heatmap)
-}
-
-# create a heatmap where rows are cells and columns are chromosomes 
-# this function adds a row annotation since cells are rows 
-plot_cnv_heatmap <- function(df,
-                             cnv_col, 
-                             annotation = NULL,
-                             legend_title = ""){
-  
-  # barcode by chromosome df 
-  cnv_df <- df |> 
-    dplyr::select(barcodes, starts_with(cnv_col)) |> 
-    unique() |> 
-    tibble::column_to_rownames("barcodes")
-  
-  # just get the name of the chromosome as column name 
-  colnames(cnv_df) <- stringr::word(colnames(cnv_df), -1, sep = "_")
-  
-  # do a little bit of column reordering before converting to a matrix
-  cnv_df <- cnv_df |> 
-    dplyr::relocate(chr10, .before = chr11) |> 
-    dplyr::relocate(chr19, .before = chr20) |> 
-    dplyr::relocate(chr21, .before = chr22) |> 
-    as.matrix()
-  
-  heatmap <- ComplexHeatmap::Heatmap(
-    cnv_df,
-    col = circlize::colorRamp2(seq(min(cnv_df), max(cnv_df), length = 2), colors = c("white", "#00274C")),
-    border = TRUE,
-    ## Row parameters
-    cluster_rows = TRUE,
-    row_title = "",
-    row_title_gp = grid::gpar(fontsize = 12),
-    row_title_side = "left",
-    show_row_names = FALSE,
-    row_dend_side = "right",
-    row_names_gp = grid::gpar(fontsize = 10),
-    ## Column parameters
-    cluster_columns = FALSE,
-    show_column_names = TRUE,
-    right_annotation = annotation,
-    heatmap_legend_param = list(
-      title = legend_title
-    )
-  )
-  return(heatmap)
-}
-
-```
-
 
 ## Setup
 
@@ -164,6 +79,7 @@ fs::dir_create(final_annotations_dir)
 final_annotations_file <- file.path(final_annotations_dir, "SCPCL000822_tumor-classifications.tsv")
 ```
 
+### Process input files 
 
 ```{r}
 # read in all files 
@@ -248,6 +164,90 @@ classification_df <- sce |>
 
 ```
 
+## Define functions 
+
+```{r}
+# create a heatmap where rows are marker genes or gene sets and columns are cells 
+# this function adds a column annotation since cells are columns 
+plot_gene_heatmap <- function(df, 
+                              row_title = "",
+                              legend_title = "", 
+                              annotation = NULL){
+  
+  # plot heatmap of marker genes 
+  heatmap <- ComplexHeatmap::Heatmap(
+    df,
+    # set the color scale based on min and max values
+    col = circlize::colorRamp2(seq(min(df), max(df), length = 2), colors = c("white", "#00274C")),
+    border = TRUE,
+    ## Row parameters
+    cluster_rows = TRUE,
+    row_title = row_title,
+    row_title_gp = grid::gpar(fontsize = 12),
+    row_title_side = "left",
+    row_names_side = "left",
+    row_dend_side = "right",
+    row_names_gp = grid::gpar(fontsize = 10),
+    ## Column parameters
+    cluster_columns = TRUE,
+    show_column_names = FALSE,
+    bottom_annotation = annotation,
+    heatmap_legend_param = list(
+      title = legend_title
+    )
+  )
+  
+  return(heatmap)
+}
+
+# create a heatmap where rows are cells and columns are chromosomes 
+# this function adds a row annotation since cells are rows 
+plot_cnv_heatmap <- function(df,
+                             cnv_col, 
+                             annotation = NULL,
+                             legend_title = ""){
+  
+  # barcode by chromosome df 
+  cnv_df <- df |> 
+    dplyr::select(barcodes, starts_with(cnv_col)) |> 
+    unique() |> 
+    tibble::column_to_rownames("barcodes")
+  
+  # just get the name of the chromosome as column name 
+  colnames(cnv_df) <- stringr::word(colnames(cnv_df), -1, sep = "_")
+  
+  # do a little bit of column reordering before converting to a matrix
+  cnv_df <- cnv_df |> 
+    dplyr::relocate(chr10, .before = chr11) |> 
+    dplyr::relocate(chr19, .before = chr20) |> 
+    dplyr::relocate(chr21, .before = chr22) |> 
+    as.matrix()
+  
+  heatmap <- ComplexHeatmap::Heatmap(
+    cnv_df,
+    col = circlize::colorRamp2(seq(min(cnv_df), max(cnv_df), length = 2), colors = c("white", "#00274C")),
+    border = TRUE,
+    ## Row parameters
+    cluster_rows = TRUE,
+    row_title = "",
+    row_title_gp = grid::gpar(fontsize = 12),
+    row_title_side = "left",
+    show_row_names = FALSE,
+    row_dend_side = "right",
+    row_names_gp = grid::gpar(fontsize = 10),
+    ## Column parameters
+    cluster_columns = FALSE,
+    show_column_names = TRUE,
+    right_annotation = annotation,
+    heatmap_legend_param = list(
+      title = legend_title
+    )
+  )
+  return(heatmap)
+}
+
+```
+
 ## Identify tumor cell population 
 
 Below is a UMAP showing which cells are labeled as tumor cells using each of the various classification methods. 
@@ -301,8 +301,10 @@ classification_df <- classification_df |>
       cnv_proportion_classification == "Normal" & copykat_classification == "Normal" ~ "Normal",
       cnv_proportion_classification == "Reference" & copykat_classification == "Normal" ~ "Normal",
       # if normal/tumor mismatch set to unknown 
-      .default = "Unknown"
-    ))
+      .default = "Ambiguous"
+    ), 
+    # set factor order to use for plotting
+    combined_cnv_classification = forcats::fct_relevel(combined_cnv_classification, "Tumor", "Normal", "Ambiguous"))
 ```
 
 ```{r}
@@ -387,7 +389,7 @@ annotation_df <- classification_df |>
 
 annotation <- ComplexHeatmap::columnAnnotation(
   classification = annotation_df$combined_cnv_classification,
-  col = list(classification = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Unknown" = "grey")))
+  col = list(classification = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey")))
 ```
 
 
@@ -496,7 +498,7 @@ Here each row is a cell and each column is a chromosome with the color correspon
 ```{r}
 # need to make a new annotation, since we want to annotate the rows here 
 annotation <- ComplexHeatmap::rowAnnotation(classification = annotation_df$combined_cnv_classification,
-                                            col = list(classification = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Unknown" = "grey")))
+                                            col = list(classification = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey")))
 
 # plot gains in cnv
 plot_cnv_heatmap(classification_df,
@@ -536,43 +538,8 @@ ggplot(classification_df, aes(x = proportion_scaled_dupli_chr8, fill = combined_
   facet_grid(rows = vars(combined_cnv_classification))
 ```
 
-It looks like we have a pretty clear distinction between the `proportion_scaled_dupli_chr8` for normal and tumor cells and we could call any cell with a value > 0.25 as tumor cells and those that are less than 0.25 as normal cells. 
-
-```{r}
-new_classification_df <- classification_df |> 
-  # remove duplicat
-  dplyr::select(-c(gene_symbol, ensembl_gene_id, gene_expression)) |> 
-  dplyr::distinct() |> 
-  dplyr::mutate(
-    combined_cnv_classification = dplyr::case_when(
-      combined_cnv_classification == "Unknown" & proportion_scaled_dupli_chr8 >= 0.25 ~ "Tumor",
-      combined_cnv_classification == "Unknown" & proportion_scaled_dupli_chr8 < 0.25 ~ "Normal",
-      .default = combined_cnv_classification
-    )
-  )
-```
-
-```{r}
-# account for new annotations 
-annotation <- ComplexHeatmap::rowAnnotation(classification = new_classification_df$combined_cnv_classification,
-                                            col = list(classification = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Unknown" = "grey")))
-
-# recreate the cnv heatmap 
-plot_cnv_heatmap(new_classification_df,
-                 cnv_col = "proportion_scaled_dupli",
-                 annotation = annotation,
-                 legend_title = "Copy number \ngain")
-```
-
-It looks like we now have a prety good separation between tumor and normal cells based mostly on Chr8 gain. 
-Before we finish, we'll make a UMAP showing where the final annotations are. 
-
-```{r}
-# look at which cells are tumor/normal
-new_classification_df |> 
-  ggplot(aes(x = UMAP1, y = UMAP2, color = combined_cnv_classification)) +
-  geom_point(alpha = 0.5, size = 0.5)
-```
+It looks like we have a pretty clear distinction between the `proportion_scaled_dupli_chr8` for normal and tumor cells, but there are a few bumps indicating some normal cells do have higher values for CNVs at Chr8 that are more similar tumor cells. 
+Because of this, we will keep the "Ambiguous" cells as is and not try to classify them. 
 
 After validating that the cells classified as tumor by both `CopyKAT` and `InferCNV` show the expected expression patterns and CNV patterns as tumor cells, we can confidently label those cells as tumor cells. 
 We will export these labels to the final annotations file for later use. 
