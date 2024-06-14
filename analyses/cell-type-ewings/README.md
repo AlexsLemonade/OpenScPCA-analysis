@@ -133,6 +133,11 @@ This table will be saved in `references/cell_lists/<sample_id>/<library_id>_refe
 | `cellassign_celltype_annotation` | Original annotation as obtained by `CellAssign` in the processed `SingleCellExperiment` object |
 | `singler_celltype_annotation` | Original annotation as obtained by `SingleR` in the processed `SingleCellExperiment` object |
 
+## Cell type annotations
+
+The `cell_type_annotations` folder contains the TSV files with final annotations for each sample in `SCPCP000015`.
+For more information on how these were generated, see the [README.md](./cell_type_annotations/README.md).
+
 ## Software requirements
 
 All notebooks and R scripts are run using the `ewings-cell-type.Rproj`.
