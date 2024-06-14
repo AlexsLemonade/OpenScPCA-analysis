@@ -14,7 +14,7 @@ Broadly speaking, there are three kinds of ScPCA data you might wish to work wit
 - Test datasets
     - We provide reduced-size test files with simulated and/or permuted versions of both ScPCA Portal data and results from completed modules.
     - These data are used for automated testing, but you can also use them while developing your module if smaller files helps make development more efficient.
-    - You do not need AWS access to download the test files, so you can use this data before you are granted full access to ScPCA data.
+    - You do not need an AWS account to download the test files, so you can use this data before you are granted full access to ScPCA data.
 
 ## Accessing ScPCA Data
 
@@ -36,7 +36,7 @@ Before filing a pull request, you should change your paths to reflect the direct
 
 ### Accessing data from S3
 
-Because we expect that contributors may want to work with many samples or analyze data on remote systems, ScPCA data is also available to contributors on AWS S3.
+Because we expect that contributors may want to work with many samples or analyze data on remote systems, access to ScPCA data on AWS S3 is also available to contributors.
 We also provide a download script to make accessing these data more convenient.
 
 Before you can access data in this manner, the Data Lab team needs to create an AWS account for you; these data are not publicly accessible.
@@ -67,7 +67,7 @@ The [`download-data.py` script](https://github.com/AlexsLemonade/OpenScPCA-analy
     ```
 
     The command `export AWS_PROFILE=openscpca` will define your AWS profile name as `openscpca` for the duration of your terminal session.
-    Defining this variable is helpful because the `download-data.py` script also needs your profile name to download data from S3.
+    Defining this environment variable is helpful because the `download-data.py` script also needs your profile name to download data from S3.
 
     Note that you can also [add this profile definition to your shell profile file](../../technical-setup/environment-setup/configure-aws-cli.md#storing-your-aws-profile-name) so that it will always be defined in any terminal session.
 
