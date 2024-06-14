@@ -63,7 +63,6 @@ GitKraken
 GitKraken's
 Goodspeed
 GPUs
-grey
 GTF
 heterotypic
 homotypic

@@ -36,10 +36,6 @@ suppressPackageStartupMessages({
   library(SingleCellExperiment)
   library(ggplot2)
 })
-
-knitr::opts_chunk$set(
-  dev = "jpeg"
-)
 ```
 
 
