@@ -19,6 +19,91 @@ Using this information, we call any cell that is annotated as a tumor cell by bo
   - Looking at expression of EWS-FLI1 target gene sets. 
   - Confirming presence of known CNVs in Ewing sarcoma
 
+## Define functions 
+
+```{r}
+# create a heatmap where rows are marker genes or gene sets and columns are cells 
+# this function adds a column annotation since cells are columns 
+plot_gene_heatmap <- function(df, 
+                              row_title = "",
+                              legend_title = "", 
+                              annotation = NULL){
+  
+  # plot heatmap of marker genes 
+  heatmap <- ComplexHeatmap::Heatmap(
+    df,
+    # set the color scale based on min and max values
+    col = circlize::colorRamp2(seq(min(df), max(df), length = 2), colors = c("white", "#00274C")),
+    border = TRUE,
+    ## Row parameters
+    cluster_rows = TRUE,
+    row_title = row_title,
+    row_title_gp = grid::gpar(fontsize = 12),
+    row_title_side = "left",
+    row_names_side = "left",
+    row_dend_side = "right",
+    row_names_gp = grid::gpar(fontsize = 10),
+    ## Column parameters
+    cluster_columns = TRUE,
+    show_column_names = FALSE,
+    bottom_annotation = annotation,
+    heatmap_legend_param = list(
+      title = legend_title
+    )
+  )
+  
+  return(heatmap)
+}
+
+# create a heatmap where rows are cells and columns are chromosomes 
+# this function adds a row annotation since cells are rows 
+plot_cnv_heatmap <- function(df,
+                             cnv_col, 
+                             annotation = NULL,
+                             legend_title = ""){
+  
+  # barcode by chromosome df 
+  cnv_df <- df |> 
+    dplyr::select(barcodes, starts_with(cnv_col)) |> 
+    unique() |> 
+    tibble::column_to_rownames("barcodes")
+  
+  # just get the name of the chromosome as column name 
+  colnames(cnv_df) <- stringr::word(colnames(cnv_df), -1, sep = "_")
+  
+  # do a little bit of column reordering before converting to a matrix
+  cnv_df <- cnv_df |> 
+    dplyr::relocate(chr10, .before = chr11) |> 
+    dplyr::relocate(chr19, .before = chr20) |> 
+    dplyr::relocate(chr21, .before = chr22) |> 
+    as.matrix()
+  
+  heatmap <- ComplexHeatmap::Heatmap(
+    cnv_df,
+    col = circlize::colorRamp2(seq(min(cnv_df), max(cnv_df), length = 2), colors = c("white", "#00274C")),
+    border = TRUE,
+    ## Row parameters
+    cluster_rows = TRUE,
+    row_title = "",
+    row_title_gp = grid::gpar(fontsize = 12),
+    row_title_side = "left",
+    show_row_names = FALSE,
+    row_dend_side = "right",
+    row_names_gp = grid::gpar(fontsize = 10),
+    ## Column parameters
+    cluster_columns = FALSE,
+    show_column_names = TRUE,
+    right_annotation = annotation,
+    heatmap_legend_param = list(
+      title = legend_title
+    )
+  )
+  return(heatmap)
+}
+
+```
+
+
 ## Setup
 
 ```{r packages}
@@ -84,7 +169,8 @@ marker_gene_results_df <- readr::read_tsv(marker_gene_results_file)
 # copykat output
 copykat_results_df <- readr::read_tsv(copykat_predictions_file) |> 
   # only select no_ref classification and rename to be consistent with naming of other classifications
-  dplyr::select(barcodes, copykat_classification = no_ref) |> 
+  dplyr::select(barcodes, copykat_classification = no_ref, mean_cnv_detection) |> 
+  dplyr::distinct() |> 
   dplyr::mutate(
     copykat_classification = dplyr::case_when(
       copykat_classification == "aneuploid" ~ "Tumor",
@@ -126,19 +212,9 @@ classification_df <- sce |>
   # replace UMAP.1 with UMAP1
   dplyr::rename_with(
         \(x) stringr::str_replace(x, "^UMAP\\.", "UMAP")
-      ) |> 
-  # add in marker gene expression to dataframe 
-  dplyr::left_join(marker_gene_exp, by = "barcodes") |> 
-  # combine all genes into a single column for easy faceting
-  tidyr::pivot_longer(
-    cols = starts_with("ENSG"),
-    names_to = "ensembl_gene_id",
-    values_to = "gene_expression"
-  ) |> 
-  # join with marker gene df to get gene symbols for plotting 
-  dplyr::left_join(marker_genes_df, by = c("ensembl_gene_id")) |>
+      ) |>
   # get rid of excess columns
-  dplyr::select(barcodes, UMAP1, UMAP2, gene_symbol, ensembl_gene_id, gene_expression) |> 
+  dplyr::select(barcodes, UMAP1, UMAP2) |> 
   # add in marker gene classifications
   dplyr::left_join(marker_gene_results_df) |> 
   # add in copykat results 
@@ -158,16 +234,221 @@ Below is a UMAP showing which cells are labeled as tumor cells using each of the
 
 ```{r}
 # plot tumor cells for each classification method 
-tumor_umap_df <- coldata_df |> 
+tumor_umap_df <- classification_df |> 
   dplyr::select(barcodes, UMAP1, UMAP2, marker_gene_classification, copykat_classification, cnv_proportion_classification) |> 
   tidyr::pivot_longer(
     cols = ends_with("classification"),
     names_to = "method",
     values_to = "classification"
+  ) |> 
+  dplyr::mutate(
+    method = dplyr::case_when(
+      method == "marker_gene_classification" ~ "Marker genes only",
+      method == "copykat_classification" ~ "CopyKAT - no reference",
+      method == "cnv_proportion_classification" ~ "InferCNV proportion"
+    )
   )
 
 ggplot(tumor_umap_df, aes(x = UMAP1, UMAP2, color = classification)) +
   geom_point(size = 0.5, alpha = 0.5) +
   facet_wrap(vars(method))
+```
+
+```{r}
+classification_df <- classification_df |>
+  dplyr::mutate(
+    geneset_classification = dplyr::if_else(
+      `scaled_mean-RIGGI` > 0 | `scaled_mean-ZHANG` > 0 | `scaled_mean-SILIGAN` > 0,
+      "Tumor",
+      "Normal"
+    ),
+    combined_classification = dplyr::case_when(
+      marker_gene_classification == "Normal" & geneset_classification == "Normal" ~ "Normal",
+      marker_gene_classification == "Tumor" & geneset_classification == "Tumor" ~ "Tumor",
+      .default = "Unknown"
+    )
+    # combined_classification = dplyr::case_when(
+    #   copykat_classification == "Normal" & cnv_proportion_classification == "Normal" & marker_gene_classification == "Normal" ~ "Normal",
+    #   copykat_classification == "Normal" & cnv_proportion_classification == "Reference" & marker_gene_classification == "Normal" ~ "Normal",
+    #   copykat_classification == "Tumor" & cnv_proportion_classification == "Tumor" & marker_gene_classification == "Tumor" ~ "Tumor",
+    #   .default = "Unknown"
+    # )
+  )
+```
+
+```{r}
+ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = geneset_classification)) +
+  geom_point(size = 0.5, alpha = 0.5)
+```
+
+
+```{r}
+# calculate sum of the scaled gene expression values for plotting 
+marker_density_df <- classification_df |> 
+  # add in marker gene expression to dataframe 
+  dplyr::left_join(marker_gene_exp, by = "barcodes") |> 
+  # combine all genes into a single column for easy faceting
+  tidyr::pivot_longer(
+    cols = starts_with("ENSG"),
+    names_to = "ensembl_gene_id",
+    values_to = "gene_expression"
+  ) |> 
+  # join with marker gene df to get gene symbols for plotting 
+  dplyr::left_join(marker_genes_df, by = c("ensembl_gene_id")) |> 
+  dplyr::select(barcodes, gene_symbol, gene_expression, copykat_classification, cnv_proportion_classification, marker_gene_classification, combined_classification, geneset_classification) |> 
+  unique() |> 
+  dplyr::group_by(gene_symbol) |>
+  # get z-scores for each gene
+  dplyr::mutate(transformed_gene_expression = scale(gene_expression)[, 1]) |> 
+  dplyr::ungroup() |> 
+  dplyr::group_by(barcodes) |> 
+  # add all the scores together 
+  dplyr::mutate(sum_exp = sum(transformed_gene_expression)) |>
+  # expand classifications column for easy faceting 
+  dplyr::ungroup() |> 
+  tidyr::pivot_longer(
+    cols = ends_with("classification"),
+    names_to = "method",
+    values_to = "classification"
+  ) |> 
+  dplyr::mutate(
+    method = dplyr::case_when(
+      method == "marker_gene_classification" ~ "Marker genes only",
+      method == "copykat_classification" ~ "CopyKAT - no reference",
+      method == "cnv_proportion_classification" ~ "InferCNV proportion",
+      method == "combined_classification" ~ "Combined",
+      method == "geneset_classification" ~ "EWS-FLI1 Gene set"
+    )
+  )
+
+ggplot(marker_density_df, aes(x = sum_exp, color = classification)) +
+  geom_density() +
+  facet_wrap(vars(method))
+```
+
+```{r}
+# plot tumor cells for each classification method 
+geneset_plot_df <- classification_df |> 
+  dplyr::select(barcodes, UMAP1, UMAP2, ends_with("classification"), starts_with("scaled_mean")) |> 
+  tidyr::pivot_longer(
+    cols = starts_with("scaled_mean"),
+    names_to = "geneset",
+    values_to = "mean_score"
+  ) |> 
+  dplyr::mutate(
+    geneset = stringr::word(geneset, -1, sep = "-")
+  )
+
+ggplot(geneset_plot_df, aes(x = UMAP1, UMAP2, color = mean_score)) +
+  geom_point(size = 0.5, alpha = 0.5) +
+  facet_wrap(vars(geneset)) +
+  scale_color_viridis_c()
+```
+
+```{r}
+geneset_plot_df |> 
+  tidyr::pivot_longer(
+    cols = ends_with("classification"),
+    names_to = "method",
+    values_to = "classification"
+  ) |> 
+  ggplot(aes(x = mean_score, color = classification)) +
+  geom_density(bw = 0.05) +
+  facet_grid(rows = vars(method), 
+             cols = vars(geneset))
+```
+
+
+
+CNV heatmap annotated by copykat and marker gene prediction, two annotation columns 
+
+```{r}
+annotation_df <- classification_df |> 
+  dplyr::select(barcodes, ends_with("classification")) |> 
+  unique() 
+
+# need to make a new annotation, since we want to annotate the rows here 
+annotation <- ComplexHeatmap::rowAnnotation(classification = annotation_df$combined_classification,
+                                            col = list(classification = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Unknown" = "grey")))
+
+# plot gains in cnv
+plot_cnv_heatmap(classification_df,
+                 cnv_col = "proportion_scaled_dupli",
+                 annotation = annotation,
+                 legend_title = "Copy number \ngain")
+```
+
+```{r}
+# plot gains in cnv
+plot_cnv_heatmap(classification_df,
+                 cnv_col = "proportion_scaled_loss",
+                 annotation = annotation,
+                 legend_title = "Copy number \nloss")
+```
+
+
+Density plot with mean proportion CNV from InferCNV on x-axis, colored by prediction, faceted by classification method 
+
+```{r}
+classification_df |> 
+  dplyr::select(barcodes, UMAP1, UMAP2, ends_with("classification"), mean_cnv_proportion) |> 
+  tidyr::pivot_longer(
+    cols = ends_with("classification"),
+    names_to = "method",
+    values_to = "classification"
+  ) |> 
+  ggplot(aes(x = mean_cnv_proportion, color = classification)) +
+  geom_density(bw = 0.05) +
+  facet_grid(rows = vars(method))
+```
+
+
+Mean InferCNV proportion on x-axis, mean copyKAT proportion on y-axis, color by scaled sum of marker gene expression 
+
+```{r}
+cnv_prop_df <- classification_df |> 
+  dplyr::select(barcodes, ends_with("classification"), starts_with("scaled_mean"), mean_cnv_proportion, mean_cnv_detection) |> 
+  tidyr::pivot_longer(
+    cols = starts_with("scaled_mean"),
+    names_to = "geneset",
+    values_to = "mean_score"
+  ) |> 
+  dplyr::mutate(
+    geneset = stringr::word(geneset, -1, sep = "-")
+  ) 
+
+ggplot(cnv_prop_df, aes(x = mean_cnv_proportion, y = abs(mean_cnv_detection), color = mean_score)) +
+  geom_point(size = 0.5, alpha = 0.5) +
+  facet_wrap(vars(geneset)) +
+  scale_color_viridis_c()
+```
+
+```{r}
+ggplot(cnv_prop_df, aes(x = mean_score, y = abs(mean_cnv_detection))) +
+  geom_point(size = 0.5, alpha = 0.5) +
+  facet_wrap(vars(geneset)) +
+  scale_color_viridis_c()
+```
+
+faceted density plot with marker gene expression on x axis, colored by copykat and infercnv prediction and faceted by marker gene 
+
+```{r}
+geneset_scores_df |> 
+  dplyr::pivot
+
+ggplot(geneset_scores_df, aes(x = mean_score, color = ))
+```
+
+
+
+use SingleR to classify as tumor/normal using SCPCS000490 
+
+correlation of geneset score and marker gene score 
+```{r}
+geneset_plot_df |> 
+  
+  dplyr::left_join(marker_density_df) |> 
+  ggplot(aes(x = sum_exp, y = mean_score)) +
+    facet_wrap()
 ```
 
