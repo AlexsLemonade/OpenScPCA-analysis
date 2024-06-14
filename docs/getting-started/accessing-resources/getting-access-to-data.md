@@ -255,6 +255,7 @@ This is generally the path you should use in your code.
 ## Accessing test data
 
 The test data are simulated or permuted data files with the same structure as the real project data, and are generally much smaller than the original data (learn more at the [`simulate-sce`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/simulate-sce) module).
+These files are also used during automated testing of analysis modules. <!-- STUB_LINK for module GHAs -->
 
 You can use the [download data script](#using-the-download-data-script) to download the test data for the project by using the `--test-data` option.
 Similarly, you use the [download result script](#accessing-scpca-module-results) to download ScPCA results from running completed modules on the test data by using the `--test-data` option.
