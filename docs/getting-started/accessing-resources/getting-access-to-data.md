@@ -271,7 +271,7 @@ To download test data with all other options set at default, run the following f
 To download a given module's results as generated with the test data, run the following from the root of the repository:
 
 ```sh
-./download-results.py --test-data
+./download-results.py --modules module-name --test-data
 ```
 
 <!--
