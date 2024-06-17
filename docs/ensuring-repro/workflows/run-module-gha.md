@@ -12,11 +12,15 @@ Module testing GHAs are automatically run in two circumstances:
 - On a periodic schedule
   - This ensures that changes in data or other code do not break tests within each module
 
+For examples of existing analysis module GHAs, see the example Python and R module GHAs, [`run_hello-python.yml`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/.github/workflows/run_hello-python.yml) and [`run_hello-R.yml`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/.github/workflows/run_hello-R.yml), respectively.
+
 To make GHAs run efficiently, the tests should run the module code with the [simulated test data](../../getting-started/accessing-resources/getting-access-to-data.md#accessing-test-data).
 This means that it's important to write your module code with sufficient flexibility to allow for test data to be used.
-You should read in files from the `data/current` directory, which will be automatically directed to test data during GHA test runs. 
+You should read in files from the `data/current` directory, which will be automatically directed to test data during module testing GHA runs.
 
-For examples of existing analysis module GHAs, see the example Python and R module GHAs, [`run_hello-python.yml`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/.github/workflows/run_hello-python.yml) and [`run_hello-R.yml`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/.github/workflows/run_hello-R.yml), respectively.
+In addition, it's also helpful for your module to have a single entry point for running all module scripts and/or notebooks in their intended order, e.g. a [shell script](../../contributing-to-analyses/analysis-modules/running-a-module.md).
+This way, the module testing GHA can directly call this script to execute the entire module.
+
 
 ## Writing a module testing GHA
 
