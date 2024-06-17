@@ -450,7 +450,8 @@ celltypes_df <- cnv_df |>
   dplyr::select(
     barcodes,
     cnv_proportion_classification = cnv_mean_classification,
-    cnv_sum_classification = cnv_classification
+    cnv_sum_classification = cnv_classification,
+    mean_cnv_proportion = mean_proportion
   )
 
 readr::write_tsv(celltypes_df, infercnv_results_file)

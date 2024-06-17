@@ -404,7 +404,15 @@ celltype_df <- cnv_df |>
     values_from = copykat.pred
   )
 
-readr::write_tsv(celltype_df, copykat_results_file)
+all_info_df <- cnv_df |> 
+  dplyr::select(barcodes,
+                mean_cnv_detection) |> 
+  dplyr::group_by(barcodes) |>
+  dplyr::mutate(mean_cnv_detection = mean(mean_cnv_detection)) |> 
+  dplyr::distinct() |> 
+  dplyr::left_join(celltype_df)
+
+readr::write_tsv(all_info_df, copykat_results_file)
 ```
 
 
