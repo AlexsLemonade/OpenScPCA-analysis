@@ -74,11 +74,7 @@ plot_pca_calls <- function(df,
     color = "black",
     size = 0.75
   ) +
-  ggtitle(title) +
-  theme(
-    legend.title.position = "top",
-    legend.position = "bottom"
-  )
+  ggtitle(title) 
 }
 
 plot_pca_metrics <- function(df, color_column, metric_colors) {
@@ -98,7 +94,7 @@ plot_pca_metrics <- function(df, color_column, metric_colors) {
     size = 0.75
   ) +
   scale_color_manual(name = "Call type", values = metric_colors) +
-  theme(legend.position = "bottom")
+  ggtitle("Consensus call metrics")
 }
 ```
 
@@ -236,15 +232,17 @@ This section visualizes and evaluates the consensus doublet calls across each da
 
 ### PCA
 
-MORE MORE MORE MORE MORE FILL IN THIS TEXT!!!
+This section plots the PCA for each dataset, clockwise from the top left:
 
+1. `scDblFinder` singlet/doublet calls. 
+2. `scrublet` singlet/doublet calls
+3. `cxds` singlet/doublet calls 
+4. Ground truth single/doublets
+5. Consensus singlet/doublet calls
+6. Points are colored based on comparing the consensus call to the ground truth as one of:
+    - true positive (`tp`), true negative (`tn`), false positive (`fp`), false negative (`fn`)
 
-This section plots the PCA for each dataset, with three color schemes from left to right:
-
-1. Ground truth doublets are shown in black and singlets in blue
-2. Consensus doublets are shown in black and all remaining droplets in blue
-3. Points are colored based on comparing the consensus call to the ground truth as one of:
-  - true positive (`tp`), true negative (`tn`), false positive (`fp`), false negative (`fn`)
+For the first five panels, doublets are shown in black and singlets in light gray.
 
 
 ```{r, fig.width = 12, fig.height = 6}
@@ -268,7 +266,7 @@ doublet_df_list |>
       p3 <- plot_pca_calls(
         df, 
         color_column = cxds_prediction, 
-        color_lab = "cxds prediction"
+        title = "cxds prediction"
       )
       
       # Bottom row: consensus  --
@@ -295,7 +293,9 @@ doublet_df_list |>
       # combine and plot
       plot( 
         (p1 + p2 + p3) / (p4 + p5 + p6) + 
-          plot_annotation(glue::glue("PCA for {dataset}")) + 
+          plot_annotation(
+            glue::glue("PCA for {dataset}"), 
+            theme = theme(plot.title = element_text(size = 16))) + 
           plot_layout(guides = "collect"))
     }
   )
