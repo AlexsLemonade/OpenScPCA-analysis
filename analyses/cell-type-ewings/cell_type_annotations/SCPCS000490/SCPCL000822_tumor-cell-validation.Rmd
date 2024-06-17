@@ -1,11 +1,12 @@
 ---
-title: "SCPCL000822 - Validation of tumor cells"
+title: "`SCPCL000822` - Validation of tumor cells"
 author: Ally Hawkins
 date: "`r Sys.Date()`"
 output:
   html_document:
     toc: true
     toc_depth: 3
+    code_folding: hide
 ---
 
 ## Introduction
@@ -17,7 +18,7 @@ In this notebook we compare tumor cell annotations obtained from marker genes, `
 Using this information, we call any cell that is annotated as a tumor cell by both `CopyKAT` and `InferCNV` as a tumor cell. 
 - We then validate that these are in fact tumor cells by doing the following: 
   - Looking at marker gene expression. 
-  - Looking at expression of EWS-FLI1 target gene sets. 
+  - Looking at expression of `EWS-FLI1` target gene sets. 
   - Confirming presence of known CNVs in Ewing sarcoma
 
 ## Setup
@@ -258,7 +259,7 @@ The "Ambiguous" cells appear to have a small group of cells that cluster with th
 
 ### Gene set scores
 
-Next, we will look at the gene set scores for three different EWS-FLI1 gene sets. 
+Next, we will look at the gene set scores for three different `EWS-FLI1` gene sets. heirarchical
 The below plots will all use the `mean-GENESET` columns. 
 
 First we will just look at the gene set scores for each cell on the UMAP. 
@@ -360,7 +361,7 @@ plot_cnv_heatmap(classification_df,
 ```
 
 Here we see a gain in Chr8 and Chr1 in tumor cells compared to normal cells. 
-We also see other chromosomes with amplifications in tumor cells compared to normal cells and that the tumor and normal cells are nicely separated in the heirarchical clustering. 
+We also see other chromosomes with amplifications in tumor cells compared to normal cells and that the tumor and normal cells are nicely separated in the hierarchical clustering. 
 
 Below we make the same plot but with only the losses or deletions. 
 
@@ -398,7 +399,7 @@ We will export these labels to the final annotations file for later use.
 
 ```{r}
 # export final TSV with annotations 
-final_classifications <- new_classification_df |> 
+final_classifications <- classification_df |> 
   dplyr::select(
     cell_barcode = barcodes,
     tumor_cell_classification = combined_cnv_classification

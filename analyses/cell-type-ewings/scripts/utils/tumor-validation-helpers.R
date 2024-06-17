@@ -12,10 +12,10 @@ create_classification_df <- function(
 ){
  
   # read in marker gene results 
-  marker_gene_results_df <- readr::read_tsv(marker_gene_results_file)
+  marker_gene_results_df <- readr::read_tsv(marker_gene_results_file, show_col_types = FALSE)
   
   # copykat output
-  copykat_results_df <- readr::read_tsv(copykat_predictions_file) |> 
+  copykat_results_df <- readr::read_tsv(copykat_predictions_file, show_col_types = FALSE) |> 
     # only select no_ref classification and rename to be consistent with naming of other classifications
     dplyr::select(barcodes, copykat_classification = no_ref, mean_cnv_detection) |> 
     dplyr::distinct() |> 
@@ -23,12 +23,13 @@ create_classification_df <- function(
       copykat_classification = dplyr::case_when(
         copykat_classification == "aneuploid" ~ "Tumor",
         copykat_classification == "diploid" ~ "Normal",
-        TRUE ~ copykat_classification
+        .default = copykat_classification
       )
     )
   
   # infercnv output 
-  infercnv_results_df <- readr::read_tsv(infercnv_predictions_file)
+  infercnv_results_df <- readr::read_tsv(infercnv_predictions_file, show_col_types = FALSE)
+  # use read.delim to ensure row names do not get read in as a column 
   infercnv_metadata_df <- read.delim(infercnv_metadata_file) |> 
     tibble::rownames_to_column("barcodes")
   
@@ -37,7 +38,7 @@ create_classification_df <- function(
   infercnv_metadata_df <- infercnv_metadata_df[, chr_columns_to_keep]
   
   # gene set scores 
-  geneset_scores_df <- readr::read_tsv(geneset_scores_file)
+  geneset_scores_df <- readr::read_tsv(geneset_scores_file, show_col_types = FALSE)
   
   # pull out the UMAP coordinates and make a data frame to use for plotting
   classification_df <- sce |> 
@@ -49,14 +50,14 @@ create_classification_df <- function(
     # get rid of excess columns
     dplyr::select(barcodes, UMAP1, UMAP2) |> 
     # add in marker gene classifications
-    dplyr::left_join(marker_gene_results_df) |> 
+    dplyr::left_join(marker_gene_results_df, by = "barcodes") |> 
     # add in copykat results 
-    dplyr::left_join(copykat_results_df) |> 
+    dplyr::left_join(copykat_results_df, by = "barcodes") |> 
     # add in infercnv results and metadata
-    dplyr::left_join(infercnv_results_df) |> 
-    dplyr::left_join(infercnv_metadata_df) |> 
+    dplyr::left_join(infercnv_results_df, by = "barcodes") |> 
+    dplyr::left_join(infercnv_metadata_df, by = "barcodes") |> 
     # gene set scores 
-    dplyr::left_join(geneset_scores_df)
+    dplyr::left_join(geneset_scores_df, by = "barcodes")
   
   return(classification_df)
    
@@ -70,7 +71,7 @@ create_marker_gene_df <- function(
     marker_genes_file # path to file containing list of marker genes used
 ){
   # read in marker genes table 
-  marker_genes_df <- readr::read_tsv(marker_genes_file) |> 
+  marker_genes_df <- readr::read_tsv(marker_genes_file, show_col_types = FALSE) |> 
     # account for genes being from multiple sources
     dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |> 
     dplyr::distinct()
@@ -155,14 +156,14 @@ plot_gene_heatmap <- function(
 # this function adds a row annotation since cells are rows 
 plot_cnv_heatmap <- function(
     df,
-    cnv_col, 
+    cnv_col_prefix, # prefix used to grab columns with cnv proportion (e.g., "proportion_scaled_loss")
     annotation = NULL,
     legend_title = ""
 ){
   
   # barcode by chromosome df 
   cnv_df <- df |> 
-    dplyr::select(barcodes, starts_with(cnv_col)) |> 
+    dplyr::select(barcodes, starts_with(cnv_col_prefix)) |> 
     unique() |> 
     tibble::column_to_rownames("barcodes")
   
@@ -171,9 +172,7 @@ plot_cnv_heatmap <- function(
   
   # do a little bit of column reordering before converting to a matrix
   cnv_df <- cnv_df |> 
-    dplyr::relocate(chr10, .before = chr11) |> 
-    dplyr::relocate(chr19, .before = chr20) |> 
-    dplyr::relocate(chr21, .before = chr22) |> 
+    dplyr::select(paste0("chr", 1:22)) |> 
     as.matrix()
   
   heatmap <- ComplexHeatmap::Heatmap(
