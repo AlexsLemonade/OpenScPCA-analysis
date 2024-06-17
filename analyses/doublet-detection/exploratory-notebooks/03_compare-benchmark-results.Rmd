@@ -203,19 +203,14 @@ doublet_df_list <- dataset_names |>
 This section contains upset plots that show overlap across doublet calls from each method, displayed for each dataset.
 
 ```{r}
-pull_barcodes <- function(df, pred_var) {
-  # Helper function to pull out barcodes for doublet calls
-  df$barcodes[df[[pred_var]] == "doublet"]
-}
-
 upset_list <- doublet_df_list |>
   purrr::iwalk(
     \(df, dataset) {
       
       doublet_barcodes <- list(
-        "scDblFinder" = pull_barcodes(df, "scdbl_prediction"),
-        "scrublet"    = pull_barcodes(df, "scrublet_prediction"),
-        "cxds"        = pull_barcodes(df, "cxds_prediction")
+        "scDblFinder" = df$barcodes[df$scdbl_prediction == "doublet"],
+        "scrublet"    = df$barcodes[df$scrublet_prediction == "doublet"],
+        "cxds"        = df$barcodes[df$cxds_prediction == "doublet"]
       )
       
       UpSetR::upset(fromList(doublet_barcodes), order.by = "freq") |> print()
@@ -337,7 +332,6 @@ Consistent with that observation, it has the highest `kappa` value here, althoug
 ```{r}
 metric_df
 ```
-
 
 ## Session Info
 
