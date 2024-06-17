@@ -38,10 +38,11 @@ Each module testing GHA is initially created with these steps, which should be u
 
 - Checkout the repository
 - Download test data
+    - After this step the `data/current` directory will point to the test data, which ensures the module GHA to runs using the test data.
 - Set up the module environment
-    - Depending on [the flags used when creating your module](../../contributing-to-analyses/analysis-modules/creating-a-module.md#module-creation-script-flags), this will steps steps needed to install the [`renv` and/or conda environment](../managing-software/index.md) from existing environment files (`renv.lock` and/or `conda-lock.yml`, respectively)
+    - Depending on [the flags used when creating your module](../../contributing-to-analyses/analysis-modules/creating-a-module.md#module-creation-script-flags), this will steps steps needed to install the [`renv` and/or conda environment](../managing-software/index.md) from existing environment files (`renv.lock` and/or `conda-lock.yml`, respectively).
 - Run the analysis module
-    - Generally, this will involve calling the [module's run script](../../contributing-to-analyses/analysis-modules/running-a-module.md)
+    - Generally, this will involve calling the [module's run script](../../contributing-to-analyses/analysis-modules/running-a-module.md).
 
 As an analysis module matures, the GHA will be updated to run the analysis in the module's Docker image, rather than using the `renv` and/or conda environment files.
 Module testing GHAs can use their module's Docker images once the image has been built and pushed to the registry. <!-- STUB LINK building/updating docker images -->
