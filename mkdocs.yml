@@ -132,7 +132,10 @@ nav:
       - contributing-to-analyses/pr-review-and-merge/index.md
       - contributing-to-analyses/pr-review-and-merge/respond-to-review.md
   - Ensuring reproducibility:
-    - index.md
+    - ensuring-repro/index.md
+    - OpenScPCA workflows:
+      - ensuring-repro/workflows/index.md
+      - ensuring-repro/workflows/run-module-gha.md
     - Managing module software:
       - ensuring-repro/managing-software/index.md
       - ensuring-repro/managing-software/using-renv.md
