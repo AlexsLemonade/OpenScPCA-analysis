@@ -1,11 +1,12 @@
 ---
-title: "SCPCL000822 - Validation of tumor cells"
+title: "`SCPCL000822` - Validation of tumor cells"
 author: Ally Hawkins
 date: "`r Sys.Date()`"
 output:
   html_document:
     toc: true
     toc_depth: 3
+    code_folding: hide
 ---
 
 ## Introduction
@@ -17,7 +18,7 @@ In this notebook we compare tumor cell annotations obtained from marker genes, `
 Using this information, we call any cell that is annotated as a tumor cell by both `CopyKAT` and `InferCNV` as a tumor cell. 
 - We then validate that these are in fact tumor cells by doing the following: 
   - Looking at marker gene expression. 
-  - Looking at expression of EWS-FLI1 target gene sets. 
+  - Looking at expression of `EWS-FLI1` target gene sets. 
   - Confirming presence of known CNVs in Ewing sarcoma
 
 ## Setup
@@ -58,9 +59,16 @@ module_base <- file.path(repository_base, "analyses", "cell-type-ewings")
 ```
 
 ```{r}
+# source in helper functions: plot_gene_heatmap() and plot_cnv_heatmap() 
+# create_classification_df() and create_marker_gene_df()
+validation_functions <- file.path(module_base, "scripts", "utils", "tumor-validation-helpers.R")
+source(validation_functions)
+```
+
+```{r}
 # Input files
 sce_file <- file.path(sample_dir, "SCPCL000822_processed.rds")
-marker_genes <- file.path(module_base, "references", "tumor-marker-genes.tsv")
+marker_genes_file <- file.path(module_base, "references", "tumor-marker-genes.tsv")
 
 # results from annotation workflow 
 results_dir <- file.path(module_base, "results", "annotate_tumor_cells_output", "SCPCS000490")
@@ -82,170 +90,26 @@ final_annotations_file <- file.path(final_annotations_dir, "SCPCL000822_tumor-cl
 ### Process input files 
 
 ```{r}
-# read in all files 
+# read in sce file
 sce <- readr::read_rds(sce_file)
-
-# read in marker genes table 
-marker_genes_df <- readr::read_tsv(marker_genes) |> 
-  # account for genes being from multiple sources
-  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |> 
-  dplyr::distinct()
-
-marker_gene_results_df <- readr::read_tsv(marker_gene_results_file)
-
-# copykat output
-copykat_results_df <- readr::read_tsv(copykat_predictions_file) |> 
-  # only select no_ref classification and rename to be consistent with naming of other classifications
-  dplyr::select(barcodes, copykat_classification = no_ref) |> 
-  dplyr::mutate(
-    copykat_classification = dplyr::case_when(
-      copykat_classification == "aneuploid" ~ "Tumor",
-      copykat_classification == "diploid" ~ "Normal",
-      .default = copykat_classification
-    )
-  )
-
-# infercnv output 
-infercnv_results_df <- readr::read_tsv(infercnv_predictions_file)
-infercnv_metadata_df <- read.delim(infercnv_metadata_file) |> 
-  tibble::rownames_to_column("barcodes")
-
-# remove MT and GL chr, comments in docs recommend that these are not useful and can be inaccurate 
-chr_columns_to_keep <- which(!stringr::str_detect(names(infercnv_metadata_df), "chrMT|chrGL"))
-infercnv_metadata_df <- infercnv_metadata_df[, chr_columns_to_keep]
-
-# gene set scores 
-geneset_scores_df <- readr::read_tsv(geneset_scores_file)
 ```
 
 ```{r}
-# grab all coldata and add in all classifications and results to use for plotting throughout notebook 
-# get list of marker genes to use 
-marker_genes <- marker_genes_df |> 
-  dplyr::filter(cell_type == "tumor") |> 
-  dplyr::pull(ensembl_gene_id)
+# generate classification df 
+classification_df <- create_classification_df(
+  sce,
+  marker_gene_results_file,
+  copykat_predictions_file, 
+  infercnv_predictions_file,
+  infercnv_metadata_file,
+  geneset_scores_file
+)
 
-# get the gene expression counts for all marker genes
-marker_gene_exp <- logcounts(sce[marker_genes, ]) |>
-  as.matrix() |>
-  t() |>
-  as.data.frame() |>
-  tibble::rownames_to_column("barcodes")
-
-# pull out the UMAP coordinates, add in marker genes and classifications 
-# and make a data frame to use for plotting
-classification_df <- sce |> 
-  scuttle::makePerCellDF(use.dimred = "UMAP") |> 
-  # replace UMAP.1 with UMAP1
-  dplyr::rename_with(
-        \(x) stringr::str_replace(x, "^UMAP\\.", "UMAP")
-      ) |> 
-  # add in marker gene expression to dataframe 
-  dplyr::left_join(marker_gene_exp, by = "barcodes") |> 
-  # combine all genes into a single column for easy faceting
-  tidyr::pivot_longer(
-    cols = starts_with("ENSG"),
-    names_to = "ensembl_gene_id",
-    values_to = "gene_expression"
-  ) |> 
-  # join with marker gene df to get gene symbols for plotting 
-  dplyr::left_join(marker_genes_df, by = "ensembl_gene_id") |>
-  # get rid of excess columns
-  dplyr::select(barcodes, UMAP1, UMAP2, gene_symbol, ensembl_gene_id, gene_expression) |> 
-  # add in marker gene classifications
-  dplyr::left_join(marker_gene_results_df, by = "barcodes") |> 
-  # add in copykat results 
-  dplyr::left_join(copykat_results_df, by = "barcodes") |> 
-  # add in infercnv results and metadata
-  dplyr::left_join(infercnv_results_df, by = "barcodes") |> 
-  dplyr::left_join(infercnv_metadata_df, by = "barcodes") |> 
-  # gene set scores 
-  dplyr::left_join(geneset_scores_df, by = "barcodes")
-
-```
-
-## Define functions 
-
-```{r}
-# create a heatmap where rows are marker genes or gene sets and columns are cells 
-# this function adds a column annotation since cells are columns 
-plot_gene_heatmap <- function(df, 
-                              row_title = "",
-                              legend_title = "", 
-                              annotation = NULL){
-  
-  # plot heatmap of marker genes 
-  heatmap <- ComplexHeatmap::Heatmap(
-    df,
-    # set the color scale based on min and max values
-    col = circlize::colorRamp2(seq(min(df), max(df), length = 2), colors = c("white", "#00274C")),
-    border = TRUE,
-    ## Row parameters
-    cluster_rows = TRUE,
-    row_title = row_title,
-    row_title_gp = grid::gpar(fontsize = 12),
-    row_title_side = "left",
-    row_names_side = "left",
-    row_dend_side = "right",
-    row_names_gp = grid::gpar(fontsize = 10),
-    ## Column parameters
-    cluster_columns = TRUE,
-    show_column_names = FALSE,
-    bottom_annotation = annotation,
-    heatmap_legend_param = list(
-      title = legend_title
-    )
-  )
-  
-  return(heatmap)
-}
-
-# create a heatmap where rows are cells and columns are chromosomes 
-# this function adds a row annotation since cells are rows 
-plot_cnv_heatmap <- function(df,
-                             cnv_col, 
-                             annotation = NULL,
-                             legend_title = ""){
-  
-  # barcode by chromosome df 
-  cnv_df <- df |> 
-    dplyr::select(barcodes, starts_with(cnv_col)) |> 
-    unique() |> 
-    tibble::column_to_rownames("barcodes")
-  
-  # just get the name of the chromosome as column name 
-  colnames(cnv_df) <- stringr::word(colnames(cnv_df), -1, sep = "_")
-  
-  # do a little bit of column reordering before converting to a matrix
-  cnv_df <- cnv_df |> 
-    dplyr::relocate(chr10, .before = chr11) |> 
-    dplyr::relocate(chr19, .before = chr20) |> 
-    dplyr::relocate(chr21, .before = chr22) |> 
-    as.matrix()
-  
-  heatmap <- ComplexHeatmap::Heatmap(
-    cnv_df,
-    col = circlize::colorRamp2(seq(min(cnv_df), max(cnv_df), length = 2), colors = c("white", "#00274C")),
-    border = TRUE,
-    ## Row parameters
-    cluster_rows = TRUE,
-    row_title = "",
-    row_title_gp = grid::gpar(fontsize = 12),
-    row_title_side = "left",
-    show_row_names = FALSE,
-    row_dend_side = "right",
-    row_names_gp = grid::gpar(fontsize = 10),
-    ## Column parameters
-    cluster_columns = FALSE,
-    show_column_names = TRUE,
-    right_annotation = annotation,
-    heatmap_legend_param = list(
-      title = legend_title
-    )
-  )
-  return(heatmap)
-}
-
+# generate marker genes df
+plot_markers_df <- create_marker_gene_df(
+  classification_df, 
+  marker_genes_file
+)
 ```
 
 ## Identify tumor cell population 
@@ -334,18 +198,7 @@ Just a note that the `marker_gene_classification` is a circular since these same
 
 ```{r}
 # calculate sum of the scaled gene expression values for plotting 
-marker_density_df <- classification_df |> 
-  dplyr::select(barcodes, gene_symbol, gene_expression, copykat_classification, cnv_proportion_classification, marker_gene_classification, combined_cnv_classification) |> 
-  unique() |> 
-  dplyr::group_by(gene_symbol) |>
-  # get z-scores for each gene
-  dplyr::mutate(transformed_gene_expression = scale(gene_expression)[, 1]) |> 
-  dplyr::ungroup() |> 
-  dplyr::group_by(barcodes) |> 
-  # add all the scores together 
-  dplyr::mutate(sum_exp = sum(transformed_gene_expression)) |>
-  # expand classifications column for easy faceting 
-  dplyr::ungroup() |> 
+marker_density_df <- plot_markers_df |> 
   tidyr::pivot_longer(
     cols = ends_with("classification"),
     names_to = "method",
@@ -375,7 +228,7 @@ Here the rows are the marker genes and the columns are the cells with the color 
 
 ```{r}
 # create matrix with marker genes as rows and barcodes as columns
-marker_gene_heatmap <- classification_df |> 
+marker_gene_heatmap <- plot_markers_df |> 
   dplyr::select(gene_expression, gene_symbol, barcodes) |> 
   tidyr::pivot_wider(values_from = gene_expression, 
                      names_from = barcodes) |> 
@@ -406,7 +259,7 @@ The "Ambiguous" cells appear to have a small group of cells that cluster with th
 
 ### Gene set scores
 
-Next, we will look at the gene set scores for three different EWS-FLI1 gene sets. 
+Next, we will look at the gene set scores for three different `EWS-FLI1` gene sets. heirarchical
 The below plots will all use the `mean-GENESET` columns. 
 
 First we will just look at the gene set scores for each cell on the UMAP. 
@@ -414,7 +267,7 @@ First we will just look at the gene set scores for each cell on the UMAP.
 ```{r}
 # plot tumor cells for each classification method 
 geneset_plot_df <- classification_df |> 
-  dplyr::select(barcodes, UMAP1, UMAP2, ends_with("classification"), starts_with("mean")) |> 
+  dplyr::select(barcodes, UMAP1, UMAP2, ends_with("classification"), starts_with("mean-")) |> 
   tidyr::pivot_longer(
     cols = starts_with("mean"),
     names_to = "geneset",
@@ -508,7 +361,7 @@ plot_cnv_heatmap(classification_df,
 ```
 
 Here we see a gain in Chr8 and Chr1 in tumor cells compared to normal cells. 
-We also see other chromosomes with amplifications in tumor cells compared to normal cells and that the tumor and normal cells are nicely separated in the heirarchical clustering. 
+We also see other chromosomes with amplifications in tumor cells compared to normal cells and that the tumor and normal cells are nicely separated in the hierarchical clustering. 
 
 Below we make the same plot but with only the losses or deletions. 
 
@@ -546,7 +399,7 @@ We will export these labels to the final annotations file for later use.
 
 ```{r}
 # export final TSV with annotations 
-final_classifications <- new_classification_df |> 
+final_classifications <- classification_df |> 
   dplyr::select(
     cell_barcode = barcodes,
     tumor_cell_classification = combined_cnv_classification
