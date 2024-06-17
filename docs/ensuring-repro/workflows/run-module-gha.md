@@ -11,7 +11,7 @@ Module testing GHAs are automatically run under these two circumstances:
     - This GHA will need to pass without errors for [pull requests](../../contributing-to-analyses/pr-review-and-merge/index.md) to be approved
 - All modules are periodically run on a schedule to ensure they continue to pass tests as OpenScPCA grows
 
-To make GHAs run efficiently, we strongly encourage and generally require, when appliable, that GHAs run the module code using the [simulated test data](../../getting-started/accessing-resources/getting-access-to-data.md#accessing-test-data).
+To make GHAs run efficiently, we strongly encourage and generally require, when applicable, that GHAs run the module code using the [simulated test data](../../getting-started/accessing-resources/getting-access-to-data.md#accessing-test-data).
 This means that it's important to write your module code with sufficient flexibility to allow for test data to be used.
 For example, when reading input data into scripts, you should use arguments for input data files, allowing for test data paths to be used in these module testing GHAs.
 
