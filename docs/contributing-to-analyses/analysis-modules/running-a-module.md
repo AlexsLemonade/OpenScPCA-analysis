@@ -2,7 +2,7 @@
 
 All modules should contain [clear documentation in the `README.md` file](documenting-analysis.md) about how to run them, including:
 
-- Information about [software](./module-dependencies.md) and [compute](./compute-requirements.md) requirements
+- Information about [software dependencies](./module-dependencies.md) and [compute requirements](./compute-requirements.md)
 - What command(s) to issue to run the full module
 
 !!! note
