@@ -57,7 +57,7 @@ result_dir <- file.path(module_base, "results", "benchmark-results")
 plot_pca_calls <- function(df, 
                            color_column, 
                            pred_column,
-                           color_lab) {
+                           title) {
   # Plot PCs colored by singlet/doublet, showing doublets on top
   # df is expected to contain columns PC1, PC2, `color_column`, and `pred_column`. These should _not_ be provided as strings
   ggplot(df) + 
@@ -68,12 +68,13 @@ plot_pca_calls <- function(df,
     size = 0.75, 
     alpha = 0.6
   ) +
-  scale_color_manual(name = color_lab, values = c("black", "lightblue")) + 
+  scale_color_manual(name = "", values = c("black", "gray80")) + 
   geom_point(
     data = dplyr::filter(df, {{color_column}} == "doublet"), 
     color = "black",
     size = 0.75
   ) +
+  ggtitle(title) +
   theme(
     legend.title.position = "top",
     legend.position = "bottom"
@@ -233,8 +234,10 @@ upset_list <- doublet_df_list |>
 This section visualizes and evaluates the consensus doublet calls across each dataset.
 
 
-
 ### PCA
+
+MORE MORE MORE MORE MORE FILL IN THIS TEXT!!!
+
 
 This section plots the PCA for each dataset, with three color schemes from left to right:
 
@@ -249,29 +252,51 @@ doublet_df_list |>
   purrr::iwalk(
     \(df, dataset) {
       
-      # First, ground truth
+      # Top row: methods themselves ---
       p1 <- plot_pca_calls(
         df, 
+        color_column = scdbl_prediction, 
+        title = "scDblFinder prediction"
+      )
+      
+      p2 <- plot_pca_calls(
+        df, 
+        color_column = scrublet_prediction, 
+        title = "scrublet prediction"
+      )
+                
+      p3 <- plot_pca_calls(
+        df, 
+        color_column = cxds_prediction, 
+        color_lab = "cxds prediction"
+      )
+      
+      # Bottom row: consensus  --
+      p4 <- plot_pca_calls(
+        df, 
         color_column = ground_truth, 
-        color_lab = "Ground truth"
+        title = "Ground truth"
       )
       
       # Second, consensus call
-      p2 <- plot_pca_calls(
+      p5 <- plot_pca_calls(
         df, 
         color_column = consensus_call, 
-        color_lab = "Consensus call"
+        title = "Consensus call"
       )
       
       # Third, call type
-      p3 <- plot_pca_metrics(
+      p6 <- plot_pca_metrics(
         df,
         call_type, 
         metric_colors = confusion_colors
       )
 
       # combine and plot
-      plot( p1 + p2 + p3 + plot_annotation(glue::glue("PCA for {dataset}")) + plot_layout(ncol=4, widths = c(1,1,1)) )
+      plot( 
+        (p1 + p2 + p3) / (p4 + p5 + p6) + 
+          plot_annotation(glue::glue("PCA for {dataset}")) + 
+          plot_layout(guides = "collect"))
     }
   )
 ```
@@ -332,6 +357,7 @@ Consistent with that observation, it has the highest `kappa` value here, althoug
 ```{r}
 metric_df
 ```
+
 
 ## Session Info
 
