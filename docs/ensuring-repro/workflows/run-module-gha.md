@@ -14,7 +14,7 @@ Module testing GHAs are automatically run in two circumstances:
 
 To make GHAs run efficiently, the tests should run the module code with the [simulated test data](../../getting-started/accessing-resources/getting-access-to-data.md#accessing-test-data).
 This means that it's important to write your module code with sufficient flexibility to allow for test data to be used.
-For example, when reading input data into scripts, you should use arguments for input data files, allowing for test data paths to be used in these module testing GHAs.
+You should read in files from the `data/current` directory, which will be automatically directed to test data during GHA test runs. 
 
 For examples of existing analysis module GHAs, see the example Python and R module GHAs, [`run_hello-python.yml`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/.github/workflows/run_hello-python.yml) and [`run_hello-R.yml`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/.github/workflows/run_hello-R.yml), respectively.
 
