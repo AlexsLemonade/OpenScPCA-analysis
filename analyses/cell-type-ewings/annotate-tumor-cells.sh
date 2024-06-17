@@ -6,8 +6,10 @@ This workflow will identify tumor cells in a single library.
 Tumor cell annotations are obtained by:
 
 - manually identifying cells that express marker genes
+- Calculating gene set scores for three EWS-FLI1 target gene sets
 - Running CellAssign with a list of tumor marker genes
 - Running CopyKAT to identify aneuploid cells
+- Running InverCNV to identify potential tumor cells (those with a high proportion of CNVs)
 
 Before running this workflow, you must download both the processed `SingleCellExperiment` objects and `AnnData` objects with `download-data.py`.
 Do this for any samples you would like to run through this workflow.
@@ -122,6 +124,13 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
                         reference_cell_file = '$reference_cell_file'), \
           envir = new.env()) \
     "
+
+    # Calculate gene set scores ------------------------------------------
+
+    echo "Calculating gene set scores..."
+    Rscript $scripts_dir/calculate-gene-set-scores.R \
+      --sce_file "$sce" \
+      --results_dir "$sample_results_dir"
 
     # CellAssign ---------------------------------------------------------
     # define output predictions files

@@ -9,12 +9,17 @@ Currently, we use a variety of methods to annotate tumor cells independently:
 
 - Identify cells that express high levels of tumor marker genes.
 The full list of marker genes can be found in `references/tumor-marker-genes.tsv`.
+- Calculate gene set scores for the following gene sets.
+The sum, z-scaled sum, mean, and z-scaled mean for each gene set is calculated:
+  - [ZHANG_TARGETS_OF_EWSR1_FLI1_FUSION](https://www.gsea-msigdb.org/gsea/msigdb/human/geneset/ZHANG_TARGETS_OF_EWSR1_FLI1_FUSION.html)
+  - [RIGGI_EWING_SARCOMA_PROGENITOR_UP](https://www.gsea-msigdb.org/gsea/msigdb/human/geneset/RIGGI_EWING_SARCOMA_PROGENITOR_UP.html?ex=1)
+  - [SILIGAN_TARGETS_OF_EWS_FLI1_FUSION_DN](https://www.gsea-msigdb.org/gsea/msigdb/cards/SILIGAN_TARGETS_OF_EWS_FLI1_FUSION_DN)
 - Use the list of tumor marker genes to classify tumor cells with [`CellAssign`](https://docs.scvi-tools.org/en/stable/user_guide/models/cellassign.html).
 - Identify copy number variations and annotate tumor cells using [`CopyKAT`](https://github.com/navinlabcode/copykat).
 - Identify copy number variations using [`InferCNV`](https://github.com/broadinstitute/inferCNV/wiki).
 This returns a proportion of each chromosome with a CNV detected.
-We then calculate the mean proportion for each cell across all chromosomes and weight by the number of genes in a chromosome.
-Cells with a mean proportion > 0.1 are called as tumor cells.
+We then calculate the genomic CNV proportion for each cell across all chromosomes, weighted by the number of genes in a chromosome.
+Cells with a genomic CNV proportion greater than the mean  CNV proportion across all cells are called as tumor cells.
 
 ## Sample metadata
 
@@ -89,6 +94,7 @@ annotate_tumor_cells_output
     ├── <library_id>_infercnv-report.html
     ├── <library_id>_marker-gene-report.html
     ├── <library_id>_tumor-normal-classifications.tsv
+    ├── <library_id>_gene-set-scores.tsv
     ├── annotations
     │   └── <library_id>_reference-cells.tsv
     ├── cellassign
@@ -109,8 +115,9 @@ annotate_tumor_cells_output
 ```
 
 All `.html` files are rendered reports summarizing use of each method (indicated in the filename) to classify tumor cells.
-All `classifications.tsv` file contain the final annotation as reported by each method.
-The `annotations` folder contains the reference table indicating which cells were used as "normal" or "tumor" cells in various analysis.
+All `classifications.tsv` files contain the final annotation as reported by each method.
+The `gene-set-scores.tsv` file contains the scores (mean and sum) for all genes in three different EWS-FLI1 target gene sets.
+The `annotations` folder contains the reference table indicating which cells were used as "normal" or "tumor" cells in various anlaysis.
 See [below](#annotation-files) for more information on this table.
 
 ### Annotation files
@@ -125,6 +132,11 @@ This table will be saved in `references/cell_lists/<sample_id>/<library_id>_refe
 | `reference_cell_class` | Indicates if the cell should be uses as a Normal or Tumor cell reference |
 | `cellassign_celltype_annotation` | Original annotation as obtained by `CellAssign` in the processed `SingleCellExperiment` object |
 | `singler_celltype_annotation` | Original annotation as obtained by `SingleR` in the processed `SingleCellExperiment` object |
+
+## Cell type annotations
+
+The `cell_type_annotations` folder contains the TSV files with final annotations for each sample in `SCPCP000015`.
+For more information on how these were generated, see the [README.md](./cell_type_annotations/README.md).
 
 ## Software requirements
 
