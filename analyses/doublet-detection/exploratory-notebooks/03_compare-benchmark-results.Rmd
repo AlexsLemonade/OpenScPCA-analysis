@@ -350,6 +350,8 @@ Further, the consensus doublets called by all three methods have some, but not s
 For three out of four datasets, `scDblFinder` predicts a much larger number of doublets compared to other methods. 
 For `pdx-MULTI`, however, `cxds` predicts a much larger number of droplets.
 
+Based on the PCAs, it additionally looks like there are many more false negatives in the consensus prediction that `cxds` appears to capture but other methods do not.
+
 The table below summarizes performance of the "consensus caller". 
 Note that, in the [benchmarking paper these datasets were originally analyzed in](https://doi.org/10.1016/j.cels.2020.11.008), `hm-6k` was observed to be one of the "easiest" datasets to classify across methods.  
 Consistent with that observation, it has the highest `kappa` value here, although it is still fairly low - though not as low as the other methods, which are very close to 0. 
