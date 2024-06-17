@@ -20,7 +20,7 @@ There are several items to bear in mind when interpreting these results:
 - The ground truth calls themselves to which we are comparing consensus calls may not be entirely accurate, since they were also computationally identified generally with demultiplexing algorithms. 
 - `cxds`, as we are using it, does not have a specific threshold for calling droplets. 
 By contrast, both `scrublet` and `scDblFinder` identify a threshold based on the given dataset they are processing. 
-This notebook used a doublet threshold of `>=0.75` for `cxds`, which may not be universally suitable (though choosing a universally suitable threshold is not easy either!).
+This notebook used a doublet threshold of `>=0.5` for `cxds`, which may not be universally suitable (though choosing a universally suitable threshold is not easy either!).
 
 ## Setup
 
@@ -37,6 +37,9 @@ suppressPackageStartupMessages({
 })
 
 theme_set(theme_bw())
+
+# define threshold used to call cxds
+cxds_threshold <- 0.5
 ```
 
 ### Paths
@@ -77,9 +80,9 @@ plot_pca_calls <- function(df,
   )
 }
 
-plot_pca_metrics <- function(df, color_column, false_colors) {
+plot_pca_metrics <- function(df, color_column, metric_colors) {
   # Plot PCs colored by performance metric, showing false calls on top
-  # false_colors is a vector of colors used for fn and fp points
+  # metric_colors is a named vector of colors used for coloring tp/tn/fp/fn
   # df is expected to contain columns PC1, PC2, and `color_column`. This should _not_ be provided as a string.
   ggplot(df) + 
     aes(x = PC1, 
@@ -90,11 +93,11 @@ plot_pca_metrics <- function(df, color_column, false_colors) {
     alpha = 0.6
   ) + 
   geom_point(
-    data = dplyr::filter(df, {{color_column}} %in% false_colors), 
+    data = dplyr::filter(df, {{color_column}} %in% c("fp", "fn")), 
     size = 0.75
   ) +
-  scale_color_identity() +
-  theme(legend.position = "none")
+  scale_color_manual(name = "Call type", values = metric_colors) +
+  theme(legend.position = "bottom")
 }
 ```
 
@@ -139,10 +142,10 @@ doublet_df_list <- dataset_names |>
           scdbl_score = score, 
           scdbl_prediction  = class
         ) |>
-        # add cxds calls at 0.75 threshold
+        # add cxds calls at `cxds_threshold` threshold
         dplyr::mutate(
           cxds_prediction = dplyr::if_else(
-            cxds_score >= 0.75,
+            cxds_score >= cxds_threshold,
             "doublet",
             "singlet"
           )
@@ -152,7 +155,7 @@ doublet_df_list <- dataset_names |>
 
       # grab ground truth and PCA coordinates
       sce <- readr::read_rds(sce_file)
-      sce_df <- scuttle::makePerCellDF(sce, use.dimred = "PCA") |>
+      dataset_df <- scuttle::makePerCellDF(sce, use.dimred = "PCA") |>
         tibble::rownames_to_column(var = "barcodes") |>
         dplyr::select(barcodes,
                       ground_truth = ground_truth_doublets, 
@@ -183,15 +186,8 @@ doublet_df_list <- dataset_names |>
             consensus_call == "singlet" && ground_truth == "singlet" ~ "tn",
             consensus_call == "doublet" && ground_truth == "singlet" ~ "fp",
             consensus_call == "singlet" && ground_truth == "doublet" ~ "fn"
-          ), 
-          # set associated plotting colors
-          call_type_color = dplyr::case_when(
-            call_type == "tp" ~ unname(confusion_colors["tp"]),
-            call_type == "tn" ~ unname(confusion_colors["tn"]),
-            call_type == "fp" ~ unname(confusion_colors["fp"]),
-            call_type == "fn" ~ unname(confusion_colors["fn"])
           )
-          )
+        )
       
       return(dataset_df)
     }
@@ -254,15 +250,6 @@ This section plots the PCA for each dataset, with three color schemes from left 
 
 
 ```{r, fig.width = 12, fig.height = 6}
-# Make a legend for the confusion-colored PCA
-legend_plot <- data.frame(
-  x = factor(names(confusion_colors), levels = names(confusion_colors)), y = 1:4
-) |>
- ggplot(aes(x = x, y = y, color = x)) + 
-  geom_point(size = 3) + 
-  scale_color_manual(name = "Metric", values = confusion_colors) 
-confusion_legend <- ggpubr::get_legend(legend_plot) |> ggpubr::as_ggplot()
-
 doublet_df_list |>
   purrr::iwalk(
     \(df, dataset) {
@@ -284,12 +271,12 @@ doublet_df_list |>
       # Third, call type
       p3 <- plot_pca_metrics(
         df,
-        call_type_color,
-        false_colors = unname(c(confusion_colors["fn"], confusion_colors["fp"]))
+        call_type, 
+        metric_colors = confusion_colors
       )
 
       # combine and plot
-      plot( p1 + p2 + p3 + confusion_legend + plot_annotation(glue::glue("PCA for {dataset}")) + plot_layout(ncol=4, widths = c(1,1,1,0.25)) )
+      plot( p1 + p2 + p3 + plot_annotation(glue::glue("PCA for {dataset}")) + plot_layout(ncol=4, widths = c(1,1,1)) )
     }
   )
 ```
