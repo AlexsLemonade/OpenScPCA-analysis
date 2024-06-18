@@ -1,6 +1,6 @@
 # Automated Dockerfile building
 
-We use [GitHub Actions](https://docs.github.com/en/actions) (GHAs) to build Dockerfiles and push images to [Amazon ECR](https://aws.amazon.com/ecr/), a registry of containers such as Docker images.
+We use [GitHub Actions](https://docs.github.com/en/actions) (GHAs) to build Dockerfiles and push images to [Amazon ECR](https://aws.amazon.com/ecr/), a registry of pre-built Docker images.
 
 Docker building GHAs are automatically run in two circumstances:
 
@@ -8,15 +8,16 @@ Docker building GHAs are automatically run in two circumstances:
 - When new `OpenScPCA-analysis` releases are made
 
 
-These pushed images are used in a variety of ways:
+These Docker images are used in a variety of ways:
 
+- [Module testing GHAs](./run-module-gha.md) may pull the module-specific Docker image to run the module code in the pre-build image environmen
 - The `OpenScPCA-nf` workflow pulls module-specific Docker images to reproducibly run modules and generate results <!-- STUB_LINK openscpca-nf -->
-- [Module testing GHAs](./run-module-gha.md) will, as the given analysis module matures, pull the Docker-specific Docker image to create the environment used in the workflow
+
 - OpenScPCA contributors, as well as the wider research community, can freely pull module-specific images to reproducibly run OpenScPCA analysis modules, for example to locally run analysis modules or to develop within a Docker container
 
 For examples of existing Docker building GHAs, see the example `simulate-sce` GHA [`docker_simulate-sce.yml`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/.github/workflows/docker_simulate-sce.yml).
 
-All images pushed to ECR will be available from: `public.ecr.aws/openscpca/{module-name}:latest`.
+All images pushed to ECR will be available from the [Amazon ECR Public Gallery](https://gallery.ecr.aws/openscpca) with docker tags of the form `public.ecr.aws/openscpca/{module-name}:latest`.
 For more information about pulling Docker images from ECR and using them locally, please see our documentation on using Docker images. <!-- STUB_LINK using images. -->
 
 

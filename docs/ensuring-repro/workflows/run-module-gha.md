@@ -30,7 +30,7 @@ This way, the module testing GHA can directly call this script to execute the en
 
 When you [create a new module](../../contributing-to-analyses/analysis-modules/creating-a-module.md), a module testing GHA workflow file is created in the file `.github/workflows/run_{module-name}.yml`.
 This initial file is inactive, meaning it will not run automatically run on the two aforementioned triggers.
-As analysis module matures over time, the Data Lab staff will activate this GHA file so the module can be regularly tested.
+As an analysis module matures over time, the Data Lab staff will activate this GHA file so the module can be regularly tested.
 
 ### GHA steps
 
