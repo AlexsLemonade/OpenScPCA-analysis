@@ -6,24 +6,24 @@ concurrency:
   cancel-in-progress: true
 
 on:
-#  pull_request:
-#    branches:
-#      - main
-#    paths:
-#      - analyses/doublet-detection/Dockerfile
-#      - analyses/doublet-detection/.dockerignore
-#      - analyses/doublet-detection/renv.lock
-#      - analyses/doublet-detection/conda-lock.yml
-#  push:
-#    tags:
-#      - "v*.*.*"
-#    branches:
-#      - main
-#    paths:
-#      - analyses/doublet-detection/Dockerfile
-#      - analyses/doublet-detection/.dockerignore
-#      - analyses/doublet-detection/renv.lock
-#      - analyses/doublet-detection/conda-lock.yml
+   pull_request:
+     branches:
+       - main
+     paths:
+       - analyses/doublet-detection/Dockerfile
+       - analyses/doublet-detection/.dockerignore
+       - analyses/doublet-detection/renv.lock
+       - analyses/doublet-detection/conda-lock.yml
+   push:
+     tags:
+       - "v*.*.*"
+     branches:
+       - main
+     paths:
+       - analyses/doublet-detection/Dockerfile
+       - analyses/doublet-detection/.dockerignore
+       - analyses/doublet-detection/renv.lock
+       - analyses/doublet-detection/conda-lock.yml
   workflow_dispatch:
     inputs:
       push-ecr:
