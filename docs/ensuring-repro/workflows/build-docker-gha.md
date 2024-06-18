@@ -14,7 +14,7 @@ After they have been pushed, the Docker images are used in a variety of ways:
 
 - [Module testing GHAs](./run-module-gha.md) may pull the module-specific Docker image to run the module code in the pre-build image environment
 - The `OpenScPCA-nf` workflow pulls module-specific Docker images to reproducibly run modules and generate results <!-- STUB_LINK openscpca-nf -->
-- OpenScPCA contributors, as well as the wider research community, can freely pull module-specific images to reproducibly run OpenScPCA analysis modules, for example to locally run analysis modules or to develop within a Docker container
+- OpenScPCA contributors, as well as the wider research community, can freely pull module-specific images to reproducibly run OpenScPCA analysis modules, for example to locally run analysis modules
 
 All images pushed to ECR will be available from the [Amazon ECR Public Gallery](https://gallery.ecr.aws/openscpca) with docker tags of the form `public.ecr.aws/openscpca/{module-name}:latest`.
 For more information about pulling Docker images from ECR and using them locally, please see our documentation on using Docker images. <!-- STUB_LINK using images. -->
@@ -28,4 +28,4 @@ For more information about pulling Docker images from ECR and using them locally
 
 When you [create a new module](../../contributing-to-analyses/analysis-modules/creating-a-module.md), a Docker building GHA workflow file is created in the file `.github/workflows/docker_{module-name}.yml`.
 This initial file is inactive, meaning it will not run automatically run on the two aforementioned triggers.
-As analysis module matures over time, the Data Lab staff will activate this GHA file so the Docker image can be built and pushed to the Amazon ECR registry for general use.
+Once a [Dockerfile with module dependencies has been added to a given analysis module](../docker/docker-images.md#analysis-module-dockerfiles), the Data Lab staff will activate this GHA file so the Docker image can be built and pushed to the Amazon ECR registry for general use.
