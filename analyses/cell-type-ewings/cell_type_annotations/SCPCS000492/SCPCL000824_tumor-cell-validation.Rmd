@@ -305,8 +305,8 @@ annotation_df <- classification_df |>
 # include both infercnv and copykat annotations in the cnv heatmap 
 annotation <- ComplexHeatmap::rowAnnotation(infercnv = annotation_df$cnv_proportion_classification,
                                             copykat = annotation_df$copykat_classification,
-                                            col = list(infercnv = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey"),
-                                                       copykat = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey")))
+                                            col = list(infercnv = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Reference" = "grey"),
+                                                       copykat = c("Tumor" = "#00274C", "Normal" = "#FFCB05")))
 
 # plot gains in cnv
 plot_cnv_heatmap(classification_df,
