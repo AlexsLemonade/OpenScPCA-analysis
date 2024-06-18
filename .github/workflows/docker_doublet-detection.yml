@@ -15,8 +15,6 @@ on:
       - analyses/doublet-detection/renv.lock
       - analyses/doublet-detection/conda-lock.yml
   push:
-    tags:
-      - "v*.*.*"
     branches:
       - main
     paths:
@@ -30,11 +28,6 @@ on:
         description: "Push to AWS ECR"
         type: boolean
         required: false
-  workflow_call:
-    inputs:
-      push-ecr:
-        description: "Push to AWS ECR"
-        type: boolean
 
 jobs:
   test-build:
