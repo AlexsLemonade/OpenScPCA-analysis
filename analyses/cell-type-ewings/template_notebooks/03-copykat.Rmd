@@ -86,7 +86,7 @@ png_list <- c(
 )
 
 # output classifications file 
-copykat_results_file <- file.path(params$results_dir, params$sample_id, glue::glue("{params$library_id}_copykat-classifications.tsv"))
+copykat_results_file <- file.path(params$results_dir, glue::glue("{params$library_id}_copykat-classifications.tsv"))
 ```
 
 
