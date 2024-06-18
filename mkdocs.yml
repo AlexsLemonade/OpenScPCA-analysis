@@ -136,6 +136,7 @@ nav:
     - OpenScPCA workflows:
       - ensuring-repro/workflows/index.md
       - ensuring-repro/workflows/run-module-gha.md
+      - ensuring-repro/workflows/build-docker-gha.md
     - Managing module software:
       - ensuring-repro/managing-software/index.md
       - ensuring-repro/managing-software/using-renv.md
