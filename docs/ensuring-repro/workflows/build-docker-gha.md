@@ -10,7 +10,7 @@ Docker building GHAs are automatically run in two circumstances:
 
 These pushed images are used in a variety of ways:
 
-- The `OpenScPCA-nf` workflow pulls module-specific Docker images to reprodubibly run modules and generate results <!-- STUB_LINK openscpca-nf -->
+- The `OpenScPCA-nf` workflow pulls module-specific Docker images to reproducibly run modules and generate results <!-- STUB_LINK openscpca-nf -->
 - [Module testing GHAs](./run-module-gha.md) will, as the given analysis module matures, pull the Docker-specific Docker image to create the environment used in the workflow
 - OpenScPCA contributors, as well as the wider research community, can freely pull module-specific images to reproducibly run OpenScPCA analysis modules, for example to locally run analysis modules or to develop within a Docker container
 
