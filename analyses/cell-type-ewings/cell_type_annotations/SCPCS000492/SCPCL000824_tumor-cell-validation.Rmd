@@ -1,11 +1,12 @@
 ---
-title: "SCPCL000824 - Validation of tumor cells"
+title: "`SCPCL000824` - Validation of tumor cells"
 author: Ally Hawkins
 date: "`r Sys.Date()`"
 output:
   html_document:
     toc: true
     toc_depth: 3
+    code_folding: hide
 ---
 
 ## Introduction
@@ -13,11 +14,8 @@ output:
 In this notebook we compare tumor cell annotations obtained from marker genes, `CopyKAT`, and `InferCNV` to identify a group of tumor cells we are confident in. 
 
 - First we look at the cells that are annotated as tumor cells by each method. 
-Using this information, we call any cell that is annotated as a tumor cell by both `CopyKAT` and `InferCNV` as a tumor cell. 
-- We then validate that these are in fact tumor cells by doing the following: 
-  - Looking at marker gene expression. 
-  - Looking at expression of EWS-FLI1 target gene sets. 
-  - Confirming presence of known CNVs in Ewing sarcoma
+- For each classification method we look at the expression of marker genes and gene set scores. 
+- We then use the marker gene expression and gene set scores to classify cells as tumor, normal, or ambiguous. 
 
 ## Setup
 
@@ -78,11 +76,19 @@ geneset_scores_file <- file.path(results_dir, "SCPCL000824_gene-set-scores.tsv")
 final_annotations_dir <- file.path(module_base, "cell_type_annotations", "SCPCS000492")
 fs::dir_create(final_annotations_dir)
 final_annotations_file <- file.path(final_annotations_dir, "SCPCL000824_tumor-classifications.tsv")
+
+# reference files to use with SingleR
+ref_sce_file <- file.path(data_dir, "SCPCP000015", "SCPCS000490", "SCPCL000822_processed.rds")
+ref_labels_file <- file.path(module_base, "cell_type_annotations", "SCPCS000490", "SCPCL000822_tumor-classifications.tsv")
 ```
 
 ```{r}
 # read in sce file 
 sce <- readr::read_rds(sce_file)
+
+# read in ref sce and ref annotations for SingleR later 
+ref_sce <- readr::read_rds(ref_sce_file)
+ref_labels_df <- readr::read_tsv(ref_labels_file)
 ```
 
 ```{r}
@@ -94,19 +100,20 @@ classification_df <- create_classification_df(
   infercnv_predictions_file,
   infercnv_metadata_file,
   geneset_scores_file
-)
+) |> 
+  # remove extra infercnv classification column we won't use 
+  dplyr::select(- cnv_sum_classification)
 ```
 
 
-
-## Identify tumor cell population 
+## Evaluate tumor cell classifications 
 
 Below is a UMAP showing which cells are labeled as tumor cells using each of the various classification methods. 
 
 ```{r}
 # plot tumor cells for each classification method 
 tumor_umap_df <- classification_df |> 
-  dplyr::select(barcodes, UMAP1, UMAP2, marker_gene_classification, copykat_classification, cnv_proportion_classification) |> 
+  dplyr::select(barcodes, UMAP1, UMAP2, ends_with("classification")) |> 
   tidyr::pivot_longer(
     cols = ends_with("classification"),
     names_to = "method",
@@ -125,48 +132,16 @@ ggplot(tumor_umap_df, aes(x = UMAP1, UMAP2, color = classification)) +
   facet_wrap(vars(method))
 ```
 
-```{r}
-# plot tumor cells for each classification method 
-geneset_plot_df <- classification_df |> 
-  dplyr::select(barcodes, UMAP1, UMAP2, ends_with("classification"), starts_with("scaled_mean")) |> 
-  tidyr::pivot_longer(
-    cols = starts_with("scaled_mean"),
-    names_to = "geneset",
-    values_to = "mean_score"
-  ) |> 
-  dplyr::mutate(
-    geneset = stringr::word(geneset, -1, sep = "-")
-  )
+It looks like we don't have a lot of agreement between the marker gene based classification and copy number inference classification. 
+Let's compare how many cells are overlapping between each CNV method and marker gene classifications using the Jaccard index. 
 
-ggplot(geneset_plot_df, aes(x = UMAP1, UMAP2, color = mean_score)) +
-  geom_point(size = 0.5, alpha = 0.5) +
-  facet_wrap(vars(geneset)) +
-  scale_color_viridis_c()
-```
-
-Add geneset classification 
-
-```{r}
-# any cell that has > 0 expression of at least one geneset 
-classification_df <- classification_df |>
-  dplyr::mutate(
-    geneset_classification = dplyr::if_else(
-      `scaled_mean-RIGGI` > 0 & `scaled_mean-ZHANG` > 0 & `scaled_mean-SILIGAN` > 0,
-      "Tumor",
-      "Normal"
-    ))
-```
-
-
-Compare gene set classification to marker gene classification 
 ```{r}
 classification_columns <- c(
   "copykat_classification",
-  "cnv_proportion_classification",
-  "geneset_classification"
+  "cnv_proportion_classification"
 )
 
-# create jaccard matrices for SingleR and CellAssign compared to tumor/normal 
+# create jaccard matrices for copykat and infercnv comparison to marker gene  
 jaccard_matrices <- classification_columns |>
   purrr::map(\(name) {
     make_jaccard_matrix(
@@ -175,7 +150,7 @@ jaccard_matrices <- classification_columns |>
       name
     )
   }) |> 
-  purrr::set_names("CopyKAT", "InferCNV", "Gene set")
+  purrr::set_names("CopyKAT", "InferCNV")
 ```
 
 ```{r}
@@ -183,7 +158,7 @@ jaccard_matrices <- classification_columns |>
 heatmap_padding <- 0.2
 ComplexHeatmap::ht_opt(TITLE_PADDING = grid::unit(heatmap_padding, "in"))
 
-# list of heatmaps looking at SingleR/ CellAssign vs tumor/normal 
+# list of heatmaps looking at each cnv method vs marker genes 
 heatmap <- jaccard_matrices |>
   purrr::imap(
     \(classification_mat, classification_method) {
@@ -223,39 +198,11 @@ heatmap <- jaccard_matrices |>
     padding = unit(c(2, 20, 2, 2), "mm")
   )
 ```
+As expected based on the UMAPs, there is not a lot of consensus between the CNV methods and marker gene based method. 
 
-Add in classifications for geneset vs. CNV 
+### Marker gene and gene set expression
 
-```{r}
-classification_df <- classification_df |>
-  dplyr::mutate(
-    exp_classification = dplyr::case_when(
-      marker_gene_classification == "Normal" & geneset_classification == "Normal" ~ "Normal",
-      marker_gene_classification == "Tumor" & geneset_classification == "Tumor" ~ "Tumor",
-      .default = "Ambiguous"
-    ), 
-    all_cnv_classification = dplyr::case_when(
-      copykat_classification == "Normal" & cnv_proportion_classification == "Normal" ~ "Normal",
-      copykat_classification == "Normal" & cnv_proportion_classification == "Reference"~ "Normal",
-      copykat_classification == "Tumor" & cnv_proportion_classification == "Tumor" ~ "Tumor",
-      .default = "Ambiguous"
-    )
-  )
-```
-
-
-```{r}
-geneset_plot_df |> 
-  tidyr::pivot_longer(
-    cols = ends_with("classification"),
-    names_to = "method",
-    values_to = "classification"
-  ) |> 
-  ggplot(aes(x = mean_score, color = classification)) +
-  geom_density(bw = 0.05) +
-  facet_grid(rows = vars(method), 
-             cols = vars(geneset))
-```
+We can confirm this by looking at marker gene expression in cells classified as tumor or normal by each method. 
 
 ```{r}
 # generate marker genes df
@@ -264,7 +211,7 @@ plot_markers_df <- create_marker_gene_df(
   marker_genes_file
 )
 
-# calculate sum of the scaled gene expression values for plotting 
+# create a density plot showing the distribution of marker gene expression across classification methods 
 marker_density_df <- plot_markers_df |>
   tidyr::pivot_longer(
     cols = ends_with("classification"),
@@ -275,10 +222,7 @@ marker_density_df <- plot_markers_df |>
     method = dplyr::case_when(
       method == "marker_gene_classification" ~ "Marker genes only",
       method == "copykat_classification" ~ "CopyKAT - no reference",
-      method == "cnv_proportion_classification" ~ "InferCNV proportion",
-      method == "exp_classification" ~ "Expression combined",
-      method == "all_cnv_classification" ~ "CopyKAT and InferCNV",
-      method == "geneset_classification" ~ "EWS-FLI1 Gene set"
+      method == "cnv_proportion_classification" ~ "InferCNV proportion"
     )
   )
 
@@ -287,24 +231,82 @@ ggplot(marker_density_df, aes(x = sum_exp, color = classification)) +
   facet_wrap(vars(method))
 ```
 
+We see a few things from this plot: 
+
+- As expected given that marker gene expression was used to classify cells using the "Marker genes only" method, we see an increase in marker gene expression in tumor cells. 
+- For `InferCNV`, both tumor and normal cells have higher expression of marker genes than the reference. 
+- For `CopyKAT`, the normal cells appear to have higher expression of marker genes. 
+
+Let's also look at gene set scores and see if we can use those to help us determine which cells are most likely to be tumor cells. 
 
 ```{r}
-ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = geneset_classification)) +
-  geom_point(size = 0.5, alpha = 0.5)
+# plot gene set scores for each cell  
+geneset_plot_df <- classification_df |> 
+  dplyr::select(barcodes, UMAP1, UMAP2, ends_with("classification"), starts_with("scaled_mean")) |> 
+  tidyr::pivot_longer(
+    cols = starts_with("scaled_mean"),
+    names_to = "geneset",
+    values_to = "mean_score"
+  ) |> 
+  dplyr::mutate(
+    geneset = stringr::word(geneset, -1, sep = "-")
+  )
+
+ggplot(geneset_plot_df, aes(x = UMAP1, UMAP2, color = mean_score)) +
+  geom_point(size = 0.5, alpha = 0.5) +
+  facet_wrap(vars(geneset)) +
+  scale_color_viridis_c()
 ```
 
+We do see that the scores across all three genesets seem to be pretty consistent. 
+Cells that have higher scores for `RIGGI`, also have higher scores for `SILIGAN` and `ZHANG`. 
 
+Let's look at how the distribution of gene set scores coordinates with assignments from the CNV and marker gene methods. 
+Below, we color the distribution based on the classification method used. 
 
-CNV heatmap annotated by copykat and marker gene prediction, two annotation columns 
+```{r}
+geneset_plot_df |> 
+  tidyr::pivot_longer(
+    cols = ends_with("classification"),
+    names_to = "method",
+    values_to = "classification"
+  ) |> 
+  dplyr::mutate(
+    method = dplyr::case_when(
+      method == "marker_gene_classification" ~ "Marker genes only",
+      method == "copykat_classification" ~ "CopyKAT - no reference",
+      method == "cnv_proportion_classification" ~ "InferCNV proportion"
+    )) |> 
+  ggplot(aes(x = mean_score, color = classification)) +
+  geom_density(bw = 0.05) +
+  facet_grid(rows = vars(method), 
+             cols = vars(geneset))
+```
+
+We see a few things from this plot: 
+
+- The marker genes classification has the most consistent increase in gene set scores in tumor cells compared to normal cells, although the separation is not super clear it is there. 
+- For the `RIGGI` and `ZHANG` gene sets, the scores are higher in both tumor and normal cells compared to reference cells as classified by `InferCNV`. 
+- For all gene sets, the normal cells have a slightly higher gene set score as classified by `CopyKAT`. 
+
+### CNV results 
+
+I'm inclined to trust the gene set scores and marker genes over the copy number variations here. 
+Before we use those to classify cells over CNV methods, let's look at the CNVs identified per chromosome and see if any expected CNVs appear (gain in Chr1, Chr8, or Chr12 or loss in Chr16).  
+We will look at the CNVs identified by InferCNV by chromosome. 
+
+#### CNV Gains
 
 ```{r}
 annotation_df <- classification_df |> 
   dplyr::select(barcodes, ends_with("classification")) |> 
   unique() 
 
-# need to make a new annotation, since we want to annotate the rows here 
-annotation <- ComplexHeatmap::rowAnnotation(exp_classification = annotation_df$exp_classification,
-                                            all_cnv_classification = annotation_df$all_cnv_classification)
+# include both infercnv and copykat annotations in the cnv heatmap 
+annotation <- ComplexHeatmap::rowAnnotation(infercnv = annotation_df$cnv_proportion_classification,
+                                            copykat = annotation_df$copykat_classification,
+                                            col = list(infercnv = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey"),
+                                                       copykat = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey")))
 
 # plot gains in cnv
 plot_cnv_heatmap(classification_df,
@@ -312,6 +314,8 @@ plot_cnv_heatmap(classification_df,
                  annotation = annotation,
                  legend_title = "Copy number \ngain")
 ```
+
+#### CNV Losses
 
 ```{r}
 # plot gains in cnv
@@ -321,69 +325,291 @@ plot_cnv_heatmap(classification_df,
                  legend_title = "Copy number \nloss")
 ```
 
+Looking at this we don't see quite the same separation of distinct CNV profiles between tumor and normal that we've seen previously with `SCPCL000822`. 
+As far as known CNVs, we don't really see any gains in Chr1 or chr12. 
+There may be a few cells that have a gain in Chr8, but it is not striking. 
 
-Density plot with mean proportion CNV from InferCNV on x-axis, colored by prediction, faceted by classification method 
+Also, the cells being classified as "normal" have more CNVs than I would expect and look very similar to the profiles seen in "tumor" cells here. 
+
+
+## Classifying tumor cells
+
+Given the fact that the marker gene classification and gene set scores tend to line up while copy number information is less clear, let's classify cells using gene expression information (marker genes and gene sets).
+
+First we will classify cells as being tumor or normal for each of the gene sets and compare those annotations to marker gene based annotation. 
+For each gene set we will call tumor cells as cells that have higher than the mean gene set score. 
 
 ```{r}
-classification_df |> 
-  dplyr::select(barcodes, UMAP1, UMAP2, ends_with("classification"), mean_cnv_proportion) |> 
-  tidyr::pivot_longer(
+# get mean value for each gene set score, excluding any NAs
+mean_riggi <- mean(classification_df$`scaled_mean-RIGGI`, na.rm=TRUE)
+mean_zhang <- mean(classification_df$`scaled_mean-ZHANG`, na.rm=TRUE)
+mean_siligan <- mean(classification_df$`scaled_mean-SILIGAN`, na.rm=TRUE)
+
+# add classification for each gene set 
+classification_df <- classification_df |> 
+  dplyr::mutate(riggi_classification = dplyr::if_else(`scaled_mean-RIGGI` > mean_riggi, "Tumor", "Normal"),
+                zhang_classification = dplyr::if_else(`scaled_mean-ZHANG` > mean_zhang, "Tumor", "Normal"),
+                siligan_classification = dplyr::if_else(`scaled_mean-SILIGAN` > mean_siligan, "Tumor", "Normal"))
+```
+
+Now we will compare the annotations from marker genes only to using an entire gene set. 
+
+```{r}
+classification_columns <- c(
+  "riggi_classification",
+  "zhang_classification",
+  "siligan_classification"
+)
+
+# create jaccard matrices for each gene set compared to marker gene 
+jaccard_matrices <- classification_columns |>
+  purrr::map(\(name) {
+    make_jaccard_matrix(
+      classification_df,
+      "marker_gene_classification",
+      name
+    )
+  }) |> 
+  purrr::set_names("riggi", "zhang", "siligan")
+```
+
+```{r}
+# Set heatmap padding option
+heatmap_padding <- 0.2
+ComplexHeatmap::ht_opt(TITLE_PADDING = grid::unit(heatmap_padding, "in"))
+
+# list of heatmaps looking at each gene set classification vs. marker genes 
+heatmap <- jaccard_matrices |>
+  purrr::imap(
+    \(classification_mat, classification_method) {
+      ComplexHeatmap::Heatmap(
+        t(classification_mat), # transpose because matrix rows are in common & we want a vertical arrangement
+        col = circlize::colorRamp2(c(0, 1), colors = c("white", "darkslateblue")),
+        border = TRUE,
+        ## Row parameters
+        cluster_rows = TRUE,
+        row_title = classification_method,
+        row_title_gp = grid::gpar(fontsize = 12),
+        row_title_side = "left",
+        row_names_side = "left",
+        row_dend_side = "right",
+        row_names_gp = grid::gpar(fontsize = 10),
+        ## Column parameters
+        cluster_columns = FALSE,
+        column_title = "Marker genes",
+        column_title_gp = grid::gpar(fontsize = 12),
+        column_names_side = "bottom",
+        column_names_gp = grid::gpar(fontsize = 10),
+        column_names_rot = 90,
+        ## Legend parameters
+        heatmap_legend_param = list(
+          title = "Jaccard index",
+          direction = "vertical",
+          legend_width = unit(1.5, "in")
+        ),
+        show_heatmap_legend = classification_method == "riggi",
+      )
+    }) |>
+  # concatenate vertically into HeatmapList object
+  purrr::reduce(ComplexHeatmap::`%v%`) |>
+  ComplexHeatmap::draw(
+    heatmap_legend_side = "right",
+    # add a margin to the heatmap so labels don't get cut off
+    padding = unit(c(2, 20, 2, 2), "mm")
+  )
+```
+
+Although not perfect, there is some consistency between classifications across all gene sets. 
+Let's classify cells based on both marker genes and gene set score and then validate those classifications. 
+
+```{r}
+classification_df <- classification_df |>
+  dplyr::mutate(
+    # first create a combined classification using all gene sets
+    geneset_classification = dplyr::case_when(
+      riggi_classification == "Tumor" & zhang_classification == "Tumor" & siligan_classification == "Tumor" ~ "Tumor",
+      riggi_classification == "Normal" & zhang_classification == "Normal" & siligan_classification == "Normal" ~ "Normal",
+      .default = "Ambiguous"
+    ),
+    # now classify based on both marker genes and gene set scores
+    combined_classification = dplyr::case_when(
+      marker_gene_classification == "Normal" & geneset_classification == "Normal" ~ "Normal",
+      marker_gene_classification == "Tumor" & geneset_classification == "Tumor" ~ "Tumor",
+      .default = "Ambiguous"
+    )
+  )
+```
+
+Below we see which cells are classified as tumor, normal, or ambiguous. 
+
+```{r}
+ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = combined_classification)) +
+  geom_point(alpha = 0.5, size = 0.5) +
+  theme_bw()
+```
+
+
+## Classify tumor cells with `SingleR`
+
+Another approach for classifying tumor cells is to use `SCPCL000822` as a reference with `SingleR`. 
+We feel pretty confident in those annotations as there was clear consistency between marker gene expression, gene set scores, and copy number inference. 
+
+```{r}
+# add annotations from reference data to ref sce file
+coldata_df <- colData(ref_sce) |> 
+  as.data.frame() |> 
+  dplyr::left_join(ref_labels_df, by = c("barcodes" = "cell_barcode"))
+
+# replace coldata with updated coldata 
+colData(ref_sce) <- DataFrame(coldata_df, row.names = coldata_df$barcodes)
+```
+
+
+```{r}
+# train model using reference labels
+singler_model <- SingleR::trainSingleR(
+  ref_sce,
+  labels = ref_sce$tumor_cell_classification,
+  genes = "de",
+  # only use genes found in input sce 
+  restrict = rownames(sce)
+)
+
+# get singler results 
+singler_results <- SingleR::classifySingleR(
+  trained = singler_model,
+  test = sce,
+  fine.tune = TRUE
+)
+```
+
+
+```{r}
+# add singler results to classification df 
+classification_df$singler_classification <- singler_results$pruned.labels
+
+# umap of singler results
+ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = singler_classification)) +
+  geom_point(size = 0.5, alpha = 0.5)
+```
+
+Interestingly, `SingleR` classifies most of the cells in the lower right as tumor, whereas CNV inference and gene expression were mixed on which cells from that group were actually tumor. 
+
+## Validating annotations
+
+Let's look at the expression of each of the marker genes in individual cells and see how that matches up with the combined classification using marker genes and gene set scores and the `SingleR` classification.
+This is a little circular since we used marker gene expression and gene set scores to classify the cells, but it should still give us a better idea of what the expression of these genes look like in each cell compared to all other cells in the sample. 
+This will also allow us to compare annotations using gene sets or `SingleR`. 
+
+
+```{r}
+# create annotation df, keeping both geneset alone and combined classification 
+annotation_df <- classification_df |> 
+  dplyr::select(barcodes, combined_classification, singler_classification)
+
+# create matrix with marker genes as rows and barcodes as columns
+marker_gene_heatmap <- plot_markers_df |> 
+  dplyr::select(gene_expression, gene_symbol, barcodes) |> 
+  tidyr::pivot_wider(values_from = gene_expression, 
+                     names_from = barcodes) |> 
+  tibble::column_to_rownames("gene_symbol") |> 
+  as.matrix()
+
+annotation <- ComplexHeatmap::columnAnnotation(
+  combined_classification = annotation_df$combined_classification,
+  singler_classification = annotation_df$singler_classification, 
+  col = list(combined_classification = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey"),
+             singler_classification = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey")))
+```
+
+
+```{r}
+# plot heatmap of marker genes 
+plot_gene_heatmap(marker_gene_heatmap, 
+                  row_title = "Marker gene symbol",
+                  legend_title = "Marker gene \nexpression",
+                  annotation = annotation)
+```
+
+For the combined classification, it looks like there is some separation between normal cells that have less marker genes expressed on the right and tumor cells with more marker genes expressed on the left but it isn't that clear. 
+For `SingleR` we do see that the tumor cells appear to separate from the normal cells for the most part. 
+We also see that the normal cells line up with the group of cells that have very little marker gene expression. 
+
+We will also look at gene set scores. 
+
+```{r}
+# make a matrix of gene set by barcode 
+geneset_heatmap <- geneset_plot_df |> 
+  dplyr::select(mean_score, geneset, barcodes) |> 
+  unique() |> 
+  tidyr::pivot_wider(values_from = mean_score, 
+                     names_from = barcodes) |> 
+  tibble::column_to_rownames("geneset") |> 
+  as.matrix()
+
+# plot heatmap of gene set score 
+plot_gene_heatmap(geneset_heatmap,
+                  annotation = annotation,
+                  legend_title = "Gene set \nscore")
+```
+
+We see a similar pattern here where the combined classification does not have quite as clear a distinction between gene set scores of normal and tumor cells as `SingleR` does.
+
+The last thing we will do is check the distribution of mean CNV proportion in tumor cells and normal cells. 
+Do we see an increase in CNV proportions in tumor cells over normal cells when classifying with either `SingleR` or gene sets? 
+
+```{r}
+# pivot classification to be able to facet by classification method 
+cnv_df <- classification_df |> 
+tidyr::pivot_longer(
     cols = ends_with("classification"),
     names_to = "method",
     values_to = "classification"
   ) |> 
-  ggplot(aes(x = mean_cnv_proportion, color = classification)) +
-  geom_density(bw = 0.05) +
-  facet_grid(rows = vars(method))
-```
-
-
-Mean InferCNV proportion on x-axis, mean copyKAT proportion on y-axis, color by scaled sum of marker gene expression 
-
-```{r}
-cnv_prop_df <- classification_df |> 
-  dplyr::select(barcodes, ends_with("classification"), starts_with("scaled_mean"), mean_cnv_proportion, mean_cnv_detection) |> 
-  tidyr::pivot_longer(
-    cols = starts_with("scaled_mean"),
-    names_to = "geneset",
-    values_to = "mean_score"
-  ) |> 
   dplyr::mutate(
-    geneset = stringr::word(geneset, -1, sep = "-")
-  ) 
+    method = dplyr::case_when(
+      method == "marker_gene_classification" ~ "Marker genes only",
+      method == "copykat_classification" ~ "CopyKAT - no reference",
+      method == "cnv_proportion_classification" ~ "InferCNV proportion",
+      method == "combined_classification" ~ "combined expression", 
+      method == "singler_classification" ~ "SingleR"
+    )
+  ) |>
+  tidyr::drop_na()
 
-ggplot(cnv_prop_df, aes(x = mean_cnv_proportion, y = abs(mean_cnv_detection), color = mean_score)) +
-  geom_point(size = 0.5, alpha = 0.5) +
-  facet_wrap(vars(geneset)) +
-  scale_color_viridis_c()
+ggplot(cnv_df, aes(x = mean_cnv_proportion, color = classification)) +
+  geom_density() +
+  facet_wrap(vars(method))
 ```
+
+Here we see that the combined gene set and marker gene classification does show a slight shift in mean cnv proportion in both tumor and ambiguous cells as compared to normal. 
+However, this is not as striking as the bump in cnv proportion seen in tumor cells when classifying with `SingleR`. 
+
+## Save classifications 
+
+It appears that the `SingleR` classifications encompass more tumor cells that have both higher marker gene expression, higher gene set scores, and higher CNV scores. 
+I'm inclined to trust these annotations a little more than the slightly arbitrary gene set cut offs that we implemented for classification. 
+However, we will save both annotations in case we need them for future use. 
+
 
 ```{r}
-ggplot(cnv_prop_df, aes(x = mean_score, y = abs(mean_cnv_detection))) +
-  geom_point(size = 0.5, alpha = 0.5) +
-  facet_wrap(vars(geneset)) +
-  scale_color_viridis_c()
+# export final TSV with annotations 
+final_classifications <- classification_df |> 
+  dplyr::select(
+    cell_barcode = barcodes,
+    tumor_cell_classification = combined_classification,
+    singler_tumor_classification = singler_classification
+  ) |> 
+  unique()
+
+
+readr::write_tsv(final_classifications, final_annotations_file)
 ```
 
-faceted density plot with marker gene expression on x axis, colored by copykat and infercnv prediction and faceted by marker gene 
 
-```{r}
-geneset_scores_df |> 
-  dplyr::pivot
+## Session Info
 
-ggplot(geneset_scores_df, aes(x = mean_score, color = ))
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
 ```
-
-
-
-use SingleR to classify as tumor/normal using SCPCS000490 
-
-correlation of geneset score and marker gene score 
-```{r}
-geneset_plot_df |> 
-  
-  dplyr::left_join(marker_density_df) |> 
-  ggplot(aes(x = sum_exp, y = mean_score)) +
-    facet_wrap()
-```
-
