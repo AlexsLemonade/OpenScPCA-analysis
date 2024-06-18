@@ -1,0 +1,56 @@
+name: Build Docker image for doublet-detection
+
+concurrency:
+  # only one run per branch at a time
+  group: "doublet-detection-${{ github.ref }}"
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - analyses/doublet-detection/Dockerfile
+      - analyses/doublet-detection/.dockerignore
+      - analyses/doublet-detection/renv.lock
+      - analyses/doublet-detection/conda-lock.yml
+  push:
+    branches:
+      - main
+    paths:
+      - analyses/doublet-detection/Dockerfile
+      - analyses/doublet-detection/.dockerignore
+      - analyses/doublet-detection/renv.lock
+      - analyses/doublet-detection/conda-lock.yml
+  workflow_dispatch:
+    inputs:
+      push-ecr:
+        description: "Push to AWS ECR"
+        type: boolean
+        required: false
+
+jobs:
+  test-build:
+    name: Test Build Docker Image
+    if: github.event_name == 'pull_request' || (contains(github.event_name, 'workflow_') && !inputs.push-ecr)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v5
+        with:
+          context: "{{defaultContext}}:analyses/doublet-detection"
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-push:
+    name: Build and Push Docker Image
+    if: github.event_name == 'push' || inputs.push-ecr
+    uses: ./.github/workflows/build-push-docker-module.yml
+    with:
+      module: doublet-detection
+      push-ecr: true
