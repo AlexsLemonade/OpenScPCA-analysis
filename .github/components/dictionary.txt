@@ -58,6 +58,8 @@ fibroblasts
 formatters
 Generis
 GFM
+GHA
+GHAs
 GitHub
 GitKraken
 GitKraken's
