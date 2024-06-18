@@ -46,6 +46,9 @@ RUN apt-get install \
   liblzma-dev \
   libglpk-dev
 
+# Install Rhtslib first to prevent package installation errors
+RUN Rscript -e 'BiocManager::install("Rhtslib")'
+
 # restore from renv.lock file and clean up to reduce image size
 RUN Rscript -e 'renv::restore()' \
   && rm -rf ~/.cache/R/renv \
