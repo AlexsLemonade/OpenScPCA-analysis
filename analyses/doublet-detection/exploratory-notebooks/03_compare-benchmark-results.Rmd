@@ -20,7 +20,7 @@ There are several items to bear in mind when interpreting these results:
 - The ground truth calls themselves to which we are comparing consensus calls may not be entirely accurate, since they were also computationally identified generally with demultiplexing algorithms. 
 - `cxds`, as we are using it, does not have a specific threshold for calling droplets. 
 By contrast, both `scrublet` and `scDblFinder` identify a threshold based on the given dataset they are processing. 
-This notebook used a doublet threshold of `>=0.5` for `cxds`, which may not be universally suitable (though choosing a universally suitable threshold is not easy either!).
+This notebook uses a doublet threshold of `>=0.5` for `cxds`, which may not be universally suitable (though choosing a universally suitable threshold is not easy either!).
 
 ## Setup
 
@@ -104,8 +104,12 @@ plot_pca_metrics <- function(df, color_column, metric_colors) {
 First, we'll read in and combine doublet results into a list of data frames for each dataset.
 We'll also create new columns for each dataset:
 
+- `consensus_class`, which will be "doublet" if all three methods are doublet, "singlet" if all three methods are singlet, and "ambiguous" if there are any disagreements
 - `consensus_call`, which will be "doublet" if _all_ methods predict "doublet," and "singlet" otherwise
-- `call_type`, which will classify the consensus call as one of "tp", "tn", "fp", or "fn" (true/false positive/negative) 
+- `confusion_call`, which will classify the consensus call as one of "tp", "tn", "fp", or "fn" (true/false positive/negative) based on `consensus_call`
+
+      
+      
 
 ```{r paths}
 # find all dataset names to process:
@@ -167,18 +171,32 @@ doublet_df_list <- dataset_names |>
           by = "barcodes"
         ) 
       
-      # Add a consensus call column
+      # Add consensus columns:
+      # - consensus_class: "doublet" if all three methods are doublet, "singlet" if all three methods are singlet, 
+      #    and "ambiguous" if there are any disagreements
+      # - consensus_call: "doublet" if all three methods are doublet, and "singlet" otherwise
+      # - confusion_call: tp/tn/fp/fn based on the `consensus_call` column
       dataset_df <- dataset_df |>
         dplyr::rowwise() |>
-        dplyr::mutate(consensus_call = dplyr::if_else(
-          all(
-            c(scdbl_prediction, scrublet_prediction, cxds_prediction) == "doublet"
-          ),
-          "doublet", 
-          "singlet"
-        )) |>
+        # Add column `consensus_class`
         dplyr::mutate(
-          call_type = dplyr::case_when(
+          consensus_class = dplyr::case_when(
+            consensus_call == "doublet" ~ "doublet",
+            all(c(scdbl_prediction, scrublet_prediction, cxds_prediction) == "singlet") ~ "singlet", 
+            .default = "ambiguous"
+          )
+         ) |>
+        # Add column `consensus_call`
+        dplyr::mutate(
+          consensus_call = dplyr::if_else(
+            all(c(scdbl_prediction, scrublet_prediction, cxds_prediction) == "doublet"),
+            "doublet", 
+            "singlet"
+          )
+        ) |>
+        # Add column `confusion_call`
+        dplyr::mutate(
+          confusion_call = dplyr::case_when(
             consensus_call == "doublet" && ground_truth == "doublet" ~ "tp",
             consensus_call == "singlet" && ground_truth == "singlet" ~ "tn",
             consensus_call == "doublet" && ground_truth == "singlet" ~ "fp",
@@ -234,13 +252,12 @@ This section visualizes and evaluates the consensus doublet calls across each da
 
 This section plots the PCA for each dataset, clockwise from the top left:
 
-1. `scDblFinder` singlet/doublet calls. 
+1. `scDblFinder` singlet/doublet calls
 2. `scrublet` singlet/doublet calls
 3. `cxds` singlet/doublet calls 
 4. Ground truth single/doublets
-5. Consensus singlet/doublet calls
-6. Points are colored based on comparing the consensus call to the ground truth as one of:
-    - true positive (`tp`), true negative (`tn`), false positive (`fp`), false negative (`fn`)
+5. Consensus _call_ droplets are either "doublet" or "singlet"
+6. Consensus _class_: droplets are either "doublet", "singlet", or "ambiguous"
 
 For the first five panels, doublets are shown in black and singlets in light gray.
 
@@ -348,13 +365,12 @@ They each tend to detect different sets of doublets, leading to fairly small set
 Further, the consensus doublets called by all three methods have some, but not substantial, overlap with the ground truth. 
 
 For three out of four datasets, `scDblFinder` predicts a much larger number of doublets compared to other methods. 
-For `pdx-MULTI`, however, `cxds` predicts a much larger number of droplets.
 
 Based on the PCAs, it additionally looks like there are many more false negatives in the consensus prediction that `cxds` appears to capture but other methods do not.
 
 The table below summarizes performance of the "consensus caller". 
 Note that, in the [benchmarking paper these datasets were originally analyzed in](https://doi.org/10.1016/j.cels.2020.11.008), `hm-6k` was observed to be one of the "easiest" datasets to classify across methods.  
-Consistent with that observation, it has the highest `kappa` value here, although it is still fairly low - though not as low as the other methods, which are very close to 0. 
+Consistent with that observation, it has the highest `kappa` value here.
 
 ```{r}
 metric_df
