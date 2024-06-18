@@ -40,12 +40,6 @@ RUN conda-lock install -n ${ENV_NAME} conda-lock.yml && \
 # Copy the renv.lock file from the host environment to the image
 COPY renv.lock renv.lock
 
-# Install system dependencies for R package installation
-RUN apt-get install \
-  libcurl4-gnutls-dev \
-  liblzma-dev \
-  libglpk-dev
-
 # Install Rhtslib first to prevent package installation errors
 RUN Rscript -e 'BiocManager::install("Rhtslib")'
 
