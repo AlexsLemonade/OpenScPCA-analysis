@@ -10,4 +10,3 @@ Spellcheck found **{{ERROR_COUNT}} errors**.
 
 - [ ] Assign an OpenScPCA admin
 - [ ] Spell check errors have been fixed via a PR
-- [ ] Spell check workflow has been manually run to confirm spelling errors are fixed

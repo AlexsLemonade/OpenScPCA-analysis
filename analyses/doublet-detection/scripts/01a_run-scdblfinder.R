@@ -4,7 +4,7 @@
 
 
 # Load libraries and renv environment ------
-project_root <- here::here()
+project_root <- rprojroot::find_root(rprojroot::is_renv_project)
 renv::load(project_root)
 
 library(SingleCellExperiment)
@@ -59,7 +59,9 @@ run_scdblfinder <- function(sce,
 
   result_df <- result_df |>
     as.data.frame() |>
-    tibble::rownames_to_column("barcodes")
+    tibble::rownames_to_column("barcodes") |>
+    # remove artifical doublets
+    dplyr::filter(!stringr::str_starts(barcodes, "rDbl"))
 
   return(result_df)
 }

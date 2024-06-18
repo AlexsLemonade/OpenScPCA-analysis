@@ -9,9 +9,9 @@ output:
 params:
   sample_id: SCPCS000490
   library_id: SCPCL000822
-  marker_gene_classification: "../results/annotate_tumor_cells_output/SCPCS000490/SCPCL000822_tumor-normal-classifications.tsv"
-  infercnv_dir: "../results/annotate_tumor_cells_output/SCPCS000490/infercnv"
-  results_dir: "../results/annotate_tumor_cells_output/SCPCS000490"
+  marker_gene_classification: "tumor-normal-classifications.tsv"
+  infercnv_dir: "infercnv"
+  results_dir: "annotate_tumor_cells_output"
 ---
 
 ## Introduction 
@@ -33,6 +33,10 @@ suppressPackageStartupMessages({
   library(ggplot2)
   library(dplyr)
 })
+
+knitr::opts_chunk$set(
+  dev = "jpeg"
+)
 ```
 
 
@@ -115,7 +119,7 @@ final_cnv_obj <- readr::read_rds(final_cnv_obj_file)
 
 ### Endothelial cells as reference 
 
-Below is the heatmap produced by `InferCNV` showing the CNV's for each cell using normal cells as a reference. 
+Below is the heatmap produced by `InferCNV` showing the CNVs for each cell using normal cells as a reference. 
 Each row is a cell and each column is a gene. 
 The top group contains all cells that were used as the reference group and the bottom is all other cells. 
 The color indicates the relative expression intensity of each gene with the darker colors either indicating a gain of expression or loss of expression compared to the reference cells. 
@@ -202,7 +206,7 @@ ggplot(cnv_df, aes(x = UMAP1, y= UMAP2, color = has_cnv)) +
   scale_color_viridis_c()
 ```
 
-Those cells in grey (bottom left) are cells used as a reference. 
+Those cells in gray (bottom left) are cells used as a reference. 
 If we were to use total CNVs we would need some sort of cut off for the number. 
 Let's look at the distribution of total CNVs to see if we can identify a cut off. 
 
@@ -213,7 +217,7 @@ ggplot(cnv_df, aes(x = has_cnv)) +
   labs(x = "Total number of CNVs")
 ```
 
-We will call any tumor cell as those with a total number of cnvs greater than the mean(number of cnvs). 
+We will call any tumor cell as those with a total number of CNVs greater than the mean(number of CNVs). 
 
 ```{r}
 # get mean value for has_cnv, excluding any NAs
@@ -450,7 +454,8 @@ celltypes_df <- cnv_df |>
   dplyr::select(
     barcodes,
     cnv_proportion_classification = cnv_mean_classification,
-    cnv_sum_classification = cnv_classification
+    cnv_sum_classification = cnv_classification,
+    mean_cnv_proportion = mean_proportion
   )
 
 readr::write_tsv(celltypes_df, infercnv_results_file)

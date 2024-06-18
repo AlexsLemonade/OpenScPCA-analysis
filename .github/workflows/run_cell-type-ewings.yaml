@@ -1,0 +1,68 @@
+# This is a workflow to run the cell-type-ewings module
+# Analysis modules are run based on three triggers:
+# - Manual trigger
+# - On pull requests where code in the module has changed
+# - As a reusable workflow called from a separate workflow which periodically runs all modules
+
+name: Run cell-type-ewings analysis module
+env:
+  MODULE_PATH: analyses/cell-type-ewings
+  AWS_DEFAULT_REGION: us-east-1
+
+concurrency:
+  # only one run per branch at a time
+  group: cell-type-ewings-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  workflow_call:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - analyses/cell-type-ewings/**
+jobs:
+  run-module:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Download test data
+        run: ./download-data.py --test-data --format "sce,anndata" --samples SCPCS000490
+
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 4.4.0
+          use-public-rspm: true
+
+      - name: Set up pandoc
+        uses: r-lib/actions/setup-pandoc@v2
+
+      - name: Install additional system dependencies
+        run: |
+          sudo apt-get install -y libcurl4-openssl-dev libglpk40 jags
+
+      - name: Set up renv
+        uses: r-lib/actions/setup-renv@v2
+        with:
+          working-directory: ${{ env.MODULE_PATH }}
+
+      - name: Set up conda
+        uses: conda-incubator/setup-miniconda@v3
+
+      - name: Install and activate locked conda environment
+        run: |
+          conda install conda-lock
+          conda-lock install --name test ${MODULE_PATH}/conda-lock.yml
+
+      - name: Run analysis
+        run: |
+          cd $MODULE_PATH
+          bash annotate-tumor-cells.sh

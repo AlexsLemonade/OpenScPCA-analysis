@@ -6,15 +6,17 @@
 # Each is an RDS object containing a list of two items:
 #  [[1]] A raw counts matrix
 #  [[2]] A vector of doublet/singlet calls for each barcode
+# For each dataset, we normalize counts and calculate PCA, but we perform no additional filtering.
 # The exported files are named `<dataset name>-<sce/anndata>.<rds/h5ad>.
 # Each has a variable `ground_truth_doublets` representing the singlet/doublet calls:
 #   - In the SCE file, this is in the colData slot
 #   - In the AnnData file, this is in the obs slot
 
-# Load renv
-project_root <- here::here()
+# Load renv environment and libraries
+project_root <- rprojroot::find_root(rprojroot::is_renv_project)
 renv::load(project_root)
 
+library(SingleCellExperiment)
 library(optparse)
 
 
@@ -52,10 +54,26 @@ dat <- readRDS(input_file)
 mat <- dat[[1]] # raw counts matrix
 calls <- dat[[2]] # "singlet" or "doublet"
 
-# Create and export SCE
+# Create, process, and export SCE ------------
 sce <- SingleCellExperiment::SingleCellExperiment(assays = list(counts = mat))
 sce$ground_truth_doublets <- calls
+
+# normalization
+qclust <- scran::quickCluster(sce)
+sce <- scran::computeSumFactors(sce, clusters = qclust) |>
+  scuttle::logNormCounts()
+
+# PCA
+gene_variance <- scran::modelGeneVar(sce)
+var_genes <- scran::getTopHVGs(gene_variance, n = 2000)
+sce <- scater::runPCA(
+  sce,
+  ncomponents = 20,
+  subset_row = var_genes
+)
+
+# export
 readr::write_rds(sce, output_sce_file)
 
-# Export AnnData version
+# Export AnnData version -----------
 zellkonverter::writeH5AD(sce, output_anndata_file)

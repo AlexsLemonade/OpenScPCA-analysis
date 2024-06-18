@@ -10,8 +10,8 @@ output:
 params:
   sample_id: SCPCS000490
   library_id: SCPCL000822
-  results_dir: "../results/annotate_tumor_cells_output"
-  reference_cell_file: "../references/cell_lists/SCPCS000490/SCPCL000822_reference-cells.tsv"
+  results_dir: "annotate_tumor_cells_output"
+  reference_cell_file: "reference-cells.tsv"
 ---
 
 
@@ -19,7 +19,7 @@ params:
 
 This notebook looks at expression of marker genes for tumor cells in a Ewing sarcoma sample, `r {params$sample_id}`. 
 We then see if we can use expression of marker genes to manually classify tumor and normal cells.
-The main goal of this notebook is only to identify tumor cells, identification and labelling of the other cells is a separate question that we do not answer here. 
+The main goal of this notebook is only to identify tumor cells, identification and labeling of the other cells is a separate question that we do not answer here. 
 
 - First we look at expression of each of the marker genes across all cells. 
 - Then we use a z-transform prior to summing expression of all marker genes. 
@@ -33,6 +33,10 @@ Cells with a z-score for any marker gene > 0 are classified as tumor cells.
 ```{r}
 project_root <- here::here()
 renv::load(project_root)
+
+knitr::opts_chunk$set(
+  dev = "jpeg"
+)
 ```
 
 

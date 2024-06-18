@@ -1,0 +1,55 @@
+# This is a workflow to run the {{ openscpca_module }} module
+#
+# Analysis modules are run based on three triggers:
+# - Manual trigger
+# - On pull requests where code in the module has changed
+# - As a reusable workflow called from a separate workflow which periodically runs all modules
+#
+# At initialization, only the manual trigger is active
+
+name: Run {{ openscpca_module }} analysis module
+env:
+  MODULE_PATH: analyses/{{ openscpca_module }}
+  AWS_DEFAULT_REGION: us-east-1
+
+concurrency:
+  # only one run per branch at a time
+  group: "{{ openscpca_module }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  # workflow_call:
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - "analyses/{{ openscpca_module }}/**"
+
+jobs:
+  run-module:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # Update this step as needed to download the desired data
+      - name: Download test data
+        run: ./download-data.py --test-data --format AnnData
+
+      - name: Set up conda
+        uses: conda-incubator/setup-miniconda@v3
+
+      - name: Install and activate locked conda environment
+        run: |
+          conda install conda-lock
+          conda-lock install --name test ${MODULE_PATH}/conda-lock.yml
+
+      - name: Run analysis module
+        run: |
+          cd ${MODULE_PATH}
+          # run module script here

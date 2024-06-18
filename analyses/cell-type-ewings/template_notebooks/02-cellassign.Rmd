@@ -9,11 +9,11 @@ output:
 params:
   sample_id: SCPCS000490
   library_id: SCPCL000822
-  marker_gene_classification: "../results/annotate_tumor_cells_output/SCPCS000490/SCPCL000822_tumor-normal-classifications.tsv"
-  tumor_marker_predictions: "../results/annotate_tumor_cells_output/SCPCS000490/cellassign/SCPCL000822_tumor-only-predictions.tsv"
-  visser_marker_predictions: "../results/annotate_tumor_cells_output/SCPCS000490/cellassign/SCPCL000822_visser-predictions.tsv"
-  panglao_predictions: "../results/annotate_tumor_cells_output/SCPCS000490/cellassign/SCPCL000822_panglao-predictions.tsv"
-  results_dir: "../results/annotate_tumor_cells_output/SCPCS000490"
+  marker_gene_classification: "tumor-normal-classifications.tsv"
+  tumor_marker_predictions: "tumor-marker_predictions.tsv"
+  visser_marker_predictions: "visser-all-marker_predictions.tsv"
+  panglao_predictions: "panglao-endo-fibro_predictions.tsv"
+  results_dir: "annotate_tumor_cells_output"
 ---
 
 ## Introduction 
@@ -36,6 +36,10 @@ suppressPackageStartupMessages({
   library(SingleCellExperiment)
   library(ggplot2)
 })
+
+knitr::opts_chunk$set(
+  dev = "jpeg"
+)
 ```
 
 
@@ -213,23 +217,29 @@ ggplot(celltype_df, aes(x = UMAP1, y = UMAP2, color = cellassign_annotations)) +
 ```
 
 ```{r, eval=has_tumor_assignments}
-# prep annotations for confusion matrix
-celltype_df <- celltype_df |> 
-  dplyr::mutate(cellassign_annotations = ifelse(
-    # make sure annotations match marker gene annotations
-    cellassign_annotations == "tumor", "Tumor", "Normal"
-  )) |> 
-  # make tumor the positive class
-  dplyr::mutate(
-    cellassign_annotations = forcats::fct_relevel(cellassign_annotations, "Tumor"),
-    marker_gene_classification = forcats::fct_relevel(marker_gene_classification, "Tumor")
+# make sure that we only run if both classes are found in both cell types 
+if(all(c("other", "tumor") %in% celltype_df$cellassign_annotations) &&
+   all(c("Tumor", "Normal") %in% celltype_df$marker_gene_classification)){
+  # prep annotations for confusion matrix
+  celltype_df <- celltype_df |> 
+    dplyr::mutate(cellassign_annotations = ifelse(
+      # make sure annotations match marker gene annotations
+      cellassign_annotations == "tumor", 
+      "Tumor", 
+      "Normal"
+    )) |> 
+    # make tumor the positive class
+    dplyr::mutate(
+      cellassign_annotations = forcats::fct_relevel(cellassign_annotations, "Tumor"),
+      marker_gene_classification = forcats::fct_relevel(marker_gene_classification, "Tumor")
+    ) 
+  
+  caret::confusionMatrix(
+    table(
+      celltype_df$marker_gene_classification, 
+      celltype_df$cellassign_annotations)
   ) 
-
-caret::confusionMatrix(
-  table(
-    celltype_df$marker_gene_classification, 
-    celltype_df$cellassign_annotations)
-)
+}
 ```
 
 
@@ -292,7 +302,7 @@ visser_predictions |>
 
 Below we will look at which cells are assigned to which cell type and then compare assignments between `CellAssign` and manual marker gene assignment. 
 
-```{r}
+```{r, eval=has_visser_assignments}
 # first rename column to combine with cell type df 
 visser_celltype_assignments <- visser_celltype_assignments |> 
   dplyr::rename(visser_cellassign_annotations = celltype)
@@ -306,7 +316,7 @@ ggplot(celltype_df, aes(x = UMAP1, UMAP2, color = visser_cellassign_annotations)
   theme_bw()
 ```
 
-```{r}
+```{r, eval=has_visser_assignments}
 # get jaccard similarity index 
 jaccard_mtx <- make_jaccard_matrix(celltype_df, "visser_cellassign_annotations", "marker_gene_classification")
 
@@ -342,7 +352,7 @@ ComplexHeatmap::Heatmap(
 The one cell type that is identified here and in the `CellAssign` annotations with the reference from `scpca-nf` is Endothelial cells. 
 Let's compare the classifications of Endothelial cells between the two references. 
 
-```{r}
+```{r, eval=has_visser_assignments}
 # first make sure cells have been classified as endothelial 
 has_endothelial <- "Endothelial cells" %in% unique(celltype_df$cellassign_celltype_annotation) &&
   "endothelial cells" %in% unique(celltype_df$visser_cellassign_annotations)
@@ -364,11 +374,14 @@ if(has_endothelial){
       caret_cellassign_annotations = forcats::fct_relevel(caret_cellassign_annotations, "Endothelial cells")
     ) 
   
-  caret::confusionMatrix(
-    table(
-      celltype_df$caret_cellassign_annotations, 
-      celltype_df$caret_visser_annotations)
-  ) 
+  if(all("Endothelial cells", "Other") %in% celltype_df$visser_cellassign_annotations &&
+     all("Endothelial cells", "Other") %in% celltype_df$cellassign_celltype_annotation){
+    caret::confusionMatrix(
+      table(
+        celltype_df$caret_cellassign_annotations, 
+        celltype_df$caret_visser_annotations)
+    )  
+  }
 } else {
   message("No endothelial cells were classified by `CellAssign`.")
 }
@@ -379,7 +392,7 @@ Below, we look at the individual expression of each marker genes in the cells.
 These plots are grouped to show all marker genes for a given cell type in a single panel. 
 
 
-```{r}
+```{r, eval=has_visser_assignments}
 # get all markers 
 all_markers <- visser_markers_df |> 
   dplyr::pull(ensembl_gene_id)
@@ -403,7 +416,7 @@ marker_gene_exp_df <- celltype_df |>
 ```
 
 
-```{r}
+```{r, eval=has_visser_assignments}
 # get a list of all celltypes in the reference
 celltypes <- unique(visser_markers_df$cell_type)
 
@@ -443,7 +456,7 @@ celltypes |>
 Below we look at the expression of marker genes for each cell type across all cells identified to be each type by `CellAssign.` 
 We would expect to see expression of the marker genes for tumor cells to be higher in the cells that are identified to be tumor cells compared to other cell types. 
 
-```{r}
+```{r, eval=has_visser_assignments}
 grouped_celltype_df <- marker_gene_exp_df |> 
   # group by barcode and cell type to get the sum 
   dplyr::group_by(barcodes, cell_type) |> 
@@ -461,7 +474,7 @@ ggplot(grouped_celltype_df, aes(x = mean_exp, color = cell_type)) +
 
 ### Run CellAssign with markers from PanglaoDB
 
-The last thing we will do here is run CellAssign using some of the same reference that we used when running CellAssign as part of scpca-nf. 
+The last thing we will do here is run CellAssign using some of the same reference that we used when running CellAssign as part of `scpca-nf`. 
 In particular, the majority of non-muscle cells (which we believe to be tumor cells) were identified as either Endothelial cells or Fibroblasts.
 So we will use a reference that takes the markers for Endothelial cells and Fibroblasts from PanglaoDB and combines with the tumor markers. 
 
@@ -490,7 +503,7 @@ panglao_predictions |>
 ```
 
 
-```{r}
+```{r, eval=has_panglao_assignments}
 # first rename column to combine with cell type df 
 panglao_celltype_assignments <- panglao_celltype_assignments |> 
   dplyr::rename(panglao_cellassign_annotations = celltype)
@@ -508,7 +521,7 @@ ggplot(celltype_df, aes(x = UMAP1, UMAP2, color = panglao_cellassign_annotations
 
 Let's directly compare these annotations to the `CellAssign` annotations obtained from `scpca-nf`. 
 
-```{r}
+```{r, eval=has_panglao_assignments}
 # get jaccard similarity index 
 jaccard_mtx <- make_jaccard_matrix(celltype_df, "cellassign_celltype_annotation", "panglao_cellassign_annotations")
 
