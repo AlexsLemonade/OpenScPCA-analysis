@@ -38,8 +38,8 @@ Each module testing GHA is initially created with these steps, which should be u
 
 - Checkout the repository
 - Download test data
-    - Use the [`download-data.py`](#STUB_LINK) and/or [`download-results.py`](#STUB_LINK) scripts to specify the set of input files you need, with the `--test-data` flag to specify downloading the test data.
-    - After this step the `data/current` directory will point to the test data, which ensures the module GHA to runs using the test data.
+    - Use the [`download-data.py`](../../getting-started/accessing-resources/getting-access-to-data.md#using-the-download-data-script) and/or [`download-results.py`](../../getting-started/accessing-resources/getting-access-to-data.md#accessing-scpca-module-results) scripts to specify the set of input files you need, with the `--test-data` flag to specify downloading the test data.
+    - After this step, the `data/current` directory will point to the test data, ensuring the module GHA runs using the test data.
 - Set up the module environment
     - Depending on [the flags used when creating your module](../../contributing-to-analyses/analysis-modules/creating-a-module.md#module-creation-script-flags), this will steps steps needed to install the [`renv` and/or conda environment](../managing-software/index.md) from existing environment files (`renv.lock` and/or `conda-lock.yml`, respectively).
 - Run the analysis module
