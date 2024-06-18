@@ -16,6 +16,9 @@ These pushed images are used in a variety of ways:
 
 For examples of existing Docker building GHAs, see the example `simulate-sce` GHA [`docker_simulate-sce.yml`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/.github/workflows/docker_simulate-sce.yml).
 
+All images pushed to ECR will be available from: `public.ecr.aws/openscpca/{module-name}:latest`.
+For more information about pulling Docker images from ECR and using them locally, please see our documentation on using Docker images. <!-- STUB_LINK using images. -->
+
 
 ## Writing a Docker building GHA
 
