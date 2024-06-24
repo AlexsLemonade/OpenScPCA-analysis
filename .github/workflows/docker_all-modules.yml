@@ -7,12 +7,17 @@
 # This workflow will run on:
 # - Manual trigger
 # - Periodic scheduled runs
+# - Tagged version releases
 
 name: Build all Docker images
 on:
   schedule:
     # run monthly on the 1st
     - cron: "0 0 1 * *"
+  push:
+    # build and push all on tagged release
+    tags:
+      - "v*.*.*"
   workflow_dispatch:
     inputs:
       push-ecr:
@@ -34,7 +39,7 @@ jobs:
     uses: ./.github/workflows/build-push-docker-module.yml
     with:
       module: ${{ matrix.module }}
-      push-ecr: ${{ inputs.push-ecr }}
+      push-ecr: ${{ github.event_name == 'push' || inputs.push-ecr }}
 
   check-jobs:
     name: Check Job Status
