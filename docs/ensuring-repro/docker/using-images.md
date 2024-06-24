@@ -15,15 +15,13 @@ The OpenScPCA Docker register is publicly available at <https://gallery.ecr.aws/
 
 ## Obtaining Docker images
 
-<!-- TODO: Instructions for using images on LSfR? -->
-
 You can see all available OpenScPCA Docker images at this URL: <https://gallery.ecr.aws/openscpca/>.
 Images are named `openscpca/{module-name}`.
 
 To obtain a local copy of a Docker image, follow these steps:
 
 1. Open the Docker Desktop application and ensure sure it is running.
-1. From a [terminal](../../getting-started/project-tools/using-the-terminal.md), pull the image using this command, where `{module-name}` is replaced with the given Docker image you wish to pull:
+2. From a [terminal](../../getting-started/project-tools/using-the-terminal.md), pull the image using this command, where `{module-name}` is replaced with the given Docker image you wish to pull:
 
       ```sh
       docker pull public.ecr.aws/openscpca/{module-name}:latest
@@ -36,10 +34,10 @@ To obtain a local copy of a Docker image, follow these steps:
           docker pull --platform linux/x86_64 public.ecr.aws/openscpca/{module-name}:latest
           ```
 
-1. We recommend updating your Docker Desktop resource settings to ensure Docker has access to sufficient compute resources to run the module. For more information on module compute requirements, please refer to the [module's `README.md` file](../../contributing-to-analyses/analysis-modules/compute-requirements.md#readme-files).
+3. We recommend updating your Docker Desktop resource settings to ensure Docker has access to sufficient compute resources to run the module. For more information on module compute requirements, please refer to the [module's `README.md` file](../../contributing-to-analyses/analysis-modules/compute-requirements.md#readme-files).
       - Follow these instructions to update your Docker Desktop settings for [Mac](https://docs.docker.com/desktop/settings/mac#resources) and [Windows](https://docs.docker.com/desktop/settings/windows/#resources) computers. You will need to click "Apply and Restart" to ensure these changes go through.
 
-1. You can now use the image to run code from the analysis module using [the `docker run` command](https://docs.docker.com/reference/cli/docker/container/run/) from a terminal.
+4. You can now use the image to run code from the analysis module using [the `docker run` command](https://docs.docker.com/reference/cli/docker/container/run/) from a terminal.
       - The analysis module's `README.md` file should contain documentation for what command(s) you need to issue to [run the module](../../contributing-to-analyses/analysis-modules/running-a-module.md).
       - You will also need to [mount a volume](https://docs.docker.com/storage/volumes/) as part of your command to ensure that the Docker container has access to all files needed, including any data files.
       - Note that containers for [images based on `bioconductor/r-ver`](./docker-images.md#r-based-images) can also be run in the browser as interactive RStudio Server sessions, [as described in the Bioconductor documentation](https://www.bioconductor.org/help/docker/).
