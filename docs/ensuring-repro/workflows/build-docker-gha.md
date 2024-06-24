@@ -28,4 +28,4 @@ For more information about pulling Docker images from ECR and using them locally
 
 When you [create a new module](../../contributing-to-analyses/analysis-modules/creating-a-module.md), a Docker building GHA workflow file is created in the file `.github/workflows/docker_{module-name}.yml`.
 This initial file is inactive, meaning it will not run automatically run on the two aforementioned triggers.
-Once a [Dockerfile with module dependencies has been added to a given analysis module](../docker/docker-images.md#analysis-module-dockerfiles), the Data Lab staff will activate this GHA file so the Docker image can be built and pushed to the Amazon ECR registry for general use.
+Once a [Dockerfile with module dependencies has been added to a given analysis module](../docker/docker-images.md#analysis-module-dockerfiles), the Data Lab staff will [activate this GHA file](../docker/docker-images.md#automated-testing-and-deployment) so the Docker image can be built and pushed to the Amazon ECR registry for general use.
