@@ -20,7 +20,7 @@ Images are named `openscpca/{module-name}`.
 
 To obtain a local copy of a Docker image, follow these steps:
 
-1. Open the Docker Desktop application and ensure sure it is running.
+1. Open the Docker Desktop application and ensure it is running.
 2. From a [terminal](../../getting-started/project-tools/using-the-terminal.md), pull the image using this command, where `{module-name}` is replaced with the given Docker image you wish to pull:
 
       ```sh
