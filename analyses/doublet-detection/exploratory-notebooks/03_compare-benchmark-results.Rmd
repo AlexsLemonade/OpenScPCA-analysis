@@ -94,7 +94,7 @@ plot_pca_metrics <- function(df, color_column, metric_colors) {
     size = 0.75
   ) +
   scale_color_manual(name = "Call type", values = metric_colors) +
-  ggtitle("Consensus call metrics")
+  ggtitle("Consensus class metrics")
 }
 ```
 
@@ -178,14 +178,6 @@ doublet_df_list <- dataset_names |>
       # - confusion_call: tp/tn/fp/fn based on the `consensus_call` column
       dataset_df <- dataset_df |>
         dplyr::rowwise() |>
-        # Add column `consensus_class`
-        dplyr::mutate(
-          consensus_class = dplyr::case_when(
-            consensus_call == "doublet" ~ "doublet",
-            all(c(scdbl_prediction, scrublet_prediction, cxds_prediction) == "singlet") ~ "singlet", 
-            .default = "ambiguous"
-          )
-         ) |>
         # Add column `consensus_call`
         dplyr::mutate(
           consensus_call = dplyr::if_else(
@@ -194,6 +186,14 @@ doublet_df_list <- dataset_names |>
             "singlet"
           )
         ) |>
+        # Add column `consensus_class`
+        dplyr::mutate(
+          consensus_class = dplyr::case_when(
+            consensus_call == "doublet" ~ "doublet",
+            all(c(scdbl_prediction, scrublet_prediction, cxds_prediction) == "singlet") ~ "singlet", 
+            .default = "ambiguous"
+          )
+         ) |>
         # Add column `confusion_call`
         dplyr::mutate(
           confusion_call = dplyr::case_when(
@@ -267,53 +267,34 @@ doublet_df_list |>
   purrr::iwalk(
     \(df, dataset) {
       
-      # Top row: methods themselves ---
-      p1 <- plot_pca_calls(
-        df, 
-        color_column = scdbl_prediction, 
-        title = "scDblFinder prediction"
-      )
+      pc_color_columns <- c("scDblFInder prediction" = "scdbl_prediction",
+                            "scublet prediction" = "scrublet_prediction",
+                            "cxds prediction" = "cxds_prediction",
+                            "Ground truth" = "ground_truth", 
+                            "Consensus call" = "consensus_call")
       
-      p2 <- plot_pca_calls(
-        df, 
-        color_column = scrublet_prediction, 
-        title = "scrublet prediction"
-      )
-                
-      p3 <- plot_pca_calls(
-        df, 
-        color_column = cxds_prediction, 
-        title = "cxds prediction"
-      )
+      pc_plot_list <- pc_color_columns |> 
+        purrr::imap(
+          \(color_column, plot_title) {
+            plot_pca_calls(
+              df, 
+              color_column = !!sym(color_column), 
+              title = plot_title
+            )}
+        ) 
       
-      # Bottom row: consensus  --
-      p4 <- plot_pca_calls(
-        df, 
-        color_column = ground_truth, 
-        title = "Ground truth"
-      )
-      
-      # Second, consensus call
-      p5 <- plot_pca_calls(
-        df, 
-        color_column = consensus_call, 
-        title = "Consensus call"
-      )
-      
-      # Third, call type
-      p6 <- plot_pca_metrics(
+      # note that the list name isn't used here
+      pc_plot_list$metrics <- plot_pca_metrics(
         df,
-        call_type, 
+        confusion_call, 
         metric_colors = confusion_colors
       )
 
-      # combine and plot
-      plot( 
-        (p1 + p2 + p3) / (p4 + p5 + p6) + 
-          plot_annotation(
+      patchwork::wrap_plots(pc_plot_list, pca_metrics) +
+        plot_annotation(
             glue::glue("PCA for {dataset}"), 
             theme = theme(plot.title = element_text(size = 16))) + 
-          plot_layout(guides = "collect"))
+          plot_layout(guides = "collect") 
     }
   )
 ```
@@ -321,7 +302,7 @@ doublet_df_list |>
 
 ### Performance metrics 
 
-This section calculates a confusion matrix and associated statistics on the consensus calls. 
+This section calculates a confusion matrix and associated statistics on the consensus classes. 
 
 ```{r}
 metric_df <- doublet_df_list |>
@@ -330,7 +311,7 @@ metric_df <- doublet_df_list |>
         print(glue::glue("======================== {dataset} ========================"))
       
         cat("Table of consensus calls:")
-        print(table(df$consensus_call))
+        print(table(df$consensus_class))
         
         cat("\n\n")
         
