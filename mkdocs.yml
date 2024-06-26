@@ -145,6 +145,7 @@ nav:
     - Working with Docker:
       - ensuring-repro/docker/index.md
       - ensuring-repro/docker/docker-images.md
+      - ensuring-repro/docker/using-images.md
   - Cloud storage and compute:  # AWS
     - aws/index.md
     - aws/joining-aws.md

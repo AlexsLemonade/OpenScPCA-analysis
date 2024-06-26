@@ -12,9 +12,11 @@ By using the same Docker image, contributors can run the same analysis on differ
 
     For more information on Docker, see:
 
-    - [Docker for Data Science](https://www.datacamp.com/tutorial/docker-for-data-science-introduction)
     - [Why you should use Docker in your research](https://blog.zooniverse.org/2018/07/17/why-you-should-use-docker-in-your-research/)
-    - [Docker images and how we use them in OpenScPCA](docker-images.md)
+    - [Digging into Data Science Tools: Docker](https://towardsdatascience.com/digging-into-data-science-tools-docker-bbb9f3579c87)
+    - [A short guide to using Docker for your data science environment](https://towardsdatascience.com/a-short-guide-to-using-docker-for-your-data-science-environment-912617b3603e)
+    - [Docker for Data Science](https://www.datacamp.com/tutorial/docker-for-data-science-introduction)
+    - [Docker Desktop documentation](https://docs.docker.com/desktop/use-desktop/)
 
 ## Why do I need Docker?
 
