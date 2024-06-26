@@ -364,7 +364,7 @@ def main() -> None:
         "--update-symlink",
         type=str,
         default="",
-        help="The release to update the 'current' symlink to direct to. Data will not be re-downloaded data if it is already present."
+        help="The release version to update the 'current' symlink to direct to. Release directory must be present. Data will not be re-downloaded if it is already present."
     )
     args = parser.parse_args()
 
