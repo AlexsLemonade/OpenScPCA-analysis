@@ -267,7 +267,7 @@ doublet_df_list |>
   purrr::iwalk(
     \(df, dataset) {
       
-      pc_color_columns <- c("scDblFInder prediction" = "scdbl_prediction",
+      pc_color_columns <- c("scDblFinder prediction" = "scdbl_prediction",
                             "scublet prediction" = "scrublet_prediction",
                             "cxds prediction" = "cxds_prediction",
                             "Ground truth" = "ground_truth", 
@@ -289,12 +289,12 @@ doublet_df_list |>
         confusion_call, 
         metric_colors = confusion_colors
       )
-
-      patchwork::wrap_plots(pc_plot_list, pca_metrics) +
+      
+      patchwork::wrap_plots(pc_plot_list) +
         plot_annotation(
             glue::glue("PCA for {dataset}"), 
             theme = theme(plot.title = element_text(size = 16))) + 
-          plot_layout(guides = "collect") 
+        plot_layout(guides = "collect")
     }
   )
 ```
