@@ -12,7 +12,7 @@ We have found that following some common patterns can enhance sharing and reprod
     - Use headings and subheadings to break up the analysis into logical sections.
 - **Session info**: Print out the versions of all packages used in the analysis.
 
-Below we provide more detail about each of these sections for [R Markdown](#r-markdown-notebooks) and [Jupyter](#python-notebooks) notebooks.
+Below we provide more detail about each of these sections for [R Markdown](#r-markdown-notebooks) and [Jupyter](#jupyter-notebooks) notebooks.
 
 ## R Markdown notebooks
 
