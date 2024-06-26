@@ -16,3 +16,13 @@ We specifically recommend these two package managers to specify module-specific 
 Conda can also be used to manage standalone software packages that do not depend on a specific language.
 
 When you [create a module with `create-analysis-module.py`](../../contributing-to-analyses/analysis-modules/creating-a-module.md), you can use one (or more!) of several [flags](../../contributing-to-analyses/analysis-modules/creating-a-module.md#module-creation-script-flags) to establish your module with an initialized software environment.
+
+## Updating software environments
+
+As analysis modules mature, the Data Lab will activate several [GitHub Action workflows](../workflows/index.md) that ensure module reproducibility.
+Once these workflows are activated, you will need to file _two PRs_ every time you wish to update your software environment:
+
+1. First, file a PR that updates your software environment, e.g. `renv.lock`, `conda.lock`, or `Dockerfile` files
+1. After that first PR is been merged, you can then file a second PR that contains your code changes that use the updated environment
+
+For more details on this process, please refer to our [documentation on updating Docker images](../docker/updating-images.md).
