@@ -1,7 +1,7 @@
 # Using Docker images
 
 Each OpenScPCA analysis module has [its own Docker image](./docker-images.md) to create a fully reproducible environment for running the module.
-Once a module's Docker image has been [pushed to the OpenScPCA Docker registry in the Amazon ECR Public Gallery](#STUB_LINK/workflows/build-docker-gha.md), you can obtain the image to locally run modules in a reproducible environment.
+Once a module's Docker image has been [pushed to the OpenScPCA Docker registry in the Amazon ECR Public Gallery](../workflows/build-docker-gha.md), you can obtain the image to locally run modules in a reproducible environment.
 While modules can also be run within specified [conda and/or `renv` environments](../managing-software/index.md), using Docker images provides a more streamlined (but advanced) approach to ensuring a fully reproducible software environment.
 
 !!! note
@@ -41,10 +41,10 @@ To obtain a local copy of a Docker image, follow these steps:
 
 ### Update your resource settings
 
-Before running any Docker image, we recommend updating your Docker Desktop resource settings to ensure Docker has access to sufficient compute resources to run the module. 
+Before running any Docker image, we recommend updating your Docker Desktop resource settings to ensure Docker has access to sufficient compute resources to run the module.
 For more information on module compute requirements, please refer to the [module's `README.md` file](../../contributing-to-analyses/analysis-modules/compute-requirements.md#readme-files).
 
-Follow these instructions to update your Docker Desktop settings for [Mac](https://docs.docker.com/desktop/settings/mac#resources) and [Windows](https://docs.docker.com/desktop/settings/windows/#resources) computers. 
+Follow these instructions to update your Docker Desktop settings for [Mac](https://docs.docker.com/desktop/settings/mac#resources) and [Windows](https://docs.docker.com/desktop/settings/windows/#resources) computers.
 You will need to click "Apply and Restart" to ensure these changes go through.
 
 ### Using `docker run`

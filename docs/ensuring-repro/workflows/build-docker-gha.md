@@ -17,8 +17,7 @@ After they have been pushed, the Docker images are used in a variety of ways:
 - OpenScPCA contributors, as well as the wider research community, can freely pull module-specific images to reproducibly run OpenScPCA analysis modules, for example to locally run analysis modules
 
 All images pushed to ECR will be available from the [OpenScPCA Docker registry in the Amazon ECR Public Gallery](https://gallery.ecr.aws/openscpca) with docker tags of the form `public.ecr.aws/openscpca/{module-name}:latest`.
-For more information about pulling Docker images from ECR and using them locally, please see our documentation on using Docker images. <!-- STUB_LINK using images. -->
-
+For more information about pulling Docker images from ECR and using them locally, please see our documentation on [using Docker images](../docker/using-images.md).
 
 ## Writing a Docker building GHA
 
