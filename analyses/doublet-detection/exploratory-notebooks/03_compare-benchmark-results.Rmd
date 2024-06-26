@@ -264,7 +264,7 @@ For the first five panels, doublets are shown in black and singlets in light gra
 
 ```{r, fig.width = 12, fig.height = 6}
 doublet_df_list |>
-  purrr::iwalk(
+  purrr::imap(
     \(df, dataset) {
       
       pc_color_columns <- c("scDblFinder prediction" = "scdbl_prediction",
