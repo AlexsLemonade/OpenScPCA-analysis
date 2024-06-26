@@ -2,6 +2,7 @@
 
 This page provides some background information on working with the terminal, also known as the command line prompt.
 
+This sentence tests a bad [anchor link](#does-not-exist).
 
 ## What is the terminal?
 
