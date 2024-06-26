@@ -51,7 +51,7 @@ You should perform this step before [filing a pull request](../../contributing-t
     If the `conda-lock` command fails, it may be because a package is not available for one of the platforms listed in the `environment.yml` file.
     Usually this will be a package that is not available for the `osx-arm64` (Apple Silicon) platform.
 
-    If this happens, see the [Software not available on a specific platform](#software-not-available-on-a-specific-platform) section below for instructions on how to handle this situation.
+    If this happens, see the [Software not available on a specific platform](#adding-dependencies-not-available-on-a-specific-platform) section below for instructions on how to handle this situation.
 
 ## Adding packages to the environment
 

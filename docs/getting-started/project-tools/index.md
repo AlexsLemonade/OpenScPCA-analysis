@@ -7,7 +7,7 @@ Therefore, as a contributor, there are several tools you will need to be familia
     - [This documentation section](../../contributing-to-analyses/working-with-git/index.md) explains how to use Git as a contributor, specifically using the [GitKraken GUI](../../technical-setup/install-a-git-client.md#why-use-gitkraken)
 - The [terminal](./using-the-terminal.md), also known as the command line
 - Writing text in [markdown](./writing-in-markdown.md)
-- Software management platforms, including [conda](#STUB_LINK conda software page) and, if you plan to develop R-based modules, [`renv`](#STUB_LINK renv software page)
+- Software management platforms, including [conda](../../ensuring-repro/managing-software/using-conda.md) and, if you plan to develop R-based modules, [`renv`](../../ensuring-repro/managing-software/using-renv.md)
 
 !!! tip
 
