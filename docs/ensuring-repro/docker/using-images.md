@@ -41,9 +41,11 @@ To obtain a local copy of a Docker image, follow these steps:
 
 ### Update your resource settings
 
-Before running any Docker image, we recommend updating your Docker Desktop resource settings to ensure Docker has access to sufficient compute resources to run the module. For more information on module compute requirements, please refer to the [module's `README.md` file](../../contributing-to-analyses/analysis-modules/compute-requirements.md#readme-files).
+Before running any Docker image, we recommend updating your Docker Desktop resource settings to ensure Docker has access to sufficient compute resources to run the module. 
+For more information on module compute requirements, please refer to the [module's `README.md` file](../../contributing-to-analyses/analysis-modules/compute-requirements.md#readme-files).
 
-Follow these instructions to update your Docker Desktop settings for [Mac](https://docs.docker.com/desktop/settings/mac#resources) and [Windows](https://docs.docker.com/desktop/settings/windows/#resources) computers. You will need to click "Apply and Restart" to ensure these changes go through.
+Follow these instructions to update your Docker Desktop settings for [Mac](https://docs.docker.com/desktop/settings/mac#resources) and [Windows](https://docs.docker.com/desktop/settings/windows/#resources) computers. 
+You will need to click "Apply and Restart" to ensure these changes go through.
 
 ### Using `docker run`
 
