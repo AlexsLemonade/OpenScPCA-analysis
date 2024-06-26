@@ -29,7 +29,7 @@ jobs:
 
           # Capture all the bad links (don't let grep exit -1 if no match)
           grep "relative link" build-log.txt > bad_links.txt || true
-          grep "no such anchor" build-log.txt > bad_links.txt || true
+          grep "no such anchor" build-log.txt >> bad_links.txt || true
 
           # Save the number of bad links to github output
           echo "n_bad_links=$(wc -l < bad_links.txt)" >> "$GITHUB_OUTPUT"
