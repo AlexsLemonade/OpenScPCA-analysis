@@ -215,7 +215,7 @@ doublet_df_list <- dataset_names |>
 
 
 
-## Upset plots
+### Upset plots
 
 This section contains upset plots that show overlap across doublet calls from each method, displayed for each dataset.
 
@@ -245,12 +245,12 @@ upset_list <- doublet_df_list |>
 
 
 
-## Evaluating consensus performance
+### Evaluating consensus performance
 
 This section visualizes and evaluates the consensus doublet calls across each dataset.
 
 
-### PCA
+#### PCA
 
 This section plots the PCA for each dataset, clockwise from the top left:
 
@@ -304,7 +304,7 @@ doublet_df_list |>
 ```
 
 
-### Performance metrics 
+#### Performance metrics 
 
 This section calculates a confusion matrix and associated statistics on the consensus classes. 
 
@@ -343,7 +343,7 @@ metric_df <- doublet_df_list |>
 
 
 
-## Conclusions
+### Conclusions
 
 Overall, methods do not have substantial overlap with each other. 
 They each tend to detect different sets of doublets, leading to fairly small sets of consensus doublets. 
@@ -499,6 +499,9 @@ metric_df <- doublet_df_list_2 |>
   dplyr::bind_rows()
 ```
 
+### Conclusions
+
+_Incoming_
 
 ## Session Info
 
