@@ -80,7 +80,7 @@ geneset_scores_file <- file.path(results_dir, "SCPCL000824_gene-set-scores.tsv")
 # output files 
 final_annotations_dir <- file.path(module_base, "cell_type_annotations", "SCPCS000492")
 fs::dir_create(final_annotations_dir)
-final_annotations_file <- file.path(final_annotations_dir, "SCPCL000824_tumor-classifications.tsv")
+final_annotations_file <- file.path(final_annotations_dir, "SCPCL000824_tumor-classifications.tsv.gz")
 
 # reference files to use with SingleR
 ref_sce_file <- file.path(data_dir, "SCPCP000015", "SCPCS000490", "SCPCL000822_processed.rds")
