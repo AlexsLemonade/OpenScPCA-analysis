@@ -151,6 +151,23 @@ def add_parent_dirs(patterns: List[str], dirs: List[str]) -> List[str]:
     return parent_patterns
 
 
+def update_symlink(
+    release: str
+) -> None:
+    """
+    Update symlink when switching test and release data
+    """
+    ### Update current link to point to new or test data if required ###
+    # only do this if we are using test data or the specified release is "current" or "latest", not for specific dates
+    if update_current and not dryrun:
+        # update the current symlink
+        current_symlink = data_dir / "current"
+        current_symlink.unlink(missing_ok=True)
+        current_symlink.symlink_to(release)
+        print(f"Updated 'current' symlink to point to '{release}'.")
+
+
+
 def download_release_data(
     bucket: str,
     release: str,
@@ -244,12 +261,12 @@ def download_release_data(
 
     ### Update current link to point to new or test data if required ###
     # only do this if we are using test data or the specified release is "current" or "latest", not for specific dates
-    if update_current and not dryrun:
-        # update the current symlink
-        current_symlink = data_dir / "current"
-        current_symlink.unlink(missing_ok=True)
-        current_symlink.symlink_to(release)
-        print(f"Updated 'current' symlink to point to '{release}'.")
+    if update_current:
+        if not dryrun:
+            update_symlink(release)
+        else:
+            print(f"\nIf this were not a dry run, the 'current' symlink would be updated to point to '{release}'.")
+
 
 
 def main() -> None:
