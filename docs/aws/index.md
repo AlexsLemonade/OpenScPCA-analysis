@@ -18,7 +18,7 @@ All contributors will have a designated [researcher bucket](working-with-s3-buck
 Please refer to these pages about working with S3:
 
 - [Configuring and logging into AWS from the command line](../technical-setup/environment-setup/configure-aws-cli.md)
-- [Accessing project data from S3](../getting-started/accessing-resources/getting-access-to-data.md#accessing-data-on-s3)
+- [Accessing project data from S3](../getting-started/accessing-resources/getting-access-to-data.md#accessing-data-from-s3)
 - [Using your researcher bucket](working-with-s3-buckets.md)
 
 ## Lightsail for Research: Virtual computing with AWS
