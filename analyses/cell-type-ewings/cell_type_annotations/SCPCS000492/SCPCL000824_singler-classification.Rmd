@@ -1,0 +1,330 @@
+---
+title: "`SCPCL000824` - Using `SingleR` for classification of tumor cells"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+---
+
+## Introduction
+
+
+## Setup
+
+```{r packages}
+suppressPackageStartupMessages({
+  # load required packages
+  library(SingleCellExperiment)
+  library(ggplot2)
+})
+
+# Set default ggplot theme
+theme_set(
+  theme_bw()
+)
+
+# quiet messages
+options(readr.show_col_types = FALSE)
+ComplexHeatmap::ht_opt(message = FALSE)
+```
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The current data directory, found within the repository base directory
+data_dir <- file.path(repository_base, "data", "2024-05-01")
+sample_dir <- file.path(data_dir, "SCPCP000015", "SCPCS000492")
+
+# The path to this module
+module_base <- file.path(repository_base, "analyses", "cell-type-ewings")
+```
+
+```{r}
+# source in helper functions: plot_gene_heatmap() and plot_cnv_heatmap() 
+# create_classification_df() and create_marker_gene_df()
+validation_functions <- file.path(module_base, "scripts", "utils", "tumor-validation-helpers.R")
+source(validation_functions)
+
+# source in helper functions for make_jaccard_matrix() and jaccard()
+jaccard_functions <- file.path(module_base, "scripts", "utils", "jaccard-functions.R")
+source(jaccard_functions)
+```
+
+```{r}
+# Input files
+sce_file <- file.path(sample_dir, "SCPCL000824_processed.rds")
+marker_genes_file <- file.path(module_base, "references", "tumor-marker-genes.tsv")
+
+# annotations from SCPCL000824_tumor-gene-expression-exploration.Rmd
+annotations_dir <- file.path(module_base, "cell_type_annotations", "SCPCS000492")
+annotations_file <- file.path(annotations_dir, "SCPCL000824_tumor-classifications.tsv.gz")
+
+results_dir <- file.path(module_base, "results", "annotate_tumor_cells_output", "SCPCS000492")
+geneset_scores_file <- file.path(results_dir, "SCPCL000824_gene-set-scores.tsv")
+
+# singler results 
+full_singler_results <- file.path(module_base, "scratch", "SingleR", "SCPCL000824_singler-results.rds")
+singler_annotations_file <- file.path(annotations_dir, "SCPCL000824_singler-classifications.tsv")
+```
+
+```{r}
+# read in sce file 
+sce <- readr::read_rds(sce_file)
+
+# read in annotations
+annotations_df <- readr::read_tsv(annotations_file)
+singler_annotations_df <- readr::read_tsv(singler_annotations_file)
+
+# read in full singler results 
+singler_results_list <- readr::read_rds(full_singler_results)
+
+# read in gene set scores
+geneset_scores_df <- readr::read_tsv(geneset_scores_file)
+```
+
+```{r}
+# generate classification df
+classification_df <- sce |> 
+  scuttle::makePerCellDF(use.dimred = "UMAP") |> 
+  # replace UMAP.1 with UMAP1
+  dplyr::rename_with(
+    \(x) stringr::str_replace(x, "^UMAP\\.", "UMAP")
+  ) |>
+  # get rid of excess columns
+  dplyr::select(barcodes, UMAP1, UMAP2, singler_celltype_annotation) |> 
+  dplyr::left_join(annotations_df, by = c("barcodes" = "cell_barcode")) |> 
+  dplyr::left_join(singler_annotations_df, by = "barcodes") |> 
+  dplyr::left_join(geneset_scores_df, by = "barcodes") |>
+  # get the top cell types for each classification method for plotting later 
+  dplyr::mutate(
+    across(
+      ends_with("_classification"),
+      \(x) {
+        x |>
+          forcats::fct_lump_n(7, other_level = "All remaining cell types", ties.method = "first") |>
+          forcats::fct_infreq() |>
+          forcats::fct_relevel("All remaining cell types", after = Inf)
+      },
+      .names = "{.col}_lumped"
+    )
+  )
+```
+
+## SingleR 
+
+```{r}
+annotations_to_plot <- c(
+  "blueprint_tumor_classification_lumped",
+  "updated_singler_classification_lumped",
+  "updated_singler_blueprint_classification_lumped"
+)
+
+annotations_to_plot |> 
+  purrr::map(\(annotation_column){
+    ggplot(
+    classification_df,
+    aes(x = UMAP1, y = UMAP2, color = .data[[annotation_column]])
+  ) +
+    # set points for all "other" points
+    geom_point(
+      data = dplyr::select(
+        classification_df, -.data[[annotation_column]]
+      ),
+      color = "gray80",
+      alpha = 0.5,
+      size = 0.5
+    ) +
+    # set points for desired cell type
+    geom_point(size = 0.5, alpha = 0.5) +
+    facet_wrap(
+      vars(.data[[annotation_column]]),
+      ncol = 3
+    ) +
+    scale_color_brewer(palette = "Dark2") +
+    # remove axis numbers and background grid
+    scale_x_continuous(labels = NULL, breaks = NULL) +
+    scale_y_continuous(labels = NULL, breaks = NULL) +
+    guides(
+      color = guide_legend(
+        title = "Cell types",
+        # more visible points in legend
+        override.aes = list(
+          alpha = 1,
+          size = 1.5
+        )
+      )
+    )
+  })
+```
+
+Compare tumor vs. other in all classification methods vs. updated 
+
+```{r}
+plot_jaccard <- function(classification_df,
+                         singler_results_column,
+                         methods_to_compare
+                         ){
+  
+  # create jaccard matrices for SingleR and CellAssign compared to aneuploid/diploid 
+  jaccard_matrices <- methods_to_compare |>
+    purrr::map(\(name) {
+      make_jaccard_matrix(
+        classification_df,
+        singler_results_column,
+        name
+      )
+    })
+  
+  # Set heatmap padding option
+  heatmap_padding <- 0.2
+  ComplexHeatmap::ht_opt(TITLE_PADDING = grid::unit(heatmap_padding, "in"))
+  # list of heatmaps looking at SingleR/ CellAssign vs tumor/normal 
+  heatmap <- jaccard_matrices |>
+    purrr::imap(
+      \(celltype_mat, celltype_method) {
+        ComplexHeatmap::Heatmap(
+          t(celltype_mat), # transpose because matrix rows are in common & we want a vertical arrangement
+          col = circlize::colorRamp2(c(0, 1), colors = c("white", "darkslateblue")),
+          border = TRUE,
+          ## Row parameters
+          cluster_rows = TRUE,
+          row_title = celltype_method,
+          row_title_gp = grid::gpar(fontsize = 12),
+          row_title_side = "left",
+          row_names_side = "left",
+          row_dend_side = "right",
+          row_names_gp = grid::gpar(fontsize = 10),
+          ## Column parameters
+          cluster_columns = TRUE,
+          column_title = singler_results_column,
+          column_title_gp = grid::gpar(fontsize = 12),
+          column_names_side = "bottom",
+          column_names_gp = grid::gpar(fontsize = 10),
+          column_names_rot = 90,
+          ## Legend parameters
+          heatmap_legend_param = list(
+            title = "Jaccard index",
+            direction = "vertical",
+            legend_width = unit(1.5, "in")
+          ),
+          show_heatmap_legend = celltype_method == "UCell",
+        )
+      }) |>
+    # concatenate vertically into HeatmapList object
+    purrr::reduce(ComplexHeatmap::`%v%`) |>
+    ComplexHeatmap::draw(
+      heatmap_legend_side = "right",
+      # add a margin to the heatmap so labels don't get cut off
+      padding = unit(c(2, 20, 2, 2), "mm")
+    )
+  
+  return(heatmap)
+  
+}
+```
+
+```{r}
+ original_methods <- c(
+    "updated_marker_gene_classification",
+    "auc_classification",
+    "ucell_classification"
+  ) |> 
+  purrr::set_names("Marker genes", "AUCell", "UCell")
+
+heatmap_list <- annotations_to_plot |> 
+  purrr::walk(\(annotation_column) {plot_jaccard(classification_df, annotation_column, original_methods)})
+```
+
+```{r}
+methods <- c(
+    "blueprint_tumor_classification_lumped",
+    "updated_singler_classification_lumped",
+    "updated_singler_blueprint_classification_lumped"
+  ) |> 
+  purrr::set_names("Blueprint", "Original", "Original and Blueprint")
+
+heatmap_list <- plot_jaccard(classification_df, "singler_celltype_annotation", methods)
+```
+
+Validate marker gene and gene set expression across all three methods 
+
+```{r}
+plot_markers_df <- create_marker_gene_df(
+  sce,
+  classification_df, 
+  marker_genes_file
+)
+```
+
+```{r}
+# create a density plot showing the distribution of marker gene expression across classification methods 
+marker_density_df <- plot_markers_df |>
+  tidyr::pivot_longer(
+    cols = ends_with("classification"),
+    names_to = "method",
+    values_to = "classification"
+  ) |> 
+  dplyr::mutate(
+    method = dplyr::case_when(
+      method == "marker_gene_classification" ~ "Marker genes only",
+      method == "updated_marker_gene_classification" ~ "Marker gene cutoff from 822",
+      method == "auc_classification" ~ "AUCell",
+      method == "ucell_classification" ~ "UCell",
+      method == "blueprint_tumor_classification" ~ "Blueprint",
+      method == "updated_singler_classification" ~ "Original SingleR with tumor",
+      method == "updated_singler_blueprint_classification" ~ "Tumor + SingleR + Blueprint"
+    ),
+    classification = dplyr::if_else(classification == "Tumor", "Tumor", "Other")
+  ) 
+
+ggplot(marker_density_df, aes(x = sum_transformed_exp, color = classification)) +
+  geom_density() +
+  facet_wrap(vars(method))
+```
+
+
+```{r}
+# plot gene set scores for each cell  
+geneset_plot_df <- classification_df |> 
+  dplyr::select(barcodes, UMAP1, UMAP2, ends_with("classification"), starts_with("mean-")) |> 
+  tidyr::pivot_longer(
+    cols = starts_with("mean"),
+    names_to = "geneset",
+    values_to = "mean_score"
+  ) |> 
+  dplyr::mutate(
+    geneset = stringr::word(geneset, -1, sep = "-")
+  ) |> 
+  tidyr::pivot_longer(
+    cols = ends_with("classification"),
+    names_to = "method",
+    values_to = "classification"
+  ) |> 
+  dplyr::mutate(
+    method = dplyr::case_when(
+      method == "marker_gene_classification" ~ "Marker genes only",
+      method == "updated_marker_gene_classification" ~ "Marker gene cutoff from 822",
+      method == "auc_classification" ~ "AUCell",
+      method == "ucell_classification" ~ "UCell",
+      method == "blueprint_tumor_classification" ~ "Blueprint",
+      method == "updated_singler_classification" ~ "Original SingleR with tumor",
+      method == "updated_singler_blueprint_classification" ~ "Tumor + SingleR + Blueprint"
+    ),
+    classification = dplyr::if_else(classification == "Tumor", "Tumor", "Other")
+    ) 
+  
+ggplot(geneset_plot_df, aes(x = mean_score, color = classification)) +
+  geom_density(bw = 0.05) +
+  facet_grid(rows = vars(method), 
+             cols = vars(geneset))
+
+```
+
+Look at consensus across all three references. 
+For normal cells, identify some top markers and see if they are expressed in that group of cells compared to all other cells. 
+
