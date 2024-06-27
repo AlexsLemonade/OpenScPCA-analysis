@@ -12,7 +12,7 @@ Changing the software environment means that module-specific Docker image also n
     If these conditions are not met, you do not need to take any specific steps to update Docker images when you update a module's software environment.
 
 
-## Context (header help????)
+## Context (header help???)
 
 Docker images in OpenScPCA are used in two primary circumstances:
 
