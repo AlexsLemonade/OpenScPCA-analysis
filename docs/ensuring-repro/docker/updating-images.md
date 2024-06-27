@@ -18,4 +18,4 @@ Once both of these workflows have been activated, you will need to file two PRs 
 This PR should not include additional code changes that require the updated environment.
     - Once this PR is merged, the module's Docker image will be rebuilt and pushed to the OpenScPCA Docker Registry
 1. Second, file a PR that includes the code changes which use the update software environment
-    - By ensuring the updated Docker image is pushed to the registry _before_ filing this PR, the [module testing GHA](../workflows/run-module-gha.md) will be able to use most up-to-date Docker image and avoid dependency errors
+    - By ensuring the updated Docker image is pushed to the registry _before_ filing this PR, the [module testing GHA](../workflows/run-module-gha.md) will be able to use the most up-to-date Docker image and avoid dependency errors
