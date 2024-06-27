@@ -20,7 +20,7 @@ When you [create a module with `create-analysis-module.py`](../../contributing-t
 ## Updating software environments
 
 As analysis modules mature, the Data Lab will activate several [GitHub Action workflows](../workflows/index.md) that ensure module reproducibility.
-Once these workflows are activated, you will need to file _two PRs_ every time you wish to update your software environment:
+Once these workflows are activated, you will need to file _two PRs_ every time you wish to update your software environment, including adding or updating a package used in R or Python: 
 
 1. First, file a PR that updates your software environment, e.g. `renv.lock`, `conda.lock`, or `Dockerfile` files
 1. After that first PR is been merged, you can then file a second PR that contains your code changes that use the updated environment

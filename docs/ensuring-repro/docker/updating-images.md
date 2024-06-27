@@ -2,7 +2,7 @@
 
 Over the course of module development, new dependencies and packages may get added or removed, thereby changing the [module's software environment](../managing-software/index.md).
 For example, your environment will change if you add a new R or Python package to perform additional analyses.
-Changing the software environment means that module-specific Docker image also needs to be updated to incorporate those changes.
+Changing the software environment means that the module-specific Docker image also needs to be updated to incorporate those changes.
 
 !!! note
     These instructions assume that the Data Lab has already activated both of the [GitHub Action (GHA) workflows](../../contributing-to-analyses/analysis-modules/creating-a-module.md#module-workflows) that were created when the module was established, including the [module-testing GHA](../workflows/run-module-gha.md) and the [Docker-building GHA](#STUB_LINK../workflows/docker-build-gha.md).
@@ -28,7 +28,7 @@ Therefore, for this GHA to pass, any environment changes must have already been 
 Whenever you add or remove a new package or dependency to your module's software environment, you will generally need to take a two-step process to add new code that uses those new dependencies:
 
 1. First, file a PR that _only contains_ your updated environment files, e.g. `renv.lock` and/or `conda-lock.yml`.
-_This PR should not any additional code changes that need this updated environment._
+_This PR should not include any additional code changes that require this updated environment._
     - Once this PR is merged, the module's Docker image will be [rebuilt and pushed to the OpenScPCA Docker Registry](#STUB_LINK../workflows/docker-build-gha.md)
 1. Then, you can file one or more PRs with code changes that use the update software environment.
     - By ensuring the updated Docker image was pushed to the registry _before_ filing this PR, the [module testing GHA](../workflows/run-module-gha.md) will be able to use the most up-to-date Docker image and avoid dependency errors
