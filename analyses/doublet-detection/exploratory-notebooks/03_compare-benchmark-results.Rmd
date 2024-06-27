@@ -106,22 +106,13 @@ plot_pca_calls <- function(df,
 }
 ```
 
-## Explore consensus across methods
 
 
-### Read and prepare input data
+## Read and prepare input data
 
-First, we'll read in and combine doublet results into a list of data frames for each dataset.
-We'll also create new columns for each dataset:
+First, we'll read in and combine doublet results, as well as PCA coordinates, into a list of data frames for each dataset. 
 
-- `consensus_class`, which will be "doublet" if all three methods are doublet, "singlet" if all three methods are singlet, and "ambiguous" if there are any disagreements
-- `consensus_call`, which will be "doublet" if _all_ methods predict "doublet," and "singlet" otherwise
-- `confusion_call`, which will classify the consensus call as one of "tp", "tn", "fp", or "fn" (true/false positive/negative) based on `consensus_call`
-
-      
-      
-
-```{r paths}
+```{r dataset names}
 # find all dataset names to process:
 dataset_names <- list.files(result_dir, pattern = "*_scrublet.tsv") |>
   stringr::str_remove("_scrublet.tsv")
@@ -158,7 +149,8 @@ doublet_df_list <- dataset_names |>
 
       # grab ground truth and PCA coordinates
       sce <- readr::read_rds(sce_file)
-      dataset_df <- scuttle::makePerCellDF(sce, use.dimred = "PCA") |>
+      
+      scuttle::makePerCellDF(sce, use.dimred = "PCA") |>
         tibble::rownames_to_column(var = "barcodes") |>
         dplyr::select(barcodes,
                       ground_truth = ground_truth_doublets, 
@@ -172,55 +164,19 @@ doublet_df_list <- dataset_names |>
           scdbl_df, 
           by = "barcodes"
         ) 
-      
-      # Add consensus columns:
-      # - consensus_class: "doublet" if all three methods are doublet, "singlet" if all three methods are singlet, 
-      #    and "ambiguous" if there are any disagreements
-      # - consensus_call: "doublet" if all three methods are doublet, and "singlet" otherwise
-      # - confusion_call: tp/tn/fp/fn based on the `consensus_call` column
-      dataset_df <- dataset_df |>
-        dplyr::rowwise() |>
-        # Add column `consensus_call`
-        dplyr::mutate(
-          consensus_call = dplyr::if_else(
-            all(c(scdbl_prediction, scrublet_prediction, cxds_prediction) == "doublet"),
-            "doublet", 
-            "singlet"
-          )
-        ) |>
-        # Add column `consensus_class`
-        dplyr::mutate(
-          consensus_class = dplyr::case_when(
-            consensus_call == "doublet" ~ "doublet",
-            all(c(scdbl_prediction, scrublet_prediction, cxds_prediction) == "singlet") ~ "singlet", 
-            .default = "ambiguous"
-          )
-         ) |>
-        # Add column `confusion_call`
-        dplyr::mutate(
-          confusion_call = dplyr::case_when(
-            consensus_call == "doublet" && ground_truth == "doublet" ~ "tp",
-            consensus_call == "singlet" && ground_truth == "singlet" ~ "tn",
-            consensus_call == "doublet" && ground_truth == "singlet" ~ "fp",
-            consensus_call == "singlet" && ground_truth == "doublet" ~ "fn"
-          )
-        )
-      
-      return(dataset_df)
-    }
+    } 
   ) |> 
   purrr::set_names(dataset_names)
 ```
 
 
 
-
-### Upset plots
+## Upset plots
 
 This section contains upset plots that show overlap across doublet calls from each method, displayed for each dataset.
 
 ```{r}
-upset_list <- doublet_df_list |>
+doublet_df_list |>
   purrr::iwalk(
     \(df, dataset) {
       
@@ -244,13 +200,57 @@ upset_list <- doublet_df_list |>
 ```
 
 
+## Explore consensus across methods
 
-### Evaluating consensus performance
+Next, well explore the consensus of doublet predictions across methods. 
+To this end, we'll create some new columns for each dataset:
 
-This section visualizes and evaluates the consensus doublet calls across each dataset.
+- `consensus_class`, which will be "doublet" if all three methods are doublet, "singlet" if all three methods are singlet, and "ambiguous" if there are any disagreements
+- `consensus_call`, which will be "doublet" if _all_ methods predict "doublet," and "singlet" otherwise
+- `confusion_call`, which will classify the consensus call as one of "tp", "tn", "fp", or "fn" (true/false positive/negative) based on `consensus_call`
 
+```{r}
+doublet_df_list <- doublet_df_list |>
+  purrr::map(
+    \(dataset_df) {
+      
+      dataset_df |>
+        dplyr::rowwise() |>
+        # Add column `consensus_call`
+        #  "doublet" if all three methods are doublet, and "singlet" otherwise
+        dplyr::mutate(
+          consensus_call = dplyr::if_else(
+            all(c(scdbl_prediction, scrublet_prediction, cxds_prediction) == "doublet"),
+            "doublet", 
+            "singlet"
+          )
+        ) |>
+        # Add column `consensus_class`
+        #  "doublet" if all three methods are doublet, "singlet" if all three methods are singlet, 
+        #  and "ambiguous" if there are any disagreements
+        dplyr::mutate(
+          consensus_class = dplyr::case_when(
+            consensus_call == "doublet" ~ "doublet",
+            all(c(scdbl_prediction, scrublet_prediction, cxds_prediction) == "singlet") ~ "singlet", 
+            .default = "ambiguous"
+          )
+         ) |>
+        # Add column `confusion_call`
+        #  tp/tn/fp/fn based on the `consensus_call` column
+        dplyr::mutate(
+          confusion_call = dplyr::case_when(
+            consensus_call == "doublet" && ground_truth == "doublet" ~ "tp",
+            consensus_call == "singlet" && ground_truth == "singlet" ~ "tn",
+            consensus_call == "doublet" && ground_truth == "singlet" ~ "fp",
+            consensus_call == "singlet" && ground_truth == "doublet" ~ "fn"
+          )
+        )
+      }
+  ) 
+```
+      
 
-#### PCA
+### PCA
 
 This section plots the PCA for each dataset, clockwise from the top left:
 
@@ -283,7 +283,7 @@ doublet_df_list |>
               color_column = !!sym(color_column), 
               plot_type = "calls",
               title = plot_title
-            )}
+            ) + theme(legend.position = "none")}
         ) 
       # plot for consensus_class, which needs three colors
       # note that the list name isn't actually used here
@@ -304,9 +304,9 @@ doublet_df_list |>
 ```
 
 
-#### Performance metrics 
+### Performance metrics 
 
-This section calculates a confusion matrix and associated statistics on the consensus classes. 
+This section shows a table of the consensus class counts and calculates a confusion matrix with associated statistics from the consensus calls: 
 
 ```{r}
 metric_df <- doublet_df_list |>
@@ -314,7 +314,7 @@ metric_df <- doublet_df_list |>
     \(df, dataset) {
         print(glue::glue("======================== {dataset} ========================"))
       
-        cat("Table of consensus calls:")
+        cat("Table of consensus class counts:")
         print(table(df$consensus_class))
         
         cat("\n\n")
@@ -371,13 +371,13 @@ Since there are only two methods here, we will create two columns for this data:
 
 ```{r}
 # modify existing consensus columns to only consider 2 methods
-doublet_df_list_2 <- doublet_df_list |>
+doublet_df_list <- doublet_df_list |>
   purrr::map(
     \(dataset_df) {
       
       dataset_df <- dataset_df |>
         dplyr::rowwise() |>
-        # Add column `consensus_call`
+        # Update column `consensus_call`
         dplyr::mutate(
           consensus_call = dplyr::if_else(
             all(c(scdbl_prediction, cxds_prediction) == "doublet"),
@@ -385,7 +385,7 @@ doublet_df_list_2 <- doublet_df_list |>
             "singlet"
           )
         ) |>
-        # Add column `consensus_class`
+        # Add Update `consensus_class`
         dplyr::mutate(
           consensus_class = dplyr::case_when(
             consensus_call == "doublet" ~ "doublet",
@@ -393,7 +393,7 @@ doublet_df_list_2 <- doublet_df_list |>
             .default = "ambiguous"
           )
          ) |>
-        # Add column `confusion_call`
+        # Add Update `confusion_call`
         dplyr::mutate(
           confusion_call = dplyr::case_when(
             consensus_call == "doublet" && ground_truth == "doublet" ~ "tp",
@@ -420,11 +420,9 @@ This section plots the PCA for each dataset, clockwise from the top left:
 4. Consensus _call_ droplets are either "doublet" or "singlet"
 5. Consensus _class_: droplets are either "doublet", "singlet", or "ambiguous"
 
-For the first four panels, doublets are shown in black and singlets in light gray.
-
 
 ```{r, fig.width = 12, fig.height = 6}
-doublet_df_list_2 |>
+doublet_df_list |>
   purrr::imap(
     \(df, dataset) {
       
@@ -441,7 +439,7 @@ doublet_df_list_2 |>
               color_column = !!sym(color_column), 
               plot_type = "calls",
               title = plot_title
-            )}
+            ) + theme(legend.position = "none")}
         ) 
       # plot for consensus_class, which needs three colors
       # note that the list name isn't actually used here
@@ -464,15 +462,15 @@ doublet_df_list_2 |>
 
 ### Performance metrics 
 
-This section calculates a confusion matrix and associated statistics on the consensus classes. 
+This section shows a table of the consensus class counts and calculates a confusion matrix with associated statistics from the consensus calls: 
 
 ```{r}
-metric_df <- doublet_df_list_2 |>
+metric_df <- doublet_df_list |>
   purrr::imap( 
     \(df, dataset) {
         print(glue::glue("======================== {dataset} ========================"))
       
-        cat("Table of consensus calls:")
+        cat("Table of consensus class counts:")
         print(table(df$consensus_class))
         
         cat("\n\n")
@@ -501,7 +499,20 @@ metric_df <- doublet_df_list_2 |>
 
 ### Conclusions
 
-_Incoming_
+Considering only `scDblFinder` and `cxds`, we see several particular differences in statistics:
+
+- Balanced accuracy for `hm-6k` and `HMEC-orig-MULTI` are about the same here as for the consensus among all methods, but accuracy has substantially _decreased_ for `pbmc-1B-dm` and `pdx-MULTI1`
+- By contrast, kappa values have increased for all datasets, with the most marked increase for `pdx-MULTI`.
+
+Even so, only `hm-6k` (the "easy" dataset) has both a high kappa and high balanced accuracy.
+While `HMEC-orig-MULTI`'s balanced accuracy is fairly high, its kappa value is not.
+
+
+```{r}
+metric_df
+```
+
+
 
 ## Session Info
 
