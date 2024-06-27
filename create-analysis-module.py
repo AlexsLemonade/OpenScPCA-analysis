@@ -220,7 +220,7 @@ def main() -> None:
         (module_dir / ".Rprofile").write_text(
             "# Don't activate renv in an OpenScPCA docker image\n"
             "if (Sys.getenv('OPENSCPCA_DOCKER') != 'TRUE') {\n"
-            "    source('renv/activate.R')\n"
+            "  source('renv/activate.R')\n"
             "}\n"
         )
 
