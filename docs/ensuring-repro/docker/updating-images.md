@@ -4,16 +4,6 @@ Over the course of module development, new dependencies and packages may get add
 For example, your environment will change if you add a new R or Python package to perform additional analyses.
 Changing the software environment means that the module-specific Docker image also needs to be updated to incorporate those changes.
 
-!!! note
-    These instructions assume that the Data Lab has already activated both of the [GitHub Action (GHA) workflows](../../contributing-to-analyses/analysis-modules/creating-a-module.md#module-workflows) that were created when the module was established, including the [module-testing GHA](../workflows/run-module-gha.md) and the [Docker-building GHA](#STUB_LINK../workflows/docker-build-gha.md).
-
-    In addition, the module-testing GHA should have already been updated to build its runtime environment from the module's Docker image, not from other environment files (e.g. `renv.lock` or `conda-lock.yml`.)
-
-    If these conditions are not met, you do not need to take any specific steps to update Docker images when you update a module's software environment.
-
-
-## Context (header help???)
-
 Docker images in OpenScPCA are used in two primary circumstances:
 
 1. When generating module results as part of the `OpenScPCA-nf` workflow <!-- STUB_LINK -->
@@ -22,6 +12,13 @@ Docker images in OpenScPCA are used in two primary circumstances:
 
 The module-testing GHA will fail if any module dependencies are missing from the Docker image it pulls down.
 Therefore, for this GHA to pass, any environment changes must have already been incorporated into the module's Docker image and pushed to the Docker registry.
+
+!!! note
+    These instructions assume that the Data Lab has already activated both of the [GitHub Action (GHA) workflows](../../contributing-to-analyses/analysis-modules/creating-a-module.md#module-workflows) that were created when the module was established, including the [module-testing GHA](../workflows/run-module-gha.md) and the [Docker-building GHA](#STUB_LINK../workflows/docker-build-gha.md).
+
+    In addition, the module-testing GHA should have already been updated to build its runtime environment from the module's Docker image, not from other environment files (e.g. `renv.lock` or `conda-lock.yml`.)
+
+    If these conditions are not met, you do not need to take any specific steps to update Docker images when you update a module's software environment.
 
 ## Steps to update a Docker image
 
