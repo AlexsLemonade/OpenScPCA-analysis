@@ -54,7 +54,7 @@ If necessary, you can also include statements to install other software using th
 ## Example Dockerfiles
 
 Below are some example Dockerfiles for R and conda-based environments that use the `renv.lock` and `conda-lock.yml` files, respectively, to install required software in the image.
-Note that these are relatively minimal examples, and do not include elements like `LABEL` statements which that normally be found in a final Dockerfile.
+Note that these are relatively minimal examples, and do not include elements like `LABEL` statements that would normally be found in a final OpenScPCA Dockerfile.
 
 ### R-based images
 
