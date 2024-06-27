@@ -14,7 +14,7 @@ The module-testing GHA will fail if any module dependencies are missing from the
 Therefore, for this GHA to pass, any environment changes must have already been incorporated into the module's Docker image and pushed to the Docker registry.
 
 !!! note
-    These instructions assume that the Data Lab has already activated both of the [GitHub Action (GHA) workflows](../../contributing-to-analyses/analysis-modules/creating-a-module.md#module-workflows) that were created when the module was established, including the [module-testing GHA](../workflows/run-module-gha.md) and the [Docker-building GHA](#STUB_LINK../workflows/docker-build-gha.md).
+    These instructions assume that the Data Lab has already activated both of the [GitHub Action (GHA) workflows](../../contributing-to-analyses/analysis-modules/creating-a-module.md#module-workflows) that were created when the module was established, including the [module-testing GHA](../workflows/run-module-gha.md) and the [Docker-building GHA](../workflows/build-docker-gha.md).
 
     In addition, the module-testing GHA should have already been updated to build its runtime environment from the module's Docker image, not from other environment files (e.g. `renv.lock` or `conda-lock.yml`.)
 
@@ -26,6 +26,6 @@ Whenever you add or remove a new package or dependency to your module's software
 
 1. First, file a PR that _only contains_ your updated environment files, e.g. `renv.lock` and/or `conda-lock.yml`.
 _This PR should not include any additional code changes that require this updated environment._
-    - Once this PR is merged, the module's Docker image will be [rebuilt and pushed to the OpenScPCA Docker Registry](#STUB_LINK../workflows/docker-build-gha.md)
+    - Once this PR is merged, the module's Docker image will be [rebuilt and pushed to the OpenScPCA Docker Registry](../workflows/build-docker-gha.md)
 1. Then, you can file one or more PRs with code changes that use the update software environment.
     - By ensuring the updated Docker image was pushed to the registry _before_ filing this PR, the [module testing GHA](../workflows/run-module-gha.md) will be able to use the most up-to-date Docker image and avoid dependency errors
