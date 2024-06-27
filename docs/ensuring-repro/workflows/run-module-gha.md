@@ -28,9 +28,9 @@ This way, the module testing GHA can directly call this script to execute the en
     The Data Lab will generally maintain and write module testing GHAs, but you are welcome to do so as well if you are interested!
     See this GitHub documentation to learn about [workflow syntax for GHAs](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions).
 
-When you [create a new module](../../contributing-to-analyses/analysis-modules/creating-a-module.md), a GHA workflow file is created in the file `.github/workflows/run_{module-name}.yml`.
+When you [create a new module](../../contributing-to-analyses/analysis-modules/creating-a-module.md), a module testing GHA workflow file is created in the file `.github/workflows/run_{module-name}.yml`.
 This initial file is inactive, meaning it will not run automatically run on the two aforementioned triggers.
-As analysis module begins to mature over time, the Data Lab staff will activate this workflow file so the module can be regularly tested.
+As an analysis module matures, the Data Lab staff will activate this GHA file so the module can be regularly tested.
 
 ### GHA steps
 
@@ -41,9 +41,9 @@ Each module testing GHA is initially created with these steps, which should be u
     - Use the [`download-data.py`](../../getting-started/accessing-resources/getting-access-to-data.md#using-the-download-data-script) and/or [`download-results.py`](../../getting-started/accessing-resources/getting-access-to-data.md#accessing-scpca-module-results) scripts to specify the set of input files you need, with the `--test-data` flag to specify downloading the test data.
     - After this step, the `data/current` directory will point to the test data, ensuring the module GHA runs using the test data.
 - Set up the module environment
-    - Depending on [the flags used when creating your module](../../contributing-to-analyses/analysis-modules/creating-a-module.md#module-creation-script-flags), this will steps steps needed to install the [`renv` and/or conda environment](../managing-software/index.md) from existing environment files (`renv.lock` and/or `conda-lock.yml`, respectively).
+    - Depending on [the flags used when creating your module](../../contributing-to-analyses/analysis-modules/creating-a-module.md#module-creation-script-flags), these steps will install the [`renv` and/or conda environment](../managing-software/index.md) from existing environment files (`renv.lock` and/or `conda-lock.yml`, respectively).
 - Run the analysis module
     - Generally, this will involve calling the [module's run script](../../contributing-to-analyses/analysis-modules/running-a-module.md).
 
-As an analysis module matures, the GHA will be updated to run the analysis in the module's Docker image, rather than using the `renv` and/or conda environment files.
+As an analysis module matures, the GHA will be updated to run the analysis in the [module's Docker image](../docker/docker-images.md), rather than using the `renv` and/or conda environment files.
 Module testing GHAs can use their module's Docker images once the image has been built and pushed to the registry. <!-- STUB LINK building/updating docker images -->
