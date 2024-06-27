@@ -156,13 +156,23 @@ def update_symlink(
     target: str
 ) -> None:
     """
-    Update symlink to direct to target
+    Update the {data_dir}/current symlink to direct to target
     """
-    current_symlink = data_dir / "current"
-    current_symlink.unlink(missing_ok=True)
-    current_symlink.symlink_to(target)
-    print(f"Updated 'current' symlink to point to '{target}'.")
+    target_path = data_dir / target
 
+    # Ensure the target path exists before updating symlink
+    if not target_path.exists():
+        print(
+            f"\nThe requested target directory {target_path} for the 'current' symlink does not exist.\n",
+            "Please instead download the desired release with the `--release` flag.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    else:
+        current_symlink = data_dir / "current"
+        current_symlink.unlink(missing_ok=True)
+        current_symlink.symlink_to(target_path)
+        print(f"Updated 'current' symlink to point to '{target_path}'.")
 
 
 def download_release_data(
@@ -446,18 +456,11 @@ def main() -> None:
 
     ### Update symlink if requested, without downloading data, if the target directory exists
     if args.update_symlink:
-        current_symlink = args.data_dir / "current"
-        desired_target = args.data_dir / args.update_symlink
-        if desired_target.exists():
+        if not args.dryrun:
             update_symlink(args.data_dir, args.update_symlink)
-            sys.exit(0)
         else:
-            print(
-                f"The requested target directory {args.update_symlink} for the 'current' symlink does not exist.\n",
-                " Please instead download the desired release with the `--release` flag.",
-                file=sys.stderr,
-            )
-            sys.exit(1)
+            print(f"\nThe 'current' symlink would be updated to point to '{args.release}'.")
+        sys.exit(0)
 
     ### List the available releases or modules ###
     all_releases = get_releases(
