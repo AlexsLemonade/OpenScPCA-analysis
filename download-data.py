@@ -262,7 +262,7 @@ def download_release_data(
         if not dryrun:
             update_symlink(download_dir, release)
         else:
-            print(f"\nIf this were not a dry run, the 'current' symlink would be updated to point to '{release}'.")
+            print(f"\nThe 'current' symlink would be updated to point to '{release}'.")
 
 
 
@@ -364,7 +364,7 @@ def main() -> None:
         "--update-symlink",
         type=str,
         default="",
-        help="The release version to update the 'current' symlink to direct to. Release directory must be present. Data will not be re-downloaded if it is already present."
+        help="The release version to update the 'current' symlink to direct to. Release directory must be present. No data will be downloaded."
     )
     args = parser.parse_args()
 
