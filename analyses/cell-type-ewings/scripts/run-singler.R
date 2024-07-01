@@ -152,21 +152,26 @@ singler_results_list <- list(
 ) |> 
   purrr::set_names(ref_names)
 
-# make a df with fine and ont labels from celldex ref 
-blueprint_labels_df <- data.frame(
-  ontology = blueprint_ref$label.ont,
-  annotation = blueprint_ref$label.fine
+
+# get ontology labels 
+cl_ont <- ontoProc::getOnto("cellOnto")
+cl_df <- data.frame(
+  annotation = cl_ont$name, # CL ID
+  ontology = names(cl_ont$name) # human readable name 
 )
 
 # create a single df with results from all singler runs
 annotations_df <- singler_results_list |> 
   purrr::imap(\(results, ref_name){
+
+    
+    # save data frame with _matching_ ontology ids and cell names
     df <- data.frame(
       barcodes = rownames(results),
       ontology = results$pruned.labels
     ) |>
       # replace ont labels with full human readable labels
-      dplyr::left_join(blueprint_labels_df, by = c("ontology"), relationship = "many-to-many") |> 
+      dplyr::left_join(cl_df, by = c("ontology")) |> 
       # if its not found in blueprint use the original annotation 
       dplyr::mutate(annotation = dplyr::if_else(is.na(annotation), ontology, annotation)) 
     
