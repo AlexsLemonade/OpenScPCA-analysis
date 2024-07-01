@@ -1,6 +1,11 @@
 #!/usr/bin/env Rscript
 
 # this script is used to run SingleR using a reference SCE + BlueprintEncode from celldex 
+# SingleR is run three times using different references. 
+# 1. Both the full BlueprintEncodeData reference from celldex and the ref SCE where cells are either annotated as tumor or normal 
+# Ambiguous cells are removed from the reference 
+# 2. Ref SCE where all tumor cells are labeled as tumor and all other cells keep the original annotation obtained from running SingleR as part of scpca-nf 
+# 3. Ref SCE with tumor cells labeled as in #2 combined with the full BlueprintEncodeData reference 
 
 project_root <- here::here()
 renv::load(project_root)
@@ -175,7 +180,8 @@ annotations_df <- singler_results_list |>
     return(df)
     
   }) |> 
-  purrr::reduce(dplyr::inner_join, by = "barcodes")
+  purrr::reduce(dplyr::inner_join, by = "barcodes") |> 
+  unique()
 
 # save results 
 readr::write_rds(singler_results_list, full_singler_output)
