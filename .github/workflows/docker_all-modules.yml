@@ -35,6 +35,7 @@ jobs:
           - hello-R
           - hello-python
           - simulate-sce
+          - cell-type-ewings
     uses: ./.github/workflows/build-push-docker-module.yml
     with:
       module: ${{ matrix.module }}
