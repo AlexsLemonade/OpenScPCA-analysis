@@ -49,6 +49,7 @@ make_jaccard_matrix <- function(celltype_df, colname1, colname2) {
   return(jaccard_matrix)
 }
 
+# function that turns jaccard matrices into a list of heatmaps 
 make_heatmap_list <- function(jaccard_matrices, column_title, legend_match){
  
   # Set heatmap padding option
@@ -87,12 +88,32 @@ make_heatmap_list <- function(jaccard_matrices, column_title, legend_match){
         )
       }) |>
     # concatenate vertically into HeatmapList object
-    purrr::reduce(ComplexHeatmap::`%v%`) |>
-    ComplexHeatmap::draw(
-      heatmap_legend_side = "right",
-      # add a margin to the heatmap so labels don't get cut off
-      padding = unit(c(2, 20, 2, 2), "mm")
-    )
-   
+    purrr::reduce(ComplexHeatmap::`%v%`)
+  
   return(heatmap)
+}
+
+# function to plot jaccard matrices to compare one set of annotations to other methods 
+# `annotation_column` will be the columns and will be compared to each method listed in `methods_to_compare` 
+plot_jaccard <- function(classification_df,
+                         annotation_column, # single column of annotations to compare to all methods
+                         methods_to_compare, # list of methods to compare to annotations
+                         column_title, # title for columns
+                         legend_match # what legend to keep, should be a name in `methods_to_compare`
+){
+  
+  # create jaccard matrices 
+  jaccard_matrices <- methods_to_compare |>
+    purrr::map(\(name) {
+      make_jaccard_matrix(
+        classification_df,
+        annotation_column,
+        name
+      )
+    })
+  
+  heatmap <- make_heatmap_list(jaccard_matrices, column_title, legend_match)
+  
+  return(heatmap)
+  
 }
