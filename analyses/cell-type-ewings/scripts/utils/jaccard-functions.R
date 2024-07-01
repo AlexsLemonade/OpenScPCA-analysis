@@ -48,3 +48,51 @@ make_jaccard_matrix <- function(celltype_df, colname1, colname2) {
   
   return(jaccard_matrix)
 }
+
+make_heatmap_list <- function(jaccard_matrices, column_title, legend_match){
+ 
+  # Set heatmap padding option
+  heatmap_padding <- 0.2
+  ComplexHeatmap::ht_opt(TITLE_PADDING = grid::unit(heatmap_padding, "in"))
+  # list of heatmaps looking at SingleR/ CellAssign vs tumor/normal 
+  heatmap <- jaccard_matrices |>
+    purrr::imap(
+      \(celltype_mat, celltype_method) {
+        ComplexHeatmap::Heatmap(
+          t(celltype_mat), # transpose because matrix rows are in common & we want a vertical arrangement
+          col = circlize::colorRamp2(c(0, 1), colors = c("white", "darkslateblue")),
+          border = TRUE,
+          ## Row parameters
+          cluster_rows = TRUE,
+          row_title = celltype_method,
+          row_title_gp = grid::gpar(fontsize = 12),
+          row_title_side = "left",
+          row_names_side = "left",
+          row_dend_side = "right",
+          row_names_gp = grid::gpar(fontsize = 10),
+          ## Column parameters
+          cluster_columns = TRUE,
+          column_title = column_title,
+          column_title_gp = grid::gpar(fontsize = 12),
+          column_names_side = "bottom",
+          column_names_gp = grid::gpar(fontsize = 10),
+          column_names_rot = 90,
+          ## Legend parameters
+          heatmap_legend_param = list(
+            title = "Jaccard index",
+            direction = "vertical",
+            legend_width = unit(1.5, "in")
+          ),
+          show_heatmap_legend = celltype_method == legend_match,
+        )
+      }) |>
+    # concatenate vertically into HeatmapList object
+    purrr::reduce(ComplexHeatmap::`%v%`) |>
+    ComplexHeatmap::draw(
+      heatmap_legend_side = "right",
+      # add a margin to the heatmap so labels don't get cut off
+      padding = unit(c(2, 20, 2, 2), "mm")
+    )
+   
+  return(heatmap)
+}
