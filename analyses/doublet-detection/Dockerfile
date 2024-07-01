@@ -8,6 +8,9 @@ LABEL org.opencontainers.image.source="https://github.com/AlexsLemonade/OpenScPC
 # set a name for the conda environment
 ARG ENV_NAME=openscpca-doublet-detection
 
+# Set an environment variable to allow checking if we are in an OpenScPCA container
+ENV OPENSCPCA_DOCKER TRUE
+
 # set environment variables to install miniconda
 ENV PATH="/opt/conda/bin:${PATH}"
 

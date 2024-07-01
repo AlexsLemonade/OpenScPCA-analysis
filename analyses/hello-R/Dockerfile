@@ -6,6 +6,16 @@ FROM bioconductor/r-ver:3.19
 LABEL org.opencontainers.image.authors="OpenScPCA scpca@ccdatalab.org"
 LABEL org.opencontainers.image.source="https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/hello-R"
 
+# Set an environment variable to allow checking if we are in an OpenScPCA container
+ENV OPENSCPCA_DOCKER TRUE
+
+# Install additional system dependencies
+RUN apt-get -y update &&  \
+    DEBIAN_FRONTEND=noninteractive \
+    apt-get install --no-install-recommends -y \
+    pandoc \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install renv to enable later package installation
 RUN Rscript -e "install.packages('renv')"
 
