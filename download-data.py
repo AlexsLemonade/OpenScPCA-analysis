@@ -151,6 +151,30 @@ def add_parent_dirs(patterns: List[str], dirs: List[str]) -> List[str]:
     return parent_patterns
 
 
+def update_symlink(
+    data_dir: pathlib.Path,
+    target: str
+) -> None:
+    """
+    Update the {data_dir}/current symlink to direct to target
+    """
+    target_path = data_dir / target
+
+    # Ensure the target path exists before updating symlink
+    if not target_path.exists():
+        print(
+            f"\nThe requested target directory {target_path} for the 'current' symlink does not exist.\n",
+            "Please instead download the desired release with the `--release` flag.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    else:
+        current_symlink = data_dir / "current"
+        current_symlink.unlink(missing_ok=True)
+        current_symlink.symlink_to(target_path)
+        print(f"Updated 'current' symlink to point to '{target_path}'.")
+
+
 def download_release_data(
     bucket: str,
     release: str,
@@ -244,12 +268,12 @@ def download_release_data(
 
     ### Update current link to point to new or test data if required ###
     # only do this if we are using test data or the specified release is "current" or "latest", not for specific dates
-    if update_current and not dryrun:
-        # update the current symlink
-        current_symlink = data_dir / "current"
-        current_symlink.unlink(missing_ok=True)
-        current_symlink.symlink_to(release)
-        print(f"Updated 'current' symlink to point to '{release}'.")
+    if update_current:
+        if not dryrun:
+            update_symlink(download_dir, release)
+        else:
+            print(f"\nThe 'current' symlink would be updated to point to '{release}'.")
+
 
 
 def main() -> None:
@@ -311,7 +335,7 @@ def main() -> None:
         "--test-data",
         action="store_true",
         help="Download test data from the test bucket and direct the `current` symlink to the test data directory."
-        " To switch back, rerun this script with the `--release current` option.",
+        " To switch back, rerun this script with either the `--release current` option, or the `--update-symlink release` option.",
     )
     parser.add_argument(
         "--metadata-only",
@@ -346,7 +370,12 @@ def main() -> None:
         default="",
         help="The AWS profile to use for the download. Uses the current default profile if undefined.",
     )
-
+    parser.add_argument(
+        "--update-symlink",
+        type=str,
+        default="",
+        help="The release version to update the 'current' symlink to direct to. Release directory must be present. No data will be downloaded."
+    )
     args = parser.parse_args()
 
     ### Validate the arguments ###
@@ -369,7 +398,7 @@ def main() -> None:
     if not all(x in process_stages for x in stages):
         print(
             f"process-stage option '{args.process_stage}' is not valid.",
-            "Must be 'processed', 'filtered','unfiltered', 'bulk', or a comma separated list of those.",
+            "Must be 'processed', 'filtered', 'unfiltered', 'bulk', or a comma separated list of those.",
             file=sys.stderr,
         )
         validation_error = True
@@ -423,6 +452,15 @@ def main() -> None:
             "Bulk data is not available for individual samples, so bulk data will be skipped.",
             file=sys.stderr,
         )
+
+
+    ### Update symlink if requested, without downloading data, if the target directory exists
+    if args.update_symlink:
+        if not args.dryrun:
+            update_symlink(args.data_dir, args.update_symlink)
+        else:
+            print(f"\nThe 'current' symlink would be updated to point to '{args.release}'.")
+        sys.exit(0)
 
     ### List the available releases or modules ###
     all_releases = get_releases(
