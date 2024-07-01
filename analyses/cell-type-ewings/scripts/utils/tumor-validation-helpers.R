@@ -67,6 +67,7 @@ create_classification_df <- function(
 # create a table with one row per marker gene per cell 
 # include sum of the scaled gene expression for all marker genes in a cell 
 create_marker_gene_df <- function(
+    sce, # sce object to grab gene expression from 
     classification_df, # data frame output from create_classification_df()
     marker_genes_file # path to file containing list of marker genes used
 ){
@@ -109,7 +110,8 @@ create_marker_gene_df <- function(
     dplyr::ungroup() |> 
     dplyr::group_by(barcodes) |> 
     # add all the scores together 
-    dplyr::mutate(sum_exp = sum(transformed_gene_expression)) |>
+    dplyr::mutate(sum_raw_exp = sum(gene_expression), 
+                  sum_transformed_exp = sum(transformed_gene_expression)) |>
     dplyr::ungroup()
   
   return(plot_markers_df)
