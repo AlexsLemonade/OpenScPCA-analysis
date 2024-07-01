@@ -80,7 +80,7 @@ infercnv_metadata_file <- file.path(results_dir, "infercnv", "SCPCL000824_cnv-me
 geneset_scores_file <- file.path(results_dir, "SCPCL000824_gene-set-scores.tsv")
 
 # output files 
-final_annotations_dir <- file.path(module_base, "cell_type_annotations", "SCPCS000492")
+final_annotations_dir <- file.path(module_base, "results", "annotation_tables", "SCPCS000492")
 fs::dir_create(final_annotations_dir)
 final_annotations_file <- file.path(final_annotations_dir, "SCPCL000824_tumor-classifications.tsv.gz")
 
