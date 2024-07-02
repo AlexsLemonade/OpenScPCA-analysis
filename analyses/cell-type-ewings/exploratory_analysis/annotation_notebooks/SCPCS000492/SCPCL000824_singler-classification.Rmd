@@ -14,10 +14,10 @@ output:
 This notebook looks at using `SingleR` to annotate tumor cells in `SCPCL000824`. 
 We used three different references with `SingleR`: 
 
-1. Both the full `BlueprintEncodeData` reference from `celldex` and `SCPCL000822` where cells are either annotated as tumor or normal. 
-Ambiguous cells are removed from `SCPCL000822`. 
-2. `SCPCL000822` where all tumor cells are labeled as tumor and all other cells keep the original annotation obtained from running `SingleR` as part of `scpca-nf`.  
-3. `SCPCL000822` with tumor cells labeled as in #2 combined with the full `BlueprintEncodeData` reference. 
+1. `Blueprint`: Both the full `BlueprintEncodeData` reference from `celldex` and `SCPCL000822` where cells are either annotated as tumor or normal. 
+Ambiguous cells are removed from `SCPCL000822`.
+2. `Original`: `SCPCL000822` where all tumor cells are labeled as tumor and all other cells keep the original annotation obtained from running `SingleR` as part of `scpca-nf`.  
+3. `Original and Blueprint`: `SCPCL000822` with tumor cells labeled as in #2 combined with the full `BlueprintEncodeData` reference. 
 
 
 ## Setup
@@ -97,7 +97,7 @@ geneset_scores_df <- readr::read_tsv(geneset_scores_file)
 ```
 
 
-```{r}
+```{r, warning=FALSE}
 # generate classification df to use for plots 
 classification_df <- sce |> 
   scuttle::makePerCellDF(use.dimred = "UMAP") |> 
@@ -117,6 +117,8 @@ classification_df <- sce |>
       ends_with("_classification"),
       \(x) {
         x |>
+          # there are warnings because we have some that have less than 7 cell types (ones that only did tumor/normal)
+          # this is why we ignore warnings in this chunk 
           forcats::fct_lump_n(7, other_level = "All remaining cell types", ties.method = "first") |>
           forcats::fct_infreq() |>
           forcats::fct_relevel("All remaining cell types", after = Inf)
@@ -143,7 +145,7 @@ singler_annotation_columns <- c(
   purrr::set_names("Blueprint", "Original", "Original + Blueprint")
 
 singler_annotation_columns |> 
-  purrr::map(\(annotation_column){
+  purrr::imap(\(annotation_column, title){
     ggplot(
     classification_df,
     aes(x = UMAP1, y = UMAP2, color = .data[[annotation_column]])
@@ -169,7 +171,7 @@ singler_annotation_columns |>
     scale_y_continuous(labels = NULL, breaks = NULL) +
     guides(
       color = guide_legend(
-        title = "Cell types",
+        title = title,
         # more visible points in legend
         override.aes = list(
           alpha = 1,
@@ -182,9 +184,9 @@ singler_annotation_columns |>
 
 It appears that most cells in that bottom group of cells are being called tumor cells regardless of the reference that is used. 
 The major differences here are in how the normal cells are labeled. 
-For right now, let's focus on just identifying the tumor cells and see how similar each of the references are to each other before we compare to the other methods that we have used. 
+For right now, let's focus on just identifying the tumor cells and see how similar each of the references are to each other before we look into normal cells and compare to the other methods that we have used. 
 
-### Compare tumor cell annotations between references used 
+### Compare tumor cell annotations between between `SingleR` references used 
 
 First we will just look at the overlap in the tumor cells between all three methods. 
 
@@ -197,6 +199,7 @@ tumor_cells <- list(
 
 UpSetR::upset(UpSetR::fromList(tumor_cells), order.by = "freq") |> print()
 ```
+Generally, it looks like there is a large group of cells that are identified as tumor regardless of the reference, with a few cells that are specifically tumor in only one or two references. 
 
 Let's see where the shared cells are and if they are where we would expect them to be based on marker gene expression plots we made previously (bottom right group of cells). 
 
@@ -213,6 +216,7 @@ ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = singler_consensus_ca
 ```
 
 It looks like the cells that are normal are in the smaller clusters and the larger cluster is mostly tumor cells with some that are ambiguous across `SingleR` references. 
+This is what I would expect given the marker gene expression in these cells. 
 
 ### Compare normal cell annotations between references used 
 
@@ -247,17 +251,24 @@ plot_jaccard(classification_df,
   
 ```
 
-- There seems to be mostly consensus across all three methods on which cells are tumor cells. 
+A few things that we see in these plots: 
+
+- There seems to be mostly consensus across all three methods on which cells are tumor cells, which is consistent with the upset plot. 
 - When only using Blueprint, a lot of cells are categorized as "Normal". 
-This means they match the non-tumor cells identified in `SCPCL000822` more than they match the `Blueprint` reference. 
+This means they match the non-tumor cells identified in `SCPCL000822` more than they match the normal cell types in the `Blueprint` reference. 
 Additionally, with only Blueprint, there is a group of cells that are called as tumor but actually appear to match endothelial cells present in `SCPCL000822`.
-- The cells that aren't called as either Tumor or Normal in the Blueprint only reference mostly match up to only `erythrocyte` in the reference that just uses `SCPCL000822`. 
+- The cells that aren't called as either Tumor or Normal in the Blueprint only reference mostly match up to `erythrocyte` in the reference that just uses `SCPCL000822` (original). 
 These same cells match to their corresponding Blueprint cell type when combining `SCPCL000822` and Blueprint (e.g., fibroblasts, neurons, and epithelial cells are identifed in both). 
-- When comparing using just `SCPCL000822` to `SCPCL000822` and Blueprint, we see a overlap in endothelial cells and chrondrocytes. 
-We also see that for the most part the top cell types are the same except when using blueprint you see the addition of epithelial cells. 
+- When comparing using just `SCPCL000822` (original) to `SCPCL000822` and Blueprint (original and blueprint), we see an overlap in endothelial cells and chrondrocytes. 
+We also see that for the most part the top cell types identified are the same except when using blueprint you see the addition of epithelial cells. 
 
 
 Next, we will measure how well the updated classification matches the original `SingleR` class identified in `SCPCL000824`. 
+We will create a confusion matrix between each of these `SingleR` references and the original `SingleR` classifications from `scpca-nf`. 
+Note that we will not include tumor cells here and will only look at shared cell types that are identified in both. 
+Any cells that are not in the shared cell types are classified as "other". 
+
+For all matrices, the rows are the original `SingleR` annotations and the columns are from the new annotations. 
 
 ```{r}
 singler_annotation_columns |> 
@@ -270,15 +281,14 @@ singler_annotation_columns |>
       dplyr::pull(barcodes)
     
     # get list of shared cell types with SingleR
-    original_celltypes <- caret_df$singler_celltype_annotation |> 
+    original_celltypes <- classification_df$singler_celltype_annotation |> 
       unique()
-    new_celltypes <- caret_df[[classification_column]] |> 
+    new_celltypes <- classification_df[[classification_column]] |> 
       unique()
     
     shared_celltypes <- intersect(original_celltypes, new_celltypes)
     
-    # don't filter, just label as tumor? or other normal?  
-    caret_df <- caret_df |> 
+    caret_df <- classification_df |> 
       # first remove tumor cells 
       dplyr::filter(!barcodes %in% tumor_cells) |> 
       # then update to make sure all cell types are shared
@@ -295,9 +305,27 @@ singler_annotation_columns |>
   })
 ```
 
-Here we see that the highest Kappa, although still pretty low, is with using the original `SingleR` annotations from `SCPCL000822` and use of Blueprint. 
+Here we see that the highest Kappa, although still very low, is with using the original `SingleR` annotations from `SCPCL000822` and use of Blueprint. 
+Generally, I would say there is not a lot of agreement with the original `SingleR` annotations. 
+Identifying the correct classes of the "normal" cells I think is out of scope for this notebook and it is ultimately more important to identify a way to label tumor cells. 
+
+I tend to favor using one of these options: 
+
+- `Blueprint`: `SCPCL000822` with cells labeled as either tumor or normal in combination with Blueprint. 
+- `Original and Blueprint`: `SCPCL000822` with tumor cells labeled and all other cells labeled with the original `SingleR` annotations in combination with `Blueprint`. 
+
+I don't like using just the `Original`, where the only reference comes from a single sample, `SCPCL000822`. 
+It's very likely that the types of normal cells will differ across samples, so I think we want to be able to use `Blueprint` to help classify any of those cells. 
+
+Another option would be to try running with just the tumor cells from `SCPCL000822` as a reference in combination with `Blueprint`, removing the "normal" cells from the reference. 
+But either of the above options I think would be sufficient to labeling and pulling out tumor cells. 
+Let's confirm this by comparing to our previously used marker gene based methods for classifying this sample. 
 
 ### Compare tumor cell annotations with `SingleR` to marker gene based methods 
+
+Below we will compare the annotations obtained using the different references and `SingleR` to the marker gene based annotations identified in `SCPCL000824_tumor-gene-expression-exploration.Rmd`. 
+First we will look at the Jaccard similarity between each of the `SingleR` references and all of the marker gene based methods. 
+All cells will be categorized as either tumor or normal. 
 
 
 ```{r fig.height=7}
@@ -337,6 +365,7 @@ It looks like using Blueprint alone is the most similar to all marker based meth
 However, it looks like `UCell` categorizes more cells as normal that are classified as tumor with any of the `SingleR` methods. 
 
 For both original and original and blueprint, it looks like there is a good amount of cells that `SingleR` classifies as normal, but the marker gene based methods classify as tumor. 
+This tells me that using `SingleR` may be slightly more conservative than the marker gene based methods. 
 
 ### Validate marker gene expression in `SingleR` annotations 
 
@@ -365,19 +394,20 @@ marker_density_df <- plot_markers_df |>
   dplyr::mutate(
     method = dplyr::case_when(
       method == "marker_gene_classification" ~ "Marker genes only",
-      method == "updated_marker_gene_classification" ~ "Marker gene cutoff from 822",
+      method == "updated_marker_gene_classification" ~ "Marker genes from 822",
       method == "auc_classification" ~ "AUCell",
       method == "ucell_classification" ~ "UCell",
       method == "blueprint_tumor_classification" ~ "Blueprint",
-      method == "updated_singler_classification" ~ "Original SingleR with tumor",
-      method == "updated_singler_blueprint_classification" ~ "Tumor + SingleR + Blueprint"
+      method == "updated_singler_classification" ~ "Original",
+      method == "updated_singler_blueprint_classification" ~ "Original + Blueprint"
     ),
     classification = dplyr::if_else(classification == "Tumor", "Tumor", "Other")
   )
 
 ggplot(marker_density_df, aes(x = sum_transformed_exp, color = classification)) +
   geom_density() +
-  facet_wrap(vars(method)) +
+  facet_wrap(vars(method), 
+             scales = "free_y") +
   labs(
     title = "Marker gene expression",
     x = "Sum of marker genes"
@@ -405,12 +435,12 @@ geneset_plot_df <- classification_df |>
   dplyr::mutate(
     method = dplyr::case_when(
       method == "marker_gene_classification" ~ "Marker genes only",
-      method == "updated_marker_gene_classification" ~ "Marker gene cutoff from 822",
+      method == "updated_marker_gene_classification" ~ "Marker genes from 822",
       method == "auc_classification" ~ "AUCell",
       method == "ucell_classification" ~ "UCell",
       method == "blueprint_tumor_classification" ~ "Blueprint",
-      method == "updated_singler_classification" ~ "Original SingleR with tumor",
-      method == "updated_singler_blueprint_classification" ~ "Tumor + SingleR + Blueprint"
+      method == "updated_singler_classification" ~ "Original",
+      method == "updated_singler_blueprint_classification" ~ "Original + Blueprint"
     ),
     classification = dplyr::if_else(classification == "Tumor", "Tumor", "Other")
     ) 
@@ -418,7 +448,8 @@ geneset_plot_df <- classification_df |>
 ggplot(geneset_plot_df, aes(x = mean_score, color = classification)) +
   geom_density(bw = 0.05) +
   facet_grid(rows = vars(method), 
-             cols = vars(geneset)) +
+             cols = vars(geneset),
+             scales = "free_y") +
   labs(
     title = "Gene set scores",
     x = "Mean gene set score"
@@ -430,9 +461,16 @@ Looking at these plots, generally Blueprint only has the best separation between
 This also seems to mirror the plots shown with `AUCell` as the classifier. 
 
 It looks like we may be mis-classifying some cells when using the original `SingleR` assignments for SCPCL000822 with or without Blueprint. 
-There is some overlap in the cells that are identified as tumor and other non-tumor cells. 
+There is some overlap in the marker gene and gene set scores for the cells that are identified as tumor and other non-tumor cells for both original and original and blueprint. 
 
 ## Conclusions 
+
+- For the most part, all `SingleR` references identify a similar set of tumor cells. 
+However there are some cells that are only identified in one or two methods making the full set of tumor cells unique across references. 
+- All three references identify the same top normal cell types with some overlapping sets. 
+- There does not appear to be a consensus between the original `SingleR` annotations and the new annotations for any of the references. 
+- Using `SCPCL000822` with tumor and normal labels in combination with `Blueprint` seems to be the most consistent with using the marker gene based methods for calling tumor cells. 
+Additionally, this reference showed the greatest distinction between tumor cells and all other cells in marker gene expression and gene set scores. 
 
 ## Session Info
 
