@@ -72,7 +72,8 @@ plot_pca_calls <- function(df,
       size = 0.75, 
       alpha = 0.6
     ) +
-    ggtitle(title) 
+    ggtitle(title) +
+    guides(color = guide_legend(override.aes = list(size = 2)))
   
   if (plot_type == "calls") {
     plot <- plot + 
@@ -87,8 +88,8 @@ plot_pca_calls <- function(df,
   } else if (plot_type == "class") {
     plot <- plot + 
       scale_color_manual(
-        name = "", 
-        values = c("ambiguous" = "lightblue", 
+        name = "Consensus", 
+        values = c("ambiguous" = "yellow", 
                    "doublet" = "black", 
                    "singlet" = "gray90")
       ) + 
@@ -103,6 +104,37 @@ plot_pca_calls <- function(df,
   }
   
   return(plot)
+}
+
+
+plot_pca_metrics <- function(df, color_column) {
+  # Plot PCs colored by performance metric, showing false calls on top
+  # metric_colors is a named vector of colors used for coloring tp/tn/fp/fn
+
+  # used in PCA plots
+  metric_colors <- c(
+    "tp" = "lightblue",
+    "tn" = "pink",
+    "fp" = "blue",
+    "fn" = "firebrick2"
+  )
+
+  ggplot(df) + 
+    aes(x = PC1, 
+        y = PC2, 
+        color = {{color_column}}) +
+  geom_point(
+    size = 0.75, 
+    alpha = 0.6
+  ) + 
+  geom_point(
+    data = dplyr::filter(df, {{color_column}} %in% c("fp", "fn")), 
+    size = 0.75
+  ) +
+  scale_color_manual(name = "Call type", values = metric_colors) +
+  ggtitle("Consensus class metrics") +
+  guides(color = guide_legend(override.aes = list(size = 2)))
+
 }
 ```
 
@@ -257,11 +289,17 @@ This section plots the PCA for each dataset, clockwise from the top left:
 4. Ground truth single/doublets
 5. Consensus _call_ droplets are either "doublet" or "singlet"
 6. Consensus _class_: droplets are either "doublet", "singlet", or "ambiguous"
+7. Metrics based on the consensus call
 
 - For the first five panels, doublets are shown in black and singlets in light gray.
-- In the sixth panel showing the consensus class, doublets are shown in black, singlets in light gray, and ambiguous are blue.
-
-```{r, fig.width = 12, fig.height = 6}
+- In the sixth panel showing the consensus class, doublets are shown in black, singlets in light gray, and ambiguous are yellow
+- In the seventh panel showing metrics, colors are:
+  - True positive: light blue
+  - True negative: pink
+  - False positive: blue
+  - False negative: red
+    
+```{r, fig.width = 12, fig.height = 9}
 pc_color_columns <- c("scDblFinder prediction" = "scdbl_prediction",
                       "scrublet prediction" = "scrublet_prediction",
                       "cxds prediction" = "cxds_prediction",
@@ -281,6 +319,7 @@ doublet_df_list |>
               title = plot_title
             ) + theme(legend.position = "none")}
         ) 
+
       # plot for consensus_class, which needs three colors
       # note that the list name isn't actually used here
       pc_plot_list$consensus_class <- plot_pca_calls(
@@ -288,6 +327,12 @@ doublet_df_list |>
         color_column = consensus_class,
         plot_type = "class",
         title = "Consensus class"
+      )
+      
+      # plot metrics
+      pc_plot_list$metrics <- plot_pca_metrics(
+        df, 
+        color_column = confusion_call
       )
 
       patchwork::wrap_plots(pc_plot_list) +
@@ -415,6 +460,7 @@ This section plots the PCA for each dataset, clockwise from the top left:
 3. Ground truth single/doublets
 4. Consensus _call_ droplets are either "doublet" or "singlet"
 5. Consensus _class_: droplets are either "doublet", "singlet", or "ambiguous"
+6. Metrics based on the consensus call
 
 
 ```{r, fig.width = 12, fig.height = 6}
@@ -446,6 +492,12 @@ doublet_df_list |>
         title = "Consensus class"
       )
 
+      # plot metrics
+      pc_plot_list$metrics <- plot_pca_metrics(
+        df, 
+        color_column = confusion_call
+      )
+      
       patchwork::wrap_plots(pc_plot_list) +
         plot_annotation(
             glue::glue("PCA for {dataset}"), 
