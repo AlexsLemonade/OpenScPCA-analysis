@@ -153,26 +153,31 @@ def add_parent_dirs(patterns: List[str], dirs: List[str]) -> List[str]:
 
 def update_symlink(
     data_dir: pathlib.Path,
-    target: str
+    target: str,
+    dryrun: bool = False
 ) -> None:
     """
-    Update the {data_dir}/current symlink to direct to target
+    Update the {data_dir}/current symlink to direct to target.
+    If `dryrun` is True, this function will print the expected outcome only.
     """
     target_path = data_dir / target
 
     # Ensure the target path exists before updating symlink
     if not target_path.exists():
         print(
-            f"\nThe requested target directory {target_path} for the 'current' symlink does not exist.\n",
+            f"\nThe requested target directory {target} for the 'current' symlink does not exist.\n",
             "Please instead download the desired release with the `--release` flag.",
             file=sys.stderr,
         )
         sys.exit(1)
     else:
-        current_symlink = data_dir / "current"
-        current_symlink.unlink(missing_ok=True)
-        current_symlink.symlink_to(target)
-        print(f"Updated 'current' symlink to point to '{target_path}'.")
+        if dryrun:
+            print(f"\nThe 'current' symlink would be updated to point to '{target}'.")
+        else:
+            current_symlink = data_dir / "current"
+            current_symlink.unlink(missing_ok=True)
+            current_symlink.symlink_to(target_path)
+            print(f"Updated 'current' symlink to point to '{target}'.")
 
 
 def download_release_data(
@@ -335,7 +340,7 @@ def main() -> None:
         "--test-data",
         action="store_true",
         help="Download test data from the test bucket and direct the `current` symlink to the test data directory."
-        " To switch back, rerun this script with either the `--release current` option, or the `--update-symlink release` option.",
+        " To switch back, rerun this script with either the `--release current` option or the `--update-symlink` flag.",
     )
     parser.add_argument(
         "--metadata-only",
@@ -372,9 +377,10 @@ def main() -> None:
     )
     parser.add_argument(
         "--update-symlink",
-        type=str,
-        default="",
-        help="Update the 'current' symlink to point to the given release version. The release directory must be present. No data will be downloaded."
+        action="store_true",
+        help="Whether the 'current' symlink should be updated."
+        " By default, the symlink will be updated to direct to the most recent release."
+        " Provide the --release flag to specify a different release. No data will be downloaded if this flag is used."
     )
     args = parser.parse_args()
 
@@ -456,14 +462,32 @@ def main() -> None:
 
     ### Update symlink if requested, without downloading data, if the target directory exists
     if args.update_symlink:
-        if args.update_symlink.casefold() in {"latest", "release"}:
-            # find the latest available release
-            ...
-        if not args.dryrun:
-            update_symlink(args.data_dir, args.update_symlink)
+
+        # find all non-hidden directories in data_dir, representing the local releases
+        local_releases = [x.stem for x in args.data_dir.iterdir() if re.match("^[^.]", x.name) and x.is_dir()]
+
+        if args.test_data:
+            target = "test"
         else:
-            print(f"\nThe 'current' symlink would be updated to point to '{args.update_symlink}'.")
-        sys.exit(0)
+            target = args.release
+
+        if not target in local_releases:
+            if args.dryrun:
+                print(f"\nThe '{target}' data release is not locally available. The symlink would not be updated.")
+            else:
+                print(f"\nThe '{target}' data release is not locally available. Could not update symlink.")
+            sys.exit(1)
+        else:
+            if target == "current":
+                # find the most recent local release
+                dated_releases = [x for x in local_releases if re.match("\d{4}-\d{2}-\d{2}", x)]
+                most_recent = sorted(dated_releases)[-1]
+                update_symlink(args.data_dir, most_recent, dryrun = args.dryrun)
+            elif target == "test" or args.test_data:
+                update_symlink(args.data_dir, "test", dryrun = args.dryrun)
+            else:
+                update_symlink(args.data_dir, target, dryrun = args.dryrun)
+            sys.exit(0)
 
     ### List the available releases or modules ###
     all_releases = get_releases(
