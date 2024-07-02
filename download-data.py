@@ -491,6 +491,7 @@ def main() -> None:
                 update_symlink(args.data_dir, target, dryrun = args.dryrun)
             sys.exit(0)
 
+
     ### List the available releases or modules ###
     all_releases = get_releases(
         bucket=bucket, profile=args.profile, test_data=args.test_data
