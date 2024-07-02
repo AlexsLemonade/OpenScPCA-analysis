@@ -1,8 +1,8 @@
-name: Build Docker image for doublet-detection
+name: Build Docker image for hello-R
 
 concurrency:
   # only one run per branch at a time
-  group: "doublet-detection-${{ github.ref }}"
+  group: "hello-R-${{ github.ref }}"
   cancel-in-progress: true
 
 on:
@@ -10,24 +10,31 @@ on:
     branches:
       - main
     paths:
-      - analyses/doublet-detection/Dockerfile
-      - analyses/doublet-detection/.dockerignore
-      - analyses/doublet-detection/renv.lock
-      - analyses/doublet-detection/conda-lock.yml
+      - analyses/hello-R/Dockerfile
+      - analyses/hello-R/.dockerignore
+      - analyses/hello-R/renv.lock
+      - analyses/hello-R/conda-lock.yml
   push:
+    tags:
+      - "v*.*.*"
     branches:
       - main
     paths:
-      - analyses/doublet-detection/Dockerfile
-      - analyses/doublet-detection/.dockerignore
-      - analyses/doublet-detection/renv.lock
-      - analyses/doublet-detection/conda-lock.yml
+      - analyses/hello-R/Dockerfile
+      - analyses/hello-R/.dockerignore
+      - analyses/hello-R/renv.lock
+      - analyses/hello-R/conda-lock.yml
   workflow_dispatch:
     inputs:
       push-ecr:
         description: "Push to AWS ECR"
         type: boolean
         required: true
+  workflow_call:
+    inputs:
+      push-ecr:
+        description: "Push to AWS ECR"
+        type: boolean
 
 jobs:
   test-build:
@@ -42,7 +49,7 @@ jobs:
       - name: Build image
         uses: docker/build-push-action@v5
         with:
-          context: "{{defaultContext}}:analyses/doublet-detection"
+          context: "{{defaultContext}}:analyses/hello-R"
           push: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -52,5 +59,5 @@ jobs:
     if: github.event_name == 'push' || inputs.push-ecr
     uses: ./.github/workflows/build-push-docker-module.yml
     with:
-      module: doublet-detection
+      module: hello-R
       push-ecr: true
