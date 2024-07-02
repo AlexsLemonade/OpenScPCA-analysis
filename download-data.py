@@ -171,7 +171,7 @@ def update_symlink(
     else:
         current_symlink = data_dir / "current"
         current_symlink.unlink(missing_ok=True)
-        current_symlink.symlink_to(target_path)
+        current_symlink.symlink_to(target)
         print(f"Updated 'current' symlink to point to '{target_path}'.")
 
 
@@ -374,7 +374,7 @@ def main() -> None:
         "--update-symlink",
         type=str,
         default="",
-        help="The release version to update the 'current' symlink to direct to. Release directory must be present. No data will be downloaded."
+        help="Update the 'current' symlink to point to the given release version. The release directory must be present. No data will be downloaded."
     )
     args = parser.parse_args()
 
@@ -456,10 +456,13 @@ def main() -> None:
 
     ### Update symlink if requested, without downloading data, if the target directory exists
     if args.update_symlink:
+        if args.update_symlink.casefold() in {"latest", "release"}:
+            # find the latest available release
+            ...
         if not args.dryrun:
             update_symlink(args.data_dir, args.update_symlink)
         else:
-            print(f"\nThe 'current' symlink would be updated to point to '{args.release}'.")
+            print(f"\nThe 'current' symlink would be updated to point to '{args.update_symlink}'.")
         sys.exit(0)
 
     ### List the available releases or modules ###
