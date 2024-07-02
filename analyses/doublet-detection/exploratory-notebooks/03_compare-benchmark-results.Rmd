@@ -202,7 +202,7 @@ doublet_df_list |>
 
 ## Explore consensus across methods
 
-Next, well explore the consensus of doublet predictions across methods. 
+Next, we will explore the consensus of doublet predictions across methods. 
 To this end, we'll create some new columns for each dataset:
 
 - `consensus_class`, which will be "doublet" if all three methods are doublet, "singlet" if all three methods are singlet, and "ambiguous" if there are any disagreements
@@ -270,7 +270,7 @@ doublet_df_list |>
     \(df, dataset) {
       
       pc_color_columns <- c("scDblFinder prediction" = "scdbl_prediction",
-                            "scublet prediction" = "scrublet_prediction",
+                            "scrublet prediction" = "scrublet_prediction",
                             "cxds prediction" = "cxds_prediction",
                             "Ground truth" = "ground_truth", 
                             "Consensus call" = "consensus_call")
