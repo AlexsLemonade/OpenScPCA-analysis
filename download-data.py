@@ -472,7 +472,7 @@ def main() -> None:
 
         if target == "current":
             # find the most recent local release to use as target
-            dated_releases = [x.name for x in args.data_dir.iterdir() if x.is_dir and re.match("\d{4}-\d{2}-\d{2}$", x.name)]
+            dated_releases = {x.name for x in args.data_dir.iterdir() if x.is_dir and re.match("\d{4}-\d{2}-\d{2}$", x.name)}
             most_recent = sorted(dated_releases)[-1]
             update_symlink(args.data_dir, most_recent, dryrun = args.dryrun)
         else:
