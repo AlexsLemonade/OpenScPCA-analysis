@@ -295,7 +295,8 @@ exp_cutoff <- optimize(approxfun(density_data$x, density_data$y), interval = c(1
 new_classification <- combined_markers_df |> 
   dplyr::filter(sample == "SCPCL000824") |> 
   dplyr::mutate(updated_marker_gene_classification = dplyr::if_else(sum_raw_exp >= exp_cutoff, "Tumor", "Normal")) |> 
-  dplyr::select(barcodes, updated_marker_gene_classification)
+  dplyr::select(barcodes, updated_marker_gene_classification) |> 
+  unique()
 
 # add new column to existing classification
 classification_df <- classification_df |> 
@@ -312,8 +313,7 @@ This also captures cells that are labeled as tumor cells by both marker genes an
 ### Comparing gene set expression in `SCPCL000822` and `SCPCL000824`
 
 Now we will look at the gene set scores for each gene set in `SCPCL000822` and `SCPCL000824`.  
-The gene set scores correspond to the mean expression of all genes in a given gene set for a single cell with no scaling. 
-The normalized gene expression was used as input to calculating the mean. 
+The gene set scores for each cell are the mean normalized expression of all genes in a given gene set with no scaling. 
 
 We did not use these to classify `SCPCL000822`, so we won't actually do any classification, but this will show us if the scores for tumor cells are similar to each other across samples. 
 
@@ -364,7 +364,7 @@ We will use `AUCell` with four different gene sets:
 
 For each gene set above, `AUCell` will identify cells likely to have expression of that gene set returning a distribution of `auc` scores and a threshold for each gene set.  
 
-One caveat is that `AUCell` relies on having a bimodal distribution in gene set expression, so I expect we may need to do a similar thing where we use cutoffs determined in `SCPCL000822` to call cells in `SCPCL000824`.  
+One caveat is that `AUCell` relies on having a bimodal distribution in gene set expression to find a threshold, so I expect we may need to do a similar thing where we use thresholds determined in `SCPCL000822` to call cells in `SCPCL000824`.  
 
 ```{r}
 # names of gene sets to grab
@@ -419,14 +419,15 @@ collection <- GSEABase::GeneSetCollection(c(msig_gene_sets, marker_gene_set))
 # run AUCell
 ref_auc <- AUCell::AUCell_run(counts(ref_sce), collection)
 
-# assign cells based on threshold and output plots 
-ref_assignment <- AUCell::AUCell_exploreThresholds(ref_auc, assign = TRUE)
+# assign cells for each gene set based on thresholds and output plots 
+ref_assignments <- AUCell::AUCell_exploreThresholds(ref_auc, assign = TRUE)
 ```
 
 For each gene set, several possible thresholds are calculated. 
 The dotted lines over the histogram indicate the distribution and the corresponding vertical dotted line (same color) indicates the possible threshold. 
 The thicker line indicates the chosen threshold by the algorithm. 
 This corresponds to the highest value that reduces the false positives. 
+See the [`AUCell` vignette](https://www.bioconductor.org/packages/release/bioc/vignettes/AUCell/inst/doc/AUCell.html#determine-the-cells-with-the-given-gene-signatures-or-active-gene-sets) for more information. 
 
 Here we can see a bimodal distribution of all gene sets except `SILIGAN`, which is to be expected based on the original distribution plots. 
 
@@ -436,7 +437,7 @@ Let's compare the assignments from our validated classifications (determined by 
 ```{r}
 # compare AUCell classification vs cnv classification in ref
 # pull out tumor cells found by AUCell
-tumor_cells <- ref_assignment$markers$assignment
+tumor_cells <- ref_assignments$markers$assignment
 
 ref_classification_df <- ref_classification_df |> 
   # add new column with auc classification 
@@ -444,7 +445,12 @@ ref_classification_df <- ref_classification_df |>
 
 # filter out any ambiguous cells 
 caret_df <- ref_classification_df |> 
-  dplyr::filter(tumor_cell_classification != "Ambiguous")
+  dplyr::filter(tumor_cell_classification != "Ambiguous") |> 
+  # make sure positive class is tumor
+  dplyr::mutate(
+    tumor_cell_classification = forcats::fct_relevel(tumor_cell_classification, "Tumor"),
+    auc_classification = forcats::fct_relevel(auc_classification, "Tumor")
+  )
 
 # compare using a confusion matrix
 caret::confusionMatrix(
@@ -454,6 +460,7 @@ caret::confusionMatrix(
   ) 
 ```
 
+Here the original tumor cell classifications are the rows and the `AUCell` classification are the columns. 
 It looks like we get pretty good agreement between our original classification and the updated `AUCell` classification using the marker gene list.
 
 Now we repeat on `SCPCL000824`. 
@@ -486,22 +493,26 @@ new_auc_df <- new_auc@assays@data$AUC |>
   #dplyr::filter(gene_set == "markers") |> 
   dplyr::mutate(sample = "SCPCL000824")
 
-all_auc_df <- dplyr::bind_rows(list(ref_auc_df, new_auc_df))
+all_auc_df <- dplyr::bind_rows(list(ref_auc_df, new_auc_df)) |> 
+  # simplify the name for plotting
+  dplyr::mutate(gene_set = stringr::word(gene_set, 1, sep = "_"))
 
 ggplot(all_auc_df, aes(x = auc, color = sample)) +
   geom_density() +
-  facet_grid(rows = vars(gene_set))
+  facet_grid(rows = vars(gene_set),
+             scales = "free_y")
 ```
 
-Looking at the AUC across both samples for all gene sets, we see that they are in the same range of values and tend to mirror each other. 
-The main difference here is the lack of bimodal distribution in `SCPCL000824`. 
+Looking at the AUC across both samples for all gene sets, we see that they are in the same range of values. 
+The main difference here is the lack of bimodal distribution in `SCPCL000824` and we see that most of the time the peak for `SCPCL000824` seems to be in between the two peaks for `SCPCL000822`. 
 
-Let's use the threshold identified by `AUCell` for `SCPCL000822` to identify tumor cells in `SCPCL000824`.  
-Here, we label any cells that have passed the threshold set for the marker gene sets as tumor cells. 
+The exception to this is with the marker gene list where the peak in `SCPCL000824` lines up with the second peak in `SCPCL000822`. 
+Because of that we will use the marker gene threshold identified by `AUCell` for `SCPCL000822` to identify tumor cells in `SCPCL000824`.  
+Here, we label any cells that have passed the threshold set for the marker gene set as tumor cells. 
 
 ```{r}
 # pull out threshold used for assigning cells from ref sample 
-ref_threshold <- ref_assignment$markers$aucThr$selected
+ref_threshold <- ref_assignments$markers$aucThr$selected
 
 # create a vector of tumor cells in 824 using the cutoff from 822
 new_tumor_cells <- new_auc_df |> 
@@ -522,8 +533,15 @@ ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = auc_classification))
 This looks similar to using the updated marker gene cutoff to classify cells where most cells in that bottom group are tumor cells.  
 As a reminder, the updated marker gene classification is the classification of tumor cells based on the marker gene expression cutoff determined in `SCPCL000822`. 
 We can confirm this by calculating the confusion matrix. 
+Here the marker gene annotations are the rows and the annotations from `AUCell` are the columns. 
 
 ```{r}
+classification_df <- classification_df |> 
+  dplyr::mutate(
+    updated_marker_gene_classification = forcats::fct_relevel(updated_marker_gene_classification, "Tumor"),
+    auc_classification = forcats::fct_relevel(auc_classification, "Tumor")
+  )
+
 # compare using a confusion matrix
 caret::confusionMatrix(
     table(
@@ -531,7 +549,6 @@ caret::confusionMatrix(
       classification_df$auc_classification)
   ) 
 ```
-
 
 ## Classifying tumor cells with UCell
 
@@ -613,8 +630,11 @@ ref_ucell_tumor_cells <- ucell_df |>
 # add classification column for comparison to original classification
 caret_df <- caret_df |> 
   dplyr::mutate(
-    ucell_classification = dplyr::if_else(barcodes %in% ref_ucell_tumor_cells, "Tumor", "Normal")
+    ucell_classification = dplyr::if_else(barcodes %in% ref_ucell_tumor_cells, "Tumor", "Normal"), 
+    tumor_cell_classification = forcats::fct_relevel(tumor_cell_classification, "Tumor"),
+    ucell_classification = forcats::fct_relevel(ucell_classification, "Tumor")
   )
+
 
 # confusion matrix between original and ucell 
 caret::confusionMatrix(
@@ -625,8 +645,10 @@ caret::confusionMatrix(
 )
 ```
 
+
+Here the rows correspond to the original tumor annotations and the columns are the `UCell` annotations. 
 It looks like we get pretty good agreement between using `UCell` with the `RIGGI` gene set to the original classification. 
-Now we will use the cutoff from `SCPCL000822` to classify tumor cells in `SCPCL000824`. 
+Now we will use the marker gene set cutoff from `SCPCL000822` to classify tumor cells in `SCPCL000824`. 
 
 ```{r}
 # get list of tumor cells using ucell 
@@ -640,7 +662,10 @@ new_ucell_tumor_cells <- ucell_df |>
 # add ucell classification
 classification_df <- classification_df |> 
   dplyr::mutate(
-    ucell_classification = dplyr::if_else(barcodes %in% new_ucell_tumor_cells, "Tumor", "Normal")
+    ucell_classification = dplyr::if_else(barcodes %in% new_ucell_tumor_cells, "Tumor", "Normal"), 
+    # relevel for confusion matrix later 
+    updated_marker_gene_classification = forcats::fct_relevel(updated_marker_gene_classification, "Tumor"),
+    ucell_classification = forcats::fct_relevel(ucell_classification, "Tumor")
   )
 
 ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = ucell_classification)) +
@@ -649,6 +674,7 @@ ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = ucell_classification
 
 This looks similar to what we get with both the updated marker gene and `AUCell` classification. 
 We can confirm that by calculating the confusion matrix.
+Here the rows correspond to the updated marker gene annotations and the columns are the `UCell` annotations. 
 
 ```{r}
 caret::confusionMatrix(
