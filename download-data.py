@@ -378,9 +378,10 @@ def main() -> None:
     parser.add_argument(
         "--update-symlink",
         action="store_true",
-        help="Whether the 'current' symlink should be updated."
-        " By default, the symlink will be updated to direct to the most recent release."
-        " Provide the --release flag to specify a different release. No data will be downloaded if this flag is used."
+        help="Whether to update the 'current' symlink to direct to a different data release."
+        " By default, the symlink will be updated to direct to the latest local release."
+        " Provide the --release flag to specify a different release."
+        " No data will be downloaded if this flag is used."
     )
     args = parser.parse_args()
 
@@ -508,7 +509,7 @@ def main() -> None:
     # get the release to use or exit if it is not available
     if args.test_data:
         release = "test"
-    elif args.release.lower() in ["current", "latest"]:
+    elif args.release.casefold() in {"current", "latest"}:
         release = current_releases[0]
     elif args.release in all_releases:  # allow downloads from the future
         release = args.release
@@ -538,7 +539,7 @@ def main() -> None:
         samples=args.samples.split(",") if args.samples else [],
         dryrun=args.dryrun,
         profile=args.profile,
-        update_current=args.test_data or args.release.lower() in ["current", "latest"],
+        update_current=args.test_data or args.release.casefold() in {"current", "latest"},
     )
 
 
