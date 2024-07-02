@@ -482,11 +482,9 @@ def main() -> None:
         else:
             if target == "current":
                 # find the most recent local release
-                dated_releases = [x for x in local_releases if re.match("\d{4}-\d{2}-\d{2}", x)]
+                dated_releases = [x.name for x in args.data_dir.iterdir() if x.is_dir and re.match("\d{4}-\d{2}-\d{2}$", x.name)]
                 most_recent = sorted(dated_releases)[-1]
                 update_symlink(args.data_dir, most_recent, dryrun = args.dryrun)
-            elif target == "test" or args.test_data:
-                update_symlink(args.data_dir, "test", dryrun = args.dryrun)
             else:
                 update_symlink(args.data_dir, target, dryrun = args.dryrun)
             sys.exit(0)
