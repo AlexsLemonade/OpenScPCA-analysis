@@ -13,12 +13,16 @@ on:
   schedule:
     # run monthly on the 1st
     - cron: "0 0 1 * *"
+  push:
+    # build and push all on tagged release
+    tags:
+      - "v*.*.*"
   workflow_dispatch:
     inputs:
       push-ecr:
         description: "Push to AWS ECR"
         type: boolean
-        required: false
+        required: true
 
 jobs:
   build-docker-modules:
@@ -31,10 +35,12 @@ jobs:
           - hello-R
           - hello-python
           - simulate-sce
+          - cell-type-ewings
     uses: ./.github/workflows/build-push-docker-module.yml
     with:
       module: ${{ matrix.module }}
-      push-ecr: ${{ inputs.push-ecr }}
+      # push if the workflow was triggered for scheduled build or push, or if the user requested it
+      push-ecr: ${{ github.event_name == 'schedule'|| github.event_name == 'push' || inputs.push-ecr }}
 
   check-jobs:
     name: Check Job Status

@@ -26,7 +26,7 @@ on:
       push-ecr:
         description: "Push to AWS ECR"
         type: boolean
-        required: false
+        required: true
 
 jobs:
   test-build:
