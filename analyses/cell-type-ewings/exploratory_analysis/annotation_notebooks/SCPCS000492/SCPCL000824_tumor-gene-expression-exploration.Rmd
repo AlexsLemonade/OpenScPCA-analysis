@@ -312,8 +312,7 @@ This also captures cells that are labeled as tumor cells by both marker genes an
 ### Comparing gene set expression in `SCPCL000822` and `SCPCL000824`
 
 Now we will look at the gene set scores for each gene set in `SCPCL000822` and `SCPCL000824`.  
-The gene set scores correspond to the mean expression of all genes in a given gene set for a single cell with no scaling. 
-The normalized gene expression was used as input to calculating the mean. 
+The gene set scores for each cell are the mean normalized expression of all genes in a given gene set with no scaling. 
 
 We did not use these to classify `SCPCL000822`, so we won't actually do any classification, but this will show us if the scores for tumor cells are similar to each other across samples. 
 
@@ -364,7 +363,7 @@ We will use `AUCell` with four different gene sets:
 
 For each gene set above, `AUCell` will identify cells likely to have expression of that gene set returning a distribution of `auc` scores and a threshold for each gene set.  
 
-One caveat is that `AUCell` relies on having a bimodal distribution in gene set expression, so I expect we may need to do a similar thing where we use cutoffs determined in `SCPCL000822` to call cells in `SCPCL000824`.  
+One caveat is that `AUCell` relies on having a bimodal distribution in gene set expression to find a threshold, so I expect we may need to do a similar thing where we use thresholds determined in `SCPCL000822` to call cells in `SCPCL000824`.  
 
 ```{r}
 # names of gene sets to grab
@@ -419,8 +418,8 @@ collection <- GSEABase::GeneSetCollection(c(msig_gene_sets, marker_gene_set))
 # run AUCell
 ref_auc <- AUCell::AUCell_run(counts(ref_sce), collection)
 
-# assign cells based on threshold and output plots 
-ref_assignment <- AUCell::AUCell_exploreThresholds(ref_auc, assign = TRUE)
+# assign cells for each gene set based on thresholds and output plots 
+ref_assignments <- AUCell::AUCell_exploreThresholds(ref_auc, assign = TRUE)
 ```
 
 For each gene set, several possible thresholds are calculated. 
@@ -496,8 +495,8 @@ ggplot(all_auc_df, aes(x = auc, color = sample)) +
 Looking at the AUC across both samples for all gene sets, we see that they are in the same range of values and tend to mirror each other. 
 The main difference here is the lack of bimodal distribution in `SCPCL000824`. 
 
-Let's use the threshold identified by `AUCell` for `SCPCL000822` to identify tumor cells in `SCPCL000824`.  
-Here, we label any cells that have passed the threshold set for the marker gene sets as tumor cells. 
+Let's use the marker gene threshold identified by `AUCell` for `SCPCL000822` to identify tumor cells in `SCPCL000824`.  
+Here, we label any cells that have passed the threshold set for the marker gene set as tumor cells. 
 
 ```{r}
 # pull out threshold used for assigning cells from ref sample 
@@ -626,7 +625,7 @@ caret::confusionMatrix(
 ```
 
 It looks like we get pretty good agreement between using `UCell` with the `RIGGI` gene set to the original classification. 
-Now we will use the cutoff from `SCPCL000822` to classify tumor cells in `SCPCL000824`. 
+Now we will use the marker gene set cutoff from `SCPCL000822` to classify tumor cells in `SCPCL000824`. 
 
 ```{r}
 # get list of tumor cells using ucell 
