@@ -69,7 +69,7 @@ sce_file <- file.path(sample_dir, "SCPCL000824_processed.rds")
 marker_genes_file <- file.path(module_base, "references", "tumor-marker-genes.tsv")
 
 # annotations from SCPCL000824_tumor-gene-expression-exploration.Rmd
-annotations_dir <- file.path(module_base, "cell_type_annotations", "SCPCS000492")
+annotations_dir <- file.path(module_base, "results", "annotation_tables", "SCPCS000492")
 annotations_file <- file.path(annotations_dir, "SCPCL000824_tumor-classifications.tsv.gz")
 
 # gene set scores to use for validation 
@@ -87,7 +87,7 @@ sce <- readr::read_rds(sce_file)
 
 # read in annotations
 annotations_df <- readr::read_tsv(annotations_file)
-singler_annotations_df <- readr::read_tsv(singler_annotations_file) |> unique()
+singler_annotations_df <- readr::read_tsv(singler_annotations_file)
 
 # read in full singler results 
 singler_results_list <- readr::read_rds(full_singler_results)
