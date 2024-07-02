@@ -7,7 +7,7 @@ While modules can also be run within specified [conda and/or `renv` environments
 !!! note
       This page presents the main steps for obtaining and running a module in a Docker image.
       These instructions assume that you have already [downloaded Docker Desktop](./index.md#how-to-install-docker) and are familiar with using Docker images and launching containers.
-      If you are working on a Lightsail for Research instance, the Docker command-line interface comes pre-installed; see [this section](#using-docker-images-on-lsfr) for more information.
+      If you are working on a Lightsail for Research instance, the Docker command-line interface comes pre-installed; see [this section](#using-docker-images-on-virtual-computers) for more information.
 
       To learn more about using Docker, please refer to [our recommended Docker resources](./index.md).
 
