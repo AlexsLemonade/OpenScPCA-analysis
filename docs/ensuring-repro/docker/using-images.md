@@ -88,4 +88,4 @@ Docker images can be pulled and run as described above, using the [`docker pull`
 Because Docker Desktop is not available on LSfR instances, you will need to [set Docker's resource settings using the Docker CLI](https://docs.docker.com/config/containers/resource_constraints/).
 
 !!! note
-      When [creating a virtual computer](../../aws/lsfr/creating-vcs.md) to use to run a Docker image, make sure you [request sufficient resources](../..//aws/lsfr/creating-vcs/#choosing-an-instance-size) for Docker to allocate to the container.
+      When [creating a virtual computer](../../aws/lsfr/creating-vcs.md) to use to run a Docker image, make sure you [request sufficient resources](../../aws/lsfr/creating-vcs.md#choosing-an-instance-size) for Docker to allocate to the container.
