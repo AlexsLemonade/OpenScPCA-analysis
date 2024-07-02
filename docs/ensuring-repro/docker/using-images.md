@@ -7,8 +7,9 @@ While modules can also be run within specified [conda and/or `renv` environments
 !!! note
       This page presents the main steps for obtaining and running a module in a Docker image.
       These instructions assume that you have already [downloaded Docker Desktop](./index.md#how-to-install-docker) and are familiar with using Docker images and launching containers.
+      If you are working on a Lightsail for Research instance, the Docker command-line interface comes pre-installed; see [this section](#using-docker-images-on-lsfr) for more information.
 
-      To learn more about using Docker, see our recommended resources [on this page](./index.md).
+      To learn more about using Docker, please refer to [our recommended Docker resources](./index.md).
 
       If you would like to see additional dociumentation about working with Docker images, please [let us know by filing an issue](https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/new?assignees=&labels=docs-request&projects=&template=04-docs-request.yml&title=Docs+request%3A).
 
@@ -77,3 +78,14 @@ docker run \
       You can safely ignore this warning, or you can silence it by providing the flag `--platform linux/x86_64` to your `docker run` command.
 
 
+## Using Docker images on virtual computers
+
+You can also obtain and run Docker images on [Lightsail for Research (LSfR) virtual computers](../../aws/index.md#lightsail-for-research-virtual-computing-with-aws).
+The [Docker command-line tool](https://docs.docker.com/engine/reference/commandline/cli/) comes pre-installed on all LSfR instances and is, by default, running in the background for use.
+You can learn more about using the Docker command-line interface (CLI) [from the Docker website](https://docs.docker.com/reference/cli/docker/).
+
+Docker images can be pulled and run as described above, using the [`docker pull`](#obtaining-docker-images) and [`docker run`](#using-docker-run) commands.
+Because Docker Desktop is not available on LSfR instances, you will need to [set Docker's resource settings using the Docker CLI](https://docs.docker.com/config/containers/resource_constraints/).
+
+!!! note
+      When [creating a virtual computer](../../aws/lsfr/creating-vcs.md) to use to run a Docker image, make sure you [request sufficient resources](../..//aws/lsfr/creating-vcs/#choosing-an-instance-size) for Docker to allocate to the container.
