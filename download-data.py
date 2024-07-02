@@ -381,6 +381,7 @@ def main() -> None:
         help="Whether to update the 'current' symlink to direct to a different data release."
         " By default, the symlink will be updated to direct to the latest local release."
         " Provide the --release flag to specify a different release."
+        " To update the symlink to direct to test data, use the --test-data flag."
         " No data will be downloaded if this flag is used."
     )
     args = parser.parse_args()
