@@ -10,7 +10,7 @@
 name: Run {{ openscpca_module }} analysis module
 env:
   MODULE_PATH: analyses/{{ openscpca_module }}
-  AWS_DEFAULT_REGION: us-east-1
+  AWS_DEFAULT_REGION: us-east-2
 
 concurrency:
   # only one run per branch at a time
