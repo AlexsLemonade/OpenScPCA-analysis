@@ -43,9 +43,7 @@ def get_releases(bucket: str, profile: str, test_data: bool) -> List[str]:
     # get only date-based versions and remove the trailing slash
     date_re = re.compile(r"PRE\s+(20\d{2}-[01]\d-[0123]\d)/$")
     return [
-        m.group(1)
-        for m in (date_re.search(line) for line in ls_result.stdout.splitlines())
-        if m
+        m.group(1) for m in (date_re.search(line) for line in ls_result.stdout.splitlines()) if m
     ]
 
 
@@ -107,10 +105,7 @@ def get_download_size(
     total_size = 0
     for line in file_list.stdout.splitlines():
         size, file = line.split()[-2:]
-        if any(
-            fnmatch.fnmatch(file, release + "/" + pattern)
-            for pattern in include_patterns
-        ):
+        if any(fnmatch.fnmatch(file, release + "/" + pattern) for pattern in include_patterns):
             total_size += int(size)
     return total_size
 
@@ -151,11 +146,7 @@ def add_parent_dirs(patterns: List[str], dirs: List[str]) -> List[str]:
     return parent_patterns
 
 
-def update_symlink(
-    data_dir: pathlib.Path,
-    target: str,
-    dryrun: bool = False
-) -> None:
+def update_symlink(data_dir: pathlib.Path, target: str, dryrun: bool = False) -> None:
     """
     Update the {data_dir}/current symlink to direct to target.
     If `dryrun` is True, this function will print the expected outcome only.
@@ -275,10 +266,9 @@ def download_release_data(
     # only do this if we are using test data or the specified release is "current" or "latest", not for specific dates
     if update_current:
         if not dryrun:
-            update_symlink(download_dir, release)
+            update_symlink(data_dir, release)
         else:
             print(f"\nThe 'current' symlink would be updated to point to '{release}'.")
-
 
 
 def main() -> None:
@@ -382,7 +372,7 @@ def main() -> None:
         " By default, the symlink will be updated to direct to the latest local release."
         " Provide the --release flag to specify a different release."
         " To update the symlink to direct to test data, use the --test-data flag."
-        " No data will be downloaded if this flag is used."
+        " No data will be downloaded if this flag is used.",
     )
     args = parser.parse_args()
 
@@ -461,10 +451,8 @@ def main() -> None:
             file=sys.stderr,
         )
 
-
     ### Update symlink if requested, without downloading data, if the target directory exists
     if args.update_symlink:
-
         if args.test_data:
             target = "test"
         else:
@@ -473,29 +461,24 @@ def main() -> None:
         if target == "current":
             # find the most recent local release to use as target
             dated_releases = (
-              x.name
-              for x in args.data_dir.iterdir()
-              if x.is_dir()
-              and re.match("\d{4}-\d{2}-\d{2}$", x.name)
-              and x.name <= datetime.date.today().isoformat()
+                x.name
+                for x in args.data_dir.iterdir()
+                if x.is_dir()
+                and re.match("\d{4}-\d{2}-\d{2}$", x.name)
+                and x.name <= datetime.date.today().isoformat()
             )
             most_recent = max(dated_releases)
-            update_symlink(args.data_dir, most_recent, dryrun = args.dryrun)
+            update_symlink(args.data_dir, most_recent, dryrun=args.dryrun)
         else:
-            update_symlink(args.data_dir, target, dryrun = args.dryrun)
+            update_symlink(args.data_dir, target, dryrun=args.dryrun)
 
         sys.exit(0)
 
-
     ### List the available releases or modules ###
-    all_releases = get_releases(
-        bucket=bucket, profile=args.profile, test_data=args.test_data
-    )
+    all_releases = get_releases(bucket=bucket, profile=args.profile, test_data=args.test_data)
 
     # hide any future releases and sort in reverse order
-    current_releases = [
-        r for r in all_releases if r <= datetime.date.today().isoformat()
-    ]
+    current_releases = [r for r in all_releases if r <= datetime.date.today().isoformat()]
     current_releases.sort(reverse=True)
 
     # list the current releases and exit if that was what was requested
