@@ -135,8 +135,8 @@ This table will be saved in `references/cell_lists/<sample_id>/<library_id>_refe
 
 ## Cell type annotations
 
-The `cell_type_annotations` folder contains the TSV files with final annotations for each sample in `SCPCP000015`.
-For more information on how these were generated, see the [README.md](./cell_type_annotations/README.md).
+The `exploratory_analysis/annotation_notebooks` folder contains notebooks used to generate and save cell type annotations for samples in `SCPCP000015`.
+For more information on how these were generated, see the [README.md](./exploratory_notebooks/annotation_notebooks/README.md).
 
 ## Software requirements
 
