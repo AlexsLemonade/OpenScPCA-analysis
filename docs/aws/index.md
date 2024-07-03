@@ -33,3 +33,4 @@ Please refer to these pages to learn more about setting up and using LSfR:
 - [Developing on virtual computers](./lsfr/starting-development-on-lsfr.md)
     - This page also provides instructions for setting up virtual computers after they've been created.
 - [Working with snapshots](./lsfr/working-with-snapshots.md)
+- [Using Docker images on virtual computers](../ensuring-repro/docker/using-images.md#using-docker-images-on-virtual-computers)
