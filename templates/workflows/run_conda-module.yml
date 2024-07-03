@@ -10,7 +10,7 @@
 name: Run {{ openscpca_module }} analysis module
 env:
   MODULE_PATH: analyses/{{ openscpca_module }}
-  AWS_DEFAULT_REGION: us-east-1
+  AWS_DEFAULT_REGION: us-east-2
 
 concurrency:
   # only one run per branch at a time
@@ -37,11 +37,8 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # Update this step as needed to download the desired data
-      - name: Download test data
-        run: ./download-data.py --test-data --format AnnData
-
       - name: Set up conda
+        # Note that this creates and activates an environment named 'test' by default
         uses: conda-incubator/setup-miniconda@v3
 
       - name: Install and activate locked conda environment
@@ -49,7 +46,11 @@ jobs:
           conda install conda-lock
           conda-lock install --name test ${MODULE_PATH}/conda-lock.yml
 
+      # Update this step as needed to download the desired data
+      - name: Download test data
+        run: ./download-data.py --test-data --format AnnData
+
       - name: Run analysis module
         run: |
           cd ${MODULE_PATH}
-          # run module script here
+          # run module script(s) here

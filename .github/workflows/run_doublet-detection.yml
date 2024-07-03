@@ -9,7 +9,7 @@
 name: Run doublet-detection analysis module
 env:
   MODULE_PATH: analyses/doublet-detection
-  AWS_DEFAULT_REGION: us-east-1
+  AWS_DEFAULT_REGION: us-east-2
 
 concurrency:
   # only one run per branch at a time
@@ -54,7 +54,6 @@ jobs:
             libcurl4-openssl-dev \
             lzma-dev \
             libglpk-dev
-
 
       - name: Set up pandoc
         uses: r-lib/actions/setup-pandoc@v2
