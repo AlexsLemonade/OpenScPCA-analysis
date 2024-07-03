@@ -7,7 +7,7 @@
 name: Run hello-python analysis module
 env:
   MODULE_PATH: analyses/hello-python
-  AWS_DEFAULT_REGION: us-east-1
+  AWS_DEFAULT_REGION: us-east-2
 
 concurrency:
   # only one run per branch at a time
