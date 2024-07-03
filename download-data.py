@@ -43,7 +43,9 @@ def get_releases(bucket: str, profile: str, test_data: bool) -> List[str]:
     # get only date-based versions and remove the trailing slash
     date_re = re.compile(r"PRE\s+(20\d{2}-[01]\d-[0123]\d)/$")
     return [
-        m.group(1) for m in (date_re.search(line) for line in ls_result.stdout.splitlines()) if m
+        m.group(1)
+        for m in (date_re.search(line) for line in ls_result.stdout.splitlines())
+        if m
     ]
 
 
@@ -105,7 +107,10 @@ def get_download_size(
     total_size = 0
     for line in file_list.stdout.splitlines():
         size, file = line.split()[-2:]
-        if any(fnmatch.fnmatch(file, release + "/" + pattern) for pattern in include_patterns):
+        if any(
+            fnmatch.fnmatch(file, release + "/" + pattern)
+            for pattern in include_patterns
+        ):
             total_size += int(size)
     return total_size
 
@@ -475,10 +480,14 @@ def main() -> None:
         sys.exit(0)
 
     ### List the available releases or modules ###
-    all_releases = get_releases(bucket=bucket, profile=args.profile, test_data=args.test_data)
+    all_releases = get_releases(
+        bucket=bucket, profile=args.profile, test_data=args.test_data
+    )
 
     # hide any future releases and sort in reverse order
-    current_releases = [r for r in all_releases if r <= datetime.date.today().isoformat()]
+    current_releases = [
+        r for r in all_releases if r <= datetime.date.today().isoformat()
+    ]
     current_releases.sort(reverse=True)
 
     # list the current releases and exit if that was what was requested
@@ -519,7 +528,8 @@ def main() -> None:
         samples=args.samples.split(",") if args.samples else [],
         dryrun=args.dryrun,
         profile=args.profile,
-        update_current=args.test_data or args.release.casefold() in {"current", "latest"},
+        update_current=args.test_data
+        or args.release.casefold() in {"current", "latest"},
     )
 
 
