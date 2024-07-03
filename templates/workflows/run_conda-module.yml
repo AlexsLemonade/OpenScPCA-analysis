@@ -38,6 +38,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up conda
+        # Note that this creates and activates an environment named 'test' by default
         uses: conda-incubator/setup-miniconda@v3
 
       - name: Install and activate locked conda environment
