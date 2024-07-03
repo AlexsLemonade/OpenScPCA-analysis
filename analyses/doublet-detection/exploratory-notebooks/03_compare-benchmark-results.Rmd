@@ -395,7 +395,7 @@ Overall, methods do not have substantial overlap with each other.
 They each tend to detect different sets of doublets, leading to fairly small sets of consensus doublets. 
 Further, the consensus doublets called by all three methods have some, but not substantial, overlap with the ground truth. 
 
-For three out of four datasets, `scDblFinder` predicts a much larger number of doublets compared to other methods. 
+For two out of four datasets, `scDblFinder` predicts a much larger number of doublets compared to other methods. 
 
 Based on the PCAs, it additionally looks like there are many more false negatives in the consensus prediction that `cxds` appears to capture but other methods do not.
 
