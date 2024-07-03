@@ -37,11 +37,11 @@ As an analysis module matures, the Data Lab staff will activate this GHA file so
 Each module testing GHA is initially created with these steps, which should be updated to reflect the given module's needs:
 
 - Checkout the repository
+- Set up the module environment
+    - Depending on [the flags used when creating your module](../../contributing-to-analyses/analysis-modules/creating-a-module.md#module-creation-script-flags), these steps will install the [`renv` and/or conda environment](../managing-software/index.md) from existing environment files (`renv.lock` and/or `conda-lock.yml`, respectively).
 - Download test data
     - Use the [`download-data.py`](../../getting-started/accessing-resources/getting-access-to-data.md#using-the-download-data-script) and/or [`download-results.py`](../../getting-started/accessing-resources/getting-access-to-data.md#accessing-scpca-module-results) scripts to specify the set of input files you need, with the `--test-data` flag to specify downloading the test data.
     - After this step, the `data/current` directory will point to the test data, ensuring the module GHA runs using the test data.
-- Set up the module environment
-    - Depending on [the flags used when creating your module](../../contributing-to-analyses/analysis-modules/creating-a-module.md#module-creation-script-flags), these steps will install the [`renv` and/or conda environment](../managing-software/index.md) from existing environment files (`renv.lock` and/or `conda-lock.yml`, respectively).
 - Run the analysis module
     - Generally, this will involve calling the [module's run script](../../contributing-to-analyses/analysis-modules/running-a-module.md).
 
