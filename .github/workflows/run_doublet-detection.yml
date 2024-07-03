@@ -55,7 +55,6 @@ jobs:
             lzma-dev \
             libglpk-dev
 
-
       - name: Set up pandoc
         uses: r-lib/actions/setup-pandoc@v2
 

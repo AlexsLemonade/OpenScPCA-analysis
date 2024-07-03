@@ -34,9 +34,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Download test data
-        run: ./download-data.py --test-data --format AnnData
-
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3
 
@@ -44,6 +41,9 @@ jobs:
         run: |
           conda install conda-lock
           conda-lock install --name test ${MODULE_PATH}/conda-lock.yml
+
+      - name: Download test data
+        run: ./download-data.py --test-data --format AnnData
 
       - name: Run analysis
         run: |
