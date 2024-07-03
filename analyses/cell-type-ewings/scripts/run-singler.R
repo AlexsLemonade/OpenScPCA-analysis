@@ -107,7 +107,7 @@ ref_coldata_df <- colData(ref_sce) |>
 colData(ref_sce) <- DataFrame(ref_coldata_df, row.names = ref_coldata_df$barcodes)
 
 # remove ambiguous calls since we don't want those in the reference 
-filtered_ref_sce <- ref_sce[, ref_sce$tumor_cell_classification != "Ambiguous"]
+filtered_ref_sce <- ref_sce[, which(ref_sce$tumor_cell_classification != "Ambiguous")]
 
 # Run SingleR ------------------------------------------------------------------
 
@@ -117,7 +117,7 @@ blueprint_tumor_results <- SingleR::SingleR(
   ref = list(Blueprint = blueprint_ref,
              tumor_ref = filtered_ref_sce),
   labels = list(blueprint_ref$label.ont, filtered_ref_sce$tumor_cell_classification),
-  BPPARAM = BiocParallel::MulticoreParam(4),
+  BPPARAM = bp_param,
   restrict = rownames(sce)
 )
 
@@ -186,7 +186,7 @@ annotations_df <- singler_results_list |>
     
   }) |> 
   purrr::reduce(dplyr::inner_join, by = "barcodes") |> 
-  unique()
+  dplyr::distinct()
 
 # save results 
 readr::write_rds(singler_results_list, full_singler_output)
