@@ -76,7 +76,6 @@ sce <- readr::read_rds(opt$input_sce_file)
 library_id <- metadata(sce)$library_id
 
 # read in ref sce and ref annotations for comparing between samples 
-# ref is SCPCL000822
 ref_sce <- readr::read_rds(opt$ref_sce_file)
 ref_labels_df <- readr::read_tsv(opt$ref_annotations_file)
 
@@ -109,83 +108,98 @@ colData(ref_sce) <- DataFrame(ref_coldata_df, row.names = ref_coldata_df$barcode
 # remove ambiguous calls since we don't want those in the reference 
 filtered_ref_sce <- ref_sce[, which(ref_sce$tumor_cell_classification != "Ambiguous")]
 
+# tumor only ref sce
+tumor_only_sce <- ref_sce[, which(ref_sce$tumor_cell_classification == "Tumor")]
+
 # Run SingleR ------------------------------------------------------------------
 
-# run with tumor annotations + blueprint ref 
-blueprint_tumor_results <- SingleR::SingleR(
+# run with tumor + normal annotations + blueprint ref 
+# blueprint_tumor_results <- SingleR::SingleR(
+#   test = sce,
+#   ref = list(Blueprint = blueprint_ref,
+#              tumor_ref = filtered_ref_sce),
+#   labels = list(blueprint_ref$label.ont, filtered_ref_sce$tumor_cell_classification),
+#   BPPARAM = bp_param,
+#   restrict = rownames(sce)
+# )
+
+# run with tumor only annotations + blueprint ref 
+tumor_only_results <- SingleR::SingleR(
   test = sce,
   ref = list(Blueprint = blueprint_ref,
-             tumor_ref = filtered_ref_sce),
-  labels = list(blueprint_ref$label.ont, filtered_ref_sce$tumor_cell_classification),
+             tumor_ref = tumor_only_sce),
+  labels = list(blueprint_ref$label.ont, tumor_only_sce$tumor_cell_classification),
   BPPARAM = bp_param,
   restrict = rownames(sce)
 )
 
+
 # run with existing SingleR annotations, replacing SingleR annotations for tumor cells 
-updated_singler_results <- SingleR::SingleR(
-  test = sce, 
-  ref = ref_sce,
-  labels = ref_sce$singler_with_tumor_annotation,
-  BPPARAM = BiocParallel::MulticoreParam(4),
-  restrict = rownames(sce)
-)
+# updated_singler_results <- SingleR::SingleR(
+#   test = sce, 
+#   ref = ref_sce,
+#   labels = ref_sce$singler_with_tumor_annotation,
+#   BPPARAM = BiocParallel::MulticoreParam(4),
+#   restrict = rownames(sce)
+# )
 
 # combine updated SingleR annotations with blueprint reference 
-updated_singler_blueprint_results <- SingleR::SingleR(
-  test = sce, 
-  ref = list(Blueprint = blueprint_ref,
-             tumor_ref = ref_sce),
-  labels = list(blueprint_ref$label.ont, ref_sce$singler_with_tumor_annotation),
-  BPPARAM = BiocParallel::MulticoreParam(4),
-  restrict = rownames(sce)
-)
+# updated_singler_blueprint_results <- SingleR::SingleR(
+#   test = sce, 
+#   ref = list(Blueprint = blueprint_ref,
+#              tumor_ref = ref_sce),
+#   labels = list(blueprint_ref$label.ont, ref_sce$singler_with_tumor_annotation),
+#   BPPARAM = BiocParallel::MulticoreParam(4),
+#   restrict = rownames(sce)
+# )
 
 # Save output ------------------------------------------------------------------
 
-ref_names <- c("blueprint_tumor", "updated_singler", "updated_singler_blueprint")
+ref_names <- c("blueprint_tumor", "tumor_only", "updated_singler", "updated_singler_blueprint")
 
-# create a list of all objects and save to rds file 
+# create a list of all objects and save to rds file
 singler_results_list <- list(
-  blueprint_tumor_results, 
-  updated_singler_results, 
+  blueprint_tumor_results,
+  tumor_only_results,
+  updated_singler_results,
   updated_singler_blueprint_results
-) |> 
+) |>
   purrr::set_names(ref_names)
 
 
-# get ontology labels 
+# get ontology labels
 cl_ont <- ontoProc::getOnto("cellOnto")
 cl_df <- data.frame(
   annotation = cl_ont$name, # CL ID
-  ontology = names(cl_ont$name) # human readable name 
+  ontology = names(cl_ont$name) # human readable name
 )
 
 # create a single df with results from all singler runs
-annotations_df <- singler_results_list |> 
+annotations_df <- singler_results_list |>
   purrr::imap(\(results, ref_name){
 
-    
+
     # save data frame with _matching_ ontology ids and cell names
     df <- data.frame(
       barcodes = rownames(results),
       ontology = results$pruned.labels
     ) |>
       # replace ont labels with full human readable labels
-      dplyr::left_join(cl_df, by = c("ontology")) |> 
-      # if its not found in blueprint use the original annotation 
-      dplyr::mutate(annotation = dplyr::if_else(is.na(annotation), ontology, annotation)) 
-    
+      dplyr::left_join(cl_df, by = c("ontology")) |>
+      # if its not found in blueprint use the original annotation
+      dplyr::mutate(annotation = dplyr::if_else(is.na(annotation), ontology, annotation))
+
     colnames(df) <- c(
-      "barcodes", 
+      "barcodes",
       # add ref name to colnames for easier joining
       glue::glue("{ref_name}_ontology"),
       glue::glue("{ref_name}_classification") # this will make it easier to select columns with existing classifications
     )
-    
+
     return(df)
-    
-  }) |> 
-  purrr::reduce(dplyr::inner_join, by = "barcodes") |> 
+
+  }) |>
+  purrr::reduce(dplyr::inner_join, by = "barcodes") |>
   dplyr::distinct()
 
 # save results 
