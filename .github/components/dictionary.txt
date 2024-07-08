@@ -157,3 +157,5 @@ Xcode
 YAML
 Zappia
 Zenodo
+pluripotent
+DOI
