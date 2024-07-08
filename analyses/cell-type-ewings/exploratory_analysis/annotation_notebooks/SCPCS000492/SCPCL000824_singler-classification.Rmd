@@ -206,6 +206,7 @@ tumor_cells <- list(
 
 UpSetR::upset(UpSetR::fromList(tumor_cells), order.by = "freq") |> print()
 ```
+
 Generally, it looks like there is a large group of cells that are identified as tumor regardless of the reference, with a few cells that are specifically tumor in only one or two references. 
 
 Let's see where the shared cells are and if they are where we would expect them to be based on marker gene expression plots we made previously (bottom right group of cells). 
