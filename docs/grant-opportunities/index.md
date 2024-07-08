@@ -24,7 +24,7 @@ We seek pediatric cancer researchers at non-profit institutions to help annotate
 
 ### Available Grants
 
-A maximum of 27 grants are available. A complete table of available grants is available at https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/571.
+A maximum of 27 grants are available. A complete table of available grants is available at [https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/571](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/571).
 
 This table contains a unique group identifier, project identifier, project title, list of diagnoses, and total number of samples for each group. Groups of samples encompass samples from a single ScPCA project representing either a single diagnosis or a group of related diagnoses.
 
@@ -38,7 +38,7 @@ The table includes the maximum amount that may be awarded in USD for annotating 
 
 Only one grant will be awarded per group of samples and will be awarded to the institution for the first researcher to complete cell type annotation satisfactorily and meets all eligibility and other requirements established by ALSF.
 
-ALSF will update the table of available grants at https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/571 to indicate which grant awards have been awarded and are no longer available.
+ALSF will update the table of available grants at [https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/571](https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/571) to indicate which grant awards have been awarded and are no longer available.
 
 ALSF will only award grants for submissions meeting the eligibility requirements and acceptance criteria. All decisions regarding applications and grants, including satisfaction of requirements, are made solely by ALSF, in its sole discretion.
 
