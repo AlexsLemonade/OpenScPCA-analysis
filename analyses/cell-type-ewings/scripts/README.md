@@ -149,38 +149,32 @@ Rscript run-singler.R \
 
 The scripts listed here are used to annotate tumor cells using [`AUCell`](https://www.bioconductor.org/packages/release/bioc/html/AUCell.html).
 
-1. `00-identify-ref-aucell.R`: This script is used to run `AUCell` with a list of tumor marker genes on a reference `SingleCellExperiment` object.
-The output will be the AUC value that was determined as the threshold for defining cells that have active marker gene set expression (tumor cells) in the reference object.
-A file will be saved with the reported AUC value.
-This value can then be used to classify tumor cells in other samples using the `--auc_threshold` option in `01-run-aucell.R`.
-
-By default, tumor marker genes are identifed from the genes listed in `references/tumor-marker-genes.tsv`.
-To use a different file, you can use the `--marker_genes_file` option.
-
-To run this script use the following command:
-
-```sh
-Rscript 00-identify-ref-aucell.R \
-  --sce_file <path to reference sce file> \
-  --output_file <path to file to save auc threshold>
-```
-
-2. `01-run-aucell.R`: This script is used run `AUCell` with a list of tumor marker genes on a `SingleCellExperiment` object.
-`AUCell` can be used to classify cells using a specified AUC value determined from `00-identify-ref-aucell.R` with `--auc_threshold`.
+1. `01-run-aucell.R`: This script is used run `AUCell` with a list of tumor marker genes on a `SingleCellExperiment` object.
+`AUCell` can be used to classify cells using a specified AUC value with `--auc_threshold`.
 If no `--auc_threshold` is provided, the `AUCell::AUCell_exploreThresholds()` function will be used to determine the AUC value to use for defining tumor cells.
 
-The output will be a TSV file containing the AUC value determined by `AUCell` and the classification (tumor or normal).
+The output will be a TSV file containing the AUC value determined by `AUCell` and the classification (tumor or normal) for each cell barcode.
+Optionally, the `--return_auc` flag can be used to print the AUC value used to classify tumor cells to `stdout`.
 
 By default, tumor marker genes are identifed from the genes listed in `references/tumor-marker-genes.tsv`.
 To use a different file, you can use the `--marker_genes_file` option.
 
-To run this script use the following command:
+To run this script using the AUC value determined by `AUCell` and print the determined AUC to `stdout`, use this command:
 
 ```sh
-Rscript 00-identify-ref-aucell.R \
+Rscript 01-run-aucell.R \
+  --sce_file <path to reference sce file> \
+  --output_file <path to TSV file to save results> \
+  --return_auc
+```
+
+To run this script using a pre-defined AUC value, use this command:
+
+```sh
+Rscript 01-run-aucell.R \
   --sce_file <path to reference sce file> \
   --auc_threshold <AUC value required to be classified as a tumor cell> \
-  --output_file <path to file to save auc threshold>
+  --output_file <path to TSV file to save results>
 ```
 
 ## Utils

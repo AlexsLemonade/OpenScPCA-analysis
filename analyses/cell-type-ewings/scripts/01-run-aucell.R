@@ -8,7 +8,6 @@ project_root <- here::here()
 renv::load(project_root)
 
 library(optparse)
-library(SingleCellExperiment)
 
 option_list <- list(
   make_option(
@@ -33,6 +32,12 @@ option_list <- list(
       If no threshold is provided, will use the threshold determined by AUCell for the input SCE."
   ), 
   make_option(
+    opt_str = c("--return_auc"),
+    action = "store_true",
+    default = FALSE, 
+    help = "If used, the AUC value used to classify tumor cells will be printed to stdout"
+  ),
+  make_option(
     opt_str = c("--output_file"),
     type = "character",
     help = "Path to file where results will be saved. 
@@ -50,6 +55,11 @@ stopifnot(
   "sce file does not exist" = file.exists(opt$sce_file),
   "marker genes file does not exist" = file.exists(opt$marker_genes_file)
 )
+
+# load SCE 
+suppressPackageStartupMessages({
+  library(SingleCellExperiment)
+})
 
 # make sure directory exists for writing output
 output_dir <- dir(opt$output_file)
@@ -100,5 +110,10 @@ auc_df <- auc_results@assays@data$AUC |>
                       values_to = "auc") |> 
   dplyr::mutate(auc_classification = dplyr::if_else(auc >= auc_threshold, "Tumor", "Normal"))
 
-# export results 
+# if return auc is true, print to stdout
+if(opt$return_auc){
+  write(auc_threshold, stdout())
+}
+
+# export results as table
 readr::write_tsv(auc_df, opt$output_file)
