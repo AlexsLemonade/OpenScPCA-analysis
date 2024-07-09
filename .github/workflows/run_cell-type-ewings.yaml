@@ -65,4 +65,4 @@ jobs:
       - name: Run analysis
         run: |
           cd $MODULE_PATH
-          bash annotate-tumor-cells.sh
+          bash cnv-annotation.sh
