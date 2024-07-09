@@ -77,14 +77,14 @@ Below is the results directory structure, annotated with file descriptions, afte
 results
 ├── README.md
 ├── benchmark-results
-│   ├── {dataset}_scdblfinder.tsv
-│   ├── {dataset}_scrublet.tsv
+│   ├── {dataset}_scdblfinder.tsv # TSV files with `scDblFinder` inferences
+│   ├── {dataset}_scrublet.tsv    # TSV files with `Scrublet` inferences
 │   └── rendered-notebooks # Exploration of doublet detection results for each individual dataset
 │       └── {dataset}-doublet-results.nb.html
-└── scpca-results # Results from running scDblFinder across ScPCA projects
+└── scpca-results # Results from running `scDblFinder` across ScPCA projects
     └── {project id}
         └── {sample id}
-            └── {library id}_processed_scdblfinder.tsv
+            └── {library id}_processed_scdblfinder.tsv # TSV file with doublet results
 ```
 
 ## Software requirements
