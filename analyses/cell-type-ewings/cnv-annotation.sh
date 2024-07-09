@@ -24,9 +24,9 @@ data_dir: Directory containing SCE and AnnData objects to use for a given projec
 This is the full path to the project folder.
 Default is `../../data/current/SCPCP000015`.
 workflow_results_dir: Full path to folder to store outputs from the workflow.
-By default, all results will be stored in `results/annotate_tumor_cells_output`.
+By default, all results will be stored in `results/cnv_annotation`.
 
-A set of reports summarizing the tumor cell annotations and a TSV file containing annotations from all used methods will be saved to `results/annotate_tumor_cells_output`.
+A set of reports summarizing the tumor cell annotations and a TSV file containing annotations from all used methods will be saved to `results/cnv_annotation`.
 
 Example of running the workflow with a different sample:
 
@@ -47,14 +47,14 @@ sample_id=${sample_id:-"SCPCS000490"}
 normal_celltypes=${normal_celltypes:-"Endothelial cells,endothelial cell"}
 tumor_celltypes=${tumor_celltypes:-"Pulmonary vascular smooth muscle cells,smooth muscle cell"}
 data_dir=${data_dir:-"../../data/current/SCPCP000015"}
-workflow_results_dir=${workflow_results_dir:-"${module_directory}/results/annotate_tumor_cells_output"}
+workflow_results_dir=${workflow_results_dir:-"${module_directory}/results/cnv_annotation"}
 threads=${threads:-4}
 
 echo $workflow_results_dir
 
 # define paths to notebooks and scripts run in the workflow
 notebook_dir="template_notebooks/cnv-workflow"
-scripts_dir="scripts"
+scripts_dir="scripts/cnv-workflow"
 
 # define results directories
 sample_results_dir="${workflow_results_dir}/${sample_id}"
@@ -124,13 +124,6 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
                         reference_cell_file = '$reference_cell_file'), \
           envir = new.env()) \
     "
-
-    # Calculate gene set scores ------------------------------------------
-
-    echo "Calculating gene set scores..."
-    Rscript $scripts_dir/calculate-gene-set-scores.R \
-      --sce_file "$sce" \
-      --results_dir "$sample_results_dir"
 
     # CellAssign ---------------------------------------------------------
     # define output predictions files
