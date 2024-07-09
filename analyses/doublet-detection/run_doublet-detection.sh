@@ -51,7 +51,7 @@ for dataset in "${bench_datasets[@]}"; do
     # Explore each individual set of doublet results
     Rscript -e "rmarkdown::render('${TEMPLATE_NB_DIR}/02_explore-benchmark-results.Rmd',
             output_dir = '${BENCH_TEMPLATE_NB_DIR}',
-            output_file = '${dataset}-doublet-results.html',
+            output_file = '${dataset}_doublet-results.html',
             params = list(dataset = '${dataset}'),
             clean = TRUE)"
 done
