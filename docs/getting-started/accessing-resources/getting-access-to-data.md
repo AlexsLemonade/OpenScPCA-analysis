@@ -16,7 +16,7 @@ Broadly speaking, there are three kinds of ScPCA data you might wish to work wit
     - These data are used for automated testing, but you can also use them while developing your module if smaller files helps make development more efficient.
     - You do not need an AWS account to download the test files, so you can use this data before you are granted full access to ScPCA data.
 
-## Accessing ScPCA Data
+## Accessing ScPCA data
 
 ### Accessing data on the ScPCA Portal
 
@@ -54,7 +54,7 @@ See our documentation [getting access to AWS](index.md#getting-access-to-aws) fo
     - [Set up conda](../../technical-setup/environment-setup/setup-conda.md) (note that conda is pre-installed, but not yet set up, on [Lightsail for Research](../../aws/lsfr/starting-development-on-lsfr.md#create-and-activate-a-conda-environment) instances)
     - [Configured the AWS CLI and logged in](../../technical-setup/environment-setup/configure-aws-cli.md) OR are [using Lightsail for Research](../../aws/index.md#lightsail-for-research-virtual-computing-with-aws) (which doesn't require logging in via the AWS CLI)
 
-The [`download-data.py` script](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/download-data.py) is designed to download files from whatever release you specify to a folder named for the date of that release and [symlink](https://en.wikipedia.org/wiki/Symbolic_link) it to `data/current`.
+The [`download-data.py` script](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/download-data.py) is designed to download files from whatever release you specify to a folder in `data` named for the date of that release and [symlink](https://en.wikipedia.org/wiki/Symbolic_link) it to `data/current`.
 
 !!! tip "Log into AWS CLI before running the script"
     Before running this script locally, you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
@@ -71,45 +71,55 @@ The [`download-data.py` script](https://github.com/AlexsLemonade/OpenScPCA-analy
 
     Note that you can also [add this profile definition to your shell profile file](../../technical-setup/environment-setup/configure-aws-cli.md#storing-your-aws-profile-name) so that it will always be defined in any terminal session.
 
-We briefly cover some of the most common use cases below, but we encourage you to review all the options available to you.
+We briefly cover some of this script's most common use cases below, but we encourage you to review all the options available to you.
 
-You can list all the options for the download data script by running the following from the root directory of the repository:
+- You can list all the options for the download data script by running the following from the root directory of the repository:
+    ```sh
+    ./download-data.py --help
+    ```
 
-```sh
-./download-data.py --help
-```
+- You can run the download script with all default options to download all processed samples from the most recent release in `SingleCellExperiment` format:
 
-You can run the download script with all default options to download all processed samples from the most recent release in `SingleCellExperiment` format:
+    !!! warning
+        **The full data release download is quite large: over 35 GB for `SingleCellExperiment` format, and over 100 GB for `AnnData` format.
+        Please download the full data release with caution!**
 
-!!! warning
-    **The full data release download is quite large: over 35 GB for `SingleCellExperiment` format, and over 100 GB for `AnnData` format.
-    Please download the full data release with caution!**
+    ```sh
+    ./download-data.py
+    ```
 
-```sh
-./download-data.py
-```
+- If you prefer to work with `AnnData` files, use the `--format` option as follows:
 
-If you prefer to work with `AnnData` files, use the `--format` option as follows:
+    ```sh
+    ./download-data.py --format AnnData
+    ```
 
-```sh
-./download-data.py --format AnnData
-```
+- To review what samples would be downloaded without performing the download yet, you can use the `--dryrun` option as follows.
+    - We strongly recommend using the `--dryrun` flag the first time you run the script for a new data download to ensure the downloaded files are as expected.
 
-To review what samples would be downloaded without performing the download yet, you can use the `--dryrun` option as follows:
+    ```sh
+    ./download-data.py --dryrun
+    ```
 
-```sh
-./download-data.py --dryrun
-```
+- If you're only working with a subset of the data, you can use the `--projects` or `--samples` to download select samples (note: these options are mutually exclusive):
 
-If you're only working with a subset of the data, you can use the `--projects` or `--samples` to download select samples (note: these options are mutually exclusive):
+    ```sh
+    # use the --projects option
+    ./download-data.py --projects SCPCPXXXXXX
 
-```sh
-# use the --projects option
-./download-data.py --projects SCPCPXXXXXX
+    # use the --samples option
+    ./download-data.py --samples SCPCSXXXXXX,SCPCSXXXXXY
+    ```
 
-# use the --samples option
-./download-data.py --samples SCPCSXXXXXX,SCPCSXXXXXY
-```
+- To update the `data/current` symlink, for example if you have downloaded multiple releases and/or [test data](#accessing-test-data), use the `--update-symlink` flag in one of the following ways.
+  - Note that no data will be downloaded if you use this flag.
+    ```sh
+    # update data/current to direct to most recent local release
+    ./download-data.py --update-symlink
+
+    # update data/current to direct to specific release version
+    ./download-data.py --update-symlink --release 2024-05-01
+    ```
 
 #### Download data structure
 
