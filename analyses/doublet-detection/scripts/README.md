@@ -22,16 +22,16 @@ Use these commands to run each script:
 ```sh
 # Run 01a_run-scdblfinder.R
 Rscript 01a_run-scdblfinder.R \
-    --dataset_name <name of dataset to format> \
-    --data_dir <directory to SCE file> \
+    --input_sce_file <input SCE file name> \
+    --data_dir <directory with input SCE file> \
     --results_dir <directory to export TSV result file> \
     --cores <optionally, the number of cores to use. Default is 4> \
     --random_seed <optionally, a random seed. Default is 2024>
 
 # Run 01b_run-scrublet.py
 python3 01b_run-scrublet.py \
-    --dataset_name <name of dataset to format> \
-    --data_dir <directory to AnnData file> \
+    --input_anndata_file <input AnnData file name> \
+    --data_dir <directory with input AnnData file> \
     --results_dir <directory to export TSV result file> \
     --random_seed <optionally, a random seed. Default is 2024>
 ```
