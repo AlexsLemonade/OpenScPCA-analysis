@@ -23,8 +23,8 @@ on:
     paths:
       - analyses/hello-R/**
 jobs:
-  if: github.repository_owner == "AlexsLemonade"
   run-module:
+    if: github.repository_owner == "AlexsLemonade"
     runs-on: ubuntu-latest
 
     steps:
