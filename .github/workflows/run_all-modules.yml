@@ -44,6 +44,7 @@ jobs:
           labels: |
             OpenScPCA admin
             ci
+
       - name: Check for failures or cancelled jobs
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
         run: echo "Job failed" && exit 1

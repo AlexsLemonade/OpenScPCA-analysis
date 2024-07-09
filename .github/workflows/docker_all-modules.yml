@@ -36,7 +36,9 @@ jobs:
           - hello-python
           - simulate-sce
           - cell-type-ewings
+          - doublet-detection
     uses: ./.github/workflows/build-push-docker-module.yml
+    if: github.repository_owner == 'AlexsLemonade'
     with:
       module: ${{ matrix.module }}
       # push if the workflow was triggered for scheduled build or push, or if the user requested it
