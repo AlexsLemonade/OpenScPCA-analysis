@@ -16,6 +16,24 @@ Broadly speaking, there are three kinds of ScPCA data you might wish to work wit
     - These data are used for automated testing, but you can also use them while developing your module if smaller files helps make development more efficient.
     - You do not need an AWS account to download the test files, so you can use this data before you are granted full access to ScPCA data.
 
+
+!!! tip "Log into AWS CLI before running the download scripts"
+    Below, we describe how to use both the `data-download.py` and `results-download.py` script to download ScPCA data and result files, respectively.
+    Before running either of these scripts locally (e.g., not from a [virtual computer](../../aws/index.md#lightsail-for-research-virtual-computing-with-aws)), you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
+    To do this, run the following commands in terminal before running the script, and follow instructions to log in.
+
+    ```sh
+    # replace `openscpca` with your AWS CLI profile name if it differs
+    export AWS_PROFILE=openscpca
+    aws sso login
+    ```
+
+    The command `export AWS_PROFILE=openscpca` will define your AWS profile name as `openscpca` for the duration of your terminal session.
+    Defining this variable is helpful because the download scripts also need your profile name to download files from S3.
+
+    Note that you can also [add this profile definition to your shell profile file](../../technical-setup/environment-setup/configure-aws-cli.md#storing-your-aws-profile-name) so that it will always be defined in any terminal session.
+
+
 ## Accessing ScPCA data
 
 ### Accessing data on the ScPCA Portal
@@ -55,21 +73,6 @@ See our documentation [getting access to AWS](index.md#getting-access-to-aws) fo
     - [Configured the AWS CLI and logged in](../../technical-setup/environment-setup/configure-aws-cli.md) OR are [using Lightsail for Research](../../aws/index.md#lightsail-for-research-virtual-computing-with-aws) (which doesn't require logging in via the AWS CLI)
 
 The [`download-data.py` script](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/download-data.py) is designed to download files from whatever release you specify to a folder in `data` named for the date of that release and [symlink](https://en.wikipedia.org/wiki/Symbolic_link) it to `data/current`.
-
-!!! tip "Log into AWS CLI before running the script"
-    Before running this script locally, you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
-    To do this, run the following commands in terminal before running the `data-download.py` script, and follow instructions to log in.
-
-    ```sh
-    # replace `openscpca` with your AWS CLI profile name if it differs
-    export AWS_PROFILE=openscpca
-    aws sso login
-    ```
-
-    The command `export AWS_PROFILE=openscpca` will define your AWS profile name as `openscpca` for the duration of your terminal session.
-    Defining this environment variable is helpful because the `download-data.py` script also needs your profile name to download data from S3.
-
-    Note that you can also [add this profile definition to your shell profile file](../../technical-setup/environment-setup/configure-aws-cli.md#storing-your-aws-profile-name) so that it will always be defined in any terminal session.
 
 We briefly cover some of this script's most common use cases below, but we encourage you to review all the options available to you.
 
@@ -169,20 +172,6 @@ You can list all the options for `download-results.py` by running the following 
 ./download-results.py --help
 ```
 
-!!! tip "Log into AWS CLI before running the script"
-    Before running this script locally, you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
-    To do this, run the following commands in terminal before running the `results-download.py` script, and follow instructions to log in.
-
-    ```sh
-    # replace `openscpca` with your AWS CLI profile name if it differs
-    export AWS_PROFILE=openscpca
-    aws sso login
-    ```
-
-    The command `export AWS_PROFILE=openscpca` will define your AWS profile name as `openscpca` for the duration of your terminal session.
-    Defining this variable is helpful because the `download-data.py` script also needs your profile name to download data from S3.
-
-    Note that you can also [add this profile definition to your shell profile file](../../technical-setup/environment-setup/configure-aws-cli.md#storing-your-aws-profile-name) so that it will always be defined in any terminal session.
 
 To download results for one or more modules, use the `--modules` option as follows:
 
