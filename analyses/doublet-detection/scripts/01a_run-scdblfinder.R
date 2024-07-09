@@ -7,9 +7,10 @@
 project_root <- rprojroot::find_root(rprojroot::is_renv_project)
 renv::load(project_root)
 
-library(SingleCellExperiment)
-library(optparse)
-
+suppressPackageStartupMessages({
+  library(SingleCellExperiment)
+  library(optparse)
+})
 
 # Functions -----------
 
@@ -55,6 +56,7 @@ run_scdblfinder <- function(sce,
     samples = sample_var, # Default is NULL so use whatever was provided by the user or default
     BPPARAM = bp,
     returnType = "table", # return df, not sce
+    verbose = FALSE,
     ...
   )
 
