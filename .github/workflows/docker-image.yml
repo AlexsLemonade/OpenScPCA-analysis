@@ -12,6 +12,7 @@ permissions:
 jobs:
   build:
     name: Build Docker Image
+    if: github.repository_owner == 'AlexsLemonade'
     runs-on: ubuntu-latest
     environment: 'prod'
 
