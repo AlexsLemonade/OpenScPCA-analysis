@@ -2,6 +2,7 @@
 
 set -euo pipefail
 
+
 # Set up --------------
 
 # Ensure script is being run from its directory
@@ -39,13 +40,13 @@ for dataset in "${bench_datasets[@]}"; do
     mkdir -p $DATASET_DIR
 
     # Read raw downloaded data and export SCE, AnnData files
-    ./scripts/00_format-benchmark-data.R --dataset_name ${dataset} --input_dir ${BENCH_DATA_DIR}/raw --output_dir ${DATASET_DIR}
+    ./scripts/00_format-benchmark-data.R --dataset ${dataset} --input_dir ${BENCH_DATA_DIR}/raw --output_dir ${DATASET_DIR}
 
     # Infer doublets with scDblFinder
-    ./scripts/01a_run-scdblfinder.R --dataset_name ${dataset} --data_dir ${DATASET_DIR} --results_dir ${BENCH_RESULTS_DIR}
+    ./scripts/01a_run-scdblfinder.R --input_sce_file ${dataset}.rds --data_dir ${DATASET_DIR} --results_dir ${BENCH_RESULTS_DIR}
 
     # Infer doublets with scrublet
-    ./scripts/01b_run-scrublet.py --dataset_name ${dataset} --data_dir ${DATASET_DIR} --results_dir ${BENCH_RESULTS_DIR}
+    ./scripts/01b_run-scrublet.py --input_anndata_file ${dataset}.h5ad --data_dir ${DATASET_DIR} --results_dir ${BENCH_RESULTS_DIR}
 
     # Explore each individual set of doublet results
     Rscript -e "rmarkdown::render('${TEMPLATE_NB_DIR}/02_explore-benchmark-results.Rmd',

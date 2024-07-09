@@ -16,9 +16,10 @@ library(optparse)
 #' Run scDblFinder on an SCE object
 #'
 #' @param sce SCE object to run scDblFinder on
-#' @param cores Number of cores to specify to BiocParallel::MulticoreParam(
-#' @param sample_var Required for SCE object with multiple samples, the SCE colData variable that indicates sample of origin
-#' @param random_seed Required for SCE object with multiple samples, a random seed to ensure reproducibility when running on multiple samples
+#' @param cores Number of cores to specify to BiocParallel::MulticoreParam()
+#' @param sample_var Required for SCE object with multiple samples, the SCE colData variable that indicates sample of origin.
+#'   This option should _not_ be used for a multiplexed library which has not been demultiplexed, but is suitable for merged objects.
+#' @param random_seed Required for SCE object with multiple samples, a random seed to ensure reproducibility when running on multiple samples.
 #' @param ... Additional arguments to pass to scDblFinder::scDblFinder
 #'
 #' @return Data frame object with scDblFinder inferences
@@ -37,7 +38,7 @@ run_scdblfinder <- function(sce,
     }
     if (is.null(random_seed)) {
       # See section 1.5.6: https://bioconductor.org/packages/3.19/bioc/vignettes/scDblFinder/inst/doc/scDblFinder.html#usage
-      stop("If multiple samples are present in the input SCE object, a random seed must be provided for reproducibility.")
+      stop("If multiple samples are present in the input SCE object (e.g., the object contains multiple merged libraries), a random seed must be provided for reproducibility.")
     }
   }
 
@@ -71,14 +72,14 @@ run_scdblfinder <- function(sce,
 
 option_list <- list(
   make_option(
-    "--dataset_name",
-    type = "character",
-    help = "Name of dataset to process, where the associated file is expected to be named `{name}_sce.rds`"
-  ),
-  make_option(
     "--data_dir",
     type = "character",
-    help = "The directory containing the input RDS file."
+    help = "The directory containing the input RDS file in SCE format."
+  ),
+  make_option(
+    "--input_sce_file",
+    type = "character",
+    help = "Name of input SCE file in RDS format."
   ),
   make_option(
     "--results_dir",
@@ -94,7 +95,7 @@ option_list <- list(
   make_option(
     "--sample_var",
     type = "character",
-    help = "If multiple samples are present in the SCE, the colData column name with sample ids."
+    help = "If multiple samples are present in the SCE, the colData column name with sample ids. This option should be used for merged objects."
   ),
   make_option(
     "--random_seed",
@@ -105,10 +106,7 @@ option_list <- list(
 )
 opts <- parse_args(OptionParser(option_list = option_list))
 
-# Check input arguments
-if (is.null(opts$dataset_name)) {
-  stop("Must provide a dataset name with --dataset_name.")
-}
+# Check input arguments and set up files, directories ------
 if (is.null(opts$data_dir)) {
   stop("Must provide an input path for the SCE file with --data_dir.")
 }
@@ -116,23 +114,31 @@ if (is.null(opts$results_dir)) {
   stop("Must provide an output path for results with --results_dir.")
 }
 
-fs::dir_create(opts$results_dir)
-set.seed(opts$random_seed)
-
-
-# Detect doublets and export TSV file with inferences -----
-input_sce_file <- file.path(opts$data_dir, glue::glue("{opts$dataset_name}_sce.rds"))
+input_sce_file <- file.path(opts$data_dir, opts$input_sce_file)
 if (!file.exists(input_sce_file)) {
   stop(
     glue::glue("Could not find input file, expected at: `{input_sce_file}`.")
   )
 }
-output_tsv_file <- file.path(opts$results_dir, glue::glue("{opts$dataset_name}_scdblfinder.tsv"))
+
+output_tsv_file <- file.path(
+  opts$results_dir,
+  stringr::str_replace(
+    opts$input_sce_file,
+    ".rds",
+    "_scdblfinder.tsv"
+  )
+)
+
+fs::dir_create(opts$results_dir)
+set.seed(opts$random_seed)
+
+# Detect doublets and export TSV file with inferences -----
 
 readRDS(input_sce_file) |>
   run_scdblfinder(
     cores = opts$cores,
-    # only used if there are multiple samples
+    # only used if there are multiple samples, e.g. if this is processing a merged object
     sample_var = opts$sample_var, # will be NULL if not provided as input argument
     random_seed = opts$random_seed
   ) |>

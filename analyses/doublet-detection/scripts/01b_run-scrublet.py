@@ -38,10 +38,10 @@ def main() -> None:
         description="Detect doublets on a set of AnnData objects using scrublet.",
     )
     parser.add_argument(
-        "--dataset_name",
+        "--input_anndata_file",
         type=str,
         required=True,
-        help="Name of dataset to process, where the associated file is expected to be named `{name}_anndata.h5ad`."
+        help="Name of the input AnnData file to process."
     )
     parser.add_argument(
         "--data_dir",
@@ -66,8 +66,8 @@ def main() -> None:
     args.results_dir.mkdir(parents = True, exist_ok = True)
 
     # Run scrublet and export the results
-    input_anndata = args.data_dir / (args.dataset_name + "_anndata.h5ad")
-    result_tsv = args.results_dir / (args.dataset_name + "_scrublet.tsv")
+    input_anndata = args.data_dir / (args.input_anndata_file)
+    result_tsv = args.results_dir / (args.input_anndata_file.replace(".h5ad", "_scrublet.tsv"))
 
     if not input_anndata.exists():
         print(

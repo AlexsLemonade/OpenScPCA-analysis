@@ -47,8 +47,8 @@ if (!file.exists(input_file)) {
   )
 }
 
-output_sce_file <- file.path(opts$output_dir, glue::glue("{opts$dataset_name}_sce.rds"))
-output_anndata_file <- file.path(opts$output_dir, glue::glue("{opts$dataset_name}_anndata.h5ad"))
+output_sce_file <- file.path(opts$output_dir, glue::glue("{opts$dataset_name}.rds"))
+output_anndata_file <- file.path(opts$output_dir, glue::glue("{opts$dataset_name}.h5ad"))
 
 dat <- readRDS(input_file)
 mat <- dat[[1]] # raw counts matrix
