@@ -35,6 +35,16 @@ conda env create --file environment.yml --name openscpca-{module_name}
 conda activate openscpca-{module_name}
 ```
 
+??? info "Adding an `environment.yml` file to an existing module"
+
+    If you are working on an existing module that does not yet have an `environment.yml` file, it is usually best to start from the template that we have provided.
+    This template can be found at [`templates/python/environment.yml`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/templates/python/environment.yml) in the OpenScPCA-analysis repository.
+
+    Copy this file to the root directory of the module, then replace `{{ openscpca_module }}` (including the braces) in the `name:` field  with the name of the module.
+
+    You can then follow the instructions above to create the environment and begin installing your required software packages.
+
+
 ## Creating and updating `conda-lock.yml` files
 
 To create a `conda-lock.yml` file from an `environment.yml` file, run the following command from the module directory:
@@ -43,7 +53,7 @@ To create a `conda-lock.yml` file from an `environment.yml` file, run the follow
 conda-lock --file environment.yml
 ```
 
-This will create a `conda-lock.yml` file in the module directory that contains the exact versions of all software packages in the environment, including any dependencies that may be specific to a given platform.
+This will create or update a `conda-lock.yml` file in the module directory that contains the exact versions of all software packages in the environment, including any dependencies that may be specific to a given platform.
 
 You should perform this step before [filing a pull request](../../contributing-to-analyses/creating-pull-requests/index.md) to ensure that the `conda-lock.yml` file is up-to-date with the current state of your environment.
 
@@ -56,7 +66,7 @@ You should perform this step before [filing a pull request](../../contributing-t
 ## Adding packages to the environment
 
 If there is additional software you intend to use or discover is required for a module, you can add it with the `conda install` command when the environment is activated.
-Follow installing with an update to the `environment.yml` file with that package and the dependencies that were installed.
+Following installation, update the `environment.yml` file with that package and the dependencies that were installed.
 
 For example, to install the `pandas` package and record it in the `environment.yml` file, you would run the following commands:
 
@@ -106,6 +116,9 @@ dependencies:
 ```
 
 </div>
+
+After you have finished updating the `environment.yml` file, you should rerun `conda-lock` to update the `conda-lock.yml` file with the new package(s) and their dependencies.
+
 
 ### Finding available packages and software
 
