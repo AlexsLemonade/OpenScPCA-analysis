@@ -97,6 +97,25 @@ We briefly cover some of this script's most common use cases below, but we encou
     ./download-data.py --format AnnData
     ```
 
+- To download a specific release, you can use the `--release` flag as follows:
+
+
+
+<!--
+
+TODO: This section needs to be reworked to avoid unexpected downloads. We should recommend --use-release instead.
+
+These commands will download either test data or results, respectively, and will
+
+```sh
+./download-data.py --release current
+
+./download-results.py --release current
+```
+If you had already downloaded the most recent data or results, this will not repeat downloading the files you already have.
+
+-->
+
 - To review what samples would be downloaded without performing the download yet, you can use the `--dryrun` option as follows.
     - We strongly recommend using the `--dryrun` flag the first time you run the script for a new data download to ensure the downloaded files are as expected.
 
@@ -104,7 +123,7 @@ We briefly cover some of this script's most common use cases below, but we encou
     ./download-data.py --dryrun
     ```
 
-- If you're only working with a subset of the data, you can use the `--projects` or `--samples` to download select samples (note: these options are mutually exclusive):
+- If you're only working with a subset of the data, you can use the `--projects` or `--samples` to download select projects or samples, respectively (note that these options are mutually exclusive):
 
     ```sh
     # use the --projects option
@@ -166,46 +185,41 @@ We have provided a [`download-results.py` script](https://github.com/AlexsLemona
 
 We briefly cover some of the most common use cases below, but we encourage you to review all the options available to you.
 
-You can list all the options for `download-results.py` by running the following from the root directory of the repository:
+- You can list all the options for `download-results.py` by running the following from the root directory of the repository:
+    ```sh
+    ./download-results.py --help
+    ```
 
-```sh
-./download-results.py --help
-```
+- To download results for one or more modules, use the `--modules` option as follows:
+    ```sh
+    # Get results from a single module
+    ./download-results.py --modules module-name
 
+    # Get results from several modules
+    ./download-results.py --modules first-module,second-module
+    ```
 
-To download results for one or more modules, use the `--modules` option as follows:
-
-```sh
-# Get results from a single module
-./download-results.py --modules module-name
-
-# Get results from several modules
-./download-results.py --modules first-module,second-module
-```
-
-To list all available modules for which you can download results, you can use the `--list-modules` option as follows.
+- To list all available modules for which you can download results, you can use the `--list-modules` option as follows.
 This will list all modules available in, by default, the current release:
+    ```sh
+    ./download-results.py --list-modules
+    ```
 
-```sh
-./download-results.py --list-modules
-```
+- To see the result files that would be downloaded without performing the download yet, you can use the `--dryrun` option as follows:
+    - We strongly recommend using the `--dryrun` flag the first time you run the script for a new data download to ensure the downloaded files are as expected.
+    ```sh
+    ./download-results.py --modules module-name --dryrun
+    ```
 
-To see the result files that would be downloaded without performing the download yet, you can use the `--dryrun` option as follows:
+- While the structure of results files varies by module, some modules' results will be organized by project and/or sample.
+For those modules, you can use either the `--projects` or `--samples` flag (noting that these options are mutually exclusive) to download results specific to one or more projects or samples, respectively:
+    ```sh
+    # use the --projects option
+    ./download-results.py --modules module-name --dryrun --projects SCPCPXXXXXX
 
-```sh
-./download-results.py --modules module-name --dryrun
-```
-
-While the structure of results files varies by module, some modules' results will be organized by project and/or sample.
-For those modules, you can use either the `--projects` or `--samples` flag (noting that these options are mutually exclusive) to download results specific to one or more projects or samples:
-
-```sh
-# use the --projects option
-./download-results.py --modules module-name --dryrun --projects SCPCPXXXXXX
-
-# use the --samples option
-./download-results.py --modules module-name --dryrun --samples SCPCSXXXXXX,SCPCSXXXXXY
-```
+    # use the --samples option
+    ./download-results.py --modules module-name --dryrun --samples SCPCSXXXXXX,SCPCSXXXXXY
+    ```
 
 
 #### Download result data structure
@@ -246,8 +260,7 @@ To list all available releases, you can use the following command from the root 
 ./download-results.py --list-releases
 ```
 
-The `data/current` directory is symlinked to the current release directory
-.
+The `data/current` directory is symlinked to the current release directory.
 This is generally the path you should use in your code.
 
 
@@ -261,31 +274,28 @@ Similarly, you use the [download result script](#accessing-scpca-module-results)
 
 You do not need an AWS account set up to download the test data or results.
 
-To download test data with all other options set at default, run the following from the root of the repository:
+- To download test data with all other options set at default, run the following from the root of the repository:
+    ```sh
+    ./download-data.py --test-data
+    ```
 
-```sh
-./download-data.py --test-data
-```
+- To download a given module's results as generated with the test data, run the following from the root of the repository:
+    ```sh
+    ./download-results.py --modules module-name --test-data
+    ```
 
-To download a given module's results as generated with the test data, run the following from the root of the repository:
 
-```sh
-./download-results.py --modules module-name --test-data
-```
-
-<!--
-
-TODO: This section needs to be reworked to avoid unexpected downloads. We should recommend --use-release instead.
-
-These commands will download either test data or results, respectively, and will update the `data/current` symlink to instead point to the `data/test` directory.
+Running either of the above commands will update the `data/current` symlink to point to the `data/test` directory, rather than a given data release directory.
 This means any real ScPCA data or results you had previously downloaded will no longer be in the `data/current` path.
-To switch this symlink path back to ScPCA data or results, rerun either script with the `--release current` option:
 
-```sh
-./download-data.py --release current
+- To switch this symlink path back to the real ScPCA data or results, run the _data download_ script with the flag `--update-symlink` as follows:
+    ```sh
+    # update the data/current symlink to direct to the most recent release
+    ./download-data.py --update-symlink
+    ```
 
-./download-results.py --release current
-```
-If you had already downloaded the most recent data or results, this will not repeat downloading the files you already have.
-
--->
+- Conversely, you can also use the `--update-symlink` and `--test-data` flags together to direct the `data/current` symlink to instead point to any present test data as follows:
+    ```sh
+    # update the data/current symlink to direct to the test data
+    ./download-data.py --update-symlink --test-data
+    ```
