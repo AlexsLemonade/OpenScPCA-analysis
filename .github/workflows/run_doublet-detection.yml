@@ -19,11 +19,11 @@ concurrency:
 on:
   workflow_dispatch:
   workflow_call:
-  #pull_request:
-  #  branches:
-  #    - main
-  #  paths:
-  #    - analyses/doublet-detection/**
+  pull_request:
+    branches:
+      - main
+    paths:
+      - analyses/doublet-detection/**
 
 jobs:
   run-module:
@@ -35,8 +35,6 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
-      # Eventually, a step to download data will go here.
 
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
@@ -55,7 +53,6 @@ jobs:
             lzma-dev \
             libglpk-dev
 
-
       - name: Set up pandoc
         uses: r-lib/actions/setup-pandoc@v2
 
@@ -64,15 +61,21 @@ jobs:
         with:
           working-directory: ${{ env.MODULE_PATH }}
 
-      - name: Set up conda
-        uses: conda-incubator/setup-miniconda@v3
+      # TODO: If/when the benchmarking code is added to this GHA, this conda environment setup needs to be uncommented
+      #
+      #- name: Set up conda
+      #  uses: conda-incubator/setup-miniconda@v3
+      #
+      #- name: Install conda-lock and activate locked conda environment
+      #  run: |
+      #    conda install conda-lock
+      #    conda-lock install --name test ${MODULE_PATH}/conda-lock.yml
 
-      - name: Install conda-lock and activate locked conda environment
-        run: |
-          conda install conda-lock
-          conda-lock install --name test ${MODULE_PATH}/conda-lock.yml
+      - name: Download test data
+        run: ./download-data.py --test-data --format SCE --project SCPCP000001
 
       - name: Run doublet-detection module
         run: |
           cd $MODULE_PATH
-          bash run_doublet-detection.sh
+
+          bash run_doublet-detection-scpca.sh SCPCP000001
