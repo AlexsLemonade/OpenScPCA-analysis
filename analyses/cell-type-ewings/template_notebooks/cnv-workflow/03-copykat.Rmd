@@ -13,7 +13,7 @@ params:
   no_ref_copykat_results: "copykat/no_reference"
   with_ref_copykat_results: "copykat/with_reference"
   reference_cell_file: ".reference-cells.tsv"
-  results_dir: "annotate_tumor_cells_output"
+  results_dir: "cnv_annotation"
 ---
 
 

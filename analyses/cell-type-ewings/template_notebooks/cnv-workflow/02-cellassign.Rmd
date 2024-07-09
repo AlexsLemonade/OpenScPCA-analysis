@@ -13,7 +13,7 @@ params:
   tumor_marker_predictions: "tumor-marker_predictions.tsv"
   visser_marker_predictions: "visser-all-marker_predictions.tsv"
   panglao_predictions: "panglao-endo-fibro_predictions.tsv"
-  results_dir: "annotate_tumor_cells_output"
+  results_dir: "cnv_annotation"
 ---
 
 ## Introduction 

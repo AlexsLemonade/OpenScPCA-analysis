@@ -11,7 +11,7 @@ params:
   library_id: SCPCL000822
   marker_gene_classification: "tumor-normal-classifications.tsv"
   infercnv_dir: "infercnv"
-  results_dir: "annotate_tumor_cells_output"
+  results_dir: "cnv_annotation"
 ---
 
 ## Introduction 
