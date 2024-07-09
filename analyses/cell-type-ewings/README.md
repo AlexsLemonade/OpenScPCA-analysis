@@ -41,7 +41,7 @@ These can be downloaded using the `--include_reports` option in `download-data.p
 
 ## Usage
 
-To annotate tumor and normal cells in the Ewing's sarcoma samples from SCPCP000015, run the `annotate-tumor-cells-workflow.sh` workflow.
+To annotate tumor and normal cells in the Ewing's sarcoma samples from SCPCP000015, run the `cnv-annotation.sh` workflow.
 **Note:** Before running this workflow be sure to run `renv::restore()`  and activate the conda environment using the following commands:
 
 ```sh
@@ -60,7 +60,7 @@ This should correspond to the value found in `sample-metadata.tsv` for this samp
 Example of running the workflow with a different sample:
 
 ```sh
-sample_id="SCPCS000491" ./annotate-tumor-cells.sh
+sample_id="SCPCS000491" ./cnv-annotation.sh
 ```
 
 ## Input files
@@ -123,7 +123,7 @@ See [below](#annotation-files) for more information on this table.
 ### Annotation files
 
 Additionally, a reference TSV will be generated for each library containing a table of cell types from `SingleR` and `CellAssign`.
-This file contains any cell barcodes expected to line up with tumor or normal cell types specified with the `normal_celltypes` and `tumor_celltypes` arguments when running `annotate-tumor-cells.sh`.
+This file contains any cell barcodes expected to line up with tumor or normal cell types specified with the `normal_celltypes` and `tumor_celltypes` arguments when running `cnv-annotation.sh`.
 This table will be saved in `references/cell_lists/<sample_id>/<library_id>_reference-cells.tsv` and contains the following columns:
 
 |  |   |
@@ -153,7 +153,7 @@ conda activate openscpca-cell-type-ewings
 
 ## Computational resources
 
-Currently, the `annotate-tumor-cells.sh` can only be run using 1 CPU if running locally.
+Currently, the `cnv-annotation.sh` can only be run using 1 CPU if running locally.
 Use `threads=1` when running the workflow to specify this.
 
 To increase the speed of the workflow, we recommend running on a computer with at least 12 CPUs.

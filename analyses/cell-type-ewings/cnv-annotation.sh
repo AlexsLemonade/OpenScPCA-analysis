@@ -30,7 +30,7 @@ A set of reports summarizing the tumor cell annotations and a TSV file containin
 
 Example of running the workflow with a different sample:
 
-sample_id="SCPCS000491" ./annotate-tumor-cells.sh
+sample_id="SCPCS000491" ./cnv-annotation.sh
 
 '
 ####
@@ -53,7 +53,7 @@ threads=${threads:-4}
 echo $workflow_results_dir
 
 # define paths to notebooks and scripts run in the workflow
-notebook_dir="template_notebooks"
+notebook_dir="template_notebooks/cnv-workflow"
 scripts_dir="scripts"
 
 # define results directories

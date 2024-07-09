@@ -2,7 +2,7 @@
 
 This directory contains all scripts used for cell typing Ewing sarcoma samples from SCPCP000015.
 
-## Scripts used in `annotate-tumor-cells.sh`
+## Scripts used in `cnv-annotation.sh`
 
 1. `run-cellassign.py`: This script runs [`CellAssign`](https://docs.scvi-tools.org/en/stable/user_guide/models/cellassign.html) on a processed `AnnData` object, requiring an `AnnData` object and a binary reference matrix with cell types as columns and genes as rows as input.
 The output will be a TSV file containing a predictions matrix with all cells in the input `AnnData` object as rows and all possible cell types as columns.
@@ -184,4 +184,5 @@ The `utils` folder contains scripts with any helper functions that are used in `
 1. `jaccard-functions.R`: These functions are used to calculate the Jaccard similarity index between groups of cells.
 These functions are taken directly from https://github.com/AlexsLemonade/scpca-nf/blob/main/templates/qc_report/celltypes_supplemental_report.rmd.
 
-2. `tumor-validation-helpers.R`: These functions are used in the notebooks found in the `cell_type_annotations` folder that explore and validate tumor cell annotations in individual samples.
+2. `tumor-validation-helpers.R`: These functions are used in the template notebooks in `template_notebooks/auc-workflow` and the notebooks found in the `exploratory_analysis/annotation_notebooks` folder.
+The functions are helpful for exploring and validate tumor cell annotations in individual samples.
