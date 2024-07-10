@@ -6,8 +6,8 @@
 # and then columns for each of the original cell type annotations for that cell 
 # The `reference_cell_class` column will contain either tumor or normal 
 
+source(".Rprofile")
 project_root <- here::here()
-renv::load(project_root)
 
 suppressPackageStartupMessages({
   library(optparse)

@@ -2,8 +2,8 @@
 
 # this script is used to run inferCNV on a processed SCE file 
 
+source(".Rprofile")
 project_root <- here::here()
-renv::load(project_root)
 
 library(optparse)
 library(SingleCellExperiment)

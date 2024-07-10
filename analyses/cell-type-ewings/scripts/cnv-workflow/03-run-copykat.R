@@ -3,8 +3,8 @@
 # This script is used to run CopyKAT on a given ScPCA library 
 # The output will be found in `outdir`/`results_prefix` and all files will be labeled with the `library_id`
 
+source(".Rprofile")
 project_root <- here::here()
-renv::load(project_root)
 
 library(optparse)
 library(copykat)
