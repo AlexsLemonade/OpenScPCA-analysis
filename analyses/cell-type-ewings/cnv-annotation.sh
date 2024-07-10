@@ -79,12 +79,12 @@ panglao_ref="${ref_dir}/cellassign_refs/panglao-endo-fibro_cellassign.tsv"
 
 # generate cell assign refs to use only one time
 if [[ ! -f $tumor_only_ref || ! -f $visser_ref || ! -f $panglao_ref ]]; then
-  Rscript $scripts_dir/generate-cellassign-refs.R
+  Rscript $scripts_dir/00-generate-cellassign-refs.R
 fi
 
 # Make gene order file if it's not already present
 if [ ! -f "$ref_dir/infercnv_refs/Homo_sapiens.GRCh38.104.gene_order.txt" ]; then
-  Rscript $scripts_dir/make-gene-order-file.R
+  Rscript $scripts_dir/00-make-gene-order-file.R
 fi
 
 # Run the workflow for each library in the sample directory
@@ -104,7 +104,7 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
     # Create table with reference cell types
     echo "Starting workflow for $sample_id, $library_id"
     echo "Saving cell references..."
-    Rscript $scripts_dir/select-cell-types.R \
+    Rscript $scripts_dir/01-select-cell-types.R \
       --sce_file "$sce" \
       --normal_cells "${normal_celltypes}" \
       --tumor_cells "${tumor_celltypes}" \
@@ -135,7 +135,7 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
     # only run cellassign if the predictions file doesn't exist already
     if [ ! -f $tumor_only_predictions ]; then
       echo "Running CellAssign for ${library_id} with ${tumor_only_ref}"
-      python "$scripts_dir/run-cellassign.py" \
+      python "$scripts_dir/02-run-cellassign.py" \
         --anndata_file $anndata_file \
         --output_predictions "${tumor_only_predictions}" \
         --reference "${tumor_only_ref}" \
@@ -145,7 +145,7 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
 
     if [ ! -f $visser_predictions ]; then
       echo "Running CellAssign for ${library_id} with ${visser_ref}"
-      python "$scripts_dir/run-cellassign.py" \
+      python "$scripts_dir/02-run-cellassign.py" \
         --anndata_file $anndata_file \
         --output_predictions "${visser_predictions}" \
         --reference "${visser_ref}" \
@@ -155,7 +155,7 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
 
     if [ ! -f $panglao_predictions ]; then
       echo "Running CellAssign for ${library_id} with ${panglao_ref}"
-      python "$scripts_dir/run-cellassign.py" \
+      python "$scripts_dir/02-run-cellassign.py" \
         --anndata_file $anndata_file \
         --output_predictions "${panglao_predictions}" \
         --reference "${panglao_ref}" \
@@ -183,7 +183,7 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
     # CopyKAT ----------------------------------------------------------
     if [ ! -f "$sample_results_dir/copykat/no_reference/${library_id}_final-copykat.rds" ]; then
       echo "Running CopyKAT with no reference..."
-      Rscript $scripts_dir/run-copykat.R \
+      Rscript $scripts_dir/03-run-copykat.R \
         --sce_file "$sce" \
         --results_dir "$sample_results_dir/copykat/no_reference" \
         --threads $threads
@@ -191,7 +191,7 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
 
     if [ ! -f "$sample_results_dir/copykat/with_reference/${library_id}_final-copykat.rds" ]; then
       echo "Running CopyKAT with a reference..."
-      Rscript $scripts_dir/run-copykat.R \
+      Rscript $scripts_dir/03-run-copykat.R \
         --sce_file "$sce" \
         --reference_cell_file "$reference_cell_file" \
         --results_dir "$sample_results_dir/copykat/with_reference" \
@@ -222,7 +222,7 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
     # Run InferCNV
     if [ ! -f "$sample_results_dir/infercnv/${library_id}_cnv-obj.rds" ]; then
       echo "running InferCNV..."
-      Rscript $scripts_dir/run-infercnv.R \
+      Rscript $scripts_dir/04-run-infercnv.R \
         --sce_file "$sce" \
         --annotations_file "$annotations_file" \
         --reference_cell_file "$reference_cell_file" \
