@@ -52,7 +52,8 @@ theme_set(
 
 
 ```{r base paths}
-# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+# The base path for the OpenScPCA repository, found by LICENSE.md file
+# can't use .git because GHA doesn't find .git
 repository_base <- rprojroot::find_root(rprojroot::has_file("LICENSE.md"))
 
 # The current data directory, found within the repository base directory
