@@ -113,14 +113,7 @@ If you had already downloaded the most recent data or results, this will not rep
 
 -->
 
-- To review what samples would be downloaded without performing the download yet, you can use the `--dryrun` option as follows.
-    - We strongly recommend using the `--dryrun` flag the first time you run the script for a new data download to ensure the downloaded files are as expected.
-
-    ```sh
-    ./download-data.py --dryrun
-    ```
-
-- If you're only working with a subset of the data, you can use the `--projects` or `--samples` to download select projects or samples, respectively (note that these options are mutually exclusive):
+- If you're only working with a subset of the data, you can use the `--projects` or `--samples` option to download select projects or samples, respectively (note that these options are mutually exclusive):
 
     ```sh
     # use the --projects option
@@ -128,6 +121,16 @@ If you had already downloaded the most recent data or results, this will not rep
 
     # use the --samples option
     ./download-data.py --samples SCPCSXXXXXX,SCPCSXXXXXY
+    ```
+
+- To review the files would be downloaded without performing the download yet, you can use the `--dryrun` option as follows.
+    - We strongly recommend using the `--dryrun` flag the first time you run the script for a new data download to ensure the downloaded files are as expected.
+
+    ```sh
+    ./download-data.py --dryrun
+
+    # show what would be downloaded when the --projects option is used, for example
+    ./download-data.py --projects SCPCPXXXXXX --dryrun
     ```
 
 - To update the `data/current` symlink, for example if you have downloaded multiple releases and/or [test data](#accessing-test-data), use the `--update-symlink` flag in one of the following ways.
