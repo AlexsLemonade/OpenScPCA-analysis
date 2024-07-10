@@ -7,12 +7,12 @@ Broadly speaking, there are three kinds of ScPCA data you might wish to work wit
 
 1. Data from the ScPCA Portal
     - You can find out more about the contents of files and how they were processed from the ScPCA documentation: <https://scpca.readthedocs.io>.
-    - OpenScPCA project contributors [with an Amazon Web Services (AWS) acccount](./index.md#getting-access-to-aws) can access data using the provided `download-data.py` script, [as described below](#using-the-download-data-script).
+    - OpenScPCA project contributors [with an Amazon Web Services (AWS) account](./index.md#getting-access-to-aws) can access data using the provided `download-data.py` script, [as described below](#using-the-download-data-script).
         - If you have not yet been onboarded to OpenScPCA, you will need to access data [directly from the ScPCA Portal](#accessing-data-from-the-scpca-portal).
 1. Results from other OpenScPCA modules
-    - OpenScPCA project contributors with an AWS acccount can obtain results from modules that have been added to the `OpenScPCA-nf` workflow by [following the instructions below](#accessing-scpca-module-results).
+    - OpenScPCA project contributors with an AWS account can obtain results from completed modules using the provided `download-results.py` script, [as described below](#accessing-scpca-module-results).
     - To use results from an in-progress module from the `OpenScPCA-analysis` repository, you may need to run the module yourself to generate its result files.
-1. Test datasets
+2. Test datasets
     - We provide reduced-size test files with simulated and/or permuted versions of both ScPCA Portal data and results from completed modules.
     - These data are used for automated testing, but you can also use them while developing your module if smaller files helps make development more efficient.
     - You do not need an AWS account to download the test files, so you can use this data before you are granted full access to ScPCA data.
@@ -21,9 +21,9 @@ Broadly speaking, there are three kinds of ScPCA data you might wish to work wit
 ## Accessing data as an OpenScPCA contributor
 
 Because we expect that contributors may want to work with many samples or analyze data on remote systems, contributors can access to ScPCA data and results from AWS S3.
-We also provide a download script to make accessing these data more convenient.
+We provide a download script to make accessing these data more convenient.
 
-Before you can access data in this manner, the Data Lab team needs to create an AWS account for you; these data are not publicly accessible.
+Before you can access data in this manner, the Data Lab team needs to create an AWS account for you, as these data are not publicly accessible.
 See our documentation [getting access to AWS](index.md#getting-access-to-aws) for more information.
 
 !!! info Review additional restrictions
@@ -118,15 +118,9 @@ If you had already downloaded the most recent data or results, this will not rep
     ./download-data.py --projects SCPCPXXXXXX --dryrun
     ```
 
-- To update the `data/current` symlink, for example if you have downloaded multiple releases and/or [test data](#accessing-test-data), use the `--update-symlink` flag in one of the following ways.
-  - Note that no data will be downloaded if you use this flag.
-    ```sh
-    # update data/current to direct to most recent local release
-    ./download-data.py --update-symlink
+The `download-data.py` script will always update the `data/current` symlink to point to the specified release directory.
+You can use the [`--update-symlink` flag described below](#updating-the-current-symlink) to update which release directory the `data/current` symlink directs to.
 
-    # update data/current to direct to specific release version
-    ./download-data.py --update-symlink --release 2024-05-01
-    ```
 
 ### Download data file structure
 
@@ -289,33 +283,44 @@ You do not need an AWS account set up to download the test data or results.
 
 Running either of the above commands will update the `data/current` symlink to point to the `data/test` directory.
 This means any real ScPCA data or results you had previously downloaded will no longer be in the `data/current` path.
+You can use the `--update-symlink` flag, as described below, to update which release directory the `data/current` symlink directs to.
 
-- To switch this symlink path back to the real ScPCA data or results, run the _data download_ script with the flag `--update-symlink` as follows:
+### Updating the `current` symlink
+
+As described above, the `data/current` directory is a [symlink](https://en.wikipedia.org/wiki/Symbolic_link) to the most recently-downloaded release directory.
+You can update this symlink to point to a different data release directory (or to the test data directory) in one of two ways:
+
+1. When you download a new data or results release, `current` will automatically be updated to direct to the newly-downloaded release directory.
+    - Both the `download-data.py` and `download-results.py` scripts will print a message telling you where `current` directs to.
+1. You can use the `download-data.py` script with the `--update-symlink` flag to redirect the `current` symlink to a release of your choice.
+Note that no data will be downloaded if you use this flag.
+Below are some common use cases for this flag:
+
     ```sh
-    # update the data/current symlink to direct to the most recent release
+    # By default, this flag will update the current symlink to direct to the
+    #  most recent release that is present on your computer
     ./download-data.py --update-symlink
-    ```
 
-- Conversely, you can also use the `--update-symlink` and `--test-data` flags together to direct the `data/current` symlink to instead point to any present test data as follows:
-    ```sh
-    # update the data/current symlink to direct to the test data
+    # Use the --release option to specify which release to direct the symlink to
+    ./download-data.py --update-symlink --release 2025-05-01
+
+    # Use the --test-data flag to direct the symlink to the test data
     ./download-data.py --update-symlink --test-data
     ```
 
 
 ## Accessing data from the ScPCA Portal
 
-ScPCA data are readily available from the ScPCA Portal that the Data Lab maintains: <https://scpca.alexslemonade.org/>.
-If you have not formally joined the OpenScPCA project, you will need to obtain data directly from the Portal.
+If you have not formally joined the OpenScPCA project, you will need to obtain data directly from ScPCA Portal that the Data Lab maintains: <https://scpca.alexslemonade.org/>.
 
 You can select the project(s) or sample(s) you are interested in analyzing and download them from the Portal.
 
-We recommend creating a `portal_downloads` subdirectory in the local copy of the `data` directory, which can be accomplished by running the following command from the root of the repository on Linux or macOS:
+We recommend creating a `portal-downloads` subdirectory in the local copy of the `data` directory, which can be accomplished by running the following command from the root of the repository on Linux or macOS:
 
 ```sh
-mkdir -p data/portal_downloads
+mkdir -p data/portal-downloads
 ```
 
 You can then develop your analysis using these paths.
 
-However, before filing a pull request, you should change your paths to reflect the directory established by the download script (`data/current`) described in the next section.
+However, before filing a pull request, you should change your paths to use `data/current` directory [established by the data download script](#download-data-file-structure).
