@@ -26,6 +26,7 @@ jobs:
   run-module:
     if: github.repository_owner == 'AlexsLemonade'
     runs-on: ubuntu-latest
+    container: public.ecr.aws/openscpca/cell-type-ewings:latest
     defaults:
       run:
         shell: bash -el {0}
@@ -38,7 +39,6 @@ jobs:
         run: ./download-data.py --test-data --format "sce,anndata" --samples SCPCS000490
 
       - name: Run analysis
-        container: public.ecr.aws/openscpca/cell-type-ewings:latest
         run: |
           cd $MODULE_PATH
           bash cnv-annotation.sh
