@@ -147,7 +147,7 @@ This table will be saved in `<sample_id>/annotations/<library_id>_reference-cell
 
 ### Computational resources
 
-Currently, the `cnv-annotation.sh` can only be run using 1 CPU if running locally.
+Currently, the `cnv-annotation.sh` can only be run using 1 CPU if running locally on a Mac.
 Use `threads=1` when running the workflow to specify this.
 
 To increase the speed of the workflow, we recommend running on a computer with at least 12 CPUs.
