@@ -133,11 +133,11 @@ nav:
       - contributing-to-analyses/pr-review-and-merge/respond-to-review.md
   - Ensuring reproducibility:
     - ensuring-repro/index.md
-    - OpenScPCA workflows:
+    - Automated OpenScPCA workflows:
       - ensuring-repro/workflows/index.md
       - ensuring-repro/workflows/run-module-gha.md
       - ensuring-repro/workflows/build-docker-gha.md
-    - Managing module software:
+    - Managing software environments:
       - ensuring-repro/managing-software/index.md
       - ensuring-repro/managing-software/using-renv.md
       - ensuring-repro/managing-software/using-conda.md
@@ -147,6 +147,8 @@ nav:
       - ensuring-repro/docker/docker-images.md
       - ensuring-repro/docker/using-images.md
       - ensuring-repro/docker/updating-images.md
+    - The OpenScPCA Nextflow workflow:
+      - ensuring-repro/openscpca-nf/index.md
   - Cloud storage and compute:  # AWS
     - aws/index.md
     - aws/joining-aws.md
