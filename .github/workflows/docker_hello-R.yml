@@ -56,7 +56,7 @@ jobs:
 
   build-push:
     name: Build and Push Docker Image
-    if: github.event_name == 'push' || inputs.push-ecr
+    if: github.repository_owner == 'AlexsLemonade' && (github.event_name == 'push' || inputs.push-ecr)
     uses: ./.github/workflows/build-push-docker-module.yml
     with:
       module: hello-R
