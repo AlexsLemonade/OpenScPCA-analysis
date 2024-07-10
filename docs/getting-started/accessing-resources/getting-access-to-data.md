@@ -59,7 +59,7 @@ The [`download-data.py` script](https://github.com/AlexsLemonade/OpenScPCA-analy
 We briefly cover some of this script's most common use cases below, but we encourage you to review all the options available to you.
 
 !!! tip "Log into AWS CLI before running the script"
-    Before running this script locally, you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
+    Before running this script locally (i.e., not from an ALSF-provided [virtual computer](../../aws/index.md#lightsail-for-research-virtual-computing-with-aws)), you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
     To do this, run the following commands in terminal before running the `download-data.py` script, and follow instructions to log in.
 
     ```sh
@@ -186,7 +186,7 @@ We have provided a [`download-results.py` script](https://github.com/AlexsLemona
 We briefly cover some of the most common use cases below, but we encourage you to review all the options available to you.
 
 !!! tip "Log into AWS CLI before running the script"
-    Before running this script locally, you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
+    Before running this script locally (i.e., not from an ALSF-provided [virtual computer](../../aws/index.md#lightsail-for-research-virtual-computing-with-aws)), you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
     To do this, run the following commands in terminal before running the `download-results.py` script, and follow instructions to log in.
 
     ```sh
