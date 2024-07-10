@@ -23,10 +23,9 @@ on:
     paths:
       - analyses/cell-type-ewings/**
 jobs:
-  run-module:
+  setup-module:
     if: github.repository_owner == 'AlexsLemonade'
     runs-on: ubuntu-latest
-    container: public.ecr.aws/openscpca/cell-type-ewings:latest
     defaults:
       run:
         shell: bash -el {0}
@@ -38,6 +37,14 @@ jobs:
       - name: Download test data
         run: ./download-data.py --test-data --format "sce,anndata" --samples SCPCS000490
 
+  run-module:
+    if: github.repository_owner == 'AlexsLemonade'
+    runs-on: ubuntu-latest
+    container: public.ecr.aws/openscpca/cell-type-ewings:latest
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
       - name: Run analysis
         run: |
           cd $MODULE_PATH
