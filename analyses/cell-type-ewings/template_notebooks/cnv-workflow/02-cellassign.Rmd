@@ -13,7 +13,7 @@ params:
   tumor_marker_predictions: "tumor-marker_predictions.tsv"
   visser_marker_predictions: "visser-all-marker_predictions.tsv"
   panglao_predictions: "panglao-endo-fibro_predictions.tsv"
-  results_dir: "annotate_tumor_cells_output"
+  results_dir: "cnv_annotation"
 ---
 
 ## Introduction 
@@ -44,15 +44,15 @@ knitr::opts_chunk$set(
 
 
 ```{r base paths}
-# The base path for the OpenScPCA repository, found by its (hidden) .git directory
-repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+# The path to this module
+module_base <- rprojroot::find_root(rprojroot::is_renv_project)
+
+# repo base is two levels up from module 
+repository_base <- dirname(dirname(module_base))
 
 # The current data directory, found within the repository base directory
 data_dir <- file.path(repository_base, "data", "current")
 sample_dir <- file.path(data_dir, "SCPCP000015", params$sample_id)
-
-# The path to this module
-module_base <- file.path(repository_base, "analyses", "cell-type-ewings")
 ```
 
 

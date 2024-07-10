@@ -24,13 +24,13 @@ data_dir: Directory containing SCE and AnnData objects to use for a given projec
 This is the full path to the project folder.
 Default is `../../data/current/SCPCP000015`.
 workflow_results_dir: Full path to folder to store outputs from the workflow.
-By default, all results will be stored in `results/annotate_tumor_cells_output`.
+By default, all results will be stored in `results/cnv_annotation`.
 
-A set of reports summarizing the tumor cell annotations and a TSV file containing annotations from all used methods will be saved to `results/annotate_tumor_cells_output`.
+A set of reports summarizing the tumor cell annotations and a TSV file containing annotations from all used methods will be saved to `results/cnv_annotation`.
 
 Example of running the workflow with a different sample:
 
-sample_id="SCPCS000491" ./annotate-tumor-cells.sh
+sample_id="SCPCS000491" ./cnv-annotation.sh
 
 '
 ####
@@ -47,14 +47,14 @@ sample_id=${sample_id:-"SCPCS000490"}
 normal_celltypes=${normal_celltypes:-"Endothelial cells,endothelial cell"}
 tumor_celltypes=${tumor_celltypes:-"Pulmonary vascular smooth muscle cells,smooth muscle cell"}
 data_dir=${data_dir:-"../../data/current/SCPCP000015"}
-workflow_results_dir=${workflow_results_dir:-"${module_directory}/results/annotate_tumor_cells_output"}
+workflow_results_dir=${workflow_results_dir:-"${module_directory}/results/cnv_annotation"}
 threads=${threads:-4}
 
 echo $workflow_results_dir
 
 # define paths to notebooks and scripts run in the workflow
-notebook_dir="template_notebooks"
-scripts_dir="scripts"
+notebook_dir="template_notebooks/cnv-workflow"
+scripts_dir="scripts/cnv-workflow"
 
 # define results directories
 sample_results_dir="${workflow_results_dir}/${sample_id}"
@@ -79,12 +79,12 @@ panglao_ref="${ref_dir}/cellassign_refs/panglao-endo-fibro_cellassign.tsv"
 
 # generate cell assign refs to use only one time
 if [[ ! -f $tumor_only_ref || ! -f $visser_ref || ! -f $panglao_ref ]]; then
-  Rscript $scripts_dir/generate-cellassign-refs.R
+  Rscript $scripts_dir/00-generate-cellassign-refs.R
 fi
 
 # Make gene order file if it's not already present
 if [ ! -f "$ref_dir/infercnv_refs/Homo_sapiens.GRCh38.104.gene_order.txt" ]; then
-  Rscript $scripts_dir/make-gene-order-file.R
+  Rscript $scripts_dir/00-make-gene-order-file.R
 fi
 
 # Run the workflow for each library in the sample directory
@@ -104,7 +104,7 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
     # Create table with reference cell types
     echo "Starting workflow for $sample_id, $library_id"
     echo "Saving cell references..."
-    Rscript $scripts_dir/select-cell-types.R \
+    Rscript $scripts_dir/01-select-cell-types.R \
       --sce_file "$sce" \
       --normal_cells "${normal_celltypes}" \
       --tumor_cells "${tumor_celltypes}" \
@@ -125,13 +125,6 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
           envir = new.env()) \
     "
 
-    # Calculate gene set scores ------------------------------------------
-
-    echo "Calculating gene set scores..."
-    Rscript $scripts_dir/calculate-gene-set-scores.R \
-      --sce_file "$sce" \
-      --results_dir "$sample_results_dir"
-
     # CellAssign ---------------------------------------------------------
     # define output predictions files
     tumor_only_predictions="${cellassign_results_dir}/${library_id}_tumor-marker_predictions.tsv"
@@ -142,7 +135,7 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
     # only run cellassign if the predictions file doesn't exist already
     if [ ! -f $tumor_only_predictions ]; then
       echo "Running CellAssign for ${library_id} with ${tumor_only_ref}"
-      python "$scripts_dir/run-cellassign.py" \
+      python "$scripts_dir/02-run-cellassign.py" \
         --anndata_file $anndata_file \
         --output_predictions "${tumor_only_predictions}" \
         --reference "${tumor_only_ref}" \
@@ -152,7 +145,7 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
 
     if [ ! -f $visser_predictions ]; then
       echo "Running CellAssign for ${library_id} with ${visser_ref}"
-      python "$scripts_dir/run-cellassign.py" \
+      python "$scripts_dir/02-run-cellassign.py" \
         --anndata_file $anndata_file \
         --output_predictions "${visser_predictions}" \
         --reference "${visser_ref}" \
@@ -162,7 +155,7 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
 
     if [ ! -f $panglao_predictions ]; then
       echo "Running CellAssign for ${library_id} with ${panglao_ref}"
-      python "$scripts_dir/run-cellassign.py" \
+      python "$scripts_dir/02-run-cellassign.py" \
         --anndata_file $anndata_file \
         --output_predictions "${panglao_predictions}" \
         --reference "${panglao_ref}" \
@@ -190,7 +183,7 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
     # CopyKAT ----------------------------------------------------------
     if [ ! -f "$sample_results_dir/copykat/no_reference/${library_id}_final-copykat.rds" ]; then
       echo "Running CopyKAT with no reference..."
-      Rscript $scripts_dir/run-copykat.R \
+      Rscript $scripts_dir/03-run-copykat.R \
         --sce_file "$sce" \
         --results_dir "$sample_results_dir/copykat/no_reference" \
         --threads $threads
@@ -198,7 +191,7 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
 
     if [ ! -f "$sample_results_dir/copykat/with_reference/${library_id}_final-copykat.rds" ]; then
       echo "Running CopyKAT with a reference..."
-      Rscript $scripts_dir/run-copykat.R \
+      Rscript $scripts_dir/03-run-copykat.R \
         --sce_file "$sce" \
         --reference_cell_file "$reference_cell_file" \
         --results_dir "$sample_results_dir/copykat/with_reference" \
@@ -229,12 +222,12 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
     # Run InferCNV
     if [ ! -f "$sample_results_dir/infercnv/${library_id}_cnv-obj.rds" ]; then
       echo "running InferCNV..."
-      Rscript $scripts_dir/run-infercnv.R \
+      Rscript $scripts_dir/04-run-infercnv.R \
         --sce_file "$sce" \
         --annotations_file "$annotations_file" \
         --reference_cell_file "$reference_cell_file" \
         --output_dir "$sample_results_dir/infercnv" \
-        --threads 4
+        --threads $threads
     fi
 
     # render infercnv notebook with results
