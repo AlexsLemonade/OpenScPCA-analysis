@@ -29,6 +29,7 @@ on:
 jobs:
   run-module:
     runs-on: ubuntu-latest
+    if: github.repository_owner == 'AlexsLemonade'
     defaults:
       run:
         shell: bash -el {0}
