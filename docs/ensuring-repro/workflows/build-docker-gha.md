@@ -13,7 +13,7 @@ We generally build and/or push Docker images to ECR under two circumstances:
 After they have been pushed, the Docker images are used in a variety of ways:
 
 - [Module testing GHAs](./run-module-gha.md) may pull the module-specific Docker image to run the module code in the pre-built image environment
-- The `OpenScPCA-nf` workflow pulls module-specific Docker images to reproducibly run modules and generate results <!-- STUB_LINK openscpca-nf -->
+- [The `OpenScPCA-nf` workflow](../openscpca-nf/index.md) pulls module-specific Docker images to reproducibly run modules and generate results
 - OpenScPCA contributors, as well as the wider research community, can freely pull module-specific images to reproducibly run OpenScPCA analysis modules, for example to locally run analysis modules
 
 All images pushed to ECR will be available from the [OpenScPCA Docker registry in the Amazon ECR Public Gallery](https://gallery.ecr.aws/openscpca) with image tags of the form `public.ecr.aws/openscpca/{module-name}:latest`.
