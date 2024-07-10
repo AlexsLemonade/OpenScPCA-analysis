@@ -91,7 +91,11 @@ classification_df <- sce |>
   dplyr::select(barcodes, UMAP1, UMAP2, singler_celltype_annotation) |> 
   # join with previous annotations, singler results, and gene set scores 
   dplyr::left_join(auc_results_df, by = "barcodes") |> 
-  dplyr::left_join(geneset_scores_df, by = "barcodes")
+  dplyr::left_join(geneset_scores_df, by = "barcodes") |> 
+  dplyr::mutate(
+    # make a factor so tumor always appears first 
+    auc_classification = forcats::fct_relevel(auc_classification, "Tumor")
+  )
 
 # get marker gene expression 
 markers_df <- create_marker_gene_df(
@@ -119,11 +123,14 @@ ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = auc_classification))
 The below plot compares the distribution of AUC values in the query library as compared to the reference library used to determine the AUC threshold. 
 
 ```{r}
-all_auc_df <- list(
+all_auc_df <- dplyr::bind_rows(
   "reference" = ref_auc_df, 
-  "query" = auc_results_df
-) |> 
-  dplyr::bind_rows(.id = "sample")
+  "query" = auc_results_df,
+  .id = "sample"
+) |>
+  dplyr::mutate(
+    sample = ifelse(sample == "query", paste("query:", params$library_id), sample)
+  )
 
 ggplot(all_auc_df, aes(x = auc, color = sample)) +
   geom_density() + 
@@ -165,7 +172,7 @@ We expect to see higher expression of individual marker genes in tumor cells com
 
 ```{r}
 # create matrix with marker genes as rows and barcodes as columns
-marker_gene_heatmap <- markers_df |> 
+marker_gene_matrix <- markers_df |> 
   dplyr::select(gene_expression, gene_symbol, barcodes) |> 
   tidyr::pivot_wider(values_from = gene_expression, 
                      names_from = barcodes) |> 
@@ -180,7 +187,7 @@ annotation <- ComplexHeatmap::columnAnnotation(
 
 ```{r}
 # plot heatmap of marker genes 
-plot_gene_heatmap(marker_gene_heatmap, 
+plot_gene_heatmap(marker_gene_matrix, 
                   row_title = "Marker gene symbol",
                   legend_title = "Marker gene \nexpression",
                   annotation = annotation)
@@ -235,7 +242,7 @@ We expect to see higher gene set scores in tumor cells compared to normal cells.
 
 ```{r}
 # make a matrix of gene set by barcode 
-geneset_heatmap <- geneset_plot_df |> 
+geneset_matrix <- geneset_plot_df |> 
   dplyr::select(mean_score, geneset, barcodes) |> 
   unique() |> 
   tidyr::pivot_wider(values_from = mean_score, 
@@ -244,7 +251,7 @@ geneset_heatmap <- geneset_plot_df |>
   as.matrix()
 
 # plot heatmap of gene set score 
-plot_gene_heatmap(geneset_heatmap,
+plot_gene_heatmap(geneset_matrix,
                   annotation = annotation,
                   legend_title = "Gene set \nscore")
 ```
