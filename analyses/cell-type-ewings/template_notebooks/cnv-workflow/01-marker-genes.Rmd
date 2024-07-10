@@ -52,15 +52,12 @@ theme_set(
 
 
 ```{r base paths}
-# The base path for the OpenScPCA repository, found by its (hidden) .git directory
-repository_base <- rprojroot::find_root(rprojroot::is_git_root)
-
 # The current data directory, found within the repository base directory
-data_dir <- file.path(repository_base, "data", "current")
+data_dir <- file.path("..", "..", "data", "current")
 sample_dir <- file.path(data_dir, "SCPCP000015", params$sample_id)
 
 # The path to this module
-module_base <- file.path(repository_base, "analyses", "cell-type-ewings")
+module_base <- file.path("analyses", "cell-type-ewings")
 ```
 
 
