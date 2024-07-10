@@ -202,7 +202,7 @@ We briefly cover some of the most common use cases below, but we encourage you t
     ./download-results.py --help
     ```
 
-- To download results for one or more modules, use the `--modules` option as follows:
+- To download results for one or more modules, use the `--modules` option with the module directory name(s) as a comma separated list:
     ```sh
     # Get results from a single module
     ./download-results.py --modules module-name
@@ -297,7 +297,7 @@ You do not need an AWS account set up to download the test data or results.
     ```
 
 
-Running either of the above commands will update the `data/current` symlink to point to the `data/test` directory, rather than a given data release directory.
+Running either of the above commands will update the `data/current` symlink to point to the `data/test` directory.
 This means any real ScPCA data or results you had previously downloaded will no longer be in the `data/current` path.
 
 - To switch this symlink path back to the real ScPCA data or results, run the _data download_ script with the flag `--update-symlink` as follows:
