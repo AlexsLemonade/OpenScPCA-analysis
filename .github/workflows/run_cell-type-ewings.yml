@@ -23,7 +23,7 @@ on:
     paths:
       - analyses/cell-type-ewings/**
 jobs:
-  setup-module:
+  run-module:
     if: github.repository_owner == 'AlexsLemonade'
     runs-on: ubuntu-latest
     container: public.ecr.aws/openscpca/cell-type-ewings:latest
