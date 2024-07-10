@@ -71,7 +71,7 @@ sce_file <- file.path(sample_dir, "SCPCL000822_processed.rds")
 marker_genes_file <- file.path(module_base, "references", "tumor-marker-genes.tsv")
 
 # results from annotation workflow 
-results_dir <- file.path(module_base, "results", "annotate_tumor_cells_output", "SCPCS000490")
+results_dir <- file.path(module_base, "results", "cnv_annotation", "SCPCS000490")
 
 marker_gene_results_file <- file.path(results_dir, "SCPCL000822_tumor-normal-classifications.tsv")
 copykat_predictions_file <- file.path(results_dir, "SCPCL000822_copykat-classifications.tsv")

@@ -69,7 +69,7 @@ sce_file <- file.path(sample_dir, "SCPCL000824_processed.rds")
 marker_genes_file <- file.path(module_base, "references", "tumor-marker-genes.tsv")
 
 # results from annotation workflow 
-results_dir <- file.path(module_base, "results", "annotate_tumor_cells_output", "SCPCS000492")
+results_dir <- file.path(module_base, "results", "cnv_annotation", "SCPCS000492")
 
 marker_gene_results_file <- file.path(results_dir, "SCPCL000824_tumor-normal-classifications.tsv")
 copykat_predictions_file <- file.path(results_dir, "SCPCL000824_copykat-classifications.tsv")
@@ -87,7 +87,7 @@ final_annotations_file <- file.path(final_annotations_dir, "SCPCL000824_tumor-cl
 # reference files to use with SingleR
 ref_sce_file <- file.path(data_dir, "SCPCP000015", "SCPCS000490", "SCPCL000822_processed.rds")
 ref_labels_file <- file.path(module_base, "results", "annotation_tables", "SCPCS000490", "SCPCL000822_tumor-classifications.tsv")
-ref_geneset_scores_file <- file.path(module_base, "results", "annotate_tumor_cells_output", "SCPCS000490", "SCPCL000822_gene-set-scores.tsv")
+ref_geneset_scores_file <- file.path(module_base, "results", "cnv_annotation", "SCPCS000490", "SCPCL000822_gene-set-scores.tsv")
 ```
 
 ```{r}

@@ -4,7 +4,6 @@
 # for use as references with CellAssign
 
 project_root <- here::here()
-renv::load(project_root)
 
 library(optparse)
 
