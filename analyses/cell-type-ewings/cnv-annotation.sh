@@ -227,7 +227,7 @@ for sce in $data_dir/$sample_id/*_processed.rds; do
         --annotations_file "$annotations_file" \
         --reference_cell_file "$reference_cell_file" \
         --output_dir "$sample_results_dir/infercnv" \
-        --threads 4
+        --threads $threads
     fi
 
     # render infercnv notebook with results
