@@ -31,9 +31,6 @@ Cells with a z-score for any marker gene > 0 are classified as tumor cells.
 ## Setup
 
 ```{r}
-project_root <- here::here()
-renv::load(project_root)
-
 knitr::opts_chunk$set(
   dev = "jpeg"
 )
