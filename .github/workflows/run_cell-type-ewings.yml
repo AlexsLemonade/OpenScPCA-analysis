@@ -44,5 +44,6 @@ jobs:
 
       - name: Run analysis
         run: |
+          conda activate openscpca-cell-type-ewings
           cd $MODULE_PATH
           bash cnv-annotation.sh
