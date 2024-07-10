@@ -5,38 +5,22 @@ Here, we describe several ways to access data.
 
 Broadly speaking, there are three kinds of ScPCA data you might wish to work with:
 
-
-- Data from the ScPCA Portal
-    - You can find out more about the contents of files and how they were processed from the ScPCA documentation: <https://scpca.readthedocs.io>
-- Results from other OpenScPCA modules
-    - You can obtain results from modules that have been added to the `OpenScPCA-nf` workflow by [following the instructions below](#accessing-scpca-module-results).
+1. Data from the ScPCA Portal
+    - You can find out more about the contents of files and how they were processed from the ScPCA documentation: <https://scpca.readthedocs.io>.
+    - OpenScPCA project contributors [with an Amazon Web Services (AWS) acccount](./index.md#getting-access-to-aws) can access data using the provided `download-data.py` script, [as described below](#using-the-download-data-script).
+        - If you have not yet been onboarded to OpenScPCA, you will need to access data [directly from the ScPCA Portal](#accessing-data-from-the-scpca-portal).
+1. Results from other OpenScPCA modules
+    - OpenScPCA project contributors with an AWS acccount can obtain results from modules that have been added to the `OpenScPCA-nf` workflow by [following the instructions below](#accessing-scpca-module-results).
     - To use results from an in-progress module from the `OpenScPCA-analysis` repository, you may need to run the module yourself to generate its result files.
-- Test datasets
+1. Test datasets
     - We provide reduced-size test files with simulated and/or permuted versions of both ScPCA Portal data and results from completed modules.
     - These data are used for automated testing, but you can also use them while developing your module if smaller files helps make development more efficient.
     - You do not need an AWS account to download the test files, so you can use this data before you are granted full access to ScPCA data.
 
-## Accessing ScPCA data
 
-### Accessing data on the ScPCA Portal
+## Accessing data as an OpenScPCA contributor
 
-ScPCA data are readily available from the ScPCA Portal that the Data Lab maintains: <https://scpca.alexslemonade.org/>.
-
-You can select the project(s) or sample(s) you are interested in analyzing and download them from the Portal.
-
-We recommend creating a `portal_downloads` subdirectory in the local copy of the `data` directory, which can be accomplished by running the following command from the root of the repository on Linux or macOS:
-
-```sh
-mkdir -p data/portal_downloads
-```
-
-You can then develop your analysis using these paths temporarily.
-
-Before filing a pull request, you should change your paths to reflect the directory established by the download script (`data/current`) described in the next section.
-
-### Accessing data from S3
-
-Because we expect that contributors may want to work with many samples or analyze data on remote systems, access to ScPCA data on AWS S3 is also available to contributors.
+Because we expect that contributors may want to work with many samples or analyze data on remote systems, contributors can access to ScPCA data and results from AWS S3.
 We also provide a download script to make accessing these data more convenient.
 
 Before you can access data in this manner, the Data Lab team needs to create an AWS account for you; these data are not publicly accessible.
@@ -45,8 +29,9 @@ See our documentation [getting access to AWS](index.md#getting-access-to-aws) fo
 !!! info Review additional restrictions
     Please review the `DATA_USAGE.md` file included in all downloads for any additional restrictions on data usage (see [Policies](../../policies/index.md)).
 
-#### Using the download data script
+### Using the download data script
 
+TODO DURING REVIEW: Do we still need this admonition note?
 !!! note
     These instructions assume you have taken the following steps:
 
@@ -54,12 +39,12 @@ See our documentation [getting access to AWS](index.md#getting-access-to-aws) fo
     - [Set up conda](../../technical-setup/environment-setup/setup-conda.md) (note that conda is pre-installed, but not yet set up, on [Lightsail for Research](../../aws/lsfr/starting-development-on-lsfr.md#create-and-activate-a-conda-environment) instances)
     - [Configured the AWS CLI and logged in](../../technical-setup/environment-setup/configure-aws-cli.md) OR are [using Lightsail for Research](../../aws/index.md#lightsail-for-research-virtual-computing-with-aws) (which doesn't require logging in via the AWS CLI)
 
-The [`download-data.py` script](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/download-data.py) is designed to download files from whatever release you specify to a folder in `data` named for the date of that release and [symlink](https://en.wikipedia.org/wiki/Symbolic_link) it to `data/current`.
+The [`download-data.py` script](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/download-data.py) is designed to download files from whatever release you specify to a directory in `data` named for the date of that release and [symlink](https://en.wikipedia.org/wiki/Symbolic_link) it to `data/current`.
 
 We briefly cover some of this script's most common use cases below, but we encourage you to review all the options available to you.
 
 !!! tip "Log into AWS CLI before running the script"
-    Before running this script locally (i.e., not from an ALSF-provided [virtual computer](../../aws/index.md#lightsail-for-research-virtual-computing-with-aws)), you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
+    Before running this script locally (i.e., not from an [ALSF-provided virtual computer](../../aws/index.md#lightsail-for-research-virtual-computing-with-aws)), you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
     To do this, run the following commands in terminal before running the `download-data.py` script, and follow instructions to log in.
 
     ```sh
@@ -143,9 +128,9 @@ If you had already downloaded the most recent data or results, this will not rep
     ./download-data.py --update-symlink --release 2024-05-01
     ```
 
-#### Download data structure
+### Download data file structure
 
-Downloads via the download script will generally have the following structure:
+Downloads via the download script will generally have the following structure.
 
 ```sh
 data
@@ -159,6 +144,11 @@ data
 └── current -> {Release}
 ```
 
+!!! tip "The `data/current` directory"
+    The `data/current` directory is a [symlink](https://en.wikipedia.org/wiki/Symbolic_link) to the most recently-downloaded data release.
+    You should therefore use the `data/current` path in your analysis code when reading in data, rather than a specific release directory.
+
+
 See the ScPCA documentation for [more information about individual files](https://scpca.readthedocs.io/en/latest/sce_file_contents.html).
 
 Data releases are dated using the following format: `YYYY-MM-DD`.
@@ -169,10 +159,6 @@ To list all available releases, you can use the following command from the root 
 ```sh
 ./download-data.py --list-releases
 ```
-
-The release directory is symlinked to `data/current`.
-This is generally the path you should use in your code.
-
 
 ## Accessing ScPCA module results
 
@@ -186,7 +172,7 @@ We have provided a [`download-results.py` script](https://github.com/AlexsLemona
 We briefly cover some of the most common use cases below, but we encourage you to review all the options available to you.
 
 !!! tip "Log into AWS CLI before running the script"
-    Before running this script locally (i.e., not from an ALSF-provided [virtual computer](../../aws/index.md#lightsail-for-research-virtual-computing-with-aws)), you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
+    Before running this script locally (i.e., not from an [ALSF-provided virtual computer](../../aws/index.md#lightsail-for-research-virtual-computing-with-aws)), you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
     To do this, run the following commands in terminal before running the `download-results.py` script, and follow instructions to log in.
 
     ```sh
@@ -237,7 +223,7 @@ For those modules, you can use either the `--projects` or `--samples` flag (noti
     ```
 
 
-#### Download result data structure
+### Download result file structure
 
 Results will download into the `data` directory in your local copy of the `OpenScPCA-analysis` repository.
 Result downloads will generally follow this structure:
@@ -250,6 +236,11 @@ data
 │              └── {Result files}
 └── current -> {Release}
 ```
+
+!!! tip "The `data/current` directory"
+    The `data/current` directory is a [symlink](https://en.wikipedia.org/wiki/Symbolic_link) to the most recently-downloaded release directory.
+    You should therefore use the `data/current` path in your analysis code when reading in results, rather than a specific release directory.
+
 
 Both result files and ScPCA data files follow the same release schedule.
 Therefore, if you have downloaded both data and workflow results, all files will be present in the `data` directory with this overall structure:
@@ -274,10 +265,6 @@ To list all available releases, you can use the following command from the root 
 ```sh
 ./download-results.py --list-releases
 ```
-
-The `data/current` directory is symlinked to the current release directory.
-This is generally the path you should use in your code.
-
 
 ## Accessing test data
 
@@ -314,3 +301,21 @@ This means any real ScPCA data or results you had previously downloaded will no 
     # update the data/current symlink to direct to the test data
     ./download-data.py --update-symlink --test-data
     ```
+
+
+## Accessing data from the ScPCA Portal
+
+ScPCA data are readily available from the ScPCA Portal that the Data Lab maintains: <https://scpca.alexslemonade.org/>.
+If you have not formally joined the OpenScPCA project, you will need to obtain data directly from the Portal.
+
+You can select the project(s) or sample(s) you are interested in analyzing and download them from the Portal.
+
+We recommend creating a `portal_downloads` subdirectory in the local copy of the `data` directory, which can be accomplished by running the following command from the root of the repository on Linux or macOS:
+
+```sh
+mkdir -p data/portal_downloads
+```
+
+You can then develop your analysis using these paths.
+
+However, before filing a pull request, you should change your paths to reflect the directory established by the download script (`data/current`) described in the next section.
