@@ -26,6 +26,7 @@ jobs:
   setup-module:
     if: github.repository_owner == 'AlexsLemonade'
     runs-on: ubuntu-latest
+    container: public.ecr.aws/openscpca/cell-type-ewings:latest
     defaults:
       run:
         shell: bash -el {0}
@@ -34,21 +35,13 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Install awscli
+        run: |
+          pip install awscli
+
       - name: Download test data
         run: ./download-data.py --test-data --format "sce,anndata" --samples SCPCS000490
 
-  run-module:
-    if: github.repository_owner == 'AlexsLemonade'
-    runs-on: ubuntu-latest
-    container:
-      image: public.ecr.aws/openscpca/cell-type-ewings:latest
-      volumes:
-        # make sure to mount all files to container
-        - .:/home
-    defaults:
-      run:
-        shell: bash -el {0}
-    steps:
       - name: Run analysis
         run: |
           cd $MODULE_PATH
