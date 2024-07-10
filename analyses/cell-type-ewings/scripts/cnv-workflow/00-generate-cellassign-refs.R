@@ -3,7 +3,6 @@
 # this script is used to create binary gene x cell marker genes matrices
 # for use as references with CellAssign
 
-source(".Rprofile")
 project_root <- here::here()
 
 library(optparse)
