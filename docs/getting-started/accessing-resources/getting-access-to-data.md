@@ -42,6 +42,7 @@ TODO DURING REVIEW: Do we still need this admonition note?
 The [`download-data.py` script](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/download-data.py) is designed to download files from whatever release you specify to a directory in `data` named for the date of that release and [symlink](https://en.wikipedia.org/wiki/Symbolic_link) it to `data/current`.
 
 We briefly cover some of this script's most common use cases below, but we encourage you to review all the options available to you.
+All examples below assume you are running the script from the root of the repository.
 
 !!! tip "Log into AWS CLI before running the script"
     Before running this script locally (i.e., not from an [ALSF-provided virtual computer](../../aws/index.md#lightsail-for-research-virtual-computing-with-aws)), you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
@@ -58,7 +59,8 @@ We briefly cover some of this script's most common use cases below, but we encou
 
     Note that you can also [add this profile definition to your shell profile file](../../technical-setup/environment-setup/configure-aws-cli.md#storing-your-aws-profile-name) so that it will always be defined in any terminal session.
 
-- You can list all the options for the download data script by running the following from the root directory of the repository:
+- You can list all possible arguments and their usage for the download data script with the following:
+
     ```sh
     ./download-data.py --help
     ```
@@ -79,24 +81,21 @@ We briefly cover some of this script's most common use cases below, but we encou
     ./download-data.py --format AnnData
     ```
 
-- To download a specific release, you can use the `--release` flag as follows:
+- To download a specific release other than the most recent release, you can use the `--release` option as follows.
+Again, please download full data releases with caution, as they are quite large!
+    - First, you may wish to use the `--list-releases` flag to see all available releases, which are named in `YYYY-MM-DD` format based on their release date.
 
+    ```sh
+    # First, see which releases are available for download
+    ./download-data.py --list-releases
 
+    # Download SingleCellExperiment format files for a specific release
+    # For example, this downloads the 2024-05-01 release
+    ./download-data.py --release 2024-05-01
 
-<!--
-
-TODO: This section needs to be reworked to avoid unexpected downloads. We should recommend --use-release instead.
-
-These commands will download either test data or results, respectively, and will
-
-```sh
-./download-data.py --release current
-
-./download-results.py --release current
-```
-If you had already downloaded the most recent data or results, this will not repeat downloading the files you already have.
-
--->
+    # Download AnnData format files for a specific release, for example
+    ./download-data.py --release 2024-05-01 --format AnnData
+    ```
 
 - If you're only working with a subset of the data, you can use the `--projects` or `--samples` option to download select projects or samples, respectively (note that these options are mutually exclusive):
 
@@ -164,6 +163,7 @@ If you wish to use output from an `OpenScPCA-nf` analysis module in your module,
 We have provided a [`download-results.py` script](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/download-results.py) that you can use to download results from a module that has been run in `OpenScPCA-nf`.
 
 We briefly cover some of the most common use cases below, but we encourage you to review all the options available to you.
+All examples below assume you are running the script from the root of the repository.
 
 !!! tip "Log into AWS CLI before running the script"
     Before running this script locally (i.e., not from an [ALSF-provided virtual computer](../../aws/index.md#lightsail-for-research-virtual-computing-with-aws)), you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
@@ -180,12 +180,14 @@ We briefly cover some of the most common use cases below, but we encourage you t
 
     Note that you can also [add this profile definition to your shell profile file](../../technical-setup/environment-setup/configure-aws-cli.md#storing-your-aws-profile-name) so that it will always be defined in any terminal session.
 
-- You can list all the options for `download-results.py` by running the following from the root directory of the repository:
+- You can list all possible arguments and their usage for the results download script with the following:
+
     ```sh
     ./download-results.py --help
     ```
 
 - To download results for one or more modules, use the `--modules` option with the module directory name(s) as a comma separated list:
+
     ```sh
     # Get results from a single module
     ./download-results.py --modules module-name
@@ -194,20 +196,23 @@ We briefly cover some of the most common use cases below, but we encourage you t
     ./download-results.py --modules first-module,second-module
     ```
 
-- To list all available modules for which you can download results, you can use the `--list-modules` option as follows.
+- To list all available modules for which you can download results, you can use the `--list-modules` flag as follows.
 This will list all modules available in, by default, the current release:
+
     ```sh
     ./download-results.py --list-modules
     ```
 
-- To see the result files that would be downloaded without performing the download yet, you can use the `--dryrun` option as follows:
+- To see the result files that would be downloaded without performing the download yet, you can use the `--dryrun` flag as follows:
     - We strongly recommend using the `--dryrun` flag the first time you run the script for a new data download to ensure the downloaded files are as expected.
+
     ```sh
     ./download-results.py --modules module-name --dryrun
     ```
 
 - While the structure of results files varies by module, some modules' results will be organized by project and/or sample.
 For those modules, you can use either the `--projects` or `--samples` flag (noting that these options are mutually exclusive) to download results specific to one or more projects or samples, respectively:
+
     ```sh
     # use the --projects option
     ./download-results.py --modules module-name --dryrun --projects SCPCPXXXXXX
@@ -265,17 +270,19 @@ To list all available releases, you can use the following command from the root 
 The test data are simulated or permuted data files with the same structure as the real project data, and are generally much smaller than the original data (learn more at the [`simulate-sce`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/simulate-sce) module).
 These files are also used during automated testing of analysis modules. <!-- STUB_LINK for module GHAs -->
 
-You can use the [download data script](#using-the-download-data-script) to download the test data for the project by using the `--test-data` option.
-Similarly, you use the [download result script](#accessing-scpca-module-results) to download ScPCA results from running completed modules on the test data by using the `--test-data` option.
+You can use the [download data script](#using-the-download-data-script) to download the test data for the project by using the `--test-data` flag.
+Similarly, you use the [download result script](#accessing-scpca-module-results) to download ScPCA results from running completed modules on the test data by using the `--test-data` flag.
 
 You do not need an AWS account set up to download the test data or results.
 
 - To download test data with all other options set at default, run the following from the root of the repository:
+
     ```sh
     ./download-data.py --test-data
     ```
 
 - To download a given module's results as generated with the test data, run the following from the root of the repository:
+
     ```sh
     ./download-results.py --modules module-name --test-data
     ```
@@ -285,14 +292,14 @@ Running either of the above commands will update the `data/current` symlink to p
 This means any real ScPCA data or results you had previously downloaded will no longer be in the `data/current` path.
 You can use the `--update-symlink` flag, as described below, to update which release directory the `data/current` symlink directs to.
 
-### Updating the `current` symlink
+## Updating the `current` symlink
 
 As described above, the `data/current` directory is a [symlink](https://en.wikipedia.org/wiki/Symbolic_link) to the most recently-downloaded release directory.
 You can update this symlink to point to a different data release directory (or to the test data directory) in one of two ways:
 
-1. When you download a new data or results release, `current` will automatically be updated to direct to the newly-downloaded release directory.
+1. When you download a new data or results release, `data/current` will automatically be updated to direct to the newly-downloaded release directory.
     - Both the `download-data.py` and `download-results.py` scripts will print a message telling you where `current` directs to.
-1. You can use the `download-data.py` script with the `--update-symlink` flag to redirect the `current` symlink to a release of your choice.
+1. You can use the `download-data.py` script with the `--update-symlink` flag to redirect the `data/current` symlink to a release of your choice.
 Note that no data will be downloaded if you use this flag.
 Below are some common use cases for this flag:
 
