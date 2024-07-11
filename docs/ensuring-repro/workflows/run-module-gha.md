@@ -3,7 +3,7 @@
 To maintain module functionality over time, we use [GitHub Actions](https://docs.github.com/en/actions) (GHAs) to periodically run each module ("module testing GHA") with the goal of testing that the module code runs to completion without errors.
 
 !!! info
-    For more information about how we run modules to generate OpenScPCA releases and associated results, please see our [documentation on the `OpenScPCA-nf` workflow](../openscpca-nf/index.md).
+    For more information about how we run modules to generate workflow results associated with OpenScPCA data releases, please see our [documentation on the `OpenScPCA-nf` workflow](../openscpca-nf/index.md).
 
 Module testing GHAs are automatically run in two circumstances:
 
