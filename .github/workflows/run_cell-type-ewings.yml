@@ -42,7 +42,7 @@ jobs:
           ./aws/install
 
       - name: Download test data
-        run: ./download-data.py --test-data --format "sce,anndata" --samples SCPCS000490,SCPCS000491
+        run: ./download-data.py --test-data --format "sce,anndata" --project SCPCP000015
 
       - name: Run analysis
         run: |
