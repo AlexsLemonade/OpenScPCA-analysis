@@ -3,7 +3,7 @@
 To maintain module functionality over time, we use [GitHub Actions](https://docs.github.com/en/actions) (GHAs) to periodically run each module ("module testing GHA") with the goal of testing that the module code runs to completion without errors.
 
 !!! info
-    For more information about how we run modules to generate official results and OpenScPCA releases, please see our documentation on the `OpenScPCA-nf` workflow. <!-- openscpca-nf STUB_LINK -->
+    For more information about how we run modules to generate workflow results associated with OpenScPCA data releases, please see our [documentation on the `OpenScPCA-nf` workflow](../openscpca-nf/index.md).
 
 Module testing GHAs are automatically run in two circumstances:
 
@@ -46,4 +46,4 @@ Each module testing GHA is initially created with these steps, which should be u
     - Generally, this will involve calling the [module's run script](../../contributing-to-analyses/analysis-modules/running-a-module.md).
 
 As an analysis module matures, the GHA will be updated to run the analysis in the [module's Docker image](../docker/docker-images.md), rather than using the `renv` and/or conda environment files.
-Module testing GHAs can use their module's Docker images once the image has been built and pushed to the registry. <!-- STUB LINK building/updating docker images -->
+Module testing GHAs can use their module's Docker image once it has been [built and pushed to the registry](./build-docker-gha.md).

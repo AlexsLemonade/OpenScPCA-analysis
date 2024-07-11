@@ -1,4 +1,4 @@
-# OpenScPCA GitHub Action workflows
+# Automated OpenScPCA workflows
 
 OpenScPCA uses [GitHub Actions](https://docs.github.com/en/actions) to automatically run several workflows that support overall reproducibility.
 

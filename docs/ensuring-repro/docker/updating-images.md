@@ -6,7 +6,7 @@ Changing the software environment means that the module-specific Docker image al
 
 Docker images in OpenScPCA are used in two primary circumstances:
 
-1. When generating module results as part of the `OpenScPCA-nf` workflow <!-- STUB_LINK -->
+1. When generating module results as part of [the `OpenScPCA-nf` workflow](../openscpca-nf/index.md)
 2. When the [module-testing GitHub Action (GHA) workflow](../workflows/run-module-gha.md) is run on pull requests (PRs) that modify module code
     - This GHA pulls the module-specific Docker image from the [OpenScPCA Docker registry](https://gallery.ecr.aws/openscpca/) to create a reproducible runtime environment with all module dependencies
 
