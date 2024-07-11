@@ -8,7 +8,7 @@ Broadly speaking, there are three kinds of ScPCA data you might wish to work wit
 1. Data from the ScPCA Portal
     - You can find out more about the contents of files and how they were processed from the ScPCA documentation: <https://scpca.readthedocs.io>.
     - OpenScPCA project contributors [with an Amazon Web Services (AWS) account](./index.md#getting-access-to-aws) can access data using the provided `download-data.py` script, [as described below](#using-the-download-data-script).
-    - All data is also available [directly from the ScPCA Portal](#accessing-data-from-the-scpca-portal) for users who have not yet fully joined the OpenSCPCA project.
+    - All data is also available [directly from the ScPCA Portal](#accessing-data-from-the-scpca-portal) for users who have not yet fully joined the OpenScPCA project.
 2. Results from other OpenScPCA modules
     - OpenScPCA project contributors with an AWS account can obtain results from completed modules using the provided `download-results.py` script, [as described below](#accessing-scpca-module-results).
     - To use results from an in-progress module from the `OpenScPCA-analysis` repository, you may need to run the module yourself to generate its result files.
@@ -45,7 +45,7 @@ We briefly cover some of this script's most common use cases below, but we encou
 All examples below assume you are running the script from the root of the repository.
 
 !!! tip "Log into AWS CLI before running the script"
-    Before running this script locally (i.e., not using Lightsail for Research](../../aws/index.md#lightsail-for-research-virtual-computing-with-aws)), you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
+    Before running this script locally (i.e., not using [Lightsail for Research](../../aws/index.md#lightsail-for-research-virtual-computing-with-aws)), you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
     To do this, run the following commands in terminal before running the `download-data.py` script, and follow instructions to log in.
 
     ```sh
