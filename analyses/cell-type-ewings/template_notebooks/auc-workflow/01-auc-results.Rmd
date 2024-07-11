@@ -8,13 +8,13 @@ output:
     toc_depth: 3
     code_folding: "hide"
 params:
-  library_id: SCPCS000490
-  sce_file: "../../../../data/current/SCPCP000015/SCPCS000490/SCPCL000822_processed.rds"
-  aucell_results_file: "../../results/aucell_annotation_test/SCPCS000490/SCPCL000822_auc-classifications.tsv"
-  ref_auc_results: "../../results/aucell_annotation_test/SCPCS000490/SCPCL000822_auc-classifications.tsv"
-  geneset_scores_file: "../../results/aucell_annotation_test/SCPCS000490/SCPCL000822_gene-set-scores.tsv"
-  marker_genes_file: "../../references/tumor-marker-genes.tsv"
-  auc_threshold: 0.009131468
+  library_id: NULL
+  sce_file: NULL
+  aucell_results_file: NULL
+  ref_auc_results: NULL
+  geneset_scores_file: NULL
+  marker_genes_file: NULL
+  auc_threshold: NULL
 ---
 
 This report summarizes the classification of `r params$library_id` using [`AUCell`](https://www.bioconductor.org/packages/release/bioc/html/AUCell.html). 
