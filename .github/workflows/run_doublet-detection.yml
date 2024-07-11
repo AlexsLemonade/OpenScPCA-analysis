@@ -30,6 +30,9 @@ jobs:
     if: github.repository_owner == 'AlexsLemonade'
     runs-on: ubuntu-latest
     container: public.ecr.aws/openscpca/doublet-detection:latest
+    defaults:
+      run:
+        shell: bash -el {0}
 
     steps:
       - name: Checkout repo
@@ -46,5 +49,5 @@ jobs:
 
           cd ${MODULE_PATH}
           for project in $projects; do
-              ./run_doublet-detection-scpca.sh $project
+              bash run_doublet-detection-scpca.sh $project
           done
