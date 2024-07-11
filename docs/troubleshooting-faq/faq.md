@@ -27,7 +27,7 @@ Data files in each release are organized on S3 as:
 
 
 1. First, find the names of all the data releases, which are named based on their release date in [ISO 8601 format](https://en.wikipedia.org/wiki/ISO_8601).
-You can use the [`download-data.py`](../getting-started/accessing-resources/getting-access-to-data.md#download-data-file-structure) script with the `--list-releases` flag to do this.
+You can use the [`download-data.py`](../getting-started/accessing-resources/getting-access-to-data.md#downloaded-data-file-structure) script with the `--list-releases` flag to do this.
 Don't forget to [log into your AWS `openscpca` profile first](../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session)!
 
     ```bash

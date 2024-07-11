@@ -332,4 +332,4 @@ ln -s data/portal-downloads data/current
 
 You can then develop your analysis using these paths.
 
-However, before filing a pull request, you should change your paths to use `data/current` directory [established by the data download script](#download-data-file-structure).
+However, before filing a pull request, you should change your paths to use `data/current` directory [established by the data download script](#downloaded-data-file-structure).
