@@ -27,8 +27,7 @@ for SAMPLE_DIR in ${DATA_DIR}/${PROJECT_ID}/SCPCS*; do
 
     for SCE_FILE in $(ls ${SAMPLE_DIR}/*processed.rds); do
         Rscript scripts/01a_run-scdblfinder.R \
-            --data_dir ${SAMPLE_DIR} \
-            --input_sce_file $(basename ${SCE_FILE}) \
+            --input_sce_file ${SCE_FILE} \
             --results_dir ${SAMPLE_RESULTS_DIR}
     done
 done
