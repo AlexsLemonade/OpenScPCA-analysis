@@ -73,10 +73,13 @@ jobs:
       #    conda-lock install --name test ${MODULE_PATH}/conda-lock.yml
 
       - name: Download test data
-        run: ./download-data.py --test-data --format SCE --project SCPCP000001
+        run: ./download-data.py --test-data --format SCE
 
       - name: Run doublet-detection module
         run: |
-          cd $MODULE_PATH
+          projects=$(basename -a data/current/SCPCP*)
 
-          bash run_doublet-detection-scpca.sh SCPCP000001
+          cd ${MODULE_PATH}
+          for project in $projects; do
+              bash run_doublet-detection-scpca.sh $project
+          done
