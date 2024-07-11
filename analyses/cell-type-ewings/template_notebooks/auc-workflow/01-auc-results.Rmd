@@ -8,13 +8,13 @@ output:
     toc_depth: 3
     code_folding: "hide"
 params:
-  library_id: NULL
-  sce_file: NULL
-  aucell_results_file: NULL
-  ref_auc_results: NULL
-  geneset_scores_file: NULL
-  marker_genes_file: NULL
-  auc_threshold: NULL
+  library_id: SCPCS000490
+  sce_file: "../../../../data/current/SCPCP000015/SCPCS000490/SCPCL000822_processed.rds"
+  aucell_results_file: "../../results/aucell_annotation_test/SCPCS000490/SCPCL000822_auc-classifications.tsv"
+  ref_auc_results: "../../results/aucell_annotation_test/SCPCS000490/SCPCL000822_auc-classifications.tsv"
+  geneset_scores_file: "../../results/aucell_annotation_test/SCPCS000490/SCPCL000822_gene-set-scores.tsv"
+  marker_genes_file: "../../references/tumor-marker-genes.tsv"
+  auc_threshold: 0.009131468
 ---
 
 This report summarizes the classification of `r params$library_id` using [`AUCell`](https://www.bioconductor.org/packages/release/bioc/html/AUCell.html). 
@@ -103,6 +103,14 @@ markers_df <- create_marker_gene_df(
   classification_df, 
   params$marker_genes_file
 )
+
+# test if _any_ marker genes have expression
+if(sum(markers_df$gene_expression) == 0){
+  has_marker_gene_exp <- FALSE
+  message("No marker gene expression detected, so all plots of marker genes will be skipped.")
+} else {
+  has_marker_gene_exp <- TRUE
+}
 ```
 
 ## AUCell classification UMAP
@@ -150,7 +158,7 @@ The below plots summarize marker gene expression in tumor and normal cells as cl
 The `logcounts` for each gene in the marker gene list is summed for each cell and shown on the x-axis.
 We would expect tumor cells to have higher expression of marker genes than normal cells. 
 
-```{r}
+```{r, eval=has_marker_gene_exp}
 # create a density plot showing the distribution of marker gene expression across classification methods 
 markers_df |> 
   dplyr::select(barcodes, sum_raw_exp, auc_classification) |> 
@@ -185,7 +193,7 @@ annotation <- ComplexHeatmap::columnAnnotation(
 )
 ```
 
-```{r}
+```{r, eval=has_marker_gene_exp}
 # plot heatmap of marker genes 
 plot_gene_heatmap(marker_gene_matrix, 
                   row_title = "Marker gene symbol",
