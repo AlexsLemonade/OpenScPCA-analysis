@@ -3,10 +3,7 @@
 # This script runs scDblFinder on an SCE file and exports a TSV file of results.
 
 
-# Load libraries and renv environment ------
-project_root <- rprojroot::find_root(rprojroot::is_renv_project)
-renv::load(project_root)
-
+# Load libraries ------
 suppressPackageStartupMessages({
   library(SingleCellExperiment)
   library(optparse)
