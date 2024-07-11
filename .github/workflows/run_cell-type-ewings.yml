@@ -33,12 +33,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download test data
-        run: |
-          conda activate openscpca-cell-type-ewings
-          ./download-data.py --test-data --format "sce,anndata" --samples SCPCS000490
+        run: ./download-data.py --test-data --format "sce,anndata" --samples SCPCS000490
 
       - name: Run analysis
         run: |
-          conda activate openscpca-cell-type-ewings
           cd $MODULE_PATH
           bash cnv-annotation.sh
