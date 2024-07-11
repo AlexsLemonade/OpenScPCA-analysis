@@ -165,7 +165,7 @@ We briefly cover some of the most common use cases below, but we encourage you t
 All examples below assume you are running the script from the root of the repository.
 
 !!! tip "Log into AWS CLI before running the script"
-    Before running this script locally (i.e., not from an [ALSF-provided virtual computer](../../aws/index.md#lightsail-for-research-virtual-computing-with-aws)), you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
+    Before running this script locally (i.e., not using [Lightsail for Research](../../aws/index.md#lightsail-for-research-virtual-computing-with-aws)), you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
     To do this, run the following commands in terminal before running the `download-results.py` script, and follow instructions to log in.
 
     ```sh
@@ -318,10 +318,10 @@ Below are some common use cases for this flag:
 
 ## Accessing data from the ScPCA Portal
 
-If you have not yet been [granted access to ScPCA data via AWS](./index.md#getting-access-to-aws), you will need to obtain data directly from [the ScPCA Portal that the Data Lab maintains](https://scpca.alexslemonade.org).
+If you have not yet been [granted access to OpenScPCA AWS resources](./index.md#getting-access-to-aws), you will need to obtain data directly from [the ScPCA Portal](https://scpca.alexslemonade.org).
 You can download the project(s) or sample(s) you are interested in analyzing from the ScPCA Portal.
 
-Note that you can also access the [OpenScPCA test data](#accessing-test-data) before getting AWS access as well.
+Note that you can download the [OpenScPCA test data](#accessing-test-data) before getting AWS access as well.
 
 
 ### Organizing data files
@@ -341,7 +341,7 @@ ln -s data/portal-downloads data/current
 You can then develop your analysis specifying the `data/current` path when reading in data.
 This way, your directory names will be compatible with the file structure established by the [OpenScPCA data download script](#using-the-download-data-script).
 
-Within `data/portal-downloads`, we further recommend organizing your files in the same manner [as the official OpenScPCA data download script does](#downloaded-data-file-structure), as in:
+Within `data/portal-downloads`, we further recommend organizing your files in the same manner [as the OpenScPCA data download script does](#downloaded-data-file-structure), as in:
 
 ```sh
 data
