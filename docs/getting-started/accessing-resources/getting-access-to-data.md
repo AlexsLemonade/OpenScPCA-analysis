@@ -354,17 +354,3 @@ data
 │          └── single_cell_metadata.tsv
 └── current -> portal-downloads
 ```
-
-For example, if you downloaded `SingleCellExperiment`-formatted files for the sample `SCPCS000001` from the project `SCPCP000001`, your files should be organized as:
-
-```sh
-data
-├── portal-downloads
-│       └── SCPCP000001
-│          └── SCPCS000001
-│          │     ├── SCPCL000001_filtered.rds
-│          │     ├── SCPCL000001_processed.rds
-│          │     └── SCPCL000001_unfiltered.rds
-│          └── single_cell_metadata.tsv
-└── current -> portal-downloads
-```
