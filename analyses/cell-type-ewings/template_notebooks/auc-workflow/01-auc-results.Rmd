@@ -56,11 +56,8 @@ plot_colors <- c("Tumor" = "#00274C", "Normal" = "#FFCB05")
 
 
 ```{r base paths}
-# The base path for the OpenScPCA repository, found by its (hidden) .git directory
-repository_base <- rprojroot::find_root(rprojroot::is_git_root)
-
 # The path to this module
-module_base <- file.path(repository_base, "analyses", "cell-type-ewings")
+module_base <- rprojroot::find_root(rprojroot::is_renv_project)
 
 # source in helper functions: plot_gene_heatmap() and plot_cnv_heatmap() 
 # create_classification_df() and create_marker_gene_df()
