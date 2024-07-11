@@ -11,7 +11,7 @@ We use Amazon Web Services (AWS) to grant contributors access to data and Linux 
 
 ## S3: Data and results storage with AWS
 
-We use [AWS S3](https://aws.amazon.com/s3/) to store project data and results from mature analysis modules in folders referred to in S3 as "buckets."
+We use [AWS S3](https://aws.amazon.com/s3/) to store project data and results from mature analysis modules in locations referred to in S3 as "buckets."
 We also use S3 as central location for you to share your result files with us before [filing a pull request](../contributing-to-analyses/creating-pull-requests/index.md).
 All contributors will have a designated [researcher bucket](working-with-s3-buckets.md) where results can be synced and shared as part of [code review](../contributing-to-analyses/pr-review-and-merge/index.md).
 

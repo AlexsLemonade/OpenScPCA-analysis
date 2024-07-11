@@ -8,11 +8,11 @@ Broadly speaking, there are three kinds of ScPCA data you might wish to work wit
 1. Data from the ScPCA Portal
     - You can find out more about the contents of files and how they were processed from the ScPCA documentation: <https://scpca.readthedocs.io>.
     - OpenScPCA project contributors [with an Amazon Web Services (AWS) account](./index.md#getting-access-to-aws) can access data using the provided `download-data.py` script, [as described below](#using-the-download-data-script).
-        - If you have not yet been onboarded to OpenScPCA, you will need to access data [directly from the ScPCA Portal](#accessing-data-from-the-scpca-portal).
-1. Results from other OpenScPCA modules
+    - All data is also available [directly from the ScPCA Portal](#accessing-data-from-the-scpca-portal) for users who have not yet fully joined the OpenSCPCA project.
+2. Results from other OpenScPCA modules
     - OpenScPCA project contributors with an AWS account can obtain results from completed modules using the provided `download-results.py` script, [as described below](#accessing-scpca-module-results).
     - To use results from an in-progress module from the `OpenScPCA-analysis` repository, you may need to run the module yourself to generate its result files.
-2. Test datasets
+3. Test datasets and associated results
     - We provide reduced-size test files with simulated and/or permuted versions of both ScPCA Portal data and results from completed modules.
     - These data are used for automated testing, but you can also use them while developing your module if smaller files helps make development more efficient.
     - You do not need an AWS account to download the test files, so you can use this data before you are granted full access to ScPCA data.
@@ -45,7 +45,7 @@ We briefly cover some of this script's most common use cases below, but we encou
 All examples below assume you are running the script from the root of the repository.
 
 !!! tip "Log into AWS CLI before running the script"
-    Before running this script locally (i.e., not from an [ALSF-provided virtual computer](../../aws/index.md#lightsail-for-research-virtual-computing-with-aws)), you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
+    Before running this script locally (i.e., not using Lightsail for Research](../../aws/index.md#lightsail-for-research-virtual-computing-with-aws)), you will need to be [logged into your AWS CLI profile](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
     To do this, run the following commands in terminal before running the `download-data.py` script, and follow instructions to log in.
 
     ```sh
@@ -59,7 +59,7 @@ All examples below assume you are running the script from the root of the reposi
 
     Note that you can also [add this profile definition to your shell profile file](../../technical-setup/environment-setup/configure-aws-cli.md#storing-your-aws-profile-name) so that it will always be defined in any terminal session.
 
-- You can list all possible arguments and their usage for the download data script with the following:
+- You can list all available arguments and their usage for the download data script with the following:
 
     ```sh
     ./download-data.py --help
@@ -81,9 +81,9 @@ All examples below assume you are running the script from the root of the reposi
     ./download-data.py --format AnnData
     ```
 
-- To download a specific release other than the most recent release, you can use the `--release` option as follows.
-Again, please download full data releases with caution, as they are quite large!
-    - First, you may wish to use the `--list-releases` flag to see all available releases, which are named in `YYYY-MM-DD` format based on their release date.
+- To download a specific release other than the most recent release, you can use the `--release` option.
+Again, download full data releases with caution, as they are quite large!
+    - You can use the `--list-releases` flag to see all available releases, which are named in `YYYY-MM-DD` format based on their release date.
 
     ```sh
     # First, see which releases are available for download
@@ -117,11 +117,11 @@ Again, please download full data releases with caution, as they are quite large!
     ./download-data.py --projects SCPCPXXXXXX --dryrun
     ```
 
-The `download-data.py` script will always update the `data/current` symlink to point to the specified release directory.
-You can use the [`--update-symlink` flag described below](#updating-the-current-symlink) to update which release directory the `data/current` symlink directs to.
+The `download-data.py` script will update the `data/current` symlink to point to the current release directory when run without a `--release` option or to the test data directory when run with `--test-data`.
+If you want to instead point to a specific release, you can use the [`--update-symlink` flag described below](#updating-the-current-symlink) to update which release directory the `data/current` symlink directs to.
 
 
-### Download data file structure
+### Downloaded data file structure
 
 Downloads via the download script will generally have the following structure.
 
@@ -138,7 +138,7 @@ data
 ```
 
 !!! tip "The `data/current` directory"
-    The `data/current` directory is a [symlink](https://en.wikipedia.org/wiki/Symbolic_link) to the most recently-downloaded data release.
+    The `data/current` directory is a [symlink](https://en.wikipedia.org/wiki/Symbolic_link) to the most recent data release.
     You should therefore use the `data/current` path in your analysis code when reading in data, rather than a specific release directory.
 
 
@@ -180,7 +180,7 @@ All examples below assume you are running the script from the root of the reposi
 
     Note that you can also [add this profile definition to your shell profile file](../../technical-setup/environment-setup/configure-aws-cli.md#storing-your-aws-profile-name) so that it will always be defined in any terminal session.
 
-- You can list all possible arguments and their usage for the results download script with the following:
+- You can list all available arguments and their usage for the results download script with the following:
 
     ```sh
     ./download-results.py --help
@@ -222,7 +222,7 @@ For those modules, you can use either the `--projects` or `--samples` flag (noti
     ```
 
 
-### Download result file structure
+### Downloaded results file structure
 
 Results will download into the `data` directory in your local copy of the `OpenScPCA-analysis` repository.
 Result downloads will generally follow this structure:
@@ -237,7 +237,7 @@ data
 ```
 
 !!! tip "The `data/current` directory"
-    The `data/current` directory is a [symlink](https://en.wikipedia.org/wiki/Symbolic_link) to the most recently-downloaded release directory.
+    The `data/current` directory is a [symlink](https://en.wikipedia.org/wiki/Symbolic_link) to the most recent release directory available locally.
     You should therefore use the `data/current` path in your analysis code when reading in results, rather than a specific release directory.
 
 
@@ -294,7 +294,7 @@ You can use the `--update-symlink` flag, as described below, to update which rel
 
 ## Updating the `current` symlink
 
-As described above, the `data/current` directory is a [symlink](https://en.wikipedia.org/wiki/Symbolic_link) to the most recently-downloaded release directory.
+As described above, the `data/current` directory is a [symlink](https://en.wikipedia.org/wiki/Symbolic_link) to the most recent release directory.
 You can update this symlink to point to a different data release directory (or to the test data directory) in one of two ways:
 
 1. When you download a new data or results release, `data/current` will automatically be updated to direct to the newly-downloaded release directory.
@@ -326,6 +326,8 @@ We recommend creating a `portal-downloads` subdirectory in the local copy of the
 
 ```sh
 mkdir -p data/portal-downloads
+# set up a symlink
+ln -s data/portal-downloads data/current
 ```
 
 You can then develop your analysis using these paths.
