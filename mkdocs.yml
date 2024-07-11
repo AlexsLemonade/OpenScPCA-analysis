@@ -73,10 +73,10 @@ copyright: Copyright &copy; 2024 OpenScPCA Project Maintainers & Contributors | 
 # Note that the overall website landing page is in `docs/index.md`.
 #  When you locally serve, mkdocs will complain that it isn't in the nav below - this is expected. It should not be in the nav below.
 nav:
-  - Getting Started:      # welcome, familiarizing yourself with the project
+  - Getting started:      # welcome, familiarizing yourself with the project
     - getting-started/making-your-first-analysis-contribution.md
     - getting-started/explore-analysis.md
-    - Getting Access to Resources:
+    - Getting access to resources:
       - getting-started/accessing-resources/index.md
       - getting-started/accessing-resources/getting-access-to-data.md
       - getting-started/accessing-resources/getting-access-to-compute.md
@@ -97,7 +97,7 @@ nav:
       - technical-setup/environment-setup/install-r-rstudio.md
   - Tools for communication:   # Slack, issues, discussions
     - communications-tools/index.md
-    - GitHub Issues:
+    - GitHub issues:
       - communications-tools/github-issues/index.md
       - communications-tools/github-issues/writing-issues.md
       - communications-tools/github-issues/what-makes-a-good-issue.md
