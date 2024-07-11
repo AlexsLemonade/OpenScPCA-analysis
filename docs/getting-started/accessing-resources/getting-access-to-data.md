@@ -368,21 +368,3 @@ data
 │          └── single_cell_metadata.tsv
 └── current -> portal-downloads
 ```
-
-
-
-
-
-We recommend creating a `portal-downloads` subdirectory in the local copy of the `data` directory, and then creating a [symlink](https://en.wikipedia.org/wiki/Symbolic_link) at `data/current` to direct to `data/portal-downloads`.
-Within `data/portal-downloads`, we further recommend organizing your files in the same manner [as the official OpenScPCA data download script does](#downloaded-data-file-structure), fo
-
-You can accomplish this with the following:
-
-```sh
-# create the data/portal-downloads directory
-mkdir -p data/portal-downloads
-
-# set up a symlink from data/current to data/portal-downloads
-ln -s data/portal-downloads data/current
-```
-
