@@ -469,7 +469,7 @@ def main() -> None:
                 x.name
                 for x in args.data_dir.iterdir()
                 if x.is_dir()
-                and re.match("\d{4}-\d{2}-\d{2}$", x.name)
+                and re.match(r"\d{4}-\d{2}-\d{2}$", x.name)
                 and x.name <= datetime.date.today().isoformat()
             )
             most_recent = max(dated_releases)

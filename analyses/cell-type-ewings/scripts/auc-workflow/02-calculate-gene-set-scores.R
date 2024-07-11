@@ -9,10 +9,11 @@
 # calculates the sum, mean, z-scaled(sum), and z-scaled(mean) for each geneset 
 
 project_root <- here::here()
-renv::load(project_root)
 
-library(optparse)
-library(SingleCellExperiment)
+suppressPackageStartupMessages({
+  library(optparse)
+  library(SingleCellExperiment)
+})
 
 option_list <- list(
   make_option(
@@ -21,10 +22,10 @@ option_list <- list(
     help = "Path to RDS file containing a processed SingleCellExperiment object from scpca-nf"
   ),
   make_option(
-    opt_str = c("--results_dir"),
+    opt_str = c("--output_file"),
     type = "character",
     default = NULL,
-    help = "Full path to folder to save gene set scores"
+    help = "Full path to TSV file to save gene set scores"
   )
 )
 
@@ -73,11 +74,9 @@ calculate_score <- function(sce, genes_df, geneset_name){
 
 # Set up -----------------------------------------------------------------------
 
-# make sure path to sce file exists
-stopifnot("sce_file does not exist" = file.exists(opt$sce_file))
-
-# check that results dir was provided 
-stopifnot("Must provide a --results_dir to save results" = !is.null(opt$results_dir))
+# make sure path to sce file exists and output file is provided 
+stopifnot("sce_file does not exist" = file.exists(opt$sce_file), 
+          "Must provide a --output_file to save results" = !is.null(opt$output_file))
 
 # read in sce file
 sce <- readr::read_rds(opt$sce_file)
@@ -86,10 +85,8 @@ sce <- readr::read_rds(opt$sce_file)
 library_id <- metadata(sce)$library_id
 
 # contstruct and create output folder if not already present 
-fs::dir_create(opt$results_dir)
-
-# define output file using library id 
-output_file <- file.path(opt$results_dir, glue::glue("{library_id}_gene-set-scores.tsv"))
+results_dir <- dirname(opt$output_file)
+fs::dir_create(results_dir)
 
 # Grab gene sets ---------------------------------------------------------------
 
@@ -119,6 +116,6 @@ all_scores_df <- ews_gene_sets |>
   tibble::rownames_to_column("barcodes")
 
 # Export to TSV 
-readr::write_tsv(all_scores_df, output_file)
+readr::write_tsv(all_scores_df, opt$output_file)
 
 

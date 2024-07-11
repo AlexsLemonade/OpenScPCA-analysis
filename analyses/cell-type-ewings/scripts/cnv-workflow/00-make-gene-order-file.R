@@ -1,7 +1,6 @@
 #!/usr/bin/env Rscript
 
 project_root <- here::here()
-renv::load(project_root)
 
 library(optparse)
 

@@ -74,7 +74,7 @@ annotations_dir <- file.path(module_base, "results", "annotation_tables", "SCPCS
 annotations_file <- file.path(annotations_dir, "SCPCL000824_tumor-classifications.tsv.gz")
 
 # gene set scores to use for validation 
-results_dir <- file.path(module_base, "results", "annotate_tumor_cells_output", "SCPCS000492")
+results_dir <- file.path(module_base, "results", "cnv_annotation", "SCPCS000492")
 geneset_scores_file <- file.path(results_dir, "SCPCL000824_gene-set-scores.tsv")
 
 # singler results 
