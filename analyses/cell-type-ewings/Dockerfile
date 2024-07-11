@@ -50,6 +50,9 @@ COPY conda-lock.yml conda-lock.yml
 RUN conda-lock install -n ${ENV_NAME} conda-lock.yml && \
   conda clean --all --yes
 
+# Activate conda environment on bash launch
+RUN echo "conda activate ${ENV_NAME}" >> ~/.bashrc
+
 # Copy the renv.lock file from the host environment to the image
 COPY renv.lock renv.lock
 
