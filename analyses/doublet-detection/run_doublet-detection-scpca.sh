@@ -25,7 +25,7 @@ for SAMPLE_DIR in ${DATA_DIR}/${PROJECT_ID}/SCPCS*; do
     SAMPLE_RESULTS_DIR=${RESULTS_DIR}/${SAMPLE_ID}
     mkdir -p ${SAMPLE_RESULTS_DIR}
 
-    for SCE_FILE in $(ls ${SAMPLE_DIR}/*processed.rds); do
+    for SCE_FILE in ${SAMPLE_DIR}/*_processed.rds; do
         Rscript scripts/01a_run-scdblfinder.R \
             --input_sce_file ${SCE_FILE} \
             --results_dir ${SAMPLE_RESULTS_DIR}
