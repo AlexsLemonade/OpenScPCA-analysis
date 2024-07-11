@@ -45,7 +45,6 @@ jobs:
 
       - name: Run doublet-detection module
         run: |
-          conda activate openscpca-doublet-detection
           projects=$(basename -a data/current/SCPCP*)
 
           cd ${MODULE_PATH}
