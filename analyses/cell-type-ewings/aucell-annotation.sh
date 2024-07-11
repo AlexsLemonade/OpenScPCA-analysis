@@ -43,7 +43,8 @@ auc_threshold=$(Rscript $scripts_dir/01-run-aucell.R \
     --return_auc)
 
 # now run AUCell, gene set scores, and generate AUCell report for each sample that is not the ref sample
-for sample_id in $(basename ${data_dir}/SCPCS*); do
+sample_ids=$(basename -a ${data_dir}/SCPCS*)
+for sample_id in $sample_ids; do
 
     # make sure sample results directory exists
     sample_results_dir="${results_dir}/${sample_id}"
