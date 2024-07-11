@@ -61,7 +61,7 @@ Specifically, these datasets are used (descriptions from [Xi and Li (2021)](http
 
 ### ScPCA input files
 
-The ScPCA portion of this module uses `processed` SCE files from most recent OpenScPCA data release, which can be obtained with:
+The ScPCA portion of this module uses `processed` SCE files from the most recent OpenScPCA data release, which can be obtained with:
 
 ```sh
 # to be run from the root of the repository

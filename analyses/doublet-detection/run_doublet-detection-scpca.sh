@@ -19,10 +19,10 @@ mkdir -p ${RESULTS_DIR}
 
 # Detect doublets on each processed SCE file in each sample directory
 for SAMPLE_DIR in ${DATA_DIR}/${PROJECT_ID}/SCPCS*; do
-    SAMPLE_BASE=$(basename $SAMPLE_DIR)
-    echo "Processing ${SAMPLE_BASE}..."
+    SAMPLE_ID=$(basename $SAMPLE_DIR)
+    echo "Processing ${SAMPLE_ID}..."
 
-    SAMPLE_RESULTS_DIR=${RESULTS_DIR}/${SAMPLE_BASE}
+    SAMPLE_RESULTS_DIR=${RESULTS_DIR}/${SAMPLE_ID}
     mkdir -p ${SAMPLE_RESULTS_DIR}
 
     for SCE_FILE in $(ls ${SAMPLE_DIR}/*processed.rds); do

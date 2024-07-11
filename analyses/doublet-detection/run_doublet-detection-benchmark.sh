@@ -42,7 +42,8 @@ for dataset in "${bench_datasets[@]}"; do
     ./scripts/00_format-benchmark-data.R --dataset ${dataset} --input_dir ${DATA_DIR}/raw --output_dir ${DATASET_DIR}
 
     # Infer doublets with scDblFinder
-    ./scripts/01a_run-scdblfinder.R --input_sce_file ${dataset}.rds --data_dir ${DATASET_DIR} --results_dir ${RESULTS_DIR}
+    SCE_FILE=${DATASET_DIR}/${dataset}.rds
+    ./scripts/01a_run-scdblfinder.R --input_sce_file ${dataset}.rds --results_dir ${RESULTS_DIR}
 
     # Infer doublets with scrublet
     ./scripts/01b_run-scrublet.py --input_anndata_file ${dataset}.h5ad --data_dir ${DATASET_DIR} --results_dir ${RESULTS_DIR}
