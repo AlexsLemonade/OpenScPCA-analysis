@@ -153,11 +153,13 @@ Use `threads=1` when running the workflow to specify this.
 To increase the speed of the workflow, we recommend running on a computer with at least 12 CPUs.
 If this is the case, you may run the workflow using the default settings of 4 threads.
 
+
 ## Exploratory analyses
 
 Any notebooks or scripts used specifically for exploratory analyses can be found in the `exploratory_analysis` folder.
 The `exploratory_analysis/annotation_notebooks` folder contains notebooks used to generate and save cell type annotations for samples in `SCPCP000015`.
 For more information on how these were generated, see the [README.md](./exploratory_notebooks/annotation_notebooks/README.md).
+
 
 ## Software requirements
 
