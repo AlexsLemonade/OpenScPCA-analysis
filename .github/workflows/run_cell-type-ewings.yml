@@ -27,22 +27,15 @@ jobs:
     if: github.repository_owner == 'AlexsLemonade'
     runs-on: ubuntu-latest
     container: public.ecr.aws/openscpca/cell-type-ewings:latest
-    defaults:
-      run:
-        shell: bash -el {0}
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Install awscli
-        run: |
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          ./aws/install
-
       - name: Download test data
-        run: ./download-data.py --test-data --format "sce,anndata" --samples SCPCS000490
+        run: |
+          conda activate openscpca-cell-type-ewings
+          ./download-data.py --test-data --format "sce,anndata" --samples SCPCS000490
 
       - name: Run analysis
         run: |
