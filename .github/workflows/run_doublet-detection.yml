@@ -39,10 +39,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download test data in SCE format
-        run: ./download-data.py --test-data --format SCE
+        run: |
+          conda activate openscpca-doublet-detection
+          ./download-data.py --test-data --format SCE
 
       - name: Run doublet-detection module
         run: |
+          conda activate openscpca-doublet-detection
           projects=$(basename -a data/current/SCPCP*)
 
           cd ${MODULE_PATH}
