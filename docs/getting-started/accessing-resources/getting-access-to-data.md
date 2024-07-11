@@ -290,7 +290,7 @@ Similarly, you use the [download result script](#accessing-scpca-module-results)
 
 Running either of the above commands will update the `data/current` symlink to point to the `data/test` directory.
 This means any real ScPCA data or results you had previously downloaded will no longer be in the `data/current` path.
-You can use the `--update-symlink` flag, as described below, to update which release directory the `data/current` symlink directs to.
+You can use the `download-data.py` script with the `--update-symlink` flag, as described below, to update which release directory the `data/current` symlink directs to.
 
 ## Updating the `current` symlink
 
