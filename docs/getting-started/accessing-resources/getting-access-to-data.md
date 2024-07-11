@@ -335,7 +335,7 @@ You can accomplish this with the following:
 mkdir -p data/portal-downloads
 
 # set up a symlink from data/current to data/portal-downloads
-ln -s data/portal-downloads
+ln -s data/portal-downloads data/current
 ```
 
 You can then develop your analysis specifying the `data/current` path when reading in data.
