@@ -1,9 +1,8 @@
 # The OpenScPCA Nextflow workflow
 
-In addition to the `OpenScPCA-analysis` repository, the Data Lab maintains [a separate repository called `OpenScPCA-nf`](https://github.com/AlexsLemonade/OpenScPCA-nf).
-The `OpenScPCA-nf` repository holds a [Nextflow workflow](https://www.nextflow.io/) which we use to generate results from mature `OpenScPCA-analysis` modules.
+In addition to the `OpenScPCA-analysis` repository, the Data Lab maintains a separate [`OpenScPCA-nf` repository](https://github.com/AlexsLemonade/OpenScPCA-nf) that holds a [Nextflow workflow](https://www.nextflow.io/) which we use to generate results from mature `OpenScPCA-analysis` modules.
 
-Specifically, once an analysis module has been completed, the Data Lab will port the analysis code into the `OpenScPCA-nf` repository and add it to the Nextflow workflow.
+As analysis modules are completed, the Data Lab will port the analysis code into the `OpenScPCA-nf` repository and add it to the Nextflow workflow.
 To ensure reproducibility, the workflow will run each module [in its Docker image](../docker/docker-images.md).
 
 ## `OpenScPCA-nf` workflow results
