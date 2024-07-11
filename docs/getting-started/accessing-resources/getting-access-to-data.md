@@ -80,6 +80,16 @@ All examples below assume you are running the script from the root of the reposi
     ./download-data.py --format AnnData
     ```
 
+- If you're only working with a subset of the data, you can use the `--projects` or `--samples` option to download select projects or samples, respectively (note that these options are mutually exclusive):
+
+    ```sh
+    # use the --projects option
+    ./download-data.py --projects SCPCPXXXXXX
+
+    # use the --samples option
+    ./download-data.py --samples SCPCSXXXXXX,SCPCSXXXXXY
+    ```
+
 - To download a specific release other than the most recent release, you can use the `--release` option.
 Again, download full data releases with caution, as they are quite large!
     - You can use the `--list-releases` flag to see all available releases, which are named in `YYYY-MM-DD` format based on their release date.
@@ -94,16 +104,6 @@ Again, download full data releases with caution, as they are quite large!
 
     # Download AnnData format files for a specific release, for example
     ./download-data.py --release 2024-05-01 --format AnnData
-    ```
-
-- If you're only working with a subset of the data, you can use the `--projects` or `--samples` option to download select projects or samples, respectively (note that these options are mutually exclusive):
-
-    ```sh
-    # use the --projects option
-    ./download-data.py --projects SCPCPXXXXXX
-
-    # use the --samples option
-    ./download-data.py --samples SCPCSXXXXXX,SCPCSXXXXXY
     ```
 
 - To review the files would be downloaded without performing the download yet, you can use the `--dryrun` option as follows.
