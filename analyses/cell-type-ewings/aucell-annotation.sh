@@ -25,10 +25,14 @@ marker_genes_file="${module_dir}/references/tumor-marker-genes.tsv"
 scripts_dir="scripts/auc-workflow"
 notebook_dir="template_notebooks/auc-workflow"
 
-# define reference sample
+# define reference sample inputs and outputs
 ref_sample="SCPCS000490"
 ref_library="SCPCL000822"
 ref_sce="${data_dir}/${ref_sample}/${ref_library}_processed.rds"
+
+ref_results_dir="${results_dir}/${ref_sample}"
+mkdir -p $ref_results_dir
+
 ref_auc_results="${results_dir}/${ref_sample}/${ref_library}_auc-classifications.tsv"
 
 echo "Running AUCell for reference sample: $ref_sample and library: $ref_library"
