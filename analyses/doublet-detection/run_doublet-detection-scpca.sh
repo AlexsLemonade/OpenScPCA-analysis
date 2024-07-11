@@ -7,8 +7,8 @@ set -euo pipefail
 
 
 # Ensure script is being run from its directory
-MODULE_DIR=$(dirname "${BASH_SOURCE[0]}")
-cd ${MODULE_DIR}
+#MODULE_DIR=$(dirname "${BASH_SOURCE[0]}")
+#cd ${MODULE_DIR}
 
 PROJECT_ID=$1
 
