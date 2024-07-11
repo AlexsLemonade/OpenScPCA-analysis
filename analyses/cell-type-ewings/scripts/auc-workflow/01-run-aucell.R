@@ -5,7 +5,6 @@
 # `00-identify-ref-aucell.R`
 
 project_root <- here::here()
-renv::load(project_root)
 
 library(optparse)
 
@@ -42,6 +41,12 @@ option_list <- list(
     type = "character",
     help = "Path to file where results will be saved. 
       This will be a TSV file containing three columns, `barcodes`, `auc`, `auc_classification`."
+  ),
+  make_option(
+    opt_str = c("-t", "--threads"),
+    type = "integer",
+    default = 1,
+    help = "Number of multiprocessing threads to use."
   )
 )
 
@@ -60,6 +65,14 @@ stopifnot(
 suppressPackageStartupMessages({
   library(SingleCellExperiment)
 })
+
+
+# set up multiprocessing params
+if (opt$threads > 1) {
+  bp_param <- BiocParallel::MulticoreParam(opt$threads)
+} else {
+  bp_param <- BiocParallel::SerialParam()
+}
 
 # make sure directory exists for writing output
 output_dir <- dir(opt$output_file)
@@ -83,7 +96,7 @@ marker_gene_set <- marker_genes |>
 # AUCell -----------------------------------------------------------------------
 
 # run AUCell
-auc_results <- AUCell::AUCell_run(counts(sce), marker_gene_set)
+auc_results <- AUCell::AUCell_run(counts(sce), marker_gene_set, BPPARAM = bp_param)
 
 # get threshold 
 if(is.null(opt$auc_threshold)){

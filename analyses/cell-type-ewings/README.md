@@ -18,7 +18,70 @@ This module will include code to annotate cell types in the Ewing sarcoma sample
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## CNV Annotation Workflow
+## `AUCell` annotation workflow
+
+The `AUCell` annotation workflow (`aucell-annotation.sh`) can be used to identify potential tumor cells in a given sample using [`AUCell`](https://www.bioconductor.org/packages/release/bioc/html/AUCell.html).
+This workflow includes the following steps:
+
+1. An AUC threshold is determined from running `AUCell` on the reference sample `SCPCS000490`.
+Tumor cells are classified as those that have an AUC score greater than or equal to the AUC threshold determined by `AUCell`.
+`SCPCS000490` was previously determined to have a bimodal distribution of AUC scores, where cells with AUC scores higher than the determined threshold corresponded to tumor cells classified using CNV methods in `cnv-annotation.sh`.
+This AUC threshold is then returned and used for classifying the remaining samples.
+2. `AUCell` is then run on all samples and tumor cells are classified as those with an AUC score greater than or equal to the AUC threshold determined in the reference sample.
+3. Gene set scores are calculated by taking the mean gene expression for all genes in the following gene sets:
+  - [`ZHANG_TARGETS_OF_EWSR1_FLI1_FUSION`](https://www.gsea-msigdb.org/gsea/msigdb/human/geneset/ZHANG_TARGETS_OF_EWSR1_FLI1_FUSION.html)
+  - [`RIGGI_EWING_SARCOMA_PROGENITOR_UP`](https://www.gsea-msigdb.org/gsea/msigdb/human/geneset/RIGGI_EWING_SARCOMA_PROGENITOR_UP.html?ex=1)
+  - [`SILIGAN_TARGETS_OF_EWS_FLI1_FUSION_DN`](https://www.gsea-msigdb.org/gsea/msigdb/cards/SILIGAN_TARGETS_OF_EWS_FLI1_FUSION_DN)
+4. A summary report is generated that contains the results from `AUCell` and validation of tumor cells by looking at marker gene expression and gene set scores.
+
+### Usage
+
+The `aucell-annotation.sh` workflow can be used to annotate tumor and normal cells in all Ewing sarcoma samples from SCPCP000015.
+The workflow can be run using the following command:
+
+```sh
+./aucell-annotation.sh
+```
+
+### Input files
+
+The `aucell-annotation.sh` workflow requires the processed `SingleCellExperiment` objects (`_processed.rds`) from SCPCP0000015.
+These files were obtained using the `download-data.py` script:
+
+```sh
+# download SCE objects
+./download-data.py --projects SCPCP000015
+```
+The workflow also requires the tumor marker gene reference file, [`references/tumor-marker-genes.tsv`](./references/tumor-marker-genes.tsv).
+This file contains a list of marker genes for identifying Ewing sarcoma tumor cells.
+
+### Output files
+
+Running the `aucell-annotation.sh` workflow will generate the following output files in `results/aucell_annotation` for each sample/library combination.
+
+```
+aucell_annotation
+├── <sample_id>
+    ├── <library_id>_auc-classifications.tsv
+    ├── <library_id>_aucell-report.html
+    ├── <library_id>_gene-set-scores.tsv
+```
+The `.html` file is a rendered report exploring the results from `AUCell` and validating tumor cells by looking at marker gene expression and gene set scores.
+The `auc-classifications.tsv` file contains the following columns:
+
+| | |
+|----|----|
+| `barcodes` | Unique cell barcode |
+| `auc` | AUC score reported by running `AUCell` |
+| `auc_classification` | Either `Tumor` or `Normal`, where `Tumor` cells are those that have an AUC greater than or equal to the AUC threshold found in the reference sample.  |
+
+The `gene-set-scores.tsv` file contains the scores (mean and sum) for all genes in three different EWS-FLI1 target gene sets.
+
+### Computational resources
+
+The `aucell-annotation.sh` uses 4 CPUs and can be run locally on a laptop.
+
+## CNV annotation workflow
 
 The CNV annotation workflow (`cnv-annotation.sh`) can be used to identify potential tumor cells in a given sample.
 Annotations are obtained by running the following methods within the workflow:
@@ -106,7 +169,6 @@ cnv_annotation
     ├── <library_id>_infercnv-report.html
     ├── <library_id>_marker-gene-report.html
     ├── <library_id>_tumor-normal-classifications.tsv
-    ├── <library_id>_gene-set-scores.tsv
     ├── annotations
     │   └── <library_id>_reference-cells.tsv
     ├── cellassign
@@ -128,7 +190,6 @@ cnv_annotation
 
 All `.html` files are rendered reports summarizing use of each method (indicated in the filename) to classify tumor cells.
 All `classifications.tsv` files contain the final annotation as reported by each method.
-The `gene-set-scores.tsv` file contains the scores (mean and sum) for all genes in three different EWS-FLI1 target gene sets.
 The `annotations` folder contains the reference table indicating which cells were used as "normal" or "tumor" cells in various analysis.
 See [below](#annotation-files) for more information on this table.
 

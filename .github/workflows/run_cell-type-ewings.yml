@@ -38,10 +38,11 @@ jobs:
       - name: Download test data
         run: |
           conda activate openscpca-cell-type-ewings
-          ./download-data.py --test-data --format "sce,anndata" --samples SCPCS000490
+          ./download-data.py --test-data --format "sce,anndata" --project SCPCP000015
 
       - name: Run analysis
         run: |
           conda activate openscpca-cell-type-ewings
           cd $MODULE_PATH
           bash cnv-annotation.sh
+          bash aucell-annotation.sh

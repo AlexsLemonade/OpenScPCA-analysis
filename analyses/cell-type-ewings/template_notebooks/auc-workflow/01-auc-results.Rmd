@@ -56,11 +56,8 @@ plot_colors <- c("Tumor" = "#00274C", "Normal" = "#FFCB05")
 
 
 ```{r base paths}
-# The base path for the OpenScPCA repository, found by its (hidden) .git directory
-repository_base <- rprojroot::find_root(rprojroot::is_git_root)
-
 # The path to this module
-module_base <- file.path(repository_base, "analyses", "cell-type-ewings")
+module_base <- rprojroot::find_root(rprojroot::is_renv_project)
 
 # source in helper functions: plot_gene_heatmap() and plot_cnv_heatmap() 
 # create_classification_df() and create_marker_gene_df()
@@ -103,6 +100,14 @@ markers_df <- create_marker_gene_df(
   classification_df, 
   params$marker_genes_file
 )
+
+# test if _any_ marker genes have expression
+if(sum(markers_df$gene_expression) == 0){
+  has_marker_gene_exp <- FALSE
+  message("No marker gene expression detected, so all plots of marker genes will be skipped.")
+} else {
+  has_marker_gene_exp <- TRUE
+}
 ```
 
 ## AUCell classification UMAP
@@ -150,7 +155,7 @@ The below plots summarize marker gene expression in tumor and normal cells as cl
 The `logcounts` for each gene in the marker gene list is summed for each cell and shown on the x-axis.
 We would expect tumor cells to have higher expression of marker genes than normal cells. 
 
-```{r}
+```{r, eval=has_marker_gene_exp}
 # create a density plot showing the distribution of marker gene expression across classification methods 
 markers_df |> 
   dplyr::select(barcodes, sum_raw_exp, auc_classification) |> 
@@ -185,7 +190,7 @@ annotation <- ComplexHeatmap::columnAnnotation(
 )
 ```
 
-```{r}
+```{r, eval=has_marker_gene_exp}
 # plot heatmap of marker genes 
 plot_gene_heatmap(marker_gene_matrix, 
                   row_title = "Marker gene symbol",

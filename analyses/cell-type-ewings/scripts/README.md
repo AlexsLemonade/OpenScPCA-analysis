@@ -187,7 +187,7 @@ To run this script use the following command:
 ```sh
 Rscript 02-calculate-gene-set-scores.R \
   --sce_file <path to processed sce file> \
-  --results_dir <full path to folder to save results>
+  --output_file <full path to TSV file to save results>
 ```
 
 ## Utils
