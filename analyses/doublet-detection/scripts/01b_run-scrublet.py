@@ -41,13 +41,7 @@ def main() -> None:
         "--input_anndata_file",
         type=str,
         required=True,
-        help="Name of the input AnnData file to process."
-    )
-    parser.add_argument(
-        "--data_dir",
-        type=Path,
-        required=True,
-        help="The directory containing H5AD input file."
+        help="Path to the input AnnData file to process."
     )
     parser.add_argument(
         "--results_dir",
@@ -63,21 +57,22 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    # Define and check files, directories
     args.results_dir.mkdir(parents = True, exist_ok = True)
 
-    # Run scrublet and export the results
-    input_anndata = args.data_dir / (args.input_anndata_file)
-    result_tsv = args.results_dir / (args.input_anndata_file.replace(".h5ad", "_scrublet.tsv"))
-
-    if not input_anndata.exists():
+    input_anndata_file = Path(args.input_anndata_file)
+    if not input_anndata_file.exists():
         print(
             "The input AnnData file could not be found at:",
-            input_anndata,
+            args.input_anndata_file,
             file=sys.stderr
         )
         sys.exit(1)
+    result_tsv = args.results_dir / (input_anndata_file.name.replace(".h5ad", "_scrublet.tsv"))
 
-    adata = anndata.read_h5ad(input_anndata)
+
+    # Run scrublet and export the results
+    adata = anndata.read_h5ad(input_anndata_file)
     scrub_results = run_scrublet(adata, args.random_seed)
     scrub_results.to_csv(result_tsv, sep="\t", index=False )
 

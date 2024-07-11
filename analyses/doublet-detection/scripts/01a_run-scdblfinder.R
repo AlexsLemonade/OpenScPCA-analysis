@@ -74,14 +74,9 @@ run_scdblfinder <- function(sce,
 
 option_list <- list(
   make_option(
-    "--data_dir",
-    type = "character",
-    help = "The directory containing the input RDS file in SCE format."
-  ),
-  make_option(
     "--input_sce_file",
     type = "character",
-    help = "Name of input SCE file in RDS format."
+    help = "Path to input SCE file in RDS format."
   ),
   make_option(
     "--results_dir",
@@ -109,24 +104,17 @@ option_list <- list(
 opts <- parse_args(OptionParser(option_list = option_list))
 
 # Check input arguments and set up files, directories ------
-if (is.null(opts$data_dir)) {
-  stop("Must provide an input path for the SCE file with --data_dir.")
+if (!file.exists(opts$input_sce_file)) {
+    glue::glue("Could not find input SCE file, expected at: `{opts$input_sce_file}`.")
 }
 if (is.null(opts$results_dir)) {
   stop("Must provide an output path for results with --results_dir.")
 }
 
-input_sce_file <- file.path(opts$data_dir, opts$input_sce_file)
-if (!file.exists(input_sce_file)) {
-  stop(
-    glue::glue("Could not find input file, expected at: `{input_sce_file}`.")
-  )
-}
-
 output_tsv_file <- file.path(
   opts$results_dir,
   stringr::str_replace(
-    opts$input_sce_file,
+    basename(opts$input_sce_file),
     ".rds",
     "_scdblfinder.tsv"
   )
@@ -137,7 +125,7 @@ set.seed(opts$random_seed)
 
 # Detect doublets and export TSV file with inferences -----
 
-readRDS(input_sce_file) |>
+readRDS(opts$input_sce_file) |>
   run_scdblfinder(
     cores = opts$cores,
     # only used if there are multiple samples, e.g. if this is processing a merged object
