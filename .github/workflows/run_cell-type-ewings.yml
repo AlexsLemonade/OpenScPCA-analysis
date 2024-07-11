@@ -42,10 +42,11 @@ jobs:
           ./aws/install
 
       - name: Download test data
-        run: ./download-data.py --test-data --format "sce,anndata" --samples SCPCS000490
+        run: ./download-data.py --test-data --format "sce,anndata" --samples SCPCS000490,SCPCS000491
 
       - name: Run analysis
         run: |
           conda activate openscpca-cell-type-ewings
           cd $MODULE_PATH
           bash cnv-annotation.sh
+          bash aucell-annotation.sh
