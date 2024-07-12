@@ -8,6 +8,8 @@ Therefore, as a contributor, there are several tools you will need to be familia
 - The [terminal](./using-the-terminal.md), also known as the command line
 - Writing text in [markdown](./writing-in-markdown.md)
 - Software management platforms, including [conda](../../ensuring-repro/managing-software/using-conda.md) and, if you plan to develop R-based modules, [`renv`](../../ensuring-repro/managing-software/using-renv.md)
+    - We use conda and `renv` to manage installation of module-specific software dependencies and packages
+- We additionally use [Docker](../../ensuring-repro/docker/index.md) and a [separate Nextflow workflow](../../ensuring-repro/openscpca-nf/index.md) to ensure reproducibility, but OpenScPCA contributors are not required to use these platforms unless they choose
 
 !!! tip
 
