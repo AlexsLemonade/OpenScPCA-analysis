@@ -88,18 +88,14 @@ classification_df <- sce |>
   dplyr::select(barcodes, UMAP1, UMAP2, singler_celltype_annotation) |> 
   # join with previous annotations, singler results, and gene set scores 
   dplyr::left_join(auc_results_df, by = "barcodes") |> 
-  dplyr::left_join(geneset_scores_df, by = "barcodes") |> 
-  dplyr::mutate(
-    # make a factor so tumor always appears first 
-    auc_classification = forcats::fct_relevel(auc_classification, "Tumor")
-  )
+  dplyr::left_join(geneset_scores_df, by = "barcodes") 
 
 # get marker gene expression 
 markers_df <- create_marker_gene_df(
   sce,
   classification_df, 
   params$marker_genes_file
-)
+) 
 
 # test if _any_ marker genes have expression
 if(sum(markers_df$gene_expression) == 0){
@@ -110,17 +106,45 @@ if(sum(markers_df$gene_expression) == 0){
 }
 ```
 
+```{r}
+# add marker gene classification classifying cells based on expression of at least 1 marker gene  
+marker_gene_class_df <- markers_df |> 
+  dplyr::select(barcodes, sum_raw_exp) |> 
+  dplyr::distinct() |> 
+  dplyr::mutate(
+    marker_gene_classification = dplyr::if_else(
+      sum_raw_exp > 0,
+      "Tumor",
+      "Normal"
+      
+    )
+  )
+
+classification_df <- classification_df |> 
+  dplyr::left_join(marker_gene_class_df, by = "barcodes") |> 
+  tidyr::pivot_longer(ends_with("classification"),
+                      names_to = "method",
+                      values_to = "classification") |> 
+  dplyr::mutate(
+    # make a factor so tumor always appears first 
+    classification = forcats::fct_relevel(classification, "Tumor")
+  )
+```
+
+
 ## AUCell classification UMAP
 
 Below is a UMAP showing cells that are labeled as either `Tumor` or `Normal` using `AUCell`. 
 
 ```{r}
-ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = auc_classification)) +
+ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = classification)) +
   geom_point(size = 0.5, alpha = 0.5) +
+  facet_wrap(vars(method)) +
   scale_color_manual(values = plot_colors) +
   labs(
-    color = "AUCell classification"
-  )
+    color = ""
+  ) +
+  guides(color = guide_legend(override.aes = list(size = 3, alpha = 1)))
 ```
 
 ## Comparison of AUC distribution 
@@ -157,16 +181,16 @@ We would expect tumor cells to have higher expression of marker genes than norma
 
 ```{r, eval=has_marker_gene_exp}
 # create a density plot showing the distribution of marker gene expression across classification methods 
-markers_df |> 
-  dplyr::select(barcodes, sum_raw_exp, auc_classification) |> 
-  dplyr::distinct() |> 
-  ggplot(aes(x = sum_raw_exp, color = auc_classification)) +
+classification_df |> 
+  ggplot(aes(x = sum_raw_exp, color = classification)) +
   geom_density() +
+  facet_wrap(vars(method),
+             scales = "free_y") +
   scale_color_manual(values = plot_colors) +
   labs(
     x = "Raw sum of marker gene logcounts",
-    color = "AUCell classification"
-  )
+    color = ""
+  ) 
 ```
 
 ### Heatmap
@@ -184,9 +208,16 @@ marker_gene_matrix <- markers_df |>
   tibble::column_to_rownames("gene_symbol") |> 
   as.matrix()
 
+annotation_df <- classification_df |> 
+  dplyr::select(barcodes, classification, method) |> 
+  tidyr::pivot_wider(names_from = method, 
+                     values_from = classification)
+
 annotation <- ComplexHeatmap::columnAnnotation(
-  AUCell = classification_df$auc_classification, 
-  col = list(AUCell = plot_colors)
+  AUCell = annotation_df$auc_classification, 
+  marker_genes = annotation_df$marker_gene_classification,
+  col = list(AUCell = plot_colors,
+             marker_genes = plot_colors)
 )
 ```
 
@@ -215,7 +246,7 @@ Scores are calculated for the following gene sets from `MsigDb`:
 ```{r}
 # prep data frame for plotting gene set scores 
 geneset_plot_df <- classification_df |> 
-  dplyr::select(barcodes, auc_classification, starts_with("mean-")) |> 
+  dplyr::select(barcodes, classification, method, starts_with("mean-")) |> 
   # make one column containing all gene set scores 
   tidyr::pivot_longer(
     cols = starts_with("mean"),
@@ -228,14 +259,15 @@ geneset_plot_df <- classification_df |>
   )
 
 # make density plot showing distribution of gene set scores for tumor/normal 
-ggplot(geneset_plot_df, aes(x = mean_score, color = auc_classification)) +
+ggplot(geneset_plot_df, aes(x = mean_score, color = classification)) +
   geom_density(bw = 0.05) +
   facet_grid(rows = vars(geneset),
+             cols = vars(method),
              scales = "free_y") +
   scale_color_manual(values = plot_colors) +
   labs(
     x = "Gene set score",
-    color = "AUCell classification"
+    color = ""
   )
 ```
 
