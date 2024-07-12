@@ -107,7 +107,7 @@ if(sum(markers_df$gene_expression) == 0){
 ```
 
 ```{r}
-# add marker gene classification classifying cells based on expression of at least 1 marker gene  
+# add marker gene classification based on expression of at least 1 marker gene  
 marker_gene_class_df <- markers_df |> 
   dplyr::select(barcodes, sum_raw_exp) |> 
   dplyr::distinct() |> 
@@ -120,6 +120,7 @@ marker_gene_class_df <- markers_df |>
     )
   )
 
+# add classification to main classification data frame
 classification_df <- classification_df |> 
   dplyr::left_join(marker_gene_class_df, by = "barcodes") |> 
   tidyr::pivot_longer(ends_with("classification"),
@@ -134,7 +135,7 @@ classification_df <- classification_df |>
 
 ## AUCell classification UMAP
 
-Below is a UMAP showing cells that are labeled as either `Tumor` or `Normal` using `AUCell`. 
+Below is a UMAP showing cells that are labeled as either `Tumor` or `Normal` using `AUCell` and marker gene expression. 
 
 ```{r}
 ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = classification)) +
@@ -172,7 +173,8 @@ ggplot(all_auc_df, aes(x = auc, color = sample)) +
 
 ## Expression of marker genes 
 
-The below plots summarize marker gene expression in tumor and normal cells as classified by `AUCell`. 
+The below plots summarize marker gene expression in tumor and normal cells as classified by `AUCell` and marker gene expression. 
+Note that we expect to see clear separation of gene expression for the marker gene classification as classification is based purely on expression. 
 
 ### Density plot
 
@@ -196,7 +198,7 @@ classification_df |>
 ### Heatmap
 
 Here every row is a marker gene and every column is a cell with colors corresponding to the expression of a specified marker gene.  
-The annotation bar indicates which cells are tumor or normal cells as classified by `AUCell`. 
+The annotation bar indicates which cells are tumor or normal cells as classified by `AUCell` or marker gene expression. 
 We expect to see higher expression of individual marker genes in tumor cells compared to normal cells. 
 
 ```{r}
@@ -231,7 +233,7 @@ plot_gene_heatmap(marker_gene_matrix,
 
 ## Gene set scores 
 
-The below plots summarize the gene set scores in tumor and normal cells as classified by `AUCell`.
+The below plots summarize the gene set scores in tumor and normal cells as classified by `AUCell` and marker gene expression.
 
 Gene set scores are determined by calculating the mean expression of all genes in a given gene set. 
 Scores are calculated for the following gene sets from `MsigDb`:
@@ -274,7 +276,7 @@ ggplot(geneset_plot_df, aes(x = mean_score, color = classification)) +
 ### Heatmap 
 
 Here every column is a cell and every row is a gene set with colors corresponding to the gene set score. 
-The annotation bar indicates which cells are tumor or normal cells as classified by `AUCell`. 
+The annotation bar indicates which cells are tumor or normal cells as classified by `AUCell` and marker gene expression. 
 We expect to see higher gene set scores in tumor cells compared to normal cells. 
 
 ```{r}
