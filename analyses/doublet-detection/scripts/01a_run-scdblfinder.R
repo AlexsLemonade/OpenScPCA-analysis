@@ -94,7 +94,7 @@ option_list <- list(
     "--benchmark",
     action = "store_true",
     default = FALSE,
-    help = "Whether the script is being run as part of the doublet benchmarking analysis. If this flag is invoked, the `cxds_score` column will be returned along with the `score` and `class` columns that are always returned. " 
+    help = "Whether the script is being run as part of the doublet benchmarking analysis. If this flag is invoked, the `cxds_score` column will be included in the output TSV along with the `barcodes`, `score`, and `class` columns that are always included." 
   ),
   make_option(
     "--sample_var",
