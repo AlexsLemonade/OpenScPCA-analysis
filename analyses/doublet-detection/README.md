@@ -24,13 +24,16 @@ conda activate openscpca-doublet-detection
 
 There are two portions of this module, which can be run as follows:
 
-- Benchmarking analysis: Compare several doublet detection methods on non-ScPCA datasets with annotated doublets
+- Benchmarking analysis: Compare several doublet detection methods on publicly available (non-ScPCA) datasets with annotated doublets.
+This analysis runs several doublet detection methods and assesses and compares their performance.
   ```sh
   ./run_doublet-detection-benchmarking.sh
   ```
 
-- ScPCA analysis: Detect doublets in ScPCA data using `scDblFinder` for a given project id (`SCPCPXXXXXX`)
-  - Note that the conda environment is not used for this analysis, since it is only R-based
+- ScPCA analysis: Detect doublets in ScPCA data using `scDblFinder` for a given project id (`SCPCPXXXXXX`).
+This analysis exports a TSV file for each library in a given ScPCA project with `scDblFinder` inferences.
+SCEs with fewer than 10 droplets will not be run through `scDblFinder`, and their associated result TSVs
+  - The conda environment is not needed for this analysis, since it is only R-based
   ```sh
   ./run_doublet-detection-scpca.sh {scpca project id}
 
@@ -71,7 +74,7 @@ The ScPCA portion of this module uses `processed` SCE files from the most recent
 
 ## Output files
 
-Below is the results directory structure, annotated with file descriptions, after both `run_doublet-detection-benchmarking.sh` and `run_doublet-detection-scpca.sh` have been run:
+Below is the results directory structure, annotated with file descriptions, after both `run_doublet-detection-benchmarking.sh` and `run_doublet-detection-scpca.sh` have been run.
 
 ```
 results

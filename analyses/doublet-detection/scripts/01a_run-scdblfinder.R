@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 # This script runs scDblFinder on an SCE file and exports a TSV file of results.
-
+# If the SCE has fewer than 10 droplets, results will not be calculated and the exported TSV will contain NA values.
 
 # Load libraries ------
 suppressPackageStartupMessages({
@@ -67,6 +67,46 @@ run_scdblfinder <- function(sce,
 }
 
 
+#' Export a TSV of all NA values (except barcodes), with expected scDblFinder output column names
+#'
+#' @param barcodes Values for the `barcodes` column
+#' @param output_tsv_file Output TSV file path
+export_na_tsv <- function(barcodes, output_tsv_file) {
+    output_colnames <- c(
+      "barcodes",
+      "type",
+      "weighted",
+      "distanceToNearest",
+      "distanceToNearestDoublet",
+      "distanceToNearestReal",
+      "nearestClass",
+      "ratio.k3",
+      "ratio.k10",
+      "ratio.k15",
+      "ratio.k20",
+      "ratio.k25",
+      "lsizes",
+      "nfeatures",
+      "nAbove2",
+      "src",
+      "cxds_score",
+      "include.in.training",
+      "score",
+      "class"
+    )
+
+    na_tsv <- data.frame(
+      matrix(
+        NA,
+        nrow = length(barcodes),
+        ncol = length(output_colnames),
+        dimnames = list(NULL, output_colnames)
+      )
+    )
+    na_tsv$barcodes <- barcodes
+    readr::write_tsv(na_tsv, output_tsv_file)
+}
+
 # Parse options --------
 
 option_list <- list(
@@ -122,11 +162,31 @@ set.seed(opts$random_seed)
 
 # Detect doublets and export TSV file with inferences -----
 
-readRDS(opts$input_sce_file) |>
+# Check the number of cells to see if scDblFinder can be run
+cell_threshold <- 10
+
+sce <- readRDS(opts$input_sce_file)
+ncells <- ncol(sce)
+
+if (ncells < cell_threshold) {
+  warning(
+    glue::glue(
+      "The provided SingleCellExperiment object only has {ncells} droplets, which is fewer than {cell_threshold} so `scDblFinder` will not be run.
+       An output TSV file will still be produced, but it will be populated with `NA` values."
+    )
+  )
+  export_na_tsv(
+    colnames(sce),
+    output_tsv_file
+  )
+
+} else {
   run_scdblfinder(
+    sce,
     cores = opts$cores,
     # only used if there are multiple samples, e.g. if this is processing a merged object
     sample_var = opts$sample_var, # will be NULL if not provided as input argument
     random_seed = opts$random_seed
   ) |>
   readr::write_tsv(output_tsv_file)
+}

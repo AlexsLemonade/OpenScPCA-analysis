@@ -15,6 +15,7 @@ Use this command to run the bash script:
 
 1. `01a_run-scdblfinder.R` and `01b_run-scrublet.py` detect doublets using R-based `scDblFinder` and Python-based `scrublet`, respectively.
 - `01a_run-scdblfinder.R` takes an SCE file and exports a TSV file with `scDblFinder` results
+  - Note that the output TSV file will contain all `NA` values if there are fewer than 10 cells in the given `SCE` object
 - `01b_run-scrublet.py` takes an AnnData file and exports a TSV files with `scrublet` results
 
 Use these commands to run each script:
