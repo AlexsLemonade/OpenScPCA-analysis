@@ -83,12 +83,24 @@ results
 │   ├── {dataset}_scdblfinder.tsv # TSV files with `scDblFinder` inferences
 │   ├── {dataset}_scrublet.tsv    # TSV files with `Scrublet` inferences
 │   └── rendered-notebooks # Exploration of doublet detection results for each individual dataset
-│       └── {dataset}-doublet-results.nb.html
+│       ├── compare-doublet-results.nb.html # Created from exploratory-notebooks/03_compare-benchmark-results.Rmd
+│       └── {dataset}-doublet-results.nb.html # Created from template-notebooks/02_explore-benchmark-results.Rmd
 └── scpca-results # Results from running `scDblFinder` across ScPCA projects
     └── {project id}
         └── {sample id}
             └── {library id}_processed_scdblfinder.tsv # TSV file with doublet results
 ```
+
+### Result TSV files
+
+The benchmarking TSV files have the following columns:
+
+- `{dataset}_scdblfinder.tsv`: `barcodes`, `score`, `class`, `cxds_score`
+    - `score` and `class` are the `scDblFinder` score and prediction columns, respectively, and `cxds_score` is a modified version of the [`scds::cxds` score](https://bioconductor.org/packages/devel/bioc/vignettes/scds/inst/doc/scds.html) as calculated by `scDblFinder`
+- `{dataset}_scrublet.tsv`: `barcodes`, `scrublet_score`, `scrublet_prediction`
+
+The ScPCA TSV files for `scDblFinder` results have only the columns `barcodes`, `score`, and `class`.
+
 
 ## Software requirements
 
