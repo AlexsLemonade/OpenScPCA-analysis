@@ -91,6 +91,12 @@ option_list <- list(
     help = "Number of cores to use during scDblFinder inference. Only used when there are multiple samples in the SCE."
   ),
   make_option(
+    "--benchmark",
+    action = "store_true",
+    default = FALSE,
+    help = "Whether the script is being run as part of the doublet benchmarking analysis. Different columns will be output in this mode."
+  ),
+  make_option(
     "--sample_var",
     type = "character",
     help = "If multiple samples are present in the SCE, the colData column name with sample ids. This option should be used for merged objects."
@@ -139,20 +145,34 @@ if (ncells < cell_threshold) {
        An output TSV file will still be produced, but it will be populated with `NA` values."
     )
   )
-  data.frame(
+  na_df <- data.frame(
     barcodes = colnames(sce),
     score = NA,
     class = NA
-  ) |>
-    readr::write_tsv(output_tsv_file)
+  )
+  if (opts$benchmark) {
+    na_df$cxds_score <- NA
+  }
+  readr::write_tsv(output_tsv_file)
 
 } else {
+
+  keep_columns <- c(
+    "barcodes",
+    "score",
+    "class"
+  )
+  if (opts$benchmark) {
+    keep_columns <- c(keep_columns, "cxds_score")
+  }
+
   run_scdblfinder(
     sce,
     cores = opts$cores,
     # only used if there are multiple samples, e.g. if this is processing a merged object
     sample_var = opts$sample_var, # will be NULL if not provided as input argument
-    random_seed = opts$random_seed
+    random_seed = opts$random_seed,
+    columns_to_keep = keep_columns
   ) |>
   readr::write_tsv(output_tsv_file)
 }
