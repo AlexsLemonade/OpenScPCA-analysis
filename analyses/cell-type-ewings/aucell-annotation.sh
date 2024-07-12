@@ -58,7 +58,7 @@ for sample_id in $sample_ids; do
         # define output files
         auc_results="${sample_results_dir}/${library_id}_auc-classifications.tsv"
         geneset_results="${sample_results_dir}/${library_id}_gene-set-scores.tsv"
-        marker_gene_results=${sample_results_dir}/${library_id}_marker-gene-classifications.tsv"
+        marker_gene_results="${sample_results_dir}/${library_id}_marker-gene-classifications.tsv"
 
         # only run AUCell if sample is NOT the ref sample
         if [[ ($sample_id != $ref_sample) && ($library_id != $ref_library) && (! -f $auc_results) ]]; then
