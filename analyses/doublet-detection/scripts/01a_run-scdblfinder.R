@@ -18,6 +18,7 @@ suppressPackageStartupMessages({
 #' @param sample_var Required for SCE object with multiple samples, the SCE colData variable that indicates sample of origin.
 #'   This option should _not_ be used for a multiplexed library which has not been demultiplexed, but is suitable for merged objects.
 #' @param random_seed Required for SCE object with multiple samples, a random seed to ensure reproducibility when running on multiple samples.
+#' @param columns_to_keep Vector of columns in the final scDblFinder table to keep in the returned table. No checking is done on these column names.
 #' @param ... Additional arguments to pass to scDblFinder::scDblFinder
 #'
 #' @return Data frame object with scDblFinder inferences
@@ -25,6 +26,7 @@ run_scdblfinder <- function(sce,
                             cores = 4,
                             sample_var = NULL,
                             random_seed = NULL,
+                            columns_to_keep = c("barcodes", "score", "class"),
                             ...) {
 
   # first check multiple samples, which requires a random seed
@@ -61,51 +63,13 @@ run_scdblfinder <- function(sce,
     as.data.frame() |>
     tibble::rownames_to_column("barcodes") |>
     # remove artifical doublets
-    dplyr::filter(!stringr::str_starts(barcodes, "rDbl"))
+    dplyr::filter(!stringr::str_starts(barcodes, "rDbl")) |>
+    # keep only columns of interest
+    dplyr::select(dplyr::all_of(columns_to_keep))
 
   return(result_df)
 }
 
-
-#' Export a TSV of all NA values (except barcodes), with expected scDblFinder output column names
-#'
-#' @param barcodes Values for the `barcodes` column
-#' @param output_tsv_file Output TSV file path
-export_na_tsv <- function(barcodes, output_tsv_file) {
-    output_colnames <- c(
-      "barcodes",
-      "type",
-      "weighted",
-      "distanceToNearest",
-      "distanceToNearestDoublet",
-      "distanceToNearestReal",
-      "nearestClass",
-      "ratio.k3",
-      "ratio.k10",
-      "ratio.k15",
-      "ratio.k20",
-      "ratio.k25",
-      "lsizes",
-      "nfeatures",
-      "nAbove2",
-      "src",
-      "cxds_score",
-      "include.in.training",
-      "score",
-      "class"
-    )
-
-    na_tsv <- data.frame(
-      matrix(
-        NA,
-        nrow = length(barcodes),
-        ncol = length(output_colnames),
-        dimnames = list(NULL, output_colnames)
-      )
-    )
-    na_tsv$barcodes <- barcodes
-    readr::write_tsv(na_tsv, output_tsv_file)
-}
 
 # Parse options --------
 
@@ -177,11 +141,10 @@ if (ncells < cell_threshold) {
   )
   data.frame(
     barcodes = colnames(sce),
-    score = NA, 
+    score = NA,
     class = NA
-  ) |> 
-  readr::write_tsv(output_tsv_file)
-  )
+  ) |>
+    readr::write_tsv(output_tsv_file)
 
 } else {
   run_scdblfinder(
