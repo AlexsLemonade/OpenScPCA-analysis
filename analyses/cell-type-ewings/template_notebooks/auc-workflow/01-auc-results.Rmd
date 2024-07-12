@@ -14,8 +14,9 @@ params:
   ref_auc_results: NULL
   geneset_scores_file: NULL
   marker_genes_file: NULL
-  output_file: NULL
+  marker_class_file: NULL
   auc_threshold: NULL
+  marker_threshold: 1
 ---
 
 This report summarizes the classification of `r params$library_id` using two methods: 
@@ -110,13 +111,24 @@ if(sum(markers_df$gene_expression) == 0){
 ```
 
 ```{r}
-# add marker gene classification based on expression of at least 1 marker gene  
+# get a list of tumor cells based on those that have number of marker genes expressed 
+# greater than the threshold 
+tumor_cells <- markers_df |> 
+  dplyr::mutate(gene_detected = dplyr:if_else(gene_expression > 0 , 1, 0)) |> 
+  dplyr::group_by(barcodes) |> 
+  dplyr::summarize(total_genes = sum(gene_detected)) |> 
+  dplyr::filter(total_genes >= params$marker_threshold) |> 
+  dplyr::pull(barcodes)
+
+
+# create a data frame with raw exp and classification 
+# will add this to the larger data frame
 marker_gene_class_df <- markers_df |> 
   dplyr::select(barcodes, sum_raw_exp) |> 
   dplyr::distinct() |> 
   dplyr::mutate(
     marker_gene_classification = dplyr::if_else(
-      sum_raw_exp > 0,
+      barcodes %in% tumor_cells,
       "Tumor",
       "Normal"
       
@@ -305,7 +317,7 @@ plot_gene_heatmap(geneset_matrix,
 classification_df |> 
   dplyr::filter(method == "marker_gene_classification") |> 
   dplyr::select(barcodes, marker_gene_classification = classification) |> 
-  readr::write_tsv(params$output_file)
+  readr::write_tsv(params$marker_class_file)
 ```
 
 
