@@ -31,8 +31,6 @@ This analysis runs several doublet detection methods and assesses and compares t
   ```
 
 - ScPCA analysis: Detect doublets in ScPCA data using `scDblFinder` for a given project id (`SCPCPXXXXXX`).
-This analysis exports a TSV file for each library in a given ScPCA project with `scDblFinder` inferences.
-SCEs with fewer than 10 droplets will not be run through `scDblFinder`, and their associated result TSVs will contain `NA` values.
   - The conda environment is not needed for this analysis, since it is only R-based
   ```sh
   ./run_doublet-detection-scpca.sh {scpca project id}
@@ -100,6 +98,7 @@ The benchmarking TSV files have the following columns:
 - `{dataset}_scrublet.tsv`: `barcodes`, `scrublet_score`, `scrublet_prediction`
 
 The ScPCA TSV files for `scDblFinder` results have only the columns `barcodes`, `score`, and `class`.
+Note that SCEs with fewer than 10 droplets will not be run through `scDblFinder`, so their associated result TSVs will contain `NA` values in the `score` and `class` columns.
 
 
 ## Software requirements
