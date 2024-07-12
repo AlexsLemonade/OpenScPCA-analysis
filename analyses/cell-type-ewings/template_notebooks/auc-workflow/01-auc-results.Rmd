@@ -114,7 +114,7 @@ if(sum(markers_df$gene_expression) == 0){
 # get a list of tumor cells based on those that have number of marker genes expressed 
 # greater than the threshold 
 tumor_cells <- markers_df |> 
-  dplyr::mutate(gene_detected = dplyr:if_else(gene_expression > 0 , 1, 0)) |> 
+  dplyr::mutate(gene_detected = as.integer(gene_expression > 0)) |> 
   dplyr::group_by(barcodes) |> 
   dplyr::summarize(total_genes = sum(gene_detected)) |> 
   dplyr::filter(total_genes >= params$marker_threshold) |> 
