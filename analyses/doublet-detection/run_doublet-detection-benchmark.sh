@@ -17,10 +17,10 @@ EXPLORE_NB_DIR="exploratory-notebooks"  # directory with exploratory notebooks
 # Create benchmark directories
 DATA_DIR="scratch/benchmark-datasets"
 RESULTS_DIR="results/benchmark-results"
-TEMPLATE_NB_DIR="${RESULTS_DIR}/rendered-notebooks"
+RESULTS_NB_DIR="${RESULTS_DIR}/rendered-notebooks"
 mkdir -p ${DATA_DIR}
 mkdir -p ${RESULTS_DIR}
-mkdir -p ${TEMPLATE_NB_DIR}
+mkdir -p ${RESULTS_NB_DIR}
 
 
 # define benchmarking datasets to use
@@ -42,18 +42,21 @@ for dataset in "${bench_datasets[@]}"; do
     ./scripts/00_format-benchmark-data.R --dataset ${dataset} --input_dir ${DATA_DIR}/raw --output_dir ${DATASET_DIR}
 
     # Infer doublets with scDblFinder
-    ./scripts/01a_run-scdblfinder.R --input_sce_file ${DATASET_DIR}/${dataset}.rds --results_dir ${RESULTS_DIR}
+    ./scripts/01a_run-scdblfinder.R --input_sce_file ${DATASET_DIR}/${dataset}.rds --results_dir ${RESULTS_DIR} --benchmark
 
     # Infer doublets with scrublet
     ./scripts/01b_run-scrublet.py --input_anndata_file ${DATASET_DIR}/${dataset}.h5ad --results_dir ${RESULTS_DIR}
 
     # Explore each individual set of doublet results
     Rscript -e "rmarkdown::render('${TEMPLATE_NB_DIR}/02_explore-benchmark-results.Rmd',
-            output_dir = '${TEMPLATE_NB_DIR}',
+            output_dir = '${RESULTS_NB_DIR}',
             output_file = '${dataset}_doublet-results.html',
             params = list(dataset = '${dataset}'),
             clean = TRUE)"
 done
 
 # Compare doublet inferences across methods, on all datasets processed
-Rscript -e "rmarkdown::render('${EXPLORE_NB_DIR}/03_compare-benchmark-results.Rmd', clean = TRUE)"
+Rscript -e "rmarkdown::render('${EXPLORE_NB_DIR}/03_compare-benchmark-results.Rmd',
+            output_dir = '${RESULTS_NB_DIR}',
+            output_file = 'compare-benchmark-results.nb.html',
+            clean = TRUE)"
