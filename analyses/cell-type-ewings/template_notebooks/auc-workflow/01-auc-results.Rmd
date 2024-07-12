@@ -14,11 +14,14 @@ params:
   ref_auc_results: NULL
   geneset_scores_file: NULL
   marker_genes_file: NULL
+  output_file: NULL
   auc_threshold: NULL
 ---
 
-This report summarizes the classification of `r params$library_id` using [`AUCell`](https://www.bioconductor.org/packages/release/bioc/html/AUCell.html). 
-Cells were classified as tumor if they had an AUC value greater than or equal to `r params$auc_threshold`. 
+This report summarizes the classification of `r params$library_id` using two methods: 
+
+- [`AUCell`](https://www.bioconductor.org/packages/release/bioc/html/AUCell.html): Cells are classified as tumor if they had an AUC value greater than or equal to `r params$auc_threshold`. 
+- Marker gene expression: Cells were classified as tumor if they expressed any tumor marker genes.
 
 ## Setup
 
@@ -293,6 +296,16 @@ geneset_matrix <- geneset_plot_df |>
 plot_gene_heatmap(geneset_matrix,
                   annotation = annotation,
                   legend_title = "Gene set \nscore")
+```
+
+
+## Save marker gene classification 
+
+```{r}
+classification_df |> 
+  dplyr::filter(method == "marker_gene_classification") |> 
+  dplyr::select(barcodes, marker_gene_classification = classification) |> 
+  readr::write_tsv(params$output_file)
 ```
 
 
