@@ -6,13 +6,18 @@ This module will include code to annotate cell types in the Ewing sarcoma sample
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [CNV Annotation Workflow](#cnv-annotation-workflow)
+- [`AUCell` annotation workflow](#aucell-annotation-workflow)
   - [Usage](#usage)
-  - [Sample metadata](#sample-metadata)
   - [Input files](#input-files)
   - [Output files](#output-files)
-  - [Annotation files](#annotation-files)
   - [Computational resources](#computational-resources)
+- [CNV annotation workflow](#cnv-annotation-workflow)
+  - [Usage](#usage-1)
+  - [Sample metadata](#sample-metadata)
+  - [Input files](#input-files-1)
+  - [Output files](#output-files-1)
+  - [Annotation files](#annotation-files)
+  - [Computational resources](#computational-resources-1)
 - [Exploratory analyses](#exploratory-analyses)
 - [Software requirements](#software-requirements)
 
@@ -33,6 +38,7 @@ This AUC threshold is then returned and used for classifying the remaining sampl
   - [`RIGGI_EWING_SARCOMA_PROGENITOR_UP`](https://www.gsea-msigdb.org/gsea/msigdb/human/geneset/RIGGI_EWING_SARCOMA_PROGENITOR_UP.html?ex=1)
   - [`SILIGAN_TARGETS_OF_EWS_FLI1_FUSION_DN`](https://www.gsea-msigdb.org/gsea/msigdb/cards/SILIGAN_TARGETS_OF_EWS_FLI1_FUSION_DN)
 4. A summary report is generated that contains the results from `AUCell` and validation of tumor cells by looking at marker gene expression and gene set scores.
+
 
 ### Usage
 
@@ -65,6 +71,7 @@ aucell_annotation
     ├── <library_id>_auc-classifications.tsv
     ├── <library_id>_aucell-report.html
     ├── <library_id>_gene-set-scores.tsv
+    ├── <library_id>_marker-gene-classification.tsv
 ```
 The `.html` file is a rendered report exploring the results from `AUCell` and validating tumor cells by looking at marker gene expression and gene set scores.
 The `auc-classifications.tsv` file contains the following columns:
@@ -74,6 +81,13 @@ The `auc-classifications.tsv` file contains the following columns:
 | `barcodes` | Unique cell barcode |
 | `auc` | AUC score reported by running `AUCell` |
 | `auc_classification` | Either `Tumor` or `Normal`, where `Tumor` cells are those that have an AUC greater than or equal to the AUC threshold found in the reference sample.  |
+
+The `marker-gene-classifications.tsv` file contains the following columns:
+
+| | |
+|----|----|
+| `barcodes` | Unique cell barcode |
+| `marker_gene_classification` | Either `Tumor` or `Normal`, where `Tumor` cells are those that express at least one marker gene.  |
 
 The `gene-set-scores.tsv` file contains the scores (mean and sum) for all genes in three different EWS-FLI1 target gene sets.
 
