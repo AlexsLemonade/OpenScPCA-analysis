@@ -175,9 +175,12 @@ if (ncells < cell_threshold) {
        An output TSV file will still be produced, but it will be populated with `NA` values."
     )
   )
-  export_na_tsv(
-    colnames(sce),
-    output_tsv_file
+  data.frame(
+    barcodes = colnames(sce),
+    score = NA, 
+    class = NA
+  ) |> 
+  readr::write_tsv(output_tsv_file)
   )
 
 } else {
