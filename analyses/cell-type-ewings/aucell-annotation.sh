@@ -60,7 +60,7 @@ for sample_id in $sample_ids; do
         geneset_results="${sample_results_dir}/${library_id}_gene-set-scores.tsv"
 
         # only run AUCell if sample is NOT the ref sample
-        if [[ ($sample_id != $ref_sample) && ($library_id != $ref_library) ]]; then
+        if [[ ($sample_id != $ref_sample) && ($library_id != $ref_library) && (! -f $auc_results) ]]; then
 
             echo "Running AUCell for sample: $sample_id and library: $library_id"
 
