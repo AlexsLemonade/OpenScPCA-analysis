@@ -153,7 +153,7 @@ if (ncells < cell_threshold) {
   if (opts$benchmark) {
     na_df$cxds_score <- NA
   }
-  readr::write_tsv(output_tsv_file)
+  readr::write_tsv(na_df, output_tsv_file)
 
 } else {
 
