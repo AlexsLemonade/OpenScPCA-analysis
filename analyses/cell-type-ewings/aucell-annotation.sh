@@ -58,9 +58,10 @@ for sample_id in $sample_ids; do
         # define output files
         auc_results="${sample_results_dir}/${library_id}_auc-classifications.tsv"
         geneset_results="${sample_results_dir}/${library_id}_gene-set-scores.tsv"
+        marker_gene_results="${sample_results_dir}/${library_id}_marker-gene-classifications.tsv"
 
         # only run AUCell if sample is NOT the ref sample
-        if [[ ($sample_id != $ref_sample) && ($library_id != $ref_library) ]]; then
+        if [[ ($sample_id != $ref_sample) && ($library_id != $ref_library) && (! -f $auc_results) ]]; then
 
             echo "Running AUCell for sample: $sample_id and library: $library_id"
 
@@ -89,6 +90,7 @@ for sample_id in $sample_ids; do
                         ref_auc_results = '$ref_auc_results', \
                         geneset_scores_file = '$geneset_results', \
                         marker_genes_file = '$marker_genes_file', \
+                        marker_class_file = '${marker_gene_results}', \
                         auc_threshold = $auc_threshold), \
           envir = new.env()) \
         "
