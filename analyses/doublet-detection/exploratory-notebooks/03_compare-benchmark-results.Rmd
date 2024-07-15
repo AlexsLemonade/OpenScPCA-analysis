@@ -163,7 +163,7 @@ doublet_df_list <- dataset_names |>
       
       scdbl_tsv <- file.path(result_dir, glue::glue("{dataset}_scdblfinder.tsv"))
       scrub_tsv <- file.path(result_dir, glue::glue("{dataset}_scrublet.tsv"))
-      sce_file <- file.path(data_dir, dataset, glue::glue("{dataset}_sce.rds"))
+      sce_file <- file.path(data_dir, dataset, glue::glue("{dataset}.rds"))
       
       scdbl_df <- scdbl_tsv |>
         readr::read_tsv(show_col_types = FALSE) |>

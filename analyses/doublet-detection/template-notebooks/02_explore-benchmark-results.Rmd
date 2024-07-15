@@ -95,7 +95,7 @@ scrub_tsv <- file.path(
 # SCE, with ground truth included
 sce_file <- file.path(
   data_dir, 
-  glue::glue("{params$dataset}_sce.rds")
+  glue::glue("{params$dataset}.rds")
 )
 
 ```
