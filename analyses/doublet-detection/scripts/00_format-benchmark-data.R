@@ -12,10 +12,7 @@
 #   - In the SCE file, this is in the colData slot
 #   - In the AnnData file, this is in the obs slot
 
-# Load renv environment and libraries
-project_root <- rprojroot::find_root(rprojroot::is_renv_project)
-renv::load(project_root)
-
+# Load libraries
 library(SingleCellExperiment)
 library(optparse)
 
@@ -47,8 +44,8 @@ if (!file.exists(input_file)) {
   )
 }
 
-output_sce_file <- file.path(opts$output_dir, glue::glue("{opts$dataset_name}_sce.rds"))
-output_anndata_file <- file.path(opts$output_dir, glue::glue("{opts$dataset_name}_anndata.h5ad"))
+output_sce_file <- file.path(opts$output_dir, glue::glue("{opts$dataset_name}.rds"))
+output_anndata_file <- file.path(opts$output_dir, glue::glue("{opts$dataset_name}.h5ad"))
 
 dat <- readRDS(input_file)
 mat <- dat[[1]] # raw counts matrix
