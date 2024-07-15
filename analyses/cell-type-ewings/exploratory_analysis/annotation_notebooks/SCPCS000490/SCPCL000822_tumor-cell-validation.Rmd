@@ -259,7 +259,7 @@ The "Ambiguous" cells appear to have a small group of cells that cluster with th
 
 ### Gene set scores
 
-Next, we will look at the gene set scores for three different `EWS-FLI1` gene sets. heirarchical
+Next, we will look at the gene set scores for three different `EWS-FLI1` gene sets. hierarchical
 The below plots will all use the `mean-GENESET` columns. 
 
 First we will just look at the gene set scores for each cell on the UMAP. 

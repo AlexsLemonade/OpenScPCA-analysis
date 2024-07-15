@@ -283,8 +283,8 @@ A few things that we see in these plots:
 This means they match the non-tumor cells identified in `SCPCL000822` more than they match the normal cell types in the `Blueprint` reference. 
 Additionally, with only Blueprint, there is a group of cells that are called as tumor but actually appear to match endothelial cells present in `SCPCL000822`.
 - The cells that aren't called as either Tumor or Normal in the Blueprint only reference mostly match up to `erythrocyte` in the reference that just uses `SCPCL000822` (original). 
-These same cells match to their corresponding Blueprint cell type when combining `SCPCL000822` and Blueprint (e.g., fibroblasts, neurons, and epithelial cells are identifed in both). 
-- When comparing using just `SCPCL000822` (original) to `SCPCL000822` and Blueprint (original and blueprint), we see an overlap in endothelial cells and chrondrocytes. 
+These same cells match to their corresponding Blueprint cell type when combining `SCPCL000822` and Blueprint (e.g., fibroblasts, neurons, and epithelial cells are identiied in both). 
+- When comparing using just `SCPCL000822` (original) to `SCPCL000822` and Blueprint (original and blueprint), we see an overlap in endothelial cells and chondrocytes. 
 We also see that for the most part the top cell types identified are the same except when using blueprint you see the addition of epithelial cells. 
 - Using tumor only appears to label some cells as tumor that are labeled as normal with other methods. 
 For example, comparing tumor only to both original and original and blueprint shows that tumor cells are classified as endothelial cells using either of the other two methods.  
@@ -520,7 +520,7 @@ ggplot(geneset_plot_df, aes(x = mean_score, color = classification)) +
 Looking at these plots, generally Blueprint only has the best separation between tumor cells and all other cells for both gene set scores and marker gene expression. 
 This also seems to mirror the plots shown with `AUCell` as the classifier. 
 
-It looks like we may be mis-classifying some cells when using the original `SingleR` assignments for SCPCL000822 with or without Blueprint. 
+It looks like we may be incorrectly classifying some cells when using the original `SingleR` assignments for `SCPCL000822` with or without Blueprint. 
 There is some overlap in the marker gene and gene set scores for the cells that are identified as tumor and other non-tumor cells for both original and original and blueprint. 
 
 ## Conclusions 
