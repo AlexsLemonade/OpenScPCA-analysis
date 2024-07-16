@@ -86,7 +86,7 @@ final_annotations_file <- file.path(final_annotations_dir, "SCPCL000824_tumor-cl
 
 # reference files to use with SingleR
 ref_sce_file <- file.path(data_dir, "SCPCP000015", "SCPCS000490", "SCPCL000822_processed.rds")
-ref_labels_file <- file.path(module_base, "results", "annotation_tables", "SCPCS000490", "SCPCL000822_tumor-classifications.tsv")
+ref_labels_file <- file.path(module_base, "results", "annotation_tables", "SCPCS000490", "SCPCL000822_tumor-classifications.tsv.gz")
 ref_geneset_scores_file <- file.path(module_base, "results", "cnv_annotation", "SCPCS000490", "SCPCL000822_gene-set-scores.tsv")
 ```
 
@@ -445,17 +445,17 @@ ref_classification_df <- ref_classification_df |>
 
 # filter out any ambiguous cells 
 caret_df <- ref_classification_df |> 
-  dplyr::filter(tumor_cell_classification != "Ambiguous") |> 
+  dplyr::filter(combined_cnv_classification != "Ambiguous") |> 
   # make sure positive class is tumor
   dplyr::mutate(
-    tumor_cell_classification = forcats::fct_relevel(tumor_cell_classification, "Tumor"),
+    cnv_classification = forcats::fct_relevel(combined_cnv_classification, "Tumor"),
     auc_classification = forcats::fct_relevel(auc_classification, "Tumor")
   )
 
 # compare using a confusion matrix
 caret::confusionMatrix(
     table(
-      caret_df$tumor_cell_classification, 
+      caret_df$cnv_classification, 
       caret_df$auc_classification)
   ) 
 ```
@@ -631,7 +631,7 @@ ref_ucell_tumor_cells <- ucell_df |>
 caret_df <- caret_df |> 
   dplyr::mutate(
     ucell_classification = dplyr::if_else(barcodes %in% ref_ucell_tumor_cells, "Tumor", "Normal"), 
-    tumor_cell_classification = forcats::fct_relevel(tumor_cell_classification, "Tumor"),
+    tumor_cell_classification = forcats::fct_relevel(combined_cnv_classification, "Tumor"),
     ucell_classification = forcats::fct_relevel(ucell_classification, "Tumor")
   )
 
@@ -688,11 +688,24 @@ caret::confusionMatrix(
 ## Validate annotations
 
 Finally, we will look at the marker gene and gene set scores for every cell across annotation methods. 
+We will also add in annotations that are the consensus between the updated marker gene and `AUCell`. 
+Cells that are called tumor in both will be "Tumor" and normal in both will be called "Normal". 
+All other cells will be labeled as "Ambiguous". 
+
+```{r}
+classification_df <- classification_df |> 
+  dplyr::mutate(consensus_classification = dplyr::case_when(
+    updated_marker_gene_classification == "Tumor" & auc_classification == "Tumor" ~ "Tumor",
+    updated_marker_gene_classification == "Normal" & auc_classification == "Normal" ~ "Normal",
+    .default = "Ambiguous"
+  ))
+```
+
 
 ```{r}
 # create annotation df, keeping all classification methods 
 annotation_df <- classification_df |> 
-  dplyr::select(barcodes, marker_gene_classification, updated_marker_gene_classification, auc_classification, ucell_classification) |> 
+  dplyr::select(barcodes, marker_gene_classification, updated_marker_gene_classification, auc_classification, ucell_classification, consensus_classification) |> 
   unique()
 
 # create matrix with marker genes as rows and barcodes as columns
@@ -703,15 +716,19 @@ marker_gene_heatmap <- plot_markers_df |>
   tibble::column_to_rownames("gene_symbol") |> 
   as.matrix()
 
+plot_colors <- c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey")
+
 annotation <- ComplexHeatmap::columnAnnotation(
   marker_genes = annotation_df$marker_gene_classification,
   updated_marker_genes = annotation_df$updated_marker_gene_classification,
   AUCell = annotation_df$auc_classification, 
   UCell = annotation_df$ucell_classification,
-  col = list(marker_genes = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey"),
-             updated_marker_genes = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey"), 
-             AUCell = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey"),
-             UCell = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey")))
+  consensus = annotation_df$consensus_classification,
+  col = list(marker_genes = plot_colors,
+             updated_marker_genes =plot_colors, 
+             AUCell = plot_colors,
+             UCell = plot_colors,
+             consensus = plot_colors))
 ```
 
 
@@ -758,7 +775,8 @@ classifications_output <- classification_df |>
     marker_gene_classification,
     updated_marker_gene_classification, 
     auc_classification,
-    ucell_classification
+    ucell_classification,
+    consensus_classification
   ) |> 
   unique()
 
