@@ -78,7 +78,7 @@ final_annotations_file <- file.path(final_annotations_dir, "SCPCL001114_tumor-cl
 
 # reference files to use
 ref_sce_file <- file.path(data_dir, "SCPCP000015", "SCPCS000490", "SCPCL000822_processed.rds")
-ref_labels_file <- file.path(module_base, "results", "annotation_tables", "SCPCS000490", "SCPCL000822_tumor-classifications.tsv")
+ref_labels_file <- file.path(module_base, "results", "annotation_tables", "SCPCS000490", "SCPCL000822_tumor-classifications.tsv.gz")
 ref_geneset_scores_file <- file.path(module_base, "results", "cnv_annotation", "SCPCS000490", "SCPCL000822_gene-set-scores.tsv")
 ```
 
@@ -109,7 +109,11 @@ classification_df <- sce |>
   # join with previous annotations, singler results, and gene set scores 
   dplyr::left_join(auc_results_df, by = "barcodes") |> 
   dplyr::left_join(marker_results_df, by = "barcodes") |> 
-  dplyr::left_join(geneset_scores_df, by = "barcodes")
+  dplyr::left_join(geneset_scores_df, by = "barcodes") |> 
+  # rename since we are going to be looking at multiple marker gene methods 
+  dplyr::rename(
+    "one_marker_gene_classification" = marker_gene_classification
+  )
 
 # generate marker genes df
 plot_markers_df <- create_marker_gene_df(
@@ -269,24 +273,70 @@ In the `aucell-annotation.sh` workflow, we looked at marker gene expression and 
 Let's compare the annotations obtained here using a cutoff determined by `SCPCL000822` to setting the cutoff of 1 marker gene. 
 
 First we will look at a confusion matrix between both methods. 
-Here the classification using expression of at least 1 marker gene is the rows and the updated classification based on `SCPCL000822` is the columns. 
+Here the updated classification based on `SCPCL000822` is the rows and the classification using expression of at least 1 marker gene is the columns. 
 
 ```{r}
 classification_df <- classification_df |> 
   dplyr::mutate(
-    marker_gene_classification = forcats::fct_relevel(marker_gene_classification, "Tumor")
+    one_marker_gene_classification = forcats::fct_relevel(one_marker_gene_classification, "Tumor")
   )
 
 # compare using a confusion matrix
 caret::confusionMatrix(
     table(
       classification_df$ref_marker_gene_classification,
-      classification_df$marker_gene_classification)
+      classification_df$one_marker_gene_classification)
   ) 
 ```
 
 
 It looks like using `SCPCL000822` to define the cutoff results in more cells being called normal than with the strict cutoff of expressing at least 1 marker gene. 
+
+### Expression of at least two marker genes
+
+Below we will look at classifying cells based on expression of two marker genes rather than one. 
+
+```{r}
+# get list of tumor cells with > 2 marker genes expressed 
+tumor_cells <- plot_markers_df |> 
+  dplyr::mutate(gene_detected = as.integer(gene_expression > 0)) |> 
+  dplyr::group_by(barcodes) |> 
+  dplyr::summarize(total_genes = sum(gene_detected)) |> 
+  dplyr::filter(total_genes >= 2) |> 
+  dplyr::pull(barcodes)
+
+classification_df <- classification_df |> 
+  dplyr::mutate(
+    two_marker_gene_classification = dplyr::if_else(
+      barcodes %in% tumor_cells,
+      "Tumor",
+      "Normal"
+    ))
+```
+
+```{r}
+ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = two_marker_gene_classification)) +
+  geom_point(alpha = 0.5, size = 0.5)
+```
+
+Now let's compare the annotations obtained using a cutoff determined by `SCPCL000822` to setting the cutoff of 2 marker genes. 
+Here the updated classification based on `SCPCL000822` is the rows and the classification using expression of at least 2 marker genes is the columns. 
+
+```{r}
+classification_df <- classification_df |> 
+  dplyr::mutate(
+    two_marker_gene_classification = forcats::fct_relevel(two_marker_gene_classification, "Tumor")
+  )
+
+# compare using a confusion matrix
+caret::confusionMatrix(
+    table(
+      classification_df$ref_marker_gene_classification,
+      classification_df$two_marker_gene_classification)
+  ) 
+```
+
+It looks like using `SCPCL000822` to define the cutoff results in more cells being called normal than with the strict cutoff of expressing at least 2 marker genes.
 
 ### `UCell`
 
@@ -367,7 +417,8 @@ First let's look at which cells are called tumor or normal on the UMAP across al
 
 ```{r}
 method_levels <- c(
-  "1 marker gene" = "marker_gene_classification",
+  "1 marker gene" = "one_marker_gene_classification",
+  "2 marker genes" = "two_marker_gene_classification",
   "Ref marker gene" = "ref_marker_gene_classification",
   "AUCell" = "auc_classification", 
   "Consensus" = "consensus_classification"
@@ -393,7 +444,7 @@ We expect to see higher expression of marker genes and gene set scores in tumor 
 ```{r}
 # pull out any new classification methods we added 
 new_classification_df <- classification_df |> 
-  dplyr::select(barcodes, ref_marker_gene_classification, consensus_classification)
+  dplyr::select(barcodes, ref_marker_gene_classification, consensus_classification, two_marker_gene_classification)
 
 # create a density plot showing the distribution of marker gene expression across classification methods 
 marker_density_df <- plot_markers_df |>
@@ -447,11 +498,13 @@ annotation_df <- classification_df |>
 plot_colors <- c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey")
 
 annotation <- ComplexHeatmap::columnAnnotation(
-  marker_genes = annotation_df$marker_gene_classification,
+  one_marker = annotation_df$one_marker_gene_classification,
+  two_marker = annotation_df$two_marker_gene_classification,
   ref_marker_genes = annotation_df$ref_marker_gene_classification,
   AUCell = annotation_df$auc_classification, 
   consensus = annotation_df$consensus_classification,
-  col = list(marker_genes = plot_colors,
+  col = list(one_marker = plot_colors,
+             two_marker = plot_colors,
              ref_marker_genes = plot_colors, 
              AUCell = plot_colors,
              consensus = plot_colors))
@@ -504,7 +557,8 @@ We will save the classification from all methods for future use.
 classifications_output <- classification_df |> 
   dplyr::select(
     cell_barcode = barcodes,
-    marker_gene_classification,
+    one_marker_gene_classification,
+    two_marker_gene_classification,
     ref_marker_gene_classification, 
     auc_classification,
     consensus_classification
