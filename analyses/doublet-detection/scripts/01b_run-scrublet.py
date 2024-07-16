@@ -39,15 +39,15 @@ def main() -> None:
     )
     parser.add_argument(
         "--input_anndata_file",
-        type=str,
+        type=Path,
         required=True,
         help="Path to the input AnnData file to process."
     )
     parser.add_argument(
-        "--results_dir",
+        "--output_tsv_file",
         type=Path,
         required=True,
-        help="The directory to export TSV file with doublet inferences."
+        help="Path to output TSV file with doublet inferences."
     )
     parser.add_argument(
         "--random_seed",
@@ -58,23 +58,27 @@ def main() -> None:
     args = parser.parse_args()
 
     # Define and check files, directories
-    args.results_dir.mkdir(parents = True, exist_ok = True)
-
-    input_anndata_file = Path(args.input_anndata_file)
-    if not input_anndata_file.exists():
+    if not args.input_anndata_file.exists():
         print(
             "The input AnnData file could not be found at:",
             args.input_anndata_file,
             file=sys.stderr
         )
         sys.exit(1)
-    result_tsv = args.results_dir / (input_anndata_file.name.replace(".h5ad", "_scrublet.tsv"))
+
+    if not args.output_tsv_file.name.endswith(".tsv"):
+        print(
+            "The output TSV file must end in `.tsv`.",
+            file=sys.stderr
+        )
+        sys.exit(1)
+    args.output_tsv_file.parent.mkdir(parents = True, exist_ok = True)
 
 
     # Run scrublet and export the results
-    adata = anndata.read_h5ad(input_anndata_file)
+    adata = anndata.read_h5ad(args.input_anndata_file)
     scrub_results = run_scrublet(adata, args.random_seed)
-    scrub_results.to_csv(result_tsv, sep="\t", index=False )
+    scrub_results.to_csv(args.output_tsv_file, sep="\t", index=False )
 
 if __name__ == "__main__":
     main()
