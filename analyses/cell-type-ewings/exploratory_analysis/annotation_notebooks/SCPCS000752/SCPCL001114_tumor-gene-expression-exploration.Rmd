@@ -11,7 +11,7 @@ output:
 
 ## Introduction
 
-In this notebook we attempt to identify tumor cells in `SCPCL001114` using the following orthogonal marker gene based methods: 
+In this notebook we attempt to identify tumor cells in `SCPCL001114` using the following marker gene based methods: 
 
 - Marker gene expression from `SCPCL000822` to inform an appropriate cut off for marker gene expression in `SCPCL000824`. 
 - [`AUCell`](https://www.bioconductor.org/packages/release/bioc/vignettes/AUCell/inst/doc/AUCell.html) with marker genes in both samples. 
@@ -280,8 +280,8 @@ classification_df <- classification_df |>
 # compare using a confusion matrix
 caret::confusionMatrix(
     table(
-      classification_df$marker_gene_classification, 
-      classification_df$ref_marker_gene_classification)
+      classification_df$ref_marker_gene_classification,
+      classification_df$marker_gene_classification)
   ) 
 ```
 
