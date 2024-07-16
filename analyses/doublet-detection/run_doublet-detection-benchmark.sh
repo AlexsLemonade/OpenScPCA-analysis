@@ -42,10 +42,14 @@ for dataset in "${bench_datasets[@]}"; do
     ./scripts/00_format-benchmark-data.R --dataset ${dataset} --input_dir ${DATA_DIR}/raw --output_dir ${DATASET_DIR}
 
     # Infer doublets with scDblFinder
-    ./scripts/01a_run-scdblfinder.R --input_sce_file ${DATASET_DIR}/${dataset}.rds --results_dir ${RESULTS_DIR} --benchmark
+    SCDBLFINDER_TSV=${RESULTS_DIR}/${dataset}_scdblfinder.tsv
+    ./scripts/01a_run-scdblfinder.R --input_sce_file ${DATASET_DIR}/${dataset}.rds --output_tsv_file ${SCDBLFINDER_TSV} --benchmark
 
     # Infer doublets with scrublet
-    ./scripts/01b_run-scrublet.py --input_anndata_file ${DATASET_DIR}/${dataset}.h5ad --results_dir ${RESULTS_DIR}
+    SCRUBLET_TSV=${RESULTS_DIR}/${dataset}_scrublet.tsv
+    ./scripts/01b_run-scrublet.py --input_anndata_file ${DATASET_DIR}/${dataset}.h5ad --output_tsv_file ${SCRUBLET_TSV}
+
+    exit 0
 
     # Explore each individual set of doublet results
     Rscript -e "rmarkdown::render('${TEMPLATE_NB_DIR}/02_explore-benchmark-results.Rmd',
