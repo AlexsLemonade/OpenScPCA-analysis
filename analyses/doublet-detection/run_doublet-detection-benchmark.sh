@@ -49,8 +49,6 @@ for dataset in "${bench_datasets[@]}"; do
     SCRUBLET_TSV=${RESULTS_DIR}/${dataset}_scrublet.tsv
     ./scripts/01b_run-scrublet.py --input_anndata_file ${DATASET_DIR}/${dataset}.h5ad --output_tsv_file ${SCRUBLET_TSV}
 
-    exit 0
-
     # Explore each individual set of doublet results
     Rscript -e "rmarkdown::render('${TEMPLATE_NB_DIR}/02_explore-benchmark-results.Rmd',
             output_dir = '${RESULTS_NB_DIR}',
