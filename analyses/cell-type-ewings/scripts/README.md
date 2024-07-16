@@ -141,6 +141,33 @@ Rscript run-singler.R \
   --threads 4
 ```
 
+The `singler-workflow` folder contains scripts used in the workflow to run `SingleR` on all samples in SCPCP000015.
+
+1. `00-create-annotation-table.R`: This script is used to create a TSV file with the tumor/normal cell type annotations obtained from three libraries that are used to build a reference for running `SingleR`.
+The reference libraries are: `SCPCL000822`, `SCPCL000824`, and `SCPCL001114`.
+The annotation table in `results/annotation_tables` is read in for each reference library and the desired column containing the annotations we would like to use are selected.
+
+- `SCPCL000822`: Tumor cells were classified by taking the consensus between `CopyKAT` and `InferCNV`.
+See `exploratory_analysis/annotation_notebooks/SCPCS000490/SCPCL000822_tumor-cell-validation.Rmd`.
+- `SCPCL000824`: Tumor cells were classified by taking the consensus between two approaches - using a learned marker gene expression cutoff from `SCPCL000822` and `AUCell` results from running `aucell-annotation.sh`.
+- `SCPCL001114`: Tumor cells were classified by taking the consensus between two approaches - using a learned marker gene expression cutoff from `SCPCL000822` and `AUCell` results from running `aucell-annotation.sh`.
+
+The annotations across all samples are combined to create a single TSV file, `results/annotation_tables/reference-tumor-cell-annotations.tsv`.
+This file contains the following columns:
+
+|  |  |
+|--|--|
+| `library_id` | ScPCA library id |
+| `cell_barcode` | Unique cell barcode |
+| `tumor_cell_classification` | One of `Tumor`, `Normal`, or `Ambiguous` |
+| `method` | Brief description of the method that was used to call tumor cells |
+
+To run this script use the following command:
+
+```sh
+Rscript 00-create-annotation-table.R
+```
+
 ## Scripts used to annotate tumor cells with `AUCell`
 
 The scripts listed here are used to annotate tumor cells using [`AUCell`](https://www.bioconductor.org/packages/release/bioc/html/AUCell.html) and are implemented in the `auc-annotation.sh` workflow.
