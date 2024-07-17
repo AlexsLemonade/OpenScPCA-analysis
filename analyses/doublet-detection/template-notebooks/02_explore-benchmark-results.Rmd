@@ -95,7 +95,7 @@ scrub_tsv <- file.path(
 # SCE, with ground truth included
 sce_file <- file.path(
   data_dir, 
-  glue::glue("{params$dataset}.rds")
+  glue::glue("{params$dataset}_sce.rds")
 )
 
 ```
@@ -135,7 +135,7 @@ plot_pca <- function(df,
   # df is expected to contain columns PC1, PC2, `color_column`, and if color_type == "c" also `pred_column`. These should _not_ be provided as strings
   # By default, this function assumes a discrete color variable (`color_type = "d"`) with two levels. Use `color_type = "c"` for continuous. 
   
-  p <- ggplot(df) + 
+  p <- ggplot(doublet_df) + 
     aes(x = PC1, 
         y = PC2, 
         color = {{color_column}}) +
@@ -151,14 +151,14 @@ plot_pca <- function(df,
     p <- p + 
       scale_color_manual(values = c("black", "lightblue")) + 
     geom_point(
-      data = dplyr::filter(df, {{color_column}} == "doublet"), 
+      data = dplyr::filter(doublet_df, {{color_column}} == "doublet"), 
       color = "black"
     )
   } else if (color_type == "c") {
     p <- p + 
       scale_color_viridis_c(direction = -1) + 
     geom_point(
-      data = dplyr::filter(df, {{pred_column}} == "doublet"), 
+      data = dplyr::filter(doublet_df, {{pred_column}} == "doublet"), 
       aes(color = {{color_column}})
     )
   }
@@ -217,8 +217,8 @@ assess_doublets <- function(df, pred_col) {
   caret::confusionMatrix(
     # truth should be first
     table(
-      "Truth" = df$ground_truth,
-      "Prediction" = df[[pred_col]]
+      "Truth" = doublet_df$ground_truth,
+      "Prediction" = doublet_df[[pred_col]]
     ), 
     positive = "doublet"
   )

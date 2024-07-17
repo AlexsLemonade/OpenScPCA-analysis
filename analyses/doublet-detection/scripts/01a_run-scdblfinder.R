@@ -1,24 +1,24 @@
 #!/usr/bin/env Rscript
 
 # This script runs scDblFinder on an SCE file and exports a TSV file of results.
-# If the SCE has fewer than 10 droplets, results will not be calculated and the exported TSV will contain NA values.
 
-# Load libraries ------
-suppressPackageStartupMessages({
-  library(SingleCellExperiment)
-  library(optparse)
-})
+
+# Load libraries and renv environment ------
+project_root <- rprojroot::find_root(rprojroot::is_renv_project)
+renv::load(project_root)
+
+library(SingleCellExperiment)
+library(optparse)
+
 
 # Functions -----------
 
 #' Run scDblFinder on an SCE object
 #'
 #' @param sce SCE object to run scDblFinder on
-#' @param cores Number of cores to specify to BiocParallel::MulticoreParam()
-#' @param sample_var Required for SCE object with multiple samples, the SCE colData variable that indicates sample of origin.
-#'   This option should _not_ be used for a multiplexed library which has not been demultiplexed, but is suitable for merged objects.
-#' @param random_seed Required for SCE object with multiple samples, a random seed to ensure reproducibility when running on multiple samples.
-#' @param columns_to_keep Vector of columns in the final scDblFinder table to keep in the returned table. No checking is done on these column names.
+#' @param cores Number of cores to specify to BiocParallel::MulticoreParam(
+#' @param sample_var Required for SCE object with multiple samples, the SCE colData variable that indicates sample of origin
+#' @param random_seed Required for SCE object with multiple samples, a random seed to ensure reproducibility when running on multiple samples
 #' @param ... Additional arguments to pass to scDblFinder::scDblFinder
 #'
 #' @return Data frame object with scDblFinder inferences
@@ -26,7 +26,6 @@ run_scdblfinder <- function(sce,
                             cores = 4,
                             sample_var = NULL,
                             random_seed = NULL,
-                            columns_to_keep = c("barcodes", "score", "class"),
                             ...) {
 
   # first check multiple samples, which requires a random seed
@@ -38,7 +37,7 @@ run_scdblfinder <- function(sce,
     }
     if (is.null(random_seed)) {
       # See section 1.5.6: https://bioconductor.org/packages/3.19/bioc/vignettes/scDblFinder/inst/doc/scDblFinder.html#usage
-      stop("If multiple samples are present in the input SCE object (e.g., the object contains multiple merged libraries), a random seed must be provided for reproducibility.")
+      stop("If multiple samples are present in the input SCE object, a random seed must be provided for reproducibility.")
     }
   }
 
@@ -55,7 +54,6 @@ run_scdblfinder <- function(sce,
     samples = sample_var, # Default is NULL so use whatever was provided by the user or default
     BPPARAM = bp,
     returnType = "table", # return df, not sce
-    verbose = FALSE,
     ...
   )
 
@@ -63,9 +61,7 @@ run_scdblfinder <- function(sce,
     as.data.frame() |>
     tibble::rownames_to_column("barcodes") |>
     # remove artifical doublets
-    dplyr::filter(!stringr::str_starts(barcodes, "rDbl")) |>
-    # keep only columns of interest
-    dplyr::select(dplyr::all_of(columns_to_keep))
+    dplyr::filter(!stringr::str_starts(barcodes, "rDbl"))
 
   return(result_df)
 }
@@ -75,9 +71,14 @@ run_scdblfinder <- function(sce,
 
 option_list <- list(
   make_option(
-    "--input_sce_file",
+    "--dataset_name",
     type = "character",
-    help = "Path to input SCE file in RDS format."
+    help = "Name of dataset to process, where the associated file is expected to be named `{name}_sce.rds`"
+  ),
+  make_option(
+    "--data_dir",
+    type = "character",
+    help = "The directory containing the input RDS file."
   ),
   make_option(
     "--results_dir",
@@ -91,15 +92,9 @@ option_list <- list(
     help = "Number of cores to use during scDblFinder inference. Only used when there are multiple samples in the SCE."
   ),
   make_option(
-    "--benchmark",
-    action = "store_true",
-    default = FALSE,
-    help = "Whether the script is being run as part of the doublet benchmarking analysis. If this flag is invoked, the `cxds_score` column will be included in the output TSV along with the `barcodes`, `score`, and `class` columns that are always included." 
-  ),
-  make_option(
     "--sample_var",
     type = "character",
-    help = "If multiple samples are present in the SCE, the colData column name with sample ids. This option should be used for merged objects."
+    help = "If multiple samples are present in the SCE, the colData column name with sample ids."
   ),
   make_option(
     "--random_seed",
@@ -110,69 +105,35 @@ option_list <- list(
 )
 opts <- parse_args(OptionParser(option_list = option_list))
 
-# Check input arguments and set up files, directories ------
-if (!file.exists(opts$input_sce_file)) {
-    glue::glue("Could not find input SCE file, expected at: `{opts$input_sce_file}`.")
+# Check input arguments
+if (is.null(opts$dataset_name)) {
+  stop("Must provide a dataset name with --dataset_name.")
+}
+if (is.null(opts$data_dir)) {
+  stop("Must provide an input path for the SCE file with --data_dir.")
 }
 if (is.null(opts$results_dir)) {
   stop("Must provide an output path for results with --results_dir.")
 }
 
-output_tsv_file <- file.path(
-  opts$results_dir,
-  stringr::str_replace(
-    basename(opts$input_sce_file),
-    ".rds",
-    "_scdblfinder.tsv"
-  )
-)
-
 fs::dir_create(opts$results_dir)
 set.seed(opts$random_seed)
 
+
 # Detect doublets and export TSV file with inferences -----
-
-# Check the number of cells to see if scDblFinder can be run
-cell_threshold <- 10
-
-sce <- readRDS(opts$input_sce_file)
-ncells <- ncol(sce)
-
-if (ncells < cell_threshold) {
-  warning(
-    glue::glue(
-      "The provided SingleCellExperiment object only has {ncells} droplets, which is fewer than {cell_threshold} so `scDblFinder` will not be run.
-       An output TSV file will still be produced, but it will be populated with `NA` values."
-    )
+input_sce_file <- file.path(opts$data_dir, glue::glue("{opts$dataset_name}_sce.rds"))
+if (!file.exists(input_sce_file)) {
+  stop(
+    glue::glue("Could not find input file, expected at: `{input_sce_file}`.")
   )
-  na_df <- data.frame(
-    barcodes = colnames(sce),
-    score = NA,
-    class = NA
-  )
-  if (opts$benchmark) {
-    na_df$cxds_score <- NA
-  }
-  readr::write_tsv(na_df, output_tsv_file)
+}
+output_tsv_file <- file.path(opts$results_dir, glue::glue("{opts$dataset_name}_scdblfinder.tsv"))
 
-} else {
-
-  keep_columns <- c(
-    "barcodes",
-    "score",
-    "class"
-  )
-  if (opts$benchmark) {
-    keep_columns <- c(keep_columns, "cxds_score")
-  }
-
+readRDS(input_sce_file) |>
   run_scdblfinder(
-    sce,
     cores = opts$cores,
-    # only used if there are multiple samples, e.g. if this is processing a merged object
+    # only used if there are multiple samples
     sample_var = opts$sample_var, # will be NULL if not provided as input argument
-    random_seed = opts$random_seed,
-    columns_to_keep = keep_columns
+    random_seed = opts$random_seed
   ) |>
   readr::write_tsv(output_tsv_file)
-}

@@ -12,21 +12,34 @@ concurrency:
   group: "{{ openscpca_module }}-${{ github.ref }}"
   cancel-in-progress: true
 
-on:
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - "analyses/{{ openscpca_module }}/Dockerfile"
-  #     - "analyses/{{ openscpca_module }}/.dockerignore"
-  #     - "analyses/{{ openscpca_module }}/renv.lock"
-  #     - "analyses/{{ openscpca_module }}/conda-lock.yml"
-  workflow_dispatch:
-    inputs:
-      push-ecr:
-        description: "Push to AWS ECR"
-        type: boolean
-        required: true
+# on:
+#   pull_request:
+#     branches:
+#       - main
+#     paths:
+#       - analyses/{{ openscpca_module }}/Dockerfile
+#       - analyses/{{ openscpca_module }}/.dockerignore
+#       - analyses/{{ openscpca_module }}/renv.lock
+#       - analyses/{{ openscpca_module }}/conda-lock.yml
+#   push:
+#     branches:
+#       - main
+#     paths:
+#       - analyses/{{ openscpca_module }}/Dockerfile
+#       - analyses/{{ openscpca_module }}/.dockerignore
+#       - analyses/{{ openscpca_module }}/renv.lock
+#       - analyses/{{ openscpca_module }}/conda-lock.yml
+#   workflow_dispatch:
+#     inputs:
+#       push-ecr:
+#         description: "Push to AWS ECR"
+#         type: boolean
+#         required: false
+#   workflow_call:
+#     inputs:
+#       push-ecr:
+#         description: "Push to AWS ECR"
+#         type: boolean
 
 jobs:
   test-build:
@@ -48,7 +61,7 @@ jobs:
 
   build-push:
     name: Build and Push Docker Image
-    if: github.repository_owner == 'AlexsLemonade' && (github.event_name == 'push' || inputs.push-ecr)
+    if: github.event_name == 'push' || inputs.push-ecr
     uses: ./.github/workflows/build-push-docker-module.yml
     with:
       module: "{{ openscpca_module }}"

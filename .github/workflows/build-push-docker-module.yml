@@ -20,7 +20,7 @@ permissions:
 jobs:
   build-push:
     name: Build and Push Docker Image
-    if: inputs.push-ecr && github.repository_owner == 'AlexsLemonade'
+    if: inputs.push-ecr
     environment: prod
     runs-on: ubuntu-latest
 
@@ -43,7 +43,7 @@ jobs:
         run: |
           aws ecr-public describe-repositories --repository-names ${{ inputs.module }} \
           || aws ecr-public create-repository --repository-name ${{ inputs.module }}
-
+          
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 

@@ -27,7 +27,7 @@ on:
       push-ecr:
         description: "Push to AWS ECR"
         type: boolean
-        required: true
+        required: false
   workflow_call:
     inputs:
       push-ecr:
@@ -54,7 +54,7 @@ jobs:
 
   build-push:
     name: Build and Push Docker Image
-    if: github.repository_owner == 'AlexsLemonade' && (github.event_name == 'push' || inputs.push-ecr)
+    if: github.event_name == 'push' || inputs.push-ecr
     uses: ./.github/workflows/build-push-docker-module.yml
     with:
       module: simulate-sce

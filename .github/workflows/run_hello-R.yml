@@ -24,7 +24,6 @@ on:
       - analyses/hello-R/**
 jobs:
   run-module:
-    if: github.repository_owner == 'AlexsLemonade'
     runs-on: ubuntu-latest
 
     steps:

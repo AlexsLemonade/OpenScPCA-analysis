@@ -8,9 +8,6 @@ LABEL org.opencontainers.image.description="Docker image for the OpenScPCA analy
 LABEL org.opencontainers.image.authors="OpenScPCA scpca@ccdatalab.org"
 LABEL org.opencontainers.image.source="https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/simulate-sce"
 
-# Set an environment variable to allow checking if we are in an OpenScPCA container
-ENV OPENSCPCA_DOCKER TRUE
-
 ENV RENV_CONFIG_CACHE_ENABLED FALSE
 RUN Rscript -e "install.packages(c('remotes', 'renv'))"
 
