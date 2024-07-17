@@ -1,11 +1,10 @@
 #!/bin/bash
 
 # This script runs the benchmarking portion of the `doublet-detection` module
+# Usage: ./run_doublet-detection-benchmark.sh
 
 set -euo pipefail
-
-
-# Set up --------------
+CORES=4
 
 # Ensure script is being run from its directory
 MODULE_DIR=$(dirname "${BASH_SOURCE[0]}")
@@ -42,10 +41,12 @@ for dataset in "${bench_datasets[@]}"; do
     ./scripts/00_format-benchmark-data.R --dataset ${dataset} --input_dir ${DATA_DIR}/raw --output_dir ${DATASET_DIR}
 
     # Infer doublets with scDblFinder
-    ./scripts/01a_run-scdblfinder.R --input_sce_file ${DATASET_DIR}/${dataset}.rds --results_dir ${RESULTS_DIR} --benchmark
+    SCDBLFINDER_TSV=${RESULTS_DIR}/${dataset}_scdblfinder.tsv
+    ./scripts/01a_run-scdblfinder.R --input_sce_file ${DATASET_DIR}/${dataset}.rds --output_file ${SCDBLFINDER_TSV} --cores $CORES --benchmark
 
     # Infer doublets with scrublet
-    ./scripts/01b_run-scrublet.py --input_anndata_file ${DATASET_DIR}/${dataset}.h5ad --results_dir ${RESULTS_DIR}
+    SCRUBLET_TSV=${RESULTS_DIR}/${dataset}_scrublet.tsv
+    ./scripts/01b_run-scrublet.py --input_anndata_file ${DATASET_DIR}/${dataset}.h5ad --output_file ${SCRUBLET_TSV}
 
     # Explore each individual set of doublet results
     Rscript -e "rmarkdown::render('${TEMPLATE_NB_DIR}/02_explore-benchmark-results.Rmd',
