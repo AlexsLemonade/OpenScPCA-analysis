@@ -88,7 +88,7 @@ option_list <- list(
     "--cores",
     type = "integer",
     default = 4,
-    help = "Number of cores to use during scDblFinder inference. Only used when there are multiple samples in the SCE."
+    help = "Number of cores to use during scDblFinder inference."
   ),
   make_option(
     "--benchmark",
