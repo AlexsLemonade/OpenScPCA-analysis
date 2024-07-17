@@ -109,3 +109,6 @@ A Dockerfile is also provided.
 ## Computational resources
 
 This module does not require compute beyond what is generally available on a laptop.
+By default, `scDblFinder` is run with 4 cores.
+To modify this, you can update _line 7_ in `run_doublet-detection-benchmark.sh` and/or `run_doublet-detection-scpca.sh` defining the `CORES` variable to a value of your choice.
+

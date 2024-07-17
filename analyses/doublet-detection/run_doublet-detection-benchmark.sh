@@ -1,11 +1,10 @@
 #!/bin/bash
 
 # This script runs the benchmarking portion of the `doublet-detection` module
+# Usage: ./run_doublet-detection-benchmark.sh
 
 set -euo pipefail
-
-
-# Set up --------------
+CORES=4
 
 # Ensure script is being run from its directory
 MODULE_DIR=$(dirname "${BASH_SOURCE[0]}")
@@ -43,7 +42,7 @@ for dataset in "${bench_datasets[@]}"; do
 
     # Infer doublets with scDblFinder
     SCDBLFINDER_TSV=${RESULTS_DIR}/${dataset}_scdblfinder.tsv
-    ./scripts/01a_run-scdblfinder.R --input_sce_file ${DATASET_DIR}/${dataset}.rds --output_tsv_file ${SCDBLFINDER_TSV} --benchmark
+    ./scripts/01a_run-scdblfinder.R --input_sce_file ${DATASET_DIR}/${dataset}.rds --output_tsv_file ${SCDBLFINDER_TSV} --cores $CORES --benchmark
 
     # Infer doublets with scrublet
     SCRUBLET_TSV=${RESULTS_DIR}/${dataset}_scrublet.tsv

@@ -4,7 +4,7 @@
 # Usage: ./run_doublet-detection-scpca.sh {scpca project id}
 
 set -euo pipefail
-
+CORES=4
 
 # Ensure script is being run from its directory
 MODULE_DIR=$(dirname "${BASH_SOURCE[0]}")
@@ -29,6 +29,7 @@ for SAMPLE_DIR in ${DATA_DIR}/${PROJECT_ID}/SCPCS*; do
         TSV_FILE=$(basename "${SCE_FILE%.rds}_scdblfinder.tsv")
         Rscript scripts/01a_run-scdblfinder.R \
             --input_sce_file ${SCE_FILE} \
-            --output_tsv_file ${SAMPLE_RESULTS_DIR}/${TSV_FILE}
+            --output_tsv_file ${SAMPLE_RESULTS_DIR}/${TSV_FILE} \
+            --cores $CORES
     done
 done
