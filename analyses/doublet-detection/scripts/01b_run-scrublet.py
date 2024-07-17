@@ -58,19 +58,25 @@ def main() -> None:
     args = parser.parse_args()
 
     # Define and check files, directories
+    arg_error=False
     if not args.input_anndata_file.exists():
         print(
             f"The input AnnData file could not be found at: {args.input_anndata_file}.",
             file=sys.stderr
         )
-        sys.exit(1)
+        arg_error=True
 
     if not args.output_file.name.endswith(".tsv"):
         print(
             "The output TSV file must end in `.tsv`.",
             file=sys.stderr
         )
+        arg_error=True
+
+    if arg_error:
         sys.exit(1)
+
+    # make output directory as needed
     args.output_file.parent.mkdir(parents = True, exist_ok = True)
 
 
