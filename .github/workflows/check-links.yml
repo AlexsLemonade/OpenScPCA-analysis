@@ -9,6 +9,7 @@ on:
 
 jobs:
   check-docs-links:
+    if: github.repository_owner == 'AlexsLemonade'
     runs-on: ubuntu-latest
     name: Check links
 

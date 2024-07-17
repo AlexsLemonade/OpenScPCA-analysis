@@ -1,0 +1,775 @@
+---
+title: "`SCPCL000824` - Exploration of gene set based methods for tumor cell assignment"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+---
+
+## Introduction
+
+In this notebook we attempt to identify tumor cells in `SCPCL000824`. 
+We first compare tumor cell annotations obtained from marker genes, `CopyKAT`, and `InferCNV` to identify a group of tumor cells we are confident in. 
+However, there is a lack of consensus between tumor cells identified by marker gene expression and CNV inference. 
+
+In an attempt to identify a group of cells that we are confident are tumor cells, here we test using the following orthogonal marker gene based methods: 
+
+- Marker gene expression from `SCPCL000822` to inform an appropriate cut off for marker gene expression in `SCPCL000824`. 
+- [`AUCell`](https://www.bioconductor.org/packages/release/bioc/vignettes/AUCell/inst/doc/AUCell.html) with marker genes and three EWS-FLI1 gene sets in both samples. 
+- [`UCell`](https://carmonalab.github.io/UCell_demo/UCell_matrix_vignette.html#content) with marker genes and three EWS-FLI1 gene sets in both samples. 
+
+Throughout this notebook, we will use `SCPCL000822` as a reference. 
+We have classified tumor cells to be those identified as tumor cells by both `InferCNV` and `CopyKAT` and validated those classifications in `SCPCL000822_tumor-cell-validation.Rmd`. 
+
+## Setup
+
+```{r packages}
+suppressPackageStartupMessages({
+  # load required packages
+  library(SingleCellExperiment)
+  library(ggplot2)
+})
+
+# Set default ggplot theme
+theme_set(
+  theme_bw()
+)
+
+# quiet messages
+options(readr.show_col_types = FALSE)
+ComplexHeatmap::ht_opt(message = FALSE)
+```
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The current data directory, found within the repository base directory
+data_dir <- file.path(repository_base, "data", "2024-05-01")
+sample_dir <- file.path(data_dir, "SCPCP000015", "SCPCS000492")
+
+# The path to this module
+module_base <- file.path(repository_base, "analyses", "cell-type-ewings")
+```
+
+```{r}
+# source in helper functions: plot_gene_heatmap() and plot_cnv_heatmap() 
+# create_classification_df() and create_marker_gene_df()
+validation_functions <- file.path(module_base, "scripts", "utils", "tumor-validation-helpers.R")
+source(validation_functions)
+```
+
+```{r}
+# Input files
+sce_file <- file.path(sample_dir, "SCPCL000824_processed.rds")
+marker_genes_file <- file.path(module_base, "references", "tumor-marker-genes.tsv")
+
+# results from annotation workflow 
+results_dir <- file.path(module_base, "results", "cnv_annotation", "SCPCS000492")
+
+marker_gene_results_file <- file.path(results_dir, "SCPCL000824_tumor-normal-classifications.tsv")
+copykat_predictions_file <- file.path(results_dir, "SCPCL000824_copykat-classifications.tsv")
+
+infercnv_predictions_file <- file.path(results_dir, "SCPCL000824_infercnv-classifications.tsv")
+infercnv_metadata_file <- file.path(results_dir, "infercnv", "SCPCL000824_cnv-metadata.tsv")
+
+geneset_scores_file <- file.path(results_dir, "SCPCL000824_gene-set-scores.tsv")
+
+# output files 
+final_annotations_dir <- file.path(module_base, "results", "annotation_tables", "SCPCS000492")
+fs::dir_create(final_annotations_dir)
+final_annotations_file <- file.path(final_annotations_dir, "SCPCL000824_tumor-classifications.tsv.gz")
+
+# reference files to use with SingleR
+ref_sce_file <- file.path(data_dir, "SCPCP000015", "SCPCS000490", "SCPCL000822_processed.rds")
+ref_labels_file <- file.path(module_base, "results", "annotation_tables", "SCPCS000490", "SCPCL000822_tumor-classifications.tsv")
+ref_geneset_scores_file <- file.path(module_base, "results", "cnv_annotation", "SCPCS000490", "SCPCL000822_gene-set-scores.tsv")
+```
+
+```{r}
+# read in sce file 
+sce <- readr::read_rds(sce_file)
+
+# read in ref sce and ref annotations for comparing between samples 
+# ref is SCPCL000822
+ref_sce <- readr::read_rds(ref_sce_file)
+ref_labels_df <- readr::read_tsv(ref_labels_file)
+ref_geneset_df <- readr::read_tsv(ref_geneset_scores_file)
+```
+
+```{r}
+# generate classification df 
+classification_df <- create_classification_df(
+  sce,
+  marker_gene_results_file,
+  copykat_predictions_file, 
+  infercnv_predictions_file,
+  infercnv_metadata_file,
+  geneset_scores_file
+) |> 
+  # remove extra infercnv classification column we won't use 
+  dplyr::select(- cnv_sum_classification)
+```
+
+## Evaluate tumor cell classifications 
+
+Below is a UMAP showing which cells are labeled as tumor cells using each of the various classification methods (marker genes, `CopyKAT`, and `InferCNV`). 
+
+```{r}
+# plot tumor cells for each classification method 
+tumor_umap_df <- classification_df |> 
+  dplyr::select(barcodes, UMAP1, UMAP2, ends_with("classification")) |> 
+  tidyr::pivot_longer(
+    cols = ends_with("classification"),
+    names_to = "method",
+    values_to = "classification"
+  ) |> 
+  dplyr::mutate(
+    method = dplyr::case_when(
+      method == "marker_gene_classification" ~ "Marker genes only",
+      method == "copykat_classification" ~ "CopyKAT - no reference",
+      method == "cnv_proportion_classification" ~ "InferCNV proportion"
+    )
+  )
+
+ggplot(tumor_umap_df, aes(x = UMAP1, UMAP2, color = classification)) +
+  geom_point(size = 0.5, alpha = 0.5) +
+  facet_wrap(vars(method))
+```
+
+It looks like we don't have a lot of agreement between the marker gene based classification and copy number inference classification. 
+Although we do see some agreement between the two CNV methods. 
+
+### Marker gene and gene set expression
+
+We can confirm this by looking at marker gene expression in cells classified as tumor or normal by each method. 
+
+```{r}
+# generate marker genes df
+plot_markers_df <- create_marker_gene_df(
+  sce,
+  classification_df, 
+  marker_genes_file
+)
+
+# create a density plot showing the distribution of marker gene expression across classification methods 
+marker_density_df <- plot_markers_df |>
+  tidyr::pivot_longer(
+    cols = ends_with("classification"),
+    names_to = "method",
+    values_to = "classification"
+  ) |> 
+  dplyr::mutate(
+    method = dplyr::case_when(
+      method == "marker_gene_classification" ~ "Marker genes only",
+      method == "copykat_classification" ~ "CopyKAT - no reference",
+      method == "cnv_proportion_classification" ~ "InferCNV proportion"
+    )
+  )
+
+ggplot(marker_density_df, aes(x = sum_transformed_exp, color = classification)) +
+  geom_density() +
+  facet_wrap(vars(method))
+```
+
+We see a few things from this plot: 
+
+- As expected given that marker gene expression was used to classify cells using the "Marker genes only" method, we see an increase in marker gene expression in tumor cells. 
+However we don't see a clear bimodal distribution, which is something we did see in `SCPCL000822`. 
+- For `InferCNV`, both tumor and normal cells have higher expression of marker genes than the reference. 
+- For `CopyKAT`, the normal cells appear to have higher expression of marker genes. 
+
+Let's also look at gene set scores and see if we can use those to help us determine which cells are most likely to be tumor cells. 
+
+```{r}
+# plot gene set scores for each cell  
+geneset_plot_df <- classification_df |> 
+  dplyr::select(barcodes, UMAP1, UMAP2, ends_with("classification"), starts_with("mean-")) |> 
+  tidyr::pivot_longer(
+    cols = starts_with("mean"),
+    names_to = "geneset",
+    values_to = "mean_score"
+  ) |> 
+  dplyr::mutate(
+    geneset = stringr::word(geneset, -1, sep = "-")
+  )
+
+ggplot(geneset_plot_df, aes(x = UMAP1, UMAP2, color = mean_score)) +
+  geom_point(size = 0.5, alpha = 0.5) +
+  facet_wrap(vars(geneset)) +
+  scale_color_viridis_c()
+```
+
+We do see that the scores across all three genesets seem to be pretty consistent. 
+Cells that have higher scores for `RIGGI`, also have higher scores for `SILIGAN` and `ZHANG`. 
+
+Let's look at how the distribution of gene set scores coordinates with assignments from the CNV and marker gene methods. 
+Below, we color the distribution based on the classification method used. 
+
+```{r}
+geneset_plot_df |> 
+  tidyr::pivot_longer(
+    cols = ends_with("classification"),
+    names_to = "method",
+    values_to = "classification"
+  ) |> 
+  dplyr::mutate(
+    method = dplyr::case_when(
+      method == "marker_gene_classification" ~ "Marker genes only",
+      method == "copykat_classification" ~ "CopyKAT - no reference",
+      method == "cnv_proportion_classification" ~ "InferCNV proportion"
+    )) |> 
+  ggplot(aes(x = mean_score, color = classification)) +
+  geom_density(bw = 0.05) +
+  facet_grid(rows = vars(method), 
+             cols = vars(geneset))
+```
+
+We see a few things from this plot: 
+
+- The marker genes classification has the most consistent increase in gene set scores in tumor cells compared to normal cells, although the separation is not super clear.  
+- For the `RIGGI` and `ZHANG` gene sets, the scores are higher in both tumor and normal cells compared to reference cells as classified by `InferCNV`. 
+- For all gene sets, the normal cells have a slightly higher gene set score as classified by `CopyKAT`. 
+
+## Using gene expression to classify tumor cells 
+
+Unlike with `SCPCL000822`, there is no clear consensus between CNV inference methods and marker gene based classification. 
+Because these genomes are quiet, we expect CNV inference to be more difficult and less likely to accurately predict the tumor cells. 
+Therefore, we should use methods that rely on gene expression. 
+
+The rest of this notebook will explore using different gene set based methods to classify tumor cells to see if we can more accurately identify the tumor cells in this sample. 
+
+### Comparing marker gene expression in `SCPCL000822` and `SCPCL000824`
+
+With `SCPCL000822` we had a clear separation between marker gene expression in tumor cells and normal cells because there was a bimodal distribution. 
+That does not appear to be the case here so it's going to be more difficult to pull out tumor cells. 
+
+First we will just compare the distribution of the raw marker gene expression in `SCPCL000822` and `SCPCL000824`. 
+To do this, we will get the total marker gene expression by summing all marker genes in a cell and then plot the distribution. 
+
+```{r}
+# look at the raw sum of marker gene expression in both 822 and 824
+# first create marker genes df for ref sce 
+ref_classification_df <- ref_labels_df |> 
+  dplyr::rename("barcodes" = "cell_barcode")
+
+ref_markers_df <- create_marker_gene_df(sce = ref_sce, 
+                                        classification_df = ref_classification_df,
+                                        marker_genes_file) |> 
+  dplyr::mutate(sample = "SCPCL000822")
+
+# combine all marker gene data for both samples into one df 
+combined_markers_df <- plot_markers_df |> 
+  dplyr::select(barcodes, tumor_cell_classification = marker_gene_classification, gene_symbol, gene_expression, transformed_gene_expression, sum_raw_exp, sum_transformed_exp) |> 
+  dplyr::mutate(sample = "SCPCL000824") |> 
+  dplyr::bind_rows(ref_markers_df)
+```
+
+```{r}
+# total distribution
+ggplot(combined_markers_df, aes(x = sum_raw_exp)) +
+  geom_density() +
+  facet_grid(rows = vars(sample))
+```
+
+Looking at this, we see that `SCPCL000822` has a bimodal distribution, but this is not the case for `SCPCL000824`. 
+Additionally, most of the distribution for `SCPCL000824` lies within the upper distribution for `SCPCL000822`. 
+This would be consistent with our hypothesis that most of the cells in `SCPCL000824` are tumor cells. 
+Let's find the local minima in the bimodal distribution for `SCPCL000822` and then use that to classify tumor cells in `SCPCL000824`. 
+
+```{r}
+# create distribution 
+density_data <- density(combined_markers_df$sum_raw_exp)
+# find the local minima in the distribution
+exp_cutoff <- optimize(approxfun(density_data$x, density_data$y), interval = c(1,10))$minimum
+```
+
+
+```{r}
+# add new column with updated marker gene classification 
+# use local minima from 822 to define 824
+new_classification <- combined_markers_df |> 
+  dplyr::filter(sample == "SCPCL000824") |> 
+  dplyr::mutate(updated_marker_gene_classification = dplyr::if_else(sum_raw_exp >= exp_cutoff, "Tumor", "Normal")) |> 
+  dplyr::select(barcodes, updated_marker_gene_classification) |> 
+  unique()
+
+# add new column to existing classification
+classification_df <- classification_df |> 
+  dplyr::left_join(new_classification)
+
+# label cells based on new classifiation 
+ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = updated_marker_gene_classification)) +
+  geom_point(alpha = 0.5, size = 0.5)
+```
+
+This looks closer to what I would expect with most cells in the large group of cells corresponding to tumor cells. 
+This also captures cells that are labeled as tumor cells by both marker genes and CNV inference. 
+
+### Comparing gene set expression in `SCPCL000822` and `SCPCL000824`
+
+Now we will look at the gene set scores for each gene set in `SCPCL000822` and `SCPCL000824`.  
+The gene set scores for each cell are the mean normalized expression of all genes in a given gene set with no scaling. 
+
+We did not use these to classify `SCPCL000822`, so we won't actually do any classification, but this will show us if the scores for tumor cells are similar to each other across samples. 
+
+```{r}
+# get geneset score from reference sce 
+ref_geneset_df <- ref_geneset_df |> 
+  dplyr::select(barcodes, starts_with("mean")) |> 
+  tidyr::pivot_longer(
+    cols = starts_with("mean"),
+    names_to = "geneset",
+    values_to = "mean_score"
+  ) |> 
+  dplyr::mutate(
+    geneset = stringr::word(geneset, -1, sep = "-"),
+    sample = "SCPCL000822 - reference"
+  ) 
+
+# join with gene set scores from 824 and plot distribution 
+geneset_plot_df |> 
+  dplyr::select(barcodes, geneset, mean_score) |> 
+  dplyr::mutate(sample = "SCPCL000824") |> 
+  dplyr::bind_rows(ref_geneset_df) |> 
+  ggplot(aes(x = mean_score, color = sample)) +
+  geom_density() +
+  facet_grid(rows = vars(geneset))
+```
+
+Again we see that the gene set scores are bimodal for `SCPCL000822`, at least for `RIGGI` and `ZHANG`. 
+However, we don't see that for `SCPCL000824`, but we do see a very similar range of values. 
+This makes me think that the majority of the cells are in fact tumor cells. 
+
+## Classifying tumor cells with AUCell
+
+The next thing we will do is see if we can use a more data driven approach to identify cells with higher marker gene or gene set expression. 
+We will use [`AUCell`](https://www.bioconductor.org/packages/release/bioc/vignettes/AUCell/inst/doc/AUCell.html) to do this and will run it on both samples. 
+
+`AUCell` can be used to identify cells with an active gene set given a list of genes or gene signature. 
+From the [vignette](https://bioconductor.org/packages/release/bioc/vignettes/AUCell/inst/doc/AUCell.html): 
+
+> AUCell uses the “Area Under the Curve” (AUC) to calculate whether a critical subset of the input gene set is enriched within the expressed genes for each cell. The distribution of AUC scores across all the cells allows exploring the relative expression of the signature. Since the scoring method is ranking-based, AUCell is independent of the gene expression units and the normalization procedure. In addition, since the cells are evaluated individually, it can easily be applied to bigger datasets, subsetting the expression matrix if needed.
+
+We will use `AUCell` with four different gene sets: 
+
+- [`ZHANG_TARGETS_OF_EWSR1_FLI1_FUSION`](https://www.gsea-msigdb.org/gsea/msigdb/human/geneset/ZHANG_TARGETS_OF_EWSR1_FLI1_FUSION.html)
+- [`RIGGI_EWING_SARCOMA_PROGENITOR_UP`](https://www.gsea-msigdb.org/gsea/msigdb/human/geneset/RIGGI_EWING_SARCOMA_PROGENITOR_UP.html?ex=1)
+- [`SILIGAN_TARGETS_OF_EWS_FLI1_FUSION_DN`](https://www.gsea-msigdb.org/gsea/msigdb/cards/SILIGAN_TARGETS_OF_EWS_FLI1_FUSION_DN)
+- Custom tumor marker gene list found in [`references/tumor-marker-genes.tsv`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/cell-type-ewings/references/tumor-marker-genes.tsv)
+
+For each gene set above, `AUCell` will identify cells likely to have expression of that gene set returning a distribution of `auc` scores and a threshold for each gene set.  
+
+One caveat is that `AUCell` relies on having a bimodal distribution in gene set expression to find a threshold, so I expect we may need to do a similar thing where we use thresholds determined in `SCPCL000822` to call cells in `SCPCL000824`.  
+
+```{r}
+# names of gene sets to grab
+ews_gene_sets <- c(
+  "ZHANG_TARGETS_OF_EWSR1_FLI1_FUSION",
+  "RIGGI_EWING_SARCOMA_PROGENITOR_UP",
+  "SILIGAN_TARGETS_OF_EWS_FLI1_FUSION_DN"
+)
+
+# pull gene sets from msigbdr 
+# all gene sets are part of C2, CGP
+genes_df <- msigdbr::msigdbr(species= "Homo sapiens", 
+                             category = "C2",
+                             subcategory = "CGP") |> 
+  # only keep relevant gene sets 
+  dplyr::filter(gs_name %in% ews_gene_sets)
+```
+
+
+```{r}
+# first create named list of genes
+# we will need this to run UCell later too 
+genes_list <- ews_gene_sets |> 
+  purrr::map(\(name){
+    genes <- genes_df |> 
+      dplyr::filter(gs_name == name) |> 
+      dplyr::pull(ensembl_gene)
+  }) |> 
+  purrr::set_names(ews_gene_sets)
+
+# build GeneSetCollection for AUCell 
+msig_gene_sets <- genes_list |> 
+  purrr::imap(\(genes, name) GSEABase::GeneSet(genes, setName = name))
+
+# get list of marker genes to add to GeneSets 
+marker_genes <- readr::read_tsv(marker_genes_file, show_col_types = FALSE) |> 
+  # account for genes being from multiple sources
+  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |> 
+  dplyr::distinct() |> 
+  dplyr::filter(cell_type == "tumor") |> 
+  dplyr::pull(ensembl_gene_id)
+
+# turn it into a gene set 
+marker_gene_set <- marker_genes |> 
+  GSEABase::GeneSet(setName = "markers")
+
+# join msig and marker genes into a collection to input with AUCell 
+collection <- GSEABase::GeneSetCollection(c(msig_gene_sets, marker_gene_set))
+```
+
+```{r}
+# run AUCell
+ref_auc <- AUCell::AUCell_run(counts(ref_sce), collection)
+
+# assign cells for each gene set based on thresholds and output plots 
+ref_assignments <- AUCell::AUCell_exploreThresholds(ref_auc, assign = TRUE)
+```
+
+For each gene set, several possible thresholds are calculated. 
+The dotted lines over the histogram indicate the distribution and the corresponding vertical dotted line (same color) indicates the possible threshold. 
+The thicker line indicates the chosen threshold by the algorithm. 
+This corresponds to the highest value that reduces the false positives. 
+See the [`AUCell` vignette](https://www.bioconductor.org/packages/release/bioc/vignettes/AUCell/inst/doc/AUCell.html#determine-the-cells-with-the-given-gene-signatures-or-active-gene-sets) for more information. 
+
+Here we can see a bimodal distribution of all gene sets except `SILIGAN`, which is to be expected based on the original distribution plots. 
+
+For the remaining analysis we will use the results from running `AUCell` with only the marker gene list. 
+Let's compare the assignments from our validated classifications (determined by taking the consensus between `InferCNV`, and `CopyKAT` for `SCPCL000822`) to using `AUCell` with `SCPCL000822`. 
+
+```{r}
+# compare AUCell classification vs cnv classification in ref
+# pull out tumor cells found by AUCell
+tumor_cells <- ref_assignments$markers$assignment
+
+ref_classification_df <- ref_classification_df |> 
+  # add new column with auc classification 
+  dplyr::mutate(auc_classification = dplyr::if_else(barcodes %in% tumor_cells, "Tumor", "Normal"))
+
+# filter out any ambiguous cells 
+caret_df <- ref_classification_df |> 
+  dplyr::filter(tumor_cell_classification != "Ambiguous") |> 
+  # make sure positive class is tumor
+  dplyr::mutate(
+    tumor_cell_classification = forcats::fct_relevel(tumor_cell_classification, "Tumor"),
+    auc_classification = forcats::fct_relevel(auc_classification, "Tumor")
+  )
+
+# compare using a confusion matrix
+caret::confusionMatrix(
+    table(
+      caret_df$tumor_cell_classification, 
+      caret_df$auc_classification)
+  ) 
+```
+
+Here the original tumor cell classifications are the rows and the `AUCell` classification are the columns. 
+It looks like we get pretty good agreement between our original classification and the updated `AUCell` classification using the marker gene list.
+
+Now we repeat on `SCPCL000824`. 
+
+```{r}
+# get new auc and plot thresholds 
+new_auc <- AUCell::AUCell_run(counts(sce), collection)
+new_assignment <- AUCell::AUCell_exploreThresholds(new_auc, assign = TRUE)
+```
+
+Here we do not see any bimodal distributions and that most cells are considered to not be expressing the specified gene sets, which doesn't fit with our previous findings. 
+I expect that without a bimodal distribution this model does not do a good job of calculating a threshold. 
+
+```{r}
+ref_auc_df <- ref_auc@assays@data$AUC |> 
+  as.data.frame() |> 
+  tibble::rownames_to_column("gene_set") |> 
+  tidyr::pivot_longer(!gene_set, 
+                      names_to = "barcodes", 
+                      values_to = "auc") |> 
+  #dplyr::filter(gene_set == "markers") |> 
+  dplyr::mutate(sample = "SCPCL000822")
+
+new_auc_df <- new_auc@assays@data$AUC |> 
+  as.data.frame() |> 
+  tibble::rownames_to_column("gene_set") |> 
+  tidyr::pivot_longer(!gene_set, 
+                      names_to = "barcodes", 
+                      values_to = "auc") |> 
+  #dplyr::filter(gene_set == "markers") |> 
+  dplyr::mutate(sample = "SCPCL000824")
+
+all_auc_df <- dplyr::bind_rows(list(ref_auc_df, new_auc_df)) |> 
+  # simplify the name for plotting
+  dplyr::mutate(gene_set = stringr::word(gene_set, 1, sep = "_"))
+
+ggplot(all_auc_df, aes(x = auc, color = sample)) +
+  geom_density() +
+  facet_grid(rows = vars(gene_set),
+             scales = "free_y")
+```
+
+Looking at the AUC across both samples for all gene sets, we see that they are in the same range of values. 
+The main difference here is the lack of bimodal distribution in `SCPCL000824` and we see that most of the time the peak for `SCPCL000824` seems to be in between the two peaks for `SCPCL000822`. 
+
+The exception to this is with the marker gene list where the peak in `SCPCL000824` lines up with the second peak in `SCPCL000822`. 
+Because of that we will use the marker gene threshold identified by `AUCell` for `SCPCL000822` to identify tumor cells in `SCPCL000824`.  
+Here, we label any cells that have passed the threshold set for the marker gene set as tumor cells. 
+
+```{r}
+# pull out threshold used for assigning cells from ref sample 
+ref_threshold <- ref_assignments$markers$aucThr$selected
+
+# create a vector of tumor cells in 824 using the cutoff from 822
+new_tumor_cells <- new_auc_df |> 
+  dplyr::filter(gene_set == "markers", auc >= ref_threshold) |>
+  dplyr::pull(barcodes)
+
+# add to original classification df 
+classification_df <- classification_df |> 
+  dplyr::mutate(auc_classification = dplyr::if_else(barcodes %in% new_tumor_cells, "Tumor", "Normal"))
+```
+
+```{r}
+# visualize which cells are classified as tumor 
+ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = auc_classification)) +
+  geom_point(alpha = 0.5, size = 0.5)
+```
+
+This looks similar to using the updated marker gene cutoff to classify cells where most cells in that bottom group are tumor cells.  
+As a reminder, the updated marker gene classification is the classification of tumor cells based on the marker gene expression cutoff determined in `SCPCL000822`. 
+We can confirm this by calculating the confusion matrix. 
+Here the marker gene annotations are the rows and the annotations from `AUCell` are the columns. 
+
+```{r}
+classification_df <- classification_df |> 
+  dplyr::mutate(
+    updated_marker_gene_classification = forcats::fct_relevel(updated_marker_gene_classification, "Tumor"),
+    auc_classification = forcats::fct_relevel(auc_classification, "Tumor")
+  )
+
+# compare using a confusion matrix
+caret::confusionMatrix(
+    table(
+      classification_df$updated_marker_gene_classification, 
+      classification_df$auc_classification)
+  ) 
+```
+
+## Classifying tumor cells with UCell
+
+Here we will look at using [`UCell`](https://carmonalab.github.io/UCell_demo/UCell_matrix_vignette.html#content) to calculate a gene set score for each cell and then attempt to classify cells based on the distribution of those gene set scores. 
+
+The [`UCell` score is calculated as follows](https://doi.org/10.1016/j.csbj.2021.06.043): 
+
+1. Calculate a ranked list of genes for each cell in the dataset. 
+2. The Mann-Whitney U statistic is calculated for each cell by subsetting the ranked list by genes of interest in each cell.  
+
+Again, we will look at both `SCPCL000822` and `SCPCL000824`. 
+
+```{r}
+# create list to use for ucell of gene sets and marker genes
+ucell_gene_sets <- c(genes_list, markers = list(marker_genes)) |> 
+  # only keep genes that are found in reference 
+  purrr::map(\(geneset){
+    intersect(geneset, rownames(sce))
+  })
+
+# run ucell on both ref (822) and 824
+ref_ucell <- UCell::ScoreSignatures_UCell(counts(ref_sce), features = ucell_gene_sets)
+new_ucell <- UCell::ScoreSignatures_UCell(counts(sce), features = ucell_gene_sets)
+```
+
+`UCell` returns a signature score for each gene set and does not calculate any thresholds for classification on it's own. 
+We will look at the distribution of scores across both samples below and see if we can identify a good cut off to use for classification. 
+
+```{r}
+# plot distribution of ucell scores for both samples 
+ref_ucell <- ref_ucell |> 
+  as.data.frame() |> 
+  tibble::rownames_to_column("barcodes") |> 
+  dplyr::mutate(sample = "SCPCL000822")
+  
+ucell_df <- new_ucell |> 
+  as.data.frame() |> 
+  tibble::rownames_to_column("barcodes") |> 
+  dplyr::mutate(sample = "SCPCL000824") |> 
+  dplyr::bind_rows(ref_ucell) |> 
+  tidyr::pivot_longer(ends_with("UCell"), 
+                      names_to = "gene_list", 
+                      values_to = "signature_score") |> 
+  dplyr::mutate(
+    gene_list = stringr::word(gene_list, 1, sep = "_")
+  )
+```
+
+```{r}
+ggplot(ucell_df, aes(x = signature_score, colour = sample)) +
+  geom_density() +
+  facet_grid(rows = vars(gene_list),
+             scales = "free_y")
+```
+
+Here we see that the marker gene set maybe has a bimodal distribution in `SCPCL000822` and no bimodal distribution in `SCPCL000824`. 
+However the score in `SCPCL000824` seems to lie in the upper part of the distribution for `SCPCL000822`. 
+
+`RIGGI`, `ZHANG`, and `SILIGAN` both show very similar distributions to the gene set scores distributions from our manual calculations of gene set scores (mean of all genes in the gene set). 
+Again, there is a bimodal distribution for `RIGGI` and `ZHANG`, but not for `SILIGAN` and it is only present in `SCPCL000822`. 
+
+Let's use the local minima from the marker gene set scores for `SCPCL000822` to identify tumor cells. 
+First we will look at how using `UCell` compares to our previous classifications for `SCPCL000822` (consensus between `CopyKAT` and `InferCNV`). 
+
+```{r}
+# create distribution 
+density_data <- density(ref_ucell$markers_UCell)
+# find the local minima in the distribution
+geneset_cutoff <- optimize(approxfun(density_data$x, density_data$y), interval = c(0.01, 0.2))$minimum
+
+# get a vector of tumor cells from ref 
+ref_ucell_tumor_cells <- ucell_df |> 
+  dplyr::filter(gene_list == "markers",
+                signature_score >= geneset_cutoff,
+                sample == "SCPCL000822") |> 
+  dplyr::pull(barcodes) |> 
+  unique()
+
+# add classification column for comparison to original classification
+caret_df <- caret_df |> 
+  dplyr::mutate(
+    ucell_classification = dplyr::if_else(barcodes %in% ref_ucell_tumor_cells, "Tumor", "Normal"), 
+    tumor_cell_classification = forcats::fct_relevel(tumor_cell_classification, "Tumor"),
+    ucell_classification = forcats::fct_relevel(ucell_classification, "Tumor")
+  )
+
+
+# confusion matrix between original and ucell 
+caret::confusionMatrix(
+  table(
+    caret_df$tumor_cell_classification, 
+    caret_df$ucell_classification 
+  )
+)
+```
+
+
+Here the rows correspond to the original tumor annotations and the columns are the `UCell` annotations. 
+It looks like we get pretty good agreement between using `UCell` with the `RIGGI` gene set to the original classification. 
+Now we will use the marker gene set cutoff from `SCPCL000822` to classify tumor cells in `SCPCL000824`. 
+
+```{r}
+# get list of tumor cells using ucell 
+new_ucell_tumor_cells <- ucell_df |> 
+  dplyr::filter(gene_list == "markers",
+                signature_score >= geneset_cutoff,
+                sample == "SCPCL000824") |> 
+  dplyr::pull(barcodes) |> 
+  unique()
+
+# add ucell classification
+classification_df <- classification_df |> 
+  dplyr::mutate(
+    ucell_classification = dplyr::if_else(barcodes %in% new_ucell_tumor_cells, "Tumor", "Normal"), 
+    # relevel for confusion matrix later 
+    updated_marker_gene_classification = forcats::fct_relevel(updated_marker_gene_classification, "Tumor"),
+    ucell_classification = forcats::fct_relevel(ucell_classification, "Tumor")
+  )
+
+ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = ucell_classification)) +
+  geom_point(alpha = 0.5, size = 0.5)
+```
+
+This looks similar to what we get with both the updated marker gene and `AUCell` classification. 
+We can confirm that by calculating the confusion matrix.
+Here the rows correspond to the updated marker gene annotations and the columns are the `UCell` annotations. 
+
+```{r}
+caret::confusionMatrix(
+  table(
+    classification_df$updated_marker_gene_classification, 
+    classification_df$ucell_classification
+  )
+)
+```
+
+## Validate annotations
+
+Finally, we will look at the marker gene and gene set scores for every cell across annotation methods. 
+
+```{r}
+# create annotation df, keeping all classification methods 
+annotation_df <- classification_df |> 
+  dplyr::select(barcodes, marker_gene_classification, updated_marker_gene_classification, auc_classification, ucell_classification) |> 
+  unique()
+
+# create matrix with marker genes as rows and barcodes as columns
+marker_gene_heatmap <- plot_markers_df |> 
+  dplyr::select(gene_expression, gene_symbol, barcodes) |> 
+  tidyr::pivot_wider(values_from = gene_expression, 
+                     names_from = barcodes) |> 
+  tibble::column_to_rownames("gene_symbol") |> 
+  as.matrix()
+
+annotation <- ComplexHeatmap::columnAnnotation(
+  marker_genes = annotation_df$marker_gene_classification,
+  updated_marker_genes = annotation_df$updated_marker_gene_classification,
+  AUCell = annotation_df$auc_classification, 
+  UCell = annotation_df$ucell_classification,
+  col = list(marker_genes = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey"),
+             updated_marker_genes = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey"), 
+             AUCell = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey"),
+             UCell = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey")))
+```
+
+
+```{r}
+# plot heatmap of marker genes 
+plot_gene_heatmap(marker_gene_heatmap, 
+                  row_title = "Marker gene symbol",
+                  legend_title = "Marker gene \nexpression",
+                  annotation = annotation)
+```
+ 
+Here we see that the updated marker gene classification (using raw gene expression cut offs determined from `SCPCL000822`) and `AUCell` tend to have the clearest sepration between tumor cells and normal cells that line up with expression of individual marker genes. 
+
+Now we will create the same plot but with gene set scores. 
+ 
+```{r}
+# make a matrix of gene set by barcode 
+geneset_heatmap <- geneset_plot_df |> 
+  dplyr::select(mean_score, geneset, barcodes) |> 
+  unique() |> 
+  tidyr::pivot_wider(values_from = mean_score, 
+                     names_from = barcodes) |> 
+  tibble::column_to_rownames("geneset") |> 
+  as.matrix()
+
+# plot heatmap of gene set score 
+plot_gene_heatmap(geneset_heatmap,
+                  annotation = annotation,
+                  legend_title = "Gene set \nscore")
+```
+ 
+Again, we see that the updated marker genes and `AUCell` have the most similar assignments and these tend to group by tumor/normal cells. 
+Although we do see a similar separation of cells in `UCell`, but there are many more cells that are classified as normal. 
+
+## Save annotations 
+
+We will go ahead and save the annotations from all gene expression based methods for future use. 
+ 
+```{r}
+# export final TSV with annotations 
+classifications_output <- classification_df |> 
+  dplyr::select(
+    cell_barcode = barcodes,
+    marker_gene_classification,
+    updated_marker_gene_classification, 
+    auc_classification,
+    ucell_classification
+  ) |> 
+  unique()
+
+
+readr::write_tsv(classifications_output, final_annotations_file)
+```
+
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
