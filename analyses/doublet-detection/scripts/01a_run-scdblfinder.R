@@ -82,6 +82,7 @@ option_list <- list(
   make_option(
     "--output_file",
     type = "character",
+    default = "scdblfinder_results.tsv",
     help = "Path to output TSV file with doublet inferences."
   ),
   make_option(
@@ -114,11 +115,11 @@ opts <- parse_args(OptionParser(option_list = option_list))
 if (!file.exists(opts$input_sce_file)) {
     glue::glue("Could not find input SCE file, expected at: `{opts$input_sce_file}`.")
 }
-if (!stringr::str_ends(opts$output_tsv_file, ".tsv")) {
+if (!stringr::str_ends(opts$output_file, ".tsv")) {
   stop("The output TSV file must end in .tsv.")
 }
 
-fs::dir_create( dirname(opts$output_tsv_file) ) # create output directory as needed
+fs::dir_create( dirname(opts$output_file) ) # create output directory as needed
 set.seed(opts$random_seed)
 
 # Detect doublets and export TSV file with inferences -----
@@ -144,7 +145,7 @@ if (ncells < cell_threshold) {
   if (opts$benchmark) {
     na_df$cxds_score <- NA
   }
-  readr::write_tsv(na_df, opts$output_tsv_file)
+  readr::write_tsv(na_df, opts$output_file)
 
 } else {
 
@@ -165,5 +166,5 @@ if (ncells < cell_threshold) {
     random_seed = opts$random_seed,
     columns_to_keep = keep_columns
   ) |>
-  readr::write_tsv(opts$output_tsv_file)
+  readr::write_tsv(opts$output_file)
 }

@@ -44,7 +44,7 @@ def main() -> None:
         help="Path to the input AnnData file to process."
     )
     parser.add_argument(
-        "--output_tsv_file",
+        "--output_file",
         type=Path,
         required=True,
         help="Path to output TSV file with doublet inferences."
@@ -65,19 +65,19 @@ def main() -> None:
         )
         sys.exit(1)
 
-    if not args.output_tsv_file.name.endswith(".tsv"):
+    if not args.output_file.name.endswith(".tsv"):
         print(
             "The output TSV file must end in `.tsv`.",
             file=sys.stderr
         )
         sys.exit(1)
-    args.output_tsv_file.parent.mkdir(parents = True, exist_ok = True)
+    args.output_file.parent.mkdir(parents = True, exist_ok = True)
 
 
     # Run scrublet and export the results
     adata = anndata.read_h5ad(args.input_anndata_file)
     scrub_results = run_scrublet(adata, args.random_seed)
-    scrub_results.to_csv(args.output_tsv_file, sep="\t", index=False )
+    scrub_results.to_csv(args.output_file, sep="\t", index=False )
 
 if __name__ == "__main__":
     main()
