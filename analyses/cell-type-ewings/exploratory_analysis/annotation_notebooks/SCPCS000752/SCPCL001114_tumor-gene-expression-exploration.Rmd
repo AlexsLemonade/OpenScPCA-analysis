@@ -431,7 +431,8 @@ classification_df |>
     values_to = "classification"
   ) |> 
   dplyr::mutate(
-    method = forcats::fct_recode(method, !!!method_levels)) |> 
+    method = forcats::fct_recode(method, !!!method_levels),
+    method = forcats::fct_relevel(method, "Consensus", after = Inf)) |> 
   ggplot(aes(x = UMAP1, y = UMAP2, color = classification)) +
   geom_point(size = 0.1, alpha = 0.5) +
   facet_wrap(vars(method)) +
@@ -456,7 +457,8 @@ marker_density_df <- plot_markers_df |>
     values_to = "classification"
   ) |> 
   dplyr::mutate(
-    method = forcats::fct_recode(method, !!!method_levels)
+    method = forcats::fct_recode(method, !!!method_levels),
+    method = forcats::fct_relevel(method, "Consensus", after = Inf)
   )
 
 ggplot(marker_density_df, aes(x = sum_transformed_exp, color = classification)) +
@@ -474,7 +476,8 @@ geneset_plot_df |>
     values_to = "classification"
   ) |> 
   dplyr::mutate(
-    method = forcats::fct_recode(method, !!!method_levels)) |> 
+    method = forcats::fct_recode(method, !!!method_levels), 
+    method = forcats::fct_relevel(method, "Consensus", after = Inf)) |> 
   ggplot(aes(x = mean_score, color = classification)) +
   geom_density(bw = 0.05) +
   facet_grid(rows = vars(method), 
