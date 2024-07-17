@@ -8,6 +8,9 @@ LABEL org.opencontainers.image.description="Docker image for the OpenScPCA analy
 LABEL org.opencontainers.image.authors="OpenScPCA scpca@ccdatalab.org"
 LABEL org.opencontainers.image.source="https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/cell-type-ewings"
 
+# Set an environment variable to allow checking if we are in an OpenScPCA container
+ENV OPENSCPCA_DOCKER TRUE
+
 # Disable the renv cache to install packages directly into the R library
 ENV RENV_CONFIG_CACHE_ENABLED FALSE
 # set a name for the conda environment
@@ -18,11 +21,11 @@ ENV PATH="/opt/conda/bin:${PATH}"
 
 # Install dependencies for renv library
 RUN apt-get -y update &&  \
-    DEBIAN_FRONTEND=noninteractive \
-    apt-get install --no-install-recommends -y \
-    pandoc \
-    wget \
-    && rm -rf /var/lib/apt/lists/*
+  DEBIAN_FRONTEND=noninteractive \
+  apt-get install --no-install-recommends -y \
+  pandoc \
+  wget \
+  && rm -rf /var/lib/apt/lists/*
 
 # Install miniconda
 # adapted from https://github.com/ContinuumIO/docker-images/blob/main/miniconda3/debian/Dockerfile
@@ -46,6 +49,9 @@ COPY conda-lock.yml conda-lock.yml
 # restore from conda-lock.yml file and clean up to reduce image size
 RUN conda-lock install -n ${ENV_NAME} conda-lock.yml && \
   conda clean --all --yes
+
+# Activate conda environment on bash launch
+RUN echo "conda activate ${ENV_NAME}" >> ~/.bashrc
 
 # Copy the renv.lock file from the host environment to the image
 COPY renv.lock renv.lock

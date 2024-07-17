@@ -1,0 +1,466 @@
+---
+title: "Copy number inference with InferCNV"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+params:
+  sample_id: SCPCS000490
+  library_id: SCPCL000822
+  marker_gene_classification: "tumor-normal-classifications.tsv"
+  infercnv_dir: "infercnv"
+  results_dir: "cnv_annotation"
+---
+
+## Introduction 
+
+Here we look at using [`InferCNV`](https://github.com/broadinstitute/infercnv) to identify tumor and normal cells in `r params$sample_id`. 
+
+Before running this notebook, `InferCNV` is run using the `run-infercnv.R` script. 
+This script runs `InferCNV` once with Endothelial cells as the reference cells and once without any cells as the reference. 
+
+Here, we look the copy number variations found reported by `InferCNV` and use that copy number information to call cells as tumor or normal cells. 
+We then compare these classifications to manual classifications and annotations from `SingleR` and `CellAssign`. 
+
+## Setup
+
+```{r packages}
+suppressPackageStartupMessages({
+  # load required packages
+  library(SingleCellExperiment)
+  library(ggplot2)
+  library(dplyr)
+})
+```
+
+
+```{r base paths}
+# The path to this module
+module_base <- rprojroot::find_root(rprojroot::is_renv_project)
+
+# repo base is two levels up from module 
+repository_base <- dirname(dirname(module_base))
+
+# The current data directory, found within the repository base directory
+data_dir <- file.path(repository_base, "data", "current")
+sample_dir <- file.path(data_dir, "SCPCP000015", params$sample_id)
+```
+
+
+```{r}
+# source in helper functions
+jaccard_functions <- file.path(module_base, "scripts", "utils", "jaccard-functions.R")
+source(jaccard_functions)
+```
+
+
+```{r paths}
+# Input files
+sce_filename <- glue::glue("{params$library_id}_processed.rds")
+sce_file <- file.path(sample_dir, sce_filename)
+
+# png ref files 
+png_file <-file.path(params$infercnv_dir, glue::glue("{params$library_id}_infercnv.png"))
+
+# with ref cnv metadata file 
+cnv_metadata_file <- file.path(params$infercnv_dir, glue::glue("{params$library_id}_cnv-metadata.tsv"))
+
+# full infercnv object with information on genes/ chr to use later 
+final_cnv_obj_file <- file.path(params$infercnv_dir, glue::glue("{params$library_id}_cnv-obj.rds"))
+
+# output classifications file 
+infercnv_results_file <- file.path(params$results_dir, glue::glue("{params$library_id}_infercnv-classifications.tsv"))
+```
+
+```{r}
+# make sure files exist
+stopifnot(
+  "SCE file is missing" = file.exists(sce_file),
+  "PNG file with heatmap is missing" = file.exists(png_file),
+  "CNV metadata file is missing" = file.exists(cnv_metadata_file),
+  "Final InferCNV object is missing" = file.exists(final_cnv_obj_file),
+  "Marker gene classifications are missing" = file.exists(params$marker_gene_classification)
+)
+```
+
+
+```{r}
+# read in sce object
+sce <- readr::read_rds(sce_file)
+
+# read in cnv metadata 
+# use read.delim instead of readr because we want the rownames to be read in properly 
+cnv_metadata_df <- read.delim(cnv_metadata_file) |> 
+  tibble::rownames_to_column("barcodes")
+
+# read in tumor normal classifications 
+manual_classifications_df <- readr::read_tsv(params$marker_gene_classification)
+
+# check if marker gene annotations are present 
+if(all(is.na(manual_classifications_df$marker_gene_classification))){
+  has_marker_gene <- FALSE
+  message("No annotations were available using only marker gene expression. 
+          Any plots comparing InferCNV to marker gene annotation will be skipped.")
+} else {
+  has_marker_gene <- TRUE 
+}
+
+# read in cnv object 
+final_cnv_obj <- readr::read_rds(final_cnv_obj_file)
+```
+
+## InferCNV Heatmap 
+
+### Endothelial cells as reference 
+
+Below is the heatmap produced by `InferCNV` showing the CNVs for each cell using normal cells as a reference. 
+Each row is a cell and each column is a gene. 
+The top group contains all cells that were used as the reference group and the bottom is all other cells. 
+The color indicates the relative expression intensity of each gene with the darker colors either indicating a gain of expression or loss of expression compared to the reference cells. 
+
+From the [`InferCNV` documentation](https://github.com/broadinstitute/inferCNV/wiki/Interpreting-the-figure): 
+
+> The normal cells in the top heatmap define baseline expression for genes in normal cells. This baseline distribution of normal gene expression is subtracted from both the normal cells from which was defined as well as the tumor cells. Afterwards, the normal cell expression heatmap should be largely devoid of signal, with the exception of certain outlier gene expression values in certain cells. Removing this baseline of normal expression signal from the tumor cells should reveal those chromosomal regions that have significantly more or less expression than the normal cells, highlighting likely amplified or deleted whole chromosomes or large chromosomal regions.
+
+The dendogram on the left side is hierarchical clustering of all non-reference cells. 
+The color annotation next to it indicates subdivisions of the dendogram by cutting it in `k_obs_groups` groups, with the default `k_obs_groups` = 1. 
+
+![InferCNV Heatmap - Endothelial cells as reference](`r png_file`)
+
+
+## Using CNVs to annotate tumor cells 
+
+`InferCNV` uses an HMM-based model to predict whether or not a copy number variation (either loss or gain) is present for each chromosome in each cell. 
+For each predicted CNV region, a posterior probability is calculated for that CNV for each cell.
+
+From the [`InferCNV` documentation](https://github.com/broadinstitute/inferCNV/wiki/inferCNV-HMM-based-CNV-Prediction-Methods): 
+
+> CNV regions with mean posterior probabilities of being normal (no CNV) that are above a maximum threshold are removed as likely false positive predictions.
+
+Before we can make any plots we need to add some metadata that contains CNV information on a per cell level to the cell metadata.
+
+```{r}
+# make df for plotting
+coldata_df <- sce |> 
+  scuttle::makePerCellDF(use.dimred = "UMAP") |> 
+  # replace UMAP.1 with UMAP1
+  dplyr::rename_with(
+        \(x) stringr::str_replace(x, "^UMAP\\.", "UMAP")
+      ) |> 
+  # add in per cell cnv information 
+  dplyr::left_join(cnv_metadata_df, by = c("barcodes"))
+
+# remove MT and GL chr, comments in docs recommend that these are not useful and can be inaccurate 
+chr_columns_to_keep <- which(!stringr::str_detect(names(coldata_df), "chrMT|chrGL"))
+all_cnv_df <- coldata_df[, chr_columns_to_keep]
+```
+
+The metadata that we added includes the following columns for each chromosome: 
+
+- `has_cnv_chr1`
+- `has_loss_chr1`
+- `has_dupli_chr1`
+- `proportion_cnv_chr1`
+- `proportion_loss_chr1`
+- `proportion_dupli_chr1`
+- `proportion_scaled_cnv_chr1`
+- `proportion_scaled_loss_chr1`
+- `proportion_scaled_dupli_chr1`
+
+The `has` columns are boolean columns indicating if that cell has presence of a CNV, loss, or duplication event. 
+If `has_cnv` is TRUE if either `has_loss` or `has_dupli` is TRUE. 
+
+See [the comments in this issue](https://github.com/broadinstitute/infercnv/issues/208) explaining what the contents of the columns are. 
+
+One approach to classifying tumor cells is to look for cells that have a lot of CNVs. 
+Let's start by just summing up the total number of chromosomes with CNVs per cell and plotting that. 
+
+
+```{r}
+# grab any columns that have has_cnv 
+has_cnv_cols <- names(all_cnv_df)[startsWith(colnames(all_cnv_df), "has_cnv")]
+
+# don't include the normal cells that were provided as reference in scaling 
+cnv_df <- all_cnv_df |>
+  # get total number of chromosomes with cnvs per cell and then scale that number 
+  dplyr::mutate(
+    has_cnv = ifelse(
+      stringr::str_detect(subcluster, "reference"), 
+      NA_real_, 
+      rowSums(across(has_cnv_cols))
+    ))
+```
+
+
+```{r}
+# plot the total number of CNVs
+ggplot(cnv_df, aes(x = UMAP1, y= UMAP2, color = has_cnv)) +
+  geom_point(alpha = 0.5, size = 0.5) +
+  theme_bw() +
+  scale_color_viridis_c()
+```
+
+Those cells in grey (bottom left) are cells used as a reference. 
+If we were to use total CNVs we would need some sort of cut off for the number. 
+Let's look at the distribution of total CNVs to see if we can identify a cut off. 
+
+```{r}
+ggplot(cnv_df, aes(x = has_cnv)) +
+  geom_freqpoly(binwidth = 1, center = 0) +
+  theme_bw() +
+  labs(x = "Total number of CNVs")
+```
+
+We will call any tumor cell as those with a total number of cnvs greater than the mean(number of cnvs). 
+
+```{r}
+# get mean value for has_cnv, excluding any NAs
+mean_cnv <- mean(cnv_df$has_cnv, na.rm=TRUE)
+
+# add cnv classification 
+cnv_df <- cnv_df |> 
+  dplyr::mutate(cnv_classification = dplyr::case_when(is.na(has_cnv) ~ "Reference",
+                                                      has_cnv > mean_cnv ~ "Tumor",
+                                                      has_cnv <= mean_cnv ~ "Normal"))
+
+ggplot(cnv_df, aes(x = UMAP1, y= UMAP2, color = cnv_classification)) +
+  geom_point(alpha = 0.5, size = 0.5) +
+  theme_bw() 
+```
+
+Another option is to use the scaled proportion of CNVs which tells us the proportion of genes on that chromosome that are part of the CNV.  
+
+```{r}
+proportion_cols <- names(cnv_df)[startsWith(colnames(cnv_df), "proportion_scaled_cnv")]
+
+# get total number of genes per chromosome to use in weighted mean 
+chr_weights <- final_cnv_obj@gene_order |> 
+  as.data.frame() |> 
+  dplyr::count(chr) |> 
+  # only keep chr 1-22, drops MT and GL chr
+  dplyr::filter(chr %in% glue::glue("chr{seq(1,22)}")) |> 
+  dplyr::pull(n)
+
+# get mean proportion of cnvs per cell weighted by chromsome size (number of genes)
+cnv_df <- cnv_df |> 
+  dplyr::rowwise() |> 
+  # calculate weighted mean, excluding normal cells 
+  dplyr::mutate(
+    mean_proportion = ifelse(
+      !is.na(has_cnv), 
+      weighted.mean(across(proportion_cols), chr_weights), 
+      NA)) |> 
+  dplyr::ungroup()
+```
+
+```{r}
+ggplot(cnv_df, aes(x = UMAP1, y= UMAP2, color = mean_proportion)) +
+  geom_point(alpha = 0.5, size = 0.5) +
+  theme_bw() +
+  scale_color_viridis_c()
+```
+
+```{r}
+ggplot(cnv_df, aes(x = mean_proportion)) +
+  geom_density() +
+  theme_bw()
+```
+
+Let's see how this matches up with the tumor/normal classifications we defined just using total CNVs. 
+
+In the below plot we label all non-reference cells as either tumor or normal. 
+Cells that are NA are those that were already classified as reference cells. 
+
+```{r}
+ggplot(cnv_df, aes(x = mean_proportion, color = cnv_classification)) +
+  geom_density() +
+  theme_bw()
+```
+
+Below we will call tumor cells based on those that have a mean scaled proportion higher than the mean of all proportions. 
+
+```{r}
+# get mean value for mean_proportion, excluding any NAs
+all_mean_proportion <- mean(cnv_df$mean_proportion, na.rm = TRUE)
+
+
+# add cnv classification 
+cnv_df <- cnv_df |> 
+  dplyr::mutate(cnv_mean_classification = dplyr::case_when(is.na(mean_proportion) ~ "Reference",
+                                                           mean_proportion > all_mean_proportion ~ "Tumor",
+                                                           mean_proportion <= all_mean_proportion ~ "Normal"))
+
+ggplot(cnv_df, aes(x = UMAP1, y= UMAP2, color = cnv_mean_classification)) +
+  geom_point(alpha = 0.5, size = 0.5) +
+  theme_bw() 
+```
+
+
+For the rest of the notebook, we will use the classifications of tumor cells based on the mean proportion of total CNV occurrences. 
+
+## Compare InferCNV annotations to manual annotations 
+
+Below we can compare these annotations from InferCNV to classifying tumor cells manually with marker genes. 
+
+```{r, eval=has_marker_gene}
+all_classifications_df <- cnv_df |> 
+  dplyr::left_join(manual_classifications_df) |>
+  # relevel classifications for confusion matrix 
+  dplyr::filter(cnv_mean_classification != "Reference") |> 
+  dplyr::mutate(
+    cnv_classification = forcats::fct_relevel(cnv_mean_classification, "Tumor"),
+    marker_gene_classification = forcats::fct_relevel(marker_gene_classification, "Tumor")
+  )
+
+caret::confusionMatrix(
+  table(
+    all_classifications_df$cnv_classification,
+    all_classifications_df$marker_gene_classification
+  )
+)
+```
+
+We can also compare to the existing annotations obtained using `SingleR` and `CellAssign` as part of `scpca-nf`. 
+
+```{r}
+celltype_columns <- c(
+  "singler_celltype_annotation",
+  "cellassign_celltype_annotation"
+)
+
+# create jaccard matrices for SingleR and CellAssign compared to aneuploid/diploid 
+jaccard_matrices <- celltype_columns |>
+  purrr::map(\(name) {
+    make_jaccard_matrix(
+      cnv_df,
+      "cnv_mean_classification",
+      name
+    )
+  }) |> 
+  purrr::set_names("SingleR", "CellAssign")
+```
+
+```{r, fig.height=10, fig.width=7}
+# Set heatmap padding option
+heatmap_padding <- 0.2
+ComplexHeatmap::ht_opt(TITLE_PADDING = grid::unit(heatmap_padding, "in"))
+# list of heatmaps looking at SingleR/ CellAssign vs tumor/normal 
+heatmap <- jaccard_matrices |>
+  purrr::imap(
+    \(celltype_mat, celltype_method) {
+      ComplexHeatmap::Heatmap(
+        t(celltype_mat), # transpose because matrix rows are in common & we want a vertical arrangement
+        col = circlize::colorRamp2(c(0, 1), colors = c("white", "darkslateblue")),
+        border = TRUE,
+        ## Row parameters
+        cluster_rows = TRUE,
+        row_title = celltype_method,
+        row_title_gp = grid::gpar(fontsize = 12),
+        row_title_side = "left",
+        row_names_side = "left",
+        row_dend_side = "right",
+        row_names_gp = grid::gpar(fontsize = 10),
+        ## Column parameters
+        cluster_columns = FALSE,
+        column_title = "",
+        column_title_gp = grid::gpar(fontsize = 12),
+        column_names_side = "bottom",
+        column_names_gp = grid::gpar(fontsize = 10),
+        column_names_rot = 90,
+        ## Legend parameters
+        heatmap_legend_param = list(
+          title = "Jaccard index",
+          direction = "vertical",
+          legend_width = unit(1.5, "in")
+        ),
+        show_heatmap_legend = celltype_method == "SingleR",
+      )
+    }) |>
+  # concatenate vertically into HeatmapList object
+  purrr::reduce(ComplexHeatmap::`%v%`) |>
+  ComplexHeatmap::draw(
+    heatmap_legend_side = "right",
+    # add a margin to the heatmap so labels don't get cut off
+    padding = unit(c(2, 20, 2, 2), "mm")
+  )
+```
+
+## Check for known CNVs in Ewing's 
+
+There are a few known copy number variations in Ewing's sarcoma: 
+
+- Gain of Chr8
+- Gain of Chr12
+- Gain of Chr1p
+- Loss of Chr16q
+
+Although these are the most frequent, there are patients who do not have any of these alterations and patients that only have some of these alterations. 
+See [Tirode et al.,](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4264969/) and [Crompton et al.](https://doi.org/10.1158/2159-8290.CD-13-1037). 
+
+First we will compare the proportions across each chromosome between cells we have labeled as tumor or normal. 
+Then we will look specifically at the chromosomes commonly affected in Ewing sarcoma. 
+
+```{r}
+# prepare a data frame with one row per chromosome per cell for plotting
+proportion_df <- cnv_df |> 
+  # select only relevant columns for plotting
+  dplyr::select(barcodes, UMAP1, UMAP2, cnv_mean_classification, all_of(proportion_cols)) |> 
+  tidyr::pivot_longer(cols = all_of(proportion_cols),
+    names_to = "chromosome",
+    values_to = "proportion") |> 
+  # remove extra string in front of chr 
+  dplyr::mutate(
+    chromosome = stringr::str_remove(chromosome, "proportion_scaled_cnv_chr"),
+    # turn into numeric for easy ordering in plot 
+    chromosome = as.numeric(chromosome)
+  )
+
+```
+
+```{r, fig.height=10, fig.width=10}
+ggplot(proportion_df, aes(x = proportion, color = cnv_mean_classification)) +
+  geom_density(bounds = c(0,1), bw = 0.05) +
+  theme_bw() +
+  facet_wrap(vars(chromosome), ncol = 3)
+```
+
+Below we plot only Chr1, Chr8, Chr12, and Chr16 and look at the proportion on a UMAP. 
+
+```{r}
+ewings_chr_df <- proportion_df |> 
+  dplyr::filter(chromosome %in% c(1,8,12,16))
+
+ggplot(ewings_chr_df, aes(x = UMAP1, y=UMAP2 , color = proportion)) +
+  geom_point(alpha = 0.5, size = 0.5) +
+  theme_bw() +
+  facet_wrap(vars(chromosome)) +
+  scale_color_viridis_c()
+  
+```
+
+## Export results 
+
+We will save the tumor/normal classifications using both the sum and proportion. 
+
+```{r}
+# get a dataframe with barcodes, sum_classification and cluster_classification 
+celltypes_df <- cnv_df |> 
+  dplyr::select(
+    barcodes,
+    cnv_proportion_classification = cnv_mean_classification,
+    cnv_sum_classification = cnv_classification
+  )
+
+readr::write_tsv(celltypes_df, infercnv_results_file)
+```
+
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
+
