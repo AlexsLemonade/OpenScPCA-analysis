@@ -22,17 +22,30 @@ conda-lock install --name openscpca-doublet-detection conda-lock.yml
 conda activate openscpca-doublet-detection
 ```
 
-Then, run the following bash script:
+There are two portions of this module, which can be run as follows:
 
-```sh
-./run_doublet-detection.sh
-```
+- Benchmarking analysis: Compare several doublet detection methods on publicly available (non-ScPCA) datasets with annotated doublets.
+This analysis runs several doublet detection methods and assesses and compares their performance.
+  ```sh
+  ./run_doublet-detection-benchmarking.sh
+  ```
+
+- ScPCA analysis: Detect doublets in ScPCA data using `scDblFinder` for a given project id (`SCPCPXXXXXX`).
+  - The conda environment is not needed for this analysis, since it is only R-based
+  ```sh
+  ./run_doublet-detection-scpca.sh {scpca project id}
+
+  # for example, detect doublets on all libraries in ScPCA project SCPCP000001:
+  ./run_doublet-detection-scpca.sh SCPCP000001
+  ```
+
+
 
 ## Input files
 
 ### Benchmarking input files
 
-This module currently uses input data from [a Zenodo repository](https://doi.org/10.5281/zenodo.4562782) to explore doublet detection methods.
+The benchmarking portion of this module uses input data from [a Zenodo repository](https://doi.org/10.5281/zenodo.4562782) to explore doublet detection methods.
 Specifically, these datasets are used (descriptions from [Xi and Li (2021)](https://doi.org/10.1016/j.cels.2020.11.008)):
 - `hm-6k`
   - A mixture of human `HEK293T` and mouse `NIH3T3` cells with 6806 droplets
@@ -47,24 +60,52 @@ Specifically, these datasets are used (descriptions from [Xi and Li (2021)](http
   - `PBMCs` from a patient with systemic lupus erythematosus
   - Droplets were annotated with `demuxlet`
 
+### ScPCA input files
+
+The ScPCA portion of this module uses `processed` SCE files from the most recent OpenScPCA data release, which can be obtained with:
+
+```sh
+# to be run from the root of the repository
+./download-data.py
+```
+
 
 ## Output files
 
-Below is the results directory structure, annotated with file descriptions:
+Below is the results directory structure, annotated with file descriptions, after both `run_doublet-detection-benchmarking.sh` and `run_doublet-detection-scpca.sh` have been run.
+
 ```
 results
-└── benchmark-results
-    ├── {dataset}_scdblfinder.tsv # TSV files with `scDblFinder` inferences
-    ├── {dataset}_scrublet.tsv    # TSV files with `scrublet` inferences
-    └── rendered-notebooks
-        └── {dataset}-results.nb.html # Exploration of doublet detection results for each individual dataset
+├── README.md
+├── benchmark-results
+│   ├── {dataset}_scdblfinder.tsv # TSV files with `scDblFinder` inferences
+│   ├── {dataset}_scrublet.tsv    # TSV files with `Scrublet` inferences
+│   └── rendered-notebooks # Exploration of doublet detection results for each individual dataset
+│       ├── compare-doublet-results.nb.html # Created from exploratory-notebooks/03_compare-benchmark-results.Rmd
+│       └── {dataset}-doublet-results.nb.html # Created from template-notebooks/02_explore-benchmark-results.Rmd
+└── scpca-results # Results from running `scDblFinder` across ScPCA projects
+    └── {project id}
+        └── {sample id}
+            └── {library id}_processed_scdblfinder.tsv # TSV file with doublet results
 ```
+
+### Result TSV files
+
+The benchmarking TSV files have the following columns:
+
+- `{dataset}_scdblfinder.tsv`: `barcodes`, `score`, `class`, `cxds_score`
+    - `score` and `class` are the `scDblFinder` score and prediction columns, respectively, and `cxds_score` is a modified version of the [`scds::cxds` score](https://bioconductor.org/packages/devel/bioc/vignettes/scds/inst/doc/scds.html) as calculated by `scDblFinder`
+- `{dataset}_scrublet.tsv`: `barcodes`, `scrublet_score`, `scrublet_prediction`
+
+The ScPCA TSV files for `scDblFinder` results have only the columns `barcodes`, `score`, and `class`.
+Note that SCEs with fewer than 10 droplets will not be run through `scDblFinder`, so their associated result TSVs will contain `NA` values in the `score` and `class` columns.
+
 
 ## Software requirements
 
 This module uses both `renv` and `conda` to manage software dependencies.
-TODO: NEEDS UPDATING! A Dockerfile created using [these guidelines](https://openscpca.readthedocs.io/en/latest/software-platforms/docker/docker-images/#r-based-images) is also provided.
+A Dockerfile is also provided.
 
 ## Computational resources
 
-_Forthcoming._
+This module does not require compute beyond what is generally available on a laptop.

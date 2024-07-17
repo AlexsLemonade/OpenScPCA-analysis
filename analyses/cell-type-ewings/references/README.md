@@ -27,7 +27,7 @@ This currently contains all genes in `tumor-marker-genes.tsv` and genes used to 
 
 The `cellassign_refs` folder contains any binary matrices that are used as references when running `CellAssign`.
 
-Both of these files were created in `01-marker-gene-classification-cellassign.Rmd`:
+These files were created in `01-marker-gene-classification-cellassign.Rmd`:
 
 1. `tumor-marker_cellassign.tsv`: This file contains a binary matrix with all genes in `tumor-marker-genes.tsv`.
 2. `filtered-tumor-marker_cellassign.tsv`: This file contains a binary matrix with only the genes that have mean gene expression > 1 in `SCPCS000490`.

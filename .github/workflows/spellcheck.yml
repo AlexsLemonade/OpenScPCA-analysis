@@ -18,6 +18,7 @@ concurrency:
 jobs:
   spellcheck:
     runs-on: ubuntu-latest
+    if: github.repository_owner == 'AlexsLemonade'
     name: Spell check files
     permissions:
       contents: read
