@@ -8,6 +8,8 @@ AnnData
 anonymize
 anonymized
 aneuploid
+astrocytes
+AUCell
 authenticator
 barcode
 barcodes
@@ -53,6 +55,7 @@ Ensembl
 erythematosus
 et
 ewings
+EWS-FLI1
 fibroblast
 fibroblasts
 formatters
@@ -145,6 +148,7 @@ transferrable
 transphobic
 triaged
 TSV
+UCell
 UMAP
 vCPU
 vCPUs
