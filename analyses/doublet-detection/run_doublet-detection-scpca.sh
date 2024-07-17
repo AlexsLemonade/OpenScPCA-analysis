@@ -26,7 +26,7 @@ for SAMPLE_DIR in ${DATA_DIR}/${PROJECT_ID}/SCPCS*; do
     mkdir -p ${SAMPLE_RESULTS_DIR}
 
     for SCE_FILE in ${SAMPLE_DIR}/*_processed.rds; do
-        TSV_FILE=`sed 's/.rds/_scdblfinder.tsv/' <<<"$(basename $SCE_FILE)"`
+        TSV_FILE=$(basename "${SCE_FILE%.rds}_scdblfinder.tsv")
         Rscript scripts/01a_run-scdblfinder.R \
             --input_sce_file ${SCE_FILE} \
             --output_tsv_file ${SAMPLE_RESULTS_DIR}/${TSV_FILE}

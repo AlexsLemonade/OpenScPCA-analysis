@@ -60,8 +60,7 @@ def main() -> None:
     # Define and check files, directories
     if not args.input_anndata_file.exists():
         print(
-            "The input AnnData file could not be found at:",
-            args.input_anndata_file,
+            f"The input AnnData file could not be found at: {args.input_anndata_file}.",
             file=sys.stderr
         )
         sys.exit(1)

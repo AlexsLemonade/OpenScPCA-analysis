@@ -80,7 +80,7 @@ option_list <- list(
     help = "Path to input SCE file in RDS format."
   ),
   make_option(
-    "--output_tsv_file",
+    "--output_file",
     type = "character",
     help = "Path to output TSV file with doublet inferences."
   ),
