@@ -12,4 +12,3 @@
 # Ignore any large reference files
 references/infercnv_refs/*.gtf.gz
 references/infercnv_refs/*gene_order.txt
-
