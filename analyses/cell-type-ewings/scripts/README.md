@@ -179,7 +179,7 @@ If no `--auc_threshold` is provided, the `AUCell::AUCell_exploreThresholds()` fu
 The output will be a TSV file containing the AUC value determined by `AUCell` and the classification (tumor or normal) for each cell barcode.
 Optionally, the `--return_auc` flag can be used to print the AUC value used to classify tumor cells to `stdout`.
 
-By default, tumor marker genes are identifed from the genes listed in `references/tumor-marker-genes.tsv`.
+By default, tumor marker genes are identified from the genes listed in `references/tumor-marker-genes.tsv`.
 To use a different file, you can use the `--marker_genes_file` option.
 
 To run this script using the AUC value determined by `AUCell` and print the determined AUC to `stdout`, use this command:
@@ -200,7 +200,7 @@ Rscript 01-run-aucell.R \
   --output_file <path to TSV file to save results>
 ```
 
-2. `02-calculate-gene-set-scores.R`: This script is used to calculate gene set scores from three different EWS-FLI1 target gene lists for a given `SingleCellExperiment` object.
+2. `02-calculate-gene-set-scores.R`: This script is used to calculate gene set scores from three different `EWS-FLI1` target gene lists for a given `SingleCellExperiment` object.
 The sum, z-scaled sum, mean, and z-scaled mean is calculated for each gene set from the `logcounts` assay.
 This script returns a TSV file with one row per cell and one column per gene set metric.
 

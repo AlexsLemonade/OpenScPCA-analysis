@@ -204,7 +204,7 @@ ggplot(geneset_plot_df, aes(x = UMAP1, UMAP2, color = mean_score)) +
   scale_color_viridis_c()
 ```
 
-We do see that the scores across all three genesets seem to be pretty consistent. 
+We do see that the scores across all three gene sets seem to be pretty consistent. 
 Cells that have higher scores for `RIGGI`, also have higher scores for `SILIGAN` and `ZHANG`. 
 
 Let's look at how the distribution of gene set scores coordinates with assignments from the CNV and marker gene methods. 
@@ -345,7 +345,7 @@ Again we see that the gene set scores are bimodal for `SCPCL000822`, at least fo
 However, we don't see that for `SCPCL000824`, but we do see a very similar range of values. 
 This makes me think that the majority of the cells are in fact tumor cells. 
 
-## Classifying tumor cells with AUCell
+## Classifying tumor cells with `AUCell`
 
 The next thing we will do is see if we can use a more data driven approach to identify cells with higher marker gene or gene set expression. 
 We will use [`AUCell`](https://www.bioconductor.org/packages/release/bioc/vignettes/AUCell/inst/doc/AUCell.html) to do this and will run it on both samples. 
@@ -353,7 +353,7 @@ We will use [`AUCell`](https://www.bioconductor.org/packages/release/bioc/vignet
 `AUCell` can be used to identify cells with an active gene set given a list of genes or gene signature. 
 From the [vignette](https://bioconductor.org/packages/release/bioc/vignettes/AUCell/inst/doc/AUCell.html): 
 
-> AUCell uses the “Area Under the Curve” (AUC) to calculate whether a critical subset of the input gene set is enriched within the expressed genes for each cell. The distribution of AUC scores across all the cells allows exploring the relative expression of the signature. Since the scoring method is ranking-based, AUCell is independent of the gene expression units and the normalization procedure. In addition, since the cells are evaluated individually, it can easily be applied to bigger datasets, subsetting the expression matrix if needed.
+> `AUCell` uses the “Area Under the Curve” (AUC) to calculate whether a critical subset of the input gene set is enriched within the expressed genes for each cell. The distribution of AUC scores across all the cells allows exploring the relative expression of the signature. Since the scoring method is ranking-based, AUCell is independent of the gene expression units and the normalization procedure. In addition, since the cells are evaluated individually, it can easily be applied to bigger datasets, subsetting the expression matrix if needed.
 
 We will use `AUCell` with four different gene sets: 
 
@@ -550,7 +550,7 @@ caret::confusionMatrix(
   ) 
 ```
 
-## Classifying tumor cells with UCell
+## Classifying tumor cells with `UCell`
 
 Here we will look at using [`UCell`](https://carmonalab.github.io/UCell_demo/UCell_matrix_vignette.html#content) to calculate a gene set score for each cell and then attempt to classify cells based on the distribution of those gene set scores. 
 
@@ -740,7 +740,7 @@ plot_gene_heatmap(marker_gene_heatmap,
                   annotation = annotation)
 ```
  
-Here we see that the updated marker gene classification (using raw gene expression cut offs determined from `SCPCL000822`) and `AUCell` tend to have the clearest sepration between tumor cells and normal cells that line up with expression of individual marker genes. 
+Here we see that the updated marker gene classification (using raw gene expression cut offs determined from `SCPCL000822`) and `AUCell` tend to have the clearest separation between tumor cells and normal cells that line up with expression of individual marker genes. 
 
 Now we will create the same plot but with gene set scores. 
  

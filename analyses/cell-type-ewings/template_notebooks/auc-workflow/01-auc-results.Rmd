@@ -148,7 +148,7 @@ classification_df <- classification_df |>
 ```
 
 
-## AUCell classification UMAP
+## `AUCell` classification UMAP
 
 Below is a UMAP showing cells that are labeled as either `Tumor` or `Normal` using `AUCell` and marker gene expression. 
 
