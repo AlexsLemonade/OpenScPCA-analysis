@@ -16,17 +16,17 @@ params:
   results_dir: "cnv_annotation"
 ---
 
-## Introduction
+## Introduction 
 
-This notebook looks at classifying tumor cells with `CellAssign` in a Ewing sarcoma sample, `r {params$sample_id}`.
+This notebook looks at classifying tumor cells with `CellAssign` in a Ewing sarcoma sample, `r {params$sample_id}`. 
 
-We use `CellAssign` with a variety of references:
+We use `CellAssign` with a variety of references: 
 
-- A full list of tumor marker genes only.
-- Tumor marker genes and non-tumor marker genes from [Visser et al.](https://doi.org/10.1158/2767-9764.CRC-23-0027) specified in the supplemental methods.
+- A full list of tumor marker genes only. 
+- Tumor marker genes and non-tumor marker genes from [Visser et al.](https://doi.org/10.1158/2767-9764.CRC-23-0027) specified in the supplemental methods. 
 
-We then compare the results from running `CellAssign` with each reference to the tumor/normal classifications obtained from looking only at marker genes.
-We also look at marker gene expression in the assigned cells.
+We then compare the results from running `CellAssign` with each reference to the tumor/normal classifications obtained from looking only at marker genes. 
+We also look at marker gene expression in the assigned cells. 
 
 ## Setup
 
@@ -47,7 +47,7 @@ knitr::opts_chunk$set(
 # The path to this module
 module_base <- rprojroot::find_root(rprojroot::is_renv_project)
 
-# repo base is two levels up from module
+# repo base is two levels up from module 
 repository_base <- dirname(dirname(module_base))
 
 # The current data directory, found within the repository base directory
@@ -75,12 +75,12 @@ visser_markers_file <- file.path(module_base, "references", "visser-all-marker-g
 cellassign_annotations_file <- file.path(params$results_dir, glue::glue("{params$library_id}_cellassign-classifications.tsv"))
 ```
 
-Define some helper functions for creating a reference matrix and obtaining cell type annotations from `CellAssign` predictions.
+Define some helper functions for creating a reference matrix and obtaining cell type annotations from `CellAssign` predictions. 
 
 ```{r}
-# function to get assigned cell type based on max prediction returned by CellAssign
+# function to get assigned cell type based on max prediction returned by CellAssign 
 get_celltype_assignment <- function(predictions){
-
+  
   # if no predictions, assign every cell to NA
   if(length(colnames(predictions)) == 1){
     celltype_assignments <- data.frame(
@@ -89,7 +89,7 @@ get_celltype_assignment <- function(predictions){
     )
   } else {
     # get individual cell type assignments
-    # those with the max prediction
+    # those with the max prediction 
     celltype_assignments <- predictions |>
       tidyr::pivot_longer(
         !barcode,
@@ -98,9 +98,9 @@ get_celltype_assignment <- function(predictions){
       ) |>
       dplyr::group_by(barcode) |>
       dplyr::slice_max(score, n = 1) |>
-      dplyr::ungroup()
+      dplyr::ungroup() 
   }
-
+  
   return(celltype_assignments)
 }
 ```
@@ -109,19 +109,19 @@ get_celltype_assignment <- function(predictions){
 # read in processed sce
 sce <- readr::read_rds(sce_file)
 
-# read in tumor marker genes table
-tumor_markers_df <- readr::read_tsv(tumor_markers_file) |>
+# read in tumor marker genes table 
+tumor_markers_df <- readr::read_tsv(tumor_markers_file) |> 
   # account for genes being from multiple sources
-  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |>
+  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |> 
   dplyr::distinct()
 
-# read in all marker genes
-visser_markers_df <- readr::read_tsv(visser_markers_file) |>
+# read in all marker genes 
+visser_markers_df <- readr::read_tsv(visser_markers_file) |> 
   # account for genes being from multiple sources
-  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |>
+  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |> 
   dplyr::distinct()
 
-# read in tumor normal classifications
+# read in tumor normal classifications 
 # obtained from manual classification in `01-marker-gene-tumor-classifications.Rmd`
 classifications_df <- readr::read_tsv(params$marker_gene_classification)
 tumor_predictions <- readr::read_tsv(params$tumor_marker_predictions)
@@ -130,13 +130,13 @@ panglao_predictions <- readr::read_tsv(params$panglao_predictions)
 ```
 
 ```{r}
-# check if marker gene annotations are present
+# check if marker gene annotations are present 
 if(all(is.na(classifications_df$marker_gene_classification))){
   has_marker_gene <- FALSE
-  message("No annotations were available using only marker gene expression.
+  message("No annotations were available using only marker gene expression. 
           Any plots comparing CellAssign to marker gene annotation will be skipped.")
 } else {
-  has_marker_gene <- TRUE
+  has_marker_gene <- TRUE 
 }
 ```
 
@@ -147,20 +147,20 @@ if(all(is.na(classifications_df$marker_gene_classification))){
 
 First let's see if we can use `CellAssign` to classify cells as tumor or normal using just the list of tumor marker genes.
 
-We will read in the predictions file and find the predicted cell type for each cell, either "tumor" or "other".
-Then we'll show a heatmap of the scores for each cell and cell type.
+We will read in the predictions file and find the predicted cell type for each cell, either "tumor" or "other". 
+Then we'll show a heatmap of the scores for each cell and cell type. 
 Included in that heatmap will be annotation of which cells were classified as tumor or normal using the manual classification.
 
 ```{r}
-# get cell type assignments
+# get cell type assignments 
 tumor_celltype_assignments <- get_celltype_assignment(tumor_predictions)
 
 if(all(is.na(tumor_celltype_assignments$celltype))){
   has_tumor_assignments <- FALSE
   message("No CellAssign assignments found for tumor marker genes.")
 } else {
- # create a table of assignments
-  table(tumor_celltype_assignments$celltype)
+ # create a table of assignments 
+  table(tumor_celltype_assignments$celltype) 
   has_tumor_assignments <- TRUE
 }
 
@@ -173,7 +173,7 @@ if(has_marker_gene){
   annotation_df <- data.frame(
     marker_gene_classification = classifications_df$marker_gene_classification,
     row.names = classifications_df$barcodes
-  )
+  ) 
 } else {
   annotation_df <- NULL
 }
@@ -181,88 +181,88 @@ if(has_marker_gene){
 
 
 ```{r, eval=has_tumor_assignments}
-# heatmap of prediction scores
+# heatmap of prediction scores 
 tumor_predictions |>
-  tibble::column_to_rownames("barcode") |>
-  as.matrix() |>
+  tibble::column_to_rownames("barcode") |> 
+  as.matrix() |> 
   pheatmap::pheatmap(show_rownames = FALSE,
                      annotation_row = annotation_df)
 ```
 
-Let's also look at the cell annotations on a UMAP and then look at the confusion matrix.
+Let's also look at the cell annotations on a UMAP and then look at the confusion matrix. 
 
 ```{r}
-# rename cell type column
-tumor_celltype_assignments <- tumor_celltype_assignments |>
+# rename cell type column 
+tumor_celltype_assignments <- tumor_celltype_assignments |> 
   dplyr::rename(cellassign_annotations = celltype)
 
-# create a dataframe to use for plotting with UMAP and cell information
-celltype_df <- sce |>
-  scuttle::makePerCellDF(use.dimred = "UMAP") |>
+# create a dataframe to use for plotting with UMAP and cell information 
+celltype_df <- sce |> 
+  scuttle::makePerCellDF(use.dimred = "UMAP") |> 
   # replace UMAP.1 with UMAP1
   dplyr::rename_with(
         \(x) stringr::str_replace(x, "^UMAP\\.", "UMAP")
-      ) |>
+      ) |> 
   # join with tumor normal
-  dplyr::left_join(classifications_df, by = "barcodes") |>
-  # join with filtered cell type assignments from cellassign
+  dplyr::left_join(classifications_df, by = "barcodes") |> 
+  # join with filtered cell type assignments from cellassign 
   dplyr::left_join(tumor_celltype_assignments, by = c("barcodes" = "barcode"))
 ```
 
 
 ```{r, eval=has_tumor_assignments}
 ggplot(celltype_df, aes(x = UMAP1, y = UMAP2, color = cellassign_annotations)) +
-  geom_point(size = 0.5, alpha = 0.5) +
+  geom_point(size = 0.5, alpha = 0.5) + 
   theme_bw()
 ```
 
 ```{r, eval=has_tumor_assignments}
-# make sure that we only run if both classes are found in both cell types
+# make sure that we only run if both classes are found in both cell types 
 if(all(c("other", "tumor") %in% celltype_df$cellassign_annotations) &&
    all(c("Tumor", "Normal") %in% celltype_df$marker_gene_classification)){
   # prep annotations for confusion matrix
-  celltype_df <- celltype_df |>
+  celltype_df <- celltype_df |> 
     dplyr::mutate(cellassign_annotations = ifelse(
       # make sure annotations match marker gene annotations
-      cellassign_annotations == "tumor",
-      "Tumor",
+      cellassign_annotations == "tumor", 
+      "Tumor", 
       "Normal"
-    )) |>
+    )) |> 
     # make tumor the positive class
     dplyr::mutate(
       cellassign_annotations = forcats::fct_relevel(cellassign_annotations, "Tumor"),
       marker_gene_classification = forcats::fct_relevel(marker_gene_classification, "Tumor")
-    )
-
+    ) 
+  
   caret::confusionMatrix(
     table(
-      celltype_df$marker_gene_classification,
+      celltype_df$marker_gene_classification, 
       celltype_df$cellassign_annotations)
-  )
+  ) 
 }
 ```
 
 
-To confirm that the cells with tumor cells have higher expression of marker genes, let's look at the mean expression of marker genes between tumor and other cells as classified by `CellAssign`.
+To confirm that the cells with tumor cells have higher expression of marker genes, let's look at the mean expression of marker genes between tumor and other cells as classified by `CellAssign`. 
 
 ```{r, eval=has_marker_gene}
-# get marker gene expression
+# get marker gene expression 
 marker_gene_exp <- logcounts(sce[tumor_markers_df$ensembl_gene_id, ]) |>
   as.matrix() |>
   t() |>
   as.data.frame() |>
   tibble::rownames_to_column("barcodes")
 
-marker_gene_exp_df <- celltype_df |>
-  dplyr::left_join(marker_gene_exp, by = "barcodes") |>
+marker_gene_exp_df <- celltype_df |> 
+  dplyr::left_join(marker_gene_exp, by = "barcodes") |> 
   tidyr::pivot_longer(
     cols = starts_with("ENSG"),
     names_to = "ensembl_gene_id",
     values_to = "gene_expression"
-  ) |>
-  dplyr::group_by(barcodes) |>
+  ) |> 
+  dplyr::group_by(barcodes) |> 
   dplyr::mutate(mean_exp = mean(gene_expression))
-
+  
 
 ggplot(marker_gene_exp_df, aes(x = mean_exp, fill = cellassign_annotations)) +
   geom_density() +
@@ -273,51 +273,51 @@ ggplot(marker_gene_exp_df, aes(x = mean_exp, fill = cellassign_annotations)) +
 
 ### Run CellAssign with tumor markers and all marker genes from Visser et al.
 
-We can also test to see if classifying tumor cells works with adding a few more cell types, rather than just have the two options.
-Below we will use `CellAssign` but with all tumor marker genes and all marker genes in Visser et al. for non-tumor cells.
+We can also test to see if classifying tumor cells works with adding a few more cell types, rather than just have the two options. 
+Below we will use `CellAssign` but with all tumor marker genes and all marker genes in Visser et al. for non-tumor cells. 
 
 ```{r}
-# get cell type assignments
+# get cell type assignments 
 visser_celltype_assignments <- get_celltype_assignment(visser_predictions)
 
 if(all(is.na(visser_celltype_assignments$celltype))){
   has_visser_assignments <- FALSE
   message("No CellAssign assignments found for tumor marker genes.")
 } else {
- # create a table of assignments
-  table(visser_celltype_assignments$celltype)
+ # create a table of assignments 
+  table(visser_celltype_assignments$celltype) 
   has_visser_assignments <- TRUE
 }
 ```
 
 ```{r, eval=has_visser_assignments}
-# heatmap of prediction scores
+# heatmap of prediction scores 
 visser_predictions |>
-  tibble::column_to_rownames("barcode") |>
-  as.matrix() |>
+  tibble::column_to_rownames("barcode") |> 
+  as.matrix() |> 
   pheatmap::pheatmap(show_rownames = FALSE,
                      annotation_row = annotation_df)
 ```
 
 
-Below we will look at which cells are assigned to which cell type and then compare assignments between `CellAssign` and manual marker gene assignment.
+Below we will look at which cells are assigned to which cell type and then compare assignments between `CellAssign` and manual marker gene assignment. 
 
 ```{r, eval=has_visser_assignments}
-# first rename column to combine with cell type df
-visser_celltype_assignments <- visser_celltype_assignments |>
+# first rename column to combine with cell type df 
+visser_celltype_assignments <- visser_celltype_assignments |> 
   dplyr::rename(visser_cellassign_annotations = celltype)
 
-celltype_df <- celltype_df |>
+celltype_df <- celltype_df |> 
   dplyr::left_join(visser_celltype_assignments, by = c("barcodes" = "barcode"))
 
-# umap showing cell type annotations from using Visser reference
+# umap showing cell type annotations from using Visser reference 
 ggplot(celltype_df, aes(x = UMAP1, UMAP2, color = visser_cellassign_annotations)) +
-  geom_point(size = 0.5, alpha = 0.5) +
+  geom_point(size = 0.5, alpha = 0.5) + 
   theme_bw()
 ```
 
 ```{r, eval=has_visser_assignments}
-# get jaccard similarity index
+# get jaccard similarity index 
 jaccard_mtx <- make_jaccard_matrix(celltype_df, "visser_cellassign_annotations", "marker_gene_classification")
 
 ComplexHeatmap::Heatmap(
@@ -349,18 +349,18 @@ ComplexHeatmap::Heatmap(
 )
 ```
 
-The one cell type that is identified here and in the `CellAssign` annotations with the reference from `scpca-nf` is Endothelial cells.
-Let's compare the classifications of Endothelial cells between the two references.
+The one cell type that is identified here and in the `CellAssign` annotations with the reference from `scpca-nf` is Endothelial cells. 
+Let's compare the classifications of Endothelial cells between the two references. 
 
 ```{r, eval=has_visser_assignments}
-# first make sure cells have been classified as endothelial
+# first make sure cells have been classified as endothelial 
 has_endothelial <- "Endothelial cells" %in% unique(celltype_df$cellassign_celltype_annotation) &&
   "endothelial cells" %in% unique(celltype_df$visser_cellassign_annotations)
 
-# if present, compare across both references
+# if present, compare across both references 
 if(has_endothelial){
   # prep annotations for confusion matrix
-  celltype_df <- celltype_df |>
+  celltype_df <- celltype_df |> 
     dplyr::mutate(
       caret_visser_annotations = ifelse(
         # make sure annotations match marker gene annotations
@@ -368,19 +368,19 @@ if(has_endothelial){
       ),
       caret_cellassign_annotations = ifelse(
         cellassign_celltype_annotation == "Endothelial cells", "Endothelial cells", "Other"
-      ),
+      ),  
       # make tumor the positive class
       caret_visser_annotations = forcats::fct_relevel(caret_visser_annotations, "Endothelial cells"),
       caret_cellassign_annotations = forcats::fct_relevel(caret_cellassign_annotations, "Endothelial cells")
-    )
-
+    ) 
+  
   if(all("Endothelial cells", "Other") %in% celltype_df$visser_cellassign_annotations &&
      all("Endothelial cells", "Other") %in% celltype_df$cellassign_celltype_annotation){
     caret::confusionMatrix(
       table(
-        celltype_df$caret_cellassign_annotations,
+        celltype_df$caret_cellassign_annotations, 
         celltype_df$caret_visser_annotations)
-    )
+    )  
   }
 } else {
   message("No endothelial cells were classified by `CellAssign`.")
@@ -388,16 +388,16 @@ if(has_endothelial){
 ```
 
 
-Below, we look at the individual expression of each marker genes in the cells.
-These plots are grouped to show all marker genes for a given cell type in a single panel.
+Below, we look at the individual expression of each marker genes in the cells. 
+These plots are grouped to show all marker genes for a given cell type in a single panel. 
 
 
 ```{r, eval=has_visser_assignments}
-# get all markers
-all_markers <- visser_markers_df |>
+# get all markers 
+all_markers <- visser_markers_df |> 
   dplyr::pull(ensembl_gene_id)
 
-# get expression for all markers
+# get expression for all markers 
 marker_gene_exp <- logcounts(sce[all_markers, ]) |>
   as.matrix() |>
   t() |>
@@ -405,13 +405,13 @@ marker_gene_exp <- logcounts(sce[all_markers, ]) |>
   tibble::rownames_to_column("barcodes")
 
 # add in gene expression to cell type df for plotting
-marker_gene_exp_df <- celltype_df |>
-  dplyr::left_join(marker_gene_exp, by = "barcodes") |>
+marker_gene_exp_df <- celltype_df |> 
+  dplyr::left_join(marker_gene_exp, by = "barcodes") |> 
   tidyr::pivot_longer(
     cols = starts_with("ENSG"),
     names_to = "ensembl_gene_id",
     values_to = "gene_expression"
-  ) |>
+  ) |> 
   dplyr::left_join(visser_markers_df)
 ```
 
@@ -420,13 +420,13 @@ marker_gene_exp_df <- celltype_df |>
 # get a list of all celltypes in the reference
 celltypes <- unique(visser_markers_df$cell_type)
 
-# for each cell type, plot each individual marker as a UMAP
-celltypes |>
+# for each cell type, plot each individual marker as a UMAP 
+celltypes |> 
   purrr::map(\(celltype){
-    plot_df <- marker_gene_exp_df |>
+    plot_df <- marker_gene_exp_df |> 
       dplyr::filter(cell_type == celltype)
-
-    # faceted umap showing a umap panel for each marker gene
+    
+    # faceted umap showing a umap panel for each marker gene 
     ggplot(plot_df, aes(x = UMAP1, y = UMAP2, color = gene_expression)) +
       geom_point(alpha = 0.1, size = 0.2) +
       facet_wrap(vars(gene_symbol)) +
@@ -448,18 +448,18 @@ celltypes |>
       ) +
       guides(colour = guide_colorbar(title.position = "bottom", title.hjust = 0.5)) +
       theme_bw()
-
+    
   })
 ```
 
 
-Below we look at the expression of marker genes for each cell type across all cells identified to be each type by `CellAssign.`
-We would expect to see expression of the marker genes for tumor cells to be higher in the cells that are identified to be tumor cells compared to other cell types.
+Below we look at the expression of marker genes for each cell type across all cells identified to be each type by `CellAssign.` 
+We would expect to see expression of the marker genes for tumor cells to be higher in the cells that are identified to be tumor cells compared to other cell types. 
 
 ```{r, eval=has_visser_assignments}
-grouped_celltype_df <- marker_gene_exp_df |>
-  # group by barcode and cell type to get the sum
-  dplyr::group_by(barcodes, cell_type) |>
+grouped_celltype_df <- marker_gene_exp_df |> 
+  # group by barcode and cell type to get the sum 
+  dplyr::group_by(barcodes, cell_type) |> 
   dplyr::mutate(mean_exp = mean(gene_expression))
 
 ggplot(grouped_celltype_df, aes(x = mean_exp, color = cell_type)) +
@@ -474,55 +474,55 @@ ggplot(grouped_celltype_df, aes(x = mean_exp, color = cell_type)) +
 
 ### Run CellAssign with markers from PanglaoDB
 
-The last thing we will do here is run CellAssign using some of the same reference that we used when running CellAssign as part of `scpca-nf`.
+The last thing we will do here is run CellAssign using some of the same reference that we used when running CellAssign as part of `scpca-nf`. 
 In particular, the majority of non-muscle cells (which we believe to be tumor cells) were identified as either Endothelial cells or Fibroblasts.
-So we will use a reference that takes the markers for Endothelial cells and Fibroblasts from PanglaoDB and combines with the tumor markers.
+So we will use a reference that takes the markers for Endothelial cells and Fibroblasts from PanglaoDB and combines with the tumor markers. 
 
 
 ```{r}
-# get cell type assignments
+# get cell type assignments 
 panglao_celltype_assignments <- get_celltype_assignment(panglao_predictions)
 
 if(all(is.na(panglao_celltype_assignments$celltype))){
   has_panglao_assignments <- FALSE
   message("No CellAssign assignments found for tumor marker genes.")
 } else {
- # create a table of assignments
-  table(panglao_celltype_assignments$celltype)
+ # create a table of assignments 
+  table(panglao_celltype_assignments$celltype) 
   has_panglao_assignments <- TRUE
 }
 ```
 
 ```{r, eval=has_panglao_assignments}
-# heatmap of prediction scores
+# heatmap of prediction scores 
 panglao_predictions |>
-  tibble::column_to_rownames("barcode") |>
-  as.matrix() |>
+  tibble::column_to_rownames("barcode") |> 
+  as.matrix() |> 
   pheatmap::pheatmap(show_rownames = FALSE,
                      annotation_row = annotation_df)
 ```
 
 
 ```{r, eval=has_panglao_assignments}
-# first rename column to combine with cell type df
-panglao_celltype_assignments <- panglao_celltype_assignments |>
+# first rename column to combine with cell type df 
+panglao_celltype_assignments <- panglao_celltype_assignments |> 
   dplyr::rename(panglao_cellassign_annotations = celltype)
 
-celltype_df <- celltype_df |>
+celltype_df <- celltype_df |> 
   dplyr::left_join(panglao_celltype_assignments, by = c("barcodes" = "barcode"))
 
-# umap showing cell type annotations from using Visser reference
+# umap showing cell type annotations from using Visser reference 
 ggplot(celltype_df, aes(x = UMAP1, UMAP2, color = panglao_cellassign_annotations)) +
-  geom_point(size = 0.5, alpha = 0.5) +
+  geom_point(size = 0.5, alpha = 0.5) + 
   theme_bw()
 
 ```
 
 
-Let's directly compare these annotations to the `CellAssign` annotations obtained from `scpca-nf`.
+Let's directly compare these annotations to the `CellAssign` annotations obtained from `scpca-nf`. 
 
 ```{r, eval=has_panglao_assignments}
-# get jaccard similarity index
+# get jaccard similarity index 
 jaccard_mtx <- make_jaccard_matrix(celltype_df, "cellassign_celltype_annotation", "panglao_cellassign_annotations")
 
 ComplexHeatmap::Heatmap(
@@ -557,10 +557,10 @@ ComplexHeatmap::Heatmap(
 ## Save annotations
 
 ```{r}
-celltype_df <- celltype_df |>
-  dplyr::select(barcodes,
-                marker_gene_cellassign_annotations = cellassign_annotations,
-                visser_cellassign_annotations,
+celltype_df <- celltype_df |> 
+  dplyr::select(barcodes, 
+                marker_gene_cellassign_annotations = cellassign_annotations, 
+                visser_cellassign_annotations, 
                 panglao_cellassign_annotations)
 
 readr::write_tsv(celltype_df, cellassign_annotations_file)
