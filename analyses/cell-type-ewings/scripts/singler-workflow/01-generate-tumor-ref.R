@@ -45,26 +45,25 @@ subset_tumor_cells <- function(sce_file,
     dplyr::filter(auc_classification == "Tumor") |> 
     dplyr::pull(barcodes)
   
+  if(length(tumor_cells) == 0){
+    # exit if no tumor cells
+    return(NULL)
+  }
+  
   # read in sce 
   sce <- readr::read_rds(sce_file)
   
-  if(length(tumor_cells) > 0){
+  # pull out library id 
+  library_id <- metadata(sce)$library_id
+  
+  # filter to only contain tumor cells
+  filtered_sce <- sce[, tumor_cells]
+  
+  # add tumor labels to coldata 
+  filtered_sce$library_id <- library_id
+  filtered_sce$ref_tumor_label <- glue::glue("tumor-{library_id}")
     
-    # filter to only contain tumor cells
-    filtered_sce <- sce[, tumor_cells]
-    
-    # pull out library id 
-    library_id <- metadata(sce)$library_id
-    
-    # add tumor labels to coldata 
-    filtered_sce$library_id <- library_id
-    filtered_sce$ref_tumor_label <- glue::glue("tumor-{library_id}")
-    
-    return(filtered_sce) 
-    
-  } else {
-    return(NULL)
-  }
+  return(filtered_sce) 
   
 }
 
@@ -95,15 +94,13 @@ annotation_files <- annotation_files[order(annotation_files, sce_library_ids)]
 # Create merged tumor cell ref -------------------------------------------------
 
 # list of tumor cell sce 
-sce_list <- purrr::map2(sce_files, annotation_files, 
-                        \(sce_file, annotation_file){
-                          subset_tumor_cells(sce_file, annotation_file)}) 
+sce_list <- purrr::map2(sce_files, annotation_files, subset_tumor_cells) 
 
-# remove any objects that dont' have tumor cells
-sce_present <- sce_list |> 
+# remove any objects that don't have tumor cells
+sce_absent <- sce_list |> 
   purrr::map_lgl(is.null)
 
-remaining_sce_list <- sce_list[!sce_present]
+remaining_sce_list <- sce_list[which(!sce_absent)]
 
 # merge sces into a single reference 
 merged_ref_sce <- scpcaTools::merge_sce_list(

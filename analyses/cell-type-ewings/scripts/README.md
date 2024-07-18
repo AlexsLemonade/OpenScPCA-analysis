@@ -194,7 +194,7 @@ The `singler-workflow` folder contains scripts used in the workflow to run `Sing
 
 1. `01-generate-tumor-ref.R`: This script is used to create a merged `SingleCellExperiment` object containing all high-confidence tumor cells from all samples in `SCPCP000015`.
 This script reads in all processed `SingleCellExperiment` objects and all results from running `aucell-annotation.sh` for `SCPCP000015`.
-Any cells that are labeled as "Tumor" in the `auc_classification` column of the results, are kept and all other cells are discarded.
+Any cells that are labeled as "Tumor" in the `auc_classification` column of the results are kept and all other cells are discarded.
 The tumor cells from all objects are then merged into a single `SingleCellExperiment` object that will be used as a reference for running `SingleR`.
 
 Running the script using the default options will save the merged reference object to `scratch/tumor-ref-singler.rds`.
