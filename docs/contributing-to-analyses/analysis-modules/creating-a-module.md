@@ -30,8 +30,8 @@ Before running this script, you should determine two things:
 
 To run this script, take these steps:
 
-1. Open a [terminal](../../software-platforms/general-tools/using-the-terminal.md) window.
-    - You may wish to launch terminal [from GitKraken](../../software-platforms/general-tools/using-the-terminal.md#gitkraken) so that you are automatically placed in the repository.
+1. Open a [terminal](../../getting-started/project-tools/using-the-terminal.md) window.
+    - You may wish to launch terminal [from GitKraken](../../getting-started/project-tools/using-the-terminal.md#gitkraken) so that you are automatically placed in the repository.
 
 2. Make sure you are working in your `base` conda environment by running `conda activate base`.
 
@@ -62,8 +62,9 @@ The `create-analysis-module.py` script will also create two additional files bes
 These files, stored in the repository folder `.github/workflows`, are [GitHub Action workflow files](https://docs.github.com/en/actions) that the OpenScPCA project uses to ensure module reproducibility.
 The workflows are disabled by default.
 
-- `run_{my-module-name}.yml` contains a skeleton workflow for running the analysis module
-- `docker_{my-module-name}.yml` contains a skeleton workflow for building the analysis module's [Dockerfile](../../software-platforms/docker/index.md)
+- `run_{my-module-name}.yml` contains a skeleton workflow for testing the analysis module.
+[Learn more about module testing workflows here.](../../ensuring-repro/workflows/run-module-gha.md)
+- `docker_{my-module-name}.yml` contains a skeleton workflow for building the analysis module's [Dockerfile](../../ensuring-repro/docker/index.md)
 
 Please [commit these files](../working-with-git/making-commits.md) as part of your first [pull request](../creating-pull-requests/index.md), and we'll take care of the rest!
 
@@ -118,7 +119,7 @@ Use this flag to add a template R notebook to your module:
 
 !!! info
     The `hello-r` example module was created with this flag.
-    Learn more about [using `renv` to manage your R environment](../determining-requirements/determining-software-requirements.md#using-renv).
+    Learn more about [using `renv` to manage your R environment](../../ensuring-repro/managing-software/using-renv.md).
 
 Use this flag to:
 
@@ -135,7 +136,7 @@ Use this flag to:
 <div class="grid" markdown>
 
 - You can use `notebook-template.Rmd` as a starting point for any R Markdown notebooks you create while writing your analysis
-- You can use `components/dependencies.R` to [pin R package dependencies that `renv` does not automatically capture](../determining-requirements/determining-software-requirements.md#pinning-dependencies-that-are-not-captured-automatically)
+- You can use `components/dependencies.R` to [pin R package dependencies that `renv` does not automatically capture](../../ensuring-repro/managing-software/using-renv.md#pinning-dependencies-that-are-not-captured-automatically)
 - These additional files and folders manage the `renv` environment, and you should not directly edit them:
     - `renv.lock`
     - The `renv` folder
@@ -172,7 +173,7 @@ Use this flag to:
 
 !!! info
     The `hello-python` example module was created with this flag.
-    Learn more about [using conda to manage your Python environment](../determining-requirements/determining-software-requirements.md#managing-software-dependencies-with-conda).
+    Learn more about [using conda to manage your Python environment](../../ensuring-repro/managing-software/using-conda.md).
 
 Use this flag to:
 

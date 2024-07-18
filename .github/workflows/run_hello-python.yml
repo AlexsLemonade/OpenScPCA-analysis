@@ -7,7 +7,7 @@
 name: Run hello-python analysis module
 env:
   MODULE_PATH: analyses/hello-python
-  AWS_DEFAULT_REGION: us-east-1
+  AWS_DEFAULT_REGION: us-east-2
 
 concurrency:
   # only one run per branch at a time
@@ -35,9 +35,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Download test data
-        run: ./download-data.py --test-data --format AnnData
-
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3
 
@@ -45,6 +42,9 @@ jobs:
         run: |
           conda install conda-lock
           conda-lock install --name test ${MODULE_PATH}/conda-lock.yml
+
+      - name: Download test data
+        run: ./download-data.py --test-data --format AnnData
 
       - name: Run analysis
         run: |

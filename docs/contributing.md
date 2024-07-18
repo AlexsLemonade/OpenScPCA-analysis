@@ -82,11 +82,11 @@ If you are adding new images/visual aids for documentation, place them in the `i
 
 It is helpful to include relative link to other docs pages when discussing additional concepts beyond the scope of the given docs page.
 In many circumstances during docs development, those pages will not yet have been written.
-In those circumstances, use the phrase `STUB_LINK` where you would otherwise add a relative link.
+In those circumstances, use the phrase `#STUB_LINK` where you would otherwise add a relative link.
 For example:
 
 ```
-This sentence should link to the [pull request documentation](STUB_LINK).
+This sentence should link to the [pull request documentation](#STUB_LINK).
 ```
 
 

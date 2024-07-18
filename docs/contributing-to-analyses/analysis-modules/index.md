@@ -47,11 +47,11 @@ These are the main files and folders you will interact with when writing your an
     - You can optionally use this folder to store _intermediate_ files that your code produces but are not meant to live in `results` or `plots`.
     - We have set up Git to ignore the contents of this folder, so anything you save to this folder will only be stored locally and not in the remote repository.
 - **`README.md`**
-    - Use this [markdown](../../software-platforms/general-tools/writing-in-markdown.md) file to document your analysis module.
+    - Use this [markdown](../../getting-started/project-tools/writing-in-markdown.md) file to document your analysis module.
   Your `README.md` file should have enough information for other contributors or repository users to learn the following:
         - The scientific goals of the module
-        - The input and output of the module and its [computational resource requirements](../determining-requirements/determining-compute-requirements.md)
-        - How to run the module
+        - The input and output of the module and its [computational resource requirements](./compute-requirements.md)
+        - How to run the module, including steps needed to set up the modules [software environment](../../ensuring-repro/managing-software/index.md)
     - Please see the documentation on [documenting your analysis module](./documenting-analysis.md) for more information about adding to this `README.md` file.
 
 
@@ -60,7 +60,7 @@ There are also some additional files in the skeleton that are useful to be aware
 
 - **`Dockerfile`**
     - This is the analysis module's [Dockerfile](https://docs.docker.com/reference/dockerfile/) and contains the commands that Docker uses to build the module's Docker image.
-    - For more information on how OpenScPCA uses `Docker` images, [please see our `Docker` documentation](../../software-platforms/docker/index.md).
+    - For more information on how OpenScPCA uses `Docker` images, [please see our `Docker` documentation](../../ensuring-repro/docker/index.md).
 - Hidden files **`.gitignore`** and **`.dockerignore`**
     - We have set up these files to tell Git and Docker, respectively, to ignore certain files that do not belong in version control or in the module's Docker image.
     - These files will likely be automatically hidden from you, and you don't really have to worry about it.

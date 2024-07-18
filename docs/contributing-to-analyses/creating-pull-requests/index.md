@@ -6,7 +6,7 @@ A pull request (PR) is used to propose merging new changes saved in one branch i
 In other words, you file a PR to _request_ that your code be _pulled_ into another branch.
 In most cases, PRs are used to merge in changes from a [feature branch](../working-with-git/working-with-branches.md) into the `main` branch of the repository.
 
-You can file PRs on GitHub and [request review](../pr-review-and-merge/index.md) to ultimately be able to merge your code.  <!-- STUB_LINK: Update to request review link, if needed -->
+You can file PRs on GitHub and [request review](../pr-review-and-merge/index.md) to ultimately be able to merge your code.
 The following components will be present in each PR:
 
 - A summary of line-by-line differences between the feature branch and the main branch, created by GitHub.
@@ -28,17 +28,16 @@ Once you have created a [feature branch](../working-with-git/working-with-branch
     See [scoping a pull request](scoping-pull-requests.md).
 - Each PR includes a description of the changes made.
     - We provide a [pull request template](pull-request-template.md) to guide you on what to include in your pull request description.
-- All PRs are [reviewed](../pr-review-and-merge/index.md) by at least one Data Lab staff member before they can be approved. <!-- STUB_LINK: Update to review link-->
+- All PRs are [reviewed](../pr-review-and-merge/index.md) by at least one Data Lab staff member before they can be approved.
 Once approved, a Data Lab staff member will merge your feature branch into the `main` branch of `AlexsLemonade/OpenScPCA-analysis`.
 
 ## The pull request review process
-
 
 <figure markdown="span">
     ![The PR review process](../../img/pr-review-cycle.png){width="700"}
 </figure>
 
-We require that [at least one Data Lab staff member review](../pr-review-and-merge/index.md) the content of all PRs. <!-- STUB_LINK: Update to request review link -->
+We require that [at least one Data Lab staff member review](../pr-review-and-merge/index.md) the content of all PRs.
 We will review your code contribution by:
 
 - Checking for correctness, clarity, and reproducibility in the code
