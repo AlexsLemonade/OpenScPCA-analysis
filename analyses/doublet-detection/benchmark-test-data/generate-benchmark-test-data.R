@@ -2,7 +2,7 @@
 
 # This script generates a test data file for use when testing the benchmarking script `../run_doublet-detection-benchmark.sh`.
 # The test data file is a subsetted version of the `hm-6k` dataset used for benchmarking, as described in `../README.md`.
-# This script assumes that ../scratch/benchmark-datasets/raw contains benchmarking datasets <https://doi.org/10.5281/zenodo.4562782>
+# This script assumes that ../scratch/benchmark-datasets/raw contains the .rds files from <https://doi.org/10.5281/zenodo.4562782>'s `real_datasets.zip` file.
 
 
 library(Matrix)
