@@ -67,8 +67,9 @@ tumor_ref <- readr::read_rds(opt$tumor_reference_file)
 
 # Prep references --------------------------------------------------------------
 
-# grab celldex reference
+# grab celldex references
 blueprint_ref <- celldex::BlueprintEncodeData(ensembl = TRUE)
+hpca_ref <- celldex::HumanPrimaryCellAtlasData(ensembl = TRUE)
 
 # remove tumor cells from SCE object for annotation 
 library_id <- metadata(sce)$library_id
@@ -88,8 +89,9 @@ rm(tumor_ref)
 singler_results <- SingleR::SingleR(
   test = filtered_sce,
   ref = list(Blueprint = blueprint_ref,
+             HPCA = hpca_ref,
              tumor_ref = filtered_tumor_ref),
-  labels = list(blueprint_ref$label.ont, filtered_tumor_ref$ref_tumor_label),
+  labels = list(blueprint_ref$label.ont, hpca_ref$label.ont, filtered_tumor_ref$ref_tumor_label),
   BPPARAM = bp_param
 )
 
