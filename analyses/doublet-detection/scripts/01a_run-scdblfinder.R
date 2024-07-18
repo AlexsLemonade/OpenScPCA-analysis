@@ -80,21 +80,22 @@ option_list <- list(
     help = "Path to input SCE file in RDS format."
   ),
   make_option(
-    "--results_dir",
+    "--output_file",
     type = "character",
-    help = "The directory to export TSV file with doublet inferences."
+    default = "scdblfinder_results.tsv",
+    help = "Path to output TSV file with doublet inferences."
   ),
   make_option(
     "--cores",
     type = "integer",
     default = 4,
-    help = "Number of cores to use during scDblFinder inference. Only used when there are multiple samples in the SCE."
+    help = "Number of cores to use during scDblFinder inference."
   ),
   make_option(
     "--benchmark",
     action = "store_true",
     default = FALSE,
-    help = "Whether the script is being run as part of the doublet benchmarking analysis. If this flag is invoked, the `cxds_score` column will be included in the output TSV along with the `barcodes`, `score`, and `class` columns that are always included." 
+    help = "Whether the script is being run as part of the doublet benchmarking analysis. If this flag is invoked, the `cxds_score` column will be included in the output TSV along with the `barcodes`, `score`, and `class` columns that are always included."
   ),
   make_option(
     "--sample_var",
@@ -114,20 +115,11 @@ opts <- parse_args(OptionParser(option_list = option_list))
 if (!file.exists(opts$input_sce_file)) {
     glue::glue("Could not find input SCE file, expected at: `{opts$input_sce_file}`.")
 }
-if (is.null(opts$results_dir)) {
-  stop("Must provide an output path for results with --results_dir.")
+if (!stringr::str_ends(opts$output_file, ".tsv")) {
+  stop("The output TSV file must end in .tsv.")
 }
 
-output_tsv_file <- file.path(
-  opts$results_dir,
-  stringr::str_replace(
-    basename(opts$input_sce_file),
-    ".rds",
-    "_scdblfinder.tsv"
-  )
-)
-
-fs::dir_create(opts$results_dir)
+fs::dir_create( dirname(opts$output_file) ) # create output directory as needed
 set.seed(opts$random_seed)
 
 # Detect doublets and export TSV file with inferences -----
@@ -153,7 +145,7 @@ if (ncells < cell_threshold) {
   if (opts$benchmark) {
     na_df$cxds_score <- NA
   }
-  readr::write_tsv(na_df, output_tsv_file)
+  readr::write_tsv(na_df, opts$output_file)
 
 } else {
 
@@ -174,5 +166,5 @@ if (ncells < cell_threshold) {
     random_seed = opts$random_seed,
     columns_to_keep = keep_columns
   ) |>
-  readr::write_tsv(output_tsv_file)
+  readr::write_tsv(opts$output_file)
 }

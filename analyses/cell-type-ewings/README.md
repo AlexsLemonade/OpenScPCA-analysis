@@ -89,7 +89,7 @@ The `marker-gene-classifications.tsv` file contains the following columns:
 | `barcodes` | Unique cell barcode |
 | `marker_gene_classification` | Either `Tumor` or `Normal`, where `Tumor` cells are those that express at least one marker gene.  |
 
-The `gene-set-scores.tsv` file contains the scores (mean and sum) for all genes in three different EWS-FLI1 target gene sets.
+The `gene-set-scores.tsv` file contains the scores (mean and sum) for all genes in three different `EWS-FLI1` target gene sets.
 
 ### Computational resources
 
