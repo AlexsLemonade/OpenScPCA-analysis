@@ -9,9 +9,9 @@ LABEL org.opencontainers.image.authors="OpenScPCA scpca@ccdatalab.org"
 LABEL org.opencontainers.image.source="https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/simulate-sce"
 
 # Set an environment variable to allow checking if we are in an OpenScPCA container
-ENV OPENSCPCA_DOCKER TRUE
+ENV OPENSCPCA_DOCKER=TRUE
 
-ENV RENV_CONFIG_CACHE_ENABLED FALSE
+ENV RENV_CONFIG_CACHE_ENABLED=FALSE
 RUN Rscript -e "install.packages(c('remotes', 'renv'))"
 
 WORKDIR /usr/local/renv
@@ -23,7 +23,7 @@ RUN Rscript -e "renv::restore()" && \
   rm -rf /tmp/Rtmp*
 
 # Complete installation of zellkonverter conda env
-ENV BASILISK_EXTERNAL_DIR /usr/local/renv/basilisk
+ENV BASILISK_EXTERNAL_DIR=/usr/local/renv/basilisk
 RUN Rscript -e "proc <- basilisk::basiliskStart(env = zellkonverter::zellkonverterAnnDataEnv(), testload = 'anndata'); \
   basilisk::basiliskStop(proc)"
 
