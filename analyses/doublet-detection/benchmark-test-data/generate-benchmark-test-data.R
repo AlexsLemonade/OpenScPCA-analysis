@@ -4,11 +4,11 @@
 # The test data file is a subsetted version of the `hm-6k` dataset used for benchmarking, as described in `../README.md`.
 # This script assumes that ../scratch/benchmark-datasets/raw contains the .rds files from <https://doi.org/10.5281/zenodo.4562782>'s `real_datasets.zip` file.
 
-
 library(Matrix)
+module_base <- rprojroot::find_root(rprojroot::is_renv_project)
 
-input_file <- file.path("..", "scratch", "benchmark-datasets", "raw", "hm-6k.rds")
-output_file <- file.path("hm-6k_subset.rds")
+input_file <- file.path(module_base, "scratch", "benchmark-datasets", "raw", "hm-6k.rds")
+output_file <- file.path(module_base, "benchmark-test-data", "hm-6k_subset.rds")
 
 
 raw_data <- readRDS(input_file)
