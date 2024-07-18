@@ -2,7 +2,7 @@ name: Build Docker image for doublet-detection
 
 concurrency:
   # only one run per branch at a time
-  group: "doublet-detection-${{ github.ref }}"
+  group: "docker_doublet-detection_${{ github.ref }}"
   cancel-in-progress: true
 
 on:

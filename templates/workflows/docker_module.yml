@@ -9,7 +9,7 @@ name: Build docker image for {{ openscpca_module }}
 
 concurrency:
   # only one run per branch at a time
-  group: "{{ openscpca_module }}-${{ github.ref }}"
+  group: "docker_{{ openscpca_module }}_${{ github.ref }}"
   cancel-in-progress: true
 
 on:

@@ -2,7 +2,7 @@ name: Build Docker image for simulate-sce
 
 concurrency:
   # only one run per branch at a time
-  group: "simulate-sce-${{ github.ref }}"
+  group: "docker_simulate-sce_${{ github.ref }}"
   cancel-in-progress: true
 
 on:

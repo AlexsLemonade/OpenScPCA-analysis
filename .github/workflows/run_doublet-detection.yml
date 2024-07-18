@@ -13,7 +13,7 @@ env:
 
 concurrency:
   # only one run per branch at a time
-  group: doublet-detection-${{ github.ref }}
+  group: "run_doublet-detection_${{ github.ref }}"
   cancel-in-progress: true
 
 on:
