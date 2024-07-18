@@ -43,7 +43,7 @@ To install Miniconda, [download the graphical installer for macOS](https://docs.
 
 To install Miniconda onto the WSL 2 side of your Windows machine, you will need to follow the [Quick command line install instructions for Linux](https://docs.anaconda.com/free/miniconda/#quick-command-line-install).
 
-- Copy and paste all commands, in order, into the [Ubuntu terminal](../../software-platforms/general-tools/using-the-terminal.md).
+- Copy and paste all commands, in order, into the [Ubuntu terminal](../../getting-started/project-tools/using-the-terminal.md).
   - Be sure to also take the step to initialize conda for the Bash shell.
 - Then, as prompted, close your terminal and open a new terminal window to complete installation.
 
@@ -51,8 +51,8 @@ To install Miniconda onto the WSL 2 side of your Windows machine, you will need 
 
 Next, you will need to set certain conda settings and install a few packages that will allow you to contribute to OpenScPCA in general.
 
-1. [Open a terminal (command line prompt)](../../software-platforms/general-tools/using-the-terminal.md) to interact with conda.
-    - We recommend opening a [terminal from GitKraken](../../software-platforms/general-tools/using-the-terminal.md#gitkraken) since you'll need to run some of these steps from the `OpenScPCA-analysis` folder.
+1. [Open a terminal (command line prompt)](../../getting-started/project-tools/using-the-terminal.md) to interact with conda.
+    - We recommend opening a [terminal from GitKraken](../../getting-started/project-tools/using-the-terminal.md#gitkraken) since you'll need to run some of these steps from the `OpenScPCA-analysis` folder.
 
 1. Copy and paste the following code into the terminal, and hit enter.
 These commands will set the [recommended channels](https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/channels.html) conda should use to search for software.
@@ -72,8 +72,8 @@ These commands will set the [recommended channels](https://docs.conda.io/project
 The last step is to create an `openscpca` conda environment and install the packages needed for OpenScPCA development.
 These are specified in the `environment.yml` in the root of the repository, and include:
 
-- The [`awscli` package](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html) will allow you to interact with [data stored in the Amazon Web Services (AWS) S3 bucket](../../software-platforms/aws/index.md)
-- The [`conda-lock` package](https://conda.github.io/conda-lock/) is used to create fully reproducible, cross-platform [conda environments for analysis modules](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#managing-software-dependencies-with-conda)
+- The [`awscli` package](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html) will allow you to interact with [data stored in the Amazon Web Services (AWS) S3 bucket](../../aws/index.md#s3-data-and-results-storage-with-aws)
+- The [`conda-lock` package](https://conda.github.io/conda-lock/) is used to create fully reproducible, cross-platform [conda environments for analysis modules](../../ensuring-repro/managing-software/using-conda.md#conda-and-conda-lock)
 - The [`jq` package](https://jqlang.github.io/jq/) provides JSON parsing capabilities
 - The [`pre-commit` package](https://pre-commit.com) will allow you to use [pre-commit hooks when contributing to analysis modules](../../contributing-to-analyses/working-with-git/making-commits.md#pre-commit-checks)
 
@@ -81,9 +81,9 @@ These are specified in the `environment.yml` in the root of the repository, and 
 
 
 1. To create this environment, navigate in the terminal with `cd` to the `OpenScPCA-analysis` repository.
-    - Again, if you open a [terminal in GitKraken](../../software-platforms/general-tools/using-the-terminal.md#gitkraken), you will automatically be in the repository folder.
+    - Again, if you open a [terminal in GitKraken](../../getting-started/project-tools/using-the-terminal.md#gitkraken), you will automatically be in the repository folder.
 
-1. Enter the following command in the terminal to create the `openscpca` environment and install the packages into it:
+2. Enter the following command in the terminal to create the `openscpca` environment and install the packages into it:
 
     ```sh
     conda env create -f environment.yml
@@ -125,6 +125,6 @@ These are specified in the `environment.yml` in the root of the repository, and 
     In general, this is how conda indicates which environment, if any, the terminal is working in.
 
     !!! tip "Activating the `openscpca` conda environment"
-        Whenever you are developing for OpenScPCA, you should work from either the `openscpa` conda environment or [a module-specific conda environment](../../contributing-to-analyses/determining-requirements/determining-software-requirements.md#managing-software-dependencies-with-conda).
+        Whenever you are developing for OpenScPCA, you should work from either the `openscpa` conda environment or [a module-specific conda environment](../../ensuring-repro/managing-software/using-conda.md).
         At the start of any coding session, run `conda activate openscpca` to activate this environment.
         If you wish to deactivate the environment, you can run `conda deactivate`.

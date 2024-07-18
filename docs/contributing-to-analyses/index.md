@@ -25,7 +25,7 @@ You will contribute to the project by creating and developing [analysis modules]
 
 !!! note "Before you begin"
 
-    Before you create your module, please review the documentation in the [**Analysis Module**](analysis-modules/index.md) and [**Determining analysis requirements**](determining-requirements/index.md) sections.
+    Before you create your module, please review the documentation in the [**Analysis Module**](analysis-modules/index.md) and [**Managing software dependencies**](../ensuring-repro/managing-software/index.md) sections.
 
     This information will help orient you to how to write OpenScPCA analysis modules and ensure they meet the project's reproducibility requirements.
 

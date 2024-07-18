@@ -7,6 +7,7 @@
 # This workflow will run on:
 # - Manual trigger
 # - Periodic scheduled runs
+# - Tagged version releases
 
 name: Build all Docker images
 on:
