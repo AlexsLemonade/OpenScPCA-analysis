@@ -100,6 +100,10 @@ The benchmarking TSV files have the following columns:
 The ScPCA TSV files for `scDblFinder` results have only the columns `barcodes`, `score`, and `class`.
 Note that SCEs with fewer than 10 droplets will not be run through `scDblFinder`, so their associated result TSVs will contain `NA` values in the `score` and `class` columns.
 
+### Additional files
+
+The directory `benchmark-test-data` contains the file `benchmark-test-data/hm-6k_subset.rds`, a subsetted version of the `hm-6k.rds` dataset from Xi and Li (2021).
+Created with `benchmark-test-data/generate-benchmark-test-data.R`, this file is used when testing the benchmarking script `run_doublet-detection-benchmark.sh`.
 
 ## Software requirements
 
