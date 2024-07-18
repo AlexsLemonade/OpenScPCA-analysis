@@ -1,4 +1,4 @@
-# Working with snapshots on Lightsail for Research
+# Working with snapshots
 
 ## What is a snapshot
 

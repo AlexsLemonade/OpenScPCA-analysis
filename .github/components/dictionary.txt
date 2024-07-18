@@ -49,6 +49,7 @@ Dockerfile
 doxxing
 dropdown
 ECM
+ECR
 enforceability
 enure
 Ensembl
@@ -61,12 +62,13 @@ fibroblasts
 formatters
 Generis
 GFM
+GHA
+GHAs
 GitHub
 GitKraken
 GitKraken's
 Goodspeed
 GPUs
-grey
 GTF
 heterotypic
 homotypic
@@ -103,6 +105,7 @@ misidentification
 MSC
 multifactor
 natively
+Nextflow
 nonconsensual
 octicons
 onboarded
@@ -124,6 +127,7 @@ redistributions
 renv
 repo
 reproducibility
+reproducibly
 RStudio
 RStudio's
 Rtools
@@ -150,6 +154,7 @@ triaged
 TSV
 UCell
 UMAP
+uncomment
 vCPU
 vCPUs
 Visser

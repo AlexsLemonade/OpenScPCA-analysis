@@ -11,7 +11,7 @@ Before we create an AWS account for you, the following must be completed:
 
 There are technical limits to the number of accounts we can create, so we want to be sure contributors will use them prior to allocation.
 
-See our documentation on [AWS](../../software-platforms/aws/index.md) for more information.
+See our documentation on [AWS](../../aws/index.md) for more information.
 
 ## Getting access to data
 

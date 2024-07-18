@@ -73,13 +73,17 @@ copyright: Copyright &copy; 2024 OpenScPCA Project Maintainers & Contributors | 
 # Note that the overall website landing page is in `docs/index.md`.
 #  When you locally serve, mkdocs will complain that it isn't in the nav below - this is expected. It should not be in the nav below.
 nav:
-  - Getting Started:      # welcome, familiarizing yourself with the project
+  - Getting started:      # welcome, familiarizing yourself with the project
     - getting-started/making-your-first-analysis-contribution.md
     - getting-started/explore-analysis.md
-    - Getting Access to Resources:
+    - Getting access to resources:
       - getting-started/accessing-resources/index.md
       - getting-started/accessing-resources/getting-access-to-data.md
       - getting-started/accessing-resources/getting-access-to-compute.md
+    - Project tools:
+      - getting-started/project-tools/index.md
+      - getting-started/project-tools/writing-in-markdown.md
+      - getting-started/project-tools/using-the-terminal.md
   - Technical setup:           # Fork/clone, local environment setup
     - technical-setup/index.md
     - technical-setup/install-wsl-2.md
@@ -93,7 +97,7 @@ nav:
       - technical-setup/environment-setup/install-r-rstudio.md
   - Tools for communication:   # Slack, issues, discussions
     - communications-tools/index.md
-    - GitHub Issues:
+    - GitHub issues:
       - communications-tools/github-issues/index.md
       - communications-tools/github-issues/writing-issues.md
       - communications-tools/github-issues/what-makes-a-good-issue.md
@@ -103,15 +107,13 @@ nav:
     - Analysis modules:
       - contributing-to-analyses/analysis-modules/index.md
       - contributing-to-analyses/analysis-modules/creating-a-module.md
+      - contributing-to-analyses/analysis-modules/module-dependencies.md
+      - contributing-to-analyses/analysis-modules/compute-requirements.md
       - contributing-to-analyses/analysis-modules/running-a-module.md
       - contributing-to-analyses/analysis-modules/documenting-analysis.md
       - contributing-to-analyses/analysis-modules/modifying-a-module.md
       - contributing-to-analyses/analysis-modules/notebook-structure.md
       - contributing-to-analyses/analysis-modules/script-structure.md
-    - Determining analysis requirements:
-      - contributing-to-analyses/determining-requirements/index.md
-      - contributing-to-analyses/determining-requirements/determining-software-requirements.md
-      - contributing-to-analyses/determining-requirements/determining-compute-requirements.md
     - Working with Git: # Creating branches, adding commits, all git interactions
       - contributing-to-analyses/working-with-git/index.md
       - contributing-to-analyses/working-with-git/working-with-branches.md
@@ -129,24 +131,34 @@ nav:
     - Code review and merging your pull request:
       - contributing-to-analyses/pr-review-and-merge/index.md
       - contributing-to-analyses/pr-review-and-merge/respond-to-review.md
-  - Software platforms:            # AWS (S3 & LSfR), Docker, etc
-    - software-platforms/index.md
-    - Amazon Web Services (AWS):
-      - software-platforms/aws/index.md
-      - software-platforms/aws/joining-aws.md
-      - software-platforms/aws/working-with-s3-buckets.md
-      - software-platforms/aws/creating-vcs.md
-      - software-platforms/aws/accessing-vcs.md
-      - software-platforms/aws/working-with-volumes.md
-      - software-platforms/aws/starting-development-on-lsfr.md
-      - software-platforms/aws/working-with-snapshots.md
-    - Docker:
-      - software-platforms/docker/index.md
-      - software-platforms/docker/docker-images.md
-    - Additional project tools:
-      - software-platforms/general-tools/index.md
-      - software-platforms/general-tools/writing-in-markdown.md
-      - software-platforms/general-tools/using-the-terminal.md
+  - Ensuring reproducibility:
+    - ensuring-repro/index.md
+    - Managing software environments:
+      - ensuring-repro/managing-software/index.md
+      - ensuring-repro/managing-software/using-renv.md
+      - ensuring-repro/managing-software/using-conda.md
+      - ensuring-repro/managing-software/reporting-dependencies.md
+    - Automated OpenScPCA workflows:
+      - ensuring-repro/workflows/index.md
+      - ensuring-repro/workflows/run-module-gha.md
+      - ensuring-repro/workflows/build-docker-gha.md
+    - Working with Docker:
+      - ensuring-repro/docker/index.md
+      - ensuring-repro/docker/docker-images.md
+      - ensuring-repro/docker/using-images.md
+      - ensuring-repro/docker/updating-images.md
+    - The OpenScPCA Nextflow workflow:
+      - ensuring-repro/openscpca-nf/index.md
+  - Cloud storage and compute:  # AWS
+    - aws/index.md
+    - aws/joining-aws.md
+    - aws/working-with-s3-buckets.md
+    - Virtual compute with Lightsail for Research:
+      - aws/lsfr/creating-vcs.md
+      - aws/lsfr/accessing-vcs.md
+      - aws/lsfr/working-with-volumes.md
+      - aws/lsfr/starting-development-on-lsfr.md
+      - aws/lsfr/working-with-snapshots.md
   - Getting Help:      # troubleshooting and FAQ
     - troubleshooting-faq/index.md
     - troubleshooting-faq/faq.md

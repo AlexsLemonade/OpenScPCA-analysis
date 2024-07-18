@@ -1,4 +1,4 @@
-# Developing on Lightsail for Research
+# Developing on virtual computers
 
 Once you have [created a virtual computer](creating-vcs.md), [attached a disk](working-with-volumes.md), and [accessed the operating system](accessing-vcs.md) you are ready to start development on Lightsail for Research by taking the following steps:
 

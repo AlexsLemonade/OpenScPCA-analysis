@@ -1,7 +1,9 @@
 name: Check Spelling
 on:
   pull_request:
-    branches: main
+    branches:
+      - main
+      - feature/*
     paths:
       - docs/**
   workflow_dispatch:

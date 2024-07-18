@@ -10,7 +10,7 @@ See our documentation on [OpenScPCA issue Templates](issue-templates.md) for mor
 ## Markdown
 
 [GitHub Issues are written in Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/about-writing-and-formatting-on-github), a plain text language for formatting documents.
-See our documentation on [Markdown](../../software-platforms/general-tools/writing-in-markdown.md) for more information about writing in Markdown.
+See our documentation on [Markdown](../../getting-started/project-tools/writing-in-markdown.md) for more information about writing in Markdown.
 
 ## Using mentions
 

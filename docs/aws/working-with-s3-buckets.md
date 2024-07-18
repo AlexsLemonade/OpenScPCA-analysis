@@ -1,8 +1,8 @@
 # Working with S3 buckets
 
-As an onboarded OpenScPCA contributor, you will be [assigned an AWS S3 results bucket](../../getting-started/accessing-resources/index.md#getting-access-to-aws).
-You will sync your analysis results to your bucket [before filing a pull request](../../contributing-to-analyses/creating-pull-requests/index.md).
-This is necessary because [analysis module results are not included in Git version control](../../contributing-to-analyses/analysis-modules/index.md#skeleton-analysis-module-contents), so uploading your results to S3 allows the Data Lab to access them during code review.
+As an onboarded OpenScPCA contributor, you will be [assigned an AWS S3 results bucket](../getting-started/accessing-resources/index.md#getting-access-to-aws).
+You will sync your analysis results to your bucket [before filing a pull request](../contributing-to-analyses/creating-pull-requests/index.md).
+This is necessary because [analysis module results are not included in Git version control](../contributing-to-analyses/analysis-modules/index.md#skeleton-analysis-module-contents), so uploading your results to S3 allows the Data Lab to access them during code review.
 
 This page covers some information you'll need for working with your S3 bucket.
 
@@ -20,7 +20,7 @@ For example, if your account number were `12345`, your bucket name would be `res
 You will need to know your bucket name for a few circumstances:
 
 - You will need to specify your bucket name when [syncing your analysis results with S3](#syncing-your-results-to-s3)
-- You will need to tell reviewers your result bucket name when when [filing pull requests (PRs) and filling out the PR template](../../contributing-to-analyses/creating-pull-requests/pull-request-template.md)
+- You will need to tell reviewers your result bucket name when when [filing pull requests (PRs) and filling out the PR template](../contributing-to-analyses/creating-pull-requests/pull-request-template.md)
 
 ### Storing your bucket name
 
@@ -42,7 +42,7 @@ You can then use `$OPENSCPCA_RESULTS_BUCKET` (or, `${OPENSCPCA_RESULTS_BUCKET}`)
 ## Syncing your results to S3
 
 We have written a script to help you sync your results to your S3 bucket, stored in [`scripts/sync-results.py`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/scripts/sync-results.py).
-For this script to work, you need to be [logged into the AWS account profile you use for contributing to OpenScPCA](../../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
+For this script to work, you need to be [logged into the AWS account profile you use for contributing to OpenScPCA](../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
 
 This script syncs the contents of a given analysis module's `results` and `plots` directories from your computer to S3.
 It does not copy any files from S3 back to your computer.
@@ -95,7 +95,7 @@ scripts/sync-results.py --help
 
 If you have multiple AWS profiles on your system, it may help to use the `--profile` argument to specify the name of your OpenScPCA AWS profile.
 
-For example, if you [configured your OpenScPCA AWS profile](../../technical-setup/environment-setup/configure-aws-cli.md) to be named `openscpca`, you would use:
+For example, if you [configured your OpenScPCA AWS profile](../technical-setup/environment-setup/configure-aws-cli.md) to be named `openscpca`, you would use:
 
 ```sh
 scripts/sync-results.py {analysis module name} \
