@@ -55,5 +55,3 @@ RUN Rscript -e 'renv::restore()' \
 # Activate conda environment on bash launch
 RUN echo "conda activate ${ENV_NAME}" >> ~/.bashrc
 
-# Set entrypoint to bash to activate the environment for any commands
-ENTRYPOINT ["bash", "-l", "-c"]
