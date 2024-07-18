@@ -355,6 +355,38 @@
       ],
       "Hash": "5d9536664ccddb0eaa68a90afe4ee76e"
     },
+    "DropletUtils": {
+      "Package": "DropletUtils",
+      "Version": "1.24.0",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "BH",
+        "BiocGenerics",
+        "BiocParallel",
+        "DelayedArray",
+        "DelayedMatrixStats",
+        "GenomicRanges",
+        "HDF5Array",
+        "IRanges",
+        "Matrix",
+        "R.utils",
+        "Rcpp",
+        "Rhdf5lib",
+        "S4Vectors",
+        "SingleCellExperiment",
+        "SummarizedExperiment",
+        "beachmat",
+        "dqrng",
+        "edgeR",
+        "methods",
+        "rhdf5",
+        "scuttle",
+        "stats",
+        "utils"
+      ],
+      "Hash": "77f762ad74d48a0ef578fc81deded039"
+    },
     "ExperimentHub": {
       "Package": "ExperimentHub",
       "Version": "2.12.0",
@@ -2159,6 +2191,31 @@
       "Repository": "RSPM",
       "Hash": "8f9aa3ce842296afaad4083b839481a1"
     },
+    "fishpond": {
+      "Package": "fishpond",
+      "Version": "2.10.0",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "GenomicRanges",
+        "IRanges",
+        "Matrix",
+        "S4Vectors",
+        "SingleCellExperiment",
+        "SummarizedExperiment",
+        "abind",
+        "graphics",
+        "gtools",
+        "jsonlite",
+        "matrixStats",
+        "methods",
+        "qvalue",
+        "stats",
+        "svMisc",
+        "utils"
+      ],
+      "Hash": "9091a296b5cdb86da7c4c35f958c67f6"
+    },
     "fitdistrplus": {
       "Package": "fitdistrplus",
       "Version": "1.1-11",
@@ -2173,6 +2230,26 @@
         "survival"
       ],
       "Hash": "f40ef9686e85681a1ccbf33d9236aeb9"
+    },
+    "flexmix": {
+      "Package": "flexmix",
+      "Version": "2.3-19",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "grDevices",
+        "graphics",
+        "grid",
+        "lattice",
+        "methods",
+        "modeltools",
+        "nnet",
+        "stats",
+        "stats4",
+        "utils"
+      ],
+      "Hash": "0cb3c4b251c2d3fd5923d3e7e6021ee2"
     },
     "fontawesome": {
       "Package": "fontawesome",
@@ -3059,6 +3136,20 @@
       ],
       "Hash": "110ee9d83b496279960e162ac97764ce"
     },
+    "miQC": {
+      "Package": "miQC",
+      "Version": "1.12.0",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "R",
+        "SingleCellExperiment",
+        "flexmix",
+        "ggplot2",
+        "splines"
+      ],
+      "Hash": "86a3469aee260ac4094af5302291d57a"
+    },
     "mime": {
       "Package": "mime",
       "Version": "0.12",
@@ -3591,6 +3682,20 @@
       ],
       "Hash": "017561f17632c065388b7062da030952"
     },
+    "qvalue": {
+      "Package": "qvalue",
+      "Version": "2.36.0",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "R",
+        "ggplot2",
+        "grid",
+        "reshape2",
+        "splines"
+      ],
+      "Hash": "16f095487215acf101cdc3ed3da237cf"
+    },
     "rappdirs": {
       "Package": "rappdirs",
       "Version": "0.3.3",
@@ -3917,6 +4022,43 @@
         "scales"
       ],
       "Hash": "d316e4abb854dd1677f7bd3ad08bc4e8"
+    },
+    "scpcaTools": {
+      "Package": "scpcaTools",
+      "Version": "0.3.2",
+      "Source": "GitHub",
+      "Remotes": "AlexsLemonade/scpcaData, immunogenomics/lisi@v1.0",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "scpcaTools",
+      "RemoteUsername": "AlexsLemonade",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "114af48ad8178f721db9ae526a96bba152472ee5",
+      "Requirements": [
+        "BiocGenerics",
+        "DropletUtils",
+        "Matrix",
+        "R",
+        "S4Vectors",
+        "SingleCellExperiment",
+        "SummarizedExperiment",
+        "bluster",
+        "dplyr",
+        "fishpond",
+        "flexmix",
+        "glue",
+        "jsonlite",
+        "methods",
+        "miQC",
+        "purrr",
+        "rlang",
+        "scuttle",
+        "stringr",
+        "tibble",
+        "tidyr",
+        "tximport"
+      ],
+      "Hash": "15e4b255f67a6fc3535edc143b5bd908"
     },
     "scran": {
       "Package": "scran",
@@ -4294,6 +4436,20 @@
       ],
       "Hash": "5aaa9cbaf4aba20f8e06fdea1850a398"
     },
+    "svMisc": {
+      "Package": "svMisc",
+      "Version": "1.2.3",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "methods",
+        "stats",
+        "tools",
+        "utils"
+      ],
+      "Hash": "b13f5680860f67c32ccb006ad38f24f4"
+    },
     "sys": {
       "Package": "sys",
       "Version": "3.4.2",
@@ -4400,6 +4556,18 @@
         "xfun"
       ],
       "Hash": "d44e2fcd2e4e076f0aac540208559d1d"
+    },
+    "tximport": {
+      "Package": "tximport",
+      "Version": "1.32.0",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "methods",
+        "stats",
+        "utils"
+      ],
+      "Hash": "de83dfc887cf6205591b70500c987e43"
     },
     "tzdb": {
       "Package": "tzdb",
