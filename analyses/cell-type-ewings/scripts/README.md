@@ -219,7 +219,7 @@ The output is a TSV file with one row for each of the cells in the original `Sin
 | `singler_tumor_annotation` | The human readable term associated with the ontology term identifier for the associated cell type |
 | `singler_tumor_ontology` | The cell ontology identifier associated with the cell type, one of the labels from `BlueprintEncodeData` | 
 
-If the cell is a tumor cell it will be labeled with `Tumor-library_id` in both the ontology and annotation columns, where `library_id` represents the library that the tumor cell resembled the most. 
+If the cell is a tumor cell it will be labeled with `tumor-library_id` in both the ontology and annotation columns, where `library_id` represents the library that the tumor cell resembled the most. 
 The original tumor cells from the library will contain the library id that corresponds to the annotated `SingleCellExperiment` object. 
 
 Running the script using the default options will use the merged object output from `01-generate-tumor-ref.R` saved in `scratch/tumor-ref-singler.rds`. 

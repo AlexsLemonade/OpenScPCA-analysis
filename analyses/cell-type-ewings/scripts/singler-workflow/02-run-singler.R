@@ -113,7 +113,7 @@ results_df <- data.frame(
 # combine back with tumor cells 
 tumor_annotations_df <- data.frame(barcodes = sce_tumor_cells) |> 
   dplyr::mutate(
-  annotation = glue::glue("Tumor-{library_id}")
+  annotation = glue::glue("tumor-{library_id}")
 )
 
 all_results_df <- dplyr::bind_rows(list(results_df, tumor_annotations_df)) |> 
