@@ -1,8 +1,8 @@
 #!/usr/bin/env Rscript
 
 # This script generates test data files for use when testing the benchmarking script `../run_doublet-detection-benchmark.sh`.
-# The test data files are a subsetted version of the datasets used for benchmarking, as described in `../README.md`.
-# This script assumes that ../scratch/benchmark-datasets/raw contains the .rds files from <https://doi.org/10.5281/zenodo.4562782>'s `real_datasets.zip` file.
+# Saved in `./data.zip`, the test data files are subsetted version of the datasets used for benchmarking, as described in `../README.md`.
+# This script assumes that ../scratch/benchmark-datasets/raw contains the .rds files from <https://doi.org/10.5281/zenodo.4562782>'s `real_datasets.zip` file and that there is an available `zip` executable on the system.
 
 library(Matrix)
 set.seed(2024)
