@@ -37,8 +37,9 @@ CRediT
 Crompton
 Ctrl
 cxds
-designee
+demultiplexing
 dendogram
+designee
 discoverable
 docstring
 docstrings

@@ -102,8 +102,8 @@ Note that SCEs with fewer than 10 droplets will not be run through `scDblFinder`
 
 ### Additional files
 
-The directory `benchmark-test-data` contains the file `benchmark-test-data/hm-6k_subset.rds`, a subsetted version of the `hm-6k.rds` dataset from Xi and Li (2021).
-Created with `benchmark-test-data/generate-benchmark-test-data.R`, this file is used when testing the benchmarking script `run_doublet-detection-benchmark.sh`.
+The directory `benchmark-test-data` contains the file `benchmark-test-data/data.zip`, a zipped directory of subsetted versions of the datasets from Xi and Li (2021) used for benchmarking.
+Created with `benchmark-test-data/generate-benchmark-test-data.R`, these subsetted datasets are used when testing the benchmarking script `run_doublet-detection-benchmark.sh`.
 
 ## Software requirements
 
