@@ -18,7 +18,6 @@ fs::dir_create(output_dir)
 datasets <- c("hm-6k", "pbmc-1B-dm", "pdx-MULTI", "HMEC-orig-MULTI")
 
 # For each dataset, subset to 50 droplets, including 45 singlets and 5 doublets, and the first 100 genes
-# In all original datasets, doublets have been pre-sorted to the end of the list
 datasets |>
   purrr::walk(
     \(dataset) {
