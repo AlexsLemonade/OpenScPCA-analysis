@@ -9,7 +9,7 @@ LABEL org.opencontainers.image.source="https://github.com/AlexsLemonade/OpenScPC
 ARG ENV_NAME=openscpca-doublet-detection
 
 # Set an environment variable to allow checking if we are in an OpenScPCA container
-ENV OPENSCPCA_DOCKER TRUE
+ENV OPENSCPCA_DOCKER=TRUE
 
 # set environment variables to install miniconda
 ENV PATH="/opt/conda/bin:${PATH}"
@@ -31,7 +31,7 @@ RUN conda install --channel=conda-forge --name=base conda-lock
 RUN Rscript -e "install.packages('renv')"
 
 # Disable the renv cache to install packages directly into the R library
-ENV RENV_CONFIG_CACHE_ENABLED FALSE
+ENV RENV_CONFIG_CACHE_ENABLED=FALSE
 
 # Copy conda lock file to image
 COPY conda-lock.yml conda-lock.yml
@@ -55,5 +55,4 @@ RUN Rscript -e 'renv::restore()' \
 # Activate conda environment on bash launch
 RUN echo "conda activate ${ENV_NAME}" >> ~/.bashrc
 
-# Set entrypoint to bash to activate the environment for any commands
-ENTRYPOINT ["bash", "-l", "-c"]
+CMD ["/bin/bash"]
