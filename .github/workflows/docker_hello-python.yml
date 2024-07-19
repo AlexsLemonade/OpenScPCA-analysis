@@ -2,7 +2,7 @@ name: Build Docker image for hello-python
 
 concurrency:
   # only one run per branch at a time
-  group: "hello-python-${{ github.ref }}"
+  group: "docker_hello-python_${{ github.ref }}"
   cancel-in-progress: true
 
 on:
