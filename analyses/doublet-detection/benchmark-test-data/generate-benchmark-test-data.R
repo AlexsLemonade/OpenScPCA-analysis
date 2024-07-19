@@ -21,8 +21,7 @@ datasets <- c("hm-6k", "pbmc-1B-dm", "pdx-MULTI", "HMEC-orig-MULTI")
 datasets |>
   purrr::walk(
     \(dataset) {
-      output_file <- file.path(output_dir, glue::glue("{dataset}_subset.rds"))
-
+      output_file <- file.path(output_dir, glue::glue("{dataset}.rds"))
       raw_data <- readRDS(file.path(input_dir, glue::glue("{dataset}.rds")))
 
       # keep 45 random singlets and 5 random doublets
