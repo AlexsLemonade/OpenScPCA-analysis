@@ -41,7 +41,7 @@ bench_datasets=("hm-6k" "pbmc-1B-dm" "pdx-MULTI" "HMEC-orig-MULTI")
 # download benchmarking files to $DATA_DIR/raw
 if [[ $TEST -eq 1 ]]; then
     # Download the subsetted test datasets
-    wget https://github.com/AlexsLemonade/OpenScPCA-analysis/raw/9018730220ddef4ce71efd0ebfdfd8aa6044c9a3/analyses/doublet-detection/benchmark-test-data/data.zip
+    wget https://github.com/AlexsLemonade/OpenScPCA-analysis/raw/c9aad22478c3888089bcff9d6a04f011844c5256/analyses/doublet-detection/benchmark-test-data/data.zip
     unzip data.zip -d ${DATA_DIR}/raw
     rm data.zip
 else
