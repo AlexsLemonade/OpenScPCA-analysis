@@ -44,7 +44,7 @@ jobs:
       - name: Download test data in SCE format
         run: |
           conda activate openscpca-doublet-detection
-          ./download-data.py --test-data --format SCE
+          ./download-data.py --test-data --format SCE --samples ${SAMPLES}
 
       - name: Run doublet-detection module
         run: |
