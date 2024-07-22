@@ -206,6 +206,33 @@ To run this script use the following command:
 Rscript 01-generate-tumor-ref.R
 ```
 
+2. `02-run-singler.R`: This script is used to run `SingleR` on any non-confident tumor cells from a processed `SingleCellExperiment` object. 
+The input `SingleCellExperiment` object is run through `SingleR` using both the reference from `01-generate-tumor-ref.R` and `BlueprintEncodeData` from `celldex` as the references. 
+Note that any tumor cells from the same participant as the library being annotated are removed from the tumor reference object prior to running `SingleR`. 
+
+The output is a TSV file with one row for each of the cells in the original `SingleCellExperiment` object being annotated and the following columns: 
+
+| | | 
+|--|--|
+| `barcodes` | Unique cell barcode | 
+| `singler_annotation` | The human readable term associated with the ontology term identifier for the associated cell type |
+| `singler_ontology` | The cell ontology identifier associated with the cell type, one of the labels from `BlueprintEncodeData` | 
+| `aucell_annotation` | Either `tumor` or `normal` as determined by running `AUCell` in `aucell-annotation.sh` |
+
+If the cell is a tumor cell it will be labeled with `tumor-library_id` in both the ontology and annotation columns, where `library_id` represents the library that the tumor cell resembled the most. 
+
+Running the script using the default options will use the merged object output from `01-generate-tumor-ref.R` saved in `scratch/tumor-ref-singler.rds`. 
+A different path to this file can be specified using the `--tumor_reference_file` argument. 
+
+To run this script use the following command: 
+
+```sh
+Rscript 02-run-singler.R \
+  --sce_file <path to processed sce file to be annotated> \
+  --output_annotations_file <path to TSV file to save annotations> \
+  --threads 4
+```
+
 ## Utils
 
 The `utils` folder contains scripts with any helper functions that are used in `scripts` and notebooks for this module.
