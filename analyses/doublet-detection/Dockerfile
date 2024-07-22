@@ -52,6 +52,13 @@ RUN Rscript -e 'renv::restore()' \
   && rm -rf /tmp/downloaded_packages \
   && rm -rf /tmp/Rtmp*
 
+# Install pandoc dependency
+RUN apt-get -y update &&  \
+  DEBIAN_FRONTEND=noninteractive \
+  apt-get install --no-install-recommends -y \
+  pandoc \
+  && rm -rf /var/lib/apt/lists/*
+
 # Activate conda environment on bash launch
 RUN echo "conda activate ${ENV_NAME}" >> ~/.bashrc
 
