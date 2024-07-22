@@ -1,4 +1,6 @@
 ---
+params: 
+  datasets: "hm-6k pbmc-1B-dm pdx-MULTI HMEC-orig-MULTI"
 title: "Comparison among doublet predictions on benchmarking datasets"
 author: Stephanie J. Spielman
 date: "`r Sys.Date()`"
@@ -151,8 +153,7 @@ First, we'll read in and combine doublet results, as well as PCA coordinates, in
 
 ```{r dataset names}
 # find all dataset names to process:
-dataset_names <- list.files(result_dir, pattern = "*_scrublet.tsv") |>
-  stringr::str_remove("_scrublet.tsv")
+dataset_names <- stringr::str_split_1(params$datasets, pattern = " ")
 ```
 
 ```{r read_data}
@@ -365,23 +366,28 @@ metric_df <- doublet_df_list |>
 
         cat("\n\n")
 
-        confusion_result <- caret::confusionMatrix(
-          # truth should be first
-          table(
-            "Truth" = df$ground_truth,
-            "Consensus prediction" = df$consensus_call
-          ),
-          positive = "doublet"
-        )
-
-        print(confusion_result)
-
-        # Extract information we want to present later in a table
-        tibble::tibble(
-          "Dataset name" = dataset,
-          "Kappa" = round(confusion_result$overall["Kappa"], 3),
-          "Balanced accuracy" = round(confusion_result$byClass["Balanced Accuracy"], 3)
-        )
+        # run confusion matrix only if there are both singlets and doublets
+        if (length(unique(df$consensus_call)) == 2) {
+            confusion_result <- caret::confusionMatrix(
+            # truth should be first
+            table(
+              "Truth" = df$ground_truth,
+              "Consensus prediction" = df$consensus_call
+            ),
+            positive = "doublet"
+          )
+  
+          print(confusion_result)
+  
+          # Extract information we want to present later in a table
+          return(
+            tibble::tibble(
+              "Dataset name" = dataset,
+              "Kappa" = round(confusion_result$overall["Kappa"], 3),
+              "Balanced accuracy" = round(confusion_result$byClass["Balanced Accuracy"], 3)
+            ) 
+          )
+        }
     }
   ) |>
   dplyr::bind_rows()
@@ -528,23 +534,28 @@ metric_df <- doublet_df_list |>
 
         cat("\n\n")
 
-        confusion_result <- caret::confusionMatrix(
-          # truth should be first
-          table(
-            "Truth" = df$ground_truth,
-            "Consensus prediction" = df$consensus_call
-          ),
-          positive = "doublet"
-        )
-
-        print(confusion_result)
-
-        # Extract information we want to present later in a table
-        tibble::tibble(
-          "Dataset name" = dataset,
-          "Kappa" = round(confusion_result$overall["Kappa"], 3),
-          "Balanced accuracy" = round(confusion_result$byClass["Balanced Accuracy"], 3)
-        )
+        # run confusion matrix only if there are both singlets and doublets
+        if (length(unique(df$consensus_call)) == 2) {
+          confusion_result <- caret::confusionMatrix(
+            # truth should be first
+            table(
+              "Truth" = df$ground_truth,
+              "Consensus prediction" = df$consensus_call
+            ),
+            positive = "doublet"
+          )
+  
+          print(confusion_result)
+  
+          # Extract information we want to present later in a table
+          return(
+            tibble::tibble(
+              "Dataset name" = dataset,
+              "Kappa" = round(confusion_result$overall["Kappa"], 3),
+              "Balanced accuracy" = round(confusion_result$byClass["Balanced Accuracy"], 3)
+            )
+          )
+        }
     }
   ) |>
   dplyr::bind_rows()
