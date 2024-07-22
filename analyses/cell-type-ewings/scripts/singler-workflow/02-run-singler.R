@@ -73,8 +73,7 @@ hpca_ref <- celldex::HumanPrimaryCellAtlasData(ensembl = TRUE)
 
 # pull out library and participant id 
 library_id <- metadata(sce)$library_id
-participant_id <- metadata(sce)$sample_metadata |> 
-  dplyr::pull(participant_id)
+participant_id <- metadata(sce)$sample_metadata$participant_id
 
 # pull out original tumor cells to combine with singler results later  
 sce_tumor_cells <- tumor_ref$barcodes[which(tumor_ref$library_id == library_id)]
