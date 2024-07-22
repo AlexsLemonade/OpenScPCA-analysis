@@ -3,7 +3,7 @@
 # This script runs SingleR on a processed SCE object 
 # All tumor cells present in a combined tumor reference is used 
 # as a reference along with BlueprintEncodeData from celldex 
-# Any cells that are from the library being annotated are removed from the reference 
+# Any cells that are from libraries from the same participant being annotated are removed from the reference 
 
 
 project_root <- here::here()
@@ -71,13 +71,16 @@ tumor_ref <- readr::read_rds(opt$tumor_reference_file)
 blueprint_ref <- celldex::BlueprintEncodeData(ensembl = TRUE)
 hpca_ref <- celldex::HumanPrimaryCellAtlasData(ensembl = TRUE)
 
-# remove tumor cells from SCE object for annotation 
+# pull out library and participant id 
 library_id <- metadata(sce)$library_id
-sce_tumor_cells <- tumor_ref$barcodes[which(tumor_ref$library_id == library_id)]
-filtered_sce <- sce[ , !(colnames(sce) %in% sce_tumor_cells)]
+participant_id <- metadata(sce)$sample_metadata |> 
+  dplyr::pull(participant_id)
 
-# remove tumor cells from library being annotated from reference 
-cells_to_keep <- tumor_ref$library_id != library_id
+# pull out original tumor cells to combine with singler results later  
+sce_tumor_cells <- tumor_ref$barcodes[which(tumor_ref$library_id == library_id)]
+
+# remove tumor cells from participant being annotated from reference 
+cells_to_keep <- tumor_ref$participant_id != participant_id
 filtered_tumor_ref <- tumor_ref[, cells_to_keep]
 
 # we don't need the original tumor ref anymore
@@ -87,7 +90,7 @@ rm(tumor_ref)
 
 # run SingleR on remaining cells with tumor ref and blueprint
 singler_results <- SingleR::SingleR(
-  test = filtered_sce,
+  test = sce,
   ref = list(Blueprint = blueprint_ref,
              HPCA = hpca_ref,
              tumor_ref = filtered_tumor_ref),
@@ -98,8 +101,8 @@ singler_results <- SingleR::SingleR(
 # get ontology labels
 cl_ont <- ontoProc::getOnto("cellOnto")
 cl_df <- data.frame(
-  annotation = cl_ont$name, # CL ID
-  ontology = names(cl_ont$name) # human readable name
+  annotation = cl_ont$name, # human readable name 
+  ontology = names(cl_ont$name)# CL ID
 )
 
 # grab results from data frame and add human readable values for normal ont labels 
@@ -107,23 +110,18 @@ results_df <- data.frame(
   barcodes = rownames(singler_results),
   ontology = singler_results$pruned.labels
 ) |>
-  # replace ont labels with full human readable labels
+  # add full human readable labels as a new column 
   dplyr::left_join(cl_df, by = c("ontology")) |>
   # if its not found in blueprint its tumor so keep the original annotation 
-  dplyr::mutate(annotation = dplyr::if_else(is.na(annotation), ontology, annotation))
-
-# combine back with tumor cells 
-tumor_annotations_df <- data.frame(barcodes = sce_tumor_cells) |> 
-  dplyr::mutate(
-  annotation = glue::glue("tumor-{library_id}")
-)
-
-all_results_df <- dplyr::bind_rows(list(results_df, tumor_annotations_df)) |> 
-  # rename columns
+  dplyr::mutate(annotation = dplyr::coalesce(annotation, ontology),
+                aucell_annotation = dplyr::if_else(barcodes %in% sce_tumor_cells, 
+                                                   "tumor", 
+                                                   "normal")) |> 
+  # specify which columns are from SingleR
   dplyr::rename(
-    singler_tumor_annotation = annotation,
-    singler_tumor_ontology = ontology
+    singler_annotation = annotation,
+    singler_ontology = ontology
   )
 
-# export tsv file with barcodes and singler_tumor_annotation and singler_tumor_ontology columns 
-readr::write_tsv(all_results_df, opt$output_annotations_file)
+# export tsv file with barcodes, aucell_annotation, singler_annotation and singler_ontology columns 
+readr::write_tsv(results_df, opt$output_annotations_file)
