@@ -15,6 +15,10 @@ TBD
 
 Initial analysis is expected use processed `SingleCellExperiment` objects from the ScPCA Portal, in AnnData format.
 
+For initial testtesting, files were downloaded with:
+```
+./download-data.py --format "anndata" --projects SCPCP000001
+
 
 ## Output files
 
