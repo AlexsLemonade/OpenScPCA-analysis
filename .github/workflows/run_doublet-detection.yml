@@ -27,6 +27,7 @@ on:
       - main
     paths:
       - analyses/doublet-detection/**
+      - .github/workflows/run_doublet-detection.yml
 
 jobs:
   run-module:
