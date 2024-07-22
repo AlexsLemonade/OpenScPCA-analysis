@@ -55,6 +55,7 @@ jobs:
       - name: Run doublet-detection module on benchmark test data
         run: |
           cd ${MODULE_PATH}
+          conda activate openscpca-doublet-detection
           test=1 ./run_doublet-detection-benchmark.sh
 
       # Note that this step uses only R, so we don't need to activate the conda environment
