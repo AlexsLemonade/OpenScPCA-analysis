@@ -264,11 +264,12 @@ full_celltype_heatmap <- function(classification_df,
   heatmap_mtx <- classification_df |>
     dplyr::select(barcodes, gene_exp_columns) |> 
     tibble::column_to_rownames("barcodes") |> 
-    as.matrix()
-  colnames(heatmap_mtx) <- stringr::str_remove(colnames(heatmap_mtx), "_sum|mean-")
+    as.matrix() |> 
+    t()
+  rownames(heatmap_mtx) <- stringr::str_remove(rownames(heatmap_mtx), "_sum|mean-")
   
   # plot heatmap of marker genes 
-  plot_gene_heatmap(t(heatmap_mtx), 
+  plot_gene_heatmap(heatmap_mtx, 
                     row_title = "",
                     legend_title = "Marker gene \nexpression",
                     annotation = annotation)
@@ -319,4 +320,50 @@ plot_density <- function(classification_df,
       panel.grid.major.y = element_blank(),
       panel.spacing = unit(0.02, "in")
     )
+}
+
+
+# UMAPs ------------------------------------------------------------------------
+
+# creates a faceted UMAP where each panel shows the cell type of interest in color and 
+# all other cells in grey 
+# adapted from `faceted_umap()` function in `celltypes_qc.rmd` from `scpca-nf`
+# https://github.com/AlexsLemonade/scpca-nf/blob/main/templates/qc_report/celltypes_qc.rmd#L143
+
+plot_faceted_umap <- function(classification_df,
+                              annotation_column) {
+  
+  ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = {{ annotation_column }})) +
+    # set points for all "other" points
+    geom_point(
+      data = dplyr::select(
+        classification_df, - {{ annotation_column }}
+      ),
+      color = "gray80",
+      alpha = 0.5,
+      size = 0.1
+    ) +
+    # set points for desired cell type
+    geom_point(size = 0.1, alpha = 0.5) +
+    facet_wrap(
+      vars({{ annotation_column }}),
+      ncol = 3
+    ) +
+    scale_color_brewer(palette = "Dark2") +
+    # remove axis numbers and background grid
+    scale_x_continuous(labels = NULL, breaks = NULL) +
+    scale_y_continuous(labels = NULL, breaks = NULL) +
+    guides(
+      color = guide_legend(
+        title = "Cell type",
+        # more visible points in legend
+        override.aes = list(
+          alpha = 1,
+          size = 1.5
+        )
+      )) +
+    theme(
+      aspect.ratio = 1
+    )
+  
 }
