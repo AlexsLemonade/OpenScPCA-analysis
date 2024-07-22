@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download test data in SCE format
-        env:  |
+        env:
           # Use all samples for testing unless this is triggered by a PR, in which case only use a subset of samples for faster testing
           # A single sample (or combination of samples for multiplexed data) was chosen for each ScPCA project as:
           #  Unless otherwise stated, the first sample ID in the given project
