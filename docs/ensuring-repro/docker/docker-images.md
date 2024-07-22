@@ -103,7 +103,7 @@ In the Dockerfile, you will want include the following steps:
 - Install `conda-lock`.
 - Copy the `conda-lock.yml` file from the host environment to the image.
 - Use `conda-lock install` to create an environment from the `conda-lock.yml` file.
-- Make sure the environment is activated when the container is launched by modifying the `.bashrc` file and setting the `ENTRYPOINT` to `bash -l -c`.
+- Make sure the environment is activated when the container is launched by modifying the `.bashrc` file and setting the `CMD` to `/bin/bash`.
 
 A simple `Dockerfile` for a conda-based analysis module that uses `conda-lock` for its environment might look like this:
 
