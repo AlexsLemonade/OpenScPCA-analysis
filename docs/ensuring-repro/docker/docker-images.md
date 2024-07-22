@@ -127,8 +127,8 @@ RUN conda-lock install -n ${ENV_NAME} \
 # Activate conda environment on bash launch
 RUN echo "conda activate ${ENV_NAME}" >> ~/.bashrc
 
-# Set entrypoint to bash to activate the environment for any commands
-ENTRYPOINT ["bash", "-l", "-c"]
+# Set CMD to bash to activate the environment when launching
+CMD ["/bin/bash"]
 ```
 
 
@@ -188,8 +188,8 @@ RUN Rscript -e 'renv::restore()' \
 # Activate conda environment on bash launch
 RUN echo "conda activate ${ENV_NAME}" >> ~/.bashrc
 
-# Set entrypoint to bash to activate the environment for any commands
-ENTRYPOINT ["bash", "-l", "-c"]
+# Set CMD to bash to activate the environment when launching
+CMD ["/bin/bash"]
 ```
 
 !!! tip
