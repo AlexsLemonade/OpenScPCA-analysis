@@ -367,7 +367,7 @@ metric_df <- doublet_df_list |>
         cat("\n\n")
 
         # run confusion matrix only if there are both singlets and doublets
-        if (length(unique(df$consensus_call)) == 2) {
+        if ("singlet" %in% df$consensus_call & "doublet" %in% df$consensus_call) {
             confusion_result <- caret::confusionMatrix(
             # truth should be first
             table(
@@ -535,7 +535,7 @@ metric_df <- doublet_df_list |>
         cat("\n\n")
 
         # run confusion matrix only if there are both singlets and doublets
-        if (length(unique(df$consensus_call)) == 2) {
+        if ("singlet" %in% df$consensus_call & "doublet" %in% df$consensus_call) {
           confusion_result <- caret::confusionMatrix(
             # truth should be first
             table(
