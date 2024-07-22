@@ -109,7 +109,9 @@ This chunk defines functions to explore doublet detection results.
 print_doublet_table <- function(df, pred_col, is_ground_truth = FALSE) {
   # Function to print a table of doublet counts and a sentence stating the percentage of doublets
   # df is expected to contain `pred_col`, should should be provided as a string
-  dub_tab <- table(df[[pred_col]])
+  
+  # If there are no predicted doublets, make sure the tab has a 0 count
+  dub_tab <- table( factor(df[[pred_col]], levels = c("singlet", "doublet") ))
   dub_percent <- round(dub_tab[["doublet"]]/sum(dub_tab), 4) * 100
   
   if (is_ground_truth) {
@@ -213,16 +215,26 @@ plot_density_scores <- function(df, score_col, method_name){
 assess_doublets <- function(df, pred_col) {
   # df is expected to contain columns `ground_truth` and `pred_col`
   # The `pred_col` argument _should_ be provided as a strings
+  # This function will return NULL if there are insufficient counts to calculate metrics
   
-  caret::confusionMatrix(
     # truth should be first
-    table(
+    confusion_table <- table(
       "Truth" = df$ground_truth,
       "Prediction" = df[[pred_col]]
-    ), 
-    positive = "doublet"
-  )
-  
+    )
+    
+    if (!all(dim(confusion_table) == c(2,2))) {
+      print("Metrics could not be calculated; insufficient counts.")
+      return(NULL)
+    } else {
+      return(
+        caret::confusionMatrix(
+          confusion_table, 
+          positive = "doublet"
+        )
+      )
+    }
+    
 }
 
 ```
