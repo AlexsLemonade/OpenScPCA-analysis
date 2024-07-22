@@ -42,7 +42,7 @@ This analysis runs several doublet detection methods and assesses and compares t
   ./run_doublet-detection-scpca.sh {scpca project id}
 
   # the script uses 4 cores by default. Use the cores argument to customize:
-  cores=2 run_doublet-detection-scpca.sh {scpca project id}
+  cores=2 ./run_doublet-detection-scpca.sh {scpca project id}
 
   # for example, detect doublets on all libraries in ScPCA project SCPCP000001 with 6 cores:
   cores=6 ./run_doublet-detection-scpca.sh SCPCP000001
