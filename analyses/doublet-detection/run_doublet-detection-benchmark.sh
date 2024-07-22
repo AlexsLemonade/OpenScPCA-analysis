@@ -2,9 +2,18 @@
 
 # This script runs the benchmarking portion of the `doublet-detection` module
 # Usage: ./run_doublet-detection-benchmark.sh
+# Additional arguments:
+# The number of cores (default is 4) to use with scDblFinder can be set with the `--cores` option:
+#    cores=2 ./run_doublet-detection-benchmark.sh
+# If this script is being run in test mode, use `--test=1` option:
+#    test=1 ./run_doublet-detection-benchmark.sh
 
 set -euo pipefail
-CORES=4
+
+# input variables
+CORES=${cores:-4}
+TEST=${test:-0}
+
 
 # Ensure script is being run from its directory
 MODULE_DIR=$(dirname "${BASH_SOURCE[0]}")
@@ -13,7 +22,7 @@ cd ${MODULE_DIR}
 TEMPLATE_NB_DIR="template-notebooks" # directory with template notebooks
 EXPLORE_NB_DIR="exploratory-notebooks"  # directory with exploratory notebooks
 
-# Create benchmark directories
+# Define and create benchmark directories
 DATA_DIR="scratch/benchmark-datasets"
 RESULTS_DIR="results/benchmark-results"
 RESULTS_NB_DIR="${RESULTS_DIR}/rendered-notebooks"
@@ -21,17 +30,30 @@ mkdir -p ${DATA_DIR}
 mkdir -p ${RESULTS_DIR}
 mkdir -p ${RESULTS_NB_DIR}
 
+# Remove any existing data and results to ensure there are no conflicts
+rm -rf ${DATA_DIR}/*
+rm -rf ${RESULTS_DIR}/*
+rm -rf ${RESULTS_NB_DIR}/*
 
-# define benchmarking datasets to use
+# define benchmarking dataset names
 bench_datasets=("hm-6k" "pbmc-1B-dm" "pdx-MULTI" "HMEC-orig-MULTI")
 
-# Download and unzip `real_datasets.zip` archive from https://doi.org/10.5281/zenodo.4562782
-# Files are saved in $DATA_DIR/raw
-wget https://zenodo.org/records/4562782/files/real_datasets.zip
-unzip real_datasets.zip -d ${DATA_DIR}/raw
-rm real_datasets.zip
+# download benchmarking files to $DATA_DIR/raw
+if [[ $TEST -eq 1 ]]; then
+    # Download the subsetted test datasets
+    wget https://github.com/AlexsLemonade/OpenScPCA-analysis/raw/9018730220ddef4ce71efd0ebfdfd8aa6044c9a3/analyses/doublet-detection/benchmark-test-data/data.zip
+    unzip data.zip -d ${DATA_DIR}/raw
+    rm data.zip
+else
+    # Download and unzip `real_datasets.zip` archive from https://doi.org/10.5281/zenodo.4562782
+    wget https://zenodo.org/records/4562782/files/real_datasets.zip
+    unzip real_datasets.zip -d ${DATA_DIR}/raw
+    rm real_datasets.zip
+fi
 
 for dataset in "${bench_datasets[@]}"; do
+
+    echo "============================${dataset}=========================="
 
     # formatted SCE and AnnData files will be saved here
     DATASET_DIR=${DATA_DIR}/$dataset
