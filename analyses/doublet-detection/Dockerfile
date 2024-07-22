@@ -27,6 +27,13 @@ RUN curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.s
 # Install conda-lock
 RUN conda install --channel=conda-forge --name=base conda-lock
 
+# Install pandoc dependency
+RUN apt-get -y update &&  \
+  DEBIAN_FRONTEND=noninteractive \
+  apt-get install --no-install-recommends -y \
+  pandoc \
+  && rm -rf /var/lib/apt/lists/*
+
 # Install renv
 RUN Rscript -e "install.packages('renv')"
 
