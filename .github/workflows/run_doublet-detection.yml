@@ -10,7 +10,10 @@ name: Run doublet-detection analysis module
 env:
   MODULE_PATH: analyses/doublet-detection
   AWS_DEFAULT_REGION: us-east-2
+  # use all samples for testing unless this is triggered by a PR, in which case only use a subset of samples for faster testing
+  SAMPLES: ${{ github.event_name != "pull_request" && "all" || "SCPCS000435,SCPCS000133,SCPCS000134,SCPCS000135,SCPCS000136,SCPCS000001,SCPCS000024,SCPCS000050,SCPCS000101,SCPCS000250,SCPCS000168,SCPCS000216,SCPCS000124,SCPCS000298,SCPCS000481,SCPCS000484,SCPCS000514,SCPCS000490,SCPCS000502,SCPCS000246,SCPCS000616,SCPCS000632,SCPCS000758" }}
 
+  SAMPLES:
 concurrency:
   # only one run per branch at a time
   group: "run_doublet-detection_${{ github.ref }}"
@@ -46,7 +49,6 @@ jobs:
       - name: Run doublet-detection module
         run: |
           projects=$(basename -a data/current/SCPCP*)
-
           cd ${MODULE_PATH}
           for project in $projects; do
               bash run_doublet-detection-scpca.sh $project
