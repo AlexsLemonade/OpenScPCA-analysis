@@ -28,6 +28,12 @@ There are two portions of this module, which can be run as follows:
 This analysis runs several doublet detection methods and assesses and compares their performance.
   ```sh
   ./run_doublet-detection-benchmarking.sh
+
+  # to run in test mode using subsetted datasets:
+  test=1 ./run_doublet-detection-benchmarking.sh
+
+  # the script uses 4 cores by default. Use the cores argument to customize:
+  cores=2 ./run_doublet-detection-benchmarking.sh
   ```
 
 - ScPCA analysis: Detect doublets in ScPCA data using `scDblFinder` for a given project id (`SCPCPXXXXXX`).
@@ -35,8 +41,11 @@ This analysis runs several doublet detection methods and assesses and compares t
   ```sh
   ./run_doublet-detection-scpca.sh {scpca project id}
 
-  # for example, detect doublets on all libraries in ScPCA project SCPCP000001:
-  ./run_doublet-detection-scpca.sh SCPCP000001
+  # the script uses 4 cores by default. Use the cores argument to customize:
+  cores=2 run_doublet-detection-scpca.sh {scpca project id}
+
+  # for example, detect doublets on all libraries in ScPCA project SCPCP000001 with 6 cores:
+  cores=6 ./run_doublet-detection-scpca.sh SCPCP000001
   ```
 
 
@@ -114,5 +123,15 @@ A Dockerfile is also provided.
 
 This module does not require compute beyond what is generally available on a laptop.
 By default, `scDblFinder` is run with 4 cores.
-To modify this, you can update _line 7_ in `run_doublet-detection-benchmark.sh` and/or `run_doublet-detection-scpca.sh` defining the `CORES` variable to a value of your choice.
+To specify a different number of cores, use the `cores` argument when running either `run_doublet-detection-benchmark.sh` or `run_doublet-detection-scpca.sh`:
+
+```sh
+# For example, use 2 cores:
+
+# benchmarking script
+cores=2 ./run_doublet-detection-benchmarking.sh
+
+# ScPCA script:
+cores=2 ./run_doublet-detection-scpca.sh {scpca project id}
+```
 
