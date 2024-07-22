@@ -18,10 +18,8 @@ params:
 This report summarizes the classification of `r params$library_id` using the following approach: 
 
 - Tumor cells were identified by using `AUCell`. 
-These cells are labeled as `tumor_original`. 
-- All other cells were labeled using `SingleR` with a combination of three references: 
+- All cells were labeled using `SingleR` with a combination of three references: 
   - All tumor cells annotated by `AUCell` for all other libraries in `SCPCP000015`. 
-  Any cells that are labeled as tumor using this reference are labeled as `tumor_new`. 
   - `BlueprintEncodeData` from `celldex`
   - `HumanPrimaryCellAtlasData` from `celldex`
 
