@@ -17,27 +17,52 @@ fs::dir_create(output_dir)
 
 datasets <- c("hm-6k", "pbmc-1B-dm", "pdx-MULTI", "HMEC-orig-MULTI")
 
-# For each dataset, subset to 50 droplets, including 45 singlets and 5 doublets, and the first 100 genes
+# Subset dataset to the following amounts:
+n_singlets <- 200
+n_doublets <- 25
+n_genes <- 500
+
+# Helper function to determine which cells (highest colSum values) or genes to keep (highest rowMean values)
+find_names <- function(counts, n, type = "rowmean") {
+  if (type == "rowmean") {
+    counts <- rowMeans(counts)
+  } else if (type == "colsum") {
+    counts <- colSums(counts)
+  }
+
+  names_to_keep <- counts |>
+    sort() |>
+    tail(n) |>
+    names()
+
+  return(names_to_keep)
+}
+
+# Subset and export datasets
 datasets |>
   purrr::walk(
     \(dataset) {
       output_file <- file.path(output_dir, glue::glue("{dataset}.rds"))
       raw_data <- readRDS(file.path(input_dir, glue::glue("{dataset}.rds")))
 
-      # keep 45 random singlets and 5 random doublets
       counts <- raw_data[[1]]
       barcodes <- colnames(counts)
       cell_labels <- raw_data[[2]]
       stopifnot("Different number of labels than barcodes." = length(barcodes) == length(cell_labels))
 
+      # Determine which barcodes to keep - those with highest counts
       keep_barcodes <- c(
-        sample(barcodes[cell_labels == "singlet"], 45),
-        sample(barcodes[cell_labels == "doublet"], 5)
+        find_names(counts, n_singlets, type = "colsum"),
+        find_names(counts, n_doublets, type = "colsum")
       )
       keep_barcode_indices <- which(barcodes %in% keep_barcodes)
 
+      # Determine which genes to keep - those with the highest means
+      keep_genes <- find_names(counts, n_genes, type = "rowmean")
+      keep_gene_indices <- which(rownames(counts) %in% keep_genes)
+
       subsetted_data <- list(
-        counts[1:100, keep_barcode_indices],
+        counts[1:n_genes, keep_barcode_indices],
         cell_labels[keep_barcode_indices]
       )
 
