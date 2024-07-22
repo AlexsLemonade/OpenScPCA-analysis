@@ -13,9 +13,10 @@
 #   - In the AnnData file, this is in the obs slot
 
 # Load libraries
-library(SingleCellExperiment)
-library(optparse)
-
+suppressPackageStartupMessages({
+  library(SingleCellExperiment)
+  library(optparse)
+})
 
 option_list <- list(
   make_option(
