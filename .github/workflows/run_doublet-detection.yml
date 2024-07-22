@@ -43,11 +43,16 @@ jobs:
           conda activate openscpca-doublet-detection
           ./download-data.py --test-data --format SCE
 
-      - name: Run doublet-detection module
+      - name: Run doublet-detection module on benchmark test data
+        run: |
+          cd ${MODULE_PATH}
+          test=1 cores=1 ./run_doublet-detection-benchmark.sh
+
+      - name: Run doublet-detection module on ScPCA test data
         run: |
           projects=$(basename -a data/current/SCPCP*)
 
           cd ${MODULE_PATH}
           for project in $projects; do
-              bash run_doublet-detection-scpca.sh $project
+              cores=1 ./run_doublet-detection-scpca.sh $project
           done
