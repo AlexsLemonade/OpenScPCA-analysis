@@ -53,14 +53,17 @@ subset_tumor_cells <- function(sce_file,
   # read in sce 
   sce <- readr::read_rds(sce_file)
   
-  # pull out library id 
+  # pull out library id and participant id
   library_id <- metadata(sce)$library_id
+  participant_id <- metadata(sce)$sample_metadata |> 
+    dplyr::pull(participant_id)
   
   # filter to only contain tumor cells
   filtered_sce <- sce[, tumor_cells]
   
   # add tumor labels to coldata 
   filtered_sce$library_id <- library_id
+  filtered_sce$participant_id <- participant_id
   filtered_sce$ref_tumor_label <- glue::glue("tumor-{library_id}")
     
   return(filtered_sce) 
@@ -106,7 +109,7 @@ remaining_sce_list <- sce_list[which(!sce_absent)]
 merged_ref_sce <- scpcaTools::merge_sce_list(
   sce_list = remaining_sce_list,
   cell_id_column = "barcodes",
-  retain_coldata_cols = c("library_id", "ref_tumor_label")
+  retain_coldata_cols = c("library_id", "participant_id", "ref_tumor_label")
 )
 
 
