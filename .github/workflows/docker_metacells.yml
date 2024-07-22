@@ -9,7 +9,7 @@ name: Build docker image for metacells
 
 concurrency:
   # only one run per branch at a time
-  group: "metacells-${{ github.ref }}"
+  group: "docker_metacells_${{ github.ref }}"
   cancel-in-progress: true
 
 on:

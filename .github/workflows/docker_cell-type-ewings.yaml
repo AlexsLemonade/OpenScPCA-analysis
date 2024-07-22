@@ -2,7 +2,7 @@ name: Build Docker image for cell-type-ewings
 
 concurrency:
   # only one run per branch at a time
-  group: "cell-type-ewings-${{ github.ref }}"
+  group: "docker_cell-type-ewings_${{ github.ref }}"
   cancel-in-progress: true
 
 on:

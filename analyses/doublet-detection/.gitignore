@@ -8,6 +8,3 @@
 
 # Ignore template-notebooks HTML files
 template-notebooks/*html
-
-# Don't ignore the test RDS file
-!/benchmark-test-data/hm-6k_subset.rds

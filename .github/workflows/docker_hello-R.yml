@@ -2,7 +2,7 @@ name: Build Docker image for hello-R
 
 concurrency:
   # only one run per branch at a time
-  group: "hello-R-${{ github.ref }}"
+  group: "docker_hello-R_${{ github.ref }}"
   cancel-in-progress: true
 
 on:

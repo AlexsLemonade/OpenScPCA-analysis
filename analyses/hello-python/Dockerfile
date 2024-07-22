@@ -7,7 +7,7 @@ LABEL org.opencontainers.image.authors="OpenScPCA scpca@ccdatalab.org"
 LABEL org.opencontainers.image.source="https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/hello-python"
 
 # Set an environment variable to allow checking if we are in an OpenScPCA container
-ENV OPENSCPCA_DOCKER TRUE
+ENV OPENSCPCA_DOCKER=TRUE
 
 # set a name for the conda environment
 ARG ENV_NAME=openscpca-hello-python
@@ -26,4 +26,4 @@ RUN conda-lock install -n ${ENV_NAME} && \
 RUN echo "conda activate ${ENV_NAME}" >> ~/.bashrc
 
 # Set entrypoint to bash to activate the environment for any commands
-ENTRYPOINT ["bash", "-l", "-c"]
+ENTRYPOINT ["bash", "-l"]

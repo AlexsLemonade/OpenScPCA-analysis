@@ -14,7 +14,7 @@ env:
 
 concurrency:
   # only one run per branch at a time
-  group: "{{ openscpca_module }}-${{ github.ref }}"
+  group: "run_{{ openscpca_module }}_${{ github.ref }}"
   cancel-in-progress: true
 
 on:
@@ -53,7 +53,7 @@ jobs:
         uses: r-lib/actions/setup-pandoc@v2
 
       - name: Set up conda
-      # Note that this creates and activates an environment named 'test' by default
+        # Note that this creates and activates an environment named 'test' by default
         uses: conda-incubator/setup-miniconda@v3
 
       - name: Install conda-lock and activate locked conda environment
