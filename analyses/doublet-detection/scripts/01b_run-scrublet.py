@@ -21,8 +21,16 @@ def run_scrublet(adata: anndata.AnnData, random_seed: int) -> pandas.DataFrame:
     """
 
     scrub = scrublet.Scrublet(adata.X, random_state = random_seed)
+
+    # Handle test datasets, which are very small
+    # The real datasets used in this module will always have > 10
+    if (scrub.n_neighbors < 10):
+        n_pc = 2
+    else:
+        n_pc = 30 # default for .scrub_doublets() method
+
     # predicted_doublets is boolean array, where True are predicted doublets and False are predicted singlets
-    doublet_scores, predicted_doublets = scrub.scrub_doublets()
+    doublet_scores, predicted_doublets = scrub.scrub_doublets(n_prin_comps = n_pc)
 
     # convert True/False to string values
     predicted_doublets_str = [("doublet" if x else "singlet") for x in predicted_doublets]
