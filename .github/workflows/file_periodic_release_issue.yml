@@ -19,7 +19,7 @@ jobs:
       - name: Set template path
         run: |
           template_path=".github/cron-issue-templates/create-periodic-release-template.md"
-          if [-f "$template_path" ]; then
+          if [ -f "$template_path" ]; then
             echo "TEMPLATE=$template_path" >> $GITHUB_ENV
           else
             echo "File $template_path does not exist"
