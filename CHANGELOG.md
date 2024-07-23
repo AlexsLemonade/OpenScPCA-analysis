@@ -24,12 +24,12 @@ With respect to infrastructure, the repository contains the following components
 
 The repository contains the following analysis modules that are now in a relatively mature state:
 
-- hello-R
-- hello-python
-- simulate-sce
-- doublet-detection
+- `hello-R`
+- `hello-python`
+- `simulate-sce`
+- `doublet-detection`
 
 The following additional modules are in active development:
 
-- cell-type-ewings
-- metacells
+- `cell-type-ewings`
+- `metacells`
