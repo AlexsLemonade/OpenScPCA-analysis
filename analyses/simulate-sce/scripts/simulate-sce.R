@@ -111,7 +111,7 @@ simulate_sce <- function(sce, ncells, replacement_metadata, processed) {
 
   # define a subset of cells to simulate
   ncells <- min(ncells, ncol(sce))
-  cell_subset <- sample.int(ncol(sce), ncells)
+  cell_subset <- sample(colnames(sce), ncells)
   sce_sim <- sce[, cell_subset]
 
   ### Reduce and remove metadata -----------------------------------------------
@@ -122,7 +122,10 @@ simulate_sce <- function(sce, ncells, replacement_metadata, processed) {
       sample_id = scpca_sample_id,
       age = age_at_diagnosis
     ) |>
-    dplyr::select(any_of(colnames(metadata(sce)$sample_metadata)))
+    dplyr::select(any_of(colnames(metadata(sce)$sample_metadata))) |>
+    dplyr::mutate( # convert age to the type in the table before replacement
+      age = as(age, type(metadata(sce)$sample_metadata$age))
+    )
 
   # replace sample metadata fields with permuted values
   metadata(sce_sim)$sample_metadata <- metadata(sce_sim)$sample_metadata |>
@@ -133,10 +136,12 @@ simulate_sce <- function(sce, ncells, replacement_metadata, processed) {
 
   # reduce the cell type data matrices, if present
   if (!is.null(metadata(sce_sim)$singler_results)) {
-    metadata(sce_sim)$singler_results <- metadata(sce_sim)$singler_results[cell_subset, ]
+    sim_cells <- cell_subset[cell_subset %in% rownames(metadata(sce_sim)$singler_results)]
+    metadata(sce_sim)$singler_results <- metadata(sce_sim)$singler_results[sim_cells, ]
   }
   if (!is.null(metadata(sce_sim)$cellassign_predictions)) {
-    metadata(sce_sim)$cellassign_predictions <- metadata(sce_sim)$cellassign_predictions[cell_subset, ]
+    sim_cells <- cell_subset[cell_subset %in% rownames(metadata(sce_sim)$cellassign_predictions)]
+    metadata(sce_sim)$cellassign_predictions <- metadata(sce_sim)$cellassign_predictions[sim_cells, ]
   }
 
   # Adjust cluster/cell type labels --------------------------------------------
@@ -186,9 +191,10 @@ simulate_sce <- function(sce, ncells, replacement_metadata, processed) {
   # recalculate dimension reduction for processed data
   if (processed) {
     logcounts(sce_sim, withDimnames = FALSE) <- log1p(counts(sce_sim)) # use log1p for speed
-    sce_sim <- sce_sim |>
-      scater::runPCA(10) |> # we don't need all the PCA components
-      scater::runUMAP(dimred = "PCA")
+    sce_sim <- scater::runPCA(sce_sim, 10) # we don't need all the PCA components
+    if ("UMAP" %in% reducedDimNames(sce)) { # only run UMAP if it was run before
+      sce_sim <- scater::runUMAP(sce_sim)
+    }
   }
 
   # Add any altExps ------------------------------------------------------------
@@ -243,12 +249,13 @@ simulate_sce <- function(sce, ncells, replacement_metadata, processed) {
 
 set.seed(opts$seed)
 
-metadata <- readr::read_tsv(opts$metadata_file, show_col_types = FALSE)
+# make sure sex is read as a character to prevent all females -> logical false
+metadata <- readr::read_tsv(opts$metadata_file, col_types = readr::cols(sex = "c"))
 
 # get file list
 sce_files <- list.files(
   opts$sample_dir,
-  pattern = "_(processed|filtered|unfiltered).rds$",
+  pattern = "_(processed|filtered|unfiltered)\\.rds$",
   full.names = TRUE
 )
 
@@ -256,7 +263,7 @@ fs::dir_create(opts$output_dir)
 
 # perform simulations for each file
 purrr::walk(sce_files, \(sce_file) {
-  is_processed <- grepl("_processed.rds$", sce_file)
+  is_processed <- grepl("_processed\\.rds$", sce_file)
   # load the real data
   real_sce <- readr::read_rds(sce_file)
   # get the matching library metadata for replacing

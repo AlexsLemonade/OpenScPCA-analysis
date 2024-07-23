@@ -49,6 +49,6 @@ Any files with a matching extension or path listed in the `.gitignore` will not 
 
 Ignored files include the following:
 
-- Data files, such as `.rds` or `.hdf5` files
+- Data files, such as `.rds` or `.h5ad` files
 - Environment files, such as `renv` and `env` directories
 - Other hidden files produced by R and Python

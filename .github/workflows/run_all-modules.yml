@@ -1,0 +1,50 @@
+# This is a workflow to all of the analysis module workflows
+#
+# This workflow will run with the following triggers
+# - Manual trigger
+# - Periodic running on a timer
+
+name: Run all analysis workflows
+on:
+  schedule: # run monthly on the 4th (intended to run after docker images are built)
+    - cron: "0 0 4 * *"
+  workflow_dispatch:
+
+jobs:
+  # Modules to run
+  # Note: only 20 modules can be run per workflow
+  hello-R:
+    uses: ./.github/workflows/run_hello-R.yml
+
+  hello-python:
+    uses: ./.github/workflows/run_hello-python.yml
+
+  ## Add additional modules above this comment, and to the needs list below
+  check-jobs:
+    if: ${{ always() }}
+    needs:
+      - hello-R
+      - hello-python
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout template file
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github/cron-issue-templates/all-modules-issue-template.md
+          sparse-checkout-cone-mode: false
+
+      - name: Post issue with results from running all modules
+        if: contains(needs.*.result, 'failure')
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: Analysis module failing in CI
+          content-filepath: |
+            .github/cron-issue-templates/all-modules-issue-template.md
+          labels: |
+            OpenScPCA admin
+            ci
+
+      - name: Check for failures or cancelled jobs
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: echo "Job failed" && exit 1

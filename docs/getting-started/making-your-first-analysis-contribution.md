@@ -1,7 +1,7 @@
 # Making your first analysis contribution
 
 
-<!-- These images intentionally do not use HTML formatting --> 
+<!-- These images intentionally do not use HTML formatting -->
 
 ![Path from joining to making a contribution- Planning](../img/first-analysis-contribution-planning.png){width="550"}
 
@@ -42,18 +42,15 @@ Together you will continue to develop your analysis plans and make decisions abo
 ### Getting access to resources
 
 * Once you've met [the criteria for Amazon Web Services (AWS) account creation](accessing-resources/index.md#getting-access-to-aws), which includes discussing an analysis, we will create an AWS account for you.
-* You will need to accept the invitation to join [as described in our AWS documentation](../software-platforms/aws/index.md#joining-iam-identity-center) to complete one of the steps in environment setup mentioned below.
+* You will need to accept the invitation to join [as described in our AWS documentation](../aws/joining-aws.md) to complete one of the steps in environment setup mentioned below.
 
 ## Implementation
 
 ### Create local setup
 
-Before starting your analysis, you will need to [set up your local environment](../technical-setup/index.md).
+Before starting any analyses, you need to set up your local environment.
 
-* Download and set up a [Git client](../technical-setup/install-a-git-client.md)
-* [Fork the `AlexsLemonade/OpenScPCA-analysis` repository](../technical-setup/fork-the-repo.md)
-* [Clone your fork](../technical-setup/clone-the-repo.md) to your computer
-* Set up [additional dependencies](../technical-setup/environment-setup/index.md) on your computer that you'll need to contribute to OpenScPCA
+Please [refer to these linked instructions](../technical-setup/index.md) for the specific setup steps you need to take.
 
 ### Scope work
 

@@ -1,0 +1,67 @@
+name: Build and push a Docker image for a module
+# This action is meant to be called by other actions,
+# namely the `build-docker-modules` job in `docker_all-modules.yml` and
+# the `build-push` job in `docker_{module}.yml` for each analysis module.
+
+on:
+  workflow_call:
+    inputs:
+      module:
+        required: true
+        type: string
+      push-ecr:
+        description: "Push to AWS ECR"
+        type: boolean
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-push:
+    name: Build and Push Docker Image
+    if: inputs.push-ecr && github.repository_owner == 'AlexsLemonade'
+    environment: prod
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::992382809252:role/GithubOpenId
+          role-session-name: githubActionSession
+          aws-region: us-east-1
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
+
+      - name: Create ECR repository if needed
+        id: create-ecr
+        run: |
+          aws ecr-public describe-repositories --repository-names ${{ inputs.module }} \
+          || aws ecr-public create-repository --repository-name ${{ inputs.module }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: public.ecr.aws/openscpca/${{ inputs.module }}
+          # tag with 'latest' for main branch pushes, semantic version for releases/tags
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{raw}}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          context: "{{defaultContext}}:analyses/${{ inputs.module }}"
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha

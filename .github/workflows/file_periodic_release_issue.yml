@@ -6,6 +6,7 @@ on:
 
 jobs:
   post_issue:
+    if: github.repository_owner == 'AlexsLemonade'
     runs-on: ubuntu-latest
 
     steps:

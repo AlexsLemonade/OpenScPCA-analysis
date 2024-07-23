@@ -1,0 +1,55 @@
+# This is a workflow to build the docker image for the metacells module
+#
+# Docker modules are run on pull requests when code for files that affect the Docker image have changed.
+# If other files are used during the Docker build, they should be added to `paths`
+#
+# At module initialization, this workflow is inactive, and needs to be activated manually
+
+name: Build docker image for metacells
+
+concurrency:
+  # only one run per branch at a time
+  group: "docker_metacells_${{ github.ref }}"
+  cancel-in-progress: true
+
+on:
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - "analyses/metacells/Dockerfile"
+  #     - "analyses/metacells/.dockerignore"
+  #     - "analyses/metacells/renv.lock"
+  #     - "analyses/metacells/conda-lock.yml"
+  workflow_dispatch:
+    inputs:
+      push-ecr:
+        description: "Push to AWS ECR"
+        type: boolean
+        required: true
+
+jobs:
+  test-build:
+    name: Test Build Docker Image
+    if: github.event_name == 'pull_request' || (contains(github.event_name, 'workflow_') && !inputs.push-ecr)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v5
+        with:
+          context: "{{defaultContext}}:analyses/metacells"
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-push:
+    name: Build and Push Docker Image
+    if: github.repository_owner == 'AlexsLemonade' && (github.event_name == 'push' || inputs.push-ecr)
+    uses: ./.github/workflows/build-push-docker-module.yml
+    with:
+      module: "metacells"
+      push-ecr: true

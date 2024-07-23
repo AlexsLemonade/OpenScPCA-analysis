@@ -13,13 +13,9 @@ To run the example analysis modules or any other existing modules, you will need
 
 ## Set up your local environment
 
-Before you can run any analysis modules locally, you need to [set up your environment](../technical-setup/index.md).
-This includes:
+Before you can run any analysis modules locally, you need to set up your environment.
 
-- Downloading and setting up a [Git client](../technical-setup/install-a-git-client.md)
-- [Forking the `AlexsLemonade/OpenScPCA-analysis` repository](../technical-setup/fork-the-repo.md)-
-- [Cloning your fork](../technical-setup/clone-the-repo.md) to your computer
-- [Installing conda and necessary dependencies](../technical-setup/environment-setup/index.md) needed to run analyses
+Please [refer to these linked instructions](../technical-setup/index.md) for the specific setup steps you need to take.
 
 ## Follow instructions to run existing modules
 
@@ -43,5 +39,5 @@ Additionally, you can use the [`simulate-sce`](https://github.com/AlexsLemonade/
 - The module requires either `SingleCellExperiment` or `AnnData` objects from the ScPCA Portal as input.
 
 In some cases, an analysis module's input data will be the results/output from a different module.
-These results are stored in an [S3 bucket on Amazon Web Services](../software-platforms/aws/index.md), and are available to contributors.
+These results are stored in an [S3 bucket on Amazon Web Services](../aws/index.md#s3-data-and-results-storage-with-aws), and are available to contributors.
 Read more about [getting access to data](accessing-resources/getting-access-to-data.md).

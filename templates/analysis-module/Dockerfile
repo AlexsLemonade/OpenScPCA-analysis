@@ -6,4 +6,5 @@ FROM ubuntu:22.04
 LABEL org.opencontainers.image.authors="OpenScPCA scpca@ccdatalab.org"
 LABEL org.opencontainers.image.source="https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/templates/analysis-module"
 
-
+# Set an environment variable to allow checking if we are in an OpenScPCA container
+ENV OPENSCPCA_DOCKER=TRUE

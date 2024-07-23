@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v4.6.0
     hooks:
       - name: General file size limit
         id: check-added-large-files
@@ -13,7 +13,7 @@ repos:
           )
       - name: Large file size limit
         id: check-added-large-files
-        args: ["--maxkb=1000"]
+        args: ["--maxkb=10000"]
       - id: detect-aws-credentials
         args: [--allow-missing-credentials]
       - id: detect-private-key
@@ -21,7 +21,7 @@ repos:
       - id: check-case-conflict
       - id: check-merge-conflict
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.18.1
+    rev: v8.18.4
     hooks:
       - id: gitleaks
   - repo: local

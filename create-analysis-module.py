@@ -10,6 +10,9 @@ import subprocess
 import sys
 from typing import Union
 
+R_VERSION = "4.4.0"
+BIOC_VERSION = "3.19"
+
 
 def copy_file_with_tag_replacement(
     src: Union[pathlib.Path, str],
@@ -195,15 +198,15 @@ def main() -> None:
 
     if args.use_renv:
         # initialize a new renv environment
-        renv_script = """
+        renv_script = f"""
             if (!requireNamespace("renv", quietly = TRUE))
                 install.packages("renv")
             renv::scaffold(
                 repos = list(CRAN = "https://p3m.dev/cran/latest"),
                 settings = list(
                     ppm.enabled = TRUE,
-                    r.version = "4.3.3",
-                    bioconductor.version = "3.18"
+                    r.version = "{R_VERSION}",
+                    bioconductor.version = "{BIOC_VERSION}"
                 )
             )
         """
@@ -212,6 +215,15 @@ def main() -> None:
             ["Rscript", "-e", renv_script],
             cwd=module_dir,
         )
+
+        # Set .Rprofile to not activate renv in an OpenScPCA Docker image
+        (module_dir / ".Rprofile").write_text(
+            "# Don't activate renv in an OpenScPCA docker image\n"
+            "if (Sys.getenv('OPENSCPCA_DOCKER') != 'TRUE') {\n"
+            "  source('renv/activate.R')\n"
+            "}\n"
+        )
+
         # make the components directory and add a dependencies.R file
         component_dir = module_dir / "components"
         component_dir.mkdir(exist_ok=True)
@@ -256,6 +268,40 @@ def main() -> None:
         )
 
         final_messages.append(f"- Added Jupyter Notebook template: `{module_ipynb}`.")
+
+    # Add GHA workflows
+    workflow_template_dir = base_dir / "templates" / "workflows"
+    workflows_dir = base_dir / ".github" / "workflows"
+
+    # run module template (default to conda)
+    if args.use_r:
+        gha_template_source = "run_renv-module.yml"
+    else:
+        gha_template_source = "run_conda-module.yml"
+
+    gha_template = workflows_dir / f"run_{args.name}.yml"
+    copy_file_with_tag_replacement(
+        src=workflow_template_dir / gha_template_source,
+        dest=gha_template,
+        tag="openscpca_module",
+        replacement=args.name,
+    )
+
+    final_messages.append(
+        f"- Added a GitHub Action template to run the module: `{gha_template}`."
+    )
+
+    # docker template
+    docker_template = workflows_dir / f"docker_{args.name}.yml"
+    copy_file_with_tag_replacement(
+        src=workflow_template_dir / "docker_module.yml",
+        dest=docker_template,
+        tag="openscpca_module",
+        replacement=args.name,
+    )
+    final_messages.append(
+        f"- Added a GitHub Action template for Docker builds: `{docker_template}`."
+    )
 
     # print final status messages
     print()  # add a newline before the final messages

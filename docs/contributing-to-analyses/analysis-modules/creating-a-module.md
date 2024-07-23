@@ -30,8 +30,8 @@ Before running this script, you should determine two things:
 
 To run this script, take these steps:
 
-1. Open a [terminal](../../software-platforms/general-tools/using-the-terminal.md) window.
-    - You may wish to launch terminal [from GitKraken](../../software-platforms/general-tools/using-the-terminal.md#gitkraken) so that you are automatically placed in the repository.
+1. Open a [terminal](../../getting-started/project-tools/using-the-terminal.md) window.
+    - You may wish to launch terminal [from GitKraken](../../getting-started/project-tools/using-the-terminal.md#gitkraken) so that you are automatically placed in the repository.
 
 2. Make sure you are working in your `base` conda environment by running `conda activate base`.
 
@@ -56,8 +56,20 @@ To run this script, take these steps:
     ./create-analysis-module.py --help
     ```
 
-## Module creation script flags
+### Module workflows
 
+The `create-analysis-module.py` script will also create two additional files besides your analysis module.
+These files, stored in the repository folder `.github/workflows`, are [GitHub Action workflow files](https://docs.github.com/en/actions) that the OpenScPCA project uses to ensure module reproducibility.
+The workflows are disabled by default.
+
+- `run_{my-module-name}.yml` contains a skeleton workflow for testing the analysis module.
+[Learn more about module testing workflows here.](../../ensuring-repro/workflows/run-module-gha.md)
+- `docker_{my-module-name}.yml` contains a skeleton workflow for building the analysis module's [Dockerfile](../../ensuring-repro/docker/index.md)
+
+Please [commit these files](../working-with-git/making-commits.md) as part of your first [pull request](../creating-pull-requests/index.md), and we'll take care of the rest!
+
+
+## Module creation script flags
 
 We recommend using one of these flags when creating your module.
 Each flag will create a skeleton module with the given files and folders.
@@ -68,7 +80,7 @@ Each example below shows the resulting module file structure when using each fla
 
 ### Flags to create an R module
 
-#### The `--use-r` flag
+#### The `--use-r` flag { #use-r }
 
 Use this flag to add a template R notebook to your module:
 
@@ -89,7 +101,7 @@ Use this flag to add a template R notebook to your module:
 │   └── README.md
 ├── plots
 │   └── ...
-├── scratchIG
+├── scratch
 │   └── ...
 ├── README.md
 ├── notebook-template.Rmd
@@ -103,11 +115,11 @@ Use this flag to add a template R notebook to your module:
 
 
 
-#### The `--use-renv` flag
+#### The `--use-renv` flag { #use-renv }
 
 !!! info
     The `hello-r` example module was created with this flag.
-    Learn more about [using `renv` to manage your R environment](../determining-requirements/determining-software-requirements.md#using-renv).
+    Learn more about [using `renv` to manage your R environment](../../ensuring-repro/managing-software/using-renv.md).
 
 Use this flag to:
 
@@ -124,7 +136,7 @@ Use this flag to:
 <div class="grid" markdown>
 
 - You can use `notebook-template.Rmd` as a starting point for any R Markdown notebooks you create while writing your analysis
-- You can use `components/dependencies.R` to [pin R package dependencies that `renv` does not automatically capture](../determining-requirements/determining-software-requirements.md#pinning-dependencies-that-are-not-captured-automatically)
+- You can use `components/dependencies.R` to [pin R package dependencies that `renv` does not automatically capture](../../ensuring-repro/managing-software/using-renv.md#pinning-dependencies-that-are-not-captured-automatically)
 - These additional files and folders manage the `renv` environment, and you should not directly edit them:
     - `renv.lock`
     - The `renv` folder
@@ -157,11 +169,11 @@ Use this flag to:
 
 ### Flags to create a Python module
 
-#### The `--use-jupyter` flag
+#### The `--use-jupyter` flag { #use-Jupyter }
 
 !!! info
     The `hello-python` example module was created with this flag.
-    Learn more about [using conda to manage your Python environment](../determining-requirements/determining-software-requirements.md#managing-software-dependencies-in-python-with-conda).
+    Learn more about [using conda to manage your Python environment](../../ensuring-repro/managing-software/using-conda.md).
 
 Use this flag to:
 
@@ -208,7 +220,7 @@ Use this flag to:
 
 </div>
 
-#### The `--use-conda` flag
+#### The `--use-conda` flag { #use-conda }
 
 Use this flag to initialize a conda environment in your module, but without a template script or notebook.
 The conda environment will be named `openscpca-<module name>`.

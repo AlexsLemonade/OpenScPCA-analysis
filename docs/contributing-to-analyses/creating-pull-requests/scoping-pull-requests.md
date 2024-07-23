@@ -19,7 +19,7 @@ All changes in a given PR should be focused with a set of related changes.
 For most cases, each PR should contain changes that address one [issue filed in the repository](../../communications-tools/github-issues/index.md).
 There may be occasions where one issue requires multiple PRs, but _do not_ file PRs that address multiple issues at once.
 
-Ensuring your PRs are focused on one task helps combat reviewer fatigue and keeps the [review process](../pr-review-and-merge/index.md) short. <!--STUB_LINK: Replace with review process link -->
+Ensuring your PRs are focused on one task helps combat reviewer fatigue and keeps the [review process](../pr-review-and-merge/respond-to-review.md) short.
 
 - Longer PRs are harder and more time-consuming to review, and reviewers are more likely to miss catching unwanted bugs in the code.
 - The smaller the PR, the faster and more thorough the review!

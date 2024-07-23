@@ -18,7 +18,7 @@ Data from projects to be processed should be downloaded from the OpenScPCA relea
 You will want all types of data for this module, so you can run the following command to download all processing levels in both formats from the latest release:
 
 ```bash
-./download-data.py --include "filtered,unfiltered,processed" --format "sce,anndata"
+./download-data.py --process-stage "filtered,unfiltered,processed" --format "sce,anndata"
 ```
 
 ## Running the scripts
@@ -37,7 +37,7 @@ Then the `scripts/simulate-sce.R` script will be called for each sample to creat
 
 ## Simulation description
 
-Data is simulated using the [`splatter` package](https://bioconductor.org/packages/3.18/bioc/html/splatter.html)([Zappia _et. al._ 2017](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-017-1305-0)), using the simple simulation framework.
+Data is simulated using the [`splatter` package](https://bioconductor.org/packages/3.19/bioc/html/splatter.html)([Zappia _et. al._ 2017](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-017-1305-0)), using the simple simulation framework.
 
 Most metadata is preserved from the original data to facilitate use in downstream analyses, though note that the metadata may not match the contents of the simulated data, leading to unusual results.
 For details on the metadata that is recalculated, preserved, randomized or removed, see [Simulation and metadata in SCE objects](simulation-metadata.md).
