@@ -1,9 +1,6 @@
 # This files an issue for creating a release every month on the 1st
 name: File create a release issue
 on:
-  pull_request:
-    branches:
-      - main
   schedule: # run monthly on the 1st
     - cron: 0 0 1 * *
 
