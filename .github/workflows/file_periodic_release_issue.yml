@@ -20,5 +20,5 @@ jobs:
         uses: peter-evans/create-issue-from-file@v5
         with:
           title: 'Create a release: ${{ env.TODAY }}'
-          content-filepath: .github/cron-issue-templates/create-release-template.md
+          content-filepath: .github/cron-issue-templates/create-periodic-release-template.md
           labels: release
