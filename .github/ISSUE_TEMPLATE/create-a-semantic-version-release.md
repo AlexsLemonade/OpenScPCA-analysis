@@ -11,7 +11,8 @@ If issues must be resolved before creating a release, mark them as blockers in Z
 
 - [ ] Any mentions of the release tag in the repository have been updated
 - [ ] All maintenance workflows are passing
-  - [ ] [Run all analysis modules](https://github.com/AlexsLemonade/OpenScPCA-analysis/actions/workflows/run_all-modules.yml) (trigger manually if needed)
+  - [ ] [Run all analysis modules](https://github.com/AlexsLemonade/OpenScPCA-analysis/actions/workflows/run_all-modules.yml) (trigger manually if needed)<br>
+  Check that all analysis modules are present in the workflow before running, and file a PR updating the workflow if necessary.
   - [ ] [Spellcheck](https://github.com/AlexsLemonade/OpenScPCA-analysis/actions/workflows/spellcheck.yml) (trigger manually if needed)
   - [ ] [Code styling](https://github.com/AlexsLemonade/OpenScPCA-analysis/actions/workflows/code-styling.yml) (optional, trigger manually)
 - [ ] All blocking issues have been resolved
