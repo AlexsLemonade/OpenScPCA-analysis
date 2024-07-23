@@ -117,6 +117,44 @@ create_marker_gene_df <- function(
   return(plot_markers_df)
 }
 
+# calculate the sum of expression for all markers in a given cell type 
+# takes as input the marker gene df with `cell_type` and `ensembl_gene_id` as columns
+# For any genes that are in the specified `cell_type`, sum of the logcounts is calculated
+# output is a data frame with barcodes and `{cell_type}_sum`
+calculate_sum_markers <- function(marker_genes_df,
+                                  type){
+  
+  # get list of marker genes to use 
+  marker_genes <- marker_genes_df |> 
+    dplyr::filter(cell_type == type) |> 
+    dplyr::pull(ensembl_gene_id)
+  
+  # get the gene expression counts for all marker genes
+  sum_exp <- logcounts(sce[marker_genes, ]) |>
+    as.matrix() |>
+    t() |>
+    rowSums() 
+  
+  df <- data.frame(
+    barcodes = names(sum_exp), 
+    sum_exp = sum_exp
+  )
+  
+  # get rid of extra " cells" at end of some of the names 
+  type <- stringr::str_remove(type, " cells")
+  
+  colnames(df) <- c(
+    "barcodes",
+    # add ref name to colnames for easier joining
+    glue::glue("{type}_sum")
+  )
+  
+  return(df)
+}
+
+
+
+
 # Heatmaps ---------------------------------------------------------------------
 
 # create a heatmap where rows are marker genes or gene sets and columns are cells 
@@ -198,4 +236,136 @@ plot_cnv_heatmap <- function(
     )
   )
   return(heatmap)
+}
+
+# create heatmap with gene set as rows and cells as columns 
+# this includes adding an annotation column labeling cells 
+# colors are automatically determined using the `Dark2` palette and assigning to cell types listed in the `annotation_column`
+full_celltype_heatmap <- function(classification_df,
+                                  gene_exp_columns,
+                                  annotation_column){
+  
+  # get list of all cell types being plotted and assign colors from Dark2 palette 
+  cell_types <- unique(classification_df[[annotation_column]])
+  num_cell_types <- length(cell_types)
+  colors <- palette.colors(palette = "Dark2") |> 
+    head(n = num_cell_types) |> 
+    purrr::set_names(cell_types)
+  
+  # create annotation for heatmap
+  annotation <- ComplexHeatmap::columnAnnotation(
+    singler = classification_df[[annotation_column]],
+    col = list(
+      singler = colors
+    )
+  )
+  
+  # build matrix for heatmap cells x gene set sum or mean 
+  heatmap_mtx <- classification_df |>
+    dplyr::select(barcodes, gene_exp_columns) |> 
+    tibble::column_to_rownames("barcodes") |> 
+    as.matrix() |> 
+    t()
+  rownames(heatmap_mtx) <- stringr::str_remove(rownames(heatmap_mtx), "_sum|mean-")
+  
+  # plot heatmap of marker genes 
+  plot_gene_heatmap(heatmap_mtx, 
+                    row_title = "",
+                    legend_title = "Marker gene \nexpression",
+                    annotation = annotation)
+  
+}
+
+# Density plots ----------------------------------------------------------------
+
+# This creates a faceted density plot where cell types present in the `annotation_column` 
+# are on the y-axis and the expression in `gene_exp_column` is on the x-axis 
+# this is mostly copied from the cellassign probability density plot in 
+# https://github.com/AlexsLemonade/scpca-nf/blob/f215046b3a9d9ddc50fac1a198a57e1bb813aeae/templates/qc_report/celltypes_supplemental_report.rmd#L759
+
+
+plot_density <- function(classification_df,
+                         gene_exp_column,
+                         annotation_column){
+  
+  # pull out gene set name to create the plot title 
+  geneset_name <- stringr::str_remove(gene_exp_column, "_sum|mean-")
+  
+  plot <- ggplot(classification_df) +
+    aes(x = !!sym(gene_exp_column)) + # marker gene set column 
+    geom_density(
+      fill = "grey65",
+      linewidth = 0.25
+    ) +
+    labs(
+      x = "Gene set expression",
+      y = "Cell type annotation",
+      title = geneset_name
+    ) +
+    scale_alpha_identity() +
+    facet_grid(
+      rows = vars(!!sym(annotation_column)),
+      switch = "y", # make sure labels are readable 
+      scales = "free_y"
+    ) +
+    theme(
+      strip.background = element_blank(),
+      strip.text.y.left = element_text(
+        angle = 0,
+        hjust = 1
+      ),
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.grid.major.y = element_blank(),
+      panel.spacing = unit(0.02, "in")
+    )
+  
+  return(plot)
+}
+
+
+# UMAPs ------------------------------------------------------------------------
+
+# creates a faceted UMAP where each panel shows the cell type of interest in color and 
+# all other cells in grey 
+# adapted from `faceted_umap()` function in `celltypes_qc.rmd` from `scpca-nf`
+# https://github.com/AlexsLemonade/scpca-nf/blob/main/templates/qc_report/celltypes_qc.rmd#L143
+
+plot_faceted_umap <- function(classification_df,
+                              annotation_column) {
+  
+  ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = {{ annotation_column }})) +
+    # set points for all "other" points
+    geom_point(
+      data = dplyr::select(
+        classification_df, - {{ annotation_column }}
+      ),
+      color = "gray80",
+      alpha = 0.5,
+      size = 0.1
+    ) +
+    # set points for desired cell type
+    geom_point(size = 0.1, alpha = 0.5) +
+    facet_wrap(
+      vars({{ annotation_column }}),
+      ncol = 3
+    ) +
+    scale_color_brewer(palette = "Dark2") +
+    # remove axis numbers and background grid
+    scale_x_continuous(labels = NULL, breaks = NULL) +
+    scale_y_continuous(labels = NULL, breaks = NULL) +
+    guides(
+      color = guide_legend(
+        title = "Cell type",
+        # more visible points in legend
+        override.aes = list(
+          alpha = 1,
+          size = 1.5
+        )
+      )) +
+    theme(
+      aspect.ratio = 1
+    )
+  
 }
