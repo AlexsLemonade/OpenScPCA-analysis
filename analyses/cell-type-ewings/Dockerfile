@@ -65,5 +65,5 @@ RUN Rscript -e 'renv::restore()' && \
   rm -rf /tmp/downloaded_packages && \
   rm -rf /tmp/Rtmp*
 
-# Set entrypoint to bash to activate the environment for any commands
-ENTRYPOINT ["/bin/bash"]
+# Set CMD to bash to activate the environment for any commands
+CMD ["/bin/bash"]

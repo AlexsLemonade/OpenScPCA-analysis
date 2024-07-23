@@ -2,9 +2,14 @@
 
 # This script runs doublet detection over ScPCA data for a given project
 # Usage: ./run_doublet-detection-scpca.sh {scpca project id}
+# Additional arguments:
+# The number of cores (default is 4) to use with scDblFinder can be set with the `--cores` option:
+#    cores=2 ./run_doublet-detection-benchmark.sh {scpca project id}
 
 set -euo pipefail
-CORES=4
+
+# input variables
+CORES=${cores:-4}
 
 # Ensure script is being run from its directory
 MODULE_DIR=$(dirname "${BASH_SOURCE[0]}")
