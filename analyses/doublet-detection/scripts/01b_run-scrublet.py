@@ -33,8 +33,8 @@ def run_scrublet(adata: anndata.AnnData, random_seed: int) -> pandas.DataFrame:
             "Could not run scrublet on the provided dataset."
             "The output TSV file will contain only NA values."
         )
-        doublet_scores = ["NA"]*len(adata.obs_names)
-        predicted_doublets_str = ["NA"]*len(adata.obs_names)
+        doublet_scores = "NA"
+        predicted_doublets_str = "NA"
 
     results = {"barcodes" : adata.obs_names, "scrublet_score" : doublet_scores, "scrublet_prediction" : predicted_doublets_str}
     results_df = pandas.DataFrame(results)
