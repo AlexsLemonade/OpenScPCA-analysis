@@ -47,8 +47,6 @@ data_desc |>
   print()
 ```
 
-
-
 ## Setup
 
 ### Packages
@@ -97,7 +95,6 @@ sce_file <- file.path(
   data_dir,
   glue::glue("{params$dataset}.rds")
 )
-
 ```
 
 ### Functions
@@ -111,8 +108,8 @@ print_doublet_table <- function(df, pred_col, is_ground_truth = FALSE) {
   # df is expected to contain `pred_col`, should should be provided as a string
 
   # If there are no predicted doublets, make sure the tab has a 0 count
-  dub_tab <- table( factor(df[[pred_col]], levels = c("singlet", "doublet") ))
-  dub_percent <- round(dub_tab[["doublet"]]/sum(dub_tab), 4) * 100
+  dub_tab <- table(factor(df[[pred_col]], levels = c("singlet", "doublet")))
+  dub_percent <- round(dub_tab[["doublet"]] / sum(dub_tab), 4) * 100
 
   if (is_ground_truth) {
     output <- glue::glue("{dub_percent}% of droplets in this dataset are doublets.")
@@ -138,31 +135,33 @@ plot_pca <- function(df,
   # By default, this function assumes a discrete color variable (`color_type = "d"`) with two levels. Use `color_type = "c"` for continuous.
 
   p <- ggplot(df) +
-    aes(x = PC1,
-        y = PC2,
-        color = {{color_column}}) +
-  geom_point(alpha = 0.5) +
-  labs(color = color_lab) +
-  theme(
-    legend.title.position = "top",
-    legend.position = "bottom"
-  )
+    aes(
+      x = PC1,
+      y = PC2,
+      color = {{ color_column }}
+    ) +
+    geom_point(alpha = 0.5) +
+    labs(color = color_lab) +
+    theme(
+      legend.title.position = "top",
+      legend.position = "bottom"
+    )
 
   # Set the palette, and ensure doublets are on top for visibility
   if (color_type == "d") {
     p <- p +
       scale_color_manual(values = c("black", "lightblue")) +
-    geom_point(
-      data = dplyr::filter(df, {{color_column}} == "doublet"),
-      color = "black"
-    )
+      geom_point(
+        data = dplyr::filter(df, {{ color_column }} == "doublet"),
+        color = "black"
+      )
   } else if (color_type == "c") {
     p <- p +
       scale_color_viridis_c(direction = -1) +
-    geom_point(
-      data = dplyr::filter(df, {{pred_column}} == "doublet"),
-      aes(color = {{color_column}})
-    )
+      geom_point(
+        data = dplyr::filter(df, {{ pred_column }} == "doublet"),
+        aes(color = {{ color_column }})
+      )
   }
 
   return(p)
@@ -170,14 +169,16 @@ plot_pca <- function(df,
 
 
 
-plot_jitter_scores <- function(df, score_col, pred_col, method_name){
+plot_jitter_scores <- function(df, score_col, pred_col, method_name) {
   # Plot jitter plot of score distributions and predictions, colored by ground truth
   # df is expected to contain columns `ground_truth`, `score_col`, and `pred_col`
   # The column arguments should _not_ be provided as strings
   ggplot(df) +
-    aes(x = ground_truth,
-        y = {{score_col}},
-        color = {{pred_col}}) +
+    aes(
+      x = ground_truth,
+      y = {{ score_col }},
+      color = {{ pred_col }}
+    ) +
     geom_jitter(
       alpha = 0.2,
       width = 0.1
@@ -187,29 +188,31 @@ plot_jitter_scores <- function(df, score_col, pred_col, method_name){
       y = glue::glue("{method_name} score"),
       color = glue::glue("{method_name} prediction")
     ) +
-  theme(
-    legend.title.position = "top",
-    legend.position = "bottom"
-  )
+    theme(
+      legend.title.position = "top",
+      legend.position = "bottom"
+    )
 }
 
 
-plot_density_scores <- function(df, score_col, method_name){
+plot_density_scores <- function(df, score_col, method_name) {
   # Plot density plot of score distributions, colored by ground truth
   # df is expected to contain columns `ground_truth` and `score_col`
   # The column arguments should _not_ be provided as strings
   ggplot(df) +
-    aes(x = {{score_col}},
-        fill = ground_truth) +
+    aes(
+      x = {{ score_col }},
+      fill = ground_truth
+    ) +
     geom_density(alpha = 0.7) +
     labs(
       x = glue::glue("{method_name} score"),
       fill = "Ground truth call"
     ) +
-  theme(
-    legend.title.position = "top",
-    legend.position = "bottom"
-  )
+    theme(
+      legend.title.position = "top",
+      legend.position = "bottom"
+    )
 }
 
 assess_doublets <- function(df, pred_col) {
@@ -217,26 +220,24 @@ assess_doublets <- function(df, pred_col) {
   # The `pred_col` argument _should_ be provided as a strings
   # This function will return NULL if there are insufficient counts to calculate metrics
 
-    # truth should be first
-    confusion_table <- table(
-      "Truth" = df$ground_truth,
-      "Prediction" = df[[pred_col]]
-    )
+  # truth should be first
+  confusion_table <- table(
+    "Truth" = df$ground_truth,
+    "Prediction" = df[[pred_col]]
+  )
 
-    if (!all(dim(confusion_table) == c(2,2))) {
-      print("Metrics could not be calculated; insufficient counts.")
-      return(NULL)
-    } else {
-      return(
-        caret::confusionMatrix(
-          confusion_table,
-          positive = "doublet"
-        )
+  if (!all(dim(confusion_table) == c(2, 2))) {
+    print("Metrics could not be calculated; insufficient counts.")
+    return(NULL)
+  } else {
+    return(
+      caret::confusionMatrix(
+        confusion_table,
+        positive = "doublet"
       )
-    }
-
+    )
+  }
 }
-
 ```
 
 
@@ -250,7 +251,7 @@ scdbl_df <- read_tsv(scdbl_tsv) |>
     barcodes,
     cxds_score,
     scdbl_score = score,
-    scdbl_prediction  = class
+    scdbl_prediction = class
   ) |>
   # add cxds calls at three thresholds:
   # 0.5, 0.75, 0.9
@@ -278,10 +279,12 @@ scrub_df <- read_tsv(scrub_tsv)
 sce <- read_rds(sce_file)
 sce_df <- scuttle::makePerCellDF(sce, use.dimred = "PCA") |>
   tibble::rownames_to_column(var = "barcodes") |>
-  dplyr::select(barcodes,
-                ground_truth = ground_truth_doublets,
-                PC1 = PCA.1,
-                PC2 = PCA.2)
+  dplyr::select(
+    barcodes,
+    ground_truth = ground_truth_doublets,
+    PC1 = PCA.1,
+    PC2 = PCA.2
+  )
 
 # we can now remove the sce
 rm(sce)
@@ -360,7 +363,6 @@ plot_density_scores(
 #### PCA plots
 
 ```{r, eval = has_scdbl, fig.width = 8}
-
 d_plot <- plot_pca(
   doublet_df,
   color_column = scdbl_prediction,
@@ -486,7 +488,6 @@ plot_density_scores(
 #### PCA plots
 
 ```{r fig.width = 10}
-
 cxds_cols <- names(doublet_df)[grep("^cxds_prediction_", names(doublet_df))]
 
 prediction_pcas <- cxds_cols |>
@@ -499,9 +500,9 @@ prediction_pcas <- cxds_cols |>
         color_column = !!as.symbol(col_name),
         color_lab = glue::glue("cxds prediction at {threshold}")
       ) +
-      labs(title = glue::glue("cxds prediction at {threshold}"))
+        labs(title = glue::glue("cxds prediction at {threshold}"))
     }
-)
+  )
 wrap_plots(prediction_pcas)
 ```
 
