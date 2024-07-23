@@ -283,7 +283,7 @@ A few things that we see in these plots:
 This means they match the non-tumor cells identified in `SCPCL000822` more than they match the normal cell types in the `Blueprint` reference. 
 Additionally, with only Blueprint, there is a group of cells that are called as tumor but actually appear to match endothelial cells present in `SCPCL000822`.
 - The cells that aren't called as either Tumor or Normal in the Blueprint only reference mostly match up to `erythrocyte` in the reference that just uses `SCPCL000822` (original). 
-These same cells match to their corresponding Blueprint cell type when combining `SCPCL000822` and Blueprint (e.g., fibroblasts, neurons, and epithelial cells are identiied in both). 
+These same cells match to their corresponding Blueprint cell type when combining `SCPCL000822` and Blueprint (e.g., fibroblasts, neurons, and epithelial cells are identified in both). 
 - When comparing using just `SCPCL000822` (original) to `SCPCL000822` and Blueprint (original and blueprint), we see an overlap in endothelial cells and chondrocytes. 
 We also see that for the most part the top cell types identified are the same except when using blueprint you see the addition of epithelial cells. 
 - Using tumor only appears to label some cells as tumor that are labeled as normal with other methods. 

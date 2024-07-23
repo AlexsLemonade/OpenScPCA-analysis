@@ -273,7 +273,7 @@ geneset_columns |>
   patchwork::wrap_plots(ncol = 1)
 ```
 
-### Tumor cells annotatd by `SingleR` and `AUCell`
+### Tumor cells annotated by `SingleR` and `AUCell`
 
 Here we compare the marker gene expression and gene set scores for cells annotated as tumor by both methods, just `SingleR`, or just `AUCell` and compare to all normal cells. 
 
