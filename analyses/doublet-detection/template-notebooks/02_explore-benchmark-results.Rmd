@@ -279,7 +279,8 @@ scrub_df <- read_tsv(scrub_tsv)
 sce <- read_rds(sce_file)
 sce_df <- scuttle::makePerCellDF(sce, use.dimred = "PCA") |>
   tibble::rownames_to_column(var = "barcodes") |>
-  dplyr::select(barcodes,
+  dplyr::select(
+    barcodes,
     ground_truth = ground_truth_doublets,
     PC1 = PCA.1,
     PC2 = PCA.2

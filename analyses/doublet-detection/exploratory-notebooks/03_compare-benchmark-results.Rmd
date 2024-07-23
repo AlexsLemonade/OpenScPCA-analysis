@@ -193,7 +193,8 @@ doublet_df_list <- dataset_names |>
 
       scuttle::makePerCellDF(sce, use.dimred = "PCA") |>
         tibble::rownames_to_column(var = "barcodes") |>
-        dplyr::select(barcodes,
+        dplyr::select(
+          barcodes,
           ground_truth = ground_truth_doublets,
           PC1 = PCA.1,
           PC2 = PCA.2
