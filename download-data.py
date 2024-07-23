@@ -436,6 +436,11 @@ def main() -> None:
     if validation_error:
         sys.exit(1)
 
+    # convert "all" to empty string for later processing
+    if args.projects.casefold() == "all":
+        args.projects = ""
+    if args.samples.casefold() == "all":
+        args.samples = ""
     # check project and sample names
     projects = {p.strip() for p in args.projects.split(",")} if args.projects else {}
     samples = {s.strip() for s in args.samples.split(",")} if args.samples else {}
