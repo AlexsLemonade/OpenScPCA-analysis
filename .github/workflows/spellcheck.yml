@@ -34,7 +34,7 @@ jobs:
         id: spell
         with:
           dictionary: .github/components/dictionary.txt
-          files: ${{ github.event_name == 'pull_request' && 'docs/* docs/*/* docs/*/*/*' || null }}
+          files: ${{ github.event_name == 'pull_request' && 'docs/* docs/*/* docs/*/*/* *.md' || null }}
 
       - name: Upload spell check errors
         uses: actions/upload-artifact@v4
