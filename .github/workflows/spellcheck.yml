@@ -37,7 +37,7 @@ jobs:
         with:
           dictionary: .github/components/dictionary.txt
           # for pull requests, only checks docs and root markdown files, unless the branch triggering is a 'spelling/' branch
-          # all other triggers (including 'spelling/'' branches)
+          # all other triggers (including 'spelling/'' branches) check all files
           files: ${{ (github.event_name == 'pull_request' && !startsWith(github.head_ref, 'spelling/') && 'docs/* docs/*/* docs/*/*/* *.md' || null }}
 
       - name: Upload spell check errors
