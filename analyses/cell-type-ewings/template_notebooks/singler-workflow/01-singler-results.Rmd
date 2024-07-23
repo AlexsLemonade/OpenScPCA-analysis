@@ -225,13 +225,14 @@ plot_density(classification_df,
 full_celltype_heatmap(classification_df, geneset_columns, "singler_tumor_normal")
 ```
 
-```{r}
+```{r, fig.height=10}
 geneset_columns |> 
   purrr::map(\(column){
     plot_density(classification_df,
                  column,
                  "singler_tumor_normal")
-  })
+  }) |> 
+  patchwork::wrap_plots(ncol = 1)
 ```
 
 
@@ -245,13 +246,14 @@ In this section we show all tumor cells and the top 5 most represented normal ce
 full_celltype_heatmap(classification_df, marker_gene_columns, "singler_lumped")
 ```
 
-```{r}
+```{r, fig.height=10}
 marker_gene_columns |> 
   purrr::map(\(column){
     plot_density(classification_df,
                  column,
                  "singler_lumped")
-  })
+  }) |> 
+  patchwork::wrap_plots(ncol = 1)
 ```
 
 
@@ -261,13 +263,14 @@ marker_gene_columns |>
 full_celltype_heatmap(classification_df, geneset_columns, "singler_lumped")
 ```
 
-```{r}
+```{r, fig.height=10}
 geneset_columns |> 
   purrr::map(\(column){
     plot_density(classification_df,
                  column,
                  "singler_lumped")
-  })
+  }) |> 
+  patchwork::wrap_plots(ncol = 1)
 ```
 
 ### Tumor cells annotatd by `SingleR` and `AUCell`
@@ -294,13 +297,14 @@ plot_density(classification_df,
 full_celltype_heatmap(classification_df, geneset_columns, "consensus")
 ```
 
-```{r}
+```{r, fig.height=10}
 geneset_columns |> 
   purrr::map(\(column){
     plot_density(classification_df,
                  column,
                  "consensus")
-  })
+  }) |> 
+  patchwork::wrap_plots(ncol = 1)
 ```
 
 

@@ -291,7 +291,7 @@ plot_density <- function(classification_df,
   # pull out gene set name to create the plot title 
   geneset_name <- stringr::str_remove(gene_exp_column, "_sum|mean-")
   
-  ggplot(classification_df) +
+  plot <- ggplot(classification_df) +
     aes(x = !!sym(gene_exp_column)) + # marker gene set column 
     geom_density(
       fill = "grey65",
@@ -320,6 +320,8 @@ plot_density <- function(classification_df,
       panel.grid.major.y = element_blank(),
       panel.spacing = unit(0.02, "in")
     )
+  
+  return(plot)
 }
 
 
