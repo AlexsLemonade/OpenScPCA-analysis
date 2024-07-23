@@ -33,8 +33,8 @@ def run_scrublet(adata: anndata.AnnData, random_seed: int) -> pandas.DataFrame:
             "Could not run scrublet on the provided dataset."
             "The output TSV file will contain only NA values."
         )
-        doublet_scores = "NA"
-        predicted_doublets_str = "NA"
+        doublet_scores = pandas.NA
+        predicted_doublets_str = pandas.NA
 
     results = {"barcodes" : adata.obs_names, "scrublet_score" : doublet_scores, "scrublet_prediction" : predicted_doublets_str}
     results_df = pandas.DataFrame(results)
@@ -92,7 +92,7 @@ def main() -> None:
     # Run scrublet and export the results
     adata = anndata.read_h5ad(args.input_anndata_file)
     scrub_results = run_scrublet(adata, args.random_seed)
-    scrub_results.to_csv(args.output_file, sep="\t", index=False )
+    scrub_results.to_csv(args.output_file, sep="\t", index=False, na_rep="NA")
 
 if __name__ == "__main__":
     main()
