@@ -27,7 +27,7 @@ option_list <- list(
       The `ref_tumor_label` column in the `colData` will be used for the reference labels."
   ),
   make_option(
-    opt_str = c("--output_annotations_file"),
+    opt_str = c("--output_file"),
     type = "character",
     help = "Path to TSV file to save annotations as obtained from `SingleR` for input SCE file."
   ),
@@ -36,6 +36,12 @@ option_list <- list(
     type = "integer",
     default = 4,
     help = "Number of multiprocessing threads to use."
+  ),
+  make_option(
+    opt_str = c("--seed"),
+    type = "integer",
+    default = 2024,
+    help = "A random seed for reproducibility."
   )
 )
 
@@ -44,6 +50,9 @@ opt <- parse_args(OptionParser(option_list = option_list))
 
 # Set up -----------------------------------------------------------------------
 
+# set seed
+set.seed(opt$seed)
+
 # make sure input files exist
 stopifnot(
   "SCE file does not exist" = file.exists(opt$sce_file),
@@ -51,7 +60,7 @@ stopifnot(
 )
 
 # create output directory if it doesn't exist
-output_dir <- dirname(opt$output_annotations_file)
+output_dir <- dirname(opt$output_file)
 fs::dir_create(output_dir)
 
 # set up multiprocessing params
@@ -128,4 +137,4 @@ results_df <- data.frame(
   )
 
 # export tsv file with barcodes, aucell_annotation, singler_annotation and singler_ontology columns
-readr::write_tsv(results_df, opt$output_annotations_file)
+readr::write_tsv(results_df, opt$output_file)
