@@ -62,4 +62,5 @@ RUN Rscript -e 'renv::restore()' \
 # Activate conda environment on bash launch
 RUN echo "conda activate ${ENV_NAME}" >> ~/.bashrc
 
+# Set CMD to bash to activate the environment when launching
 CMD ["/bin/bash"]
