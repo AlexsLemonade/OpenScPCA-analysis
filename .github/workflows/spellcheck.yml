@@ -6,6 +6,7 @@ on:
       - feature/*
     paths:
       - docs/**
+      - "*.md"
   workflow_dispatch:
   schedule:
     - cron: "0 0 15 * *" # 15th of every month at midnight
