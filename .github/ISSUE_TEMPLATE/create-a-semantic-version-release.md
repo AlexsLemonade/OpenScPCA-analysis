@@ -10,10 +10,10 @@ If issues must be resolved before creating a release, mark them as blockers in Z
 **Pre-release checklist:**
 
 - [ ] Any mentions of the release tag in the repository have been updated
-- [ ] All scheduled workflows are passing
+- [ ] All maintenance workflows are passing
   - [ ] [Run all analysis modules](https://github.com/AlexsLemonade/OpenScPCA-analysis/actions/workflows/run_all-modules.yml) (trigger manually if needed)
   - [ ] [Spellcheck](https://github.com/AlexsLemonade/OpenScPCA-analysis/actions/workflows/spellcheck.yml) (trigger manually if needed)
-  - [ ] Code styling
+  - [ ] [Code styling](https://github.com/AlexsLemonade/OpenScPCA-analysis/actions/workflows/code-styling.yml) (optional, trigger manually)
 - [ ] All blocking issues have been resolved
 - [ ] Write release notes, which should include the following:
   - Which modules have been added, if any?
