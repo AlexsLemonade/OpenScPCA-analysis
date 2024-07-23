@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 # This script runs scDblFinder on an SCE file and exports a TSV file of results.
-# If the SCE has fewer than 10 droplets, results will not be calculated and the exported TSV will contain NA values.
+# If the SCE has fewer than 10 droplets, results will not be calculated; the exported TSV will contain only NA values.
 
 # Load libraries ------
 suppressPackageStartupMessages({
@@ -28,7 +28,6 @@ run_scdblfinder <- function(sce,
                             random_seed = NULL,
                             columns_to_keep = c("barcodes", "score", "class"),
                             ...) {
-
   # first check multiple samples, which requires a random seed
   if (!is.null(sample_var) && is.null(random_seed)) {
     if (!sample_var %in% colnames(colData(sce))) {
@@ -113,13 +112,13 @@ opts <- parse_args(OptionParser(option_list = option_list))
 
 # Check input arguments and set up files, directories ------
 if (!file.exists(opts$input_sce_file)) {
-    glue::glue("Could not find input SCE file, expected at: `{opts$input_sce_file}`.")
+  glue::glue("Could not find input SCE file, expected at: `{opts$input_sce_file}`.")
 }
 if (!stringr::str_ends(opts$output_file, ".tsv")) {
   stop("The output TSV file must end in .tsv.")
 }
 
-fs::dir_create( dirname(opts$output_file) ) # create output directory as needed
+fs::dir_create(dirname(opts$output_file)) # create output directory as needed
 set.seed(opts$random_seed)
 
 # Detect doublets and export TSV file with inferences -----
@@ -146,9 +145,7 @@ if (ncells < cell_threshold) {
     na_df$cxds_score <- NA
   }
   readr::write_tsv(na_df, opts$output_file)
-
 } else {
-
   keep_columns <- c(
     "barcodes",
     "score",
@@ -166,5 +163,5 @@ if (ncells < cell_threshold) {
     random_seed = opts$random_seed,
     columns_to_keep = keep_columns
   ) |>
-  readr::write_tsv(opts$output_file)
+    readr::write_tsv(opts$output_file)
 }

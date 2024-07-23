@@ -9,8 +9,8 @@
 # For each dataset, we normalize counts and calculate PCA, but we perform no additional filtering.
 # The exported files are named `<dataset name>-<sce/anndata>.<rds/h5ad>.
 # Each has a variable `ground_truth_doublets` representing the singlet/doublet calls:
-#   - In the SCE file, this is in the colData slot
-#   - In the AnnData file, this is in the obs slot
+#   - In the SCE file, this is in the colData slot.
+#   - In the AnnData file, this is in the obs slot.
 
 # Load libraries
 suppressPackageStartupMessages({
