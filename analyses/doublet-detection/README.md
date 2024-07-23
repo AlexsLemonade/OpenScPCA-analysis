@@ -36,16 +36,14 @@ This analysis runs several doublet detection methods and assesses and compares t
   cores=2 ./run_doublet-detection-benchmarking.sh
   ```
 
-- ScPCA analysis: Detect doublets in ScPCA data using `scDblFinder` for a given project id (`SCPCPXXXXXX`).
+- ScPCA analysis: Detect doublets in ScPCA data using `scDblFinder` for a given project id (formatted as `SCPCPXXXXXX`).
   - The conda environment is not needed for this analysis, since it is only R-based
   ```sh
   ./run_doublet-detection-scpca.sh {scpca project id}
 
-  # the script uses 4 cores by default. Use the cores argument to customize:
+  # the script uses 4 cores by default, but you can use the cores argument to customize this.
+  # for example, detect doublets on all libraries in ScPCA project SCPCP000001 using 2 cores:
   cores=2 ./run_doublet-detection-scpca.sh {scpca project id}
-
-  # for example, detect doublets on all libraries in ScPCA project SCPCP000001 with 6 cores:
-  cores=6 ./run_doublet-detection-scpca.sh SCPCP000001
   ```
 
 
