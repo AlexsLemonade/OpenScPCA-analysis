@@ -27,10 +27,10 @@ This report summarizes the classification of `r params$library_id` using the fol
 ## Setup
 
 ```{r}
-# check that sce and results files exist 
+# check that sce and results files exist
 stopifnot(
   "sce file does not exist" = file.exists(params$sce_file),
-  "SingleR results file does not exist" = file.exists(params$singler_results_file), 
+  "SingleR results file does not exist" = file.exists(params$singler_results_file),
   "Gene set scores file does not exist" = file.exists(params$geneset_scores_file),
   "Marker genes file does not exist" = file.exists(params$marker_genes_file)
 )
@@ -59,7 +59,7 @@ ComplexHeatmap::ht_opt(message = FALSE)
 # The path to this module
 module_base <- rprojroot::find_root(rprojroot::is_renv_project)
 
-# source in helper functions: plot_gene_heatmap() and plot_cnv_heatmap() 
+# source in helper functions: plot_gene_heatmap() and plot_cnv_heatmap()
 # create_classification_df() and create_marker_gene_df()
 validation_functions <- file.path(module_base, "scripts", "utils", "tumor-validation-helpers.R")
 source(validation_functions)
@@ -75,71 +75,71 @@ geneset_scores_df <- readr::read_tsv(params$geneset_scores_file)
 ## Prep for plots
 
 ```{r}
-# generate classification df to use for plots 
-classification_df <- sce |> 
-  scuttle::makePerCellDF(use.dimred = "UMAP") |> 
+# generate classification df to use for plots
+classification_df <- sce |>
+  scuttle::makePerCellDF(use.dimred = "UMAP") |>
   # replace UMAP.1 with UMAP1 and get rid of excess columns
   dplyr::select(barcodes, UMAP1 = UMAP.1, UMAP2 = UMAP.2) |>
-  # join with previous annotations, singler results, and gene set scores 
-  dplyr::left_join(singler_results_df, by = "barcodes") |> 
-  dplyr::left_join(geneset_scores_df, by = "barcodes") |> 
+  # join with previous annotations, singler results, and gene set scores
+  dplyr::left_join(singler_results_df, by = "barcodes") |>
+  dplyr::left_join(geneset_scores_df, by = "barcodes") |>
   dplyr::mutate(
-    # set factor order for aucell 
-    aucell_annotation = forcats::fct_relevel(aucell_annotation, "tumor", after= 0), 
+    # set factor order for aucell
+    aucell_annotation = forcats::fct_relevel(aucell_annotation, "tumor", after = 0),
     # first remove other library IDs from tumor annotations
     # we only care about whether or not it was from the original library or a new library
     singler_annotation = dplyr::case_when(
       stringr::str_detect(singler_annotation, "tumor") ~ "tumor",
       is.na(singler_annotation) ~ "unknown", # make sure to separate out unknown labels
       .default = singler_annotation
-    ) |> 
+    ) |>
       forcats::fct_relevel("tumor", after = 0),
-    # get the top cell types for plotting later 
+    # get the top cell types for plotting later
     singler_lumped = singler_annotation |>
-          # there are warnings because we have some that have less than 7 cell types (ones that only did tumor/normal)
-          # this is why we ignore warnings in this chunk 
-          forcats::fct_lump_n(7, other_level = "All remaining cell types", ties.method = "first") |>
-          forcats::fct_infreq() |>
-          forcats::fct_relevel("All remaining cell types", after = Inf), 
+      # there are warnings because we have some that have less than 7 cell types (ones that only did tumor/normal)
+      # this is why we ignore warnings in this chunk
+      forcats::fct_lump_n(7, other_level = "All remaining cell types", ties.method = "first") |>
+      forcats::fct_infreq() |>
+      forcats::fct_relevel("All remaining cell types", after = Inf),
     # make a label that is just tumor or normal
-    singler_tumor_normal = dplyr::if_else(!(singler_annotation %in% c("tumor", "unknown")), "normal", singler_annotation) |> 
-      forcats::fct_relevel("tumor", after = 0), 
-    # get the consensus between aucell and singler 
+    singler_tumor_normal = dplyr::if_else(!(singler_annotation %in% c("tumor", "unknown")), "normal", singler_annotation) |>
+      forcats::fct_relevel("tumor", after = 0),
+    # get the consensus between aucell and singler
     consensus = dplyr::case_when(
       singler_annotation == "tumor" & aucell_annotation == "tumor" ~ "tumor_both",
       singler_annotation == "tumor" & aucell_annotation != "tumor" ~ "tumor_singler",
       singler_annotation != "tumor" & aucell_annotation == "tumor" ~ "tumor_aucell",
       .default = "normal"
-    ) |> 
+    ) |>
       forcats::fct_relevel("normal", after = Inf)
   )
 ```
 
 
 ```{r}
-# read in marker genes table 
-marker_genes_df <- readr::read_tsv(params$marker_genes_file, show_col_types = FALSE) |> 
+# read in marker genes table
+marker_genes_df <- readr::read_tsv(params$marker_genes_file, show_col_types = FALSE) |>
   # account for genes being from multiple sources
-  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |> 
+  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |>
   dplyr::distinct()
 
 # get list of all cell types found
 cell_types <- unique(marker_genes_df$cell_type)
 
 # get the sum of expression of all genes for each cell type
-gene_exp_df <- cell_types |> 
+gene_exp_df <- cell_types |>
   purrr::map(\(type){
     calculate_sum_markers(marker_genes_df, type)
-  }) |> 
+  }) |>
   purrr::reduce(dplyr::inner_join, by = "barcodes")
 
-# join sum expression columns with classification df 
-classification_df <- classification_df |> 
+# join sum expression columns with classification df
+classification_df <- classification_df |>
   dplyr::left_join(gene_exp_df, by = "barcodes")
 ```
 
 ```{r}
-# get columns that correspond to marker genes and gene sets to help with plotting later 
+# get columns that correspond to marker genes and gene sets to help with plotting later
 marker_gene_columns <- colnames(classification_df)[which(endsWith(colnames(classification_df), "_sum"))]
 geneset_columns <- colnames(classification_df)[which(startsWith(colnames(classification_df), "mean-"))]
 ```
@@ -166,8 +166,8 @@ We then calculate the confusion matrix between tumor and normal cells called in 
 The rows here correspond to the `AUCell` annotation and columns are from `SingleR`. 
 
 ```{r}
-caret_df <- classification_df |> 
-  dplyr::filter(singler_tumor_normal != "unknown") |> 
+caret_df <- classification_df |>
+  dplyr::filter(singler_tumor_normal != "unknown") |>
   dplyr::mutate(singler_tumor_normal = droplevels(singler_tumor_normal, "unknown"))
 
 caret::confusionMatrix(
@@ -214,9 +214,11 @@ full_celltype_heatmap(classification_df, marker_gene_columns, "singler_tumor_nor
 
 
 ```{r}
-plot_density(classification_df,
-             "tumor_sum",
-             "singler_tumor_normal")
+plot_density(
+  classification_df,
+  "tumor_sum",
+  "singler_tumor_normal"
+)
 ```
 
 **Gene set scores**
@@ -226,12 +228,14 @@ full_celltype_heatmap(classification_df, geneset_columns, "singler_tumor_normal"
 ```
 
 ```{r, fig.height=10}
-geneset_columns |> 
+geneset_columns |>
   purrr::map(\(column){
-    plot_density(classification_df,
-                 column,
-                 "singler_tumor_normal")
-  }) |> 
+    plot_density(
+      classification_df,
+      column,
+      "singler_tumor_normal"
+    )
+  }) |>
   patchwork::wrap_plots(ncol = 1)
 ```
 
@@ -247,12 +251,14 @@ full_celltype_heatmap(classification_df, marker_gene_columns, "singler_lumped")
 ```
 
 ```{r, fig.height=10}
-marker_gene_columns |> 
+marker_gene_columns |>
   purrr::map(\(column){
-    plot_density(classification_df,
-                 column,
-                 "singler_lumped")
-  }) |> 
+    plot_density(
+      classification_df,
+      column,
+      "singler_lumped"
+    )
+  }) |>
   patchwork::wrap_plots(ncol = 1)
 ```
 
@@ -264,12 +270,14 @@ full_celltype_heatmap(classification_df, geneset_columns, "singler_lumped")
 ```
 
 ```{r, fig.height=10}
-geneset_columns |> 
+geneset_columns |>
   purrr::map(\(column){
-    plot_density(classification_df,
-                 column,
-                 "singler_lumped")
-  }) |> 
+    plot_density(
+      classification_df,
+      column,
+      "singler_lumped"
+    )
+  }) |>
   patchwork::wrap_plots(ncol = 1)
 ```
 
@@ -285,9 +293,11 @@ full_celltype_heatmap(classification_df, marker_gene_columns, "consensus")
 
 
 ```{r}
-plot_density(classification_df,
-             "tumor_sum",
-             "consensus")
+plot_density(
+  classification_df,
+  "tumor_sum",
+  "consensus"
+)
 ```
 
 
@@ -298,12 +308,14 @@ full_celltype_heatmap(classification_df, geneset_columns, "consensus")
 ```
 
 ```{r, fig.height=10}
-geneset_columns |> 
+geneset_columns |>
   purrr::map(\(column){
-    plot_density(classification_df,
-                 column,
-                 "consensus")
-  }) |> 
+    plot_density(
+      classification_df,
+      column,
+      "consensus"
+    )
+  }) |>
   patchwork::wrap_plots(ncol = 1)
 ```
 

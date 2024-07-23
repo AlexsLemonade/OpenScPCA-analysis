@@ -25,16 +25,16 @@ make_jaccard_matrix <- function(celltype_df, colname1, colname2) {
   # make lists of barcodes for each category, named by the category
   id1_list <- split(celltype_df$barcodes, celltype_df[[colname1]])
   id2_list <- split(celltype_df$barcodes, celltype_df[[colname2]])
-  
+
   # create the grid of comparisons
   cross_df <- tidyr::expand_grid(id1 = names(id1_list), id2 = names(id2_list))
-  
+
   # calculate a single Jaccard index for each combination using split lists & ids
   jaccard_scores <- cross_df |>
     purrr::pmap_dbl(\(id1, id2){
       jaccard(id1_list[[id1]], id2_list[[id2]])
     })
-  
+
   # add scores to the comparison grid and convert to matrix
   jaccard_matrix <- cross_df |>
     dplyr::mutate(jaccard = jaccard_scores) |>
@@ -45,17 +45,16 @@ make_jaccard_matrix <- function(celltype_df, colname1, colname2) {
     ) |>
     tibble::column_to_rownames(var = "id1") |>
     as.matrix()
-  
+
   return(jaccard_matrix)
 }
 
-# function that turns jaccard matrices into a list of heatmaps 
-make_heatmap_list <- function(jaccard_matrices, column_title, legend_match){
- 
+# function that turns jaccard matrices into a list of heatmaps
+make_heatmap_list <- function(jaccard_matrices, column_title, legend_match) {
   # Set heatmap padding option
   heatmap_padding <- 0.2
   ComplexHeatmap::ht_opt(TITLE_PADDING = grid::unit(heatmap_padding, "in"))
-  # list of heatmaps looking at SingleR/ CellAssign vs tumor/normal 
+  # list of heatmaps looking at SingleR/ CellAssign vs tumor/normal
   heatmap <- jaccard_matrices |>
     purrr::imap(
       \(celltype_mat, celltype_method) {
@@ -86,23 +85,23 @@ make_heatmap_list <- function(jaccard_matrices, column_title, legend_match){
           ),
           show_heatmap_legend = celltype_method == legend_match,
         )
-      }) |>
+      }
+    ) |>
     # concatenate vertically into HeatmapList object
     purrr::reduce(ComplexHeatmap::`%v%`)
-  
+
   return(heatmap)
 }
 
-# function to plot jaccard matrices to compare one set of annotations to other methods 
-# `annotation_column` will be the columns and will be compared to each method listed in `methods_to_compare` 
+# function to plot jaccard matrices to compare one set of annotations to other methods
+# `annotation_column` will be the columns and will be compared to each method listed in `methods_to_compare`
 plot_jaccard <- function(classification_df,
                          annotation_column, # single column of annotations to compare to all methods
                          methods_to_compare, # list of methods to compare to annotations
                          column_title, # title for columns
                          legend_match # what legend to keep, should be a name in `methods_to_compare`
-){
-  
-  # create jaccard matrices 
+) {
+  # create jaccard matrices
   jaccard_matrices <- methods_to_compare |>
     purrr::map(\(name) {
       make_jaccard_matrix(
@@ -111,9 +110,8 @@ plot_jaccard <- function(classification_df,
         name
       )
     })
-  
+
   heatmap <- make_heatmap_list(jaccard_matrices, column_title, legend_match)
-  
+
   return(heatmap)
-  
 }
