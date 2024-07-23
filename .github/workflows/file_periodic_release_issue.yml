@@ -13,12 +13,22 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Set template path
+        run: |
+          template_path=".github/cron-issue-templates/create-periodic-release-template.md"
+          if [-f "$template_path" ]; then
+            echo "TEMPLATE=$template_path" >> $GITHUB_ENV
+          else
+            echo "File $template_path does not exist"
+            exit 1
+          fi
+
       - name: Get date
         run: echo "TODAY=$(date -I)" >> $GITHUB_ENV
 
       - name: Post issue with results from running all modules
         uses: peter-evans/create-issue-from-file@v5
         with:
-          title: 'Create a release: ${{ env.TODAY }}'
-          content-filepath: .github/cron-issue-templates/create-periodic-release-template.md
+          title: "Create a release: ${{ env.TODAY }}"
+          content-filepath: ${{ env.TEMPLATE }}
           labels: release
