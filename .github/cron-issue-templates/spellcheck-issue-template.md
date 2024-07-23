@@ -10,4 +10,6 @@ Spellcheck found **{{ERROR_COUNT}} errors**.
 
 - [ ] Assign an OpenScPCA admin
 - [ ] Spell check errors have been fixed via a PR
-- [ ] Spell check workflow has been manually run to confirm spelling errors are fixed
+- [ ] Spell check workflow has been run to confirm spelling errors are fixed.<br>
+  If the PR branch has a name that starts with `spelling/` and the `dictionary.txt` file is updated, the spell check workflow will run automatically.
+  Otherwise the spell check workflow may need to be run manually.
