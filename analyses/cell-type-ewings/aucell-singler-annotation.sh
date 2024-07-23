@@ -114,12 +114,14 @@ done
 
 singler_ref_file="scratch/tumor-ref-singler.rds"
 
-echo "Creating tumor cell reference for SingleR"
-# first build tumor reference using aucell outputs
-Rscript $scripts_dir/03-generate-tumor-ref.R \
-  --data_dir "$data_dir" \
-  --auc_results_dir "$results_dir" \
-  --output_reference_file "$singler_ref_file"
+if [[ ! -f $singler_ref_file ]]; then
+    echo "Creating tumor cell reference for SingleR"
+    # first build tumor reference using aucell outputs
+    Rscript $scripts_dir/03-generate-tumor-ref.R \
+      --data_dir "$data_dir" \
+      --auc_results_dir "$results_dir" \
+      --output_reference_file "$singler_ref_file"
+fi
 
 # now run SingleR and generate report for all samples
 for sample_id in $sample_ids; do
@@ -137,7 +139,7 @@ for sample_id in $sample_ids; do
         singler_results="${sample_results_dir}/${library_id}_singler-classifications.tsv"
 
         # only run SingleR if results don't already exist
-        if [[! -f $singler_results ]]; then
+        if [[ ! -f $singler_results ]]; then
 
             echo "Running SingleR for sample: $sample_id and library: $library_id"
 
