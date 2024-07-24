@@ -156,7 +156,7 @@ for sample_id in $sample_ids; do
         Rscript -e "rmarkdown::render('$notebook_dir/02-singler-results.Rmd', \
           clean = TRUE, \
           output_dir = '$sample_results_dir', \
-          output_file = '${library_id}_aucell-report.html', \
+          output_file = '${library_id}_singler-report.html', \
           params = list(library_id = '$library_id', \
                         sce_file = '$sce_file', \
                         singler_results_file = '$singler_results', \
