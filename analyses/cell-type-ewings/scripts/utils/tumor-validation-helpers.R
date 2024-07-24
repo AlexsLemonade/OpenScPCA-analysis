@@ -1,4 +1,4 @@
-# These are functions used to prepare data frames for plotting when doing tumor cell validataion
+# These are functions used to prepare data frames for plotting when doing tumor cell validation
 
 # Data frame prep --------------------------------------------------------------
 
@@ -122,6 +122,7 @@ create_marker_gene_df <- function(
 # For any genes that are in the specified `cell_type`, sum of the logcounts is calculated
 # output is a data frame with barcodes and `{cell_type}_sum`
 calculate_sum_markers <- function(marker_genes_df,
+                                  sce,
                                   type) {
   # get list of marker genes to use
   marker_genes <- marker_genes_df |>

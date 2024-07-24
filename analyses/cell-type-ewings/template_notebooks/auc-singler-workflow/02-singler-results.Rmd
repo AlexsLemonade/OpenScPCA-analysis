@@ -129,7 +129,7 @@ cell_types <- unique(marker_genes_df$cell_type)
 # get the sum of expression of all genes for each cell type
 gene_exp_df <- cell_types |>
   purrr::map(\(type){
-    calculate_sum_markers(marker_genes_df, type)
+    calculate_sum_markers(marker_genes_df, sce, type)
   }) |>
   purrr::reduce(dplyr::inner_join, by = "barcodes")
 
