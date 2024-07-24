@@ -5,7 +5,7 @@ Seacells Analysis Script
 Joshua Shapiro
 2024-07-18
 
-This script runs the SEACells algorithm on the given dataset.
+This script runs the SEACells algorithm on a dataset.
 """
 
 # Load modules
@@ -22,6 +22,7 @@ This script runs the SEACells algorithm on the given dataset.
 import argparse
 import contextlib
 import pathlib
+import pickle
 
 import anndata
 import numpy as np
@@ -46,9 +47,26 @@ def convert_adata(adata: anndata.AnnData) -> anndata.AnnData:
     return adata
 
 
-def run_seacells(adata: anndata.AnnData, cell_ratio: float = 75) -> anndata.AnnData:
+def run_seacells(
+    adata: anndata.AnnData, cell_ratio: float = 75
+) -> tuple[anndata.AnnData, SEACells.core.SEACells]:
     """
     Run the SEACells algorithm on the given dataset.
+
+    Parameters
+    ----------
+    adata : anndata.AnnData
+        An annData object containing the data to run the SEACells algorithm on.
+        Should contain an X_pca field with the PCA coordinates of the cells.
+    cell_ratio : float
+        The ratio of cells to metacells to use; i.e. number of cells per metacell
+
+    Returns
+    -------
+    anndata.AnnData
+        The input AnnData object with the metacell assignments added to the obs table with the key "SEACell"
+    SEACells.core.SEACells
+        The SEACells model object
     """
     n_metacells = round(adata.n_obs / cell_ratio)
     n_eigs = 10  # number of eigenvalues for initialization
@@ -65,7 +83,7 @@ def run_seacells(adata: anndata.AnnData, cell_ratio: float = 75) -> anndata.AnnD
     model.initialize_archetypes()
     model.fit(min_iter=10, max_iter=50)
 
-    return adata
+    return (adata, model)
 
 
 def main() -> None:
@@ -73,7 +91,19 @@ def main() -> None:
         description="Run the SEACell algorithm on the given dataset."
     )
     parser.add_argument(
-        "datafile", type=pathlib.Path, help="The input data in H5AD format."
+        "adata_file", type=pathlib.Path, help="The input data in H5AD format."
+    )
+    parser.add_argument(
+        "--adata_out",
+        type=pathlib.Path,
+        required=True,
+        help="The output file path for the AnnData object (should end in .h5ad).",
+    )
+    parser.add_argument(
+        "--model_out",
+        type=pathlib.Path,
+        required=False,
+        help="The output file path for the SEACells model object.",
     )
     parser.add_argument(
         "seed",
@@ -81,18 +111,30 @@ def main() -> None:
         help="The random seed to use for reproducibility.",
         default=2024,
     )
-    parser.add_argument("output", type=pathlib.Path, help="The output file path.")
     parser.add_argument("logfile", type=pathlib.Path, help="File path for log outputs")
 
     args = parser.parse_args()
 
+    # check filenames
+    if args.adata_out.suffix != ".h5ad":
+        raise ValueError("Output file must end in .h5ad")
+    if args.model_out and args.model_out.suffix != ".pkl":
+        raise ValueError("Model output file must end in .pkl")
+
     # set seed for reproducibility
     np.random.seed(args.seed)
 
-    adata = scanpy.read(args.datafile)
+    adata = anndata.read_h5ad(args.datafile)
 
     adata = convert_adata(adata)
-    adata = run_seacells(adata)
+    adata, model = run_seacells(adata)
+
+    # save the results
+    adata.write_h5ad(args.output, compression="gzip")
+
+    if args.model_out:
+        with open("args.model_out", "wb") as f:
+            pickle.dump(model, f)
 
     # As the last step, record the versions of the modules and dependencies
     # that were used in this analysis
