@@ -15,8 +15,6 @@ on:
       - analyses/hello-python/renv.lock
       - analyses/hello-python/conda-lock.yml
   push:
-    tags:
-      - "v*.*.*"
     branches:
       - main
     paths:
