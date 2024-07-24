@@ -567,7 +567,7 @@ plot_gene_heatmap(geneset_heatmap,
 )
 ```
 
-Again we see that the ambigous cells tend to lie in the middle between tumor and normal cells. 
+Again we see that the ambiguous cells tend to lie in the middle between tumor and normal cells. 
 We also see that `AUCell` probably has the most "normal" cells that are mixing in with the tumor cells, while using a strict marker gene cutoff of expressing 1 marker gene leads to the biggest separation. 
 
 Moving forward I tend to favor using either just the reference based marker gene cutoff or the consensus between that and `AUCell`. 

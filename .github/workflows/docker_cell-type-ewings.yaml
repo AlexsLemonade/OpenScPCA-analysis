@@ -15,8 +15,6 @@ on:
       - analyses/cell-type-ewings/renv.lock
       - analyses/cell-type-ewings/conda-lock.yml
   push:
-    tags:
-      - "v*.*.*"
     branches:
       - main
     paths:
