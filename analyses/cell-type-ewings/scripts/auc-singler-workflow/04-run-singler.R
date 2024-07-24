@@ -76,9 +76,11 @@ if (opt$threads > 1) {
   bp_param <- BiocParallel::SerialParam()
 }
 
-# define celldex files
+# define reference files, if these exist we'll use these rather than downloading
 blueprint_file <- file.path(opt$scratch_dir, "blueprint-celldex.rds")
 hpca_file <- file.path(opt$scratch_dir, "hpca-celldex.rds")
+cl_ont_file <- file.path(opt$scratch_dir, "cl-ont-ref.tsv")
+
 
 # read in files
 sce <- readr::read_rds(opt$sce_file)
@@ -129,12 +131,19 @@ singler_results <- SingleR::SingleR(
   BPPARAM = bp_param
 )
 
-# get ontology labels
-cl_ont <- ontoProc::getOnto("cellOnto")
-cl_df <- data.frame(
-  annotation = cl_ont$name, # human readable name
-  ontology = names(cl_ont$name) # CL ID
-)
+# get ontology labels from ontoProc if we don't already have them stored
+if (!file.exists(clont_file)) {
+  # get ontology labels
+  cl_ont <- ontoProc::getOnto("cellOnto")
+  cl_df <- data.frame(
+    annotation = cl_ont$name, # human readable name
+    ontology = names(cl_ont$name) # CL ID
+  )
+
+  readr::write_tsv(cl_df, clont_file)
+} else {
+  cl_df <- readr::read_tsv(clont_file)
+}
 
 # grab results from data frame and add human readable values for normal ont labels
 results_df <- data.frame(
