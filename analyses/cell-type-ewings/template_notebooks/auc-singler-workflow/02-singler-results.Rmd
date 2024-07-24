@@ -170,12 +170,20 @@ caret_df <- classification_df |>
   dplyr::filter(singler_tumor_normal != "unknown") |>
   dplyr::mutate(singler_tumor_normal = droplevels(singler_tumor_normal, "unknown"))
 
-caret::confusionMatrix(
-  table(
-    caret_df$aucell_annotation,
-    caret_df$singler_tumor_normal
+# get the cell types in both
+# these should be tumor normal but sometimes that's not the case
+singler_cell_types <- unique(caret_df$singler_tumor_normal) |> as.character()
+aucell_cell_types <- unique(caret_df$aucell_annotation) |> as.character()
+
+# only calculate confusion matrix if all cell types are the same
+if (all(singler_cell_types == aucell_cell_types)) {
+  caret::confusionMatrix(
+    table(
+      caret_df$aucell_annotation,
+      caret_df$singler_tumor_normal
+    )
   )
-)
+}
 ```
 
 
