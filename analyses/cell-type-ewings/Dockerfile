@@ -9,10 +9,10 @@ LABEL org.opencontainers.image.authors="OpenScPCA scpca@ccdatalab.org"
 LABEL org.opencontainers.image.source="https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/cell-type-ewings"
 
 # Set an environment variable to allow checking if we are in an OpenScPCA container
-ENV OPENSCPCA_DOCKER TRUE
+ENV OPENSCPCA_DOCKER=TRUE
 
 # Disable the renv cache to install packages directly into the R library
-ENV RENV_CONFIG_CACHE_ENABLED FALSE
+ENV RENV_CONFIG_CACHE_ENABLED=FALSE
 # set a name for the conda environment
 ARG ENV_NAME=openscpca-cell-type-ewings
 
@@ -65,5 +65,5 @@ RUN Rscript -e 'renv::restore()' && \
   rm -rf /tmp/downloaded_packages && \
   rm -rf /tmp/Rtmp*
 
-# Set entrypoint to bash to activate the environment for any commands
-ENTRYPOINT ["/bin/bash"]
+# Set CMD to bash to activate the environment for any commands
+CMD ["/bin/bash"]

@@ -24,6 +24,7 @@ on:
       - main
     paths:
       - analyses/doublet-detection/**
+      - .github/workflows/run_doublet-detection.yml
 
 jobs:
   run-module:
@@ -39,15 +40,30 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download test data in SCE format
+        env:
+          # Use all samples for testing unless this is triggered by a PR, in which case only use a subset of samples for faster testing
+          # A single sample (or combination of samples for multiplexed data) was chosen for each ScPCA project as:
+          #  Unless otherwise stated, the first sample ID in the given project
+          #  For the multiplexed project SCPCP000009, set of samples `SCPCS000133,SCPCS000134,SCPCS000135,SCPCS000136` (this group of samples has 2 associated libraries). Only `SCPCS000133` is specifed in the SAMPLES string here.
+          #   For the project SCPCP000011, the sample SCPCS000435 was specifically selected as an edge case sample with <10 cells
+          SAMPLES: ${{ github.event_name != 'pull_request' && 'all' || 'SCPCS000001,SCPCS000024,SCPCS000050,SCPCS000101,SCPCS000124,SCPCS000133,SCPCS000168,SCPCS000216,SCPCS000246,SCPCS000250,SCPCS000298,SCPCS000435,SCPCS000481,SCPCS000484,SCPCS000490,SCPCS000502,SCPCS000514,SCPCS000616,SCPCS000632,SCPCS000758' }}
+
         run: |
           conda activate openscpca-doublet-detection
-          ./download-data.py --test-data --format SCE
+          ./download-data.py --test-data --format SCE --samples ${SAMPLES}
 
-      - name: Run doublet-detection module
+      - name: Run doublet-detection module on benchmark test data
+        run: |
+          cd ${MODULE_PATH}
+          conda activate openscpca-doublet-detection
+          test=1 ./run_doublet-detection-benchmark.sh
+
+      # Note that this step uses only R, so we don't need to activate the conda environment
+      - name: Run doublet-detection module on ScPCA test data
         run: |
           projects=$(basename -a data/current/SCPCP*)
 
           cd ${MODULE_PATH}
           for project in $projects; do
-              bash run_doublet-detection-scpca.sh $project
+              ./run_doublet-detection-scpca.sh $project
           done

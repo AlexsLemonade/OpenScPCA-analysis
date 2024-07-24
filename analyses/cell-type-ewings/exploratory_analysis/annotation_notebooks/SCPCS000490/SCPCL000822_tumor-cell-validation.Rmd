@@ -35,7 +35,7 @@ theme_set(
   theme_bw()
 )
 
-# use jpegs for images 
+# use jpegs for images
 knitr::opts_chunk$set(
   dev = "jpeg"
 )
@@ -59,7 +59,7 @@ module_base <- file.path(repository_base, "analyses", "cell-type-ewings")
 ```
 
 ```{r}
-# source in helper functions: plot_gene_heatmap() and plot_cnv_heatmap() 
+# source in helper functions: plot_gene_heatmap() and plot_cnv_heatmap()
 # create_classification_df() and create_marker_gene_df()
 validation_functions <- file.path(module_base, "scripts", "utils", "tumor-validation-helpers.R")
 source(validation_functions)
@@ -70,7 +70,7 @@ source(validation_functions)
 sce_file <- file.path(sample_dir, "SCPCL000822_processed.rds")
 marker_genes_file <- file.path(module_base, "references", "tumor-marker-genes.tsv")
 
-# results from annotation workflow 
+# results from annotation workflow
 results_dir <- file.path(module_base, "results", "cnv_annotation", "SCPCS000490")
 
 marker_gene_results_file <- file.path(results_dir, "SCPCL000822_tumor-normal-classifications.tsv")
@@ -81,7 +81,7 @@ infercnv_metadata_file <- file.path(results_dir, "infercnv", "SCPCL000822_cnv-me
 
 geneset_scores_file <- file.path(results_dir, "SCPCL000822_gene-set-scores.tsv")
 
-# output files 
+# output files
 final_annotations_dir <- file.path(module_base, "results", "annotation_tables", "SCPCS000490")
 fs::dir_create(final_annotations_dir)
 final_annotations_file <- file.path(final_annotations_dir, "SCPCL000822_tumor-classifications.tsv.gz")
@@ -95,11 +95,11 @@ sce <- readr::read_rds(sce_file)
 ```
 
 ```{r}
-# generate classification df 
+# generate classification df
 classification_df <- create_classification_df(
   sce,
   marker_gene_results_file,
-  copykat_predictions_file, 
+  copykat_predictions_file,
   infercnv_predictions_file,
   infercnv_metadata_file,
   geneset_scores_file
@@ -108,7 +108,7 @@ classification_df <- create_classification_df(
 # generate marker genes df
 plot_markers_df <- create_marker_gene_df(
   sce,
-  classification_df, 
+  classification_df,
   marker_genes_file
 )
 ```
@@ -127,14 +127,14 @@ Cells with a genomic CNV proportion greater than the mean  CNV proportion across
 
 
 ```{r}
-# plot tumor cells for each classification method 
-tumor_umap_df <- classification_df |> 
-  dplyr::select(barcodes, UMAP1, UMAP2, marker_gene_classification, copykat_classification, cnv_proportion_classification) |> 
+# plot tumor cells for each classification method
+tumor_umap_df <- classification_df |>
+  dplyr::select(barcodes, UMAP1, UMAP2, marker_gene_classification, copykat_classification, cnv_proportion_classification) |>
   tidyr::pivot_longer(
     cols = ends_with("classification"),
     names_to = "method",
     values_to = "classification"
-  ) |> 
+  ) |>
   dplyr::mutate(
     method = dplyr::case_when(
       method == "marker_gene_classification" ~ "Marker genes only",
@@ -155,29 +155,30 @@ Because of that and the fact that both CNV inference methods show similar annota
 ```{r}
 # create a combined classification between inferCNV and copyKAT
 # cells that are classified as tumor by both are kept as tumor
-# classified by both as normal are normal 
+# classified by both as normal are normal
 # in between are classified as ambiguous
-classification_df <- classification_df |> 
+classification_df <- classification_df |>
   dplyr::mutate(
     combined_cnv_classification = dplyr::case_when(
-      # only tumor if both call tumor 
+      # only tumor if both call tumor
       cnv_proportion_classification == "Tumor" & copykat_classification == "Tumor" ~ "Tumor",
       # only normal if both call normal and/or reference
       cnv_proportion_classification == "Normal" & copykat_classification == "Normal" ~ "Normal",
       cnv_proportion_classification == "Reference" & copykat_classification == "Normal" ~ "Normal",
-      # if normal/tumor mismatch set to ambiguous 
+      # if normal/tumor mismatch set to ambiguous
       .default = "Ambiguous"
-    ), 
+    ),
     # set factor order to use for plotting
-    combined_cnv_classification = forcats::fct_relevel(combined_cnv_classification, "Tumor", "Normal", "Ambiguous"))
+    combined_cnv_classification = forcats::fct_relevel(combined_cnv_classification, "Tumor", "Normal", "Ambiguous")
+  )
 ```
 
 ```{r}
 # look at which cells are tumor/normal
-# be sure to remove any duplicates 
-classification_df |> 
+# be sure to remove any duplicates
+classification_df |>
   dplyr::select(UMAP1, UMAP2, barcodes, combined_cnv_classification) |>
-  dplyr::distinct() |> 
+  dplyr::distinct() |>
   ggplot(aes(x = UMAP1, y = UMAP2, color = combined_cnv_classification)) +
   geom_point(alpha = 0.5, size = 0.5)
 ```
@@ -198,13 +199,13 @@ For this plot, we will include all classifications, including the new combined C
 Just a note that the `marker_gene_classification` is a circular since these same marker genes were used to classify those cells. 
 
 ```{r}
-# calculate sum of the scaled gene expression values for plotting 
-marker_density_df <- plot_markers_df |> 
+# calculate sum of the scaled gene expression values for plotting
+marker_density_df <- plot_markers_df |>
   tidyr::pivot_longer(
     cols = ends_with("classification"),
     names_to = "method",
     values_to = "classification"
-  ) |> 
+  ) |>
   dplyr::mutate(
     method = dplyr::case_when(
       method == "marker_gene_classification" ~ "Marker genes only",
@@ -229,30 +230,34 @@ Here the rows are the marker genes and the columns are the cells with the color 
 
 ```{r}
 # create matrix with marker genes as rows and barcodes as columns
-marker_gene_heatmap <- plot_markers_df |> 
-  dplyr::select(gene_expression, gene_symbol, barcodes) |> 
-  tidyr::pivot_wider(values_from = gene_expression, 
-                     names_from = barcodes) |> 
-  tibble::column_to_rownames("gene_symbol") |> 
+marker_gene_heatmap <- plot_markers_df |>
+  dplyr::select(gene_expression, gene_symbol, barcodes) |>
+  tidyr::pivot_wider(
+    values_from = gene_expression,
+    names_from = barcodes
+  ) |>
+  tibble::column_to_rownames("gene_symbol") |>
   as.matrix()
 
-# create annotation df, make sure that dimensions match up by only getting unique barcodes 
-annotation_df <- classification_df |> 
-  dplyr::select(barcodes, combined_cnv_classification) |> 
-  unique() 
+# create annotation df, make sure that dimensions match up by only getting unique barcodes
+annotation_df <- classification_df |>
+  dplyr::select(barcodes, combined_cnv_classification) |>
+  unique()
 
 annotation <- ComplexHeatmap::columnAnnotation(
   classification = annotation_df$combined_cnv_classification,
-  col = list(classification = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey")))
+  col = list(classification = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey"))
+)
 ```
 
 
 ```{r}
-# plot heatmap of marker genes 
-plot_gene_heatmap(marker_gene_heatmap, 
-                  row_title = "Marker gene symbol",
-                  legend_title = "Marker gene \nexpression",
-                  annotation = annotation)
+# plot heatmap of marker genes
+plot_gene_heatmap(marker_gene_heatmap,
+  row_title = "Marker gene symbol",
+  legend_title = "Marker gene \nexpression",
+  annotation = annotation
+)
 ```
 
 As expected, the tumor cells appear to have more marker genes that are expressed than normal cells. 
@@ -266,14 +271,14 @@ The below plots will all use the `mean-GENESET` columns.
 First we will just look at the gene set scores for each cell on the UMAP. 
 
 ```{r}
-# plot tumor cells for each classification method 
-geneset_plot_df <- classification_df |> 
-  dplyr::select(barcodes, UMAP1, UMAP2, ends_with("classification"), starts_with("mean-")) |> 
+# plot tumor cells for each classification method
+geneset_plot_df <- classification_df |>
+  dplyr::select(barcodes, UMAP1, UMAP2, ends_with("classification"), starts_with("mean-")) |>
   tidyr::pivot_longer(
     cols = starts_with("mean"),
     names_to = "geneset",
     values_to = "mean_score"
-  ) |> 
+  ) |>
   dplyr::mutate(
     geneset = stringr::word(geneset, -1, sep = "-")
   )
@@ -289,16 +294,18 @@ Generally, the higher gene set scores appear to be in the group of cells that ar
 Below we look at gene set scores for cells classified as tumor cells vs normal cells for all classification methods. 
 
 ```{r, fig.height=10}
-geneset_plot_df |> 
+geneset_plot_df |>
   tidyr::pivot_longer(
     cols = ends_with("classification"),
     names_to = "method",
     values_to = "classification"
-  ) |> 
+  ) |>
   ggplot(aes(x = mean_score, color = classification)) +
   geom_density(bw = 0.05) +
-  facet_grid(rows = vars(method), 
-             cols = vars(geneset))
+  facet_grid(
+    rows = vars(method),
+    cols = vars(geneset)
+  )
 ```
 
 For the most part the gene set scores are higher in tumor cells regardless of classification. 
@@ -310,19 +317,22 @@ Each row is a gene set and each column is a barcode.
 The color indicates the gene set score for that cell. 
 
 ```{r}
-# make a matrix of gene set by barcode 
-geneset_heatmap <- geneset_plot_df |> 
-  dplyr::select(mean_score, geneset, barcodes) |> 
-  unique() |> 
-  tidyr::pivot_wider(values_from = mean_score, 
-                     names_from = barcodes) |> 
-  tibble::column_to_rownames("geneset") |> 
+# make a matrix of gene set by barcode
+geneset_heatmap <- geneset_plot_df |>
+  dplyr::select(mean_score, geneset, barcodes) |>
+  unique() |>
+  tidyr::pivot_wider(
+    values_from = mean_score,
+    names_from = barcodes
+  ) |>
+  tibble::column_to_rownames("geneset") |>
   as.matrix()
 
-# plot heatmap of gene set score 
+# plot heatmap of gene set score
 plot_gene_heatmap(geneset_heatmap,
-                  annotation = annotation,
-                  legend_title = "Gene set \nscore")
+  annotation = annotation,
+  legend_title = "Gene set \nscore"
+)
 ```
 
 For the most part we see that cells with higher gene set scores are classified as tumor cells. 
@@ -350,15 +360,18 @@ The first heatmap looks at the proportion of each chromosome with a CNV that cor
 Here each row is a cell and each column is a chromosome with the color corresponding to the proportion of the chromosome with a gain detected. 
 
 ```{r}
-# need to make a new annotation, since we want to annotate the rows here 
-annotation <- ComplexHeatmap::rowAnnotation(classification = annotation_df$combined_cnv_classification,
-                                            col = list(classification = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey")))
+# need to make a new annotation, since we want to annotate the rows here
+annotation <- ComplexHeatmap::rowAnnotation(
+  classification = annotation_df$combined_cnv_classification,
+  col = list(classification = c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey"))
+)
 
 # plot gains in cnv
 plot_cnv_heatmap(classification_df,
-                 cnv_col = "proportion_scaled_dupli",
-                 annotation = annotation,
-                 legend_title = "Copy number \ngain")
+  cnv_col = "proportion_scaled_dupli",
+  annotation = annotation,
+  legend_title = "Copy number \ngain"
+)
 ```
 
 Here we see a gain in Chr8 and Chr1 in tumor cells compared to normal cells. 
@@ -368,10 +381,11 @@ Below we make the same plot but with only the losses or deletions.
 
 ```{r}
 # plot loss in cnv
-plot_cnv_heatmap(classification_df, 
-                 cnv_col = "proportion_scaled_loss", 
-                 annotation = annotation, 
-                 legend_title = "Copy number \nloss")
+plot_cnv_heatmap(classification_df,
+  cnv_col = "proportion_scaled_loss",
+  annotation = annotation,
+  legend_title = "Copy number \nloss"
+)
 ```
 
 We do not see the expected loss in Chr16, but this is not present in every patient. 
@@ -399,12 +413,12 @@ After validating that the cells classified as tumor by both `CopyKAT` and `Infer
 We will export these labels to the final annotations file for later use. 
 
 ```{r}
-# export final TSV with annotations 
-final_classifications <- classification_df |> 
+# export final TSV with annotations
+final_classifications <- classification_df |>
   dplyr::select(
     "cell_barcode" = barcodes,
     combined_cnv_classification
-  ) |> 
+  ) |>
   unique()
 
 

@@ -1,11 +1,11 @@
 #!/usr/bin/env Rscript
 
-# this script is used to run SingleR using a reference SCE + BlueprintEncode from celldex 
-# SingleR is run three times using different references. 
-# 1. Both the full BlueprintEncodeData reference from celldex and the ref SCE where cells are either annotated as tumor or normal 
-# Ambiguous cells are removed from the reference 
-# 2. Ref SCE where all tumor cells are labeled as tumor and all other cells keep the original annotation obtained from running SingleR as part of scpca-nf 
-# 3. Ref SCE with tumor cells labeled as in #2 combined with the full BlueprintEncodeData reference 
+# this script is used to run SingleR using a reference SCE + BlueprintEncode from celldex
+# SingleR is run three times using different references.
+# 1. Both the full BlueprintEncodeData reference from celldex and the ref SCE where cells are either annotated as tumor or normal
+# Ambiguous cells are removed from the reference
+# 2. Ref SCE where all tumor cells are labeled as tumor and all other cells keep the original annotation obtained from running SingleR as part of scpca-nf
+# 3. Ref SCE with tumor cells labeled as in #2 combined with the full BlueprintEncodeData reference
 
 project_root <- here::here()
 renv::load(project_root)
@@ -43,7 +43,7 @@ option_list <- list(
     type = "character",
     default = file.path(project_root, "scratch", "SingleR"),
     help = "path to scratch directory to store full output files from SingleR"
-  ), 
+  ),
   make_option(
     opt_str = c("-t", "--threads"),
     type = "integer",
@@ -57,7 +57,7 @@ opt <- parse_args(OptionParser(option_list = option_list))
 
 # Set up -----------------------------------------------------------------------
 
-# make sure all input files exist 
+# make sure all input files exist
 stopifnot(
   "input_sce_file does not exist" = file.exists(opt$input_sce_file),
   "ref_sce_file does not exist" = file.exists(opt$ref_sce_file),
@@ -71,41 +71,45 @@ if (opt$threads > 1) {
   bp_param <- BiocParallel::SerialParam()
 }
 
-# read in sce file 
+# read in sce file
 sce <- readr::read_rds(opt$input_sce_file)
 library_id <- metadata(sce)$library_id
 
-# read in ref sce and ref annotations for comparing between samples 
+# read in ref sce and ref annotations for comparing between samples
 ref_sce <- readr::read_rds(opt$ref_sce_file)
 ref_labels_df <- readr::read_tsv(opt$ref_annotations_file)
 
 
-# output singler files 
+# output singler files
 fs::dir_create(opt$scratch_dir)
-full_singler_output <- file.path(opt$scratch_dir, 
-                                 glue::glue("{library_id}_singler-results.rds"))
+full_singler_output <- file.path(
+  opt$scratch_dir,
+  glue::glue("{library_id}_singler-results.rds")
+)
 
 # Prep references --------------------------------------------------------------
 
-# grab HumanBlueprintEncode from celldex 
+# grab HumanBlueprintEncode from celldex
 blueprint_ref <- celldex::BlueprintEncodeData(ensembl = TRUE)
 
-# add in tumor classification for ref 
-ref_coldata_df <- colData(ref_sce) |> 
+# add in tumor classification for ref
+ref_coldata_df <- colData(ref_sce) |>
   as.data.frame() |>
-  dplyr::left_join(ref_labels_df, by = c("barcodes" = "cell_barcode")) |> 
+  dplyr::left_join(ref_labels_df, by = c("barcodes" = "cell_barcode")) |>
   # create an updated annotation that replaces tumor cells with tumor from original SingleR annotation
-  dplyr::mutate(singler_with_tumor_annotation = 
-                  dplyr::if_else(
-                    tumor_cell_classification == "Tumor", 
-                    "Tumor", 
-                    singler_celltype_annotation
-                  ))
+  dplyr::mutate(
+    singler_with_tumor_annotation =
+      dplyr::if_else(
+        tumor_cell_classification == "Tumor",
+        "Tumor",
+        singler_celltype_annotation
+      )
+  )
 
-# add back to coldata 
+# add back to coldata
 colData(ref_sce) <- DataFrame(ref_coldata_df, row.names = ref_coldata_df$barcodes)
 
-# remove ambiguous calls since we don't want those in the reference 
+# remove ambiguous calls since we don't want those in the reference
 filtered_ref_sce <- ref_sce[, which(ref_sce$tumor_cell_classification != "Ambiguous")]
 
 # tumor only ref sce
@@ -113,7 +117,7 @@ tumor_only_sce <- ref_sce[, which(ref_sce$tumor_cell_classification == "Tumor")]
 
 # Run SingleR ------------------------------------------------------------------
 
-# run with tumor + normal annotations + blueprint ref 
+# run with tumor + normal annotations + blueprint ref
 # blueprint_tumor_results <- SingleR::SingleR(
 #   test = sce,
 #   ref = list(Blueprint = blueprint_ref,
@@ -123,29 +127,31 @@ tumor_only_sce <- ref_sce[, which(ref_sce$tumor_cell_classification == "Tumor")]
 #   restrict = rownames(sce)
 # )
 
-# run with tumor only annotations + blueprint ref 
+# run with tumor only annotations + blueprint ref
 tumor_only_results <- SingleR::SingleR(
   test = sce,
-  ref = list(Blueprint = blueprint_ref,
-             tumor_ref = tumor_only_sce),
+  ref = list(
+    Blueprint = blueprint_ref,
+    tumor_ref = tumor_only_sce
+  ),
   labels = list(blueprint_ref$label.ont, tumor_only_sce$tumor_cell_classification),
   BPPARAM = bp_param,
   restrict = rownames(sce)
 )
 
 
-# run with existing SingleR annotations, replacing SingleR annotations for tumor cells 
+# run with existing SingleR annotations, replacing SingleR annotations for tumor cells
 # updated_singler_results <- SingleR::SingleR(
-#   test = sce, 
+#   test = sce,
 #   ref = ref_sce,
 #   labels = ref_sce$singler_with_tumor_annotation,
 #   BPPARAM = BiocParallel::MulticoreParam(4),
 #   restrict = rownames(sce)
 # )
 
-# combine updated SingleR annotations with blueprint reference 
+# combine updated SingleR annotations with blueprint reference
 # updated_singler_blueprint_results <- SingleR::SingleR(
-#   test = sce, 
+#   test = sce,
 #   ref = list(Blueprint = blueprint_ref,
 #              tumor_ref = ref_sce),
 #   labels = list(blueprint_ref$label.ont, ref_sce$singler_with_tumor_annotation),
@@ -177,8 +183,6 @@ cl_df <- data.frame(
 # create a single df with results from all singler runs
 annotations_df <- singler_results_list |>
   purrr::imap(\(results, ref_name){
-
-
     # save data frame with _matching_ ontology ids and cell names
     df <- data.frame(
       barcodes = rownames(results),
@@ -197,11 +201,10 @@ annotations_df <- singler_results_list |>
     )
 
     return(df)
-
   }) |>
   purrr::reduce(dplyr::inner_join, by = "barcodes") |>
   dplyr::distinct()
 
-# save results 
+# save results
 readr::write_rds(singler_results_list, full_singler_output)
 readr::write_tsv(annotations_df, opt$output_file)

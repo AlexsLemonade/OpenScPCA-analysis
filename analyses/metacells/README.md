@@ -26,7 +26,7 @@ TBD
 
 ## Software requirements
 
-Currently, software requirements are handled by conda, with the environment.yml file in this directory and the conda environment named `openscpca-metacells`
+Currently, software requirements are handled by conda, with the `environment.yml` file in this directory and the conda environment named `openscpca-metacells`
 
 ## Computational resources
 

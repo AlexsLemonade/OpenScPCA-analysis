@@ -57,7 +57,7 @@ module_base <- file.path(repository_base, "analyses", "cell-type-ewings")
 ```
 
 ```{r}
-# source in helper functions: plot_gene_heatmap() and plot_cnv_heatmap() 
+# source in helper functions: plot_gene_heatmap() and plot_cnv_heatmap()
 # create_classification_df() and create_marker_gene_df()
 validation_functions <- file.path(module_base, "scripts", "utils", "tumor-validation-helpers.R")
 source(validation_functions)
@@ -68,7 +68,7 @@ source(validation_functions)
 sce_file <- file.path(sample_dir, "SCPCL000824_processed.rds")
 marker_genes_file <- file.path(module_base, "references", "tumor-marker-genes.tsv")
 
-# results from annotation workflow 
+# results from annotation workflow
 results_dir <- file.path(module_base, "results", "cnv_annotation", "SCPCS000492")
 
 marker_gene_results_file <- file.path(results_dir, "SCPCL000824_tumor-normal-classifications.tsv")
@@ -79,7 +79,7 @@ infercnv_metadata_file <- file.path(results_dir, "infercnv", "SCPCL000824_cnv-me
 
 geneset_scores_file <- file.path(results_dir, "SCPCL000824_gene-set-scores.tsv")
 
-# output files 
+# output files
 final_annotations_dir <- file.path(module_base, "results", "annotation_tables", "SCPCS000492")
 fs::dir_create(final_annotations_dir)
 final_annotations_file <- file.path(final_annotations_dir, "SCPCL000824_tumor-classifications.tsv.gz")
@@ -91,10 +91,10 @@ ref_geneset_scores_file <- file.path(module_base, "results", "cnv_annotation", "
 ```
 
 ```{r}
-# read in sce file 
+# read in sce file
 sce <- readr::read_rds(sce_file)
 
-# read in ref sce and ref annotations for comparing between samples 
+# read in ref sce and ref annotations for comparing between samples
 # ref is SCPCL000822
 ref_sce <- readr::read_rds(ref_sce_file)
 ref_labels_df <- readr::read_tsv(ref_labels_file)
@@ -102,17 +102,17 @@ ref_geneset_df <- readr::read_tsv(ref_geneset_scores_file)
 ```
 
 ```{r}
-# generate classification df 
+# generate classification df
 classification_df <- create_classification_df(
   sce,
   marker_gene_results_file,
-  copykat_predictions_file, 
+  copykat_predictions_file,
   infercnv_predictions_file,
   infercnv_metadata_file,
   geneset_scores_file
-) |> 
-  # remove extra infercnv classification column we won't use 
-  dplyr::select(- cnv_sum_classification)
+) |>
+  # remove extra infercnv classification column we won't use
+  dplyr::select(-cnv_sum_classification)
 ```
 
 ## Evaluate tumor cell classifications 
@@ -120,14 +120,14 @@ classification_df <- create_classification_df(
 Below is a UMAP showing which cells are labeled as tumor cells using each of the various classification methods (marker genes, `CopyKAT`, and `InferCNV`). 
 
 ```{r}
-# plot tumor cells for each classification method 
-tumor_umap_df <- classification_df |> 
-  dplyr::select(barcodes, UMAP1, UMAP2, ends_with("classification")) |> 
+# plot tumor cells for each classification method
+tumor_umap_df <- classification_df |>
+  dplyr::select(barcodes, UMAP1, UMAP2, ends_with("classification")) |>
   tidyr::pivot_longer(
     cols = ends_with("classification"),
     names_to = "method",
     values_to = "classification"
-  ) |> 
+  ) |>
   dplyr::mutate(
     method = dplyr::case_when(
       method == "marker_gene_classification" ~ "Marker genes only",
@@ -152,17 +152,17 @@ We can confirm this by looking at marker gene expression in cells classified as 
 # generate marker genes df
 plot_markers_df <- create_marker_gene_df(
   sce,
-  classification_df, 
+  classification_df,
   marker_genes_file
 )
 
-# create a density plot showing the distribution of marker gene expression across classification methods 
+# create a density plot showing the distribution of marker gene expression across classification methods
 marker_density_df <- plot_markers_df |>
   tidyr::pivot_longer(
     cols = ends_with("classification"),
     names_to = "method",
     values_to = "classification"
-  ) |> 
+  ) |>
   dplyr::mutate(
     method = dplyr::case_when(
       method == "marker_gene_classification" ~ "Marker genes only",
@@ -186,14 +186,14 @@ However we don't see a clear bimodal distribution, which is something we did see
 Let's also look at gene set scores and see if we can use those to help us determine which cells are most likely to be tumor cells. 
 
 ```{r}
-# plot gene set scores for each cell  
-geneset_plot_df <- classification_df |> 
-  dplyr::select(barcodes, UMAP1, UMAP2, ends_with("classification"), starts_with("mean-")) |> 
+# plot gene set scores for each cell
+geneset_plot_df <- classification_df |>
+  dplyr::select(barcodes, UMAP1, UMAP2, ends_with("classification"), starts_with("mean-")) |>
   tidyr::pivot_longer(
     cols = starts_with("mean"),
     names_to = "geneset",
     values_to = "mean_score"
-  ) |> 
+  ) |>
   dplyr::mutate(
     geneset = stringr::word(geneset, -1, sep = "-")
   )
@@ -211,22 +211,25 @@ Let's look at how the distribution of gene set scores coordinates with assignmen
 Below, we color the distribution based on the classification method used. 
 
 ```{r}
-geneset_plot_df |> 
+geneset_plot_df |>
   tidyr::pivot_longer(
     cols = ends_with("classification"),
     names_to = "method",
     values_to = "classification"
-  ) |> 
+  ) |>
   dplyr::mutate(
     method = dplyr::case_when(
       method == "marker_gene_classification" ~ "Marker genes only",
       method == "copykat_classification" ~ "CopyKAT - no reference",
       method == "cnv_proportion_classification" ~ "InferCNV proportion"
-    )) |> 
+    )
+  ) |>
   ggplot(aes(x = mean_score, color = classification)) +
   geom_density(bw = 0.05) +
-  facet_grid(rows = vars(method), 
-             cols = vars(geneset))
+  facet_grid(
+    rows = vars(method),
+    cols = vars(geneset)
+  )
 ```
 
 We see a few things from this plot: 
@@ -253,19 +256,21 @@ To do this, we will get the total marker gene expression by summing all marker g
 
 ```{r}
 # look at the raw sum of marker gene expression in both 822 and 824
-# first create marker genes df for ref sce 
-ref_classification_df <- ref_labels_df |> 
+# first create marker genes df for ref sce
+ref_classification_df <- ref_labels_df |>
   dplyr::rename("barcodes" = "cell_barcode")
 
-ref_markers_df <- create_marker_gene_df(sce = ref_sce, 
-                                        classification_df = ref_classification_df,
-                                        marker_genes_file) |> 
+ref_markers_df <- create_marker_gene_df(
+  sce = ref_sce,
+  classification_df = ref_classification_df,
+  marker_genes_file
+) |>
   dplyr::mutate(sample = "SCPCL000822")
 
-# combine all marker gene data for both samples into one df 
-combined_markers_df <- plot_markers_df |> 
-  dplyr::select(barcodes, tumor_cell_classification = marker_gene_classification, gene_symbol, gene_expression, transformed_gene_expression, sum_raw_exp, sum_transformed_exp) |> 
-  dplyr::mutate(sample = "SCPCL000824") |> 
+# combine all marker gene data for both samples into one df
+combined_markers_df <- plot_markers_df |>
+  dplyr::select(barcodes, tumor_cell_classification = marker_gene_classification, gene_symbol, gene_expression, transformed_gene_expression, sum_raw_exp, sum_transformed_exp) |>
+  dplyr::mutate(sample = "SCPCL000824") |>
   dplyr::bind_rows(ref_markers_df)
 ```
 
@@ -282,27 +287,27 @@ This would be consistent with our hypothesis that most of the cells in `SCPCL000
 Let's find the local minima in the bimodal distribution for `SCPCL000822` and then use that to classify tumor cells in `SCPCL000824`. 
 
 ```{r}
-# create distribution 
+# create distribution
 density_data <- density(combined_markers_df$sum_raw_exp)
 # find the local minima in the distribution
-exp_cutoff <- optimize(approxfun(density_data$x, density_data$y), interval = c(1,10))$minimum
+exp_cutoff <- optimize(approxfun(density_data$x, density_data$y), interval = c(1, 10))$minimum
 ```
 
 
 ```{r}
-# add new column with updated marker gene classification 
+# add new column with updated marker gene classification
 # use local minima from 822 to define 824
-new_classification <- combined_markers_df |> 
-  dplyr::filter(sample == "SCPCL000824") |> 
-  dplyr::mutate(updated_marker_gene_classification = dplyr::if_else(sum_raw_exp >= exp_cutoff, "Tumor", "Normal")) |> 
-  dplyr::select(barcodes, updated_marker_gene_classification) |> 
+new_classification <- combined_markers_df |>
+  dplyr::filter(sample == "SCPCL000824") |>
+  dplyr::mutate(updated_marker_gene_classification = dplyr::if_else(sum_raw_exp >= exp_cutoff, "Tumor", "Normal")) |>
+  dplyr::select(barcodes, updated_marker_gene_classification) |>
   unique()
 
 # add new column to existing classification
-classification_df <- classification_df |> 
+classification_df <- classification_df |>
   dplyr::left_join(new_classification)
 
-# label cells based on new classifiation 
+# label cells based on new classifiation
 ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = updated_marker_gene_classification)) +
   geom_point(alpha = 0.5, size = 0.5)
 ```
@@ -318,24 +323,24 @@ The gene set scores for each cell are the mean normalized expression of all gene
 We did not use these to classify `SCPCL000822`, so we won't actually do any classification, but this will show us if the scores for tumor cells are similar to each other across samples. 
 
 ```{r}
-# get geneset score from reference sce 
-ref_geneset_df <- ref_geneset_df |> 
-  dplyr::select(barcodes, starts_with("mean")) |> 
+# get geneset score from reference sce
+ref_geneset_df <- ref_geneset_df |>
+  dplyr::select(barcodes, starts_with("mean")) |>
   tidyr::pivot_longer(
     cols = starts_with("mean"),
     names_to = "geneset",
     values_to = "mean_score"
-  ) |> 
+  ) |>
   dplyr::mutate(
     geneset = stringr::word(geneset, -1, sep = "-"),
     sample = "SCPCL000822 - reference"
-  ) 
+  )
 
-# join with gene set scores from 824 and plot distribution 
-geneset_plot_df |> 
-  dplyr::select(barcodes, geneset, mean_score) |> 
-  dplyr::mutate(sample = "SCPCL000824") |> 
-  dplyr::bind_rows(ref_geneset_df) |> 
+# join with gene set scores from 824 and plot distribution
+geneset_plot_df |>
+  dplyr::select(barcodes, geneset, mean_score) |>
+  dplyr::mutate(sample = "SCPCL000824") |>
+  dplyr::bind_rows(ref_geneset_df) |>
   ggplot(aes(x = mean_score, color = sample)) +
   geom_density() +
   facet_grid(rows = vars(geneset))
@@ -374,44 +379,46 @@ ews_gene_sets <- c(
   "SILIGAN_TARGETS_OF_EWS_FLI1_FUSION_DN"
 )
 
-# pull gene sets from msigbdr 
+# pull gene sets from msigbdr
 # all gene sets are part of C2, CGP
-genes_df <- msigdbr::msigdbr(species= "Homo sapiens", 
-                             category = "C2",
-                             subcategory = "CGP") |> 
-  # only keep relevant gene sets 
+genes_df <- msigdbr::msigdbr(
+  species = "Homo sapiens",
+  category = "C2",
+  subcategory = "CGP"
+) |>
+  # only keep relevant gene sets
   dplyr::filter(gs_name %in% ews_gene_sets)
 ```
 
 
 ```{r}
 # first create named list of genes
-# we will need this to run UCell later too 
-genes_list <- ews_gene_sets |> 
+# we will need this to run UCell later too
+genes_list <- ews_gene_sets |>
   purrr::map(\(name){
-    genes <- genes_df |> 
-      dplyr::filter(gs_name == name) |> 
+    genes <- genes_df |>
+      dplyr::filter(gs_name == name) |>
       dplyr::pull(ensembl_gene)
-  }) |> 
+  }) |>
   purrr::set_names(ews_gene_sets)
 
-# build GeneSetCollection for AUCell 
-msig_gene_sets <- genes_list |> 
+# build GeneSetCollection for AUCell
+msig_gene_sets <- genes_list |>
   purrr::imap(\(genes, name) GSEABase::GeneSet(genes, setName = name))
 
-# get list of marker genes to add to GeneSets 
-marker_genes <- readr::read_tsv(marker_genes_file, show_col_types = FALSE) |> 
+# get list of marker genes to add to GeneSets
+marker_genes <- readr::read_tsv(marker_genes_file, show_col_types = FALSE) |>
   # account for genes being from multiple sources
-  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |> 
-  dplyr::distinct() |> 
-  dplyr::filter(cell_type == "tumor") |> 
+  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |>
+  dplyr::distinct() |>
+  dplyr::filter(cell_type == "tumor") |>
   dplyr::pull(ensembl_gene_id)
 
-# turn it into a gene set 
-marker_gene_set <- marker_genes |> 
+# turn it into a gene set
+marker_gene_set <- marker_genes |>
   GSEABase::GeneSet(setName = "markers")
 
-# join msig and marker genes into a collection to input with AUCell 
+# join msig and marker genes into a collection to input with AUCell
 collection <- GSEABase::GeneSetCollection(c(msig_gene_sets, marker_gene_set))
 ```
 
@@ -419,7 +426,7 @@ collection <- GSEABase::GeneSetCollection(c(msig_gene_sets, marker_gene_set))
 # run AUCell
 ref_auc <- AUCell::AUCell_run(counts(ref_sce), collection)
 
-# assign cells for each gene set based on thresholds and output plots 
+# assign cells for each gene set based on thresholds and output plots
 ref_assignments <- AUCell::AUCell_exploreThresholds(ref_auc, assign = TRUE)
 ```
 
@@ -439,13 +446,13 @@ Let's compare the assignments from our validated classifications (determined by 
 # pull out tumor cells found by AUCell
 tumor_cells <- ref_assignments$markers$assignment
 
-ref_classification_df <- ref_classification_df |> 
-  # add new column with auc classification 
+ref_classification_df <- ref_classification_df |>
+  # add new column with auc classification
   dplyr::mutate(auc_classification = dplyr::if_else(barcodes %in% tumor_cells, "Tumor", "Normal"))
 
-# filter out any ambiguous cells 
-caret_df <- ref_classification_df |> 
-  dplyr::filter(combined_cnv_classification != "Ambiguous") |> 
+# filter out any ambiguous cells
+caret_df <- ref_classification_df |>
+  dplyr::filter(combined_cnv_classification != "Ambiguous") |>
   # make sure positive class is tumor
   dplyr::mutate(
     cnv_classification = forcats::fct_relevel(combined_cnv_classification, "Tumor"),
@@ -454,10 +461,11 @@ caret_df <- ref_classification_df |>
 
 # compare using a confusion matrix
 caret::confusionMatrix(
-    table(
-      caret_df$cnv_classification, 
-      caret_df$auc_classification)
-  ) 
+  table(
+    caret_df$cnv_classification,
+    caret_df$auc_classification
+  )
+)
 ```
 
 Here the original tumor cell classifications are the rows and the `AUCell` classification are the columns. 
@@ -466,7 +474,7 @@ It looks like we get pretty good agreement between our original classification a
 Now we repeat on `SCPCL000824`. 
 
 ```{r}
-# get new auc and plot thresholds 
+# get new auc and plot thresholds
 new_auc <- AUCell::AUCell_run(counts(sce), collection)
 new_assignment <- AUCell::AUCell_exploreThresholds(new_auc, assign = TRUE)
 ```
@@ -475,32 +483,36 @@ Here we do not see any bimodal distributions and that most cells are considered 
 I expect that without a bimodal distribution this model does not do a good job of calculating a threshold. 
 
 ```{r}
-ref_auc_df <- ref_auc@assays@data$AUC |> 
-  as.data.frame() |> 
-  tibble::rownames_to_column("gene_set") |> 
-  tidyr::pivot_longer(!gene_set, 
-                      names_to = "barcodes", 
-                      values_to = "auc") |> 
-  #dplyr::filter(gene_set == "markers") |> 
+ref_auc_df <- ref_auc@assays@data$AUC |>
+  as.data.frame() |>
+  tibble::rownames_to_column("gene_set") |>
+  tidyr::pivot_longer(!gene_set,
+    names_to = "barcodes",
+    values_to = "auc"
+  ) |>
+  # dplyr::filter(gene_set == "markers") |>
   dplyr::mutate(sample = "SCPCL000822")
 
-new_auc_df <- new_auc@assays@data$AUC |> 
-  as.data.frame() |> 
-  tibble::rownames_to_column("gene_set") |> 
-  tidyr::pivot_longer(!gene_set, 
-                      names_to = "barcodes", 
-                      values_to = "auc") |> 
-  #dplyr::filter(gene_set == "markers") |> 
+new_auc_df <- new_auc@assays@data$AUC |>
+  as.data.frame() |>
+  tibble::rownames_to_column("gene_set") |>
+  tidyr::pivot_longer(!gene_set,
+    names_to = "barcodes",
+    values_to = "auc"
+  ) |>
+  # dplyr::filter(gene_set == "markers") |>
   dplyr::mutate(sample = "SCPCL000824")
 
-all_auc_df <- dplyr::bind_rows(list(ref_auc_df, new_auc_df)) |> 
+all_auc_df <- dplyr::bind_rows(list(ref_auc_df, new_auc_df)) |>
   # simplify the name for plotting
   dplyr::mutate(gene_set = stringr::word(gene_set, 1, sep = "_"))
 
 ggplot(all_auc_df, aes(x = auc, color = sample)) +
   geom_density() +
-  facet_grid(rows = vars(gene_set),
-             scales = "free_y")
+  facet_grid(
+    rows = vars(gene_set),
+    scales = "free_y"
+  )
 ```
 
 Looking at the AUC across both samples for all gene sets, we see that they are in the same range of values. 
@@ -511,21 +523,21 @@ Because of that we will use the marker gene threshold identified by `AUCell` for
 Here, we label any cells that have passed the threshold set for the marker gene set as tumor cells. 
 
 ```{r}
-# pull out threshold used for assigning cells from ref sample 
+# pull out threshold used for assigning cells from ref sample
 ref_threshold <- ref_assignments$markers$aucThr$selected
 
 # create a vector of tumor cells in 824 using the cutoff from 822
-new_tumor_cells <- new_auc_df |> 
+new_tumor_cells <- new_auc_df |>
   dplyr::filter(gene_set == "markers", auc >= ref_threshold) |>
   dplyr::pull(barcodes)
 
-# add to original classification df 
-classification_df <- classification_df |> 
+# add to original classification df
+classification_df <- classification_df |>
   dplyr::mutate(auc_classification = dplyr::if_else(barcodes %in% new_tumor_cells, "Tumor", "Normal"))
 ```
 
 ```{r}
-# visualize which cells are classified as tumor 
+# visualize which cells are classified as tumor
 ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = auc_classification)) +
   geom_point(alpha = 0.5, size = 0.5)
 ```
@@ -536,7 +548,7 @@ We can confirm this by calculating the confusion matrix.
 Here the marker gene annotations are the rows and the annotations from `AUCell` are the columns. 
 
 ```{r}
-classification_df <- classification_df |> 
+classification_df <- classification_df |>
   dplyr::mutate(
     updated_marker_gene_classification = forcats::fct_relevel(updated_marker_gene_classification, "Tumor"),
     auc_classification = forcats::fct_relevel(auc_classification, "Tumor")
@@ -544,10 +556,11 @@ classification_df <- classification_df |>
 
 # compare using a confusion matrix
 caret::confusionMatrix(
-    table(
-      classification_df$updated_marker_gene_classification, 
-      classification_df$auc_classification)
-  ) 
+  table(
+    classification_df$updated_marker_gene_classification,
+    classification_df$auc_classification
+  )
+)
 ```
 
 ## Classifying tumor cells with `UCell`
@@ -563,8 +576,8 @@ Again, we will look at both `SCPCL000822` and `SCPCL000824`.
 
 ```{r}
 # create list to use for ucell of gene sets and marker genes
-ucell_gene_sets <- c(genes_list, markers = list(marker_genes)) |> 
-  # only keep genes that are found in reference 
+ucell_gene_sets <- c(genes_list, markers = list(marker_genes)) |>
+  # only keep genes that are found in reference
   purrr::map(\(geneset){
     intersect(geneset, rownames(sce))
   })
@@ -578,20 +591,21 @@ new_ucell <- UCell::ScoreSignatures_UCell(counts(sce), features = ucell_gene_set
 We will look at the distribution of scores across both samples below and see if we can identify a good cut off to use for classification. 
 
 ```{r}
-# plot distribution of ucell scores for both samples 
-ref_ucell <- ref_ucell |> 
-  as.data.frame() |> 
-  tibble::rownames_to_column("barcodes") |> 
+# plot distribution of ucell scores for both samples
+ref_ucell <- ref_ucell |>
+  as.data.frame() |>
+  tibble::rownames_to_column("barcodes") |>
   dplyr::mutate(sample = "SCPCL000822")
-  
-ucell_df <- new_ucell |> 
-  as.data.frame() |> 
-  tibble::rownames_to_column("barcodes") |> 
-  dplyr::mutate(sample = "SCPCL000824") |> 
-  dplyr::bind_rows(ref_ucell) |> 
-  tidyr::pivot_longer(ends_with("UCell"), 
-                      names_to = "gene_list", 
-                      values_to = "signature_score") |> 
+
+ucell_df <- new_ucell |>
+  as.data.frame() |>
+  tibble::rownames_to_column("barcodes") |>
+  dplyr::mutate(sample = "SCPCL000824") |>
+  dplyr::bind_rows(ref_ucell) |>
+  tidyr::pivot_longer(ends_with("UCell"),
+    names_to = "gene_list",
+    values_to = "signature_score"
+  ) |>
   dplyr::mutate(
     gene_list = stringr::word(gene_list, 1, sep = "_")
   )
@@ -600,8 +614,10 @@ ucell_df <- new_ucell |>
 ```{r}
 ggplot(ucell_df, aes(x = signature_score, colour = sample)) +
   geom_density() +
-  facet_grid(rows = vars(gene_list),
-             scales = "free_y")
+  facet_grid(
+    rows = vars(gene_list),
+    scales = "free_y"
+  )
 ```
 
 Here we see that the marker gene set maybe has a bimodal distribution in `SCPCL000822` and no bimodal distribution in `SCPCL000824`. 
@@ -614,33 +630,35 @@ Let's use the local minima from the marker gene set scores for `SCPCL000822` to 
 First we will look at how using `UCell` compares to our previous classifications for `SCPCL000822` (consensus between `CopyKAT` and `InferCNV`). 
 
 ```{r}
-# create distribution 
+# create distribution
 density_data <- density(ref_ucell$markers_UCell)
 # find the local minima in the distribution
 geneset_cutoff <- optimize(approxfun(density_data$x, density_data$y), interval = c(0.01, 0.2))$minimum
 
-# get a vector of tumor cells from ref 
-ref_ucell_tumor_cells <- ucell_df |> 
-  dplyr::filter(gene_list == "markers",
-                signature_score >= geneset_cutoff,
-                sample == "SCPCL000822") |> 
-  dplyr::pull(barcodes) |> 
+# get a vector of tumor cells from ref
+ref_ucell_tumor_cells <- ucell_df |>
+  dplyr::filter(
+    gene_list == "markers",
+    signature_score >= geneset_cutoff,
+    sample == "SCPCL000822"
+  ) |>
+  dplyr::pull(barcodes) |>
   unique()
 
 # add classification column for comparison to original classification
-caret_df <- caret_df |> 
+caret_df <- caret_df |>
   dplyr::mutate(
-    ucell_classification = dplyr::if_else(barcodes %in% ref_ucell_tumor_cells, "Tumor", "Normal"), 
+    ucell_classification = dplyr::if_else(barcodes %in% ref_ucell_tumor_cells, "Tumor", "Normal"),
     tumor_cell_classification = forcats::fct_relevel(combined_cnv_classification, "Tumor"),
     ucell_classification = forcats::fct_relevel(ucell_classification, "Tumor")
   )
 
 
-# confusion matrix between original and ucell 
+# confusion matrix between original and ucell
 caret::confusionMatrix(
   table(
-    caret_df$tumor_cell_classification, 
-    caret_df$ucell_classification 
+    caret_df$tumor_cell_classification,
+    caret_df$ucell_classification
   )
 )
 ```
@@ -651,19 +669,21 @@ It looks like we get pretty good agreement between using `UCell` with the `RIGGI
 Now we will use the marker gene set cutoff from `SCPCL000822` to classify tumor cells in `SCPCL000824`. 
 
 ```{r}
-# get list of tumor cells using ucell 
-new_ucell_tumor_cells <- ucell_df |> 
-  dplyr::filter(gene_list == "markers",
-                signature_score >= geneset_cutoff,
-                sample == "SCPCL000824") |> 
-  dplyr::pull(barcodes) |> 
+# get list of tumor cells using ucell
+new_ucell_tumor_cells <- ucell_df |>
+  dplyr::filter(
+    gene_list == "markers",
+    signature_score >= geneset_cutoff,
+    sample == "SCPCL000824"
+  ) |>
+  dplyr::pull(barcodes) |>
   unique()
 
 # add ucell classification
-classification_df <- classification_df |> 
+classification_df <- classification_df |>
   dplyr::mutate(
-    ucell_classification = dplyr::if_else(barcodes %in% new_ucell_tumor_cells, "Tumor", "Normal"), 
-    # relevel for confusion matrix later 
+    ucell_classification = dplyr::if_else(barcodes %in% new_ucell_tumor_cells, "Tumor", "Normal"),
+    # relevel for confusion matrix later
     updated_marker_gene_classification = forcats::fct_relevel(updated_marker_gene_classification, "Tumor"),
     ucell_classification = forcats::fct_relevel(ucell_classification, "Tumor")
   )
@@ -679,7 +699,7 @@ Here the rows correspond to the updated marker gene annotations and the columns 
 ```{r}
 caret::confusionMatrix(
   table(
-    classification_df$updated_marker_gene_classification, 
+    classification_df$updated_marker_gene_classification,
     classification_df$ucell_classification
   )
 )
@@ -693,7 +713,7 @@ Cells that are called tumor in both will be "Tumor" and normal in both will be c
 All other cells will be labeled as "Ambiguous". 
 
 ```{r}
-classification_df <- classification_df |> 
+classification_df <- classification_df |>
   dplyr::mutate(consensus_classification = dplyr::case_when(
     updated_marker_gene_classification == "Tumor" & auc_classification == "Tumor" ~ "Tumor",
     updated_marker_gene_classification == "Normal" & auc_classification == "Normal" ~ "Normal",
@@ -703,17 +723,19 @@ classification_df <- classification_df |>
 
 
 ```{r}
-# create annotation df, keeping all classification methods 
-annotation_df <- classification_df |> 
-  dplyr::select(barcodes, marker_gene_classification, updated_marker_gene_classification, auc_classification, ucell_classification, consensus_classification) |> 
+# create annotation df, keeping all classification methods
+annotation_df <- classification_df |>
+  dplyr::select(barcodes, marker_gene_classification, updated_marker_gene_classification, auc_classification, ucell_classification, consensus_classification) |>
   unique()
 
 # create matrix with marker genes as rows and barcodes as columns
-marker_gene_heatmap <- plot_markers_df |> 
-  dplyr::select(gene_expression, gene_symbol, barcodes) |> 
-  tidyr::pivot_wider(values_from = gene_expression, 
-                     names_from = barcodes) |> 
-  tibble::column_to_rownames("gene_symbol") |> 
+marker_gene_heatmap <- plot_markers_df |>
+  dplyr::select(gene_expression, gene_symbol, barcodes) |>
+  tidyr::pivot_wider(
+    values_from = gene_expression,
+    names_from = barcodes
+  ) |>
+  tibble::column_to_rownames("gene_symbol") |>
   as.matrix()
 
 plot_colors <- c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey")
@@ -721,23 +743,27 @@ plot_colors <- c("Tumor" = "#00274C", "Normal" = "#FFCB05", "Ambiguous" = "grey"
 annotation <- ComplexHeatmap::columnAnnotation(
   marker_genes = annotation_df$marker_gene_classification,
   updated_marker_genes = annotation_df$updated_marker_gene_classification,
-  AUCell = annotation_df$auc_classification, 
+  AUCell = annotation_df$auc_classification,
   UCell = annotation_df$ucell_classification,
   consensus = annotation_df$consensus_classification,
-  col = list(marker_genes = plot_colors,
-             updated_marker_genes =plot_colors, 
-             AUCell = plot_colors,
-             UCell = plot_colors,
-             consensus = plot_colors))
+  col = list(
+    marker_genes = plot_colors,
+    updated_marker_genes = plot_colors,
+    AUCell = plot_colors,
+    UCell = plot_colors,
+    consensus = plot_colors
+  )
+)
 ```
 
 
 ```{r}
-# plot heatmap of marker genes 
-plot_gene_heatmap(marker_gene_heatmap, 
-                  row_title = "Marker gene symbol",
-                  legend_title = "Marker gene \nexpression",
-                  annotation = annotation)
+# plot heatmap of marker genes
+plot_gene_heatmap(marker_gene_heatmap,
+  row_title = "Marker gene symbol",
+  legend_title = "Marker gene \nexpression",
+  annotation = annotation
+)
 ```
  
 Here we see that the updated marker gene classification (using raw gene expression cut offs determined from `SCPCL000822`) and `AUCell` tend to have the clearest separation between tumor cells and normal cells that line up with expression of individual marker genes. 
@@ -745,19 +771,22 @@ Here we see that the updated marker gene classification (using raw gene expressi
 Now we will create the same plot but with gene set scores. 
  
 ```{r}
-# make a matrix of gene set by barcode 
-geneset_heatmap <- geneset_plot_df |> 
-  dplyr::select(mean_score, geneset, barcodes) |> 
-  unique() |> 
-  tidyr::pivot_wider(values_from = mean_score, 
-                     names_from = barcodes) |> 
-  tibble::column_to_rownames("geneset") |> 
+# make a matrix of gene set by barcode
+geneset_heatmap <- geneset_plot_df |>
+  dplyr::select(mean_score, geneset, barcodes) |>
+  unique() |>
+  tidyr::pivot_wider(
+    values_from = mean_score,
+    names_from = barcodes
+  ) |>
+  tibble::column_to_rownames("geneset") |>
   as.matrix()
 
-# plot heatmap of gene set score 
+# plot heatmap of gene set score
 plot_gene_heatmap(geneset_heatmap,
-                  annotation = annotation,
-                  legend_title = "Gene set \nscore")
+  annotation = annotation,
+  legend_title = "Gene set \nscore"
+)
 ```
  
 Again, we see that the updated marker genes and `AUCell` have the most similar assignments and these tend to group by tumor/normal cells. 
@@ -768,16 +797,16 @@ Although we do see a similar separation of cells in `UCell`, but there are many 
 We will go ahead and save the annotations from all gene expression based methods for future use. 
  
 ```{r}
-# export final TSV with annotations 
-classifications_output <- classification_df |> 
+# export final TSV with annotations
+classifications_output <- classification_df |>
   dplyr::select(
     cell_barcode = barcodes,
     marker_gene_classification,
-    updated_marker_gene_classification, 
+    updated_marker_gene_classification,
     auc_classification,
     ucell_classification,
     consensus_classification
-  ) |> 
+  ) |>
   unique()
 
 
