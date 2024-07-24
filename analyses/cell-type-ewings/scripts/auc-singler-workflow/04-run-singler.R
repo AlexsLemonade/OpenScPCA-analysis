@@ -132,7 +132,7 @@ singler_results <- SingleR::SingleR(
 )
 
 # get ontology labels from ontoProc if we don't already have them stored
-if (!file.exists(clont_file)) {
+if (!file.exists(cl_ont_file)) {
   # get ontology labels
   cl_ont <- ontoProc::getOnto("cellOnto")
   cl_df <- data.frame(
@@ -140,9 +140,9 @@ if (!file.exists(clont_file)) {
     ontology = names(cl_ont$name) # CL ID
   )
 
-  readr::write_tsv(cl_df, clont_file)
+  readr::write_tsv(cl_df, cl_ont_file)
 } else {
-  cl_df <- readr::read_tsv(clont_file)
+  cl_df <- readr::read_tsv(cl_ont_file)
 }
 
 # grab results from data frame and add human readable values for normal ont labels
