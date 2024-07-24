@@ -23,10 +23,11 @@ import argparse
 import contextlib
 import pathlib
 import pickle
+import sys
 
 import anndata
 import numpy as np
-import scanpy
+import scanpy as sc
 import SEACells
 import session_info
 
@@ -41,14 +42,15 @@ def convert_adata(adata: anndata.AnnData) -> anndata.AnnData:
     )
 
     # recompute principal components and umap (adds additional metadata)
-    scanpy.tl.pca(adata, n_comps=50, mask_var="highly_variable")
-    scanpy.tl.umap(adata)
+    sc.tl.pca(adata, n_comps=50, mask_var="highly_variable")
+    sc.pp.neighbors(adata)
+    sc.tl.umap(adata)
 
     return adata
 
 
 def run_seacells(
-    adata: anndata.AnnData, cell_ratio: float = 75
+    adata: anndata.AnnData, cell_ratio: float = 75, verbose: bool = False
 ) -> tuple[anndata.AnnData, SEACells.core.SEACells]:
     """
     Run the SEACells algorithm on the given dataset.
@@ -60,6 +62,8 @@ def run_seacells(
         Should contain an X_pca field with the PCA coordinates of the cells.
     cell_ratio : float
         The ratio of cells to metacells to use; i.e. number of cells per metacell
+    verbose : bool
+        Whether to print verbose output during the SEACells algorithm
 
     Returns
     -------
@@ -77,6 +81,7 @@ def run_seacells(
         n_SEACells=n_metacells,
         n_waypoint_eigs=n_eigs,
         convergence_epsilon=1e-5,
+        verbose=verbose,
     )
     # initialize and fit model
     model.construct_kernel_matrix()
@@ -106,12 +111,14 @@ def main() -> None:
         help="The output file path for the SEACells model object.",
     )
     parser.add_argument(
-        "seed",
+        "--seed",
         type=int,
         help="The random seed to use for reproducibility.",
         default=2024,
     )
-    parser.add_argument("logfile", type=pathlib.Path, help="File path for log outputs")
+    parser.add_argument(
+        "--logfile", type=pathlib.Path, help="File path for log outputs"
+    )
 
     args = parser.parse_args()
 
@@ -121,26 +128,31 @@ def main() -> None:
     if args.model_out and args.model_out.suffix != ".pkl":
         raise ValueError("Model output file must end in .pkl")
 
+    if args.logfile:
+        logs = open(args.logfile, "w")
+        sys.stdout = logs
+
     # set seed for reproducibility
     np.random.seed(args.seed)
 
-    adata = anndata.read_h5ad(args.datafile)
+    adata = anndata.read_h5ad(args.adata_file)
 
     adata = convert_adata(adata)
-    adata, model = run_seacells(adata)
+    adata, seacell_model = run_seacells(adata, verbose=args.logfile is not None)
 
     # save the results
-    adata.write_h5ad(args.output, compression="gzip")
+    print(f"Saving results to {args.adata_out}")
+    adata.write_h5ad(args.adata_out, compression="gzip")
 
     if args.model_out:
-        with open("args.model_out", "wb") as f:
-            pickle.dump(model, f)
+        print(f"Saving results to {args.model_out}")
+        with open(args.model_out, "wb") as f:
+            pickle.dump(seacell_model, f)
 
-    # As the last step, record the versions of the modules and dependencies
-    # that were used in this analysis
-    with open(args.logfile, "w") as f:
-        with contextlib.redirect_stdout(f):  # direct the session_info output to a file
-            session_info.show(dependencies=True)
+    # only write session info if a logfile is provided
+    if args.logfile:
+        session_info.show(dependencies=True)
+        logs.close()
 
 
 if __name__ == "__main__":
