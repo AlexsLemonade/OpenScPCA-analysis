@@ -32,6 +32,12 @@ option_list <- list(
     help = "Path to TSV file to save annotations as obtained from `SingleR` for input SCE file."
   ),
   make_option(
+    opt_str = c("--scratch_dir"),
+    default = "scratch",
+    type = "character",
+    help = "Path to scratch directory to save celldex references. "
+  ),
+  make_option(
     opt_str = c("-t", "--threads"),
     type = "integer",
     default = 4,
@@ -70,6 +76,10 @@ if (opt$threads > 1) {
   bp_param <- BiocParallel::SerialParam()
 }
 
+# define celldex files
+blueprint_file <- file.path(opt$scratch_dir, "blueprint-celldex.rds")
+hpca_file <- file.path(opt$scratch_dir, "hpca-celldex.rds")
+
 # read in files
 sce <- readr::read_rds(opt$sce_file)
 tumor_ref <- readr::read_rds(opt$tumor_reference_file)
@@ -77,8 +87,19 @@ tumor_ref <- readr::read_rds(opt$tumor_reference_file)
 # Prep references --------------------------------------------------------------
 
 # grab celldex references
-blueprint_ref <- celldex::BlueprintEncodeData(ensembl = TRUE)
-hpca_ref <- celldex::HumanPrimaryCellAtlasData(ensembl = TRUE)
+if (!file.exists(opt$blueprint_file)) {
+  blueprint_ref <- celldex::BlueprintEncodeData(ensembl = TRUE)
+  readr::write_tsv(blueprint_ref, blueprint_file)
+} else {
+  blueprint_ref <- readr::read_rds(blueprint_file)
+}
+
+if (!file.exists(opt$hpca_file)) {
+  hpca_ref <- celldex::HumanPrimaryCellAtlasData(ensembl = TRUE)
+  readr::write_tsv(hpca_ref, hpca_file)
+} else {
+  hpca_ref <- readr::read_rds(hpca_file)
+}
 
 # pull out library and participant id
 library_id <- metadata(sce)$library_id
