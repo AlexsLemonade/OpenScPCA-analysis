@@ -36,7 +36,7 @@ def convert_adata(adata: anndata.AnnData) -> anndata.AnnData:
     # recalculate PCA if not present
     if not pca_present:
         if "X_pca" in adata.obsm:
-            n_comps = adata.obsm["X_PCA"].shape[1]
+            n_comps = adata.obsm["X_pca"].shape[1]
         elif "X_PCA" in adata.obsm:
             n_comps = adata.obsm["X_PCA"].shape[1]
         else:
