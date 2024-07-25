@@ -18,7 +18,7 @@ mkdir -p ${results_dir}
 
 # run the SEACells script
 python scripts/run-seacells.py \
-    $test_file \
+    ${test_file} \
     --adata_out ${results_dir}/${library}_seacells.h5ad \
     --model_out ${results_dir}/${library}_seacells_model.pkl \
     --logfile ${results_dir}/${library}_seacells.log \

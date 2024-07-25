@@ -1,23 +1,13 @@
 #!/usr/bin/env python3
 
 """
-Seacells Analysis Script
+SEAcells Analysis Script
 Joshua Shapiro
 2024-07-18
 
 This script runs the SEACells algorithm on a dataset.
 """
 
-# Load modules
-#
-# Load required Python modules at the top of your script
-# We have included the standard `pathlib` module and the `session_info` module
-# that we will be using at the bottom of this notebook to record the versions of
-# the modules used in this analysis.
-#
-# Do not install modules here; only load them with `import` statements.
-# Avoid renaming modules with `as` statements, unless you are performing a
-# standard renaming (e.g., `import pandas as pd`).
 
 import argparse
 import contextlib
@@ -58,7 +48,7 @@ def run_seacells(
     Parameters
     ----------
     adata : anndata.AnnData
-        An annData object containing the data to run the SEACells algorithm on.
+        An AnnData object containing the data to run the SEACells algorithm on.
         Should contain an X_pca field with the PCA coordinates of the cells.
     cell_ratio : float
         The ratio of cells to metacells to use; i.e. number of cells per metacell
