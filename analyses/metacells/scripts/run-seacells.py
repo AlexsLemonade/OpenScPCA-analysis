@@ -3,7 +3,6 @@
 """
 SEAcells Analysis Script
 Joshua Shapiro
-2024-07-18
 
 This script runs the SEACells algorithm on a dataset.
 """
@@ -64,7 +63,6 @@ def run_seacells(
     ----------
     adata : anndata.AnnData
         An AnnData object containing the data to run the SEACells algorithm on.
-        Should contain an X_pca field with the PCA coordinates of the cells.
     cell_ratio : float
         The ratio of cells to metacells to use; i.e. number of cells per metacell
         Default is 75, based on recommentations in https://github.com/dpeerlab/SEACells/blob/3462c624ffae0df6d3930490f345f00196c3503e/notebooks/SEACell_computation.ipynb
