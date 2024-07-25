@@ -44,8 +44,6 @@ def convert_adata(adata: anndata.AnnData) -> anndata.AnnData:
             n_comps = min(50, adata.n_vars, adata.n_obs)
         sc.tl.pca(adata, n_comps=n_comps, mask_var="highly_variable")
 
-    # recompute principal components and umap
-
     # always recalculate UMAP (for now, at least)
     sc.pp.neighbors(adata)
     sc.tl.umap(adata)
