@@ -41,8 +41,8 @@ jobs:
       - name: Create ECR repository if needed
         id: create-ecr
         run: |
-          module=echo "${{ inputs.module }}" | tr '[:upper:]' '[:lower:]'
-          aws ecr-public describe-repositories --repository-names $module
+          module=$(echo "${{ inputs.module }}" | tr '[:upper:]' '[:lower:]')
+          aws ecr-public describe-repositories --repository-names $module \
           || aws ecr-public create-repository --repository-name $module
 
       - name: Set up Docker Buildx
