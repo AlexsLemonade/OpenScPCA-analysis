@@ -31,7 +31,7 @@ dependencies:
   - python-utils
   - scanpy
   - scikit-learn
-  - scipy=1.11
+  - scipy
   - seaborn
   - statsmodels
   - tabulate

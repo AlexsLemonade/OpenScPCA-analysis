@@ -9,6 +9,7 @@ repos:
         exclude: |
           (?x)(
               \.html$|
+              \.ipynb$|
               conda-lock\.yml$
           )
       - name: Large file size limit
