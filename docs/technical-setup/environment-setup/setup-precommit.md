@@ -126,7 +126,7 @@ If you would like to use a code linter, we recommend using [`ruff`](https://docs
     rev: v0.3.3
     hooks:
       - id: ruff
-  # code linting with the  ith the {lintr} package for R
+  # code linting with the {lintr} package for R
   - repo: https://github.com/lorenzwalthert/precommit
     rev: v0.4.0
     hooks:
