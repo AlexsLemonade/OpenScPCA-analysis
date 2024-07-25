@@ -19,12 +19,12 @@ concurrency:
 
 on:
   workflow_dispatch:
-  workflow_call:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - "analyses/metacells/**"
+  # workflow_call:
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - "analyses/metacells/**"
 
 jobs:
   run-module:
@@ -38,9 +38,9 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # Downloading just one sample for initial testing
+      # Update this step as needed to download the desired data
       - name: Download test data
-        run: ./download-data.py --test-data --format AnnData --sample SCPCS000001
+        run: ./download-data.py --test-data --format AnnData
 
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3
@@ -54,4 +54,3 @@ jobs:
         run: |
           cd ${MODULE_PATH}
           # run module script here
-          bash run-metacells.sh
