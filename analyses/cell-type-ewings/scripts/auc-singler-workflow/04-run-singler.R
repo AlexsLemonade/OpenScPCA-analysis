@@ -91,14 +91,14 @@ tumor_ref <- readr::read_rds(opt$tumor_reference_file)
 # grab celldex references
 if (!file.exists(blueprint_file)) {
   blueprint_ref <- celldex::BlueprintEncodeData(ensembl = TRUE)
-  readr::read_rds(blueprint_ref, blueprint_file)
+  readr::write_rds(blueprint_ref, blueprint_file)
 } else {
   blueprint_ref <- readr::read_rds(blueprint_file)
 }
 
 if (!file.exists(hpca_file)) {
   hpca_ref <- celldex::HumanPrimaryCellAtlasData(ensembl = TRUE)
-  readr::write_tsv(hpca_ref, hpca_file)
+  readr::write_rds(hpca_ref, hpca_file)
 } else {
   hpca_ref <- readr::read_rds(hpca_file)
 }
