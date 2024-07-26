@@ -106,11 +106,6 @@ You can add these hooks by adding the following code to your `.pre-commit-local.
     rev: v0.4.0
     hooks:
       - id: style-files
-  # prettier formatter for many other languages
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.1.0
-    hooks:
-      - id: prettier
 ```
 
 Code linting tools are often more intrusive compared to code formatting tools.
