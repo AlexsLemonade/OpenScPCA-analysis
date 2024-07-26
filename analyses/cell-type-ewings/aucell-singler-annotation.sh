@@ -138,19 +138,13 @@ for sample_id in $sample_ids; do
         geneset_results="${sample_results_dir}/${library_id}_gene-set-scores.tsv"
         singler_results="${sample_results_dir}/${library_id}_singler-classifications.tsv"
 
-        # only run SingleR if results don't already exist
-        if [[ ! -f $singler_results ]]; then
-
-            echo "Running SingleR for sample: $sample_id and library: $library_id"
-
-            # run SingleR
-            Rscript $scripts_dir/04-run-singler.R \
-                --sce_file $sce_file \
-                --tumor_reference_file $singler_ref_file \
-                --output_file $singler_results \
-                --threads $threads
-
-        fi
+        echo "Running SingleR for sample: $sample_id and library: $library_id"
+        # run SingleR
+        Rscript $scripts_dir/04-run-singler.R \
+            --sce_file $sce_file \
+            --tumor_reference_file $singler_ref_file \
+            --output_file $singler_results \
+            --threads $threads
 
         # render notebook
         Rscript -e "rmarkdown::render('$notebook_dir/02-singler-results.Rmd', \
