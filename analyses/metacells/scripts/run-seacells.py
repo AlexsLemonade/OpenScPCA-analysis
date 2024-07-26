@@ -52,7 +52,10 @@ def convert_adata(adata: anndata.AnnData) -> anndata.AnnData:
 
 
 def run_seacells(
-    adata: anndata.AnnData, cell_ratio: float = 75, verbose: bool = False
+    adata: anndata.AnnData,
+    cell_ratio: float = 75,
+    min_cells: int = 20,
+    verbose: bool = False,
 ) -> tuple[anndata.AnnData, SEACells.core.SEACells]:
     """
     Run the SEACells algorithm on the given dataset.
@@ -64,6 +67,9 @@ def run_seacells(
     cell_ratio : float
         The ratio of cells to metacells to use; i.e. number of cells per metacell
         Default is 75, based on recommentations in https://github.com/dpeerlab/SEACells/blob/3462c624ffae0df6d3930490f345f00196c3503e/notebooks/SEACell_computation.ipynb
+    min_cells : int
+        The minimum number of cells for the SEACells algorithm to run,
+        and the minimum number of metacells to create
     verbose : bool
         Whether to print verbose output during the SEACells algorithm
 
@@ -74,10 +80,13 @@ def run_seacells(
     SEACells.core.SEACells
         The SEACells model object
     """
+
+    if adata.n_obs < min_cells:
+        raise ValueError("The dataset must have at least 20 cells to run SEACells")
     # reformat the data for compatibility with SEACells and scanpy downstream
     adata = convert_adata(adata)
 
-    n_metacells = round(adata.n_obs / cell_ratio)
+    n_metacells = max(round(adata.n_obs / cell_ratio), min_cells)
     n_eigs = 10  # number of eigenvalues for initialization
     # initialize the SEACells model
     model = SEACells.core.SEACells(
@@ -143,13 +152,16 @@ def main() -> None:
     np.random.seed(args.seed)
 
     adata = anndata.read_h5ad(args.adata_file)
-
-    adata, seacell_model = run_seacells(adata, verbose=args.logfile is not None)
+    try:
+        adata, seacell_model = run_seacells(adata, verbose=args.logfile is not None)
+    except ValueError as e:
+        print(f"Error processing {args.adata_file}:", e, file=sys.stderr)
+        seacell_model = None
 
     # save the results
     adata.write_h5ad(args.adata_out, compression="gzip")
 
-    if args.model_out:
+    if args.model_out and seacell_model:
         with open(args.model_out, "wb") as f:
             pickle.dump(seacell_model, f)
 
