@@ -45,4 +45,4 @@ jobs:
           conda activate openscpca-cell-type-ewings
           cd $MODULE_PATH
           bash cnv-annotation.sh
-          bash aucell-annotation.sh
+          bash aucell-singler-annotation.sh

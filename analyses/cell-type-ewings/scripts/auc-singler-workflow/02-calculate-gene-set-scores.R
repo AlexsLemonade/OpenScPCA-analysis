@@ -86,7 +86,7 @@ sce <- readr::read_rds(opt$sce_file)
 # library ID
 library_id <- metadata(sce)$library_id
 
-# contstruct and create output folder if not already present
+# construct and create output folder if not already present
 results_dir <- dirname(opt$output_file)
 fs::dir_create(results_dir)
 

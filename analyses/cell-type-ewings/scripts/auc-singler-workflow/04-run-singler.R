@@ -27,15 +27,27 @@ option_list <- list(
       The `ref_tumor_label` column in the `colData` will be used for the reference labels."
   ),
   make_option(
-    opt_str = c("--output_annotations_file"),
+    opt_str = c("--output_file"),
     type = "character",
     help = "Path to TSV file to save annotations as obtained from `SingleR` for input SCE file."
+  ),
+  make_option(
+    opt_str = c("--scratch_dir"),
+    default = "scratch",
+    type = "character",
+    help = "Path to scratch directory to save celldex references. "
   ),
   make_option(
     opt_str = c("-t", "--threads"),
     type = "integer",
     default = 4,
     help = "Number of multiprocessing threads to use."
+  ),
+  make_option(
+    opt_str = c("--seed"),
+    type = "integer",
+    default = 2024,
+    help = "A random seed for reproducibility."
   )
 )
 
@@ -44,6 +56,9 @@ opt <- parse_args(OptionParser(option_list = option_list))
 
 # Set up -----------------------------------------------------------------------
 
+# set seed
+set.seed(opt$seed)
+
 # make sure input files exist
 stopifnot(
   "SCE file does not exist" = file.exists(opt$sce_file),
@@ -51,7 +66,7 @@ stopifnot(
 )
 
 # create output directory if it doesn't exist
-output_dir <- dirname(opt$output_annotations_file)
+output_dir <- dirname(opt$output_file)
 fs::dir_create(output_dir)
 
 # set up multiprocessing params
@@ -61,6 +76,12 @@ if (opt$threads > 1) {
   bp_param <- BiocParallel::SerialParam()
 }
 
+# define reference files, if these exist we'll use these rather than downloading
+blueprint_file <- file.path(opt$scratch_dir, "blueprint-celldex.rds")
+hpca_file <- file.path(opt$scratch_dir, "hpca-celldex.rds")
+cl_ont_file <- file.path(opt$scratch_dir, "cl-ont-ref.tsv")
+
+
 # read in files
 sce <- readr::read_rds(opt$sce_file)
 tumor_ref <- readr::read_rds(opt$tumor_reference_file)
@@ -68,8 +89,19 @@ tumor_ref <- readr::read_rds(opt$tumor_reference_file)
 # Prep references --------------------------------------------------------------
 
 # grab celldex references
-blueprint_ref <- celldex::BlueprintEncodeData(ensembl = TRUE)
-hpca_ref <- celldex::HumanPrimaryCellAtlasData(ensembl = TRUE)
+if (!file.exists(blueprint_file)) {
+  blueprint_ref <- celldex::BlueprintEncodeData(ensembl = TRUE)
+  readr::write_rds(blueprint_ref, blueprint_file)
+} else {
+  blueprint_ref <- readr::read_rds(blueprint_file)
+}
+
+if (!file.exists(hpca_file)) {
+  hpca_ref <- celldex::HumanPrimaryCellAtlasData(ensembl = TRUE)
+  readr::write_rds(hpca_ref, hpca_file)
+} else {
+  hpca_ref <- readr::read_rds(hpca_file)
+}
 
 # pull out library and participant id
 library_id <- metadata(sce)$library_id
@@ -99,12 +131,19 @@ singler_results <- SingleR::SingleR(
   BPPARAM = bp_param
 )
 
-# get ontology labels
-cl_ont <- ontoProc::getOnto("cellOnto")
-cl_df <- data.frame(
-  annotation = cl_ont$name, # human readable name
-  ontology = names(cl_ont$name) # CL ID
-)
+# get ontology labels from ontoProc if we don't already have them stored
+if (!file.exists(cl_ont_file)) {
+  # get ontology labels
+  cl_ont <- ontoProc::getOnto("cellOnto")
+  cl_df <- data.frame(
+    annotation = cl_ont$name, # human readable name
+    ontology = names(cl_ont$name) # CL ID
+  )
+
+  readr::write_tsv(cl_df, cl_ont_file)
+} else {
+  cl_df <- readr::read_tsv(cl_ont_file)
+}
 
 # grab results from data frame and add human readable values for normal ont labels
 results_df <- data.frame(
@@ -128,4 +167,4 @@ results_df <- data.frame(
   )
 
 # export tsv file with barcodes, aucell_annotation, singler_annotation and singler_ontology columns
-readr::write_tsv(results_df, opt$output_annotations_file)
+readr::write_tsv(results_df, opt$output_file)

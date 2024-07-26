@@ -19,8 +19,8 @@ option_list <- list(
   make_option(
     opt_str = c("--auc_results_dir"),
     type = "character",
-    default = file.path(project_root, "results", "aucell_annotation"),
-    help = "Path to folder containing output from `aucell-annotation.sh`."
+    default = file.path(project_root, "results", "aucell_singler_annotation"),
+    help = "Path to folder containing output from running AUCell."
   ),
   make_option(
     opt_str = c("--output_reference_file"),
