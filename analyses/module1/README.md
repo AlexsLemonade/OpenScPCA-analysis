@@ -4,20 +4,28 @@ Wilms tumor (WT) is the most common pediatric kidney cancer characterized by an 
 
 ## Description
 
-In this module, we reviewed the literature to compile a table of marker genes for each of the expected cell types in the dataset. 
+In this module, we reviewed the literature to compile a table of marker genes for each of the expected cell types in the dataset. Additionally, we provide a table of know genetic alterations in Wilms tumor that can be useful to validate CNV profiles obtained after running inferCNV function. 
 
 ## Usage
 
-This module is a resource for later validation of the annotated cell types. The table of marker genes can be found in the folder results under the name CellType_metadata.csv
+This module is a resource for later validation of the annotated cell types. The table of marker genes can be found in the folder results under the name CellType_metadata.csv. The table of known genetic alterations can also be found in the results folder under the name GeneticAlterations_metadata.csv.
 
 ## Output files
 
-The table contains the following column and information:
+### The table CellType_metadata.csv contains the following column and information:
 - "gene_symbol" contains the symbol of the described gene, using the HUGO Gene Nomenclature
 - ENSEMBL_ID contains the stable identifier from the ENSEMBL database
 - cell_class is either "malignant" for marker genes specific to malignant population, or "non-malignant" for markers genes specific to non-malignant tissue or "both" for marker genes that can be found in malignant as well as non-malignant tissue but are still informative in respect to the cell type.
 - cell_type contains the list of the cell types that are attributed to the marker gene
 - DOI contains the list of main publication identifiers supporting the choice of the marker gene
+- comment can be empty or contains any additional information
+
+### The table GeneticAlterations_metadata.csv contains the following column and information:
+- alteration contains the number and portion of the affected chromosome
+- gain_loss contains the information regarding the gain or loss of the corresponding genetic alteration
+- cell_class is "malignant" 
+- cell_type contains the list of the malignant cell types that are attributed to the marker gene, either blastemal, stromal, epithelial or NA if none of the three histology is more prone to the described genetic alteration
+- DOI contains the list of main publication identifiers supporting the choice of the genetic alteration
 - comment can be empty or contains any additional information
 
 
