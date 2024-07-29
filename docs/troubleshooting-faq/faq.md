@@ -30,15 +30,17 @@ Follow these instructions to determine the contents of a release:
 
 1.  First, find the names of all the data releases, which are named based on their release date in [ISO 8601 format](https://en.wikipedia.org/wiki/ISO_8601).
     You can use the [`download-data.py`](../getting-started/accessing-resources/getting-access-to-data.md#downloaded-data-file-structure) script with the `--list-releases` flag to do this.
-    Don't forget to [log into your AWS `openscpca` profile first](../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session)!
+    Don't forget to [log into your AWS `openscpca` profile first](../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
+    We also strongly suggest [storing your AWS profile name](../technical-setup/environment-setup/configure-aws-cli.md#storing-your-aws-profile-name) to help handle credentials.
 
     ```bash
     # Ensure you are in the top-level of the repository
     # cd path/to/OpenScPCA-analysis
 
+    # If your profile name is not stored, you can set for use in this terminal session only:
+    export AWS_PROFILE=openscpca
 
     # List all releases in the data release bucket
-    # If you're _not_ working on Lightsail for Research, specify your AWS profile name with `--profile openscpca`
     ./download-data.py --list-releases --profile openscpca
     ```
 
