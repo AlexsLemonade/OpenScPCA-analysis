@@ -82,7 +82,7 @@ def run_seacells(
     """
 
     if adata.n_obs < min_cells:
-        raise ValueError("The dataset must have at least 20 cells to run SEACells")
+        raise ValueError(f"The dataset must have at least {min_cells} cells to run SEACells")
     # reformat the data for compatibility with SEACells and scanpy downstream
     adata = convert_adata(adata)
 
