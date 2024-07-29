@@ -20,6 +20,13 @@ This module is a resource for later validation of the annotated cell types. The 
 - DOI contains the list of main publication identifiers supporting the choice of the marker gene
 - comment can be empty or contains any additional information
 
+  |gene_symbol|ENSEMBL_ID|cell_class|cell_type|DOI|comment|
+  |---|---|---|---|---|---|
+|WT1|ENSG00000184937|malignant|cancer_cell|10.1242/dev.153163|Tumor_suppressor_WT1_is_lost_in_some_WT_cells|
+
+![image](https://github.com/user-attachments/assets/97074dd9-255c-4c1d-9b6f-3d9086954bea)
+
+
 ### The table GeneticAlterations_metadata.csv contains the following column and information:
 - alteration contains the number and portion of the affected chromosome
 - gain_loss contains the information regarding the gain or loss of the corresponding genetic alteration
