@@ -54,7 +54,7 @@ Follow these instructions to determine the contents of a release:
 
 1.  All data is stored on S3 in `s3://openscpca-data-release/{release name}/`.
     To list all available files, you'll need to use the AWS CLI [in a terminal](../getting-started/project-tools/using-the-terminal.md) and run `aws s3 ls` to list the contents of a given S3 bucket.
-    Therefore, you can list files in a given release as, for example,
+    For example, you can list files in a given release as:
 
     ```bash
     # List all releases in the 2024-05-01 release
@@ -108,7 +108,7 @@ Follow these instructions to determine the contents of a release:
 
 ### How can I use results from existing modules in my analysis module?
 
-Once modules reach maturity, the Data Lab adds them to a [Nextflow workflow](../ensuring-repro/openscpca-nf/index.md) to formally generate the module's results.
+Once modules reach maturity, the Data Lab adds them to a [Nextflow workflow](../ensuring-repro/openscpca-nf/index.md) to automatically generate the module's results from the latest data release.
 You can access results from completed modules [using the `download-results.py` script](../getting-started/accessing-resources/getting-access-to-data.md#accessing-scpca-module-results) and use them as input to your module.
 For example, you may wish to use cell type annotations determined in a different module as input.
 
