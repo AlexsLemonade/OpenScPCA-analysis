@@ -1,45 +1,30 @@
-# Template analysis module
+# Module 1: Compilation of a metadata file of marker genes for expected cell types
 
-This is a template analysis module.
-It is intended to be used as a starting point for new analysis modules.
-Please fill in the content below with information specific to this analysis module.
+Wilms tumor (WT) is the most common pediatric kidney cancer characterized by an exacerbated intra- and inter- tumor heterogeneity. The genetic landscape of WT is very diverse in each of the histological contingents. The COG classifies WT patients into two groups: the favorable histology and diffuse anaplasia. Each of these groups is composed of the blastemal, epithelial, and stromal populations of cancer cells in different proportions, as well as cells from the normal kidney, mostly kidney epithelial cells, endothelial cells, immune cells and normal stromal cells (fibroblast).
 
 ## Description
 
-Please provide a description of your module, including:
-
-- What type of analysis is included?
-- What methods or tools are used?
-
-If there are multiple steps in the module, please include an outline of the analysis steps and scripts used.
+In this module, we reviewed the literature to compile a table of marker genes for each of the expected cell types in the dataset. 
 
 ## Usage
 
-Please provide instructions on how to run the analysis module.
-What commands are needed to execute all steps in the analysis?
-
-## Input files
-
-Please include a description of the required inputs to run the analysis module (e.g., processed `SingleCellExperiment` objects from the ScPCA Portal).
-If the input to this module is dependent on running any other scripts (e.g., `download-data.py`) or on the output of another module, please state that.
-If possible, include examples of specific commands used to obtain data.
+This module is a resource for later validation of the annotated cell types. The table of marker genes can be found in the folder results under the name CellType_metadata.csv
 
 ## Output files
 
-Please include a description of the output from your analysis, including:
+The table contains the following column and information:
+- "gene_symbol" contains the symbol of the described gene, using the HUGO Gene Nomenclature
+- ENSEMBL_ID contains the stable identifier from the ENSEMBL database
+- cell_class is either "malignant" for marker genes specific to malignant population, or "non-malignant" for markers genes specific to non-malignant tissue or "both" for marker genes that can be found in malignant as well as non-malignant tissue but are still informative in respect to the cell type.
+- cell_type contains the list of the cell types that are attributed to the marker gene
+- DOI contains the list of main publication identifiers supporting the choice of the marker gene
+- comment can be empty or contains any additional information
 
-- What type of files are created?
-- What are the contents of the output files?
-- Where are the files stored?
-- Are any intermediate files generated?
-If so, where are they stored?
 
 ## Software requirements
 
-Please describe the environment system used to manage software dependencies for the module (e.g., `conda`, `renv`, `docker`).
-Include the locations of any files used to set up the environment.
+No software required.
 
 ## Computational resources
 
-Please indicate the computational resources that are required to run the module.
-If there are specific memory, CPU, and/or GPU requirements, please state that.
+No need to run any analysis, just open the metadata table!
