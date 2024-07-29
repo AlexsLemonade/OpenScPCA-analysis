@@ -57,6 +57,15 @@ This module is a resource for later validation of the annotated cell types. The 
 - DOI contains the list of main publication identifiers supporting the choice of the genetic alteration
 - comment can be empty or contains any additional information
 
+|alteration|gain_loss|cell_class|cell_type|DOI|PMID|comment
+|---|---|---|---|---|---|---|
+|11p13|loss|malignant|NA|10.1242/dev.153163|NA|NA|
+|11p15|loss|malignant|NA|10.1128/mcb.9.4.1799|NA|NA|
+|16q|loss|malignant|NA|NA|1317258|Associated_with_relapse|
+|1p|loss|malignant|NA|NA|8162576|Associated_with_relapse|
+|1q|gain|malignant|NA|10.1016/S0002-9440(10)63982-X|NA|Associated_with_relapse|
+
+
 
 ## Software requirements
 
