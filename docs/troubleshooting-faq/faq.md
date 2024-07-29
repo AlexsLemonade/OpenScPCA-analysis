@@ -111,8 +111,8 @@ Follow these instructions to determine the contents of a release:
 ### How can I use results from existing modules in my analysis module?
 
 Once modules reach maturity, the Data Lab adds them to a [Nextflow workflow](../ensuring-repro/openscpca-nf/index.md) to automatically generate the module's results from the latest data release.
-You can access results from completed modules [using the `download-results.py` script](../getting-started/accessing-resources/getting-access-to-data.md#accessing-scpca-module-results) and use them as input to your module.
-For example, you may wish to use cell type annotations determined in a different module as input.
+If you want to use these module results (e.g., cell type annotations conducted in a different module) as input for your analysis, you can obtain them with [the `download-results.py` script](../getting-started/accessing-resources/getting-access-to-data.md#accessing-scpca-module-results).
+Results downloaded with this script [will be stored in `data/current/results/{module name}`](../getting-started/accessing-resources/getting-access-to-data.md#downloaded-results-file-structure).
 
 However, there may be circumstances when you want to use results from a module which has not yet been added to the Nextflow workflow.
 In such cases, you will need to run the module yourself to generate the results.
