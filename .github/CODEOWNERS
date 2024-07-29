@@ -25,7 +25,7 @@
 
 # Primary reviewers for analysis modules
 
-/analyses/ @allyhawkins
+/analyses/ @jaclyn-taroni
 /analyses/hello-python/ @jashapiro
 /analyses/hello-r/ @jashapiro
 /analyses/simulate-sce/ @jashapiro
