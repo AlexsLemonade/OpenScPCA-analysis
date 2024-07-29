@@ -103,7 +103,7 @@ Follow these instructions to determine the contents of a release:
     For example, this will not return anything since there is no project ID `SCPCP000099`:
 
     ```bash
-    # List all files in a bucket that does not exist
+    # List all files in a directory that does not exist
     aws s3 ls s3://openscpca-data-release/2024-05-01/SCPCP000099/
     ```
 
