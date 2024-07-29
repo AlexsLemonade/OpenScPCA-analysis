@@ -41,7 +41,7 @@ Follow these instructions to determine the contents of a release:
     export AWS_PROFILE=openscpca
 
     # List all releases in the data release bucket
-    ./download-data.py --list-releases --profile openscpca
+    ./download-data.py --list-releases
     ```
 
 1.  Identify the most recent date from the output.
@@ -60,8 +60,7 @@ Follow these instructions to determine the contents of a release:
 
     ```bash
     # List all releases in the 2024-05-01 release
-    # If you're _not_ working on Lightsail for Research, specify your AWS profile name with `--profile openscpca`
-    aws s3 ls s3://openscpca-data-release/2024-05-01/ --profile openscpca
+    aws s3 ls s3://openscpca-data-release/2024-05-01/
     ```
 
     This has the (abbreviated) output:
@@ -77,14 +76,14 @@ Follow these instructions to determine the contents of a release:
 
     !!! tip "Don't forget the trailing slash!"
         The trailing slash at the end of `s3://openscpca-data-release/2024-05-01/` is necessary for contents to be listed.
-        If you omit the slash and just run `aws s3 ls s3://openscpca-data-release/2024-05-01 --profile openscpca`, the output will only list the directory itself, and not its contents.
+        If you omit the slash and just run `aws s3 ls s3://openscpca-data-release/2024-05-01`, the output will only list the directory itself, and not its contents.
 
 1.  From there, you can continue to list the next level of nested files and directories (prefixes).
     For example, you can list all files in the `SCPCS000001` sample from the `SCPCP000001` project with:
 
     ```bash
     # List all SCPCS000001 files, again specifying the AWS profile
-    aws s3 ls s3://openscpca-data-release/2024-05-01/SCPCP000001/SCPCS000001/ --profile openscpca
+    aws s3 ls s3://openscpca-data-release/2024-05-01/SCPCP000001/SCPCS000001/
     ```
 
     This has the output:
@@ -105,7 +104,7 @@ Follow these instructions to determine the contents of a release:
 
     ```bash
     # List all files in a bucket that does not exist
-    aws s3 ls s3://openscpca-data-release/2024-05-01/SCPCP000099/ --profile openscpca
+    aws s3 ls s3://openscpca-data-release/2024-05-01/SCPCP000099/
     ```
 
 ### How can I use results from existing modules in my analysis module?
