@@ -116,4 +116,5 @@ Results downloaded with this script [will be stored in `data/current/results/{mo
 
 However, there may be circumstances when you want to use results from a module which has not yet been added to the Nextflow workflow.
 In such cases, you will need to run the module yourself to generate the results.
+In this case, results should be stored in `analysis/{module name}/results`.
 Instructions for [running the module](../contributing-to-analyses/analysis-modules/running-a-module.md), including its software and compute requirements, should be available in the module's main `README.md` file.
