@@ -122,4 +122,3 @@ By default, username = rstudio, password = wordpass.
 
 ## Computational resources
 
-No need to run any analysis, just open the metadata table!
