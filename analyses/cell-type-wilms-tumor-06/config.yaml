@@ -1,0 +1,17 @@
+project_name: maudp_ScPCA
+project_docker: cancerbits/dockr:maudp_ScPCAOpen_podman
+
+
+# SYSTEM-SPECIFIC PARAMETERS (please change to match your local setup):
+project_root_host: $CODEBASE/OpenScPCA-analysis/
+data_root_host: $DATA
+out_root_host: $OUT
+resource_root_host: $RESOURCES
+
+# PATHS AS VISIBLE WITHIN RSTUDIO (should not be changed):
+project_root: /home/rstudio
+data_root: /home/rstudio/mnt_data
+out_root: /home/rstudio/mnt_out
+resource_root: /home/rstudio/mnt_resources/
+tmp_root: /home/rstudio/mnt_tmp/
+

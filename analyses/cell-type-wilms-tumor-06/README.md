@@ -1,16 +1,43 @@
-# Module 1: Compilation of a metadata file of marker genes for expected cell types
+# Wilms Tumor Dataset Annotation (SCPCP000006) 
 
 Wilms tumor (WT) is the most common pediatric kidney cancer characterized by an exacerbated intra- and inter- tumor heterogeneity. The genetic landscape of WT is very diverse in each of the histological contingents. The COG classifies WT patients into two groups: the favorable histology and diffuse anaplasia. Each of these groups is composed of the blastemal, epithelial, and stromal populations of cancer cells in different proportions, as well as cells from the normal kidney, mostly kidney epithelial cells, endothelial cells, immune cells and normal stromal cells (fibroblast).
 
 ## Description
 
-In this module, we reviewed the literature to compile a table of marker genes for each of the expected cell types in the dataset. Additionally, we provide a table of know genetic alterations in Wilms tumor that can be useful to validate CNV profiles obtained after running inferCNV function. 
+Here, we first aim to annotate the Wilms Tumor snRNA-seq samples in the SCPCP000006 (n=40) dataset. To do so we will:
+
+• Provide annotations of normal cells composing the kidney, including normal kidney epithelium, endothelium, stroma and immune cells
+• Provide annotations of tumor cell populations that may be present in the WT samples, including blastemal, epithelial, and stromal populations of cancer cells
+Based on the provided annotation, we would like to additionally provide a reference of marker genes for the three cancer cell populations, which is so far lacking for the WT community.
+
+The analysis is/will be divided as the following:
+
+[x] Metadata file: compilation of a metadata file of marker genes for expected cell types that will be used for validation at a later step
+[ ] Script: clustering of cells across a set of parameters for few samples
+[ ] Script: label transfer from the fetal kidney atlas reference using runAzimuth
+[ ] Script: run InferCNV
+[ ] Notebook: explore results from steps 2 to 4 for about 5 to 10 samples
+[ ] Script: compile scripts 2 to 4 in a RMardown file with required adjustements and render it across all samples
+[ ] Notebook: explore results from step 6, integrate all samples together and annotate the dataset using (i) metadatafile, (ii) CNV information, (iii) label transfer information
 
 ## Usage
+From Rstudio, run the Rmd reports or render the R scripts (see below R studio session set up). Please before running the script, make sure that the paths are correct. 
+You can also simply have a look at the html reports in the notebook folder. Here, no need to run anything, we try to guide you through the analysis. Have a look at the code using the unhide code button on the top right of each chunk!
 
-This module is a resource for later validation of the annotated cell types. The table of marker genes can be found in the folder results under the name CellType_metadata.csv. The table of known genetic alterations can also be found in the results folder under the name GeneticAlterations_metadata.csv.
+## Input files
+
+In this module, we start with the processed `SingleCellExperiment` objects from the ScPCA Portal.
+Data have been downloaded locally and are found in mnt_data. the mnt_data folder has to be define in the config.yaml file or changed in the notebook accordingly. 
+
+```{r paths}
+path_to_data <- "~/mnt_data/Wilms ALSF/SCPCP000006_2024-06-25"
+```
 
 ## Output files
+
+## Marker sets 
+
+This folder is a resource for later validation of the annotated cell types.
 
 ### The table CellType_metadata.csv contains the following column and information:
 - "gene_symbol" contains the symbol of the described gene, using the HUGO Gene Nomenclature
@@ -46,9 +73,6 @@ This module is a resource for later validation of the annotated cell types. The 
   |THY1|ENSG00000154096|malignant|mesenchymal|10.1093/hmg/ddq042|might_also_be_expressed_in_non_malignant_stroma|
 
 
-
-
-
 ### The table GeneticAlterations_metadata.csv contains the following column and information:
 - alteration contains the number and portion of the affected chromosome
 - gain_loss contains the information regarding the gain or loss of the corresponding genetic alteration
@@ -69,7 +93,23 @@ This module is a resource for later validation of the annotated cell types. The 
 
 ## Software requirements
 
-No software required.
+To perform the analysis, run the RMarkdown script in R (version 4.4.1).
+The main packages used are:
+- Seurat version 5
+- Azimuth version 5
+- inferCNV
+- SCpubr for visualization
+- DT for table visualization
+- DElegate for differential expression analysis
+
+For complete reproducibility of the results, you can build and run the docker image using the Dockerfile. This will allow you to work on RStudio (R version 4.4.1) from the based image bioconductor/tidyverse:3.19.
+
+In the config.yaml file, define your system specific parameter and paths (e.g. to the data).
+Execute the run.sh file and open RStudio in your browser (http://localhost:8080/). 
+By default, username = rstudio, password = wordpass.
+
+
+
 
 ## Computational resources
 
