@@ -24,6 +24,12 @@ RUN curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.s
   && find /opt/conda/ -follow -type f -name '*.a' -delete \
   && find /opt/conda/ -follow -type f -name '*.js.map' -delete
 
+# Complete installation of zellkonverter conda env
+ENV BASILISK_EXTERNAL_DIR /usr/local/renv/basilisk
+RUN Rscript -e "proc <- basilisk::basiliskStart(env = zellkonverter::zellkonverterAnnDataEnv(), testload = 'anndata'); \
+  basilisk::basiliskStop(proc); \
+  basilisk.utils::cleanConda()"
+
 # Install conda-lock
 RUN conda install --channel=conda-forge --name=base conda-lock
 
