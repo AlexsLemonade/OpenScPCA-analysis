@@ -59,7 +59,7 @@ RUN Rscript -e 'renv::restore()' \
   && rm -rf /tmp/downloaded_packages \
   && rm -rf /tmp/Rtmp*
 
-  # Complete installation of zellkonverter conda env
+# Complete installation of zellkonverter conda env
 ENV BASILISK_EXTERNAL_DIR /usr/local/renv/basilisk
 RUN Rscript -e "proc <- basilisk::basiliskStart(env = zellkonverter::zellkonverterAnnDataEnv(), testload = 'anndata'); \
   basilisk::basiliskStop(proc); \
