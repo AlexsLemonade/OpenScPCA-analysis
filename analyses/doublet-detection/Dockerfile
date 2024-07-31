@@ -47,12 +47,6 @@ COPY conda-lock.yml conda-lock.yml
 RUN conda-lock install -n ${ENV_NAME} conda-lock.yml && \
   conda clean --all --yes
 
-# Complete installation of zellkonverter conda env
-ENV BASILISK_EXTERNAL_DIR /usr/local/renv/basilisk
-RUN Rscript -e "proc <- basilisk::basiliskStart(env = zellkonverter::zellkonverterAnnDataEnv(), testload = 'anndata'); \
-  basilisk::basiliskStop(proc); \
-  basilisk.utils::cleanConda()"
-
 # Copy the renv.lock file from the host environment to the image
 COPY renv.lock renv.lock
 
@@ -64,6 +58,12 @@ RUN Rscript -e 'renv::restore()' \
   && rm -rf ~/.cache/R/renv \
   && rm -rf /tmp/downloaded_packages \
   && rm -rf /tmp/Rtmp*
+
+  # Complete installation of zellkonverter conda env
+ENV BASILISK_EXTERNAL_DIR /usr/local/renv/basilisk
+RUN Rscript -e "proc <- basilisk::basiliskStart(env = zellkonverter::zellkonverterAnnDataEnv(), testload = 'anndata'); \
+  basilisk::basiliskStop(proc); \
+  basilisk.utils::cleanConda()"
 
 # Activate conda environment on bash launch
 RUN echo "conda activate ${ENV_NAME}" >> ~/.bashrc
