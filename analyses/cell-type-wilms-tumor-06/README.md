@@ -7,18 +7,29 @@ Wilms tumor (WT) is the most common pediatric kidney cancer characterized by an 
 Here, we first aim to annotate the Wilms Tumor snRNA-seq samples in the SCPCP000006 (n=40) dataset. To do so we will:
 
 • Provide annotations of normal cells composing the kidney, including normal kidney epithelium, endothelium, stroma and immune cells
+
 • Provide annotations of tumor cell populations that may be present in the WT samples, including blastemal, epithelial, and stromal populations of cancer cells
+
 Based on the provided annotation, we would like to additionally provide a reference of marker genes for the three cancer cell populations, which is so far lacking for the WT community.
 
 The analysis is/will be divided as the following:
 
 [x] Metadata file: compilation of a metadata file of marker genes for expected cell types that will be used for validation at a later step
+
 [x] Script: clustering of cells across a set of parameters for few samples
+
+[ ] Script: clustering of cells across a set of parameters for few samples
+
 [ ] Script: label transfer from the fetal kidney atlas reference using runAzimuth
+
 [ ] Script: run InferCNV
+
 [ ] Notebook: explore results from steps 2 to 4 for about 5 to 10 samples
+
 [ ] Script: compile scripts 2 to 4 in a RMardown file with required adjustements and render it across all samples
+
 [ ] Notebook: explore results from step 6, integrate all samples together and annotate the dataset using (i) metadatafile, (ii) CNV information, (iii) label transfer information
+
 
 ## Usage
 From Rstudio, run the Rmd reports or render the R scripts (see below R studio session set up). Please before running the script, make sure that the paths are correct. 
@@ -143,4 +154,3 @@ By default, username = rstudio, password = wordpass.
 
 ## Computational resources
 
-No need to run any analysis, just open the metadata table!
