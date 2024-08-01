@@ -15,13 +15,10 @@ ENV RETICULATE_MINICONDA_ENABLED=FALSE
 
 RUN R -e "devtools::install_github('enblacar/SCpubr')"
 RUN R --no-echo --no-restore --no-save -e "install.packages('remotes')"
-<<<<<<< HEAD
 RUN R -e "remotes::install_github('satijalab/seurat', 'seurat5', quiet = TRUE)"
 RUN R -e "remotes::install_github('satijalab/azimuth', quiet = TRUE)"
-=======
 RUN R -e "remotes::install_github('satijalab/seurat', 'seurat5', quiet = TRUE)"  # this also install patchwork (and others)
 RUN R -e "remotes::install_github('satijalab/azimuth', quiet = TRUE)"            # this also install SingleCellExperiment, DT (and others)
->>>>>>> c5f3d77ee36b7fc2afc4aaf6737e0d9d22d71bc0
 RUN R  -e "remotes::install_github('cancerbits/DElegate')"
 RUN R  -e "install.packages('viridis')"
 RUN R  -e "install.packages('ggplotify')"
