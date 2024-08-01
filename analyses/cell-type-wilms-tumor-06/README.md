@@ -149,10 +149,7 @@ This a template for an analysis notebook using R Markdown.
 In this notebook, we set up parameters in the Seurat workflow [normalization –> reduction –> clustering] for one Wilms tumor sample (SCPCS000169) of the Wilms Tumor dataset (SCPCP000006) and try to get a first feeling a cells composing the sample. 
 
 After discussing with the DataLab, this template will be adapted and rendered to the 40 Wilms tumor samples. 
-<<<<<<< HEAD
-=======
 
->>>>>>> c5f3d77ee36b7fc2afc4aaf6737e0d9d22d71bc0
 
 ## Software requirements
 
