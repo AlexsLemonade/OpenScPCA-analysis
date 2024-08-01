@@ -3,7 +3,6 @@ FROM bioconductor/tidyverse:3.19
 
 
 # Change the default CRAN mirror
-RUN echo "options(repos = c(CRAN = 'https://mran.microsoft.com/snapshot/2022-02-01'), download.file.method = 'libcurl')" >> ${R_HOME}/etc/Rprofile.site
 
 
 # Set global R options
