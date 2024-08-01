@@ -1,0 +1,626 @@
+---
+title: "Clustering SCPCL000822 and SCPCL000824"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    code_folding: "hide"
+---
+
+This notebook does some initial exploration of clustering in two libraries from `SCPCP000015`: `SCPCL000822` and `SCPCL000824`. 
+
+- Louvain clusters are calculated using a range of parameters specifying nearest neighbors (5, 10, 15, 20, 25, 30, 35, and 40). 
+- Metrics are then calculated to evaluate clustering results across all parameters: 
+  - Silhouette width 
+  - Cluster purity 
+  - Cluster stability 
+  
+  
+The clusters are then compared to the results from running `SingleR` in the `aucell-singler-annotation.sh` workflow.
+We then look at marker gene expression across the clusters and assign each cluster to a cell type. 
+
+## Setup
+
+```{r packages}
+suppressPackageStartupMessages({
+  # load required packages
+  library(SingleCellExperiment)
+  library(ggplot2)
+})
+
+# Set default ggplot theme
+theme_set(
+  theme_bw()
+)
+
+# set seed
+set.seed(2024)
+```
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The current data directory, found within the repository base directory
+data_dir <- file.path(repository_base, "data", "current", "SCPCP000015")
+
+# The path to this module
+module_base <- file.path(repository_base, "analyses", "cell-type-ewings")
+
+# path to marker genes file
+marker_genes_file <- file.path(module_base, "references", "visser-all-marker-genes.tsv")
+```
+
+```{r}
+# source in helper functions for make_jaccard_matrix() and jaccard()
+jaccard_functions <- file.path(module_base, "scripts", "utils", "jaccard-functions.R")
+source(jaccard_functions)
+
+# source in helper functions: plot_gene_heatmap() and plot_cnv_heatmap()
+# create_classification_df() and create_marker_gene_df()
+validation_functions <- file.path(module_base, "scripts", "utils", "tumor-validation-helpers.R")
+source(validation_functions)
+```
+
+## Define functions 
+
+```{r, assign_clusters_functions}
+# get clusters for a specified value of k
+get_clusters <- function(pcs, k) {
+  clusters <- bluster::clusterRows(
+    pcs,
+    bluster::NNGraphParam(
+      k = k,
+      type = "jaccard",
+      cluster.fun = "louvain"
+    )
+  )
+
+  return(clusters)
+}
+
+# define a function to perform clustersweep and get clusters across multiple values of k
+cluster_sweep <- function(sce) {
+  # first perform clustering across parameters
+  cluster_results <- bluster::clusterSweep(reducedDim(sce, "PCA"),
+    bluster::NNGraphParam(),
+    k = as.integer(seq(5, 40, 5)),
+    cluster.fun = "louvain",
+    type = "jaccard"
+  )
+
+  # turn results into a data frame
+  cluster_df <- cluster_results$clusters |>
+    as.data.frame() |>
+    # add barcode column
+    dplyr::mutate(barcodes = colnames(sce)) |>
+    # combine all cluster results into one column
+    tidyr::pivot_longer(
+      cols = ends_with("jaccard"),
+      names_to = "params",
+      values_to = "cluster"
+    ) |>
+    # separate out parameters, nn, function, and type into their own columns
+    dplyr::mutate(
+      nn_param = stringr::word(params, 1, sep = "_") |>
+        stringr::str_replace("k.", "k_"),
+      cluster_fun = stringr::word(params, 2, sep = "_") |>
+        stringr::str_remove("cluster.fun."),
+      cluster_type = stringr::word(params, -1, sep = "_") |>
+        stringr::str_remove("type.")
+    ) |>
+    # remove combined params column
+    dplyr::select(-params)
+
+  return(cluster_df)
+}
+```
+
+
+```{r, cluster_stats_functions}
+# cluster statistics functions
+# get silhouette width and cluster purity for each cluster
+# calculates values across all nn_param options used to determine clustering
+# all_cluster_results must have nn_param column
+get_cluster_stats <- function(sce,
+                              id,
+                              all_cluster_results) {
+  pcs <- reducedDim(sce, "PCA")
+
+  # split clustering results by library id and param used
+  split_clusters <- all_cluster_results |>
+    dplyr::filter(library_id == id) |>
+    split(all_cluster_results$nn_param)
+
+  # for each nn_param get cluster width and purity
+  all_stats_df <- split_clusters |>
+    purrr::map(\(df){
+      sil_df <- bluster::approxSilhouette(pcs, df$cluster) |>
+        as.data.frame() |>
+        tibble::rownames_to_column("barcodes")
+
+      purity_df <- bluster::neighborPurity(pcs, df$cluster) |>
+        as.data.frame() |>
+        tibble::rownames_to_column("barcodes")
+
+      # join into one data frame to return
+      stats_df <- sil_df |>
+        dplyr::left_join(purity_df, by = "barcodes")
+
+      return(stats_df)
+    }) |>
+    dplyr::bind_rows(.id = "nn_param")
+
+  return(all_stats_df)
+}
+
+# calculate cluster stability for a single set of clusters using ari
+# bootstrap and get ari for clusters compared to sampled clusters
+# re-clusters and gets ari across 20 iterations
+get_ari <- function(pcs,
+                    clusters,
+                    k) {
+  ari <- c()
+  for (iter in 1:20) {
+    # sample cells with replacement
+    sample_cells <- sample(nrow(pcs), nrow(pcs), replace = TRUE)
+    resampled_pca <- pcs[sample_cells, , drop = FALSE]
+
+    # perform clustering on sampled cells
+    resampled_clusters <- get_clusters(resampled_pca, k)
+
+    # calculate ARI between new clustering and original clustering
+    ari[iter] <- pdfCluster::adj.rand.index(resampled_clusters, clusters[sample_cells])
+  }
+
+  ari_df <- data.frame(
+    ari = ari,
+    k_value = k
+  )
+}
+
+# get cluster stability for each nn_param cluster results are available for
+# calculated the ari between original clusters and shuffled clusters 20 times
+get_cluster_stability <- function(sce,
+                                  id,
+                                  all_cluster_results) {
+  pcs <- reducedDim(sce, "PCA")
+
+  # split clustering results by library id and param used
+  cluster_df_list <- all_cluster_results |>
+    dplyr::filter(library_id == id) |>
+    split(all_cluster_results$nn_param)
+
+  # for each parameter, get ari values
+  cluster_stability_df <- cluster_df_list |>
+    purrr::imap(\(df, k_value){
+      # make sure k is numeric and remove extra k_
+      k <- stringr::str_remove(k_value, "k_") |>
+        as.numeric()
+
+      get_ari(pcs, df$cluster, k)
+    }) |>
+    dplyr::bind_rows()
+
+  return(cluster_stability_df)
+}
+```
+
+
+```{r, plotting_functions}
+# heatmap comparing cluster assignments to SingleR labels
+cluster_celltype_heatmap <- function(cluster_classification_df,
+                                     id) {
+  # get a jaccard mtx for each cluster param
+  jaccard_df_list <- cluster_classification_df |>
+    dplyr::filter(library_id == id) |>
+    split(cluster_classification_df$nn_param) |>
+    purrr::map(\(df) {
+      make_jaccard_matrix(
+        df,
+        "cluster",
+        "singler_lumped"
+      )
+    })
+
+  # turn into heatmap list
+  make_heatmap_list(jaccard_df_list, column_title = glue::glue("{id}-clusters"), legend_match = "k_5")
+}
+
+
+# Density plot looking at marker gene expression across all clusters
+# each panel is from a different marker gene list
+# each row shows marker gene expression for that cluster
+plot_marker_genes <- function(cluster_classification_df,
+                              k_value,
+                              id) {
+  # pick clustering to use and select those columns
+  final_clusters_df <- cluster_classification_df |>
+    dplyr::filter(nn_param == k_value) |>
+    dplyr::filter(library_id == id)
+
+  # grab columns that contain marker gene sums
+  marker_gene_columns <- colnames(final_clusters_df)[which(endsWith(colnames(final_clusters_df), "_sum"))]
+
+  # create individual density plots and combine into one
+  marker_gene_columns |>
+    purrr::map(\(column){
+      plot_density(
+        final_clusters_df,
+        column,
+        "cluster"
+      )
+    }) |>
+    patchwork::wrap_plots(ncol = 1) + patchwork::plot_annotation(glue::glue("{id}-{k_value}-clusters"))
+}
+```
+
+
+## Prepare data 
+
+```{r}
+# sample and library ids
+sample_ids <- c("SCPCS000490", "SCPCS000492")
+library_ids <- c("SCPCL000822", "SCPCL000824")
+
+# define input sce files
+sce_file_names <- glue::glue("{library_ids}_processed.rds")
+sce_files <- file.path(data_dir, sample_ids, sce_file_names) |>
+  purrr::set_names(library_ids)
+
+# define classification files
+singler_results_dir <- file.path(module_base, "results", "aucell_singler_annotation")
+classification_file_names <- glue::glue("{library_ids}_singler-classifications.tsv")
+classification_files <- file.path(singler_results_dir, sample_ids, classification_file_names) |>
+  purrr::set_names(library_ids)
+
+# define output files
+cluster_results_dir <- file.path(module_base, "results", "clustering", sample_ids)
+cluster_results_dir |>
+  purrr::map(fs::dir_create)
+
+cluster_file_names <- glue::glue("{library_ids}_cluster-results.tsv")
+cluster_output_files <- file.path(cluster_results_dir, cluster_file_names) |>
+  purrr::set_names(library_ids)
+```
+
+```{r}
+# read in both SCEs
+sce_list <- sce_files |>
+  purrr::map(readr::read_rds)
+
+# read in classification data frame with SingleR results and combine into one
+classification_df <- classification_files |>
+  purrr::map(readr::read_tsv) |>
+  dplyr::bind_rows(.id = "library_id")
+```
+
+```{r}
+# read in marker genes table
+marker_genes_df <- readr::read_tsv(marker_genes_file, show_col_types = FALSE) |>
+  # account for genes being from multiple sources
+  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |>
+  dplyr::distinct()
+
+# get list of all cell types found
+cell_types <- unique(marker_genes_df$cell_type)
+
+# get the sum of expression of all genes for each cell type
+gene_exp_df <- sce_list |>
+  purrr::map(\(sce) {
+    cell_types |>
+      purrr::map(\(type){
+        calculate_sum_markers(marker_genes_df, sce, type)
+      }) |>
+      purrr::reduce(dplyr::inner_join, by = "barcodes")
+  }) |>
+  dplyr::bind_rows(.id = "library_id")
+
+# join sum expression columns with classification df
+classification_df <- classification_df |>
+  dplyr::left_join(gene_exp_df, by = c("barcodes", "library_id"))
+```
+
+
+## Clustering
+
+Below we perform Louvain, Jaccard clustering, varying `k`. 
+The minimum `k` is 5 and the maximum `k` is 40 with a step size of 5. 
+
+```{r}
+# perform clustering across k = 5-40 with increments of 5
+all_cluster_results <- sce_list |>
+  purrr::map(get_clusters) |>
+  dplyr::bind_rows(.id = "library_id")
+```
+
+```{r}
+# get umap embeddings and combine into a data frame with cluster assignments
+umap_df <- sce_list |>
+  purrr::map(\(sce){
+    df <- sce |>
+      scuttle::makePerCellDF(use.dimred = "UMAP") |>
+      # replace UMAP.1 with UMAP1 and get rid of excess columns
+      dplyr::select(barcodes, UMAP1 = UMAP.1, UMAP2 = UMAP.2)
+  }) |>
+  dplyr::bind_rows(.id = "library_id") |>
+  dplyr::left_join(all_cluster_results, by = c("library_id", "barcodes"))
+```
+
+Below we visualize the cluster assignments using each parameter on a UMAP. 
+This isn't particularly useful because of clusters, but it can be helpful to see any values of K that may have obvious over or under clustering. 
+
+```{r, fig.height=15, fig.width=10}
+# look at clustering results across all params
+ggplot(umap_df, aes(x = UMAP1, y = UMAP2, color = cluster)) +
+  geom_point(alpha = 0.5, size = 0.1) +
+  facet_grid(
+    cols = vars(library_id),
+    rows = vars(nn_param)
+  ) +
+  theme(aspect.ratio = 1)
+```
+
+### Clustering statistics 
+
+Below we calculate a series of statistics: 
+
+- Average silhouette width: This metric evaluates cluster separation. 
+Cells with large positive silhouette widths are closer to other cells in the same cluster than to cells in different clusters. 
+- Average cluster purity: This metric also evaluates cluster separation and tells us the proportion of neighboring cells that are assigned to the same cluster. 
+Higher purity values indicate that clusters are well separated. 
+- Cluster stability: This evaluates how stable the clustering is to input data. 
+Higher values of cluster stability indicate more reproducible clusters. 
+
+```{r, warning=FALSE}
+# get a combined stats dataframe with purity and width for all clusters
+all_stats_df <- sce_list |>
+  purrr::imap(\(sce, library_id){
+    get_cluster_stats(sce, library_id, all_cluster_results)
+  }) |>
+  dplyr::bind_rows(.id = "library_id")
+```
+
+```{r}
+# summarize the silhouette width and purity for each nn_param used
+summary_stats_df <- all_stats_df |>
+  dplyr::group_by(library_id, nn_param) |>
+  dplyr::summarise(
+    mean_width = mean(width),
+    mean_purity = mean(purity)
+  ) |>
+  dplyr::mutate(
+    # make sure the order is correct
+    nn_param = forcats::fct_relevel(nn_param, "k_5", after = 0)
+  )
+```
+
+
+```{r}
+# silhouette width for different params
+ggplot(summary_stats_df, aes(x = nn_param, y = mean_width)) +
+  geom_point() +
+  facet_wrap(vars(library_id),
+    scales = "free_y"
+  ) +
+  labs(y = "Average silhouette width")
+```
+
+```{r}
+# cluster purity for different params
+ggplot(summary_stats_df, aes(x = nn_param, y = mean_purity)) +
+  geom_point() +
+  facet_wrap(vars(library_id),
+    scales = "free_y"
+  ) +
+  labs(y = "Average cluster purity")
+```
+
+Here we see that both silhouette width and cluster purity peak around k=20 or k=25. 
+For `SCPCL000822`, increasing k after 25 does not change the width or purity, 
+For `SCPCL000824`, increasing k after 20-25 decreases the width and keeps purity around the same. 
+
+```{r, warning=FALSE, message=FALSE}
+# calculate cluster stability
+stability_df <- sce_list |>
+  purrr::imap(\(sce, id){
+    get_cluster_stability(sce, id, all_cluster_results)
+  }) |>
+  dplyr::bind_rows(.id = "library_id") |>
+  dplyr::mutate(
+    k_value = as.factor(k_value),
+    # make sure that k = 5 comes first
+    k_value = forcats::fct_relevel(k_value, "5", after = 0)
+  )
+
+# plot stability across all values of k
+ggplot(stability_df, aes(x = k_value, y = ari)) +
+  geom_point() +
+  facet_grid(rows = vars(library_id)) +
+  title("Cluster stability")
+```
+
+Here we see that cluster stability increases as k increases for both libraries. 
+We see a plateau start to appear around k = 20 and k = 25. 
+
+## Compare clusters to cell types from `SingleR`
+
+Now we will compare the clustering results to the cell type assignments obtained from `SingleR` in the `aucell-singler-annotation.sh` workflow. 
+To compare results we will calculate the Jaccard similarity index between clusters and cell types. 
+We expect that good clustering will line up with the cell type assignments so that there is ~ 1 cell type per cluster. 
+
+For the plots, we will only display the top 7 cell types and all other cells will be lumped together into `All remaining cell types`. 
+
+```{r}
+cluster_classification_df <- all_cluster_results |>
+  # add in classifications from singler
+  dplyr::left_join(classification_df, by = c("library_id", "barcodes")) |>
+  dplyr::mutate(
+    # first grab anything that is tumor and label it tumor
+    # NA should be unknown
+    singler_annotation = dplyr::case_when(
+      stringr::str_detect(singler_annotation, "tumor") ~ "tumor",
+      is.na(singler_annotation) ~ "unknown", # make sure to separate out unknown labels
+      .default = singler_annotation
+    ) |>
+      forcats::fct_relevel("tumor", after = 0),
+    # get the top cell types for plotting later
+    singler_lumped = singler_annotation |>
+      forcats::fct_lump_n(7, other_level = "All remaining cell types", ties.method = "first") |>
+      forcats::fct_infreq() |>
+      forcats::fct_relevel("All remaining cell types", after = Inf)
+  )
+```
+
+
+```{r, fig.height=10, fig.width=7}
+# get heatmap for each library showing cluster assignments vs. singler assignments
+names(sce_list) |>
+  purrr::map(\(id){
+    cluster_celltype_heatmap(
+      cluster_classification_df,
+      id
+    )
+  })
+```
+
+From these plots, it's obvious that K = 5 is over clustering and cell types are spread across a lot of clusters. 
+However, for the other values of K, there doesn't seem to be any striking difference that are obvious by eye.  
+
+## Marker gene expression across clusters 
+
+We will also look at the expression of marker genes across each cluster. 
+In these plots, each row shows the distribution of the specified marker genes in that cluster. 
+Each panel is labeled with the marker gene expression being plotted. 
+
+Based on the above results, we will only show these plots for a value of K = 25. 
+
+```{r, fig.height=10, fig.width=5}
+# plot to look at marker gene expression for all cell types across all clusters
+# choose k=25 based on previous stats
+names(sce_list) |>
+  purrr::map(\(id) {
+    plot_marker_genes(cluster_classification_df,
+      k_value = "k_25",
+      id
+    )
+  })
+```
+
+For both samples we see very clear separation between clusters that express tumor marker genes and each of the normal cell marker genes. 
+
+## Assign cell types to clusters 
+
+Finally, we will assign cell types to all cells in a cluster based on a cluster having high expression of a set of marker genes. 
+
+- Any clusters with high tumor marker gene expression will be labeled "tumor". 
+- Any clusters with high immune marker gene expression also correspond to clusters that are predominantly "macrophage" in the heatmaps, so they will be labeled as "macrophage". 
+- Any clusters with high endothelial marker gene expression also correspond to clusters that are predominantly "endothelial cell" in the heatmaps, so they will be labeled as "macrophage". 
+- There is one cluster in `SCPCL000822` that has high mesenchymal gene expression and is predominantly chondrocytes so we will label this cell as "chondrocytes". 
+- All other clusters with high mesenchymal gene expression appear to have a mix of chondrocytes, fibroblasts, and smooth muscle cells so we will just label these as "mesenchymal-like cells". 
+
+```{r}
+# get umap embeddings for plotting later
+umap_df <- umap_df |>
+  dplyr::select(library_id, barcodes, UMAP1, UMAP2) |>
+  dplyr::distinct()
+
+# assign clusters based on marker gene expression and cell types that are prominent in that cluster
+# use the jaccard matrices to help guide assignments
+cluster_umap_df <- cluster_classification_df |>
+  dplyr::left_join(umap_df, by = c("library_id", "barcodes")) |>
+  dplyr::filter(nn_param == "k_25") |>
+  dplyr::mutate(
+    cluster_celltype = dplyr::case_when(
+      library_id == "SCPCL000822" & cluster %in% c(1, 2, 4, 5, 9) ~ "tumor",
+      library_id == "SCPCL000822" & cluster == 7 ~ "endothelial cell",
+      # cluster 3 has predominantly chondrocytes and has MSC marker gene expression
+      library_id == "SCPCL000822" & cluster == 3 ~ "chondrocyte",
+      # clusters with high "immune" marker gene expression are macrophage
+      library_id == "SCPCL000822" & cluster == 6 ~ "macrophage",
+      # cluster 8 has high MSC marker gene expression and a mix of MSC like cell types
+      library_id == "SCPCL000822" & cluster == 8 ~ "mesenchymal-like cell",
+      library_id == "SCPCL000824" & cluster %in% c(1, 2, 3, 4, 5, 6, 11) ~ "tumor",
+      library_id == "SCPCL000824" & cluster == 8 ~ "endothelial cell",
+      # cluster 10 has high immune markers and is mostly macrohpages
+      library_id == "SCPCL000824" & cluster == 10 ~ "macrophage",
+      # cluster 7 has high MSC marker gene expression and a mix of MSC like cell types
+      library_id == "SCPCL000824" & cluster == 7 ~ "mesenchymal-like cell",
+      # if they didn't have high expression of any markers, we label them as unknown
+      .default = "unknown"
+    ),
+    # make tumor first
+    cluster_celltype = forcats::fct_relevel(cluster_celltype, "tumor", after = 0)
+  )
+```
+
+```{r}
+# look at cell type assignments on the UMAP
+ggplot(cluster_umap_df, aes(x = UMAP1, y = UMAP2, color = cluster_celltype)) +
+  geom_point(alpha = 0.5, size = 0.5) +
+  facet_grid(cols = vars(library_id)) +
+  theme(aspect.ratio = 1) +
+  guides(color = guide_legend(override.aes = list(alpha = 1, size = 1.5))) +
+  scale_color_brewer(palette = "Dark2")
+```
+
+We can also validate that these cells do in fact have higher expression of the marker genes as compared to other cells by plotting the marker gene expression on UMAPs. 
+
+```{r}
+# grab columns that contain marker gene sums
+marker_gene_columns <- colnames(cluster_umap_df)[which(endsWith(colnames(cluster_umap_df), "_sum"))]
+
+# create individual density plots and combine into one
+marker_gene_columns |>
+  purrr::map(\(column){
+    genelist_name <- stringr::str_remove(column, "_sum")
+
+    ggplot(cluster_umap_df, aes(x = UMAP1, y = UMAP2, color = !!sym(column))) +
+      geom_point(alpha = 0.5, size = 0.5) +
+      facet_grid(cols = vars(library_id)) +
+      theme(aspect.ratio = 1) +
+      scale_color_viridis_c() +
+      labs(
+        title = genelist_name
+      )
+  })
+```
+
+
+## Save clustering and annotations 
+
+Here we will save the assigned clusters and cell type annotations for each library. 
+Each file will have the following columns: 
+
+- `barcodes`: Unique cell barcode
+- `cluster`: Assigned cluster
+- `cluster_celltype`: Cell type assigned based on clustering and marker gene expression 
+- `nn_param`: Number of nearest neighbors used as a parameter for clustering
+- `singler_ontology`: Cell ontology identifier for assigned cell type by `SingleR`
+- `singler_annotation`: Cell type assigned by `SingleR`
+- `consensus_celltype`: Consensus between cluster assignments and `SingleR` assignments for tumor cells. 
+Here any cell in a cluster with tumor cells will be labeled with `tumor` and all other cells will be labeled with the `SingleR` annotation. 
+
+```{r}
+cluster_output_files |>
+  purrr::iwalk(\(file, id){
+    cluster_umap_df |>
+      dplyr::filter(library_id == id) |>
+      dplyr::select(barcodes, cluster, cluster_celltype, nn_param, singler_ontology, singler_annotation) |>
+      dplyr::mutate(consensus_celltype = dplyr::if_else(cluster_celltype == "tumor", "tumor", singler_annotation)) |>
+      readr::write_tsv(file)
+  })
+```
+
+## Session info 
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
+
+
+
