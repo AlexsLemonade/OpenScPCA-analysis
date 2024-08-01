@@ -15,13 +15,13 @@ Based on the provided annotation, we would like to additionally provide a refere
 
 The analysis is/will be divided as the following:
 
-[x] Metadata file: compilation of a metadata file of marker genes for expected cell types that will be used for validation at a later step
-[ ] Script: clustering of cells across a set of parameters for few samples
-[ ] Script: label transfer from the fetal kidney atlas reference using runAzimuth
-[ ] Script: run InferCNV
-[ ] Notebook: explore results from steps 2 to 4 for about 5 to 10 samples
-[ ] Script: compile scripts 2 to 4 in a RMardown file with required adjustements and render it across all samples
-[ ] Notebook: explore results from step 6, integrate all samples together and annotate the dataset using (i) metadatafile, (ii) CNV information, (iii) label transfer information
+- [x] Metadata file: compilation of a metadata file of marker genes for expected cell types that will be used for validation at a later step
+- [ ] Script: clustering of cells across a set of parameters for few samples
+- [ ] Script: label transfer from the fetal kidney atlas reference using runAzimuth
+- [ ] Script: run InferCNV
+- [ ] Notebook: explore results from steps 2 to 4 for about 5 to 10 samples
+- [ ] Script: compile scripts 2 to 4 in a RMardown file with required adjustements and render it across all samples
+- [ ] Notebook: explore results from step 6, integrate all samples together and annotate the dataset using (i) metadatafile, (ii) CNV information, (iii) label transfer information
 
 ## Usage
 From Rstudio, run the Rmd reports or render the R scripts (see below R studio session set up). 
