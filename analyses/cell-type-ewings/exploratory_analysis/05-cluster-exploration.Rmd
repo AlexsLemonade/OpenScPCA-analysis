@@ -280,7 +280,7 @@ classification_files <- file.path(singler_results_dir, sample_ids, classificatio
 # define output files
 cluster_results_dir <- file.path(module_base, "results", "clustering", sample_ids)
 cluster_results_dir |>
-  purrr::map(fs::dir_create)
+  purrr::walk(fs::dir_create)
 
 cluster_file_names <- glue::glue("{library_ids}_cluster-results.tsv")
 cluster_output_files <- file.path(cluster_results_dir, cluster_file_names) |>
@@ -333,7 +333,7 @@ The minimum `k` is 5 and the maximum `k` is 40 with a step size of 5.
 ```{r}
 # perform clustering across k = 5-40 with increments of 5
 all_cluster_results <- sce_list |>
-  purrr::map(get_clusters) |>
+  purrr::map(cluster_sweep) |>
   dplyr::bind_rows(.id = "library_id")
 ```
 
@@ -440,7 +440,7 @@ stability_df <- sce_list |>
 ggplot(stability_df, aes(x = k_value, y = ari)) +
   geom_point() +
   facet_grid(rows = vars(library_id)) +
-  title("Cluster stability")
+  labs(title = "Cluster stability")
 ```
 
 Here we see that cluster stability increases as k increases for both libraries. 
