@@ -45,6 +45,24 @@ Data have been downloaded locally and are found in mnt_data. the mnt_data folder
 ```{r paths}
 path_to_data <- "~/mnt_data/Wilms ALSF/SCPCP000006_2024-06-25"
 ```
+We choosed to re-build a Seurat object from the counts data and to follow the Seurat workflow [normalization –> reduction –> clustering] 
+
+We transferred meta.data from the _processed.rds object to keep:
+
+- QC data computed by the DataLab
+
+- annotation data computed by the DataLab
+
+- raw annotation and gene_symbol conversion
+ 
+### metadata 
+
+The SCPCP000006_metadata.tsv file in cell-type-wilms-tumor-06 contains clinical information related to the samples in the dataset. Some information can be helpful for annotation and validation:
+
+- treatment: Some of the samples have been pre-treated with chemotherapy and some are upfront resection. We expect few changes between the 2 conditions, including a higher immune infiltration and more DNA damages pathways in treated samples.
+
+- histology: the COG classifies Wilms tumor as either (i) Favorable or (ii) Anaplastic. Some differenices are expected, some marker genes or pathways are associated with anaplasia (see sets of marker gene). 
+
 
 We choosed to re-build a Seurat object from the counts data and to follow the Seurat workflow [normalization –> reduction –> clustering] 
 
@@ -131,6 +149,10 @@ This a template for an analysis notebook using R Markdown.
 In this notebook, we set up parameters in the Seurat workflow [normalization –> reduction –> clustering] for one Wilms tumor sample (SCPCS000169) of the Wilms Tumor dataset (SCPCP000006) and try to get a first feeling a cells composing the sample. 
 
 After discussing with the DataLab, this template will be adapted and rendered to the 40 Wilms tumor samples. 
+<<<<<<< HEAD
+=======
+
+>>>>>>> c5f3d77ee36b7fc2afc4aaf6737e0d9d22d71bc0
 
 ## Software requirements
 
