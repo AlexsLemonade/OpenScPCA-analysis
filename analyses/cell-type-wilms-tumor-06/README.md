@@ -16,6 +16,8 @@ The analysis is/will be divided as the following:
 
 [x] Metadata file: compilation of a metadata file of marker genes for expected cell types that will be used for validation at a later step
 
+[x] Script: clustering of cells across a set of parameters for few samples
+
 [ ] Script: clustering of cells across a set of parameters for few samples
 
 [ ] Script: label transfer from the fetal kidney atlas reference using runAzimuth
@@ -52,6 +54,26 @@ We transferred meta.data from the _processed.rds object to keep:
 - annotation data computed by the DataLab
 
 - raw annotation and gene_symbol conversion
+ 
+### metadata 
+
+The SCPCP000006_metadata.tsv file in cell-type-wilms-tumor-06 contains clinical information related to the samples in the dataset. Some information can be helpful for annotation and validation:
+
+- treatment: Some of the samples have been pre-treated with chemotherapy and some are upfront resection. We expect few changes between the 2 conditions, including a higher immune infiltration and more DNA damages pathways in treated samples.
+
+- histology: the COG classifies Wilms tumor as either (i) Favorable or (ii) Anaplastic. Some differenices are expected, some marker genes or pathways are associated with anaplasia (see sets of marker gene). 
+
+
+We choosed to re-build a Seurat object from the counts data and to follow the Seurat workflow [normalization –> reduction –> clustering] 
+
+We transferred meta.data from the _processed.rds object to keep:
+
+- QC data computed by the DataLab
+
+- annotation data computed by the DataLab
+
+- raw annotation and gene_symbol conversion
+
 
 ### metadata 
 
@@ -60,6 +82,7 @@ The SCPCP000006_metadata.tsv file in cell-type-wilms-tumor-06 contains clinical 
 - treatment: Some of the samples have been pre-treated with chemotherapy and some are upfront resection. We expect few changes between the 2 conditions, including a higher immune infiltration and more DNA damages pathways in treated samples.
 
 - histology: the COG classifies Wilms tumor as either (i) Favorable or (ii) Anaplastic. Some differenices are expected, some marker genes or pathways are associated with anaplasia (see sets of marker gene). 
+
 
 
 ## Output files
@@ -118,6 +141,7 @@ This folder is a resource for later validation of the annotated cell types.
 |1p|loss|malignant|NA|NA|8162576|Associated_with_relapse|
 |1q|gain|malignant|NA|10.1016/S0002-9440(10)63982-X|NA|Associated_with_relapse|
 
+
 ### 01-clusering
 
 We uploaded a notebook 01-clustering_SCPCS000169.Rmd and html report in the notebook folder. 
@@ -125,6 +149,7 @@ This a template for an analysis notebook using R Markdown.
 In this notebook, we set up parameters in the Seurat workflow [normalization –> reduction –> clustering] for one Wilms tumor sample (SCPCS000169) of the Wilms Tumor dataset (SCPCP000006) and try to get a first feeling a cells composing the sample. 
 
 After discussing with the DataLab, this template will be adapted and rendered to the 40 Wilms tumor samples. 
+
 
 ## Software requirements
 
@@ -142,6 +167,9 @@ For complete reproducibility of the results, you can build and run the docker im
 In the config.yaml file, define your system specific parameter and paths (e.g. to the data).
 Execute the run.sh file and open RStudio in your browser (http://localhost:8080/). 
 By default, username = rstudio, password = wordpass.
+
+
+
 
 ## Computational resources
 
