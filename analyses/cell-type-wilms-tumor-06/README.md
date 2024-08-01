@@ -16,7 +16,7 @@ The analysis is/will be divided as the following:
 
 [x] Metadata file: compilation of a metadata file of marker genes for expected cell types that will be used for validation at a later step
 
-[ ] Script: clustering of cells across a set of parameters for few samples
+[x] Script: clustering of cells across a set of parameters for few samples
 
 [ ] Script: label transfer from the fetal kidney atlas reference using runAzimuth
 
