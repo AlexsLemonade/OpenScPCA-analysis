@@ -29,7 +29,7 @@ You can also simply have a look at the html reports in the notebook folder. Here
 
 ## Input files
 
-In this module, we start with the processed `SingleCellExperiment` objects from the ScPCA Portal.
+In this module, we start with the processed `SingleCellExperiment` objects from the ScPCA Portal for `SCPCP000006`.
 Data have been downloaded locally and are found in mnt_data. the mnt_data folder has to be define in the config.yaml file or changed in the notebook accordingly. 
 
 ```{r paths}
