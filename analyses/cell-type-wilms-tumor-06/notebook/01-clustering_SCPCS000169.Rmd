@@ -73,54 +73,46 @@ cfg$rate1_threshold = 0.5
 
 #### Base directories
 
-In the chunk below, we include some common directories that you might need, finding their locations using the very useful [`rprojroot` package](https://rprojroot.r-lib.org/).
-
-Note for the DataLab, not sure what to do with this, I decided to use paths below. 
-
-```{r base paths, eval=FALSE, include=FALSE}
+```{r base paths, eval=TRUE, include=TRUE}
 # The base path for the OpenScPCA repository, found by its (hidden) .git directory
 repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 
 # The current data directory, found within the repository base directory
-data_dir <- file.path(repository_base, "data", "current")
+data_dir <- file.path(repository_base, "data", "2024-07-08", "SCPCP000006")
 
 # The path to this module
-module_base <- file.path(repository_base, "analyses", "{{openscpca_module}}")
+module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06")
 ```
 
 
 #### Input and output files
 
-In our case, the SCPCP000006 dataset downloaded the 25-06-2024 is locally saved in /mnt_data/Wilms ALSF/SCPCP000006_2024-06-25.
-Please mount your local folder of data accordingly or change the path below. Ideally, the mnt_data is set up in the config.yaml file
-
 ```{r paths}
 # input
-# please mount your local folder of data accordingly or change the path below. ideally, the mnt_data is set up in the config.yaml file
-path_to_data <- "~/mnt_data/Wilms ALSF/SCPCP000006_2024-06-25"
+# use download-data.py to download the data
 
 # get all files in the data directory
-filelist <- list.files(path_to_data, full.names = TRUE)
+filelist <- list.files(data_dir, full.names = TRUE)
 
 # select the 40 Wilms tumor single nucleus folders only
-filelist <- filelist[grepl("/mnt_data/Wilms ALSF/SCPCP000006_2024-06-25/SCPC", filelist)]
+filelist <- filelist[! grepl(".tsv", filelist)]
 
 # output
 ## html report for each of the Wilms tumor sample will be saved in 
-path_to_report <- "~/notebook/01-clustering"
+path_to_report <- file.path(module_base, "01-clustering")
 ## some plots from the report will be saved in 
-path_to_plot <- "~/plots"
+path_to_plot <- file.path(module_base, "/plots")
 ## after final decision on the clustering strategy, processed RDS files will be saved in 
-path_to_result <- "~/results"
+path_to_result <- file.path(module_base, "/results")
 ```
 
 ```{r paths2}
 ## to be modified when rendered
 i = 2
 filedir <- filelist[i] 
-sample <- gsub("/home/rstudio/mnt_data/Wilms ALSF/SCPCP000006_2024-06-25/", "", filedir)
+sample <- gsub(paste0(data_dir, "/"), "", filedir)
 
-metadata <- read.table("SCPCP000006_metadata.tsv", sep = "\t", header=TRUE)
+metadata <- read.table(file.path(data_dir, "/single_cell_metadata.tsv"), sep = "\t", header=TRUE)
 
 metadata[metadata$scpca_sample_id == sample,]
 ```
