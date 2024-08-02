@@ -32,8 +32,20 @@ Here, no need to run anything, we try to guide you through the analysis. Have a 
 ## Input files
 
 We work with the _processed.rds SingleCellExperiment objects.
-From the module directory, use download-data.py to download the data as the following:
+From the module directory, make sure that the conda environment is set-up:
 
+```shell
+conda activate openscpca
+```
+
+log into AWS CLI:
+```shell
+# replace `openscpca` with your AWS CLI profile name if it differs
+export AWS_PROFILE=openscpca
+aws sso login
+```
+
+use download-data.py to download the data as the following:
 ```shell
 ../../download-data.py --projects SCPCP000006
 ```
