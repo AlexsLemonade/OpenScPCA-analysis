@@ -26,7 +26,9 @@ knitr::opts_chunk$set(echo = TRUE,
 
 This a template for an analysis notebook using RMarkdown.
 
-In this notebook, we will set up parameters in the seurat workflow [normalization --> reduction --> clustering] for one Wilms tumor sample (SCPCS000169) of the Wilms Tumor dataset (SCPCP000006). 
+In this notebook, we will set up parameters in the seurat workflow 
+[normalization --> reduction --> clustering] 
+for one Wilms tumor sample (SCPCS000169) of the Wilms Tumor dataset (SCPCP000006). 
 
 This correspond to the step 2 of the proposed analysis: clustering of cells across a set of parameters for few samples
 
@@ -124,15 +126,19 @@ We perform the following analysis to assess for the quality of clustering:
 
 [1] We perform some quality check to assess any QC-induced clustering (nFeature, nCount, percent.mito). 
 
-[2] We add cell cycle information, as we know that in a specific cell cycle state, the transcriptional program is mostly/exclusively related to cell cycle genes and the identity of cells is difficult to determine. We expect these cells to cluster together in a cluster of proliferating cells. 
+[2] We add cell cycle information, as we know that in a specific cell cycle state, the transcriptional program is mostly/exclusively related to cell cycle genes and the identity of cells is difficult to determine. 
+We expect these cells to cluster together in a cluster of proliferating cells. 
 
-[3] We run DElegate::FindAllMarkers2 to find markers of the different clusters and manually check if they do make sense. DElegate::FindAllMarkers2 is an improved version of Seurat::FindAllMarkers based on pseudobulk differential expression method. 
+[3] We run DElegate::FindAllMarkers2 to find markers of the different clusters and manually check if they do make sense. 
+DElegate::FindAllMarkers2 is an improved version of Seurat::FindAllMarkers based on pseudobulk differential expression method. 
 
 [4] We look at specific marker genes that we reported in the table marker.sets/CellType_metadata.csv to check the relevance of the clustering.
 
-[5] We plot pca/umap reduction grouping with available annotations (singler_, cellassign_). We expect at least immune cells to be correctly label and fall into a few set of clusters.
+[5] We plot pca/umap reduction grouping with available annotations (singler_, cellassign_). 
+We expect at least immune cells to be correctly label and fall into a few set of clusters.
 
-[6] We run label transfer (Azimuth) to transfer annotation from the fetal kidney atlas human reference. We plot pca/umap reduction grouping with latest labels. We expect it to be the most representative of the cell types in the sample. 
+[6] We run label transfer (Azimuth) to transfer annotation from the fetal kidney atlas human reference. 
+We plot pca/umap reduction grouping with latest labels. We expect it to be the most representative of the cell types in the sample. 
 
 
 ### Selected parameters
@@ -156,7 +162,8 @@ These other parameters have been tested but not selected:
 ## Input and output files
 
 For this analysis, we worked with the _processed.rds data. 
-We builded a Seurat object based on the counts data and re-perform the analysis [normalization --> reduction --> clustering] following the Seurat workflow.
+We builded a Seurat object based on the counts data and re-perform the analysis 
+[normalization --> reduction --> clustering] following the Seurat workflow.
 
 We transferred meta.data to keep:
 
@@ -337,7 +344,8 @@ C13 is VWF+ (ENSG00000110799) and must be a cluster of endothelial cells.
 ### Find marker genes for each of the seurat clusters
 
 In addition to the list of known marker genes, we used an unbiased approach to find transcripts that characterized the different clusters.
-We run DElegate::FindAllMarkers2 to find markers of the different clusters and manually check if they do make sense. DElegate::FindAllMarkers2 is an improved version of Seurat::FindAllMarkers based on pseudobulk differential expression method. 
+We run DElegate::FindAllMarkers2 to find markers of the different clusters and manually check if they do make sense. 
+DElegate::FindAllMarkers2 is an improved version of Seurat::FindAllMarkers based on pseudobulk differential expression method. 
 Please check the preprint from Chistoph Hafemeister: https://www.biorxiv.org/content/10.1101/2023.03.28.534443v1
 and tool described here: https://github.com/cancerbits/DElegate 
 
@@ -387,9 +395,11 @@ DT::datatable(top5[,c(1,9,11,12)], caption = ("top 5 marker genes"),
 
 ```
 
-The cluster that we found seems to make sense as they can be defined by a few number of specific genes each. I don't know most of the marker genes found, but few point below that could support the analysis and annotation.
+The cluster that we found seems to make sense as they can be defined by a few number of specific genes each. 
+I don't know most of the marker genes found, but few point below that could support the analysis and annotation.
 
-UNC5D (C1, dependency receptor), has been described in cancer and shown to regulate p53-dependent apoptosis (https://pubmed.ncbi.nlm.nih.gov/24691657/). We know that especially in blastema cell, p53 signaling play an important role.
+UNC5D (C1, dependency receptor), has been described in cancer and shown to regulate p53-dependent apoptosis (https://pubmed.ncbi.nlm.nih.gov/24691657/). 
+We know that especially in blastema cell, p53 signaling play an important role.
 
 PDCH7 (C7, protocadherin 7) is expressed in human kidney renal tubule (normal kidney epithelium, see https://www.proteinatlas.org/ENSG00000169851-PCDH7/tissue/kidney) and has been associated with oncogenic function in lung cancer (https://pubmed.ncbi.nlm.nih.gov/30409919/, https://www.frontiersin.org/journals/pharmacology/articles/10.3389/fphar.2023.1217213/full).
 
@@ -404,7 +414,10 @@ FLT1 (C13, vascular endothelial growth factor receptor 1), PCAM and ELMO1 in the
 
 ### Annotation from SingleR (no cancer or kidney specific dataset)
 
-Here, we quickly checked annotations that are present in the _processed rds object. However, the automated annotation have not been performed using a cancer specific reference or a kidney reference. We do not expect a nice labelling of the cells as the overlap of cell types between the reference and the query dataset is poor. This support the need to do a proper label transfer from the fetal kidney atlas, which is imho the best reference that can be applied to a Wilms tumor query. 
+Here, we quickly checked annotations that are present in the _processed rds object. 
+However, the automated annotation have not been performed using a cancer specific reference or a kidney reference.
+We do not expect a nice labelling of the cells as the overlap of cell types between the reference and the query dataset is poor. 
+This support the need to do a proper label transfer from the fetal kidney atlas, which is imho the best reference that can be applied to a Wilms tumor query. 
 
 ```{r fig.width=15, fig.height=10, out.width='100%'}
 
@@ -463,9 +476,11 @@ Even if the result of SingleR and CellAssign are not specific to a Wilms tumor d
 
 ### Azimuth annotation from fetal kidney
 
-Note to the DataLab : where should I save the fetal kidney reference? In S3 like results as it is a quite big object or in the folder marker-sets?
-
+Note to the DataLab : where should I save the fetal kidney reference? 
+In S3 like results as it is a quite big object or in the folder marker-sets?
+The reference in now in the module folder, marker-sets
 For more information related to the reference, please go to https://www.kidneycellatlas.org/
+
 You will find:
 
 - interactive viewer
@@ -479,7 +494,7 @@ Also check : https://www.science.org/doi/10.1126/science.aat5031
 
 # access to the azimuth kidney reference 
 ##### to be updated depending on the location of the reference file 
-ref_dir = "~/mnt_resources/datasets/Kidney_cell_atlas/fetal_full/Azimuth_Compatible_Fetal_full"
+ref_dir = file.path(module_base, "marker-sets/Azimuth_Compatible_Fetal_full/")
 
 reference <- LoadReference(ref_dir)
 # Load the query object for mapping
@@ -558,7 +573,8 @@ Taking together, we can conclude:
 - C[0-1-3-4-6-10-12-14] that form a unit in the umap reduction, are label as cap mesenchyme (<=> stem) and NCAM+ must be blastema cancer cells.
 - C[5-7-9] that form a unit in the umap reduction, are label as epithelial cells (SingleR) and differentiated kidney epithelium subunit (Fetal kidney atlas) must be epithelial (cancer or normal)
 
-The primary aim of this script was to assess the quality of clustering and play with clustering parameters. On this sample, we are happy with the clustering, as we could identify:
+The primary aim of this script was to assess the quality of clustering and play with clustering parameters. 
+On this sample, we are happy with the clustering, as we could identify:
 - one cluster of immune cells (cell marker PTPRC, SingleR, Azimuth label transfer fro the fetal kidney) 
 - one cluster of endothelial cells (cell marker VWF, SingleR, Azimuth label transfer fro the fetal kidney)
 - one set of clusters of stromal cells
