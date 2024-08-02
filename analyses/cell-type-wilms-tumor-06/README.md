@@ -31,6 +31,8 @@ Here, no need to run anything, we try to guide you through the analysis. Have a 
 
 ## Input files
 
+### single nuclei data
+
 We work with the _processed.rds SingleCellExperiment objects.
 From the module directory, make sure that the conda environment is set-up:
 
@@ -49,10 +51,20 @@ use download-data.py to download the data as the following:
 ```shell
 ../../download-data.py --projects SCPCP000006
 ```
-This is saving the data in OpenScPCA-analysis/data/
+This is saving the data in OpenScPCA-analysis/data/current/SCPCP000006
 
 Of note, this requires AWS CLI setup to run as intended: https://openscpca.readthedocs.io/en/latest/technical-setup/environment-setup/configure-aws-cli/
 
+### sample metadata
+
+The OpenScPCA-analysis/data/current/SCPCP000006/single_cell_metadata.tsv file contains clinical information related to the samples in the dataset. 
+Some information can be helpful for annotation and validation:
+
+- treatment: Some of the samples have been pre-treated with chemotherapy and some are upfront resection.
+We expect few changes between the 2 conditions, including a higher immune infiltration and more DNA damages pathways in treated samples.
+
+- histology: the COG classifies Wilms tumor as either (i) Favorable or (ii) Anaplastic.
+Some differenices are expected, some marker genes or pathways are associated with anaplasia (see sets of marker gene).
 
 ## Output files
 
