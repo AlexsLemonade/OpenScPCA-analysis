@@ -232,7 +232,8 @@ plot_cluster_stats <- function(all_stats_df,
       fun.max = function(x) {
         quantile(x, 0.75)
       }
-    )
+    ) +
+    labs(title = id)
 }
 
 
