@@ -37,32 +37,29 @@ You can also simply have a look at the html reports in the notebook folder. Here
 
 ## Input files
 
-### Single cell data
+### single nuclei data
 
-In this module, we start with the processed `SingleCellExperiment` objects from the ScPCA Portal.
-Data have been downloaded locally and are found in mnt_data. the mnt_data folder has to be define in the config.yaml file or changed in the notebook accordingly. 
+We work with the _processed.rds SingleCellExperiment objects.
+From the module directory, make sure that the conda environment is set-up:
 
-```{r paths}
-path_to_data <- "~/mnt_data/Wilms ALSF/SCPCP000006_2024-06-25"
+```shell
+conda activate openscpca
 ```
-We choosed to re-build a Seurat object from the counts data and to follow the Seurat workflow [normalization –> reduction –> clustering] 
 
-We transferred meta.data from the _processed.rds object to keep:
+log into AWS CLI:
+```shell
+# replace `openscpca` with your AWS CLI profile name if it differs
+export AWS_PROFILE=openscpca
+aws sso login
+```
 
-- QC data computed by the DataLab
+use download-data.py to download the data as the following:
+```shell
+../../download-data.py --projects SCPCP000006
+```
+This is saving the data in OpenScPCA-analysis/data/current/SCPCP000006
 
-- annotation data computed by the DataLab
-
-- raw annotation and gene_symbol conversion
- 
-### metadata 
-
-The SCPCP000006_metadata.tsv file in cell-type-wilms-tumor-06 contains clinical information related to the samples in the dataset. Some information can be helpful for annotation and validation:
-
-- treatment: Some of the samples have been pre-treated with chemotherapy and some are upfront resection. We expect few changes between the 2 conditions, including a higher immune infiltration and more DNA damages pathways in treated samples.
-
-- histology: the COG classifies Wilms tumor as either (i) Favorable or (ii) Anaplastic. Some differenices are expected, some marker genes or pathways are associated with anaplasia (see sets of marker gene). 
-
+Of note, this requires AWS CLI setup to run as intended: https://openscpca.readthedocs.io/en/latest/technical-setup/environment-setup/configure-aws-cli/
 
 We choosed to re-build a Seurat object from the counts data and to follow the Seurat workflow [normalization –> reduction –> clustering] 
 
@@ -74,15 +71,16 @@ We transferred meta.data from the _processed.rds object to keep:
 
 - raw annotation and gene_symbol conversion
 
+### sample metadata
 
-### metadata 
+The OpenScPCA-analysis/data/current/SCPCP000006/single_cell_metadata.tsv file contains clinical information related to the samples in the dataset. 
+Some information can be helpful for annotation and validation:
 
-The SCPCP000006_metadata.tsv file in cell-type-wilms-tumor-06 contains clinical information related to the samples in the dataset. Some information can be helpful for annotation and validation:
+- treatment: Some of the samples have been pre-treated with chemotherapy and some are upfront resection.
+We expect few changes between the 2 conditions, including a higher immune infiltration and more DNA damages pathways in treated samples.
 
-- treatment: Some of the samples have been pre-treated with chemotherapy and some are upfront resection. We expect few changes between the 2 conditions, including a higher immune infiltration and more DNA damages pathways in treated samples.
-
-- histology: the COG classifies Wilms tumor as either (i) Favorable or (ii) Anaplastic. Some differenices are expected, some marker genes or pathways are associated with anaplasia (see sets of marker gene). 
-
+- histology: the COG classifies Wilms tumor as either (i) Favorable or (ii) Anaplastic.
+Some differenices are expected, some marker genes or pathways are associated with anaplasia (see sets of marker gene).
 
 
 ## Output files
