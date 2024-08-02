@@ -23,7 +23,4 @@ podman run -d --rm \
   -e PASSWORD=wordpass \
   -e TZ=Europe/Vienna \
   --volume=$(realpath ${CONF_project_root_host%%*##*( )}):${CONF_project_root} \
-  --volume=$(realpath ${CONF_resource_root_host%%*##*( )}):${CONF_resource_root}:ro \
-  --volume=$(realpath ${CONF_out_root_host%%*##*( )}):${CONF_out_root} \
-  --volume=$(realpath ${CONF_data_root_host%%*##*( )}):${CONF_data_root} \
   ${CONF_project_docker}
