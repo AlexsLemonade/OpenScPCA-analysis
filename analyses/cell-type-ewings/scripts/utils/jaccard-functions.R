@@ -50,7 +50,7 @@ make_jaccard_matrix <- function(celltype_df, colname1, colname2) {
 }
 
 # function that turns jaccard matrices into a list of heatmaps
-make_heatmap_list <- function(jaccard_matrices, column_title, legend_match) {
+make_heatmap_list <- function(jaccard_matrices, column_title, legend_match, cluster_rows = TRUE) {
   # Set heatmap padding option
   heatmap_padding <- 0.2
   ComplexHeatmap::ht_opt(TITLE_PADDING = grid::unit(heatmap_padding, "in"))
@@ -63,7 +63,7 @@ make_heatmap_list <- function(jaccard_matrices, column_title, legend_match) {
           col = circlize::colorRamp2(c(0, 1), colors = c("white", "darkslateblue")),
           border = TRUE,
           ## Row parameters
-          cluster_rows = TRUE,
+          cluster_rows = cluster_rows,
           row_title = celltype_method,
           row_title_gp = grid::gpar(fontsize = 12),
           row_title_side = "left",
@@ -99,7 +99,8 @@ plot_jaccard <- function(classification_df,
                          annotation_column, # single column of annotations to compare to all methods
                          methods_to_compare, # list of methods to compare to annotations
                          column_title, # title for columns
-                         legend_match # what legend to keep, should be a name in `methods_to_compare`
+                         legend_match, # what legend to keep, should be a name in `methods_to_compare`
+                         cluster_rows = TRUE # whether or not to cluster the rows of the heatmap
 ) {
   # create jaccard matrices
   jaccard_matrices <- methods_to_compare |>
@@ -111,7 +112,7 @@ plot_jaccard <- function(classification_df,
       )
     })
 
-  heatmap <- make_heatmap_list(jaccard_matrices, column_title, legend_match)
+  heatmap <- make_heatmap_list(jaccard_matrices, column_title, legend_match, cluster_rows)
 
   return(heatmap)
 }

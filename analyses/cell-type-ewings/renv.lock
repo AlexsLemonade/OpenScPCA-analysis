@@ -1566,6 +1566,19 @@
       ],
       "Hash": "10e94b1bce9070632a40c6b873f8b2d4"
     },
+    "beeswarm": {
+      "Package": "beeswarm",
+      "Version": "0.4.0",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "grDevices",
+        "graphics",
+        "stats",
+        "utils"
+      ],
+      "Hash": "0f4e9d8caa6feaa7e409ae6c30f2ca66"
+    },
     "bit": {
       "Package": "bit",
       "Version": "4.0.5",
@@ -1592,10 +1605,10 @@
     },
     "bitops": {
       "Package": "bitops",
-      "Version": "1.0-7",
+      "Version": "1.0-8",
       "Source": "Repository",
       "Repository": "RSPM",
-      "Hash": "b7d8d8ee39869c18d8846a184dd8a1af"
+      "Hash": "da69e6b6f8feebec0827205aad3fdbd8"
     },
     "blob": {
       "Package": "blob",
@@ -1630,7 +1643,7 @@
     },
     "bslib": {
       "Package": "bslib",
-      "Version": "0.7.0",
+      "Version": "0.8.0",
       "Source": "Repository",
       "Repository": "RSPM",
       "Requirements": [
@@ -1648,7 +1661,7 @@
         "rlang",
         "sass"
       ],
-      "Hash": "8644cc53f43828f19133548195d7e59e"
+      "Hash": "b299c6741ca9746fb227debcb0f9fb6c"
     },
     "caTools": {
       "Package": "caTools",
@@ -1865,9 +1878,9 @@
     },
     "colorspace": {
       "Package": "colorspace",
-      "Version": "2.1-0",
+      "Version": "2.1-1",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "RSPM",
       "Requirements": [
         "R",
         "grDevices",
@@ -1875,7 +1888,7 @@
         "methods",
         "stats"
       ],
-      "Hash": "f20c47fd52fae58b4e377c37bb8c335b"
+      "Hash": "d954cb1c57e8d8b756165d7ba18aa55a"
     },
     "commonmark": {
       "Package": "commonmark",
@@ -2402,9 +2415,9 @@
     },
     "future": {
       "Package": "future",
-      "Version": "1.33.2",
+      "Version": "1.34.0",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "RSPM",
       "Requirements": [
         "digest",
         "globals",
@@ -2413,7 +2426,7 @@
         "parallelly",
         "utils"
       ],
-      "Hash": "fd7b1d69d16d0d114e4fa82db68f184c"
+      "Hash": "475771e3edb711591476be387c9a8c2e"
     },
     "future.apply": {
       "Package": "future.apply",
@@ -2440,6 +2453,21 @@
       ],
       "Hash": "15e9634c0fcd294799e9b2e929ed1b86"
     },
+    "geometry": {
+      "Package": "geometry",
+      "Version": "0.4.7",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp",
+        "RcppProgress",
+        "linprog",
+        "lpSolve",
+        "magic"
+      ],
+      "Hash": "8e5ba8a115dee2730bab618934db4b85"
+    },
     "getopt": {
       "Package": "getopt",
       "Version": "1.20.4",
@@ -2449,6 +2477,21 @@
         "stats"
       ],
       "Hash": "ed33b16c6d24f7ced1d68877ac2509ee"
+    },
+    "ggbeeswarm": {
+      "Package": "ggbeeswarm",
+      "Version": "0.7.2",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "beeswarm",
+        "cli",
+        "ggplot2",
+        "lifecycle",
+        "vipor"
+      ],
+      "Hash": "899f28fe0388b7f687d7453429c2474d"
     },
     "ggplot2": {
       "Package": "ggplot2",
@@ -3070,7 +3113,7 @@
     },
     "limma": {
       "Package": "limma",
-      "Version": "3.60.3",
+      "Version": "3.60.4",
       "Source": "Bioconductor",
       "Repository": "Bioconductor 3.19",
       "Requirements": [
@@ -3082,7 +3125,18 @@
         "stats",
         "utils"
       ],
-      "Hash": "229b85fef79976cc42c4fbcaf25eb44a"
+      "Hash": "b75950d7143715041064b21f3120f19e"
+    },
+    "linprog": {
+      "Package": "linprog",
+      "Version": "0.9-4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "lpSolve"
+      ],
+      "Hash": "66e9d4ebd71ddcd6f86a2a9a34f5cdc5"
     },
     "listenv": {
       "Package": "listenv",
@@ -3118,6 +3172,13 @@
       ],
       "Hash": "7d8e0ac914051ca0254332387d9b5816"
     },
+    "lpSolve": {
+      "Package": "lpSolve",
+      "Version": "5.6.20",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "2801c8082e89ed84cc0dbe43de850d31"
+    },
     "lubridate": {
       "Package": "lubridate",
       "Version": "1.9.3",
@@ -3130,6 +3191,17 @@
         "timechange"
       ],
       "Hash": "680ad542fbcf801442c83a6ac5a2126c"
+    },
+    "magic": {
+      "Package": "magic",
+      "Version": "1.6-1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "abind"
+      ],
+      "Hash": "1da6217cea8a3ef496258819b80770e1"
     },
     "magrittr": {
       "Package": "magrittr",
@@ -3466,15 +3538,15 @@
     },
     "parallelly": {
       "Package": "parallelly",
-      "Version": "1.37.1",
+      "Version": "1.38.0",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "RSPM",
       "Requirements": [
         "parallel",
         "tools",
         "utils"
       ],
-      "Hash": "5410df8d22bd36e616f2a2343dbb328c"
+      "Hash": "6e8b139c1904f5e9e14c69db64453bbe"
     },
     "patchwork": {
       "Package": "patchwork",
@@ -3504,6 +3576,17 @@
         "parallel"
       ],
       "Hash": "68a2d681e10cf72f0afa1d84d45380e5"
+    },
+    "pdfCluster": {
+      "Package": "pdfCluster",
+      "Version": "1.0-4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "geometry",
+        "methods"
+      ],
+      "Hash": "51e3a7a4af0b863e5d380575cbd33cda"
     },
     "pheatmap": {
       "Package": "pheatmap",
@@ -3622,13 +3705,13 @@
     },
     "polyclip": {
       "Package": "polyclip",
-      "Version": "1.10-6",
+      "Version": "1.10-7",
       "Source": "Repository",
       "Repository": "RSPM",
       "Requirements": [
         "R"
       ],
-      "Hash": "436542aadb70675e361cf359285af7c7"
+      "Hash": "5879bf5aae702ffef0a315c44328f984"
     },
     "prettyunits": {
       "Package": "prettyunits",
@@ -4204,7 +4287,7 @@
     },
     "segmented": {
       "Package": "segmented",
-      "Version": "2.1-0",
+      "Version": "2.1-1",
       "Source": "Repository",
       "Repository": "RSPM",
       "Requirements": [
@@ -4212,7 +4295,7 @@
         "R",
         "nlme"
       ],
-      "Hash": "c25459f92b3c69c10d842b75e3960dd5"
+      "Hash": "fa4308bb680b812ae985210a4d354153"
     },
     "shape": {
       "Package": "shape",
@@ -4229,9 +4312,9 @@
     },
     "shiny": {
       "Package": "shiny",
-      "Version": "1.8.1.1",
+      "Version": "1.9.0",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "RSPM",
       "Requirements": [
         "R",
         "R6",
@@ -4258,7 +4341,7 @@
         "withr",
         "xtable"
       ],
-      "Hash": "54b26646816af9960a4c64d8ceec75d6"
+      "Hash": "01666113b04d504390d60736f39bd0d0"
     },
     "sitmo": {
       "Package": "sitmo",
@@ -4700,6 +4783,18 @@
       ],
       "Hash": "c03fa420630029418f7e6da3667aac4a"
     },
+    "vipor": {
+      "Package": "vipor",
+      "Version": "0.4.7",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "graphics",
+        "stats"
+      ],
+      "Hash": "86493c62c14eb78140f1725003958a77"
+    },
     "viridisLite": {
       "Package": "viridisLite",
       "Version": "0.4.2",
@@ -4774,10 +4869,10 @@
     },
     "yaml": {
       "Package": "yaml",
-      "Version": "2.3.9",
+      "Version": "2.3.10",
       "Source": "Repository",
       "Repository": "RSPM",
-      "Hash": "9cb28d11799d93c953f852083d55ee9e"
+      "Hash": "51dab85c6c98e50a18d7551e9d49f76c"
     },
     "zlibbioc": {
       "Package": "zlibbioc",
