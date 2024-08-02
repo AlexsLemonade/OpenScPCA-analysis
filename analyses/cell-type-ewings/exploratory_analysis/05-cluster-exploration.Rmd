@@ -122,6 +122,8 @@ cluster_sweep <- function(sce) {
 
 ```{r, cluster_stats_functions}
 # cluster statistics functions
+
+
 # get silhouette width and cluster purity for each cluster
 # calculates values across all nn_param options used to determine clustering
 # all_cluster_results must have nn_param column
@@ -183,7 +185,6 @@ get_ari <- function(pcs,
 }
 
 # get cluster stability for each nn_param cluster results are available for
-# calculated the ari between original clusters and shuffled clusters 20 times
 get_cluster_stability <- function(sce,
                                   id,
                                   all_cluster_results) {
@@ -438,7 +439,7 @@ stability_df <- sce_list |>
 
 # plot stability across all values of k
 ggplot(stability_df, aes(x = k_value, y = ari)) +
-  geom_point() +
+  geom_jitter(width = 0.1) +
   facet_grid(rows = vars(library_id)) +
   labs(title = "Cluster stability")
 ```
@@ -488,7 +489,7 @@ names(sce_list) |>
 ```
 
 From these plots, it's obvious that K = 5 is over clustering and cell types are spread across a lot of clusters. 
-However, for the other values of K, there doesn't seem to be any striking difference that are obvious by eye.  
+However, for the other values of K, there don't seem to be any striking differences that are obvious by eye.  
 
 ## Marker gene expression across clusters 
 
@@ -573,7 +574,7 @@ We can also validate that these cells do in fact have higher expression of the m
 # grab columns that contain marker gene sums
 marker_gene_columns <- colnames(cluster_umap_df)[which(endsWith(colnames(cluster_umap_df), "_sum"))]
 
-# create individual density plots and combine into one
+# create individual umaps and combine into one
 marker_gene_columns |>
   purrr::map(\(column){
     genelist_name <- stringr::str_remove(column, "_sum")
