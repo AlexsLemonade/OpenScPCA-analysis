@@ -31,12 +31,16 @@ Here, no need to run anything, we try to guide you through the analysis. Have a 
 
 ## Input files
 
-In this module, we start with the processed `SingleCellExperiment` objects from the ScPCA Portal for `SCPCP000006`.
-Data have been downloaded locally and are found in mnt_data. the mnt_data folder has to be define in the config.yaml file or changed in the notebook accordingly. 
+We work with the _processed.rds SingleCellExperiment objects.
+From the module directory, use download-data.py to download the data as the following:
 
-```{r paths}
-path_to_data <- "~/mnt_data/Wilms ALSF/SCPCP000006_2024-06-25"
+```shell
+../../download-data.py --projects SCPCP000006
 ```
+This is saving the data in OpenScPCA-analysis/data/
+
+Of note, this requires AWS CLI setup to run as intended: https://openscpca.readthedocs.io/en/latest/technical-setup/environment-setup/configure-aws-cli/
+
 
 ## Output files
 
