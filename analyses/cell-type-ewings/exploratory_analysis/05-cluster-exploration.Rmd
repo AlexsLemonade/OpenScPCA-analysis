@@ -59,8 +59,7 @@ marker_genes_file <- file.path(module_base, "references", "visser-all-marker-gen
 jaccard_functions <- file.path(module_base, "scripts", "utils", "jaccard-functions.R")
 source(jaccard_functions)
 
-# source in helper functions: plot_gene_heatmap() and plot_cnv_heatmap()
-# create_classification_df() and create_marker_gene_df()
+# source in helper functions: plot_density() and calculate_sum_markers()
 validation_functions <- file.path(module_base, "scripts", "utils", "tumor-validation-helpers.R")
 source(validation_functions)
 ```
@@ -68,7 +67,7 @@ source(validation_functions)
 ## Define functions 
 
 ```{r, assign_clusters_functions}
-# get clusters for a specified value of k
+# get louvain, jaccard clusters for a specified value of k (nearest neighbors)
 get_clusters <- function(pcs, k) {
   clusters <- bluster::clusterRows(
     pcs,
@@ -212,6 +211,31 @@ get_cluster_stability <- function(sce,
 
 
 ```{r, plotting_functions}
+# plot individual stats for clusters, either purity or width
+plot_cluster_stats <- function(all_stats_df,
+                               stat_column,
+                               id) {
+  plot_df <- all_stats_df |>
+    dplyr::filter(library_id == id)
+
+  ggplot(plot_df, aes(x = nn_param, y = {{ stat_column }})) +
+    # ggforce::geom_sina(size = .2) +
+    ggbeeswarm::geom_quasirandom(method = "smiley", size = 0.1) +
+    stat_summary(
+      aes(group = nn_param),
+      color = "red",
+      # median and quartiles for point range
+      fun = "median",
+      fun.min = function(x) {
+        quantile(x, 0.25)
+      },
+      fun.max = function(x) {
+        quantile(x, 0.75)
+      }
+    )
+}
+
+
 # heatmap comparing cluster assignments to SingleR labels
 cluster_celltype_heatmap <- function(cluster_classification_df,
                                      id) {
@@ -228,7 +252,7 @@ cluster_celltype_heatmap <- function(cluster_classification_df,
     })
 
   # turn into heatmap list
-  make_heatmap_list(jaccard_df_list, column_title = glue::glue("{id}-clusters"), legend_match = "k_5")
+  make_heatmap_list(jaccard_df_list, column_title = glue::glue("{id}-clusters"), legend_match = "k_5", cluster_rows = FALSE)
 }
 
 
@@ -335,7 +359,10 @@ The minimum `k` is 5 and the maximum `k` is 40 with a step size of 5.
 # perform clustering across k = 5-40 with increments of 5
 all_cluster_results <- sce_list |>
   purrr::map(cluster_sweep) |>
-  dplyr::bind_rows(.id = "library_id")
+  dplyr::bind_rows(.id = "library_id") |>
+  dplyr::mutate(
+    nn_param = forcats::fct_relevel(nn_param, "k_5", after = 0)
+  )
 ```
 
 ```{r}
@@ -355,14 +382,20 @@ Below we visualize the cluster assignments using each parameter on a UMAP.
 This isn't particularly useful because of clusters, but it can be helpful to see any values of K that may have obvious over or under clustering. 
 
 ```{r, fig.height=15, fig.width=10}
-# look at clustering results across all params
-ggplot(umap_df, aes(x = UMAP1, y = UMAP2, color = cluster)) +
-  geom_point(alpha = 0.5, size = 0.1) +
-  facet_grid(
-    cols = vars(library_id),
-    rows = vars(nn_param)
-  ) +
-  theme(aspect.ratio = 1)
+# look at clustering results for each library across all params
+library_ids |>
+  purrr::map(\(id){
+    umap_df |>
+      dplyr::filter(library_id == id) |>
+      ggplot(aes(x = UMAP1, y = UMAP2, color = cluster)) +
+      geom_point(alpha = 0.5, size = 0.1) +
+      facet_wrap(vars(nn_param)) +
+      theme(
+        aspect.ratio = 1
+      ) +
+      labs(title = id) +
+      guides(color = guide_legend(override.aes = list(alpha = 1, size = 1.5)))
+  })
 ```
 
 ### Clustering statistics 
@@ -382,17 +415,7 @@ all_stats_df <- sce_list |>
   purrr::imap(\(sce, library_id){
     get_cluster_stats(sce, library_id, all_cluster_results)
   }) |>
-  dplyr::bind_rows(.id = "library_id")
-```
-
-```{r}
-# summarize the silhouette width and purity for each nn_param used
-summary_stats_df <- all_stats_df |>
-  dplyr::group_by(library_id, nn_param) |>
-  dplyr::summarise(
-    mean_width = mean(width),
-    mean_purity = mean(purity)
-  ) |>
+  dplyr::bind_rows(.id = "library_id") |>
   dplyr::mutate(
     # make sure the order is correct
     nn_param = forcats::fct_relevel(nn_param, "k_5", after = 0)
@@ -402,22 +425,18 @@ summary_stats_df <- all_stats_df |>
 
 ```{r}
 # silhouette width for different params
-ggplot(summary_stats_df, aes(x = nn_param, y = mean_width)) +
-  geom_point() +
-  facet_wrap(vars(library_id),
-    scales = "free_y"
-  ) +
-  labs(y = "Average silhouette width")
+library_ids |>
+  purrr::map(\(id){
+    plot_cluster_stats(all_stats_df, width, id)
+  })
 ```
 
 ```{r}
 # cluster purity for different params
-ggplot(summary_stats_df, aes(x = nn_param, y = mean_purity)) +
-  geom_point() +
-  facet_wrap(vars(library_id),
-    scales = "free_y"
-  ) +
-  labs(y = "Average cluster purity")
+library_ids |>
+  purrr::map(\(id){
+    plot_cluster_stats(all_stats_df, purity, id)
+  })
 ```
 
 Here we see that both silhouette width and cluster purity peak around k=20 or k=25. 
@@ -441,7 +460,19 @@ stability_df <- sce_list |>
 ggplot(stability_df, aes(x = k_value, y = ari)) +
   geom_jitter(width = 0.1) +
   facet_grid(rows = vars(library_id)) +
-  labs(title = "Cluster stability")
+  labs(title = "Cluster stability") +
+  stat_summary(
+    aes(group = k_value),
+    color = "red",
+    # median and quartiles for point range
+    fun = "median",
+    fun.min = function(x) {
+      quantile(x, 0.25)
+    },
+    fun.max = function(x) {
+      quantile(x, 0.75)
+    }
+  )
 ```
 
 Here we see that cluster stability increases as k increases for both libraries. 
@@ -472,14 +503,15 @@ cluster_classification_df <- all_cluster_results |>
     singler_lumped = singler_annotation |>
       forcats::fct_lump_n(7, other_level = "All remaining cell types", ties.method = "first") |>
       forcats::fct_infreq() |>
-      forcats::fct_relevel("All remaining cell types", after = Inf)
+      forcats::fct_relevel("All remaining cell types", after = Inf),
+    nn_param = forcats::fct_relevel(nn_param, "k_5", after = 0)
   )
 ```
 
 
 ```{r, fig.height=10, fig.width=7}
 # get heatmap for each library showing cluster assignments vs. singler assignments
-names(sce_list) |>
+library_ids |>
   purrr::map(\(id){
     cluster_celltype_heatmap(
       cluster_classification_df,
@@ -502,7 +534,7 @@ Based on the above results, we will only show these plots for a value of K = 25.
 ```{r, fig.height=10, fig.width=5}
 # plot to look at marker gene expression for all cell types across all clusters
 # choose k=25 based on previous stats
-names(sce_list) |>
+library_ids |>
   purrr::map(\(id) {
     plot_marker_genes(cluster_classification_df,
       k_value = "k_25",
@@ -522,6 +554,8 @@ Finally, we will assign cell types to all cells in a cluster based on a cluster 
 - Any clusters with high endothelial marker gene expression also correspond to clusters that are predominantly "endothelial cell" in the heatmaps, so they will be labeled as "macrophage". 
 - There is one cluster in `SCPCL000822` that has high mesenchymal gene expression and is predominantly chondrocytes so we will label this cell as "chondrocytes". 
 - All other clusters with high mesenchymal gene expression appear to have a mix of chondrocytes, fibroblasts, and smooth muscle cells so we will just label these as "mesenchymal-like cells". 
+- Any clusters that do not have high expression of any marker gene lists are labeled as "unknown".
+This corresponds to cluster 9 and 12 in `SCPCL000824`. 
 
 ```{r}
 # get umap embeddings for plotting later
@@ -558,34 +592,45 @@ cluster_umap_df <- cluster_classification_df |>
   )
 ```
 
-```{r}
+```{r, fig.height=7, fig.width=7}
 # look at cell type assignments on the UMAP
 ggplot(cluster_umap_df, aes(x = UMAP1, y = UMAP2, color = cluster_celltype)) +
   geom_point(alpha = 0.5, size = 0.5) +
   facet_grid(cols = vars(library_id)) +
-  theme(aspect.ratio = 1) +
+  theme(
+    aspect.ratio = 1,
+    legend.position = "bottom"
+  ) +
   guides(color = guide_legend(override.aes = list(alpha = 1, size = 1.5))) +
   scale_color_brewer(palette = "Dark2")
 ```
 
 We can also validate that these cells do in fact have higher expression of the marker genes as compared to other cells by plotting the marker gene expression on UMAPs. 
 
-```{r}
+```{r, fig.height=7, fig.width=7}
 # grab columns that contain marker gene sums
 marker_gene_columns <- colnames(cluster_umap_df)[which(endsWith(colnames(cluster_umap_df), "_sum"))]
 
-# create individual umaps and combine into one
-marker_gene_columns |>
-  purrr::map(\(column){
-    genelist_name <- stringr::str_remove(column, "_sum")
+# for each sample show a faceted umap by cell type
+# color is gene expression of all marker genes for that cell type
+library_ids |>
+  purrr::map(\(id){
+    plot_df <- cluster_umap_df |>
+      dplyr::filter(library_id == id) |>
+      tidyr::pivot_longer(
+        cols = all_of(marker_gene_columns),
+        names_to = "cell_type",
+        values_to = "gene_expression"
+      ) |>
+      dplyr::mutate(cell_type = stringr::str_remove(cell_type, "_sum"))
 
-    ggplot(cluster_umap_df, aes(x = UMAP1, y = UMAP2, color = !!sym(column))) +
-      geom_point(alpha = 0.5, size = 0.5) +
-      facet_grid(cols = vars(library_id)) +
+    ggplot(plot_df, aes(x = UMAP1, y = UMAP2, color = gene_expression)) +
+      geom_point(alpha = 0.5, size = 0.2) +
+      facet_wrap(vars(cell_type)) +
       theme(aspect.ratio = 1) +
       scale_color_viridis_c() +
       labs(
-        title = genelist_name
+        title = id
       )
   })
 ```
