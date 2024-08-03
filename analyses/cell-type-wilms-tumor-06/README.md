@@ -1,8 +1,8 @@
-# Wilms Tumor Dataset Annotation (SCPCP000006) 
+# Wilms Tumor Dataset Annotation (SCPCP000006)
 
-Wilms tumor (WT) is the most common pediatric kidney cancer characterized by an exacerbated intra- and inter- tumor heterogeneity. 
-The genetic landscape of WT is very diverse in each of the histological contingents. 
-The COG classifies WT patients into two groups: the favorable histology and diffuse anaplasia. 
+Wilms tumor (WT) is the most common pediatric kidney cancer characterized by an exacerbated intra- and inter- tumor heterogeneity.
+The genetic landscape of WT is very diverse in each of the histological contingents.
+The COG classifies WT patients into two groups: the favorable histology and diffuse anaplasia.
 Each of these groups is composed of the blastemal, epithelial, and stromal populations of cancer cells in different proportions, as well as cells from the normal kidney, mostly kidney epithelial cells, endothelial cells, immune cells and normal stromal cells (fibroblast).
 
 ## Description
@@ -24,9 +24,9 @@ The analysis is/will be divided as the following:
 - [ ] Notebook: explore results from step 6, integrate all samples together and annotate the dataset using (i) metadatafile, (ii) CNV information, (iii) label transfer information
 
 ## Usage
-From Rstudio, run the Rmd reports or render the R scripts (see below R studio session set up). 
-Please before running the script, make sure that the paths are correct. 
-You can also simply have a look at the html reports in the notebook folder. 
+From Rstudio, run the Rmd reports or render the R scripts (see below R studio session set up).
+Please before running the script, make sure that the paths are correct.
+You can also simply have a look at the html reports in the notebook folder.
 Here, no need to run anything, we try to guide you through the analysis. Have a look at the code using the unhide code button on the top right of each chunk!
 
 ## Input files
@@ -57,7 +57,7 @@ Of note, this requires AWS CLI setup to run as intended: https://openscpca.readt
 
 ### sample metadata
 
-The OpenScPCA-analysis/data/current/SCPCP000006/single_cell_metadata.tsv file contains clinical information related to the samples in the dataset. 
+The OpenScPCA-analysis/data/current/SCPCP000006/single_cell_metadata.tsv file contains clinical information related to the samples in the dataset.
 Some information can be helpful for annotation and validation:
 
 - treatment: Some of the samples have been pre-treated with chemotherapy and some are upfront resection.
@@ -68,7 +68,7 @@ Some differenices are expected, some marker genes or pathways are associated wit
 
 ## Output files
 
-## Marker sets 
+## Marker sets
 
 This folder is a resource for later validation of the annotated cell types.
 
@@ -109,7 +109,7 @@ This folder is a resource for later validation of the annotated cell types.
 ### The table GeneticAlterations_metadata.csv contains the following column and information:
 - alteration contains the number and portion of the affected chromosome
 - gain_loss contains the information regarding the gain or loss of the corresponding genetic alteration
-- cell_class is "malignant" 
+- cell_class is "malignant"
 - cell_type contains the list of the malignant cell types that are attributed to the marker gene, either blastemal, stromal, epithelial or NA if none of the three histology is more prone to the described genetic alteration
 - DOI contains the list of main publication identifiers supporting the choice of the genetic alteration
 - comment can be empty or contains any additional information
@@ -135,14 +135,43 @@ The main packages used are:
 - DT for table visualization
 - DElegate for differential expression analysis
 
-For complete reproducibility of the results, you can build and run the docker image using the Dockerfile. This will allow you to work on RStudio (R version 4.4.1) from the based image bioconductor/tidyverse:3.19.
+### Docker
 
-In the config.yaml file, define your system specific parameter and paths (e.g. to the data).
-Execute the run.sh file and open RStudio in your browser (http://localhost:8080/). 
-By default, username = rstudio, password = wordpass.
+To build the Docker image, run the following from this directory:
 
+```shell
+docker buildx build . -t openscpca/cell-type-wilms-tumor-06
+```
 
+The image will also be available from ECR: <https://gallery.ecr.aws/openscpca/cell-type-wilms-tumor-06>
 
+To run the container and develop in RStudio Server, run the following **from the root of the repository**, Replacing `{PASSWORD}`, including the curly braces, with a password of your choosing:
+
+```shell
+docker run \
+  --mount type=bind,target=/home/rstudio/OpenScPCA-analysis,source=$PWD \
+  -e PASSWORD={PASSWORD} \
+  -p 8787:8787 \
+  public.ecr.aws/openscpca/cell-type-wilms-tumor-06:latest
+```
+
+This will pull the latest version of the image from ECR if you do not yet have a copy locally.
+
+Navigate to <http://localhost:8787/> and log in with the username `rstudio` and the password you set.
+
+Within RStudio Server, `OpenScPCA-analysis` will point to your local copy of the repository.
+
+#### A note on Apple Silicon
+
+If you are on a Mac with an M series chip, you will not be able to use RStudio Server if you are using a `linux/amd64` or `linux/x86_84` (like the ones available from ECR).
+You must build an ARM image locally to be able to use RStudio Server within the container.
+
+### renv
+
+This module uses `renv`.
+If you are using RStudio Server within the container, the `renv` project will not be activated by default.
+You can install packages within the container and use `renv::snapshot()` to update the lockfile without activating the project without a problem in our testing.
+The `renv` lockfile is used to install R packages in the Docker image.
 
 ## Computational resources
 
