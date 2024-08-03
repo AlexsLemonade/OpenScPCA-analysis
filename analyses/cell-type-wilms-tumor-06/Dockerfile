@@ -18,11 +18,11 @@ ENV RENV_CONFIG_CACHE_ENABLED=FALSE
 # Install renv
 RUN R --no-echo --no-restore --no-save -e "install.packages('renv')"
 
-# # Copy the renv.lock file from the host environment to the image
-# COPY renv.lock renv.lock
+# Copy the renv.lock file from the host environment to the image
+COPY renv.lock renv.lock
 
-# # restore from renv.lock file and clean up to reduce image size
-# RUN Rscript -e 'renv::restore()' && \
-#   rm -rf ~/.cache/R/renv && \
-#   rm -rf /tmp/downloaded_packages && \
-#   rm -rf /tmp/Rtmp*
+# restore from renv.lock file and clean up to reduce image size
+RUN Rscript -e 'renv::restore()' && \
+  rm -rf ~/.cache/R/renv && \
+  rm -rf /tmp/downloaded_packages && \
+  rm -rf /tmp/Rtmp*
