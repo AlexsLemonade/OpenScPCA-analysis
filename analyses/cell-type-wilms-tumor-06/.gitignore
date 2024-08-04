@@ -5,3 +5,7 @@
 # Ignore the scratch directory (but keep it present)
 /scratch/*
 !/scratch/.gitkeep
+
+# Ignore Docker-related files specific to module author's system
+config.yaml
+run.sh
