@@ -56,7 +56,7 @@ jobs:
 
   build:
     name: Build Docker Image
-    if: github.event_name == 'pull_request'
+    if: github.repository_owner == 'AlexsLemonade' && (github.event_name == 'push' || inputs.push-ecr)
     uses: ./.github/workflows/build-push-docker-module.yml
     with:
       module: cell-type-ewings
@@ -64,7 +64,7 @@ jobs:
 
   push:
     name: Push Docker Image
-    if: github.event_name == 'pull_request'
+    if: github.repository_owner == 'AlexsLemonade' && (github.event_name == 'push' || inputs.push-ecr)
     uses: ./.github/workflows/build-push-docker-module.yml
     with:
       module: cell-type-ewings
