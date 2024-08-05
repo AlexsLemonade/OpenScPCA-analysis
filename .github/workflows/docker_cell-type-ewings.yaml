@@ -47,23 +47,15 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v5
         with:
           context: "{{defaultContext}}:analyses/simulate-sce"
           push: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  build:
-    name: Build Docker Image
-    if: github.repository_owner == 'AlexsLemonade' && (github.event_name == 'push' || inputs.push-ecr)
-    uses: ./.github/workflows/build-push-docker-module.yml
-    with:
-      module: cell-type-ewings
-      push-ecr: false
-
-  push:
-    name: Push Docker Image
+  build-push:
+    name: Build and Push Docker Image
     if: github.repository_owner == 'AlexsLemonade' && (github.event_name == 'push' || inputs.push-ecr)
     uses: ./.github/workflows/build-push-docker-module.yml
     with:
