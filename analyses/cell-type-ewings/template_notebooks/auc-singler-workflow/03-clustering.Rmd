@@ -8,16 +8,16 @@ output:
     toc_depth: 3
     code_folding: "hide"
 params:
-  library_id: "SCPCL000822"
-  sce_file: "../../../../data/current/SCPCP000015/SCPCS000490/SCPCL000822_processed.rds"
-  singler_results_file: "../../results/aucell_singler_annotation/SCPCS000490/SCPCL000822_singler-classifications.tsv"
-  cluster_results_file: "../../results/aucell_singler_annotation/SCPCS000490/SCPCL000822_clusters.tsv" 
-  marker_genes_file: "../../references/visser-all-marker-genes.tsv"
+  library_id: NULL
+  sce_file: NULL
+  singler_results_file: NULL
+  cluster_results_file: NULL
+  marker_genes_file: NULL
 ---
 
 This notebook summarizes clustering for `r params$library_id`.
 
-- Louvain clusters are calculated using a range of parameters specifying nearest neighbors (5, 10, 15, 20, 25, 30, 35, and 40). 
+- Louvain, Jaccard clusters are calculated using a range of parameters specifying nearest neighbors (5, 10, 15, 20, 25, 30, 35, and 40). 
 - Metrics are then calculated to evaluate clustering results across all parameters: 
   - Silhouette width 
   - Cluster purity 
@@ -150,7 +150,7 @@ plot_cluster_stats(all_stats_df, purity)
 
 ### Cluster stability 
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # calculate cluster stability
 stability_df <- get_cluster_stability(sce, all_cluster_results) |>
   dplyr::mutate(
@@ -184,7 +184,7 @@ Now we will compare the clustering results to the cell type assignments obtained
 To compare results we will calculate the Jaccard similarity index between clusters and cell types. 
 We expect that good clustering will line up with the cell type assignments so that there is ~ 1 cell type per cluster. 
 
-For the plots, we will only display the top 7 cell types and all other cells will be lumped together into `All remaining cell types`. 
+For the plots, we will only display the top 7 cell types identified by `SingleR` and all other cells will be lumped together into `All remaining cell types`. 
 
 ```{r}
 cluster_classification_df <- all_cluster_results |>
@@ -213,10 +213,10 @@ cluster_classification_df <- all_cluster_results |>
 cluster_celltype_heatmap(cluster_classification_df)
 ```
 
+
 ## Marker gene expression across clusters 
 
-
-We will also look at the expression of marker genes across each cluster. 
+Finally, we will look at the expression of marker genes across each cluster for each value of K. 
 In these plots, each row shows the distribution of the specified marker genes in that cluster. 
 Each panel is labeled with the marker gene expression being plotted. 
 
@@ -244,7 +244,8 @@ cluster_exp_df <- all_cluster_results |>
 
 ```{r, fig.height=10, fig.width=5}
 # plot to look at marker gene expression for all cell types across all clusters and all params
-k_params <- unique(cluster_exp_df$nn_param) |> as.character()
+k_params <- unique(cluster_exp_df$nn_param) |>
+  as.character()
 
 k_params |>
   purrr::map(\(k) {
