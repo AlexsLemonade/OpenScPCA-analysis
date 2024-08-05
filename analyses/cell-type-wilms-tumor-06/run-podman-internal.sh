@@ -15,7 +15,7 @@ podman run \
   --gidmap $gid:0:1 --gidmap 0:1:$gid --gidmap $(($gid+1)):$(($gid+1)):$(($subgidSize-$gid)) \
   --group-add=keep-groups \
   --volume=$PWD/:/home/rstudio \
-  -e PASSWORD=wordpass \
+  -e PASSWORD=$PASSWORD \
   -p 8787:8787 \
   -e TZ=Europe/Vienna \
   openscpca/cell-type-wilms-tumor-06:latest
