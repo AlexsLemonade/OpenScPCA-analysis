@@ -19,12 +19,20 @@ jobs:
   hello-python:
     uses: ./.github/workflows/run_hello-python.yml
 
+  doublet-detection:
+    uses: ./.github/workflows/run_doublet-detection.yml
+
+  cell-type-ewings:
+    uses: ./.github/workflows/run_cell-type-ewings.yml
+
   ## Add additional modules above this comment, and to the needs list below
   check-jobs:
     if: ${{ always() }}
     needs:
       - hello-R
       - hello-python
+      - doublet-detection
+      - cell-type-ewings
     runs-on: ubuntu-latest
     steps:
       - name: Checkout template file

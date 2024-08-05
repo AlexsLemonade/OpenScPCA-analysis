@@ -1,0 +1,338 @@
+---
+title: "Summary of tumor cell classification with `SingleR` for `r params$library_id`"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    code_folding: "hide"
+params:
+  library_id: NULL
+  sce_file: NULL
+  singler_results_file: NULL
+  geneset_scores_file: NULL
+  marker_genes_file: NULL
+---
+
+This report summarizes the classification of `r params$library_id` using the following approach: 
+
+- Tumor cells were identified by using `AUCell`. 
+- All cells were labeled using `SingleR` with a combination of three references: 
+  - All tumor cells annotated by `AUCell` for all other libraries in `SCPCP000015`. 
+  - `BlueprintEncodeData` from `celldex`
+  - `HumanPrimaryCellAtlasData` from `celldex`
+
+
+## Setup
+
+```{r}
+# check that sce and results files exist
+stopifnot(
+  "sce file does not exist" = file.exists(params$sce_file),
+  "SingleR results file does not exist" = file.exists(params$singler_results_file),
+  "Gene set scores file does not exist" = file.exists(params$geneset_scores_file),
+  "Marker genes file does not exist" = file.exists(params$marker_genes_file)
+)
+```
+
+
+```{r packages}
+suppressPackageStartupMessages({
+  # load required packages
+  library(SingleCellExperiment)
+  library(ggplot2)
+})
+
+# Set default ggplot theme
+theme_set(
+  theme_bw()
+)
+
+# quiet messages
+options(readr.show_col_types = FALSE)
+ComplexHeatmap::ht_opt(message = FALSE)
+```
+
+
+```{r base paths}
+# The path to this module
+module_base <- rprojroot::find_root(rprojroot::is_renv_project)
+
+# source in helper functions: plot_gene_heatmap() and plot_cnv_heatmap()
+# create_classification_df() and create_marker_gene_df()
+validation_functions <- file.path(module_base, "scripts", "utils", "tumor-validation-helpers.R")
+source(validation_functions)
+```
+
+```{r}
+# Read in files
+sce <- readr::read_rds(params$sce_file)
+singler_results_df <- readr::read_tsv(params$singler_results_file)
+geneset_scores_df <- readr::read_tsv(params$geneset_scores_file)
+```
+
+## Prep for plots
+
+```{r}
+# generate classification df to use for plots
+classification_df <- sce |>
+  scuttle::makePerCellDF(use.dimred = "UMAP") |>
+  # replace UMAP.1 with UMAP1 and get rid of excess columns
+  dplyr::select(barcodes, UMAP1 = UMAP.1, UMAP2 = UMAP.2) |>
+  # join with previous annotations, singler results, and gene set scores
+  dplyr::left_join(singler_results_df, by = "barcodes") |>
+  dplyr::left_join(geneset_scores_df, by = "barcodes") |>
+  dplyr::mutate(
+    # set factor order for aucell
+    aucell_annotation = forcats::fct_relevel(aucell_annotation, "tumor", after = 0),
+    # first remove other library IDs from tumor annotations
+    # we only care about whether or not it was from the original library or a new library
+    singler_annotation = dplyr::case_when(
+      stringr::str_detect(singler_annotation, "tumor") ~ "tumor",
+      is.na(singler_annotation) ~ "unknown", # make sure to separate out unknown labels
+      .default = singler_annotation
+    ) |>
+      forcats::fct_relevel("tumor", after = 0),
+    # get the top cell types for plotting later
+    singler_lumped = singler_annotation |>
+      # there are warnings because we have some that have less than 7 cell types (ones that only did tumor/normal)
+      # this is why we ignore warnings in this chunk
+      forcats::fct_lump_n(7, other_level = "All remaining cell types", ties.method = "first") |>
+      forcats::fct_infreq() |>
+      forcats::fct_relevel("All remaining cell types", after = Inf),
+    # make a label that is just tumor or normal
+    singler_tumor_normal = dplyr::if_else(!(singler_annotation %in% c("tumor", "unknown")), "normal", singler_annotation) |>
+      forcats::fct_relevel("tumor", after = 0),
+    # get the consensus between aucell and singler
+    consensus = dplyr::case_when(
+      singler_annotation == "tumor" & aucell_annotation == "tumor" ~ "tumor_both",
+      singler_annotation == "tumor" & aucell_annotation != "tumor" ~ "tumor_singler",
+      singler_annotation != "tumor" & aucell_annotation == "tumor" ~ "tumor_aucell",
+      .default = "normal"
+    ) |>
+      forcats::fct_relevel("normal", after = Inf)
+  )
+```
+
+
+```{r}
+# read in marker genes table
+marker_genes_df <- readr::read_tsv(params$marker_genes_file, show_col_types = FALSE) |>
+  # account for genes being from multiple sources
+  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |>
+  dplyr::distinct()
+
+# get list of all cell types found
+cell_types <- unique(marker_genes_df$cell_type)
+
+# get the sum of expression of all genes for each cell type
+gene_exp_df <- cell_types |>
+  purrr::map(\(type){
+    calculate_sum_markers(marker_genes_df, sce, type)
+  }) |>
+  purrr::reduce(dplyr::inner_join, by = "barcodes")
+
+# join sum expression columns with classification df
+classification_df <- classification_df |>
+  dplyr::left_join(gene_exp_df, by = "barcodes")
+```
+
+```{r}
+# get columns that correspond to marker genes and gene sets to help with plotting later
+marker_gene_columns <- colnames(classification_df)[which(endsWith(colnames(classification_df), "_sum"))]
+geneset_columns <- colnames(classification_df)[which(startsWith(colnames(classification_df), "mean-"))]
+```
+
+## UMAPs of all cell type annotations 
+
+Here we show the annotated cell types on a UMAP. 
+The top 7 cell types are shown for each reference used and all other cells are lumped together. 
+
+```{r, fig.height=8, fig.width=8}
+plot_faceted_umap(classification_df, singler_lumped)
+```
+
+
+## Comparison between `SingleR` and `AUCell`
+
+Below we show the cells that are annotated as tumor by both methods, just `AUCell` and just `SingleR` along with all normal cells. 
+
+```{r}
+plot_faceted_umap(classification_df, consensus)
+```
+
+We then calculate the confusion matrix between tumor and normal cells called in `SingleR` and `AUCell`. 
+The rows here correspond to the `AUCell` annotation and columns are from `SingleR`. 
+
+```{r}
+caret_df <- classification_df |>
+  dplyr::filter(singler_tumor_normal != "unknown") |>
+  dplyr::mutate(singler_tumor_normal = droplevels(singler_tumor_normal, "unknown"))
+
+# get the cell types in both
+# these should be tumor normal but sometimes that's not the case
+singler_cell_types <- unique(caret_df$singler_tumor_normal) |> as.character()
+aucell_cell_types <- unique(caret_df$aucell_annotation) |> as.character()
+
+# only calculate confusion matrix if all cell types are the same
+if (all(singler_cell_types == aucell_cell_types)) {
+  caret::confusionMatrix(
+    table(
+      caret_df$aucell_annotation,
+      caret_df$singler_tumor_normal
+    )
+  )
+}
+```
+
+
+## Validate output from `SingleR`
+
+The next three sections will evaluate the annotations output obtained from using `SingleR` by looking at expression of marker genes and gene set scores. 
+
+The gene expression for all marker genes for tumor cells, endothelial cells, mesenchymal-like cells, and immune cells was summed together for each cell. 
+Marker genes were obtained from [Visser et al.](https://doi.org/10.1158/2767-9764.CRC-23-0027). 
+
+Gene set scores are determined by calculating the mean expression of all genes in a given gene set. 
+Scores are calculated for the following gene sets from `MsigDb`:
+
+  - [`ZHANG_TARGETS_OF_EWSR1_FLI1_FUSION`](https://www.gsea-msigdb.org/gsea/msigdb/human/geneset/ZHANG_TARGETS_OF_EWSR1_FLI1_FUSION.html)
+  - [`RIGGI_EWING_SARCOMA_PROGENITOR_UP`](https://www.gsea-msigdb.org/gsea/msigdb/human/geneset/RIGGI_EWING_SARCOMA_PROGENITOR_UP.html?ex=1)
+  - [`SILIGAN_TARGETS_OF_EWS_FLI1_FUSION_DN`](https://www.gsea-msigdb.org/gsea/msigdb/cards/SILIGAN_TARGETS_OF_EWS_FLI1_FUSION_DN)
+
+For both marker gene expression and gene set scores, the following plots will be shown: 
+
+- Heatmap showing gene expression or gene set scores across all cells. 
+Here the rows correspond to the gene list and the columns are the cells. 
+The annotations are shown below the heatmap. 
+- Density plot showing gene expression or gene set scores across all cells. 
+Each row is a cell type and the expression or score is plotted on the x-axis. 
+
+
+### Tumor vs. Normal 
+
+In this section we show just the cells that are considered tumor and normal, lumping all non-tumor cell types together. 
+
+**Marker gene expression**
+
+```{r}
+full_celltype_heatmap(classification_df, marker_gene_columns, "singler_tumor_normal")
+```
+
+
+```{r}
+plot_density(
+  classification_df,
+  "tumor_sum",
+  "singler_tumor_normal"
+)
+```
+
+**Gene set scores**
+
+```{r}
+full_celltype_heatmap(classification_df, geneset_columns, "singler_tumor_normal")
+```
+
+```{r, fig.height=10}
+geneset_columns |>
+  purrr::map(\(column){
+    plot_density(
+      classification_df,
+      column,
+      "singler_tumor_normal"
+    )
+  }) |>
+  patchwork::wrap_plots(ncol = 1)
+```
+
+
+### Tumor vs. all other cell types 
+
+In this section we show all tumor cells and the top 5 most represented normal cell types.
+
+**Marker gene expression** 
+
+```{r}
+full_celltype_heatmap(classification_df, marker_gene_columns, "singler_lumped")
+```
+
+```{r, fig.height=10}
+marker_gene_columns |>
+  purrr::map(\(column){
+    plot_density(
+      classification_df,
+      column,
+      "singler_lumped"
+    )
+  }) |>
+  patchwork::wrap_plots(ncol = 1)
+```
+
+
+**Gene set scores**
+
+```{r}
+full_celltype_heatmap(classification_df, geneset_columns, "singler_lumped")
+```
+
+```{r, fig.height=10}
+geneset_columns |>
+  purrr::map(\(column){
+    plot_density(
+      classification_df,
+      column,
+      "singler_lumped"
+    )
+  }) |>
+  patchwork::wrap_plots(ncol = 1)
+```
+
+### Tumor cells annotated by `SingleR` and `AUCell`
+
+Here we compare the marker gene expression and gene set scores for cells annotated as tumor by both methods, just `SingleR`, or just `AUCell` and compare to all normal cells. 
+
+**Marker gene expression**
+
+```{r}
+full_celltype_heatmap(classification_df, marker_gene_columns, "consensus")
+```
+
+
+```{r}
+plot_density(
+  classification_df,
+  "tumor_sum",
+  "consensus"
+)
+```
+
+
+**Gene set scores**
+
+```{r}
+full_celltype_heatmap(classification_df, geneset_columns, "consensus")
+```
+
+```{r, fig.height=10}
+geneset_columns |>
+  purrr::map(\(column){
+    plot_density(
+      classification_df,
+      column,
+      "consensus"
+    )
+  }) |>
+  patchwork::wrap_plots(ncol = 1)
+```
+
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
+
+

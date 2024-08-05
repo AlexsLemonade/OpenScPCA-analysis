@@ -1,0 +1,343 @@
+---
+title: "Summary of tumor cell classification with `AUCell` for `r params$library_id`"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    code_folding: "hide"
+params:
+  library_id: NULL
+  sce_file: NULL
+  aucell_results_file: NULL
+  ref_auc_results: NULL
+  geneset_scores_file: NULL
+  marker_genes_file: NULL
+  marker_class_file: NULL
+  auc_threshold: NULL
+  marker_threshold: 1
+---
+
+This report summarizes the classification of `r params$library_id` using two methods: 
+
+- [`AUCell`](https://www.bioconductor.org/packages/release/bioc/html/AUCell.html): Cells are classified as tumor if they had an AUC value greater than or equal to `r params$auc_threshold`. 
+- Marker gene expression: Cells were classified as tumor if they expressed any tumor marker genes.
+
+## Setup
+
+```{r}
+# check that sce and results files exist
+stopifnot(
+  "sce file does not exist" = file.exists(params$sce_file),
+  "AUCell results file does not exist" = file.exists(params$aucell_results_file),
+  "reference results from AUCell does not exist" = file.exists(params$ref_auc_results),
+  "Marker genes file does not exist" = file.exists(params$marker_genes_file),
+  "Gene set scores file does not exist" = file.exists(params$geneset_scores_file)
+)
+```
+
+
+```{r packages}
+suppressPackageStartupMessages({
+  # load required packages
+  library(SingleCellExperiment)
+  library(ggplot2)
+})
+
+# Set default ggplot theme
+theme_set(
+  theme_classic()
+)
+
+# quiet messages
+options(readr.show_col_types = FALSE)
+ComplexHeatmap::ht_opt(message = FALSE)
+
+# set colors for tumor and normal cells throughout report
+plot_colors <- c("Tumor" = "#00274C", "Normal" = "#FFCB05")
+```
+
+
+```{r base paths}
+# The path to this module
+module_base <- rprojroot::find_root(rprojroot::is_renv_project)
+
+# source in helper functions: plot_gene_heatmap() and plot_cnv_heatmap()
+# create_classification_df() and create_marker_gene_df()
+validation_functions <- file.path(module_base, "scripts", "utils", "tumor-validation-helpers.R")
+source(validation_functions)
+```
+
+```{r}
+# Read in files
+sce <- readr::read_rds(params$sce_file)
+auc_results_df <- readr::read_tsv(params$aucell_results_file)
+geneset_scores_df <- readr::read_tsv(params$geneset_scores_file)
+
+# reference auc results file
+ref_auc_df <- readr::read_tsv(params$ref_auc_results)
+```
+
+
+```{r}
+# generate classification df to use for plots
+classification_df <- sce |>
+  scuttle::makePerCellDF(use.dimred = "UMAP") |>
+  # replace UMAP.1 with UMAP1
+  dplyr::rename_with(
+    \(x) stringr::str_replace(x, "^UMAP\\.", "UMAP")
+  ) |>
+  # get rid of excess columns
+  dplyr::select(barcodes, UMAP1, UMAP2, singler_celltype_annotation) |>
+  # join with previous annotations, singler results, and gene set scores
+  dplyr::left_join(auc_results_df, by = "barcodes") |>
+  dplyr::left_join(geneset_scores_df, by = "barcodes")
+
+# get marker gene expression
+markers_df <- create_marker_gene_df(
+  sce,
+  classification_df,
+  params$marker_genes_file
+)
+
+# test if _any_ marker genes have expression
+if (sum(markers_df$gene_expression) == 0) {
+  has_marker_gene_exp <- FALSE
+  message("No marker gene expression detected, so all plots of marker genes will be skipped.")
+} else {
+  has_marker_gene_exp <- TRUE
+}
+```
+
+```{r}
+# get a list of tumor cells based on those that have number of marker genes expressed
+# greater than the threshold
+tumor_cells <- markers_df |>
+  dplyr::mutate(gene_detected = as.integer(gene_expression > 0)) |>
+  dplyr::group_by(barcodes) |>
+  dplyr::summarize(total_genes = sum(gene_detected)) |>
+  dplyr::filter(total_genes >= params$marker_threshold) |>
+  dplyr::pull(barcodes)
+
+
+# create a data frame with raw exp and classification
+# will add this to the larger data frame
+marker_gene_class_df <- markers_df |>
+  dplyr::select(barcodes, sum_raw_exp) |>
+  dplyr::distinct() |>
+  dplyr::mutate(
+    marker_gene_classification = dplyr::if_else(
+      barcodes %in% tumor_cells,
+      "Tumor",
+      "Normal"
+    )
+  )
+
+# add classification to main classification data frame
+classification_df <- classification_df |>
+  dplyr::left_join(marker_gene_class_df, by = "barcodes") |>
+  tidyr::pivot_longer(ends_with("classification"),
+    names_to = "method",
+    values_to = "classification"
+  ) |>
+  dplyr::mutate(
+    # make a factor so tumor always appears first
+    classification = forcats::fct_relevel(classification, "Tumor")
+  )
+```
+
+
+## `AUCell` classification UMAP
+
+Below is a UMAP showing cells that are labeled as either `Tumor` or `Normal` using `AUCell` and marker gene expression. 
+
+```{r}
+ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = classification)) +
+  geom_point(size = 0.5, alpha = 0.5) +
+  facet_wrap(vars(method)) +
+  scale_color_manual(values = plot_colors) +
+  labs(
+    color = ""
+  ) +
+  guides(color = guide_legend(override.aes = list(size = 3, alpha = 1)))
+```
+
+## Comparison of AUC distribution 
+
+The below plot compares the distribution of AUC values in the query library as compared to the reference library used to determine the AUC threshold. 
+
+```{r}
+all_auc_df <- dplyr::bind_rows(
+  "reference" = ref_auc_df,
+  "query" = auc_results_df,
+  .id = "sample"
+) |>
+  dplyr::mutate(
+    sample = ifelse(sample == "query", paste("query:", params$library_id), sample)
+  )
+
+ggplot(all_auc_df, aes(x = auc, color = sample)) +
+  geom_density() +
+  geom_vline(xintercept = params$auc_threshold, linetype = "dashed") +
+  labs(
+    x = "AUC",
+    color = ""
+  )
+```
+
+## Expression of marker genes 
+
+The below plots summarize marker gene expression in tumor and normal cells as classified by `AUCell` and marker gene expression. 
+Note that we expect to see clear separation of gene expression for the marker gene classification as classification is based purely on expression. 
+
+### Density plot
+
+The `logcounts` for each gene in the marker gene list is summed for each cell and shown on the x-axis.
+We would expect tumor cells to have higher expression of marker genes than normal cells. 
+
+```{r, eval=has_marker_gene_exp}
+# create a density plot showing the distribution of marker gene expression across classification methods
+classification_df |>
+  ggplot(aes(x = sum_raw_exp, color = classification)) +
+  geom_density() +
+  facet_wrap(vars(method),
+    scales = "free_y"
+  ) +
+  scale_color_manual(values = plot_colors) +
+  labs(
+    x = "Raw sum of marker gene logcounts",
+    color = ""
+  )
+```
+
+### Heatmap
+
+Here every row is a marker gene and every column is a cell with colors corresponding to the expression of a specified marker gene.  
+The annotation bar indicates which cells are tumor or normal cells as classified by `AUCell` or marker gene expression. 
+We expect to see higher expression of individual marker genes in tumor cells compared to normal cells. 
+
+```{r}
+# create matrix with marker genes as rows and barcodes as columns
+marker_gene_matrix <- markers_df |>
+  dplyr::select(gene_expression, gene_symbol, barcodes) |>
+  tidyr::pivot_wider(
+    values_from = gene_expression,
+    names_from = barcodes
+  ) |>
+  tibble::column_to_rownames("gene_symbol") |>
+  as.matrix()
+
+annotation_df <- classification_df |>
+  dplyr::select(barcodes, classification, method) |>
+  tidyr::pivot_wider(
+    names_from = method,
+    values_from = classification
+  )
+
+annotation <- ComplexHeatmap::columnAnnotation(
+  AUCell = annotation_df$auc_classification,
+  marker_genes = annotation_df$marker_gene_classification,
+  col = list(
+    AUCell = plot_colors,
+    marker_genes = plot_colors
+  )
+)
+```
+
+```{r, eval=has_marker_gene_exp}
+# plot heatmap of marker genes
+plot_gene_heatmap(marker_gene_matrix,
+  row_title = "Marker gene symbol",
+  legend_title = "Marker gene \nexpression",
+  annotation = annotation
+)
+```
+
+## Gene set scores 
+
+The below plots summarize the gene set scores in tumor and normal cells as classified by `AUCell` and marker gene expression.
+
+Gene set scores are determined by calculating the mean expression of all genes in a given gene set. 
+Scores are calculated for the following gene sets from `MsigDb`:
+
+  - [`ZHANG_TARGETS_OF_EWSR1_FLI1_FUSION`](https://www.gsea-msigdb.org/gsea/msigdb/human/geneset/ZHANG_TARGETS_OF_EWSR1_FLI1_FUSION.html)
+  - [`RIGGI_EWING_SARCOMA_PROGENITOR_UP`](https://www.gsea-msigdb.org/gsea/msigdb/human/geneset/RIGGI_EWING_SARCOMA_PROGENITOR_UP.html?ex=1)
+  - [`SILIGAN_TARGETS_OF_EWS_FLI1_FUSION_DN`](https://www.gsea-msigdb.org/gsea/msigdb/cards/SILIGAN_TARGETS_OF_EWS_FLI1_FUSION_DN)
+
+
+### Density plot
+
+```{r}
+# prep data frame for plotting gene set scores
+geneset_plot_df <- classification_df |>
+  dplyr::select(barcodes, classification, method, starts_with("mean-")) |>
+  # make one column containing all gene set scores
+  tidyr::pivot_longer(
+    cols = starts_with("mean"),
+    names_to = "geneset",
+    values_to = "mean_score"
+  ) |>
+  # simplify gene set name for labels
+  dplyr::mutate(
+    geneset = stringr::word(geneset, -1, sep = "-")
+  )
+
+# make density plot showing distribution of gene set scores for tumor/normal
+ggplot(geneset_plot_df, aes(x = mean_score, color = classification)) +
+  geom_density(bw = 0.05) +
+  facet_grid(
+    rows = vars(geneset),
+    cols = vars(method),
+    scales = "free_y"
+  ) +
+  scale_color_manual(values = plot_colors) +
+  labs(
+    x = "Gene set score",
+    color = ""
+  )
+```
+
+### Heatmap 
+
+Here every column is a cell and every row is a gene set with colors corresponding to the gene set score. 
+The annotation bar indicates which cells are tumor or normal cells as classified by `AUCell` and marker gene expression. 
+We expect to see higher gene set scores in tumor cells compared to normal cells. 
+
+```{r}
+# make a matrix of gene set by barcode
+geneset_matrix <- geneset_plot_df |>
+  dplyr::select(mean_score, geneset, barcodes) |>
+  unique() |>
+  tidyr::pivot_wider(
+    values_from = mean_score,
+    names_from = barcodes
+  ) |>
+  tibble::column_to_rownames("geneset") |>
+  as.matrix()
+
+# plot heatmap of gene set score
+plot_gene_heatmap(geneset_matrix,
+  annotation = annotation,
+  legend_title = "Gene set \nscore"
+)
+```
+
+
+## Save marker gene classification 
+
+```{r}
+classification_df |>
+  dplyr::filter(method == "marker_gene_classification") |>
+  dplyr::select(barcodes, marker_gene_classification = classification) |>
+  readr::write_tsv(params$marker_class_file)
+```
+
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
+

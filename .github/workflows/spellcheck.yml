@@ -4,8 +4,11 @@ on:
     branches:
       - main
       - feature/*
+      - spelling/*
     paths:
       - docs/**
+      - "*.md"
+      - .github/components/dictionary.txt
   workflow_dispatch:
   schedule:
     - cron: "0 0 15 * *" # 15th of every month at midnight
@@ -33,7 +36,9 @@ jobs:
         id: spell
         with:
           dictionary: .github/components/dictionary.txt
-          files: ${{ github.event_name == 'pull_request' && 'docs/* docs/*/* docs/*/*/*' || null }}
+          # for pull requests, only checks docs and root markdown files, unless the branch triggering is a 'spelling/' branch
+          # all other triggers (including 'spelling/'' branches) check all files
+          files: ${{ (github.event_name == 'pull_request' && !startsWith(github.head_ref, 'spelling/')) && 'docs/* docs/*/* docs/*/*/* *.md' || null }}
 
       - name: Upload spell check errors
         uses: actions/upload-artifact@v4
