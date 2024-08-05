@@ -58,6 +58,14 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{raw}}
 
+      - name: Clear space
+        id: clear-space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
       - name: Build image
         uses: docker/build-push-action@v6
         with:
