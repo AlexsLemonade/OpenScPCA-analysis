@@ -1,5 +1,5 @@
 ---
-title: "Clustering SCPCL000822 and SCPCL000824"
+title: "Clustering `SCPCL000822` and `SCPCL000824`"
 author: Ally Hawkins
 date: "`r Sys.Date()`"
 output:
