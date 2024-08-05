@@ -14,7 +14,7 @@ on:
       - analyses/cell-type-ewings/.dockerignore
       - analyses/cell-type-ewings/renv.lock
       - analyses/cell-type-ewings/conda-lock.yml
-      - .github/workflow/docker_cell-type-ewings.yaml
+      - .github/workflows/docker_cell-type-ewings.yaml
   push:
     branches:
       - main
@@ -23,7 +23,7 @@ on:
       - analyses/cell-type-ewings/.dockerignore
       - analyses/cell-type-ewings/renv.lock
       - analyses/cell-type-ewings/conda-lock.yml
-      - .github/workflow/docker_cell-type-ewings.yaml
+      - .github/workflows/docker_cell-type-ewings.yaml
   workflow_dispatch:
     inputs:
       push-ecr:
