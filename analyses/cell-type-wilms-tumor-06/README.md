@@ -165,6 +165,9 @@ Within RStudio Server, `OpenScPCA-analysis` will point to your local copy of the
 If you are on a Mac with an M series chip, you will not be able to use RStudio Server if you are using a `linux/amd64` or `linux/x86_84` (like the ones available from ECR).
 You must build an ARM image locally to be able to use RStudio Server within the container.
 
+#### A note for Halbritter lab internal development
+This work has been developed on a system that uses podman instead of docker. The steps to run the docker/podman images are slightly different and we saved in run-podman-internal.sh our internal approach to run the container. Please, refer to the Docker section to build and run the container instead. 
+
 ### renv
 
 This module uses `renv`.
@@ -174,4 +177,4 @@ The `renv` lockfile is used to install R packages in the Docker image.
 
 ## Computational resources
 
-No need to run any analysis, just open the metadata table!
+
