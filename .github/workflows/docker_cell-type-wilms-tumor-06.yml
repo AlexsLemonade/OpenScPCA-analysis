@@ -21,6 +21,14 @@ on:
       - "analyses/cell-type-wilms-tumor-06/.dockerignore"
       - "analyses/cell-type-wilms-tumor-06/renv.lock"
       - "analyses/cell-type-wilms-tumor-06/conda-lock.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "analyses/cell-type-wilms-tumor-06/Dockerfile"
+      - "analyses/cell-type-wilms-tumor-06/.dockerignore"
+      - "analyses/cell-type-wilms-tumor-06/renv.lock"
+      - "analyses/cell-type-wilms-tumor-06/conda-lock.yml"
   workflow_dispatch:
     inputs:
       push-ecr:

@@ -21,6 +21,14 @@ on:
   #     - "analyses/{{ openscpca_module }}/.dockerignore"
   #     - "analyses/{{ openscpca_module }}/renv.lock"
   #     - "analyses/{{ openscpca_module }}/conda-lock.yml"
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - "analyses/{{ openscpca_module }}/Dockerfile"
+  #     - "analyses/{{ openscpca_module }}/.dockerignore"
+  #     - "analyses/{{ openscpca_module }}/renv.lock"
+  #     - "analyses/{{ openscpca_module }}/conda-lock.yml"
   workflow_dispatch:
     inputs:
       push-ecr:
