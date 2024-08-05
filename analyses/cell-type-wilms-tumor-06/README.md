@@ -25,7 +25,6 @@ The analysis is/will be divided as the following:
 
 ## Usage
 From Rstudio, run the Rmd reports or render the R scripts (see below R studio session set up).
-Please before running the script, make sure that the paths are correct.
 You can also simply have a look at the html reports in the notebook folder.
 Here, no need to run anything, we try to guide you through the analysis. Have a look at the code using the unhide code button on the top right of each chunk!
 
