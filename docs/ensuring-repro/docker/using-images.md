@@ -31,7 +31,9 @@ To obtain a local copy of a Docker image, follow these steps:
       ```
 
     !!! tip "Macs with Apple silicon"
-          If you are using an Apple silicon (M-series) Mac, you will need to use the additional flag `--platform linux/x86_64` when pulling an image.
+          If you are using an Apple silicon (M-series) Mac, make sure you have [installed Rosetta 2](index.md#apple-silicon-m-series-mac-users) before pulling (and later running) a Docker image.
+
+          In addition, you will need to use the additional flag `--platform linux/x86_64` when pulling an image.
           Note that the flag `--platform linux/x86_64` _must_ be provided before the image name.
 
           ```sh
@@ -76,6 +78,7 @@ docker run \
       ```
 
       You can safely ignore this warning, or you can silence it by providing the flag `--platform linux/x86_64` to your `docker run` command.
+      Again, make sure you have [installed Rosetta 2](index.md#apple-silicon-m-series-mac-users) before attempting to launch a container.
 
 
 ## Using Docker images on virtual computers
