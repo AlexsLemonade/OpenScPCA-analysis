@@ -206,7 +206,8 @@ plot_marker_genes <- function(cluster_exp_df,
         final_clusters_df,
         column,
         "cluster"
-      )
+      ) +
+        labs(y = "Cluster")
     }) |>
     patchwork::wrap_plots(ncol = 2) + patchwork::plot_annotation(glue::glue("{k_value}-clusters"))
 }
