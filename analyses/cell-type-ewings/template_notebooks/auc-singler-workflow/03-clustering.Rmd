@@ -101,7 +101,7 @@ umap_df <- sce |>
 
 
 Below we visualize the cluster assignments using each parameter on a UMAP. 
-This can be helpful to see any values of K that may have obvious over or under clustering. 
+This can be helpful to see any values of `k` that may have obvious over or under clustering. 
 
 ```{r, fig.height=15, fig.width=10}
 # look at clustering results for each library across all params
@@ -120,6 +120,7 @@ Below we calculate a series of statistics:
 
 - Average silhouette width: This metric evaluates cluster separation. 
 Cells with large positive silhouette widths are closer to other cells in the same cluster than to cells in different clusters. 
+Higher values indicate tighter clusters.
 - Average cluster purity: This metric also evaluates cluster separation and tells us the proportion of neighboring cells that are assigned to the same cluster. 
 Higher purity values indicate that clusters are well separated. 
 - Cluster stability: This evaluates how stable the clustering is to input data. 
@@ -216,13 +217,13 @@ cluster_celltype_heatmap(cluster_classification_df)
 
 ## Marker gene expression across clusters 
 
-Finally, we will look at the expression of marker genes across each cluster for each value of K. 
+Finally, we will look at the expression of marker genes across each cluster for each value of `k`. 
 In these plots, each row shows the distribution of the specified marker genes in that cluster. 
 Each panel is labeled with the marker gene expression being plotted. 
 
 ```{r}
 # read in marker genes table
-marker_genes_df <- readr::read_tsv(params$marker_genes_file, show_col_types = FALSE) |>
+marker_genes_df <- readr::read_tsv(params$marker_genes_file) |>
   # account for genes being from multiple sources
   dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |>
   dplyr::distinct()
