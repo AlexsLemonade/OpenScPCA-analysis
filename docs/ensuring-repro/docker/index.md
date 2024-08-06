@@ -38,11 +38,17 @@ Follow the instructions to [Install Docker Desktop on Mac](https://docs.docker.c
 
 After installing Docker, we recommend that Apple silicon Mac users follow these additional steps:
 
-1. Install Rosetta 2 [as described in the "System Requirements" section in the "Mac with Apple Silicon" tab](https://docs.docker.com/desktop/install/mac-install/#system-requirements).
+1. Install Rosetta 2 [as described in the "System Requirements" section in the "Mac with Apple silicon" tab](https://docs.docker.com/desktop/install/mac-install/#system-requirements) by running the following in [the terminal](../../getting-started/project-tools/using-the-terminal.md):
+
+    ```sh
+    # Install Rosetta 2, following instructions when prompted
+    softwareupdate --install-rosetta
+    ```
+
 1. Enable Rosetta emulation in the Docker Desktop Settings.
 In the ["General" settings](https://docs.docker.com/desktop/settings/mac/#general) tab, make sure the following are turned **on**:
     - "Use Virtualization framework"
-    - "Use Rosetta for x86_64/amd64 emulation on Apple Silicon"
+    - "Use Rosetta for `x86_64/amd64` emulation on Apple Silicon"
 
 ### Windows users
 
