@@ -47,6 +47,7 @@ After installing Docker, we recommend that Apple silicon Mac users follow these 
 
 1. Enable Rosetta emulation in the Docker Desktop Settings.
 In the ["General" settings](https://docs.docker.com/desktop/settings/mac/#general) tab, make sure the following are turned **on**:
+    - "Use containerd for pulling and storing images"
     - "Use Virtualization framework"
     - "Use Rosetta for `x86_64/amd64` emulation on Apple Silicon"
 
