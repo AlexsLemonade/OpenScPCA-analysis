@@ -1,0 +1,266 @@
+---
+title: "Clustering exploration for `r params$library_id`"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    code_folding: "hide"
+params:
+  library_id: NULL
+  sce_file: NULL
+  singler_results_file: NULL
+  cluster_results_file: NULL
+  marker_genes_file: NULL
+---
+
+This notebook summarizes clustering for `r params$library_id`.
+
+- Louvain, Jaccard clusters are calculated using a range of parameters specifying nearest neighbors (5, 10, 15, 20, 25, 30, 35, and 40). 
+- Metrics are then calculated to evaluate clustering results across all parameters: 
+  - Silhouette width 
+  - Cluster purity 
+  - Cluster stability 
+- The clusters are then compared to the results from running `SingleR` in the `aucell-singler-annotation.sh` workflow.
+- We then look at marker gene expression across the clusters and assign each cluster to a cell type. 
+
+## Setup
+
+```{r}
+# check that sce and results files exist
+stopifnot(
+  "sce file does not exist" = file.exists(params$sce_file),
+  "SingleR results file does not exist" = file.exists(params$singler_results_file),
+  "Marker genes file does not exist" = file.exists(params$marker_genes_file)
+)
+```
+
+
+```{r packages}
+suppressPackageStartupMessages({
+  # load required packages
+  library(SingleCellExperiment)
+  library(ggplot2)
+})
+
+# Set default ggplot theme
+theme_set(
+  theme_classic()
+)
+
+# quiet messages
+options(readr.show_col_types = FALSE)
+ComplexHeatmap::ht_opt(message = FALSE)
+```
+
+
+```{r base paths}
+# The path to this module
+module_base <- rprojroot::find_root(rprojroot::is_renv_project)
+
+# source in helper functions: calculate_sum_markers()
+validation_functions <- file.path(module_base, "scripts", "utils", "tumor-validation-helpers.R")
+source(validation_functions)
+
+# source in clustering functions
+clustering_functions <- file.path(module_base, "scripts", "utils", "clustering-functions.R")
+source(clustering_functions)
+```
+
+
+```{r}
+# read in input sce files
+sce <- readr::read_rds(params$sce_file)
+
+# read in singler results
+singler_classification_df <- readr::read_tsv(params$singler_results_file)
+```
+
+## Clustering
+
+Below we perform Louvain, Jaccard clustering, varying `k`. 
+The minimum `k` is 5 and the maximum `k` is 40 with a step size of 5. 
+
+```{r}
+# perform clustering across k = 5-40 with increments of 5
+all_cluster_results <- cluster_sweep(sce) |>
+  dplyr::mutate(
+    nn_param = forcats::fct_relevel(nn_param, "k_5", after = 0)
+  )
+```
+
+```{r}
+# get umap embeddings and combine into a data frame with cluster assignments
+umap_df <- sce |>
+  scuttle::makePerCellDF(use.dimred = "UMAP") |>
+  # replace UMAP.1 with UMAP1 and get rid of excess columns
+  dplyr::select(barcodes, UMAP1 = UMAP.1, UMAP2 = UMAP.2) |>
+  dplyr::left_join(all_cluster_results, by = "barcodes")
+```
+
+
+Below we visualize the cluster assignments using each parameter on a UMAP. 
+This can be helpful to see any values of `k` that may have obvious over or under clustering. 
+
+```{r, fig.height=15, fig.width=10}
+# look at clustering results for each library across all params
+ggplot(umap_df, aes(x = UMAP1, y = UMAP2, color = cluster)) +
+  geom_point(alpha = 0.5, size = 0.1) +
+  facet_wrap(vars(nn_param)) +
+  theme(
+    aspect.ratio = 1,
+    legend.position = "none"
+  )
+```
+
+## Clustering statistics 
+
+Below we calculate a series of statistics: 
+
+- Average silhouette width: This metric evaluates cluster separation. 
+Cells with large positive silhouette widths are closer to other cells in the same cluster than to cells in different clusters. 
+Higher values indicate tighter clusters.
+- Average cluster purity: This metric also evaluates cluster separation and tells us the proportion of neighboring cells that are assigned to the same cluster. 
+Purity values range from 0-1 with higher purity values indicating clusters that are well separated. 
+- Cluster stability: This evaluates how stable the clustering is to input data. 
+Stability values range from 01- with higher values of cluster stability indicating more reproducible clusters. 
+
+```{r, warning=FALSE}
+# get a combined stats dataframe with purity and width for all clusters
+all_stats_df <- get_cluster_stats(sce, all_cluster_results) |>
+  dplyr::mutate(
+    # make sure the order is correct
+    nn_param = forcats::fct_relevel(nn_param, "k_5", after = 0)
+  )
+```
+
+### Silhouette width
+
+```{r}
+# silhouette width for different params
+plot_cluster_stats(all_stats_df, width)
+```
+
+### Cluster purity 
+
+```{r}
+# cluster purity for different params
+plot_cluster_stats(all_stats_df, purity)
+```
+
+### Cluster stability 
+
+```{r, warning=FALSE, message=FALSE}
+# calculate cluster stability
+stability_df <- get_cluster_stability(sce, all_cluster_results) |>
+  dplyr::mutate(
+    k_value = as.factor(k_value),
+    # make sure that k = 5 comes first
+    k_value = forcats::fct_relevel(k_value, "5", after = 0)
+  )
+
+# plot stability across all values of k
+ggplot(stability_df, aes(x = k_value, y = ari)) +
+  geom_jitter(width = 0.1) +
+  labs(title = "Cluster stability") +
+  stat_summary(
+    aes(group = k_value),
+    color = "red",
+    # median and quartiles for point range
+    fun = "median",
+    fun.min = function(x) {
+      quantile(x, 0.25)
+    },
+    fun.max = function(x) {
+      quantile(x, 0.75)
+    }
+  )
+```
+
+
+## Compare clusters to cell types from `SingleR`
+
+Now we will compare the clustering results to the cell type assignments obtained from `SingleR` in the `aucell-singler-annotation.sh` workflow. 
+To compare results we will calculate the Jaccard similarity index between clusters and cell types. 
+We expect that good clustering will line up with the cell type assignments so that there is ~ 1 cell type per cluster. 
+
+For the plots, we will only display the top 7 cell types identified by `SingleR` and all other cells will be lumped together into `All remaining cell types`. 
+
+```{r}
+cluster_classification_df <- all_cluster_results |>
+  # add in classifications from singler
+  dplyr::left_join(singler_classification_df, by = "barcodes") |>
+  dplyr::mutate(
+    # first grab anything that is tumor and label it tumor
+    # NA should be unknown
+    singler_annotation = dplyr::case_when(
+      stringr::str_detect(singler_annotation, "tumor") ~ "tumor",
+      is.na(singler_annotation) ~ "unknown", # make sure to separate out unknown labels
+      .default = singler_annotation
+    ) |>
+      forcats::fct_relevel("tumor", after = 0),
+    # get the top cell types for plotting later
+    singler_lumped = singler_annotation |>
+      forcats::fct_lump_n(7, other_level = "All remaining cell types", ties.method = "first") |>
+      forcats::fct_infreq() |>
+      forcats::fct_relevel("All remaining cell types", after = Inf),
+    nn_param = forcats::fct_relevel(nn_param, "k_5", after = 0)
+  )
+```
+
+```{r, fig.height=10, fig.width=7}
+# get heatmap for showing cluster assignments vs. singler assignments
+cluster_celltype_heatmap(cluster_classification_df)
+```
+
+
+## Marker gene expression across clusters 
+
+Finally, we will look at the expression of marker genes across each cluster for each value of `k`. 
+In these plots, each row shows the distribution of the specified marker genes in that cluster. 
+Each panel is labeled with the marker gene expression being plotted. 
+
+```{r}
+# read in marker genes table
+marker_genes_df <- readr::read_tsv(params$marker_genes_file) |>
+  # account for genes being from multiple sources
+  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |>
+  dplyr::distinct()
+
+# get list of all cell types found
+cell_types <- unique(marker_genes_df$cell_type)
+
+# get the sum of expression of all genes for each cell type
+gene_exp_df <- cell_types |>
+  purrr::map(\(type){
+    calculate_sum_markers(marker_genes_df, sce, type)
+  }) |>
+  purrr::reduce(dplyr::inner_join, by = "barcodes")
+
+# join sum expression columns with clustering results
+cluster_exp_df <- all_cluster_results |>
+  dplyr::left_join(gene_exp_df, by = "barcodes")
+```
+
+```{r, fig.height=7, fig.width=7}
+# plot to look at marker gene expression for all cell types across all clusters and all params
+k_params <- unique(cluster_exp_df$nn_param) |>
+  as.character()
+
+k_params |>
+  purrr::map(\(k) {
+    plot_marker_genes(cluster_exp_df,
+      k_value = k
+    )
+  })
+```
+
+## Session info 
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
+
+

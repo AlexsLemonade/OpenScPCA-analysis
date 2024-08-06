@@ -98,8 +98,10 @@ linter
 linter's
 linters
 lockfile
+Louvain
 LSfR
 macOS
+macrophage
 md
 merchantability
 mesenchymal
@@ -143,6 +145,7 @@ SCE
 ScPCA
 SCPCP
 scrublet
+SEACells
 SemVar
 SingleR
 socio
