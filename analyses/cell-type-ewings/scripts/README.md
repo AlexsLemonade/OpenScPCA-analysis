@@ -242,6 +242,6 @@ The `utils` folder contains scripts with any helper functions that are used in `
 2. `tumor-validation-helpers.R`: These functions are used in the template notebooks in `template_notebooks/auc-singler-workflow` and the notebooks found in the `exploratory_analysis/annotation_notebooks` folder.
    The functions are helpful for exploring and validate tumor cell annotations in individual samples.
    
-3. `clustering-functions.R`: These functions are used in the template notebook for exploring clustering, `template_notebooks/auc-singler-workflow/03-clustering.Rmd`. 
+3. `clustering-functions.R`: These functions are used in the template notebook for exploring clustering, `template_notebooks/clustering-workflow/03-clustering.Rmd`. 
 The functions included are used to calculate and plot clusters and cluster statistics. 
 
