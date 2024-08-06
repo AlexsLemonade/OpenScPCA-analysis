@@ -34,6 +34,23 @@ We will also use Docker images to run the analysis modules in the `OpenScPCA-nf`
 
 Follow the instructions to [Install Docker Desktop on Mac](https://docs.docker.com/desktop/install/mac-install/) on the Docker website.
 
+#### Apple silicon (M-series) Mac users
+
+After installing Docker, we recommend that Apple silicon Mac users follow these additional steps:
+
+1. Install Rosetta 2 [as described in the "System Requirements" section in the "Mac with Apple silicon" tab](https://docs.docker.com/desktop/install/mac-install/#system-requirements) by running the following in [the terminal](../../getting-started/project-tools/using-the-terminal.md):
+
+    ```sh
+    # Install Rosetta 2, following instructions when prompted
+    softwareupdate --install-rosetta
+    ```
+
+1. Enable Rosetta emulation in the Docker Desktop Settings.
+In the ["General" settings](https://docs.docker.com/desktop/settings/mac/#general) tab, make sure the following are turned **on**:
+    - "Use containerd for pulling and storing images"
+    - "Use Virtualization framework"
+    - "Use Rosetta for `x86_64/amd64` emulation on Apple Silicon"
+
 ### Windows users
 
 To enable Docker on the WSL 2 side of your computer, you will need to turn on Docker's built-in [WSL 2 feature](https://docs.docker.com/desktop/wsl/).
