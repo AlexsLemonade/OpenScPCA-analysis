@@ -26,7 +26,7 @@ get_clusters <- function(pcs, k) {
   return(clusters)
 }
 
-# define a function to perform clustersweep and get clusters across multiple values of k
+# define a function to perform clustersweep and get clusters across multiple values of k (5,40,5)
 cluster_sweep <- function(sce) {
   # first perform clustering across parameters
   cluster_results <- bluster::clusterSweep(reducedDim(sce, "PCA"),
@@ -190,10 +190,10 @@ cluster_celltype_heatmap <- function(cluster_classification_df) {
 # Density plot looking at marker gene expression across all clusters
 # each panel is from a different marker gene list
 # each row shows marker gene expression for that cluster
-plot_marker_genes <- function(cluster_classification_df,
+plot_marker_genes <- function(cluster_exp_df,
                               k_value) {
   # pick clustering to use and select those columns
-  final_clusters_df <- cluster_classification_df |>
+  final_clusters_df <- cluster_exp_df |>
     dplyr::filter(nn_param == k_value)
 
   # grab columns that contain marker gene sums
@@ -208,5 +208,5 @@ plot_marker_genes <- function(cluster_classification_df,
         "cluster"
       )
     }) |>
-    patchwork::wrap_plots(ncol = 1) + patchwork::plot_annotation(glue::glue("{k_value}-clusters"))
+    patchwork::wrap_plots(ncol = 2) + patchwork::plot_annotation(glue::glue("{k_value}-clusters"))
 }
