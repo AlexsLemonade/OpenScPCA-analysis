@@ -31,7 +31,7 @@ To obtain a local copy of a Docker image, follow these steps:
       ```
 
     !!! tip "Macs with Apple silicon"
-          If you are using an Apple silicon (M-series) Mac, make sure you have [installed Rosetta 2](index.md#apple-silicon-m-series-mac-users) before pulling (and later running) a Docker image.
+          If you are using an Apple silicon (M-series) Mac, make sure you have [installed Rosetta 2 and enabled `x86_64/amd64` emulation](index.md#apple-silicon-m-series-mac-users) before pulling (and later running) a Docker image.
 
           In addition, you will need to use the additional flag `--platform linux/x86_64` when pulling an image.
           Note that the flag `--platform linux/x86_64` _must_ be provided before the image name.
