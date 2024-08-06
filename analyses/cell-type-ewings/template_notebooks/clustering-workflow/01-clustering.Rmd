@@ -109,9 +109,9 @@ ggplot(umap_df, aes(x = UMAP1, y = UMAP2, color = cluster)) +
   geom_point(alpha = 0.5, size = 0.1) +
   facet_wrap(vars(nn_param)) +
   theme(
-    aspect.ratio = 1
-  ) +
-  guides(color = guide_legend(override.aes = list(alpha = 1, size = 1.5)))
+    aspect.ratio = 1,
+    legend.position = "none"
+  )
 ```
 
 ## Clustering statistics 
@@ -122,9 +122,9 @@ Below we calculate a series of statistics:
 Cells with large positive silhouette widths are closer to other cells in the same cluster than to cells in different clusters. 
 Higher values indicate tighter clusters.
 - Average cluster purity: This metric also evaluates cluster separation and tells us the proportion of neighboring cells that are assigned to the same cluster. 
-Higher purity values indicate that clusters are well separated. 
+Purity values range from 0-1 with higher purity values indicating clusters that are well separated. 
 - Cluster stability: This evaluates how stable the clustering is to input data. 
-Higher values of cluster stability indicate more reproducible clusters. 
+Stability values range from 01- with higher values of cluster stability indicating more reproducible clusters. 
 
 ```{r, warning=FALSE}
 # get a combined stats dataframe with purity and width for all clusters
@@ -243,7 +243,7 @@ cluster_exp_df <- all_cluster_results |>
   dplyr::left_join(gene_exp_df, by = "barcodes")
 ```
 
-```{r, fig.height=10, fig.width=5}
+```{r, fig.height=7, fig.width=7}
 # plot to look at marker gene expression for all cell types across all clusters and all params
 k_params <- unique(cluster_exp_df$nn_param) |>
   as.character()
