@@ -31,7 +31,7 @@ To obtain a local copy of a Docker image, follow these steps:
       ```
 
     !!! tip "Macs with Apple silicon"
-          If you are using an Apple silicon (M1-3) Mac, you will need to use the additional flag `--platform linux/x86_64` when pulling an image.
+          If you are using an Apple silicon (M-series) Mac, you will need to use the additional flag `--platform linux/x86_64` when pulling an image.
           Note that the flag `--platform linux/x86_64` _must_ be provided before the image name.
 
           ```sh
@@ -69,7 +69,7 @@ docker run \
 ```
 
 !!! tip "Macs with Apple silicon"
-      If you are using an Apple silicon (M1-3) Mac, you may see this warning when launching the container:
+      If you are using an Apple silicon (M-series) Mac, you may see this warning when launching the container:
 
       ```{.console .no-copy}
       WARNING: The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested

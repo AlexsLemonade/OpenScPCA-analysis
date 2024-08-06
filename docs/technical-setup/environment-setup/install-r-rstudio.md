@@ -24,7 +24,7 @@ The instructions provided here are suitable for the vast majority of contributor
 1. Navigate to the [macOS download page on the CRAN website](https://cran.r-project.org/bin/macosx/).
 
 2. Download the R package that matches your computer's architecture, and follow all installation instructions.
-    - If you're on an Apple silicon (M1-3) Mac, install R from the link `R-X.Y.Z-arm64.pkg`, where `X.Y.Z` is the specific R version.
+    - If you're on an Apple silicon (M-series) Mac, install R from the link `R-X.Y.Z-arm64.pkg`, where `X.Y.Z` is the specific R version.
     - If you're on an Intel Mac, install R from the link `R-X.Y.Z-x86_64.pkg`, where `X.Y.Z` is the specific R version.
 
 
