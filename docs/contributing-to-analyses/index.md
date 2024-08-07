@@ -34,8 +34,8 @@ The below steps outline the process for getting started with a new analysis modu
 1. [Create a feature branch](working-with-git/working-with-branches.md) in your fork to begin your analysis (but see the [helpful tips](#helpful-tips) below!)
 2. [Create a new analysis module](analysis-modules/creating-a-module.md) (unless you are working on an existing module)
 3. Perform your analysis using Git:
-      - [Commit](working-with-git/making-commits.md) small units of work, [pushing](working-with-git/push-to-origin.md) your commits to your fork on GitHub along the way
-      - Be sure to [document](analysis-modules/documenting-analysis.md) your analysis module as you build it up
+    - [Commit](working-with-git/making-commits.md) small units of work, [pushing](working-with-git/push-to-origin.md) your commits to your fork on GitHub along the way
+    - Be sure to [document](analysis-modules/documenting-analysis.md) your analysis module as you build it up
 4. When you've [completed enough work for a pull request (PR)](creating-pull-requests/scoping-pull-requests.md), you'll [file a PR](creating-pull-requests/index.md) to the upstream repository, `AlexsLemonade/OpenScPCA-analysis`
 5. The Data Lab will then [review your PR](pr-review-and-merge/index.md)
 6. Once we approve your PR, we will merge your feature branch into the upstream `AlexsLemonade/OpenScPCA-analysis` repository
