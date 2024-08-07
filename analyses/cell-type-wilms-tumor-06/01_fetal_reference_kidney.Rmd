@@ -1,0 +1,88 @@
+---
+title: "Build azimuth compatible fetal kidney reference from the kidney cell atlas"
+author: "Maud PLASCHKA"
+date: '2024-08-07'
+output: 
+  html_document: 
+    toc: yes
+    toc_float: yes
+    code_folding: hide
+    highlight: pygments
+    df_print: paged
+---
+
+The aim is to build an azimuth compatible reference for fetal kidney from the kidney cell atlas.
+Download the Fetal_full_v3.h5ad from : https://www.kidneycellatlas.org/fetal-kidney-global
+And save it in path_to_resource folder
+
+```{r }
+# run with docker image maud_R_Python
+    library("reticulate")
+    library("scater")
+    library("Seurat")
+    sc <- import("scanpy")
+```
+```{r }
+
+file = paste0(path_to_resource, "/Fetal_full_v3.h5ad")
+  
+adata <- sc$read_h5ad(file)
+
+counts <- t(adata$layers["counts"])
+colnames(counts) <- adata$obs_names$to_list()
+rownames(counts) <- adata$var_names$to_list()
+counts <- Matrix::Matrix(as.matrix(counts), sparse = T)
+seurat <- CreateSeuratObject(counts)
+seurat <- AddMetaData(seurat,  adata$obs)
+embedding <- adata$obsm["X_umap"]
+rownames(embedding) <- adata$obs_names$to_list()
+colnames(embedding) <- c("umap_1", "umap_2")
+seurat[["umap"]] <- CreateDimReducObject(embedding, key = "umap_")
+saveRDS(seurat, file = paste0(path_to_resources,"/Fetal_full.rds"))
+```
+
+# Create a azimuth compatible reference
+
+```{r echo=TRUE, fig.height=10, fig.width=14, message=FALSE, warning=FALSE, out.width='100%'}
+# run with my standard docker image maud
+library(Seurat)
+library(sctransform)
+library(Azimuth)
+
+seurat <- readRDS( file = paste0(path_to_resources,"/Fetal_full.rds"))
+seurat <- subset(seurat, subset = (nCount_RNA > 0) )
+
+DimPlot(seurat, group.by = "compartment")
+DimPlot(seurat, group.by = "celltype")
+
+s <- SCTransform(seurat, verbose = FALSE, method = "glmGamPoi", conserve.memory = TRUE)
+s <- RunPCA(s, npcs = 50, verbose = FALSE)
+
+s <- RunUMAP(s, dims = 1:50, verbose = FALSE, return.model = TRUE)
+DimPlot(s, reduction = "umap", group.by = "compartment") 
+DimPlot(s, group.by = "celltype")
+
+Fetal_kidney <- AzimuthReference(
+  s,
+  refUMAP = "umap",
+  refDR = "pca",
+  refAssay = "SCT",
+  dims = 1:50,
+  k.param = 31,
+  plotref = "umap",
+  plot.metadata = NULL,
+  ori.index = NULL,
+  colormap = NULL,
+  assays = NULL,
+  metadata = c("compartment", "celltype"),
+  reference.version = "0.0.0",
+  verbose = FALSE
+)
+
+ref_dir = paste0(path_to_resources)
+
+# save reference in rds file
+SaveAnnoyIndex(object = Fetal_kidney[["refdr.annoy.neighbors"]], file = file.path(ref_dir, "idx.annoy"))
+saveRDS(object = Fetal_kidney, file = file.path(ref_dir, "ref.Rds"))
+
+```
