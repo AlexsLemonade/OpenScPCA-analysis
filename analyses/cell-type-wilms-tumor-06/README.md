@@ -175,6 +175,19 @@ If you are using RStudio Server within the container, the `renv` project will no
 You can install packages within the container and use `renv::snapshot()` to update the lockfile without activating the project without a problem in our testing.
 The `renv` lockfile is used to install R packages in the Docker image.
 
+## Start the analysis
+
+Once you have (1) downloaded the data (See Input file section above) and (2) connect to your RStudio Session (See Docker section above) :
+
+you are READY TO START!
+
+Open the render_01-clustering.R file and render it to all samples in the dataset using [Source].
+
+html report will be created from the template notebook 01-clustering.Rmd.
+html reports can be found in notebook/01-clustering folder.
+
+
+
 ## Computational resources
 
 
