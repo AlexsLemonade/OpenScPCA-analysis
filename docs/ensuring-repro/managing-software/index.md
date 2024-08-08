@@ -11,7 +11,7 @@ Analysis modules will have files specifying the specific software dependencies a
 We specifically recommend these two package managers to specify module-specific software environments:
 
 - The R package manager [`renv`](https://rstudio.github.io/renv/) for modules containing R code.
-  - Before working with `renv`, we encourage you to read [the excellent introduction](https://rstudio.github.io/renv/articles/renv.html) for more information.
+    - Before working with `renv`, we encourage you to read [the excellent introduction](https://rstudio.github.io/renv/articles/renv.html) for more information.
 - The package manager [conda](https://docs.conda.io/en/latest/), along with [`conda-lock`](https://conda.github.io/conda-lock/), for modules containing Python code.
 Conda can also be used to manage standalone software packages that do not depend on a specific language.
 
@@ -20,7 +20,7 @@ When you [create a module with `create-analysis-module.py`](../../contributing-t
 ## Updating software environments
 
 As analysis modules mature, the Data Lab will activate several [GitHub Action workflows](../workflows/index.md) that ensure module reproducibility.
-Once these workflows are activated, you will need to file _two PRs_ every time you wish to update your software environment, including adding or updating a package used in R or Python: 
+Once these workflows are activated, you will need to file _two PRs_ every time you wish to update your software environment, including adding or updating a package used in R or Python:
 
 1. First, file a PR that updates your software environment, e.g. `renv.lock`, `conda.lock`, or `Dockerfile` files
 1. After that first PR is been merged, you can then file a second PR that contains your code changes that use the updated environment

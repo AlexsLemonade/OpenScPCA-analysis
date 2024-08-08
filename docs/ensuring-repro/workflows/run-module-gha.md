@@ -10,7 +10,7 @@ Module testing GHAs are automatically run in two circumstances:
 - When a pull request is filed with changes to any module files
     - This GHA will need to pass without errors for [pull requests](../../contributing-to-analyses/pr-review-and-merge/index.md) to be approved
 - On a periodic schedule
-  - This ensures that changes in data or other code do not break tests within each module
+    - This ensures that changes in data or other code do not break tests within each module
 
 For examples of existing analysis module GHAs, see the example Python and R module GHAs, [`run_hello-python.yml`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/.github/workflows/run_hello-python.yml) and [`run_hello-R.yml`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/.github/workflows/run_hello-R.yml), respectively.
 
