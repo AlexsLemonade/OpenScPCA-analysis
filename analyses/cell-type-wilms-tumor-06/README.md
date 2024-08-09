@@ -67,6 +67,25 @@ Some differenices are expected, some marker genes or pathways are associated wit
 
 ## Output files
 
+## Human fetal kidney reference 
+
+Wilms tumors can contain up to three histologies that resemble fetal kidney: blastema, stroma, and epithelia [1-2].  
+Because of their histological similarity to fetal kidneys, Wilms tumors are thought to arise from developmental derangements in embryonic renal progenitors.
+
+We thus decided to use the human fetal kidney atlas to transfer label into the Wilms tumor samples using azimuth. 
+You can find more about the human kidney atlas here: https://www.kidneycellatlas.org/ [3]
+
+REF: 
+[1] https://www.ncbi.nlm.nih.gov/books/NBK373356/
+[2] https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9915828/
+[3] https://www.science.org/doi/10.1126/science.aat5031
+
+The first step of the module is thus to download and build the azimuth compatible reference. 
+This can be achieved running 00_fetal_reference_kidney.Rmd. 
+Briefly, this will download the reference data from the cellxgene platform: https://datasets.cellxgene.cziscience.com/40ebb8e4-1a25-4a33-b8ff-02d1156e4e9b.rds
+and create an azimuth compatible Seurat object that will be saved in the marker-sets forlder as ref.Rds and idx.annoy files. 
+
+
 ## Marker sets
 
 This folder is a resource for later validation of the annotated cell types.
