@@ -61,13 +61,11 @@ rds data can be downloaded using the URLhttps://datasets.cellxgene.cziscience.co
 Please note that this download link permanently references the current version of the dataset (08/2024). 
 If this dataset is updated, a new download link will be created that permanently references the next version of this dataset.
 
-We save it in the marker-sets folder of the module.
-Note to the DataLab: should we save it somewhere else? 
-I suggest this rds file could be placed here transiently and removed once the reference is build?
+We place it in the `scratch` folder of the module because it is a temporary file.
 
 
 ```{r path_to_data}
-path_to_data <- file.path(module_base, "marker-sets/fetal_full.rds")
+path_to_data <- file.path(module_base, "scratch", fetal_full.rds")
 
 url = "https://datasets.cellxgene.cziscience.com/40ebb8e4-1a25-4a33-b8ff-02d1156e4e9b.rds"
 
