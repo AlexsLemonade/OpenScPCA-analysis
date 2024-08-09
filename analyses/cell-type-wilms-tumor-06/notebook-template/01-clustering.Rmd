@@ -84,11 +84,11 @@ We expect it to be the most representative of the cell types in the sample.
 
 Please note: to keep the notebook as straight as possible, we decided to show the analysis for the selected set of parameters:
 
-- SCTransform (default parameters)
-- RunPCA (default) 
-- RunUMAP (dims = 1:50) 
-- FindNeighbors (dims = 1:50) 
-- FindClusters (default)
+- `SCTransform` (default parameters)
+- `RunPCA` (default) 
+- `RunUMAP` (dims = 1:50) 
+- `FindNeighbors` (dims = 1:50) 
+- `FindClusters` (default)
 
 
 Note: Other parameters have been previously tested, but we would like to show in the following report that the one selected is performing good.
