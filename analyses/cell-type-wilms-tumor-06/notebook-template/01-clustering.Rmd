@@ -725,7 +725,7 @@ Also check : https://www.science.org/doi/10.1126/science.aat5031
 This part is imho one of the most important step that allow us to have a quick and reliable idea of the composition of the different clusters. 
 The predicted compartment are defined into 4 categories:
 
-- endotheliúm
+- endothelium
 - stroma
 - fetal nephron 
 - immune
