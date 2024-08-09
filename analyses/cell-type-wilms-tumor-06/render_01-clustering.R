@@ -84,7 +84,7 @@ for (i in 2:length(filelist)) {
   
   rmarkdown::render(input = "notebook-template/01-clustering.Rmd", 
                     output_format = "html_document",
-                    output_file = paste0("01-clustering_",i,"_",gsub(paste0(data_dir, "/"), "", filelist[i]), ".html"),
+                    output_file = paste0("01-clustering_",gsub(paste0(data_dir, "/"), "", filelist[i]), ".html"),
                     output_dir = "notebook/01-clustering")
   
   
