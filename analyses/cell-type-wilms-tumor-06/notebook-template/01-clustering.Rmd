@@ -1,5 +1,5 @@
 ---
-title: "Evaluation of clustering parameters"
+title: "Exploration of clustering results"
 author: maud-p
 date: '`r format(Sys.time(), "%B %d, %Y %H:%M:%S %Z")`'
 output:
