@@ -87,13 +87,13 @@ We store in a config list names "cfg" parameters used all along the analysis to 
 
 
 ```{r cfg}
-cfg = list()
-cfg$padj_thershold = 0.05
-cfg$lfc_threshold = 1
-cfg$rate1_threshold = 0.5
+cfg <- list()
+cfg$padj_threshold <- params$padj_threshold
+cfg$lfc_threshold <- params$lfc_threshold
+cfg$rate1_threshold <- params$rate1_threshold
 
 
-set.seed(12345)
+set.seed(params$seed)
 ```
 
 
