@@ -6,7 +6,7 @@ subuidSize=$(( $(podman info --format "{{ range .Host.IDMappings.UIDMap }}+{{.Si
 subgidSize=$(( $(podman info --format "{{ range .Host.IDMappings.GIDMap }}+{{.Size }}{{end }}" ) - 1 ))
 
 # go to the OpenScPCA-analysis folder before mounting $PWD to keep access to OpenScPCA-analysis/data in the R Session
-cd \..\..\
+cd ../..\
 
 podman run \
   --name maudp_ScPCA_wilms \
