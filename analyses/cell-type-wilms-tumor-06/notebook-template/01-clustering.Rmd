@@ -129,7 +129,7 @@ srat[["RNA"]]@meta.data <- row_metadata
 
 # add metadata from SingleCellExperiment to Seurat
 srat@misc <- metadata(sce)
-
+rm(sce)
 
 # Normalization
 options(future.globals.maxSize= 8912896000000)
