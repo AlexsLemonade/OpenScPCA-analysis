@@ -79,7 +79,7 @@ The azimuth compatible fetal kidney reference will be saved in the marker-sets f
 
 
 ```{r path_to_output}
-path_to_output <- file.path(module_base, "marker-sets")
+path_to_output <- file.path(module_base, "results", "references")
 ```
 
 
