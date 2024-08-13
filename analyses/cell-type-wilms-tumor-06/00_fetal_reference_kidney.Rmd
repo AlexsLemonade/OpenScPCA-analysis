@@ -71,7 +71,7 @@ We place it in the `scratch` folder of the module because it is a temporary file
 
 
 ```{r path_to_data}
-path_to_data <- file.path(module_base, "scratch", fetal_full.rds")
+path_to_data <- file.path(module_base, "scratch", "fetal_full.rds")
 
 url = "https://datasets.cellxgene.cziscience.com/40ebb8e4-1a25-4a33-b8ff-02d1156e4e9b.rds"
 

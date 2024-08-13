@@ -17,7 +17,7 @@ The analysis is/will be divided as the following:
 
 - [x] Metadata file: compilation of a metadata file of marker genes for expected cell types that will be used for validation at a later step
 - [ ] Script: clustering of cells across a set of parameters for few samples
-- [ ] Script: label transfer from the fetal kidney atlas reference using runAzimuth
+- [x] Script: label transfer from the fetal kidney atlas reference using runAzimuth
 - [ ] Script: run InferCNV
 - [ ] Notebook: explore results from steps 2 to 4 for about 5 to 10 samples
 - [ ] Script: compile scripts 2 to 4 in a RMardown file with required adjustements and render it across all samples
@@ -67,23 +67,40 @@ Some differenices are expected, some marker genes or pathways are associated wit
 
 ## Output files
 
-## Human fetal kidney reference 
+### Label transfer from reference 
 
-Wilms tumors can contain up to three histologies that resemble fetal kidney: blastema, stroma, and epithelia [1-2].  
+#### R Script to be rendered : `00-reference.R`
+
+#### Introduction
+
+The use of the right reference is crucial. 
+It is recommended that the cell types in the reference is representative to the cell types to be annotated in the query.
+
+Wilms tumors can contain up to three histologies that resemble fetal kidney: blastema, stroma, and epithelia [1-2].
 Because of their histological similarity to fetal kidneys, Wilms tumors are thought to arise from developmental derangements in embryonic renal progenitors.
 
-We thus decided to use the human fetal kidney atlas to transfer label into the Wilms tumor samples using azimuth. 
+We thus decided to test and compare two fetal (kidney) references that could be use in the analysis module.
+
+#### Human fetal kidney atlas Stewart et al.
+
+We first wanted to try the human fetal kidney atlas to transfer label into the Wilms tumor samples using azimuth. 
 You can find more about the human kidney atlas here: https://www.kidneycellatlas.org/ [3]
 
-REF: 
-[1] https://www.ncbi.nlm.nih.gov/books/NBK373356/
-[2] https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9915828/
-[3] https://www.science.org/doi/10.1126/science.aat5031
+Using this reference, we test two workflows for label transfer:
 
-The first step of the module is thus to download and build the azimuth compatible reference. 
-This can be achieved running 00_fetal_reference_kidney.Rmd. 
-Briefly, this will download the reference data from the cellxgene platform: https://datasets.cellxgene.cziscience.com/40ebb8e4-1a25-4a33-b8ff-02d1156e4e9b.rds
-and create an azimuth compatible Seurat object that will be saved in the marker-sets forlder as ref.Rds and idx.annoy files. 
+- `Azimuth v5`,
+- `Seurat v4` as described here  https://satijalab.org/seurat/articles/integration_mapping.html#cell-type-classification-using-an-integrated-reference
+
+
+#### Azimuth Human fetal atlas Cao et al.
+
+Azimuth also provide a human fetal atlas as a reference [4]. 
+
+The data can be found on Zenodo: 
+https://zenodo.org/records/4738021#.YJIW4C2ZNQI
+
+The reference contain cells from 15 organs including kidney from fetal samples. 
+Here we will use `Azimuth` to transfer labels from the reference.
 
 
 ## Marker sets
@@ -196,4 +213,14 @@ The `renv` lockfile is used to install R packages in the Docker image.
 
 ## Computational resources
 
+
+## References 
+
+- [1] https://www.ncbi.nlm.nih.gov/books/NBK373356/ 
+
+- [2] https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9915828/ 
+
+- [3] https://www.science.org/doi/10.1126/science.aat5031 
+
+- [4] https://www.science.org/doi/10.1126/science.aba7721
 
