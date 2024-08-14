@@ -9,7 +9,7 @@ The aim of the following notebook is to provide information to guide annotation 
 
 ## Description
 
-In this folder, you find `RMardown` templates that can be run using the R script in the `script` folder
+In this folder, you find `RMarkdown` templates that can be run using the R script in the `script` folder
 
 ### 01-clustering.Rmd
 
