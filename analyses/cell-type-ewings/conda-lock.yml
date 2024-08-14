@@ -21,8 +21,6 @@ metadata:
     used_env_vars: []
   - url: bioconda
     used_env_vars: []
-  - url: defaults
-    used_env_vars: []
   - url: pytorch
     used_env_vars: []
   platforms:
