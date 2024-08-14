@@ -12,7 +12,5 @@ for (i in metadata$scpca_sample_id[9:11]) {
                     output_format = "html_document",
                     output_file = paste0("01-clustering_",i, ".html"),
                     output_dir = "notebook/01-clustering")
-  
-  
 }
 
