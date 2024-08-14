@@ -1,5 +1,5 @@
 ---
-title: "Exploration of clustering results"
+title: "Exploration of clustering results for `r params$sample_id`"
 author: maud-p
 date: '`r format(Sys.time(), "%B %d, %Y %H:%M:%S %Z")`'
 output:
@@ -9,27 +9,34 @@ output:
     code_folding: hide
     highlight: pygments
     df_print: kable
+    self_contained: yes
+    mode: selfcontained 
 params:
-  sample_name: ~
-  sample_path: ~
-  out_rds_path: ~
+  current: "2024-07-08"
+  scpca_project_id: "SCPCP000006"
+  sample_id: "SCPCS000176"
+  seed: 12345
+  padj_thershold: 0.05  # Threshold for adjusted p-value
+  lfc_threshold: 1      # Threshold for log fold change
+  rate1_threshold: 0.5  # Threshold for rate (percentage) of cells expressing the marker genes in group1
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
 	echo = TRUE,
 	message = FALSE,
-	warnings = FALSE,
-	error = TRUE
+	warnings = FALSE
 )
 ```
 
 
 ## Introduction
 
-This a template for an analysis notebook using RMarkdown.
+This a template for an analysis notebook using `RMarkdown`.
 
-In this notebook, we will set up parameters in the seurat workflow [normalization --> reduction --> clustering] for one Wilms tumor sample (SCPCS000169) of the Wilms Tumor dataset (SCPCP000006). 
+
+In this notebook, we will perform the `Seurat` workflow [normalization --> reduction --> clustering] and explore the clustering results. 
 
 This correspond to the step 2 of the proposed analysis: clustering of cells across a set of parameters for few samples
 
@@ -37,20 +44,11 @@ This correspond to the step 2 of the proposed analysis: clustering of cells acro
 - https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/671
 
 In order to assess the clustering quality, we look into some marker genes, pathways enrichment and label transfer.
+This approach would provide us a rapid idea of the quality of the clustering:
 
-
-
-## Sample metadata
-
-```{r paths2}
-## to be modified when rendered
-filedir <- filelist[i] 
-sample <- gsub(paste0(data_dir, "/"), "", filedir)
-
-metadata <- read.table(file.path(data_dir, "/single_cell_metadata.tsv"), sep = "\t", header=TRUE)
-
-metadata[metadata$scpca_sample_id == sample,]
-```
+- in the case each cluster do have a set of specific marker genes, we could expect each of the cluster to have at least a different phenotype,
+- if marker genes are mostly shared between clusters, we might have overclustered,
+- if no marker genes are found, the quality of cells in the clusters might be impaired (high mitochondrial content? ribosomal content?)
 
 
 ### Description of the analysis workflow
@@ -64,21 +62,61 @@ We expect these cells to cluster together in a cluster of proliferating cells.
 
 [3] We look at specific marker genes that we reported in the table marker.sets/CellType_metadata.csv to check the relevance of the clustering.
 
-[4] We look at specific pathways that we reported in the table marker.sets/Pathways_metadata.csv to check the relevance of the clustering.
+[4] We look at specific pathways to check the relevance of the clustering.
 
-[5] We run DElegate::FindAllMarkers2 to find markers of the different clusters and manually check if they do make sense. 
-DElegate::FindAllMarkers2 is an improved version of Seurat::FindAllMarkers based on pseudobulk differential expression method. 
+[5] We run `DElegate::FindAllMarkers2` to find markers of the different clusters and manually check if they do make sense. 
+`DElegate::FindAllMarkers2` is an improved version of `Seurat::FindAllMarkers` based on pseudobulk differential expression method. 
 
-[6] We perform enrichment analysis of marker genes for each seurat clusters. 
-We defined all the genes from the seurat object as the universe and used the MSigDB gene sets. 
+[6] We perform enrichment analysis of marker genes for each Seurat clusters. 
+We defined all the genes from the Seurat object as the universe and used the MSigDB gene sets. 
 
-[7] We plot pca/umap reduction grouping with available annotations (singler_, cellassign_). 
+[7] We plot `pca`/`umap` reduction grouping with available annotations (`singler_`, `cellassign_`). 
 We expect at least immune cells to be correctly label and fall into a few set of clusters.
 
-[ ] Next step, aim for a next PR: We will label transfer (Azimuth) to transfer annotation from the fetal kidney atlas human reference. 
+[ ] Next step, aim for a next PR: We will transfer annotations from two human fetal (kidney) references (Stewart et al., Cao et al.). 
 We plot pca/umap reduction grouping with latest labels. 
 We expect it to be the most representative of the cell types in the sample. 
 
+### Packages
+
+Load required packages in the following chunk, if needed.
+Do not install packages here; only load them with the `library()` function.
+
+```{r packages, message=FALSE, warning=FALSE}
+library(SingleCellExperiment)
+
+library("Seurat")
+
+#library(Azimuth)            # Will be required once we add the labl transfer from Azimuth fetal reference
+#library(SeuratData)         # Will be required once we add the labl transfer from Azimuth fetal reference
+
+library(viridis)            # for plotting with viridis colors
+library(SCpubr)             # for plotting 
+library(tidyverse)
+library(patchwork)
+
+library(msigdbr)
+library(enrichplot)
+library(clusterProfiler)
+
+library(org.Hs.eg.db)
+
+
+set.seed(params$seed)
+```
+
+### Base directories
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The current data directory, found within the repository base directory
+data_dir <- file.path(repository_base, "data", params$current, params$scpca_project_id)
+
+# The path to this module
+module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06")
+```
 
 ### Selected parameters
 
@@ -93,6 +131,166 @@ Please note: to keep the notebook as straight as possible, we decided to show th
 
 Note: Other parameters have been previously tested, but we would like to show in the following report that the one selected is performing good.
 
+### Functions
+
+Here we defined function that will be used multiple time all along the notebook. 
+
+
+#### Visualize seurat clusters and markers genes
+
+For a Seurat object `object`and a features `features`, the function `visualize_feature` will plot `FeaturePlot` and `ViolinPlot`
+
+- `object` is the Seurat object 
+
+- `features` the gene or quantitative value to be plotted
+
+- `group.by` is the metadata used for grouping the violin plots 
+
+```{r }
+
+visualize_feature <- function(object, features, group.by = "seurat_clusters"){
+ 
+                  feature_symbol = AnnotationDbi::select(org.Hs.eg.db, 
+                                keys=features, 
+                                columns="SYMBOL", 
+                                keytype="ENSEMBL")
+
+ 
+                  d <- SCpubr::do_FeaturePlot(object, 
+                                              features = feature_symbol$ENSEMBL, 
+                                              pt.size = 0.2, 
+                                              legend.width = 0.5, 
+                                              legend.length = 5, 
+                                              legend.position = "right") + ggtitle(feature_symbol$SYMBOL)
+
+                  b <- SCpubr::do_ViolinPlot(srat, 
+                                             features = feature_symbol$ENSEMBL, 
+                                             ncol = 1, 
+                                             group.by = group.by, 
+                                             legend.position = "none") + ylab(feature_symbol$SYMBOL)
+                   
+                  return(d + b + plot_layout(ncol = 2, widths = c(2,4))) 
+
+}
+          
+ 
+```
+
+
+#### Visualize seurat clusters and metadata
+
+For a Seurat object `object`and a metadata `metadata`, the function `visualize_metadata` will plot `FeaturePlot` and `BarPlot`
+
+- `object` is the Seurat object 
+
+- `metadata` the gene or quantitative value to be plotted
+
+- `group.by` is the metadata used for grouping the violin plots 
+
+```{r }
+
+visualize_metadata <- function(object, meta, group.by){
+  
+  if(class(object@meta.data[,meta]) == "numeric"){
+     d <- SCpubr::do_FeaturePlot(object, 
+                                              features = meta, 
+                                              pt.size = 0.2, 
+                                              legend.width = 0.5, 
+                                              legend.length = 5, 
+                                              legend.position = "right") + ggtitle(meta)
+
+    b <- SCpubr::do_ViolinPlot(srat, 
+                                             features = meta, 
+                                             ncol = 1, 
+                                             group.by = group.by, 
+                                             legend.position = "none")
+                   
+   return(d + b + plot_layout(ncol = 2, widths = c(2,4))) 
+  }
+  
+  
+  else{
+    
+  
+  d <- SCpubr::do_DimPlot(object, reduction="umap", group.by = group.by, label = TRUE, repel = TRUE) + ggtitle(paste0(meta," - umap")) + theme(text=element_text(size=18))
+
+  b <- SCpubr::do_BarPlot(sample = object,
+                         group.by = meta,
+                         split.by = group.by,
+                         position = "fill",
+                         font.size = 10,
+                         legend.ncol = 3) +
+                         ggtitle("% cells")+
+                         xlab(file) +
+                         theme(text=element_text(size=18))
+  return(d + b + plot_layout(ncol = 2, widths = c(2,4)))
+  }
+  
+}
+
+```
+
+#### Calculate `ModuleScore` from a `MSigDB` dataset
+
+For a Seurat object `object`, the function `MSigDB_score` will calculate a score using `AddModuleScore()` function for a MSigDB gene set `gs_name` in the category `category`
+
+- `object` is the Seurat object to calculate the score. 
+Score will be added in the metadata of this object.
+
+- `category` is a MSigDB collection (https://www.gsea-msigdb.org/gsea/msigdb/collections.jsp).
+values in `c("H", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8")`
+
+- `gs_name` is the name of a MSigDB gene set, e.g. `"HALLMARK_P53_PATHWAY"`
+
+- `name` is the name of the module
+
+```{r }
+
+MSigDB_score <- function(object, category, gs_name, name){
+  
+        set <- msigdbr(species = "human", category = category)
+
+        set_list <- set %>% 
+                    dplyr::filter(gs_name == gs_name) %>%
+                    dplyr::distinct(gs_name, gene_symbol, human_ensembl_gene) %>% as.data.frame()
+
+        set_list <- list(set_list$human_ensembl_gene)
+
+        object <- AddModuleScore(object, features = set_list, name = name)
+
+return(object)
+}
+
+```
+
+#### Enrichment analysis
+
+`Enrichment_plot`aim to perform enrichment of the marker genes for each of the Seurat clusters and summarize the results in a `dotplot`.
+
+- `category` is the MSigDB category or collection to be used
+values in `c("H", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8")`
+
+- `signatures` is a list of marker genes per cluster
+
+- `background`is the universe used for enrichment
+
+```{r }
+
+Enrichment_plot <- function(category, signatures, background){
+
+    ## define genesets
+    gene_set <- msigdbr(species = "human", category = category)
+    msigdbr_set <-  gene_set %>% dplyr::distinct(gs_name, ensembl_gene) %>% as.data.frame()
+
+    cclust<-compareCluster(geneCluster = signatures, 
+               fun = enricher,
+               TERM2GENE = msigdbr_set,
+               universe=background)
+    d <- dotplot(cclust,showCategory=15) + scale_y_discrete(labels=function(x) str_wrap(x, width=40))
+    return(d)  
+}
+
+```
 
 ## Analysis content
 
@@ -100,6 +298,11 @@ Note: Other parameters have been previously tested, but we would like to show in
 
 
 ```{r load}
+filelist <- list.files(data_dir, full.names = TRUE)
+
+# select the 40 Wilms tumor single nucleus folders only
+filedir <- filelist[grepl(params$sample_id, filelist)]
+
 file <- list.files(filedir)
 file <- file[grepl("_processed.rds", file)]
 
@@ -110,11 +313,11 @@ sce <- readRDS(paste0(filedir, "/", file))
 
 ### Run Seurat pipeline
 
-```{r seurat_wf, fig.width=8, fig.height=4, out.width='100%'}
+```{r seurat_wf}
 # convert to seurat
 srat <- CreateSeuratObject(counts = counts(sce),
                                     assay = "RNA",
-                                    project = sample
+                                    project = params$sample_id
                            )
 
 # convert colData and rowData to data.frame for use in the Seurat object
@@ -168,40 +371,24 @@ We expect up to 5 set of clusters:
 - endothelial cells
 
 
-
-
-
 ### Cell cycle information
-```{r cell_cycle, fig.height=20, fig.width=30}
+```{r cell_cycle}
 s.genes <- srat@assays$RNA@meta.data$gene_ids[srat@assays$RNA@meta.data$gene_symbol %in% cc.genes$s.genes]
 g2m.genes <- srat@assays$RNA@meta.data$gene_ids[srat@assays$RNA@meta.data$gene_symbol %in% cc.genes$g2m.genes]
 
 srat <- CellCycleScoring(srat, s.features = s.genes, g2m.features = g2m.genes, set.ident = FALSE)
 ```
 
-```{r fig.width=20, fig.height=5, out.width='100%'}
-
-d2 <- SCpubr::do_DimPlot(srat, reduction="umap", group.by = "Phase", label = TRUE) + ggtitle("Phase - umap")
-d1 <- SCpubr::do_DimPlot(srat, reduction="umap", group.by = "seurat_clusters", label = TRUE) + ggtitle("Seurat Cluster - umap")
-
-b <- SCpubr::do_BarPlot(sample = srat,
-                         group.by = "Phase",
-                         split.by = "seurat_clusters",
-                         position = "fill",
-                         font.size = 10,
-                         legend.ncol = 3) +
-                         ggtitle("% cells")+
-                         xlab(file)
-d1 + d2 + b + plot_layout(ncol = 3, widths = c(2,2,4))
-
-
-```
-
-```{r fig.width=10, fig.height=2.5, out.width='100%'}
- SCpubr::do_ViolinPlot(srat, features = c("S.Score", "G2M.Score"), ncol = 2, group.by = "seurat_clusters", legend.position = "none") 
+```{r fig.width=10, fig.height=4, out.width='100%'}
+visualize_metadata(srat, meta = "Phase", group.by = "seurat_clusters")
 ```
 
 
+
+```{r fig.width=8, fig.height=2.5, out.width='100%'}
+visualize_metadata(srat, meta  = "S.Score", group.by = "seurat_clusters")
+visualize_metadata(srat, meta = "G2M.Score", group.by = "seurat_clusters")
+```
 
 
 ### Look at specific genes
@@ -211,6 +398,7 @@ Note: we do not expect to have a clear and nice pattern of expression for all of
 This is just ti get a few idea.
 
 ```{r marker_genes, fig.width=12, fig.height=6, out.width='100%'}
+CellType_metadata <- read_csv(file.path(module_base, "marker-sets", "CellType_metadata.csv"))
 
 DT::datatable(CellType_metadata, caption = ("CellType_metadata"), 
               extensions = 'Buttons', 
@@ -219,143 +407,27 @@ DT::datatable(CellType_metadata, caption = ("CellType_metadata"),
                                buttons = c( 'csv', 'excel')))
 ```
 
-#### Malignant markers
 
-
-```{r fig.width=25, fig.height=5, out.width='100%'}
- SCpubr::do_ViolinPlot(srat, features = rownames(srat)[rownames(srat) %in% (CellType_metadata$ENSEMBL_ID[CellType_metadata$cell_class %in% c("malignant")])] , ncol = 9, group.by = "seurat_clusters", legend.position = "none") 
+```{r fig.width=8, fig.height=2.5, out.width='100%'}
+for(feature in CellType_metadata$ENSEMBL_ID){
+  if(feature %in% rownames(srat)){
+    tmp <-  visualize_feature(srat, features = feature, group.by = "seurat_clusters")
+    print(tmp)
+  }
+}
 ```
 
-##### NCAM1
-
-```{r fig.width=20, fig.height=5, out.width='100%'}
-d1 <- SCpubr::do_DimPlot(srat, reduction="umap", group.by = "seurat_clusters", label = TRUE, repel = TRUE) + ggtitle("Seurat Cluster - umap")
-d2 <- SCpubr::do_FeaturePlot(srat, features = "ENSG00000149294", pt.size = 0.2) + ggtitle("NCAM1")
-v <- SCpubr::do_ViolinPlot(srat, features = "ENSG00000149294", ncol = 1, group.by = "seurat_clusters", legend.position = "none") 
-
-d1 + d2 + v + plot_layout(ncol = 3, widths = c(1,1,3))
-```
-
-
-##### COL6A3
-
-```{r fig.width=20, fig.height=5, out.width='100%'}
-d1 <- SCpubr::do_DimPlot(srat, reduction="umap", group.by = "seurat_clusters", label = TRUE, repel = TRUE) + ggtitle("Seurat Cluster - umap")
-d2 <- SCpubr::do_FeaturePlot(srat, features = "ENSG00000163359", pt.size = 0.2) + ggtitle("COL6A3")
-v <- SCpubr::do_ViolinPlot(srat, features = "ENSG00000163359", ncol = 1, group.by = "seurat_clusters", legend.position = "none") 
-
-d1 + d2 + v + plot_layout(ncol = 3, widths = c(1,1,3))
-
-
-```
-
-##### IGF2
-
-```{r fig.width=20, fig.height=5, out.width='100%'}
-d1 <- SCpubr::do_DimPlot(srat, reduction="umap", group.by = "seurat_clusters", label = TRUE, repel = TRUE) + ggtitle("Seurat Cluster - umap")
-d2 <- SCpubr::do_FeaturePlot(srat, features = "ENSG00000167244", pt.size = 0.2) + ggtitle("IGF2")
-v <- SCpubr::do_ViolinPlot(srat, features = "ENSG00000167244", ncol = 1, group.by = "seurat_clusters", legend.position = "none") 
-
-d1 + d2 + v + plot_layout(ncol = 3, widths = c(1,1,3))
-```
-
-
-##### WT1
-
-```{r fig.width=20, fig.height=5, out.width='100%'}
-d1 <- SCpubr::do_DimPlot(srat, reduction="umap", group.by = "seurat_clusters", label = TRUE, repel = TRUE) + ggtitle("Seurat Cluster - umap")
-d2 <- SCpubr::do_FeaturePlot(srat, features = "ENSG00000184937", pt.size = 0.2) + ggtitle("WT1")
-v <- SCpubr::do_ViolinPlot(srat, features = "ENSG00000184937", ncol = 1, group.by = "seurat_clusters", legend.position = "none") 
-
-d1 + d2 + v + plot_layout(ncol = 3, widths = c(1,1,3))
-```
-
-##### EPCAM
-
-```{r fig.width=20, fig.height=5, out.width='100%'}
-d1 <- SCpubr::do_DimPlot(srat, reduction="umap", group.by = "seurat_clusters", label = TRUE, repel = TRUE) + ggtitle("Seurat Cluster - umap")
-d2 <- SCpubr::do_FeaturePlot(srat, features = "ENSG00000119888", pt.size = 0.2) + ggtitle("EPCAM")
-v <- SCpubr::do_ViolinPlot(srat, features = "ENSG00000119888", ncol = 1, group.by = "seurat_clusters", legend.position = "none") 
-
-d1 + d2 + v + plot_layout(ncol = 3, widths = c(1,1,3))
-```
-
-
-#### Immune markers
-
-```{r fig.width=20, fig.height=5, out.width='100%'}
- SCpubr::do_ViolinPlot(srat, features = rownames(srat)[rownames(srat) %in% (CellType_metadata$ENSEMBL_ID[CellType_metadata$cell_class %in% c("immune")])]
-                       , ncol = 6, group.by = "seurat_clusters", legend.position = "none") 
-```
-
-##### PTPRC = CD45
-
-```{r fig.width=20, fig.height=5, out.width='100%'}
-d1 <- SCpubr::do_DimPlot(srat, reduction="umap", group.by = "seurat_clusters", label = TRUE, repel = TRUE) + ggtitle("Seurat Cluster - umap")
-d2 <- SCpubr::do_FeaturePlot(srat, features = "ENSG00000081237", pt.size = 0.2) + ggtitle("PTPRC = CD45")
-v <- SCpubr::do_ViolinPlot(srat, features = "ENSG00000081237", ncol = 1, group.by = "seurat_clusters", legend.position = "none", pt.size = 2) 
-
-d1 + d2 + v + plot_layout(ncol = 3, widths = c(1,1,3))
-```
-
-#### Other markers
-
-```{r fig.width=20, fig.height=5, out.width='100%'}
- SCpubr::do_ViolinPlot(srat, features = rownames(srat)[rownames(srat) %in% (CellType_metadata$ENSEMBL_ID[! CellType_metadata$cell_class %in% c("immune", "malignant")])]
-                       , ncol = 6, group.by = "seurat_clusters", legend.position = "none") 
-```
-
-
-##### VWF, endothelial cells
-
-```{r fig.width=20, fig.height=5, out.width='100%'}
-d1 <- SCpubr::do_DimPlot(srat, reduction="umap", group.by = "seurat_clusters", label = TRUE, repel = TRUE) + ggtitle("Seurat Cluster - umap")
-d2 <- SCpubr::do_FeaturePlot(srat, features = "ENSG00000110799", pt.size = 0.2) + ggtitle("VWF")
-v <- SCpubr::do_ViolinPlot(srat, features = "ENSG00000110799", ncol = 1, group.by = "seurat_clusters", legend.position = "none", pt.size = 2) 
-
-d1 + d2 + v + plot_layout(ncol = 3, widths = c(1,1,3))
-```
 
 
 ### Look at specific pathways
-
-Here, we open the table of marker genes marker-sets/Pathway_metadata.csv. 
-
-```{r marker_pathways, fig.width=12, fig.height=6, out.width='100%'}
-
-    
-DT::datatable(Pathway_metadata, caption = ("Pathway_metadata"), 
-              extensions = 'Buttons', 
-              options = list(  dom = 'Bfrtip',
-
-                               buttons = c( 'csv', 'excel')))
-```
 
 #### TP53 pathway
 
 here we will calculate a TP53 score using AddMduleScore and the genes of the HALLMARK_P53_PATHWAY gene set.
 
-```{r fig.width=10, fig.height=10, out.width='100%'}
-
-## define genesets
-hallmarks <- msigdbr(species = "human", category = "H")
-
-TP53_list = hallmarks %>% 
-  filter(gs_name == "HALLMARK_P53_PATHWAY") %>%
-  dplyr::distinct(gs_name, gene_symbol, human_ensembl_gene) %>% as.data.frame()
-
-TP53_list <- list(TP53_list$human_ensembl_gene)
-
-srat <- AddModuleScore(srat, features = TP53_list, name = "TP53_score")
-```
-
-
-```{r fig.width=20, fig.height=5, out.width='100%'}
-d1 <- SCpubr::do_DimPlot(srat, reduction="umap", group.by = "seurat_clusters", label = TRUE, repel = TRUE) + ggtitle("Seurat Cluster - umap")
-d2 <- SCpubr::do_FeaturePlot(srat, features = "TP53_score1", pt.size = 0.2) + ggtitle("TP53 score")
-v <- SCpubr::do_ViolinPlot(srat, features = "TP53_score1", ncol = 1, group.by = "seurat_clusters", legend.position = "none") 
-
-d1 + d2 + v + plot_layout(ncol = 3, widths = c(1,1,3))
+```{r fig.height=2.5, fig.width=8, warning=FALSE, out.width='100%'}
+srat <- MSigDB_score(object = srat , category = "H", gs_name = "HALLMARK_P53_PATHWAY", name = "TP53_score")
+visualize_metadata(srat, meta = "TP53_score1", group.by = "seurat_clusters" )
 ```
 
 "Normal" cells (immune, endothelial) have a slightly higher TP53 score. 
@@ -365,25 +437,9 @@ d1 + d2 + v + plot_layout(ncol = 3, widths = c(1,1,3))
 
 here we will calculate a DNA_repair score using AddMduleScore and the genes of the HALLMARK_DNA_REPAIR gene set.
 
-```{r fig.width=10, fig.height=10, out.width='100%'}
-
-
-DNA_repair = hallmarks %>% 
-  filter(gs_name == "HALLMARK_DNA_REPAIR") %>%
-  dplyr::distinct(gs_name, gene_symbol, human_ensembl_gene) %>% as.data.frame()
-
-DNA_repair_list <- list(DNA_repair$human_ensembl_gene)
-
-srat <- AddModuleScore(srat, features = DNA_repair_list, name = "DNA_repair_score")
-```
-
-
-```{r fig.width=20, fig.height=5, out.width='100%'}
-d1 <- SCpubr::do_DimPlot(srat, reduction="umap", group.by = "seurat_clusters", label = TRUE, repel = TRUE) + ggtitle("Seurat Cluster - umap")
-d2 <- SCpubr::do_FeaturePlot(srat, features = "DNA_repair_score1", pt.size = 0.2) + ggtitle("DNA_repair score")
-v <- SCpubr::do_ViolinPlot(srat, features = "DNA_repair_score1", ncol = 1, group.by = "seurat_clusters", legend.position = "none") 
-
-d1 + d2 + v + plot_layout(ncol = 3, widths = c(1,1,3))
+```{r fig.height=2.5, fig.width=8, warning=FALSE, out.width='100%'}
+srat <- MSigDB_score(object = srat , category = "H", gs_name = "HALLMARK_DNA_REPAIR", name = "DNA_repair_score")
+visualize_metadata(srat, meta = "DNA_repair_score1", group.by = "seurat_clusters" )
 ```
 
 Note: Chemo-treated samples should have higher DNA-damage scores.
@@ -391,50 +447,19 @@ Note: Chemo-treated samples should have higher DNA-damage scores.
 
 #### DROSHA target genes
 
-```{r fig.width=10, fig.height=10, out.width='100%'}
-
-## define genesets
-c3 <- msigdbr(species = "human", category = "C3", subcategory = "TFT:GTRD")
-
-DROSHA_list = c3 %>% 
-  filter(gs_name == "DROSHA_TARGET_GENES") %>%
-  dplyr::distinct(gs_name, gene_symbol, human_ensembl_gene) %>% as.data.frame()
-
-DROSHA_list <- list(DROSHA_list$human_ensembl_gene)
-
-srat <- AddModuleScore(srat, features = DROSHA_list, name = "DROSHA_score")
+```{r fig.height=2.5, fig.width=8, warning=FALSE, out.width='100%'}
+srat <- MSigDB_score(object = srat , category = "C3", gs_name = "DROSHA_TARGET_GENES", name = "DROSHA_score")
+visualize_metadata(srat, meta = "DROSHA_score1", group.by = "seurat_clusters" )
 ```
 
-
-```{r fig.width=20, fig.height=5, out.width='100%'}
-d1 <- SCpubr::do_DimPlot(srat, reduction="umap", group.by = "seurat_clusters", label = TRUE, repel = TRUE) + ggtitle("Seurat Cluster - umap")
-d2 <- SCpubr::do_FeaturePlot(srat, features = "DROSHA_score1", pt.size = 0.2) + ggtitle("DROSHA score")
-v <- SCpubr::do_ViolinPlot(srat, features = "DROSHA_score1", ncol = 1, group.by = "seurat_clusters", legend.position = "none") 
-
-d1 + d2 + v + plot_layout(ncol = 3, widths = c(1,1,3))
-```
 
 #### DICER1 target genes
 
-```{r fig.width=10, fig.height=10, out.width='100%'}
-DICER1_list = c3 %>% 
-  filter(gs_name == "DICER1_TARGET_GENES") %>%
-  dplyr::distinct(gs_name, gene_symbol, human_ensembl_gene) %>% as.data.frame()
 
-DICER1_list <- list(DICER1_list$human_ensembl_gene)
-
-srat <- AddModuleScore(srat, features = DICER1_list, name = "DICER1_score")
+```{r fig.height=2.5, fig.width=8, warning=FALSE, out.width='100%'}
+srat <- MSigDB_score(object = srat , category = "C3", gs_name = "DICER1_TARGET_GENES", name = "DICER1_score")
+visualize_metadata(srat, meta = "DICER1_score1", group.by = "seurat_clusters" )
 ```
-
-
-```{r fig.width=20, fig.height=5, out.width='100%'}
-d1 <- SCpubr::do_DimPlot(srat, reduction="umap", group.by = "seurat_clusters", label = TRUE, repel = TRUE) + ggtitle("Seurat Cluster - umap")
-d2 <- SCpubr::do_FeaturePlot(srat, features = "DICER1_score1", pt.size = 0.2) + ggtitle("DICER1 score")
-v <- SCpubr::do_ViolinPlot(srat, features = "DICER1_score1", ncol = 1, group.by = "seurat_clusters", legend.position = "none") 
-
-d1 + d2 + v + plot_layout(ncol = 3, widths = c(1,1,3))
-```
-
 
 
 ### Find marker genes for each of the seurat clusters
@@ -445,12 +470,14 @@ DElegate::FindAllMarkers2 is an improved version of Seurat::FindAllMarkers based
 Please check the preprint from Chistoph Hafemeister: https://www.biorxiv.org/content/10.1101/2023.03.28.534443v1
 and tool described here: https://github.com/cancerbits/DElegate 
 
+Of note, we won't use it for annotation, this is just here to get an idea!
+
 ```{r fig.width=10, fig.height=10, out.width='100%'}
 feature_conversion <- srat@assays$RNA@meta.data
 de_results   <- DElegate::FindAllMarkers2(srat, group_column = "seurat_clusters")
 
 #filter the most relevant markers
-s.markers <- de_results[de_results$padj < cfg$padj_thershold & de_results$log_fc > cfg$lfc_threshold & de_results$rate1 > cfg$rate1_threshold,]
+s.markers <- de_results[de_results$padj < params$padj_thershold & de_results$log_fc > params$lfc_threshold & de_results$rate1 > params$rate1_threshold,]
 
 # add gene symbol for easiest interpretation of the result
 s.markers$gene_ids <- s.markers$feature
@@ -507,53 +534,28 @@ We used three gene sets from MSiGDB:
 
 We used enricher function from clusterProfiler to perform enrichment analysis.
 
-```{r fig.width=10, fig.height=10, out.width='100%'}
+```{r enrichment}
 # define background genes = universe for enrichment
 background <-  row_metadata$gene_ids
 
-## define genesets
-c8 <- msigdbr(species = "human", category = "C8")
-
-msigdbr_hallmarks = hallmarks %>% dplyr::distinct(gs_name, ensembl_gene) %>% as.data.frame()
-msigdbr_c3 = c3 %>% dplyr::distinct(gs_name, ensembl_gene) %>% as.data.frame()
-msigdbr_c8 = c8 %>% dplyr::distinct(gs_name, ensembl_gene) %>% as.data.frame()
+# Define gene signature per cluster
+signatures <- list()
+for( i in unique(s.markers$group1)){
+  signatures[[paste0("cluster ",i)]] <- s.markers$feature[s.markers$group1 == i]
+}
 ```
 
 #### Hallmarks MSiGDB gene sets
 
-```{r fig.width=25, fig.height=10, out.width='100%'}
-tmp_H <- NULL
-for(i in unique(srat$seurat_clusters)){
-signature = s.markers$feature[s.markers$group1 == i]
-ego_module <- enricher(gene = signature, universe = background, TERM2GENE = msigdbr_hallmarks)
-tmp <- NULL
-
-  if(!is.null(ego_module)){
-    if(dim(ego_module)[1]>0){
-    b_H <- barplot(ego_module, showCategory = 15, font.size = 20, label_format = 40)  
-    tmp <- b_H$data
-    tmp$set <- "Hallmarks"
-    tmp$cluster <- i
-    }
+```{r fig.width=15, fig.height=8, out.width='100%'}
+tryCatch(
+  expr =  {
+    Enrichment_plot(category = "H", signatures = signatures, background = background)
+  },
+  error = function(e) {
+    print("No enrichment")
   }
-tmp_H <- rbind(tmp_H, tmp)
-}
-
-
-
-ggplot(tmp_H, aes(Count, ID)) +
-    geom_bar(stat = "identity", aes(fill=cluster))+
-
-  theme_classic()+ 
-    geom_text(
-        aes(label = (paste( "Padj = ", round(p.adjust,2)))),
-        color = "black",
-        size = 3,
-        hjust=1,
-        position = position_dodge(0.5)
-    )+
-   theme(text = element_text(size=14))+
-  facet_wrap(facets=c("cluster"), ncol = length(unique(tmp_H$cluster)))
+)
 ```
 
 
@@ -563,82 +565,29 @@ MYC(N), TP53 must be enriched in blastema cluster.
 
 #### C3 MSiGDB regulatory target gene sets 
 
-```{r fig.width=25, fig.height=10, out.width='100%'}
-
-tmp_H <- NULL
-for(i in unique(srat$seurat_clusters)){
-signature = s.markers$feature[s.markers$group1 == i]
-ego_module <- enricher(gene = signature, universe = background, TERM2GENE = msigdbr_c3)
-tmp <- NULL
-
-  if(!is.null(ego_module)){
-    if(dim(ego_module)[1]>0){
-    b_H <- barplot(ego_module, showCategory = 15, font.size = 20, label_format = 40)  
-    tmp <- b_H$data
-    tmp$ID <- factor(tmp$ID, levels = c(tmp$ID[order(tmp$Count)]))
-    tmp$set <- "c8"
-    tmp$cluster <- i
-    }
+```{r fig.width=20, fig.height=25, out.width='100%'}
+tryCatch(
+  expr =  {
+Enrichment_plot(category = "C3", signatures = signatures, background = background)
+  },
+  error = function(e) {
+    print("No enrichment")
   }
-tmp_H <- rbind(tmp_H, tmp[1:5,])
-}
-
-
-
-ggplot(tmp_H, aes(Count, ID)) +
-    geom_bar(stat = "identity", aes(fill=cluster))+
-
-  theme_classic()+ 
-    geom_text(
-        aes(label = (paste( "Padj = ", round(p.adjust,2)))),
-        color = "black",
-        size = 3,
-        hjust=1,
-        position = position_dodge(0.5)
-    )+
-   theme(text = element_text(size=14))+
-  facet_wrap(facets=c("cluster"), ncol = length(unique(tmp_H$cluster)))
+)
 ```
-
 Here to check of we catch and MIR pattern (DROSHA; DICER1; other?)
 
 #### C8 MSiGDB cell type signature gene sets
 
-```{r fig.width=30, fig.height=15, out.width='100%'}
-
-tmp_H <- NULL
-for(i in unique(srat$seurat_clusters)){
-signature = s.markers$feature[s.markers$group1 == i]
-ego_module <- enricher(gene = signature, universe = background, TERM2GENE = msigdbr_c8)
-tmp <- NULL
-
-  if(!is.null(ego_module)){
-    if(dim(ego_module)[1]>0){
-    b_H <- barplot(ego_module, showCategory = 15, font.size = 20, label_format = 40)  
-    tmp <- b_H$data
-    tmp$ID <- factor(tmp$ID, levels = c(tmp$ID[order(tmp$Count)]))
-    tmp$set <- "c8"
-    tmp$cluster <- i
-    }
+```{r fig.width=20, fig.height=25, out.width='100%'}
+tryCatch(
+  expr =  {
+Enrichment_plot(category = "C8", signatures = signatures, background = background)
+  },
+  error = function(e) {
+    print("No enrichment")
   }
-tmp_H <- rbind(tmp_H, tmp[1:5,])
-}
-
-
-
-ggplot(tmp_H, aes(Count, ID)) +
-    geom_bar(stat = "identity", aes(fill=cluster))+
-
-  theme_classic()+ 
-    geom_text(
-        aes(label = (paste( "Padj = ", round(p.adjust,2)))),
-        color = "black",
-        size = 3,
-        hjust=1,
-        position = position_dodge(0.5)
-    )+
-   theme(text = element_text(size=14))+
-  facet_wrap(facets=c("cluster"), ncol = length(unique(tmp_H$cluster)))
+)
 ```
 
 The MSigDB C8 gene set is quite relevant for kidney and nephroblastoma annotations. 
@@ -652,64 +601,27 @@ However, the automated annotation have not been performed using a cancer specifi
 We do not expect a nice labelling of the cells as the overlap of cell types between the reference and the query dataset is poor. 
 This support the need to do a proper label transfer from the fetal kidney atlas, which is imho the best reference that can be applied to a Wilms tumor query. 
 
+
 ```{r fig.width=15, fig.height=10, out.width='100%'}
-
-d2 <-DimPlot(srat, group.by = "singler_celltype_annotation", reduction = "umap", label = TRUE, repel = TRUE) + NoLegend()
-
-
-
-DT::datatable(table(srat$seurat_clusters, srat$singler_celltype_annotation), caption = ("table of SingleR annotation per seurat clusters"), 
-              extensions = 'Buttons', 
-              options = list(  dom = 'Bfrtip',
-
-                               buttons = c( 'csv', 'excel')))
-
-d3 <- SCpubr::do_BarPlot(sample = srat,
-                         group.by = "singler_celltype_annotation",
-                         split.by = "seurat_clusters",
-                         position = "fill",
-                         font.size = 10,
-                         legend.ncol = 3) +
-                         ggtitle("% cells")+
-                         xlab(file)
-
-d2|d3
+visualize_metadata(srat, meta = "singler_celltype_annotation", group.by = "seurat_clusters")
 ```
+
+
 
 
 ### Annotation from cellassign (no cancer or kidney specific dataset)
 
+
 ```{r fig.width=15, fig.height=10, out.width='100%'}
-
-
-
-d2 <-DimPlot(srat, group.by = "cellassign_celltype_annotation", reduction = "umap", label = TRUE, repel = TRUE) + NoLegend()
-
-
-DT::datatable(table(srat$seurat_clusters, srat$cellassign_celltype_annotation)
-, caption = ("table of cellassign annotation per seurat clusters"), 
-              extensions = 'Buttons', 
-              options = list(  dom = 'Bfrtip',
-
-                               buttons = c( 'csv', 'excel')))
-
-d3 <- SCpubr::do_BarPlot(sample = srat,
-                         group.by = "cellassign_celltype_annotation",
-                         split.by = "seurat_clusters",
-                         position = "fill",
-                         font.size = 10,
-                         legend.ncol = 3) +
-                         ggtitle("% cells")+
-                         xlab(file)
-
-d2|d3
+visualize_metadata(srat, meta = "cellassign_celltype_annotation", group.by = "seurat_clusters")
 ```
+
 
 Even if the result of SingleR and CellAssign are not specific to a Wilms tumor dataset, it give the first impression that C12 is a cluster of endothelial cells and C11 a cluster of immune cells. 
 
 ### Azimuth annotation from fetal kidney
 
-To be added in a next PR.
+To be added in a next PR. Look at opened PR #706
 
 
 For more information related to the reference, please go to https://www.kidneycellatlas.org/
@@ -737,28 +649,6 @@ The fetal nephron compartment contain blastema cancer cells a well as normal and
 Further segregation of cancer versus normal cells will be achieved using a combination of markers/pathways (see above) and inferred CNV (to be done).
 
 
-
-
-
-## Next step
-
--[x] We will adapt this template to be render on all the 40 Wilms tumor samples of the dataset. 
-
--[ ] We will save for each sample the rds file
-
--[ ] We will run inferCNV for each sample to decide the malignant/normal status of some stroma and epithelial cluster, and confirm the blastema annotation. 
-
-The next step will provide us a better understanding of the entire cohort. We will then have to set up a strategy to annotate each sample. Open questions are:
-
-
-[ ] should we annotate single cell                      
-or   
-[] consider applying similar annotations to all cells in a cluster?
-
-
-[ ] manual annotation of each cluster / each patient    
-or   
-[] automated annotation using some threshold?
 
 ## Session Info
 

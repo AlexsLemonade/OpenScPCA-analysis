@@ -534,9 +534,9 @@
     },
     "HDF5Array": {
       "Package": "HDF5Array",
-      "Version": "1.32.0",
-      "Source": "Bioconductor",
-      "Repository": "Bioconductor 3.19",
+      "Version": "1.32.1",
+      "Source": "Repository",
+      "Repository": "https://bioconductor.org/packages/3.19/bioc",
       "Requirements": [
         "BiocGenerics",
         "DelayedArray",
@@ -553,7 +553,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "b10ddb24baf506cf7b4bc868ae65b984"
+      "Hash": "420012f82591a2a20156ef65d4aa210a"
     },
     "HDO.db": {
       "Package": "HDO.db",
