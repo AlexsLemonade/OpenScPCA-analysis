@@ -335,7 +335,6 @@ srat@misc <- metadata(sce)
 rm(sce)
 
 # Normalization
-options(future.globals.maxSize= 8912896000000)
 srat <- SCTransform(srat, verbose = F, conserve.memory = TRUE)
 
 # dimensionality reduction
