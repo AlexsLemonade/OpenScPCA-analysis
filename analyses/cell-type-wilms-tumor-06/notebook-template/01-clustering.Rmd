@@ -298,16 +298,13 @@ Enrichment_plot <- function(category, signatures, background){
 
 
 ```{r load}
-filelist <- list.files(data_dir, full.names = TRUE)
+sample_dir <- file.path(data_dir, params$sample_id)
+sample_files <- list.files(sample_dir)
 
-# select the 40 Wilms tumor single nucleus folders only
-filedir <- filelist[grepl(params$sample_id, filelist)]
-
-file <- list.files(filedir)
-file <- file[grepl("_processed.rds", file)]
+file <- sample_files[grepl("_processed.rds", sample_files)]
 
 # open the processed rds object
-sce <- readRDS(paste0(filedir, "/", file))
+sce <- readRDS(file.path(sample_dir, file))
 ```
 
 
