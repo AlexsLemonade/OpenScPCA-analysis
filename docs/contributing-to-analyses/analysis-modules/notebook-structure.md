@@ -230,7 +230,7 @@ Keeping the functions in a central place in the notebook makes it easier to find
 
 Each function should be defined in a separate code cell, and should be documented with comments to explain what the function does does and how to use it, including inputs and outputs.
 
-For example, in `hello.ipynb`, we define a simple function to count cells in a `AnnData` object:
+For example, in `hello.ipynb`, we define a simple function to count cells in an `AnnData` object:
 
 ```python
 def count_anndata(anndata_file):
