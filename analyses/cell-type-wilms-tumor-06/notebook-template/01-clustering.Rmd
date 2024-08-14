@@ -394,7 +394,7 @@ visualize_metadata(srat, meta = "G2M.Score", group.by = "seurat_clusters")
 
 Here, we open the table of marker genes marker-sets/CellType_metadata.csv. 
 Note: we do not expect to have a clear and nice pattern of expression for all of the following markers in every tumor. 
-This is just ti get a few idea.
+This is just to get a few ideas.
 
 ```{r marker_genes, fig.width=12, fig.height=6, out.width='100%'}
 CellType_metadata <- read_csv(file.path(module_base, "marker-sets", "CellType_metadata.csv"))
