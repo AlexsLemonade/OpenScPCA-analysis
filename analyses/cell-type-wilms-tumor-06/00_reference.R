@@ -1,5 +1,7 @@
 # get list of samples in the library
-metadata <- read.table("sample_metadata.tsv", sep = "\t", header = TRUE)
+root_dir <- rprojroot::find_root(rprojroot::is_git_root)
+sample_metadata_file <- file.path(root_dir, "data", "current", "SCPCP000006", "single_cell_metadata.tsv")
+metadata <- read.table(sample_metadata_file, sep = "\t", header = TRUE)
 
 
 # Render the reports for (all) samples in the project
