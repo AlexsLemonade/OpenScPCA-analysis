@@ -13,3 +13,4 @@ In this folder, you find `RMarkdown` templates that can be run using the R scrip
 ### 01-clustering.Rmd
 
 This notebook is performing and exploring clustering. 
+The aim of this notebook is to provide information to guide annotation of each dataset.
