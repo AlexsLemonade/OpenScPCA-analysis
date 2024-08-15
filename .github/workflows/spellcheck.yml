@@ -67,8 +67,8 @@ jobs:
             OpenScPCA admin
             spelling
 
-      - name: Fail if there are spelling errors
-        if: steps.spell.outputs.error_count > 0
+      - name: Fail if there are spelling errors for non-scheduled jobs
+        if: github.event_name != 'schedule' && steps.spell.outputs.error_count > 0
         run: |
           echo "There were ${{ steps.spell.outputs.error_count }} errors"
           column -t spell_check_errors.tsv
