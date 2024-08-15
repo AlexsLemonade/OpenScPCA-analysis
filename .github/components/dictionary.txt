@@ -158,6 +158,7 @@ scrublet
 SEACells
 SemVar
 SingleR
+scRNA
 snRNA
 socio
 SSO
