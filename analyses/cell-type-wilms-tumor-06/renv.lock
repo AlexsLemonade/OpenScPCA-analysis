@@ -495,8 +495,8 @@
     "HDF5Array": {
       "Package": "HDF5Array",
       "Version": "1.32.1",
-      "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/bioc",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
       "Requirements": [
         "BiocGenerics",
         "DelayedArray",
@@ -1082,34 +1082,6 @@
         "utils"
       ],
       "Hash": "e9b70412b7e04571b46101f5dcbaacad"
-    },
-    "SeuratWrappers": {
-      "Package": "SeuratWrappers",
-      "Version": "0.3.5",
-      "Source": "GitHub",
-      "Remotes": "welch-lab/liger, hms-dbmi/conos, immunogenomics/harmony, immunogenomics/presto, satijalab/seurat-data, velocyto-team/velocyto.R, SaskiaFreytag/schex@031320d, cole-trapnell-lab/monocle3, mojaveazure/seurat-disk, powellgenomicslab/Nebulosa, atakanekiz/CIPR-Package, prabhakarlab/Banksy",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "seurat-wrappers",
-      "RemoteUsername": "satijalab",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "8d46d6c47c089e193fe5c02a8c23970715918aa9",
-      "Requirements": [
-        "BiocManager",
-        "Matrix",
-        "R",
-        "Seurat",
-        "cowplot",
-        "ggplot2",
-        "igraph",
-        "methods",
-        "remotes",
-        "rlang",
-        "rsvd",
-        "stats",
-        "utils"
-      ],
-      "Hash": "656cb21264cd7fe42a41fbc0bf3f82ee"
     },
     "Signac": {
       "Package": "Signac",
@@ -2712,9 +2684,9 @@
     },
     "nlme": {
       "Package": "nlme",
-      "Version": "3.1-165",
+      "Version": "3.1-166",
       "Source": "Repository",
-      "Repository": "RSPM",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "graphics",
@@ -2722,7 +2694,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "2769a88be217841b1f33ed469675c3cc"
+      "Hash": "ccbb8846be320b627e6aa2b4616a2ded"
     },
     "openssl": {
       "Package": "openssl",
@@ -3123,20 +3095,6 @@
       ],
       "Hash": "76c9e04c712a05848ae7a23d2f170a40"
     },
-    "remotes": {
-      "Package": "remotes",
-      "Version": "2.5.0",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R",
-        "methods",
-        "stats",
-        "tools",
-        "utils"
-      ],
-      "Hash": "3ee025083e66f18db6cf27b56e23e141"
-    },
     "renv": {
       "Package": "renv",
       "Version": "1.0.7",
@@ -3303,17 +3261,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "96710351d642b70e8f02ddeb237c46a7"
-    },
-    "rsvd": {
-      "Package": "rsvd",
-      "Version": "1.0.5",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "Matrix",
-        "R"
-      ],
-      "Hash": "b462187d887abc519894874486dbd6fd"
     },
     "rtracklayer": {
       "Package": "rtracklayer",

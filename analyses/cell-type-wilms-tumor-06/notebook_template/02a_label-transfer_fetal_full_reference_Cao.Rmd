@@ -1,0 +1,208 @@
+---
+title: "Reference label transfer from the fetal full reference (Cao et al.) for `r params$sample_id`"
+author: "Maud PLASCHKA"
+date: '2024-08-07'
+params:
+  scpca_project_id: "SCPCP000006"
+  sample_id: "SCPCS000176"
+  seed: 12345
+output: 
+  html_document: 
+    toc: yes
+    toc_float: yes
+    code_folding: hide
+    highlight: pygments
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message=FALSE,
+                      warnings=FALSE)
+```
+
+
+## Introduction
+
+The aim is to perform label transfer as a step of the annotation of the Wilms tumor dataset for the sample `param$sample_id` = 
+
+```{r}
+params$sample_id
+```
+
+The use of the right reference is crucial. 
+It is recommended that the cell types in the reference is representative to the cell types to be annotated in the query.
+
+Wilms tumors can contain up to three histologies that resemble fetal kidney: blastema, stroma, and epithelia [1-2].
+Because of their histological similarity to fetal kidneys, Wilms tumors are thought to arise from developmental derangements in embryonic renal progenitors.
+
+We thus decided to test and compare fetal (kidney) references that could be use in the analysis module.
+You can find below the two references that we plan to use
+
+
+### Human fetal kidney atlas Stewart et al.
+
+Stewart et al. created and a human fetal kidney atlas.
+We will use `Azimuth` to transfer label into the Wilms tumor samples. 
+You can find more about the human kidney atlas here: https://www.kidneycellatlas.org/ [3]
+
+### Azimuth Human fetal atlas Cao et al.
+
+Azimuth also provide a human fetal atlas as a reference [4]. 
+
+The data can be found on Zenodo: 
+https://zenodo.org/records/4738021#.YJIW4C2ZNQI
+
+The reference contain cells from 15 organs including kidney from fetal samples. 
+Here we will use `Azimuth` to transfer labels from the reference.
+
+
+In this notebook, we perform label transfer from the human fetal Azimuth reference from Cao et al.
+
+
+### Packages
+
+Load required packages in the following chunk, if needed.
+Do not install packages here; only load them with the `library()` function.
+
+```{r packages, message=FALSE, warning=FALSE}
+library(SingleCellExperiment)
+
+library("Seurat")
+library(sctransform)
+library(Azimuth)
+library(SeuratData)
+
+library(assertthat)
+library(viridis)
+library(SCpubr)
+library(tidyverse)
+library(patchwork)
+
+set.seed(params$seed)
+```
+
+
+### Base directories
+
+```{r base paths, eval=TRUE, include=TRUE}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The path to this module
+module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06")
+```
+
+
+### Input files
+
+#### Reference
+
+We install and load the reference using `Azimuth`.
+```{r path_to_reference}
+#Check the names of the Azimuth available data and reference
+AvailableData()
+
+# Install the fetal reference 
+InstallData("fetusref")
+
+ref <- SeuratData::LoadData("fetusref", type = "azimuth")
+```
+
+#### Query
+
+In this notebook, we test the label transfer from the azimuth fetal atlas (reference) to the Wilms tumor sample defined in `params$sample_id` from the Wilms tumor dataset `param$scpca_project_id`.
+
+We work with the pre-processed `Seurat`object saved in the `results` directory.
+
+```{r path_to_query}
+data_dir <- file.path(module_base, "results", params$sample_id)
+```
+
+### Output file
+
+Reports will be saved in the `notebook/02-reference` directory. 
+The pre-processed and annotated `Seurat` object per samples are saved in the `result` folder.
+```{r path_to_output}
+output_dir <- file.path(module_base, "results", params$sample_id)
+```
+
+## Analysis
+
+### Load the pre-process data (query)
+
+```{r load, message=FALSE, warning=FALSE}
+# open the processed rds object
+srat <- readRDS(file.path(data_dir, paste0("01-Seurat_", params$sample_id,".Rds")))
+```
+
+
+### Label transfer from fetal kidney reference using Azimuth
+
+```{r run_azimuth, message=FALSE, warnings=FALSE}
+DefaultAssay(srat) <- "RNA"
+s <- RunAzimuth(srat, reference ="fetusref" )
+
+# We transfer the annotation to the pre-processed `Seurat`iobject as we don't want to keep changes done on the query by `RunAzimuth`
+metadata_to_trasfer <- s@meta.data[, c("predicted.annotation.l1.score", "predicted.annotation.l1", "predicted.annotation.l2.score", "predicted.annotation.l2", "predicted.organ.score", "predicted.organ")]
+srat <- AddMetaData(srat, metadata_to_trasfer, col.name = c("fetal_full_predicted.annotation.l1.score", "fetal_full_predicted.annotation.l1", "fetal_full_predicted.annotation.l2.score", "fetal_full_predicted.annotation.l2", "fetal_full_predicted.organ.score", "fetal_full_predicted.organ"))
+```
+
+```{r plot_azimuth, fig.height=15, fig.width=8, warnings=FALSE}
+
+d1 <- DimPlot(srat, reduction = "umap", dims = c(1,2), group.by = "fetal_full_predicted.organ", label = TRUE, repel = TRUE) + NoLegend()
+d2 <- DimPlot(srat, reduction = "umap", dims = c(1,2), group.by = "fetal_full_predicted.annotation.l1", label = TRUE, repel = TRUE) + NoLegend()
+d3 <- DimPlot(srat, reduction = "umap", dims = c(1,2), group.by = "fetal_full_predicted.annotation.l2", label = TRUE, repel = TRUE) + NoLegend()
+
+f1 <- SCpubr::do_BarPlot(sample = srat,
+                         group.by = "fetal_full_predicted.organ",
+                         split.by = "seurat_clusters",
+                         position = "fill",
+                         font.size = 10,
+                         legend.ncol = 4) +
+                         ggtitle("% cells")+
+                         xlab(file)
+
+f2 <- SCpubr::do_BarPlot(sample = srat,
+                         group.by = "fetal_full_predicted.annotation.l1",
+                         split.by = "seurat_clusters",
+                         position = "fill",
+                         font.size = 10,
+                         legend.ncol = 2) +
+                         ggtitle("% cells")+
+                         xlab(params$sample_id)
+
+f3 <- SCpubr::do_BarPlot(sample = srat,
+                         group.by = "fetal_full_predicted.annotation.l2",
+                         split.by = "seurat_clusters",
+                         position = "fill",
+                         font.size = 10,
+                         legend.ncol = 2) +
+                         ggtitle("% cells")+
+                         xlab(params$sample_id)
+
+((d1/f1) | (d2/f2) ) 
+```
+
+## Save the `Seurat`object
+
+```{r save}
+saveRDS(object = srat, file = file.path(output_dir, paste0("00a-fetal_full_label-transfer_",params$sample_id,".Rds")))
+```
+
+## Session info
+
+```{r }
+sessionInfo()
+```
+
+
+## References 
+
+- [1] https://www.ncbi.nlm.nih.gov/books/NBK373356/ 
+
+- [2] https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9915828/ 
+
+- [3] https://www.science.org/doi/10.1126/science.aat5031 
+
+- [4] https://www.science.org/doi/10.1126/science.aba7721

@@ -1,0 +1,62 @@
+#!/usr/bin/env Rscript
+
+# Run the Label transfer from two fetal references ------------------------------
+
+# get list of samples in the library --------------------------------------------
+root_dir <- rprojroot::find_root(rprojroot::is_git_root)
+sample_metadata_file <- file.path(root_dir, "data", "current", "SCPCP000006", "single_cell_metadata.tsv")
+metadata <- read.table(sample_metadata_file, sep = "\t", header = TRUE)
+
+# set path to this module--------------------------------------------------------
+module_base <- file.path(root_dir, "analyses", "cell-type-wilms-tumor-06")
+
+# Download and create the fetal kidney reference (Stewart et al) ----------
+source(file.path(module_base,"scripts", "download-and-create-fetal-kidney-ref.R"))
+
+# Characterize the two fetal references -----------------------------------------
+
+# Characterize the fetal full reference (Cao et al.)
+# To be done, next PR
+
+# Characterize the fetal kidney reference (Stewart et al.)
+rmarkdown::render(input = file.path(module_base, "notebook_template", "00b_characterize_fetal_kidney_reference_Stewart.Rmd"),
+                  output_format = "html_document",
+                  output_file = "00b_characterization_fetal_kidney_reference_Stewart.html",
+                  output_dir = file.path(module_base, "notebook","00-reference"))
+
+
+# Run the workflow for (all) samples in the project -----------------------------
+for (i in metadata$scpca_sample_id[1:11]) {
+ 
+  # create a directory to save the pre-processed and labeled `Seurat` objects
+  dir.create(file.path(module_base, "results", i))
+  # create a directory to save the notebooks
+  dir.create(file.path(module_base, "notebook", i))
+  
+  
+  # Pre-process the data - `Seurat` workflow
+  rmarkdown::render(input = file.path(module_base, "notebook_template", "01_seurat-processing.Rmd"),
+                    params = list(scpca_project_id = metadata$scpca_project_id[metadata$scpca_sample_id ==i], sample_id = i),
+                    output_format = "html_document",
+                    output_file = paste0("01_Clustering_",i, ".html"),
+                    output_dir = file.path(module_base, "notebook", i))
+  
+  # Label transfer from the Cao reference using Azimuth
+  rmarkdown::render(input = file.path(module_base, "notebook_template", "02a_label-transfer_fetal_full_reference_Cao.Rmd"),
+                    params = list(scpca_project_id = metadata$scpca_project_id[metadata$scpca_sample_id ==i], sample_id = i),
+                    output_format = "html_document",
+                    output_file = paste0("02a_fetal_all_reference_Cao_",i, ".html"),
+                    output_dir = file.path(module_base, "notebook", i))
+  
+  # Label transfer from the Stewart reference using Seurat
+  rmarkdown::render(input = file.path(module_base, "notebook_template", "02b_label-transfer_fetal_kidney_reference_Stewart.Rmd"),
+                    params = list(scpca_project_id = metadata$scpca_project_id[metadata$scpca_sample_id ==i],sample_id = i),
+                    output_format = "html_document",
+                    output_file = paste0("02b_fetal_kidney_reference_Stewart_",i, ".html"),
+                    output_dir = file.path(module_base, "notebook", i))
+  
+
+  }
+
+
+
