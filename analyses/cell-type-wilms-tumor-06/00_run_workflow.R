@@ -30,9 +30,9 @@ rmarkdown::render(input = file.path(module_base, "notebook_template", "00b_chara
 for (sample_id in metadata$scpca_sample_id) {
  
   # create a directory to save the pre-processed and labeled `Seurat` objects
-  dir.create(file.path(module_base, "results", i))
+  dir.create(file.path(module_base, "results", sample_id))
   # create a directory to save the notebooks
-  dir.create(file.path(module_base, "notebook", i))
+  dir.create(file.path(module_base, "notebook", sample_id))
   
   
   # Pre-process the data - `Seurat` workflow
