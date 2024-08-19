@@ -184,7 +184,7 @@ In our case, cap-mesenchyme contains blastema and primitive epitheliul cancer ce
 ## Save the `Seurat`object
 
 ```{r save}
-saveRDS(object = srat, file = file.path(output_dir, paste0("00b-fetal_kidey_label-transfer_",params$sample_id,".Rds")))
+saveRDS(object = srat, file = file.path(output_dir, paste0("00b-fetal_kidney_label-transfer_",params$sample_id,".Rds")))
 ```
 
 ## Session info
