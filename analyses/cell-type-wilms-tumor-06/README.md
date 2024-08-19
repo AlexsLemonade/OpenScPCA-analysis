@@ -10,6 +10,7 @@ Each of these groups is composed of the blastemal, epithelial, and stromal popul
 Here, we first aim to annotate the Wilms Tumor snRNA-seq samples in the SCPCP000006 (n=40) dataset. To do so we will:
 
 • Provide annotations of normal cells composing the kidney, including normal kidney epithelium, endothelium, stroma and immune cells
+
 • Provide annotations of tumor cell populations that may be present in the WT samples, including blastemal, epithelial, and stromal populations of cancer cells
 Based on the provided annotation, we would like to additionally provide a reference of marker genes for the three cancer cell populations, which is so far lacking for the WT community.
 
