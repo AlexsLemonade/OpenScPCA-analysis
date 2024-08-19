@@ -37,7 +37,7 @@ for (i in metadata$scpca_sample_id[1:11]) {
   
   # Pre-process the data - `Seurat` workflow
   rmarkdown::render(input = file.path(module_base, "notebook_template", "01_seurat-processing.Rmd"),
-                    params = list(scpca_project_id = metadata$scpca_project_id[metadata$scpca_sample_id ==i], sample_id = i),
+                    params = list(scpca_project_id = project_id, sample_id = sample_id),
                     output_format = "html_document",
                     output_file = paste0("01_Clustering_",i, ".html"),
                     output_dir = file.path(module_base, "notebook", i))
