@@ -71,7 +71,6 @@ path_to_data <- file.path(
   "scratch",
   "fetal_kidney.rds"
 )
-download.file(url = params$url, destfile = path_to_data)
 ```
 
 ## Output file
