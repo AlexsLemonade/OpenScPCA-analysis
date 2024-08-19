@@ -141,11 +141,15 @@ srat <- readRDS(file.path(data_dir, paste0("01-Seurat_", params$sample_id,".Rds"
 
 ```{r run_azimuth, message=FALSE, warnings=FALSE}
 DefaultAssay(srat) <- "RNA"
+options(future.globals.maxSize= 8912896000000)
 s <- RunAzimuth(srat, reference ="fetusref" )
 
 # We transfer the annotation to the pre-processed `Seurat`iobject as we don't want to keep changes done on the query by `RunAzimuth`
-metadata_to_trasfer <- s@meta.data[, c("predicted.annotation.l1.score", "predicted.annotation.l1", "predicted.annotation.l2.score", "predicted.annotation.l2", "predicted.organ.score", "predicted.organ")]
-srat <- AddMetaData(srat, metadata_to_trasfer, col.name = c("fetal_full_predicted.annotation.l1.score", "fetal_full_predicted.annotation.l1", "fetal_full_predicted.annotation.l2.score", "fetal_full_predicted.annotation.l2", "fetal_full_predicted.organ.score", "fetal_full_predicted.organ"))
+metadata_vec <- c("predicted.annotation.l1.score", "predicted.annotation.l1", "predicted.annotation.l2.score", "predicted.annotation.l2", "predicted.organ.score", "predicted.organ")
+
+metadata_to_trasfer <- s@meta.data[, metadata_vec]
+
+srat <- AddMetaData(srat, metadata_to_trasfer, col.name = paste0("fetal_full_", metadata_vec))
 ```
 
 ```{r plot_azimuth, fig.height=15, fig.width=8, warnings=FALSE}
@@ -161,7 +165,7 @@ f1 <- SCpubr::do_BarPlot(sample = srat,
                          font.size = 10,
                          legend.ncol = 4) +
                          ggtitle("% cells")+
-                         xlab(file)
+                         xlab(params$sample_id)
 
 f2 <- SCpubr::do_BarPlot(sample = srat,
                          group.by = "fetal_full_predicted.annotation.l1",

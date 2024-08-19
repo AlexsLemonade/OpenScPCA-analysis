@@ -134,11 +134,16 @@ srat <- readRDS(file.path(data_dir, paste0("00a-fetal_full_label-transfer_",para
 ### Azimuth annotation from fetal kidney
 
 ```{r run_azimuth, message=FALSE, warnings=FALSE}
+DefaultAssay(srat) <- "RNA"
+options(future.globals.maxSize= 8912896000000)
 
 data <-  RunAzimuth(srat, path_to_reference, assay = 'RNA')
 # We transfer the annotation to the pre-processed `Seurat`object as we don't want to keep changes done on the query by `RunAzimuth`
-metadata_to_trasfer <- data@meta.data[, c("predicted.compartment.score", "predicted.compartment", "predicted.cell_type.score", "predicted.cell_type")]
-srat <- AddMetaData(srat, metadata_to_trasfer, col.name = c("fetal_kidney_predicted.compartment.score", "fetal_kidney_predicted.compartment", "fetal_kidney_predicted.cell_type.score", "fetal_kidney_predicted.cell_type"))
+# We transfer the annotation to the pre-processed `Seurat`iobject as we don't want to keep changes done on the query by `RunAzimuth`
+metadata_vec <- c("predicted.compartment.score", "predicted.compartment", "predicted.cell_type.score", "predicted.cell_type")
+metadata_to_trasfer <- s@meta.data[, metadata_vec]
+srat <- AddMetaData(srat, metadata_to_trasfer, col.name = paste0("fetal_full_", metadata_vec))
+
 ```
 
 ```{r plot_azimuth, fig.height=8, fig.width=8, warnings=FALSE}
