@@ -3,7 +3,6 @@ title: "Characterize the fetal kidney reference from the kidney cell atlas"
 author: "Maud PLASCHKA"
 date: '2024-08-07'
 params:
-  url: https://datasets.cellxgene.cziscience.com/40ebb8e4-1a25-4a33-b8ff-02d1156e4e9b.rds
   padj_threshold: 0.05
   lfc_threshold: 1
   rate1_threshold: 0.5
