@@ -27,7 +27,7 @@ rmarkdown::render(input = file.path(module_base, "notebook_template", "00b_chara
 
 
 # Run the workflow for (all) samples in the project -----------------------------
-for (i in metadata$scpca_sample_id[1:11]) {
+for (sample_id in metadata$scpca_sample_id) {
  
   # create a directory to save the pre-processed and labeled `Seurat` objects
   dir.create(file.path(module_base, "results", i))
