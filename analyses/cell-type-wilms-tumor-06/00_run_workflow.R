@@ -21,10 +21,10 @@ source(file.path(module_base,"scripts", "download-and-create-fetal-kidney-ref.R"
 notebook_template_dir <- file.path(module_base, "notebook_template")
 notebook_output_dir <- file.path(module_base, "notebook")
 # Characterize the fetal kidney reference (Stewart et al.)
-rmarkdown::render(input = file.path(module_base, "notebook_template", "00b_characterize_fetal_kidney_reference_Stewart.Rmd"),
+rmarkdown::render(input = file.path(notebook_template_dir, "00b_characterize_fetal_kidney_reference_Stewart.Rmd"),
                   output_format = "html_document",
                   output_file = "00b_characterization_fetal_kidney_reference_Stewart.html",
-                  output_dir = file.path(module_base, "notebook","00-reference"))
+                  output_dir = file.path(notebook_output_dir, "00-reference"))
 
 
 # Run the workflow for (all) samples in the project -----------------------------
