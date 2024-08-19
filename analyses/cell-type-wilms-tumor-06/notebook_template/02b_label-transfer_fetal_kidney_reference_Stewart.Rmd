@@ -139,11 +139,9 @@ options(future.globals.maxSize= 8912896000000)
 
 data <-  RunAzimuth(srat, path_to_reference, assay = 'RNA')
 # We transfer the annotation to the pre-processed `Seurat`object as we don't want to keep changes done on the query by `RunAzimuth`
-# We transfer the annotation to the pre-processed `Seurat`iobject as we don't want to keep changes done on the query by `RunAzimuth`
 metadata_vec <- c("predicted.compartment.score", "predicted.compartment", "predicted.cell_type.score", "predicted.cell_type")
 metadata_to_trasfer <- s@meta.data[, metadata_vec]
 srat <- AddMetaData(srat, metadata_to_trasfer, col.name = paste0("fetal_full_", metadata_vec))
-
 ```
 
 ```{r plot_azimuth, fig.height=8, fig.width=8, warnings=FALSE}
@@ -189,7 +187,7 @@ In our case, cap-mesenchyme contains blastema and primitive epitheliul cancer ce
 ## Save the `Seurat`object
 
 ```{r save}
-saveRDS(object = srat, file = file.path(output_dir, paste0("00b-fetal_kidey_label-transfer_",params$sample_id,".Rds")))
+saveRDS(object = srat, file = file.path(output_dir, paste0("00b-fetal_kidney_label-transfer_",params$sample_id,".Rds")))
 ```
 
 ## Session info
