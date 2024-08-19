@@ -18,7 +18,8 @@ source(file.path(module_base,"scripts", "download-and-create-fetal-kidney-ref.R"
 
 # Characterize the fetal full reference (Cao et al.)
 # To be done, next PR
-
+notebook_template_dir <- file.path(module_base, "notebook_template")
+notebook_output_dir <- file.path(module_base, "notebook")
 # Characterize the fetal kidney reference (Stewart et al.)
 rmarkdown::render(input = file.path(module_base, "notebook_template", "00b_characterize_fetal_kidney_reference_Stewart.Rmd"),
                   output_format = "html_document",
