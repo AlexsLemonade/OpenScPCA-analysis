@@ -191,7 +191,7 @@ f3 <- SCpubr::do_BarPlot(sample = srat,
 ## Save the `Seurat`object
 
 ```{r save}
-saveRDS(object = srat, file = file.path(output_dir, paste0("00a-fetal_full_label-transfer_",params$sample_id,".Rds")))
+saveRDS(object = srat, file = file.path(output_dir, paste0("02a-fetal_full_label-transfer_",params$sample_id,".Rds")))
 ```
 
 ## Session info

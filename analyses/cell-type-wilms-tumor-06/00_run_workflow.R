@@ -41,21 +41,21 @@ for (sample_id in metadata$scpca_sample_id) {
                     params = list(scpca_project_id = project_id, sample_id = sample_id),
                     output_format = "html_document",
                     output_file = paste0("01_seurat_processing_", sample_id, ".html"),
-                    output_dir = file.path(module_base, "notebook",  sample_id))
+                    output_dir = file.path(notebook_output_dir,  sample_id))
   
   # Label transfer from the Cao reference using Azimuth
   rmarkdown::render(input = file.path(module_base, "notebook_template", "02a_label-transfer_fetal_full_reference_Cao.Rmd"),
                     params = list(scpca_project_id = project_id, sample_id = sample_id),
                     output_format = "html_document",
                     output_file = paste0("02a_fetal_all_reference_Cao_", sample_id, ".html"),
-                    output_dir = file.path(module_base, "notebook", i))
+                    output_dir = file.path(notebook_output_dir, sample_id))
   
   # Label transfer from the Stewart reference using Seurat
   rmarkdown::render(input = file.path(module_base, "notebook_template", "02b_label-transfer_fetal_kidney_reference_Stewart.Rmd"),
                     params = list(scpca_project_id = project_id, sample_id = sample_id),
                     output_format = "html_document",
                     output_file = paste0("02b_fetal_kidney_reference_Stewart_", sample_id, ".html"),
-                    output_dir = file.path(module_base, "notebook", sample_id))
+                    output_dir = file.path(notebook_output_dir, sample_id))
   
 
   }
