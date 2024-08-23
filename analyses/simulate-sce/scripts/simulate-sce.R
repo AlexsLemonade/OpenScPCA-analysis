@@ -119,8 +119,7 @@ simulate_sce <- function(sce, ncells, replacement_metadata, processed) {
   # match column names from permuted metadata to sample_metadata
   replacement_metadata <- replacement_metadata |>
     dplyr::rename(
-      sample_id = scpca_sample_id,
-      age = age_at_diagnosis
+      sample_id = scpca_sample_id
     ) |>
     dplyr::select(any_of(colnames(metadata(sce)$sample_metadata))) |>
     dplyr::mutate( # convert age to the type in the table before replacement
