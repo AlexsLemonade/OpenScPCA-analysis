@@ -1,5 +1,6 @@
 # Tidyverse
 library(tidyverse)
+library(assertthat)
 
 # Single-cell packages
 library(Seurat)  # remotes::install_github("satijalab/seurat@v5.1.0")
