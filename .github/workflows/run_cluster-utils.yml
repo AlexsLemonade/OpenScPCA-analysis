@@ -1,0 +1,59 @@
+# This is a workflow to run the cluster-utils module
+#
+# Analysis modules are run based on three triggers:
+# - Manual trigger
+# - On pull requests where code in the module has changed
+# - As a reusable workflow called from a separate workflow which periodically runs all modules
+#
+# At initialization, only the manual trigger is active
+
+name: Run cluster-utils analysis module
+env:
+  MODULE_PATH: analyses/cluster-utils
+  AWS_DEFAULT_REGION: us-east-2
+
+concurrency:
+  # only one run per branch at a time
+  group: "run_cluster-utils_${{ github.ref }}"
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  # workflow_call:
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - "analyses/cluster-utils/**"
+
+jobs:
+  run-module:
+    if: github.repository_owner == 'AlexsLemonade'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 4.4.0
+          use-public-rspm: true
+
+      - name: Set up pandoc
+        uses: r-lib/actions/setup-pandoc@v2
+
+      - name: Set up renv
+        uses: r-lib/actions/setup-renv@v2
+        with:
+          working-directory: ${{ env.MODULE_PATH }}
+
+      # Update this step as needed to download the desired data
+      - name: Download test data
+        run: ./download-data.py --test-data --format SCE
+
+      - name: Run analysis module
+        run: |
+          cd ${MODULE_PATH}
+          # run module script(s) here
