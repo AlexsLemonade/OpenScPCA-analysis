@@ -66,18 +66,14 @@ Load required packages in the following chunk, if needed.
 Do not install packages here; only load them with the `library()` function.
 
 ```{r packages, message=FALSE, warning=FALSE}
-library(SingleCellExperiment)
-
 library("Seurat")
+library(SeuratData)
 library(sctransform)
 library(Azimuth)
-library(SeuratData)
-
-library(assertthat)
-library(viridis)
 library(SCpubr)
 library(tidyverse)
 library(patchwork)
+library(SingleCellExperiment)
 
 set.seed(params$seed)
 ```
