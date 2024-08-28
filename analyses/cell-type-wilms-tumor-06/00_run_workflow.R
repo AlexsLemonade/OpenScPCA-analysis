@@ -21,10 +21,10 @@ module_base <- file.path(root_dir, "analyses", "cell-type-wilms-tumor-06")
 notebook_template_dir <- file.path(module_base, "notebook_template")
 notebook_output_dir <- file.path(module_base, "notebook")
 # Characterize the fetal kidney reference (Stewart et al.)
-#rmarkdown::render(input = file.path(notebook_template_dir, "00b_characterize_fetal_kidney_reference_Stewart.Rmd"),
- #                 output_format = "html_document",
-  #                output_file = "00b_characterization_fetal_kidney_reference_Stewart.html",
-   #               output_dir = file.path(notebook_output_dir, "00-reference"))
+rmarkdown::render(input = file.path(notebook_template_dir, "00b_characterize_fetal_kidney_reference_Stewart.Rmd"),
+                  output_format = "html_document",
+                  output_file = "00b_characterization_fetal_kidney_reference_Stewart.html",
+                  output_dir = file.path(notebook_output_dir, "00-reference"))
 
 
 # Run the workflow for (all) samples in the project -----------------------------
