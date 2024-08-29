@@ -1,3 +1,7 @@
+# GitHub Action to perform code styling
+# This action reads in a list of modules that should be styled from the file `mature-modules.json`.
+# A PR is opened for each module whose code was changed by the stylers.
+
 name: Code styling
 on:
   #pull_request:
