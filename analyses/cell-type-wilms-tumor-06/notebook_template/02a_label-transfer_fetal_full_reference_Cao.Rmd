@@ -205,6 +205,8 @@ query.modality = "RNA",
       mapping.score.k = mapping.score.k,
       verbose = verbose
     )
+    
+    print("FindTransferAnchors done")
     # Transferred labels are in metadata columns named "predicted.*"
     # The maximum prediction score is in a metadata column named "predicted.*.score"
     # The prediction scores for each class are in an assay named "prediction.score.*"
@@ -233,6 +235,8 @@ query.modality = "RNA",
       k.weight = k.weight,
       verbose = verbose
     )
+        print("TransferData done")
+
     # Calculate the embeddings of the query data on the reference SPCA
     query <- IntegrateEmbeddings(
       anchorset = anchors,
@@ -243,6 +247,8 @@ query.modality = "RNA",
       reuse.weights.matrix = TRUE,
       verbose = verbose
     )
+            print("IntegrateEmbeddings done")
+
     # Calculate the query neighbors in the reference
     # with respect to the integrated embeddings
     query[["query_ref.nn"]] <- FindNeighbors(
@@ -252,6 +258,8 @@ query.modality = "RNA",
       l2.norm = TRUE,
       verbose = verbose
     )
+                print("FindNeighbors done")
+
     # The reference used in the app is downsampled compared to the reference on which
     # the UMAP model was computed. This step, using the helper function NNTransform,
     # corrects the Neighbors to account for the downsampling.
@@ -259,6 +267,9 @@ query.modality = "RNA",
       object = query,
       meta.data = reference[[]]
     )
+    
+                    print("NNTransform done")
+
     # Project the query to the reference UMAP.
     query[[umap.name]] <- RunUMAP(
       object = query[["query_ref.nn"]],
@@ -266,13 +277,16 @@ query.modality = "RNA",
       reduction.key = 'UMAP_',
       verbose = verbose
     )
-    
+                        print("RunUMAP done")
+
     # Calculate mapping score and add to metadata
-    query <- AddMetaData(
-      object = query,
-      metadata = MappingScore(anchors = anchors, ndim = dims,  ksmooth = 80),
-      col.name = "mapping.score"
-    )
+  #  query <- AddMetaData(
+   #   object = query,
+    #  metadata = MappingScore(anchors = anchors, ndim = dims,  ksmooth = mapping.score.k, kanchors = (k.weight+1)),
+     # col.name = "mapping.score"
+    #)
+    
+    return(query)
     
 }
   
