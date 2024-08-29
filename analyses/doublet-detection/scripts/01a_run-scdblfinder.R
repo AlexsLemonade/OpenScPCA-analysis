@@ -5,8 +5,8 @@
 
 # Load libraries ------
 suppressPackageStartupMessages({
-  library(SingleCellExperiment)
-  library(optparse)
+  library(   SingleCellExperiment)
+  library(optparse     )
 })
 
 # Functions -----------
