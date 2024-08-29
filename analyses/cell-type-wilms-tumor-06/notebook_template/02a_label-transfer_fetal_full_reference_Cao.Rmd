@@ -343,13 +343,13 @@ DefaultAssay(srat) <- "RNA"
 options(future.globals.maxSize= 891289600000000)
 
 
-if(dim(srat)[2] < 100){
+if(dim(srat)[2] < 500){
  s <- RunAzimuth_small(srat, reference ="fetusref", k.weight = 10, mapping.score.k = 80, ksmooth = 80)
 } else {
  s <- RunAzimuth(srat, reference ="fetusref")
 
 }
-
+print(dim(srat)[2])
 # We transfer the annotation to the pre-processed `Seurat`iobject as we don't want to keep changes done on the query by `RunAzimuth`
 metadata_vec <- c("predicted.annotation.l1.score", "predicted.annotation.l1", "predicted.annotation.l2.score", "predicted.annotation.l2", "predicted.organ.score", "predicted.organ")
 
