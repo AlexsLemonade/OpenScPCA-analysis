@@ -15,19 +15,31 @@ concurrency:
 
 
 jobs:
+
+  setup-module-matrix:
+    runs-on: ubuntu-latest
+    name: Setup the module matrix
+    outputs:
+      matrix: ${{ steps.read-modules.outputs.matrix }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Read in list of mature analysis modules
+        id: read-modules
+        run: |
+          # From input `mature-modules.json`, read in modules which should be styled and save to $GITHUB_OUTPUT
+          echo "matrix=$(jq -cr . < ./.github/workflows/mature-modules.json)" > $GITHUB_OUTPUT
+
   style-code:
     runs-on: ubuntu-latest
     name: Perform code styling
+    needs: setup-module-matrix
     strategy:
       fail-fast: false
-      matrix:
-        ##### Add all mature modules ready to be styled here ####
-        module:
-          - hello-R
-          - hello-python
-          - simulate-sce
-          #- cell-type-ewings
-          - doublet-detection
+      matrix: ${{ fromJSON(needs.setup-module-matrix.outputs.matrix) }}
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -62,7 +74,7 @@ jobs:
         uses: chartboost/ruff-action@v1
         with:
           # TODO: This is grabbing everything under analyses, with and without quotes
-          args: format 
+          args: format
           src: "analyses/${{ matrix.module }}/"
       - name: Create PR with styled code
         uses: peter-evans/create-pull-request@v6 # defaults to ${GITHUB_TOKEN} token
