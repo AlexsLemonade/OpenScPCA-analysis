@@ -12,7 +12,8 @@ metadata <- read.table(sample_metadata_file, sep = "\t", header = TRUE)
 module_base <- file.path(root_dir, "analyses", "cell-type-wilms-tumor-06")
 
 # Download and create the fetal kidney reference (Stewart et al) ----------
-# source(file.path(module_base,"scripts", "download-and-create-fetal-kidney-ref.R"))
+system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "download-and-create-fetal-kidney-ref.R")))
+
 
 # Characterize the two fetal references -----------------------------------------
 
