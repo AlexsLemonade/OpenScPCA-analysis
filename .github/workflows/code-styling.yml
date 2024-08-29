@@ -77,9 +77,9 @@ jobs:
       - name: Style Python code for each analysis module
         uses: chartboost/ruff-action@v1
         with:
-          # TODO: This is grabbing everything under analyses, with and without quotes
           args: format
           src: "analyses/${{ matrix.module }}/"
+
       - name: Create PR with styled code
         uses: peter-evans/create-pull-request@v6 # defaults to ${GITHUB_TOKEN} token
         with:
