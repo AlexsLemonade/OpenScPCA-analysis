@@ -299,6 +299,8 @@ module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06"
 
 We install and load the reference using `Azimuth`.
 ```{r path_to_reference}
+options(timeout=600)
+
 #Check the names of the Azimuth available data and reference
 AvailableData()
 
