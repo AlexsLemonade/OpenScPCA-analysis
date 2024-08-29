@@ -4,7 +4,7 @@ author: "Maud PLASCHKA"
 date: '2024-08-13'
 params:
   scpca_project_id: "SCPCP000006"
-  sample_id: "SCPCS000176"
+  sample_id: "SCPCS000168"
   seed: 12345
 output:
   html_document:
@@ -343,16 +343,17 @@ DefaultAssay(srat) <- "RNA"
 options(future.globals.maxSize= 891289600000000)
 
 
-if(dim(srat)[2] < 100){
+if(dim(srat)[2] < 500){
  s <- RunAzimuth_small(srat, reference =path_to_reference, assay = 'RNA',k.weight = 10, mapping.score.k = 80, ksmooth = 80)
 } else {
  s <- RunAzimuth(srat, reference =path_to_reference,assay = 'RNA' )
 
 }
+print(dim(srat)[2])
 
 # We transfer the annotation to the pre-processed `Seurat`iobject as we don't want to keep changes done on the query by `RunAzimuth`
 metadata_vec <- c("predicted.compartment.score", "predicted.compartment", "predicted.cell_type.score", "predicted.cell_type")
-metadata_to_trasfer <- data@meta.data[, metadata_vec]
+metadata_to_trasfer <- s@meta.data[, metadata_vec]
 srat <- AddMetaData(srat, metadata_to_trasfer, col.name = paste0("fetal_kidney_", metadata_vec))
 ```
 
