@@ -16,7 +16,7 @@ ENV RENV_CONFIG_CACHE_ENABLED=FALSE
 # set a name for the conda environment
 ARG ENV_NAME=openscpca-cell-type-ewings
 
-# set environment variables to install miniconda
+# set environment variables to install conda
 ENV PATH="/opt/conda/bin:${PATH}"
 
 # Install dependencies for renv library

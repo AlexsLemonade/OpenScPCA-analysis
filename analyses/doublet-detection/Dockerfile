@@ -11,18 +11,20 @@ ARG ENV_NAME=openscpca-doublet-detection
 # Set an environment variable to allow checking if we are in an OpenScPCA container
 ENV OPENSCPCA_DOCKER=TRUE
 
-# set environment variables to install miniconda
+# set environment variables to install conda
 ENV PATH="/opt/conda/bin:${PATH}"
 
-# Install Miniconda
-# adapted from https://github.com/ContinuumIO/docker-images/blob/main/miniconda3/debian/Dockerfile
-RUN curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
-  && bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda \
-  && ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh  \
-  && echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc  \
-  && rm -f Miniconda3-latest-Linux-x86_64.sh \
-  && find /opt/conda/ -follow -type f -name '*.a' -delete \
-  && find /opt/conda/ -follow -type f -name '*.js.map' -delete
+# Install conda via miniforge
+# adapted from https://github.com/conda-forge/miniforge-images/blob/master/ubuntu/Dockerfile
+RUN curl -L "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh" -o /tmp/miniforge.sh \
+  && bash /tmp/miniforge.sh -b -p /opt/conda \
+  && rm -f /tmp/miniforge.sh \
+  && conda clean --tarballs --index-cache --packages --yes \
+  && find /opt/conda -follow -type f -name '*.a' -delete \
+  && find /opt/conda -follow -type f -name '*.pyc' -delete \
+  && conda clean --force-pkgs-dirs --all --yes \
+  && echo ". /opt/conda/etc/profile.d/conda.sh && conda activate base" >> /etc/skel/.bashrc \
+  && echo ". /opt/conda/etc/profile.d/conda.sh && conda activate base" >> ~/.bashrc
 
 # Install conda-lock
 RUN conda install --channel=conda-forge --name=base conda-lock
