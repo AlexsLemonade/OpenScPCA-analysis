@@ -1,15 +1,12 @@
-# GitHub Action to perform code styling
-# This action reads in a list of modules that should be styled from the file `mature-modules.json`.
-# A PR is opened for each module whose code was changed by the stylers.
+# GitHub Action to perform code styling.
+# This action reads in a list of modules that should be styled from the file `modules_code-styling.txt`.
+# A PR is opened for each module whose code was modified by the stylers.
 
 name: Code styling
 on:
-  #pull_request:
-  #  branches:
-  #    - main
   workflow_dispatch:
  #  schedule:
- #    - cron: "0 0 15 1/3 *" # 15th of every 3rd month, for now
+ #    - cron: "0 0 15 1/3 *" # 15th of every 3rd month. Not currently in use.
 
 
 concurrency:
