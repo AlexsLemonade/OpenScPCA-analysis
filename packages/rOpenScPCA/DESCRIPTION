@@ -1,0 +1,24 @@
+Package: rOpenScPCA
+Type: Package
+Title: Utility Functions for OpenScPCA Project Analysis Modules
+Version: 0.1.0
+Authors@R: c(
+    person(c("Stephanie", "J."), "Spielman",
+           email = "stephanie.spielman@ccdatalab.org",
+           comment = list(ORCID = "0000-0002-9090-4788"),
+           role = c("aut", "cre")),
+    person(c("Joshua", "A."), "Shapiro",
+           email = "josh.shapiro@ccdatalab.org",
+           comment = list(ORCID = "0000-0002-6224-0347"),
+           role = c("aut"))
+    )
+Maintainer: Stephanie J. Spielman <stephanie.spielman@ccdatalab.org>
+Description: This package contains utility functions that support single-cell RNA-seq
+    analysis in R-based OpenScPCA analysis module code.
+License: BSD_3_clause + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+RoxygenNote: 7.3.2

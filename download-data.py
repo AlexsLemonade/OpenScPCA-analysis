@@ -172,7 +172,7 @@ def update_symlink(data_dir: pathlib.Path, target: str, dryrun: bool = False) ->
         else:
             current_symlink = data_dir / "current"
             current_symlink.unlink(missing_ok=True)
-            current_symlink.symlink_to(target_path)
+            current_symlink.symlink_to(target) # the relative path
             print(f"Updated 'current' symlink to point to '{target}'.")
 
 
