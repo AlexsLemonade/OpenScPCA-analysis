@@ -28,7 +28,8 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           working-directory: "packages/rOpenScPCA/"
-          extra-packages: any::rcmdcheck
+          extra-packages: |
+            any::rcmdcheck
           needs: check
 
       - name: Check package
