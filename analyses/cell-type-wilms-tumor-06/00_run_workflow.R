@@ -52,7 +52,7 @@ for (sample_id in metadata$scpca_sample_id) {
                     output_dir = file.path(notebook_output_dir, sample_id))
   
   # Label transfer from the Stewart reference using Seurat
-  rmarkdown::render(input = file.path(module_base, "notebook_template", "02b_label-transfer_fetal_kidney_reference_Stewart.Rmd"),
+  rmarkdown::render(input = file.path(notebook_template_dir, "02b_label-transfer_fetal_kidney_reference_Stewart.Rmd"),
                     params = list(scpca_project_id = project_id, sample_id = sample_id),
                     output_format = "html_document",
                     output_file = paste0("02b_fetal_kidney_reference_Stewart_", sample_id, ".html"),
