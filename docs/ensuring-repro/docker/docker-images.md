@@ -163,7 +163,7 @@ RUN curl -L "https://github.com/conda-forge/miniforge/releases/latest/download/M
   && echo ". /opt/conda/etc/profile.d/conda.sh && conda activate base" >> ~/.bashrc
 
 # Install conda-lock
-RUN conda install --channel=conda-forge --name=base conda-lock
+RUN conda install --channel=conda-forge --name=base conda-lock && conda clean --all --yes
 
 # Install renv
 RUN Rscript -e "install.packages('renv')"
@@ -175,8 +175,8 @@ ENV RENV_CONFIG_CACHE_ENABLED FALSE
 COPY conda-lock.yml conda-lock.yml
 
 # restore from conda-lock.yml file and clean up to reduce image size
-RUN conda-lock install -n ${ENV_NAME} conda-lock.yml && \
-  conda clean --all --yes
+RUN conda-lock install -n ${ENV_NAME} conda-lock.yml \
+  && conda clean --all --yes
 
 # Copy the renv.lock file from the host environment to the image
 COPY renv.lock renv.lock
