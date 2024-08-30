@@ -15,7 +15,7 @@ Authors@R: c(
 Maintainer: Stephanie J. Spielman <stephanie.spielman@ccdatalab.org>
 Description: This package contains utility functions that support single-cell RNA-seq
     analysis in R-based OpenScPCA analysis module code.
-License: BSD_3_clause + ../../LICENSE file
+License: BSD_3_clause + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Suggests:
