@@ -22,14 +22,14 @@ The tables of marker genes can be found in the S3 bucket name `researcher-008971
 
 The S3 bucket name `researcher-008971640512-us-east-2` contains one folder for each of the samples of the Wilms tumor dataset SCPCP000006. 
 
-- `01-Seurat_{sample-id}.Rds` is the output of the `01_seurat-processing.Rmd` notebook template.
+- `01-Seurat_{sample-id}.Rds` is the output of the [`01_seurat-processing.Rmd`](../notebook_template/01_seurat-processing.Rmd) notebook template.
 In brief, the `_processed.rds` `sce object` is converted to `Seurat` and normalized using `SCTransform`.
 Dimensionality reduction (`RunPCA` and `RunUMAP`) and clustering (`FindNeighbors` and `FindClusters`) are performed before saving the `Seurat` object. 
 
-- `02a-fetal_full_label-transfer_{sample-id}.Rds` is the output of the `02a_label-transfer_fetal_full_reference_Cao.Rmd` notebook template.
+- `02a-fetal_full_label-transfer_{sample-id}.Rds` is the output of the [`02a_label-transfer_fetal_full_reference_Cao.Rmd`](../notebook_template/02a_label-transfer_fetal_full_reference_Cao.Rmd) notebook template.
 In brief, we used `Azimuth` to transfer labels from the `Azimuth` fetal full reference (Cao et al.) 
 
-- `02b-fetal_kidney_label-transfer_{sample-id}.Rds` is the output of the `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd` notebook template.
+- `02b-fetal_kidney_label-transfer_{sample-id}.Rds` is the output of the [`02b_label-transfer_fetal_kidney_reference_Stewart.Rmd`](../notebook_template/02b_label-transfer_fetal_kidney_reference_Stewart.Rmd) notebook template.
 In brief, we used `Azimuth` to transfer labels from the fetal kidney reference (Stewart et al.) 
 
 
