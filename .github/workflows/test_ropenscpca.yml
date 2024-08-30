@@ -21,6 +21,10 @@ jobs:
           r-version: 4.4.0
           use-public-rspm: true
 
+      - name: Remove `.Rprofile` to not activate renv
+        run: |
+          rm ./packages/rOpenScPCA/.Rprofile
+
       - name: Set up renv
         uses: r-lib/actions/setup-renv@v2
         with:
