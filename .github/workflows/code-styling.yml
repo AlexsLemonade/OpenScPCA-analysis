@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Setup the module matrix
     outputs:
-      matrix: ${{ steps.read-modules.outputs.matrix }}
+      module: ${{ steps.read-modules.outputs.module }}
 
     steps:
       - name: Checkout repository
@@ -33,8 +33,8 @@ jobs:
       - name: Read in list of mature analysis modules
         id: read-modules
         run: |
-          # From input `mature-modules.json`, read in modules which should be styled and save to $GITHUB_OUTPUT
-          echo "matrix=$(jq -cr . < ./.github/workflows/mature-modules.json)" > $GITHUB_OUTPUT
+          # From input `modules_code-styling.txt`, read in modules to style and save to $GITHUB_OUTPUT
+          echo "module=$(jq -nRc '[inputs]|map(select(length>0))' ./.github/workflows/modules_code-styling.txt)" > $GITHUB_OUTPUT
 
   style-code:
     runs-on: ubuntu-latest
@@ -42,7 +42,8 @@ jobs:
     needs: setup-module-matrix
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.setup-module-matrix.outputs.matrix) }}
+      matrix:
+        module: ${{ fromJSON(needs.setup-module-matrix.outputs.module) }}
 
     steps:
       - name: Checkout repo
