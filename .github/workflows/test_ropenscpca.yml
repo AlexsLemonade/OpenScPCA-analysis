@@ -21,7 +21,8 @@ jobs:
           r-version: 4.4.0
           use-public-rspm: true
 
-      - uses: r-lib/actions/setup-r-dependencies@v2
+      - name: Set up dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
         with:
           working-directory: "packages/rOpenScPCA/"
           extra-packages: |
