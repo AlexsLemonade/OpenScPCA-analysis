@@ -4,9 +4,9 @@
 
 name: Code styling
 on:
-  pull_request:
-    branches:
-      - main
+  #pull_request:
+  #  branches:
+  #    - main
   workflow_dispatch:
  #  schedule:
  #    - cron: "0 0 15 1/3 *" # 15th of every 3rd month, for now
