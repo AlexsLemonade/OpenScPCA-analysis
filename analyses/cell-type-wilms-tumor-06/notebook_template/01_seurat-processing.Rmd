@@ -37,7 +37,6 @@ This correspond to the step 2 of the proposed analysis: clustering of cells acro
 - https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/635
 - https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/671
 
-This notebook will be updated with PR #704 to explore the clustering.
 
 
 ### Packages
