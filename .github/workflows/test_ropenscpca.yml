@@ -25,15 +25,12 @@ jobs:
         run: |
           rm ./packages/rOpenScPCA/.Rprofile
 
-      - name: Set up renv
-        uses: r-lib/actions/setup-renv@v2
+      - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          working-directory: "packages/rOpenScPCA/"
-
-      - name: Install additional dependencies for testing
-        run: |
-          install.packages(c("rcmdcheck", "testthat"))
-        shell: Rscript {0}
+          extra-packages: |
+            any::rcmdcheck
+            any::testthat
+          needs: check
 
       - name: Check package
         uses: r-lib/actions/check-r-package@v2
