@@ -4,7 +4,7 @@ This directory contains GitHub Actions (GHA) yaml files as well as helper files 
 
 * Each workflow `docker_{module name}.yml` is used to build the given module's Docker image.
 * `docker_all-modules.yml` builds and pushes all module Docker images by calling each `docker_{module name}.yml` workflow.
-* The `build-push-docker-module.yml` workflow is not standlone but contains actions used by `docker_all-modules.yml` and each `docker_{module name}.yml`.
+* The `build-push-docker-module.yml` workflow contains actions used by `docker_all-modules.yml` and each `docker_{module name}.yml`. It is not meant to be run as a standalone action.
 
 ## Module testing
 
