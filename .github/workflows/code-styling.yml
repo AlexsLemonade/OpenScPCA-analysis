@@ -30,7 +30,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Read in list of mature analysis modules
+      - name: Read in list of analysis modules to style
         id: read-modules
         run: |
           # From input `modules_code-styling.txt`, read in modules to style, reformat, and save to $GITHUB_OUTPUT
