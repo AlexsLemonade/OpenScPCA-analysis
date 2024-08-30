@@ -140,7 +140,7 @@ DefaultAssay(srat) <- "RNA"
 options(future.globals.maxSize= 891289600000000)
 s <- Azimuth::RunAzimuth(srat, reference ="fetusref")
 
-# We transfer the annotation to the pre-processed `Seurat`iobject as we don't want to keep changes done on the query by `RunAzimuth`
+# We transfer the annotation to the pre-processed `Seurat` object as we don't want to keep changes done on the query by `RunAzimuth`
 metadata_vec <- c("predicted.annotation.l1.score", "predicted.annotation.l1", "predicted.annotation.l2.score", "predicted.annotation.l2", "predicted.organ.score", "predicted.organ")
 
 metadata_to_trasfer <- s@meta.data[, metadata_vec]
