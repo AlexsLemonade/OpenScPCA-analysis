@@ -22,7 +22,7 @@ jobs:
     name: Build and Push Docker Image
     if: inputs.push-ecr && github.repository_owner == 'AlexsLemonade'
     environment: prod
-    runs-on: ubuntu-latest
+    runs-on: openscpca-22.04-big-disk
 
     steps:
       - name: Clear space
