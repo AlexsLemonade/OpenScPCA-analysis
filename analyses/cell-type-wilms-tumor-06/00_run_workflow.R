@@ -38,7 +38,7 @@ for (sample_id in metadata$scpca_sample_id) {
   
   
   # Pre-process the data - `Seurat` workflow
-  rmarkdown::render(input = file.path(module_base, "notebook_template", "01_seurat-processing.Rmd"),
+  rmarkdown::render(input = file.path(notebook_template_dir, "01_seurat-processing.Rmd"),
                     params = list(scpca_project_id = project_id, sample_id = sample_id),
                     output_format = "html_document",
                     output_file = paste0("01_seurat_processing_", sample_id, ".html"),
