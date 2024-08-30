@@ -34,7 +34,7 @@ jobs:
         id: read-modules
         run: |
           # From input `modules_code-styling.txt`, read in modules to style, reformat, and save to $GITHUB_OUTPUT
-          echo "module=$(jq -nRc '[inputs]|map(select(length>0))' ./.github/workflows/modules_code-styling.txt)" > $GITHUB_OUTPUT
+          echo "module=$(jq -nRc '[inputs]|map(select(length>0))' ./.github/workflows/modules_code-styling.txt)" >> $GITHUB_OUTPUT
 
   style-code:
     runs-on: ubuntu-latest
