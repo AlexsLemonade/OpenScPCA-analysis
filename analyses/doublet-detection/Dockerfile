@@ -27,7 +27,8 @@ RUN curl -L "https://github.com/conda-forge/miniforge/releases/latest/download/M
   && echo ". /opt/conda/etc/profile.d/conda.sh && conda activate base" >> ~/.bashrc
 
 # Install conda-lock
-RUN conda install --channel=conda-forge --name=base conda-lock && conda clean --all --yes
+RUN conda install --channel=conda-forge --name=base conda-lock \
+  && conda clean --all --yes
 
 # Install pandoc dependency
 RUN apt-get -y update &&  \
@@ -49,6 +50,9 @@ COPY conda-lock.yml conda-lock.yml
 RUN conda-lock install -n ${ENV_NAME} conda-lock.yml \
   && conda clean --all --yes
 
+# Activate conda environment on bash launch
+RUN echo "conda activate ${ENV_NAME}" >> ~/.bashrc
+
 # Copy the renv.lock file from the host environment to the image
 COPY renv.lock renv.lock
 
@@ -66,9 +70,6 @@ ENV BASILISK_EXTERNAL_DIR /usr/local/renv/basilisk
 RUN Rscript -e "proc <- basilisk::basiliskStart(env = zellkonverter::zellkonverterAnnDataEnv(), testload = 'anndata'); \
   basilisk::basiliskStop(proc); \
   basilisk.utils::cleanConda()"
-
-# Activate conda environment on bash launch
-RUN echo "conda activate ${ENV_NAME}" >> ~/.bashrc
 
 # Set CMD to bash to activate the environment when launching
 CMD ["/bin/bash"]

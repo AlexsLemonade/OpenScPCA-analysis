@@ -137,7 +137,7 @@ CMD ["/bin/bash"]
 If your analysis module requires both R and conda environments, you may have to do just a bit more work to set up the Dockerfile, as there is not a single base image that includes both R and conda environments.
 <!-- Should we make one, maybe? -->
 We recommend starting with an R-based image and then installing conda manually.
-In the example below, we have adapted the installation steps used in the [official Miniconda Dockerfile](https://github.com/ContinuumIO/docker-images/blob/main/miniconda3/debian/Dockerfile).
+In the example below, we have adapted the installation steps used in the [official Miniforge Dockerfile](https://github.com/conda-forge/miniforge-images/blob/master/ubuntu/Dockerfile).
 
 ```Dockerfile
 # Dockerfile for an analysis module with both R and conda environments
@@ -163,7 +163,8 @@ RUN curl -L "https://github.com/conda-forge/miniforge/releases/latest/download/M
   && echo ". /opt/conda/etc/profile.d/conda.sh && conda activate base" >> ~/.bashrc
 
 # Install conda-lock
-RUN conda install --channel=conda-forge --name=base conda-lock && conda clean --all --yes
+RUN conda install --channel=conda-forge --name=base conda-lock \
+  && conda clean --all --yes
 
 # Install renv
 RUN Rscript -e "install.packages('renv')"
