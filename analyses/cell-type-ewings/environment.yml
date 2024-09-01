@@ -2,7 +2,6 @@ name: "openscpca-cell-type-ewings"
 channels:
   - conda-forge
   - bioconda
-  - defaults
   - pytorch
 platforms:
   - linux-64
@@ -19,4 +18,4 @@ dependencies:
   - pytorch
   - pip
   - pip:
-    - scvi-tools
+      - scvi-tools

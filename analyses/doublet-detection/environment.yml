@@ -2,7 +2,6 @@ name: openscpca-doublet-detection
 channels:
   - conda-forge
   - bioconda
-  - defaults
 platforms:
   - linux-64
   - osx-64
@@ -13,6 +12,6 @@ dependencies:
   - conda-lock=2.5
   - jq
   - pre-commit=3.6
-  - scrublet=0.2.3
-  - anndata=0.10.7
-  - pandas=2.2.2
+  - scrublet=0.2
+  - anndata=0.10
+  - pandas=2.2
