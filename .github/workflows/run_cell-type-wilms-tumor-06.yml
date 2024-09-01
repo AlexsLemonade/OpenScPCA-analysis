@@ -47,7 +47,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get install -y libcurl4-openssl-dev libhdf5-dev libglpk40
-          
+
       - name: Set up renv
         uses: r-lib/actions/setup-renv@v2
         with:
@@ -56,10 +56,6 @@ jobs:
       # Update this step as needed to download the desired data
       - name: Download test data
         run: ./download-data.py --test-data --format SCE --projects SCPCP000006
-
-      - name: Create Azimuth reference
-        run: Rscript scripts/download-and-create-fetal-kidney-ref.R
-        working-directory: ${{ env.MODULE_PATH }}
 
       - name: Run analysis module
         run: Rscript 00_run_workflow.R
