@@ -58,5 +58,5 @@ jobs:
         run: ./download-data.py --test-data --format SCE --projects SCPCP000006
 
       - name: Run analysis module
-        run: Rscript 00_run_workflow.R
+        run: Rscript 00_run_workflow.R --testing
         working-directory: ${{ env.MODULE_PATH }}
