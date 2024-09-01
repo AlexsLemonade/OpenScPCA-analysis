@@ -4,6 +4,8 @@ ADT
 al
 ALSF
 altExp
+anaplasia
+anaplastic
 aneuploid
 AnnData
 anonymize
@@ -18,6 +20,8 @@ benchmarking
 Bioconda
 Bioconductor
 bioinformatics
+blastema
+blastemal
 Bleijs
 Carpentries
 CellAssign
@@ -53,6 +57,7 @@ doxxing
 dropdown
 ECM
 ECR
+endothelium
 enforceability
 Ensembl
 enure
@@ -73,7 +78,9 @@ GitKraken's
 Goodspeed
 GPUs
 GTF
+Halbritter
 heterotypic
+histological
 homotypic
 HPC
 IAM
@@ -108,9 +115,11 @@ mesenchymal
 metacell
 metacells
 Miniconda
+Miniforge
 misidentification
 MSC
 multifactor
+myeloid
 natively
 Nextflow
 nonconsensual
@@ -123,6 +132,8 @@ Panglao
 PanglaoDB
 PDX
 pluripotent
+podman
+podocyte
 Posit
 Posit's
 PowerShell
@@ -144,12 +155,16 @@ scDblFinder
 SCE
 ScPCA
 SCPCP
+scRNA
 scrublet
 SEACells
 SemVar
 SingleR
+snRNA
 socio
 SSO
+stroma
+stromal
 Stumptown
 sublicensable
 symlink
@@ -165,10 +180,12 @@ TSV
 UCell
 UMAP
 uncomment
+unhide
 vCPU
 vCPUs
 Visser
 VSCodium
+Wilms
 WIPO
 WisCon
 WSL

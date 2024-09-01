@@ -55,6 +55,8 @@ jobs:
       - name: Set up conda
         # Note that this creates and activates an environment named 'test' by default
         uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
 
       - name: Install conda-lock and activate locked conda environment
         run: |
