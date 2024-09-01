@@ -14,6 +14,7 @@ option_list <- list(
   make_option(
     opt_str = c("--testing"),
     type = "logical",
+    default = FALSE,
     action = "store_true",
     help = "Use this flag when running on test data"
   )
