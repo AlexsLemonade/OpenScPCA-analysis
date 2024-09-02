@@ -1,0 +1,199 @@
+---
+title: "Characterize the fetal kidney reference from the kidney cell atlas"
+author: "Maud PLASCHKA"
+date: '2024-08-07'
+params:
+  padj_threshold: 0.05
+  lfc_threshold: 1
+  rate1_threshold: 0.5
+  seed: 12345
+output: 
+  html_document: 
+    toc: yes
+    toc_float: yes
+    code_folding: hide
+    highlight: pygments
+    df_print: paged
+    self_contained: yes
+    mode: selfcontained
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message=FALSE,
+                      warnings=FALSE)
+```
+
+
+# Introduction
+
+The aim is to characterize the human fetal kidney from the kidney cell atlas.
+You can find more about the human kidney atlas here: https://www.kidneycellatlas.org/ [1]
+The rds data can be download using the download link https://datasets.cellxgene.cziscience.com/40ebb8e4-1a25-4a33-b8ff-02d1156e4e9b.rds
+The azimuth compatible reference has been downloaded and created in the `R script` `download-and-create-fetal-kidney-ref.R`
+
+## Packages
+
+Load required packages in the following chunk, if needed.
+Do not install packages here; only load them with the `library()` function.
+
+```{r packages, message=FALSE, warning=FALSE}
+library("Seurat")
+library(Azimuth)
+library(SCpubr)
+library(tidyverse)
+library(patchwork)
+
+set.seed(params$seed)
+options(future.globals.maxSize= 891289600000)
+```
+
+
+## Base directories
+
+```{r base paths, eval=TRUE, include=TRUE}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The path to this module
+module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06")
+
+```
+
+
+## Input files
+
+The input file is the output of the `R script` `download-and-create-fetal-kidney-ref.R`
+
+```{r path_to_data}
+path_to_data <- file.path(
+  module_base,
+  "scratch",
+  "fetal_kidney.rds"
+)
+```
+
+## Output file
+
+We will save the result of the differential expression analysis in results/references/00b_marker_genes_fetal_kidney_Stewart.csv
+Notebook is saved in the `notebook/00-reference` directory
+
+```{r path_to_output}
+path_to_output <- file.path(module_base, "results", "references")
+```
+
+# Analysis
+
+## Load the reference
+
+```{r pre_process, echo=TRUE, fig.height=7, fig.width=12, message=FALSE, warning=FALSE, out.width='100%'}
+fetal_kidney <- readRDS(path_to_data)
+
+d1 <- do_DimPlot(fetal_kidney, reduction = "umap", dims = c(1,2), group.by = "compartment", label = TRUE, repel = TRUE) + NoLegend() 
+d2 <- do_DimPlot(fetal_kidney, reduction = "umap", dims = c(1,2), group.by = "cell_type", label = TRUE, repel = TRUE) + NoLegend()
+
+d1 | d2
+```
+
+## Characterization of compartment and cell types in the reference
+
+Here, we use an unbiased approach to find transcripts that characterized the different compartments and cell types.
+
+This is just to get markers genes of the different population, in case some could be of interest for the Wilms tumor annotations. 
+
+We run DElegate::FindAllMarkers2 to find markers of the different clusters and manually check if they do make sense. 
+DElegate::FindAllMarkers2 is an improved version of Seurat::FindAllMarkers based on pseudobulk differential expression method. 
+Please check the preprint from Chistoph Hafemeister: https://www.biorxiv.org/content/10.1101/2023.03.28.534443v1
+and tool described here: https://github.com/cancerbits/DElegate 
+
+### Find marker genes for each of the compartment
+
+
+```{r markers_compatment, fig.width=8, fig.height=7, out.width='100%'}
+de_results   <- DElegate::FindAllMarkers2(fetal_kidney, group_column = "compartment",)
+
+#filter the most relevant markers
+s.markers <- de_results[de_results$padj < params$padj_threshold & de_results$log_fc > params$lfc_threshold & de_results$rate1 > params$rate1_threshold,]
+
+DT::datatable(s.markers, caption = ("marker genes"), 
+              extensions = 'Buttons', 
+              options = list(  dom = 'Bfrtip',
+                               buttons = c( 'csv', 'excel')))
+
+# Select top 5 genes for heatmap plotting
+s.markers <- na.omit(s.markers)
+s.markers %>%
+    group_by(group1) %>%
+    top_n(n =  5, wt = log_fc) -> top5
+
+# subset for plotting
+Idents(fetal_kidney) <- fetal_kidney$compartment
+cells <- WhichCells(fetal_kidney, downsample = 100)
+ss <- subset(fetal_kidney, cells = cells)
+ss <- ScaleData(ss, features = top5$feature)
+
+p1 <- SCpubr::do_DimPlot(fetal_kidney, reduction="umap", group.by = "compartment", label = TRUE, repel = TRUE) + ggtitle("compartment")
+p2 <- DoHeatmap(ss, features = top5$feature,  cells = cells, group.by = "compartment") + NoLegend() + 
+  scale_fill_gradientn(colors =  c("#01665e","#35978f",'darkslategray3', "#f7f7f7", "#fee391","#fec44f","#F9AD03")) 
+p3 <- ggplot(fetal_kidney@meta.data, aes(compartment, fill = compartment)) + geom_bar() + NoLegend()
+
+
+common_title <- sprintf("Unsupervised clustering %s, %d cells", fetal_kidney@meta.data$orig.ident[1], ncol(fetal_kidney))
+show((((p1 / p3) + plot_layout(heights = c(3,2)) | p2) ) + plot_layout(widths = c(1, 2)) + plot_layout(heights = c(3,1)) + plot_annotation(title = common_title))
+
+write_csv(de_results, file = file.path(path_to_output, "00a_marker_compartment_fetal_kidney_Stewart.csv"))
+
+
+```
+
+
+### Find marker genes for each of the cell types
+
+
+```{r markers_cell, fig.width=17, fig.height=20, out.width='100%'}
+de_results   <- DElegate::FindAllMarkers2(fetal_kidney, group_column = "cell_type")
+
+#filter the most relevant markers
+s.markers <- de_results[de_results$padj < params$padj_threshold & de_results$log_fc > params$lfc_threshold & de_results$rate1 > params$rate1_threshold,]
+
+
+DT::datatable(s.markers, caption = ("marker genes"), 
+              extensions = 'Buttons', 
+              options = list(  dom = 'Bfrtip',
+                               buttons = c( 'csv', 'excel')))
+
+# Select top 5 genes for heatmap plotting
+s.markers <- na.omit(s.markers)
+s.markers %>%
+    group_by(group1) %>%
+    top_n(n =  5, wt = log_fc) -> top5
+
+# subset for plotting
+Idents(fetal_kidney) <- fetal_kidney$cell_type
+cells <- WhichCells(fetal_kidney, downsample = 100)
+ss <- subset(fetal_kidney, cells = cells)
+ss <- ScaleData(ss, features = top5$feature)
+
+p1 <- SCpubr::do_DimPlot(fetal_kidney, reduction="umap", group.by = "cell_type", label = TRUE, repel = TRUE) + ggtitle("cell_type") + NoLegend()
+p2 <- DoHeatmap(ss, features = top5$feature,  cells = cells, group.by = "cell_type") + NoLegend() + 
+  scale_fill_gradientn(colors =  c("#01665e","#35978f",'darkslategray3', "#f7f7f7", "#fee391","#fec44f","#F9AD03")) 
+p3 <- ggplot(fetal_kidney@meta.data, aes(cell_type, fill = cell_type)) + geom_bar() + NoLegend() + scale_x_discrete(guide = guide_axis(angle = 90))
+
+
+common_title <- sprintf("Unsupervised clustering %s, %d cells", fetal_kidney@meta.data$orig.ident[1], ncol(fetal_kidney))
+show((((p1 / p3) + plot_layout(heights = c(3,2)) | p2) ) + plot_layout(widths = c(1, 1)) + plot_layout(heights = c(3,1)) + plot_annotation(title = common_title))
+
+write_csv( de_results, file = file.path(path_to_output, "00a_marker_cell-type_fetal_kidney_Stewart.csv"))
+
+```
+
+## References 
+
+- [1] https://www.science.org/doi/10.1126/science.aat5031 
+
+## Session info
+
+```{r }
+sessionInfo()
+```
+
