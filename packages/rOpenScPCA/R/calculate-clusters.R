@@ -29,18 +29,17 @@ calculate_clusters <- function(
 
   # Check input arguments
   stopifnot(
-    "The `mat` argument must be a matrix." = class(mat) %in% c("Matrix", "dgCMatrix"),
-    "The `mat` matrix must be numeric." = type(mat) %in% c("numeric", "double"),
+    "The `mat` argument must be a matrix." = any(class(mat) %in% c("matrix", "dgCMatrix")),
     "The `mat` matrix must have row names representing cell ids (e.g. barcodes)." = !(is.null(rownames(mat)))
   )
 
-  algorithm <- toLower(algorithm)
+  algorithm <- tolower(algorithm)
   stopifnot(
     "`algorithm` must be one of 'louvain' (default), 'walktrap' or 'leiden'." =
       algorithm %in% c("louvain", "walktrap", "leiden")
   )
 
-  weighting <- toLower(weighting)
+  weighting <- tolower(weighting)
   stopifnot(
     "`weighting` must be one of 'jaccard' (default) or 'rank'." =
       weighting %in% c("jaccard", "rank", "leiden")
