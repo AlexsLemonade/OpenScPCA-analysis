@@ -54,7 +54,7 @@ We recommend selecting `yes`.
 
 When the installation is complete, you will see the following message:
 
-```console
+```{ .console .no-copy title="Output message after miniforge install"}
 ==> For changes to take effect, close and re-open your current shell. <==
 
 Thank you for installing Miniforge3!
@@ -65,7 +65,6 @@ Thank you for installing Miniforge3!
 Next, you will need to set certain conda settings and install a few packages that will allow you to contribute to OpenScPCA in general.
 
 1. [Open a new terminal (command line prompt)](../../getting-started/project-tools/using-the-terminal.md) to interact with conda.
-    - We recommend opening a [terminal from GitKraken](../../getting-started/project-tools/using-the-terminal.md#gitkraken) since you'll need to run some of these steps from the `OpenScPCA-analysis` folder.
 
 1. Copy and paste the following code into the terminal, and hit enter.
 These commands will set the [recommended channels](https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/channels.html) conda should use to search for software.
@@ -101,7 +100,6 @@ These are specified in the `environment.yml` in the root of the repository, and 
 
 
 1. To create this environment, navigate in the terminal with `cd` to the `OpenScPCA-analysis` repository.
-    - Again, if you open a [terminal in GitKraken](../../getting-started/project-tools/using-the-terminal.md#gitkraken), you will automatically be in the repository folder.
 
 2. Enter the following command in the terminal to create the `openscpca` environment and install the packages into it:
 
