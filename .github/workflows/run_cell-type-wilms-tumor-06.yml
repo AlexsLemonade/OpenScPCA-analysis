@@ -25,6 +25,8 @@ on:
       - main
     paths:
       - "analyses/cell-type-wilms-tumor-06/**"
+      - "!analyses/cell-type-wilms-tumor-06/Dockerfile"
+      - "!analyses/cell-type-wilms-tumor-06/.dockerignore"
 
 jobs:
   run-module:
