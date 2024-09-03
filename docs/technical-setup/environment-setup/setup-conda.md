@@ -43,17 +43,28 @@ curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Mi
 bash Miniforge3-$(uname)-$(uname -m).sh
 ```
 
-You will be prompted through some installation options, and then the installation will proceed.
-When the installation is complete, you will see a message indicating that Miniforge has been installed.
+!!! note
+    On Windows with WSL 2, you will need to install Miniforge on the WSL 2 side of your system, starting from the [Ubuntu terminal](../../getting-started/project-tools/using-the-terminal.md).
 
-On Windows with WSL 2, you will need to install Miniforge on the WSL 2 side of your system, starting from the [Ubuntu terminal](../../getting-started/project-tools/using-the-terminal.md).
+You will be prompted first to view the license; press enter as instructed, read the license (you should be able to scroll with your arrow keys), then press `q` to return to the installer.
+Accept the license by typing `yes`, then continue following the prompts to complete the installation.
+You will be asked about the installation location (the default should be fine).
+Finally, you will be asked whether you wish to update your shell profile to automatically initialize conda.
+We recommend selecting `yes`.
 
+When the installation is complete, you will see the following message:
+
+```console
+==> For changes to take effect, close and re-open your current shell. <==
+
+Thank you for installing Miniforge3!
+```
 
 ## Set up conda
 
 Next, you will need to set certain conda settings and install a few packages that will allow you to contribute to OpenScPCA in general.
 
-1. [Open a terminal (command line prompt)](../../getting-started/project-tools/using-the-terminal.md) to interact with conda.
+1. [Open a new terminal (command line prompt)](../../getting-started/project-tools/using-the-terminal.md) to interact with conda.
     - We recommend opening a [terminal from GitKraken](../../getting-started/project-tools/using-the-terminal.md#gitkraken) since you'll need to run some of these steps from the `OpenScPCA-analysis` folder.
 
 1. Copy and paste the following code into the terminal, and hit enter.
