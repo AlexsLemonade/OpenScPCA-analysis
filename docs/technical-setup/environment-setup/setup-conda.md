@@ -32,7 +32,7 @@ The installation includes the conda tool itself, Python, and a few other commonl
 If you already have conda on your system, you do not need to re-install it.
 
 
-### Installing Miniforge
+### Installing conda with Miniforge
 
 To install Miniforge, follow the [installation instructions in the Miniforge repository](https://github.com/conda-forge/miniforge?tab=readme-ov-file#miniforge).
 
@@ -47,8 +47,8 @@ bash Miniforge3-$(uname)-$(uname -m).sh
     On Windows with WSL 2, you will need to install Miniforge on the WSL 2 side of your system, starting from the [Ubuntu terminal](../../getting-started/project-tools/using-the-terminal.md).
 
 You will be prompted first to view the license; press enter as instructed, read the license (you should be able to scroll with your arrow keys), then press `q` to return to the installer.
-Accept the license by typing `yes`, then continue following the prompts to complete the installation.
-You will be asked about the installation location (the default should be fine).
+Accept the license by typing `yes`, and then continue following the prompts to complete the installation.
+You will be asked about the installation location (you can press `enter` to accept the default, which should be fine).
 Finally, you will be asked whether you wish to update your shell profile to automatically initialize conda.
 We recommend selecting `yes`.
 
