@@ -23,6 +23,7 @@ on:
     paths:
       - analyses/cell-type-ewings/**
       - "!analyses/cell-type-ewings/Dockerfile"
+      - "!analyses/cell-type-ewings/.dockerignore"
 jobs:
   run-module:
     if: github.repository_owner == 'AlexsLemonade'
