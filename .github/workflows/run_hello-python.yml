@@ -37,6 +37,8 @@ jobs:
 
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
 
       - name: Install and activate locked conda environment
         run: |

@@ -137,7 +137,7 @@ CMD ["/bin/bash"]
 If your analysis module requires both R and conda environments, you may have to do just a bit more work to set up the Dockerfile, as there is not a single base image that includes both R and conda environments.
 <!-- Should we make one, maybe? -->
 We recommend starting with an R-based image and then installing conda manually.
-In the example below, we have adapted the installation steps used in the [official Miniconda Dockerfile](https://github.com/ContinuumIO/docker-images/blob/main/miniconda3/debian/Dockerfile).
+In the example below, we have adapted the installation steps used in the [official Miniforge Dockerfile](https://github.com/conda-forge/miniforge-images/blob/master/ubuntu/Dockerfile).
 
 ```Dockerfile
 # Dockerfile for an analysis module with both R and conda environments
@@ -147,21 +147,27 @@ FROM bioconductor/r-ver:3.19
 # set a name for the conda environment
 ARG ENV_NAME=openscpca-analysis
 
-# set environment variables to install miniconda
+# set environment variables to install conda
 ENV PATH="/opt/conda/bin:${PATH}"
 
-# Install Miniconda
-# adapted from https://github.com/ContinuumIO/docker-images/blob/main/miniconda3/debian/Dockerfile
-RUN curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
-  && bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda \
-  && ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh  \
-  && echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc  \
-  && rm -f Miniconda3-latest-Linux-x86_64.sh \
-  && find /opt/conda/ -follow -type f -name '*.a' -delete \
-  && find /opt/conda/ -follow -type f -name '*.js.map' -delete
+# Install conda via miniforge
+# adapted from https://github.com/conda-forge/miniforge-images/blob/master/ubuntu/Dockerfile
+RUN curl -L "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh" -o /tmp/miniforge.sh \
+  && bash /tmp/miniforge.sh -b -p /opt/conda \
+  && rm -f /tmp/miniforge.sh \
+  && conda clean --tarballs --index-cache --packages --yes \
+  && find /opt/conda -follow -type f -name '*.a' -delete \
+  && find /opt/conda -follow -type f -name '*.pyc' -delete \
+  && conda clean --force-pkgs-dirs --all --yes
+
+# Activate conda environments in bash
+RUN ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh \
+  && echo ". /opt/conda/etc/profile.d/conda.sh" >> /etc/skel/.bashrc \
+  && echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc
 
 # Install conda-lock
-RUN conda install --channel=conda-forge --name=base conda-lock
+RUN conda install --channel=conda-forge --name=base conda-lock \
+  && conda clean --all --yes
 
 # Install renv
 RUN Rscript -e "install.packages('renv')"
@@ -173,8 +179,8 @@ ENV RENV_CONFIG_CACHE_ENABLED FALSE
 COPY conda-lock.yml conda-lock.yml
 
 # restore from conda-lock.yml file and clean up to reduce image size
-RUN conda-lock install -n ${ENV_NAME} conda-lock.yml && \
-  conda clean --all --yes
+RUN conda-lock install -n ${ENV_NAME} conda-lock.yml \
+  && conda clean --all --yes
 
 # Copy the renv.lock file from the host environment to the image
 COPY renv.lock renv.lock
