@@ -80,7 +80,7 @@ FROM bioconductor/r-ver:3.19
 RUN Rscript -e "install.packages('renv')"
 
 # Disable the renv cache to install packages directly into the R library
-ENV RENV_CONFIG_CACHE_ENABLED=FALSE
+ENV RENV_CONFIG_CACHE_ENABLED FALSE
 
 # Copy the renv.lock file from the host environment to the image
 COPY renv.lock renv.lock
@@ -173,7 +173,7 @@ RUN conda install --channel=conda-forge --name=base conda-lock \
 RUN Rscript -e "install.packages('renv')"
 
 # Disable the renv cache to install packages directly into the R library
-ENV RENV_CONFIG_CACHE_ENABLED=FALSE
+ENV RENV_CONFIG_CACHE_ENABLED FALSE
 
 # Copy conda lock file to image
 COPY conda-lock.yml conda-lock.yml
