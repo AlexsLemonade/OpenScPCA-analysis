@@ -34,7 +34,7 @@ If you already have conda on your system, you do not need to re-install it.
 
 ### Installing conda with Miniforge
 
-To install Miniforge, follow the [installation instructions in the Miniforge repository](https://github.com/conda-forge/miniforge?tab=readme-ov-file#miniforge).
+To install Miniforge, follow the [installation instructions in the Miniforge repository](https://github.com/conda-forge/miniforge?tab=readme-ov-file#install).
 
 Briefly, you will need to open a terminal and run the following commands:
 
