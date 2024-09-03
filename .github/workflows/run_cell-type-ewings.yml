@@ -24,6 +24,7 @@ on:
       - analyses/cell-type-ewings/**
       - "!analyses/cell-type-ewings/Dockerfile"
       - "!analyses/cell-type-ewings/.dockerignore"
+      - .github/workflows/run_cell-type-ewings.yml
 jobs:
   run-module:
     if: github.repository_owner == 'AlexsLemonade'
