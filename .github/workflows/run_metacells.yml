@@ -24,7 +24,10 @@ on:
     branches:
       - main
     paths:
-      - "analyses/metacells/**"
+      - analyses/metacells/**
+      - "!analyses/metacells/Dockerfile"
+      - "!analyses/metacells/.dockerignore"
+      - .github/workflows/run_metacells.yml
 
 jobs:
   run-module:
