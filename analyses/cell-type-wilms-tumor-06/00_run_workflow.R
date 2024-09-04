@@ -85,5 +85,16 @@ for (sample_id in metadata$scpca_sample_id) {
   }
 }
 
+for (sample_id in metadata$scpca_sample_id) {
+ if (!running_ci) {
+    # Cluster exploration
+    rmarkdown::render(input = file.path(notebook_template_dir, "03_clustering_exploration.Rmd"),
+                      params = list(scpca_project_id = project_id, sample_id = sample_id),
+                      output_format = "html_document",
+                      output_file = paste0("03_clustering_exploration", sample_id, ".html"),
+                      output_dir = file.path(notebook_output_dir, sample_id))
+  }
+}
+
 
 
