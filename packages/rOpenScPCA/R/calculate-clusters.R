@@ -9,7 +9,7 @@
 #' @param random_seed Random seed to set for clustering. Default is 2024.
 #' @param cluster_args List of additional arguments to pass to the clustering function.
 #'
-#' @return A data frame of cluster results with columns `cell_id` and `cluster`. Additional columns represent algorithm parameters.
+#' @return A data frame of cluster results with columns `cell_id` and `cluster`. Additional columns (TODO!) represent algorithm parameters.
 #' @export
 #'
 #' @examples
@@ -51,6 +51,7 @@ calculate_clusters <- function(
   )
 
   # Update cluster_args list with settings that users can directly provide
+  # clusterRows throws an error if this list has a param not used by the chosen algorithm
   if (algorithm != "walktrap") {
     cluster_args$resolution <- resolution
   }
@@ -72,7 +73,7 @@ calculate_clusters <- function(
 
 
   # Transform results into a table and return
-  # TODO: Should this have _all_ parameters in cluster.args?
+  # TODO: Should this have _all_ (non-default/user-specified) parameters in cluster.args?
   return(
     tibble::tibble(
       cell_id = rownames(mat),
