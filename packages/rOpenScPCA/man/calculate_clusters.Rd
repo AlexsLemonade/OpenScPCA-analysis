@@ -40,6 +40,6 @@ Calculate graph-based clusters from a provided matrix
 }
 \examples{
 \dontrun{
-  # TODO WILL ADD EXAMPLES ONCE ARGS ARE FINALIZED
+# TODO WILL ADD EXAMPLES ONCE ARGS ARE FINALIZED
 }
 }
