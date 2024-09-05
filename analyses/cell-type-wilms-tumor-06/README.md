@@ -151,10 +151,14 @@ The `00_run_workflow.R` contains the following steps:
 
 - loop for each samples:
 
--- `Seurat workflow`, normalization and clustering: `01_seurat-processing.Rmd` in `notebook_template`
--- `Azimuth` label transfer from the fetal full reference (Cao et al.): `02a_label-transfer_fetal_full_reference_Cao.Rmd` in `notebook_template`
--- `Azimuth` label transfer from the fetal kidney reference (Stewart et al.): `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd` in `notebook_template`
--- Exploration of clustering, label transfers, marker genes and pathways: `03_clustering_exploration.Rmd` in `notebook_template`
+  - `Seurat workflow`, normalization and clustering: `01_seurat-processing.Rmd` in `notebook_template`
+    
+  - `Azimuth` label transfer from the fetal full reference (Cao et al.): `02a_label-transfer_fetal_full_reference_Cao.Rmd` in `notebook_template`
+    
+  - `Azimuth` label transfer from the fetal kidney reference (Stewart et al.): `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd` in `notebook_template`
+    
+  - Exploration of clustering, label transfers, marker genes and pathways: `03_clustering_exploration.Rmd` in `notebook_template`
+    
 
 For each sample and each of the step, an html report is generated and accessible in the directory `notebook`.
 
