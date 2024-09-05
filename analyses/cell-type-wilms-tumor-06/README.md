@@ -151,9 +151,12 @@ The `00_run_workflow.R` contains the following steps:
 
 - loop for each samples:
 
--- `Seurat workflow`, nornalization and clustering: `01_seurat-processing.Rmd` in `notebook_template`
--- `Azimuth` label transfer from the fetal full reference (Cao et al.) in `notebook_template`
--- `Azimuth` label transfer from the fetal kidney reference (Stewart et al.) in `notebook_template`
+-- `Seurat workflow`, normalization and clustering: `01_seurat-processing.Rmd` in `notebook_template`
+-- `Azimuth` label transfer from the fetal full reference (Cao et al.): `02a_label-transfer_fetal_full_reference_Cao.Rmd` in `notebook_template`
+-- `Azimuth` label transfer from the fetal kidney reference (Stewart et al.): `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd` in `notebook_template`
+-- Exploration of clustering, label transfers, marker genes and pathways: `03_clustering_exploration.Rmd` in `notebook_template`
+
+For each sample and each of the step, an html report is generated and accessible in the directory `notebook`.
 
 ### Justification 
 
@@ -185,6 +188,7 @@ Here we will use `Azimuth` to transfer labels from the reference.
 We start with the `_process.Rds` data to run `01_seurat-processing.Rmd`. 
 The output of `01_seurat-processing.Rmd` is saved in `results` in a subfolder for each sample and is the input of the second step `02a_label-transfer_fetal_full_reference_Cao.Rmd`.
 The output of `02a_label-transfer_fetal_full_reference_Cao.Rmd` is then the input of `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd`.
+Following the same approach, the output of `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd` is the input of `03_clustering_exploration.Rmd`.
 
 At the end of the workflow, we have a `Seurat`object that contains:
 - normalization and clustering, dimensional reductions

@@ -59,7 +59,6 @@ for (sample_id in metadata$scpca_sample_id) {
   # create a directory to save the notebooks
   dir.create(file.path(module_base, "notebook", sample_id), showWarnings = FALSE)
 
-
   # Pre-process the data - `Seurat` workflow
   rmarkdown::render(input = file.path(notebook_template_dir, "01_seurat-processing.Rmd"),
                     params = list(scpca_project_id = project_id, sample_id = sample_id),
@@ -81,20 +80,18 @@ for (sample_id in metadata$scpca_sample_id) {
                       output_format = "html_document",
                       output_file = paste0("02b_fetal_kidney_reference_Stewart_", sample_id, ".html"),
                       output_dir = file.path(notebook_output_dir, sample_id))
-
-  }
-}
-
-for (sample_id in metadata$scpca_sample_id) {
- if (!running_ci) {
+    
     # Cluster exploration
     rmarkdown::render(input = file.path(notebook_template_dir, "03_clustering_exploration.Rmd"),
                       params = list(scpca_project_id = project_id, sample_id = sample_id),
                       output_format = "html_document",
                       output_file = paste0("03_clustering_exploration_", sample_id, ".html"),
                       output_dir = file.path(notebook_output_dir, sample_id))
+
   }
 }
+
+
 
 
 

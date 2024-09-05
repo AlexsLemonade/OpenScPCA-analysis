@@ -306,8 +306,8 @@
     "DOSE": {
       "Package": "DOSE",
       "Version": "3.30.5",
-      "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/bioc",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
       "Requirements": [
         "AnnotationDbi",
         "BiocParallel",
@@ -423,8 +423,8 @@
     "GOSemSim": {
       "Package": "GOSemSim",
       "Version": "2.30.2",
-      "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/bioc",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
       "Requirements": [
         "AnnotationDbi",
         "DBI",
@@ -1352,7 +1352,7 @@
       "Package": "ape",
       "Version": "5.8",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Requirements": [
         "R",
         "Rcpp",
@@ -1371,7 +1371,7 @@
       "Package": "aplot",
       "Version": "0.2.3",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Requirements": [
         "R",
         "ggfun",
@@ -1539,14 +1539,14 @@
     },
     "caTools": {
       "Package": "caTools",
-      "Version": "1.18.2",
+      "Version": "1.18.3",
       "Source": "Repository",
-      "Repository": "RSPM",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "bitops"
       ],
-      "Hash": "34d90fa5845004236b9eacafc51d07b2"
+      "Hash": "ab79c733080d83b4ad8a2cc33c1ef393"
     },
     "cachem": {
       "Package": "cachem",
@@ -1622,8 +1622,8 @@
     "clusterProfiler": {
       "Package": "clusterProfiler",
       "Version": "4.12.6",
-      "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/bioc",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
       "Requirements": [
         "AnnotationDbi",
         "DOSE",
@@ -1830,7 +1830,7 @@
       "Package": "downloader",
       "Version": "0.4",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Requirements": [
         "digest",
         "utils"
@@ -1912,8 +1912,8 @@
     "enrichplot": {
       "Package": "enrichplot",
       "Version": "1.24.4",
-      "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/bioc",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
       "Requirements": [
         "DOSE",
         "GOSemSim",
@@ -2032,8 +2032,8 @@
     "fgsea": {
       "Package": "fgsea",
       "Version": "1.30.0",
-      "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
       "Requirements": [
         "BH",
         "BiocParallel",
@@ -2232,7 +2232,7 @@
       "Package": "ggforce",
       "Version": "0.4.2",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Requirements": [
         "MASS",
         "R",
@@ -2329,7 +2329,7 @@
       "Package": "ggraph",
       "Version": "2.2.1",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Requirements": [
         "MASS",
         "R",
@@ -2385,11 +2385,32 @@
       ],
       "Hash": "66488692cb8621bc78df1b9b819497a6"
     },
+    "ggsankey": {
+      "Package": "ggsankey",
+      "Version": "0.0.99999",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "ggsankey",
+      "RemoteUsername": "davidsjoberg",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "b675d0d5144b1b5758d3b2b41e86ceee66a1e071",
+      "Requirements": [
+        "dplyr",
+        "forcats",
+        "ggplot2",
+        "magrittr",
+        "purrr",
+        "stringr",
+        "tidyr"
+      ],
+      "Hash": "90a9e048916c8c54559cb0275290cb12"
+    },
     "ggtree": {
       "Package": "ggtree",
       "Version": "3.12.0",
-      "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
       "Requirements": [
         "R",
         "ape",
@@ -2544,7 +2565,7 @@
       "Package": "graphlayouts",
       "Version": "1.1.1",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Requirements": [
         "R",
         "Rcpp",
@@ -2583,7 +2604,7 @@
       "Package": "gson",
       "Version": "0.1.0",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Requirements": [
         "jsonlite",
         "methods",
@@ -3033,13 +3054,13 @@
     },
     "matrixStats": {
       "Package": "matrixStats",
-      "Version": "1.3.0",
+      "Version": "1.4.0",
       "Source": "Repository",
-      "Repository": "RSPM",
+      "Repository": "CRAN",
       "Requirements": [
         "R"
       ],
-      "Hash": "4b3ea27a19d669c0405b38134d89a9d1"
+      "Hash": "402a3de5925c153a18f6b81f8e3e56c6"
     },
     "memoise": {
       "Package": "memoise",
@@ -3175,8 +3196,7 @@
     "org.Hs.eg.db": {
       "Package": "org.Hs.eg.db",
       "Version": "3.19.1",
-      "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Source": "Bioconductor",
       "Requirements": [
         "AnnotationDbi",
         "R",
@@ -3488,8 +3508,8 @@
     "qvalue": {
       "Package": "qvalue",
       "Version": "2.36.0",
-      "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
       "Requirements": [
         "R",
         "ggplot2",
@@ -4306,7 +4326,7 @@
       "Package": "tidygraph",
       "Version": "1.3.1",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Requirements": [
         "R6",
         "cli",
@@ -4368,7 +4388,7 @@
       "Package": "tidytree",
       "Version": "0.4.6",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Requirements": [
         "R",
         "ape",
@@ -4450,8 +4470,8 @@
     "treeio": {
       "Package": "treeio",
       "Version": "1.28.0",
-      "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
       "Requirements": [
         "R",
         "ape",
@@ -4472,7 +4492,7 @@
       "Package": "tweenr",
       "Version": "2.0.3",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Requirements": [
         "R",
         "cpp11",

@@ -28,7 +28,7 @@ knitr::opts_chunk$set(echo = TRUE,
 
 ## Introduction
 
-The aim is to explore the clustering and label transfers for the sample `r param$sample_id`.
+The aim is to explore the clustering and label transfers for the sample `r params$sample_id`.
 
 In order to explore the clustering results, we look into some marker genes, pathways enrichment and label transfer.
 
@@ -53,7 +53,7 @@ library(enrichplot)
 library(clusterProfiler)
 library(org.Hs.eg.db)
 library(ggalluvial)
-
+library(ggsankey)
 set.seed(params$seed)
 ```
 
@@ -99,59 +99,9 @@ Reports will be saved in the `notebook` directory.
 The pre-processed and annotated `Seurat` object per samples are saved in the `result` folder.
 
 
-## Analysis
-
-### Load the pre-processed `Seurat` object
-```{r load, message=FALSE, warning=FALSE}
-# open the processed rds object
-srat <- readRDS(file.path(result_dir, paste0("02b-fetal_kidney_label-transfer_",params$sample_id,".Rds")))
-DefaultAssay(srat) <- "SCT"
-
-```
-
-
-### Functions
+## Functions
 
 Here we defined function that will be used multiple time all along the notebook. 
-
-
-#### Visualize seurat clusters and markers genes
-
-For a Seurat object `object`and a features `features`, the function `visualize_feature` will plot `FeaturePlot` and `ViolinPlot`
-
-- `object` is the Seurat object 
-
-- `features` the gene or quantitative value to be plotted
-
-- `group.by` is the metadata used for grouping the violin plots 
-
-```{r }
-visualize_feature <- function(object, features, group.by = "seurat_clusters"){
- 
-                  feature_symbol <- AnnotationDbi::select(org.Hs.eg.db, 
-                                keys=features, 
-                                columns="SYMBOL", 
-                                keytype="ENSEMBL")
- 
-                  d <- SCpubr::do_FeaturePlot(object, 
-                                              features = feature_symbol$ENSEMBL, 
-                                              pt.size = 0.2, 
-                                              legend.width = 0.5, 
-                                              legend.length = 5, 
-                                              legend.position = "right") + ggtitle(feature_symbol$SYMBOL)
-                  b <- SCpubr::do_ViolinPlot(srat, 
-                                             features = feature_symbol$ENSEMBL, 
-                                             ncol = 1, 
-                                             group.by = group.by, 
-                                             legend.position = "none",
-                                             assay = "SCT") + ylab(feature_symbol$SYMBOL)
-                   
-                  return(d + b + plot_layout(ncol = 2, widths = c(2,4))) 
-}
-          
- 
-```
-
 
 #### Visualize seurat clusters and metadata
 
@@ -200,6 +150,43 @@ visualize_metadata <- function(object, meta, group.by){
   }
   
 }
+```
+
+#### Visualize seurat clusters and markers genes
+
+For a Seurat object `object`and a features `features`, the function `visualize_feature` will plot `FeaturePlot` and `ViolinPlot`
+
+- `object` is the Seurat object 
+
+- `features` the gene or quantitative value to be plotted
+
+- `group.by` is the metadata used for grouping the violin plots 
+
+```{r }
+visualize_feature <- function(object, features, group.by = "seurat_clusters"){
+ 
+                  feature_symbol <- AnnotationDbi::select(org.Hs.eg.db, 
+                                keys=features, 
+                                columns="SYMBOL", 
+                                keytype="ENSEMBL")
+ 
+                  d <- SCpubr::do_FeaturePlot(object, 
+                                              features = feature_symbol$ENSEMBL, 
+                                              pt.size = 0.2, 
+                                              legend.width = 0.5, 
+                                              legend.length = 5, 
+                                              legend.position = "right") + ggtitle(feature_symbol$SYMBOL)
+                  b <- SCpubr::do_ViolinPlot(srat, 
+                                             features = feature_symbol$ENSEMBL, 
+                                             ncol = 1, 
+                                             group.by = group.by, 
+                                             legend.position = "none",
+                                             assay = "SCT") + ylab(feature_symbol$SYMBOL)
+                   
+                  return(d + b + plot_layout(ncol = 2, widths = c(2,4))) 
+}
+          
+ 
 ```
 
 #### Calculate `ModuleScore` from a `MSigDB` dataset
@@ -260,8 +247,231 @@ Enrichment_plot <- function(category, signatures, background){
 
 ```
 
-## Analysis content
 
+#### do_SankeyPlot
+
+`do_SankeyPlot` is largely inspired by the source code from `SCpubr` as the function has been removed from the package.
+https://github.com/enblacar/SCpubr/blob/v1.1.2-dev-stable/R/do_SankeyPlot.R
+
+- `first_group` is a metadata variable. First group of nodes of the sankey plot.
+- `last_group` is a metadata variable. Last group of nodes of the sankey plot.
+- `middle_groups` is a metadata variable. Vector of groups of nodes of the sankey plot.
+- `type` is a type of plot to make. One of:
+
+  - `sankey`: Generates a sankey plot.
+  - `alluvial`: Generated an Alluvial plot, a kind of sankey plot where all groups have the same height.
+  
+- `width` Width of the nodes.
+- `space` Vertical space between the nodes. It appears to be equal to a single cell. Use big numbers to see a difference (like, 1000 or 10000).
+- `position` GGplot2 position.
+- `node.fill` Color to fill the nodes.
+- `node.color` Color for the contour of the nodes.
+- `flow.alpha` Alpha of the connections.
+- `flow.color` Color for the contour of the connections.
+- `text_size` Size of the labels.
+- `text_color` Color of the labels.
+- `smooth` How smooth the connections are.
+- `use_labels` Whether to use labels or text for the node names.
+- `hjust` General hjust for the labels.
+
+```{r }
+
+do_SankeyPlot <- function(sample,
+                          first_group,
+                          last_group,
+                          type = "sankey",
+                          middle_groups = NULL,
+                          width = 0.1,
+                          space = ifelse(type == "sankey", 0.05 * ncol(sample), 0),
+                          position = "identity",
+                          node.fill = "white",
+                          node.color = "white",
+                          flow.alpha = 0.75,
+                          flow.color = "black",
+                          text_size = 3,
+                          text_color = "black",
+                          font.size = 18,
+                          font.type = "sans",
+                          smooth = 8,
+                          use_labels = FALSE,
+                          hjust = NULL,
+                          colors.first = NULL,
+                          colors.middle = NULL,
+                          colors.last = NULL,
+                          plot.title = NULL,
+                          plot.subtitle = NULL,
+                          plot.caption = NULL){
+
+ 
+
+  # Check logical parameters.
+  logical_list <- list("use_labels" = use_labels)
+  # Check numeric parameters.
+  numeric_list <- list("width" = width,
+                       "space" = space,
+                       "flow.alpha" = flow.alpha,
+                       "text_size" = text_size,
+                       "font.size" = font.size,
+                       "smooth" = smooth,
+                       "hjust" = hjust)
+  # Check character parameters.
+  character_list <- list("first_group" = first_group,
+                         "last_group" = last_group,
+                         "middle_groups" = middle_groups,
+                         "type" = type,
+                         "position" = position,
+                         "node.color" = node.color,
+                         "flow.color" = flow.color,
+                         "text_color" = text_color,
+                         "font.type" = font.type,
+                         "colors.first" = colors.first,
+                         "colors.middle" = colors.middle,
+                         "colors.last" = colors.last,
+                         "node.fill" = node.fill,
+                         "plot.title" = plot.title,
+                         "plot.subtitle" = plot.subtitle,
+                         "plot.caption" = plot.caption)
+
+   
+
+  `%>%` <- magrittr::`%>%`
+
+  data <- suppressWarnings({sample@meta.data %>%
+                            dplyr::select(dplyr::all_of(c(first_group, middle_groups, last_group))) %>%
+                            tibble::rownames_to_column(var = "cell") %>%
+                            dplyr::select(-.data$cell) %>%
+                            ggsankey::make_long(dplyr::all_of(c(first_group, middle_groups, last_group))) %>%
+                            dplyr::rowwise() %>%
+                            dplyr::mutate(hjust = if(.data$x %in% middle_groups){0.5}
+                                          else if (.data$x == last_group){0}
+                                          else if (.data$x == first_group){1})})
+  if (!is.null(hjust)){data$hjust <- hjust}
+
+  
+  
+  colors.first <- SCpubr::do_ColorPalette(colors.use = "steelblue",
+                        n = length(unique(sample@meta.data[, first_group])))
+    if (is.factor(sample@meta.data[, first_group])){
+      names(colors.first) <- levels(sample@meta.data[, first_group])
+    } else {
+      names(colors.first) <- sort(unique(sample@meta.data[, first_group]))
+    }
+  
+
+  colors.last <- SCpubr::do_ColorPalette(colors.use = "steelblue",
+                        n = length(unique(sample@meta.data[, last_group])))
+    if (is.factor(sample@meta.data[, last_group])){
+      names(colors.last) <- levels(sample@meta.data[, last_group])
+    } else {
+      names(colors.last) <- sort(unique(sample@meta.data[, last_group]))
+    }
+  
+
+
+  colors.use <- c(colors.first, colors.last)
+  func_use <- ifelse(isTRUE(use_labels), ggsankey::geom_sankey_label, ggsankey::geom_sankey_text)
+
+  p <- data %>%
+
+       ggplot2::ggplot(mapping = ggplot2::aes(x = .data$x,
+                                              next_x = .data$next_x,
+                                              node = .data$node,
+                                              next_node = .data$next_node,
+                                              fill = factor(.data$node),
+                                              label = .data$node,
+                                              hjust = .data$hjust)) +
+       ggsankey::geom_sankey(flow.alpha = flow.alpha,
+                             node.color = node.color,
+                             node.fill = node.fill,
+                             color = flow.color,
+                             width = width,
+                             position = position,
+                             type = type,
+                             space = space) +
+       func_use(size = text_size,
+                color = text_color,
+                fontface = "bold",
+                position = position,
+                type = type,
+                space = space) +
+       ggplot2::scale_fill_manual(values = colors.use) +
+       ggplot2::xlab("") +
+       ggplot2::ylab("") +
+       ggplot2::labs(title = plot.title,
+                     subtitle = plot.subtitle,
+                     caption = plot.caption) +
+       ggplot2::theme_minimal(base_size = font.size) +
+       ggplot2::theme(axis.title = ggplot2::element_text(color = "black",
+                                                         face = "bold"),
+                      axis.line.x = ggplot2::element_blank(),
+                      axis.text.x = ggplot2::element_text(color = "black",
+                                                          face = "bold",
+                                                          angle = 0,
+                                                          hjust = 0.5,
+                                                          vjust = 1),
+                      axis.text.x.top = ggplot2::element_text(color = "black",
+                                                              face = "bold",
+                                                              angle = 0,
+                                                              hjust = 0.5,
+                                                              vjust = 1),
+                      axis.text.y = ggplot2::element_blank(),
+                      axis.ticks = ggplot2::element_blank(),
+                      panel.grid.major = ggplot2::element_blank(),
+                      plot.title.position = "plot",
+                      plot.title = ggplot2::element_text(face = "bold", hjust = 0),
+                      plot.subtitle = ggplot2::element_text(hjust = 0),
+                      plot.caption = ggplot2::element_text(hjust = 1),
+                      panel.grid = ggplot2::element_blank(),
+                      text = ggplot2::element_text(family = font.type),
+                      plot.caption.position = "plot",
+                      legend.text = ggplot2::element_text(face = "bold"),
+                      legend.position = "none",
+                      legend.title = ggplot2::element_text(face = "bold"),
+                      legend.justification = "center",
+                      plot.margin = ggplot2::margin(t = 10, r = 10, b = 10, l = 10),
+                      plot.background = ggplot2::element_rect(fill = "white", color = "white"),
+                      panel.background = ggplot2::element_rect(fill = "white", color = "white"),
+                      legend.background = ggplot2::element_rect(fill = "white", color = "white"),
+                      strip.text =ggplot2::element_text(color = "black", face = "bold"))
+
+  return(p)
+}
+```
+
+#### do_Table_Heatmap
+
+`do_Table_Heatmap` shows heatmap of counts of cells in groups of metadata
+
+- `data` seurat object 
+- `first_group` is the name of the first metadata to group the cells
+- `last_group` is the name of the second metadata to group the cells
+
+```{r fig.width=10, fig.height=4, out.width='100%'}
+do_Table_Heatmap <- function(data, first_group, last_group ){
+  
+  df <- data@meta.data %>%
+  mutate_if(sapply(data@meta.data, is.character), as.factor)  %>% 
+  group_by( !!sym(first_group), !!sym(last_group))%>% 
+  summarise(Nb = n()) 
+
+p <- ggplot(df, aes(x= !!sym(first_group), y = !!sym(last_group), fill = Nb)) +
+   geom_tile() +
+   scale_fill_viridis(discrete=FALSE)  +
+   theme_bw() +
+   theme(text = element_text(size = 20))
+
+return(p)
+}
+```
+
+## Analysis
+
+### Load the pre-processed `Seurat` object
+```{r load, message=FALSE, warning=FALSE}
+# open the processed rds object
+srat <- readRDS(file.path(result_dir, paste0("02b-fetal_kidney_label-transfer_",params$sample_id,".Rds")))
+DefaultAssay(srat) <- "SCT"
+```
 
 
 ### Visualize seurat clusters
@@ -291,13 +501,13 @@ g2m.genes <- srat@assays$RNA@meta.data$gene_ids[srat@assays$RNA@meta.data$gene_s
 srat <- CellCycleScoring(srat, s.features = s.genes, g2m.features = g2m.genes, set.ident = FALSE)
 ```
 
-```{r fig.width=10, fig.height=4, out.width='100%'}
+```{r fig.width=20, fig.height=4, out.width='100%'}
 visualize_metadata(srat, meta = "Phase", group.by = "seurat_clusters")
 ```
 
 
 
-```{r fig.width=8, fig.height=2.5, out.width='100%'}
+```{r fig.width=20, fig.height=2.5, out.width='100%'}
 visualize_metadata(srat, meta  = "S.Score", group.by = "seurat_clusters")
 visualize_metadata(srat, meta = "G2M.Score", group.by = "seurat_clusters")
 ```
@@ -309,7 +519,7 @@ Note: we do not expect to have a clear and nice pattern of expression for all of
 This is just ti get a few idea.
 
 
-```{r fig.width=8, fig.height=2.5, out.width='100%'}
+```{r fig.width=20, fig.height=4, out.width='100%'}
 for(feature in CellType_metadata$ENSEMBL_ID[CellType_metadata$ENSEMBL_ID %in% rownames(srat@assays$SCT)]){
    print(visualize_feature(srat, features = feature, group.by = "seurat_clusters"))
 }
@@ -323,7 +533,7 @@ for(feature in CellType_metadata$ENSEMBL_ID[CellType_metadata$ENSEMBL_ID %in% ro
 
 here we will calculate a TP53 score using AddMduleScore and the genes of the HALLMARK_P53_PATHWAY gene set.
 
-```{r fig.height=2.5, fig.width=8, warning=FALSE, out.width='100%'}
+```{r fig.height=4, fig.width=20, warning=FALSE, out.width='100%'}
 srat <- MSigDB_score(object = srat , category = "H", gs_name = "HALLMARK_P53_PATHWAY", name = "TP53_score")
 visualize_metadata(srat, meta = "TP53_score1", group.by = "seurat_clusters" )
 ```
@@ -333,7 +543,7 @@ visualize_metadata(srat, meta = "TP53_score1", group.by = "seurat_clusters" )
 
 here we will calculate a DNA_repair score using AddMduleScore and the genes of the HALLMARK_DNA_REPAIR gene set.
 
-```{r fig.height=2.5, fig.width=8, warning=FALSE, out.width='100%'}
+```{r fig.height=4, fig.width=20, warning=FALSE, out.width='100%'}
 srat <- MSigDB_score(object = srat , category = "H", gs_name = "HALLMARK_DNA_REPAIR", name = "DNA_repair_score")
 visualize_metadata(srat, meta = "DNA_repair_score1", group.by = "seurat_clusters" )
 ```
@@ -343,7 +553,7 @@ Note: Chemo-treated samples should have higher DNA-damage scores.
 
 #### DROSHA target genes
 
-```{r fig.height=2.5, fig.width=8, warning=FALSE, out.width='100%'}
+```{r fig.height=4, fig.width=20, warning=FALSE, out.width='100%'}
 srat <- MSigDB_score(object = srat , category = "C3", gs_name = "DROSHA_TARGET_GENES", name = "DROSHA_score")
 visualize_metadata(srat, meta = "DROSHA_score1", group.by = "seurat_clusters" )
 ```
@@ -352,7 +562,7 @@ visualize_metadata(srat, meta = "DROSHA_score1", group.by = "seurat_clusters" )
 #### DICER1 target genes
 
 
-```{r fig.height=2.5, fig.width=8, warning=FALSE, out.width='100%'}
+```{r fig.height=4, fig.width=20, warning=FALSE, out.width='100%'}
 srat <- MSigDB_score(object = srat , category = "C3", gs_name = "DICER1_TARGET_GENES", name = "DICER1_score")
 visualize_metadata(srat, meta = "DICER1_score1", group.by = "seurat_clusters" )
 ```
@@ -361,6 +571,7 @@ visualize_metadata(srat, meta = "DICER1_score1", group.by = "seurat_clusters" )
 ### Find marker genes for each of the seurat clusters
 
 In addition to the list of known marker genes, we used an unbiased approach to find transcripts that characterized the different clusters.
+
 We run DElegate::FindAllMarkers2 to find markers of the different clusters and manually check if they do make sense. 
 DElegate::FindAllMarkers2 is an improved version of Seurat::FindAllMarkers based on pseudobulk differential expression method. 
 Please check the preprint from Chistoph Hafemeister: https://www.biorxiv.org/content/10.1101/2023.03.28.534443v1
@@ -379,10 +590,20 @@ s.markers <- left_join(s.markers,feature_conversion, by = c( "gene_ids") )
 stopifnot(
   "Error joining gene ids and feature names" = identical(s.markers$feature, s.markers$gene_ids)   
 )
+```
+
+
+```{r fig.width=10, fig.height=10, out.width='100%'}
+
 DT::datatable(s.markers, caption = ("marker genes"), 
               extensions = 'Buttons', 
               options = list(  dom = 'Bfrtip',
                                buttons = c( 'csv', 'excel')))
+
+```
+
+```{r fig.width=10, fig.height=10, out.width='100%'}
+
 # Select top 5 genes for heatmap plotting
 s.markers <- na.omit(s.markers)
 s.markers %>%
@@ -398,10 +619,15 @@ p2 <- DoHeatmap(ss, features = top5$feature,  cells = cells, group.by = "seurat_
 p3 <- ggplot(srat@meta.data, aes(seurat_clusters, fill = seurat_clusters)) + geom_bar() + NoLegend()
 common_title <- sprintf("Unsupervised clustering %s, %d cells", srat@meta.data$orig.ident[1], ncol(srat))
 show((((p1 / p3) + plot_layout(heights = c(3,2)) | p2) ) + plot_layout(widths = c(1, 2)) + plot_layout(heights = c(3,1)) + plot_annotation(title = common_title))
+
+```
+
+```{r fig.width=10, fig.height=10, out.width='100%'}
 DT::datatable(top5[, c(1, 9, 11, 12)], caption = ("top 5 marker genes"), 
               extensions = 'Buttons', 
               options = list(  dom = 'Bfrtip',
                                buttons = c( 'csv', 'excel')))
+
 ```
 
 
@@ -432,9 +658,9 @@ for( i in unique(s.markers$group1)){
 
 #### Hallmarks MSiGDB gene sets
 
-```{r fig.width=15, fig.height=8, out.width='100%'}
+```{r fig.width=20, fig.height=8, out.width='100%'}
 
-    Enrichment_plot(category = "H", signatures = signatures, background = background)
+Enrichment_plot(category = "H", signatures = signatures, background = background)
  
 ```
 
@@ -464,7 +690,7 @@ We do not expect a nice labelling of the cells as the overlap of cell types betw
 This support the need to do a proper label transfer from the fetal kidney atlas, which is imho the best reference that can be applied to a Wilms tumor query. 
 
 
-```{r fig.width=15, fig.height=10, out.width='100%'}
+```{r fig.width=20, fig.height=10, out.width='100%'}
 visualize_metadata(srat, meta = "singler_celltype_annotation", group.by = "seurat_clusters")
 ```
 
@@ -474,7 +700,7 @@ visualize_metadata(srat, meta = "singler_celltype_annotation", group.by = "seura
 #### Annotation from cellassign (no cancer or kidney specific dataset)
 
 
-```{r fig.width=15, fig.height=10, out.width='100%'}
+```{r fig.width=20, fig.height=10, out.width='100%'}
 visualize_metadata(srat, meta = "cellassign_celltype_annotation", group.by = "seurat_clusters")
 ```
 
@@ -483,7 +709,7 @@ visualize_metadata(srat, meta = "cellassign_celltype_annotation", group.by = "se
 #### Annotation from the fetal reference (Cao et al)
 
 
-```{r fig.width=15, fig.height=10, out.width='100%'}
+```{r fig.width=20, fig.height=10, out.width='100%'}
 visualize_metadata(srat, meta = "fetal_full_predicted.organ", group.by = "seurat_clusters")
 visualize_metadata(srat, meta = "fetal_full_predicted.annotation.l1", group.by = "seurat_clusters")
 visualize_metadata(srat, meta = "fetal_full_predicted.annotation.l2", group.by = "seurat_clusters")
@@ -494,14 +720,14 @@ visualize_metadata(srat, meta = "fetal_full_predicted.annotation.l2", group.by =
 #### Annotation from the kidney reference (Stewart et al)
 
 
-```{r fig.width=15, fig.height=10, out.width='100%'}
+```{r fig.width=20, fig.height=10, out.width='100%'}
 visualize_metadata(srat, meta = "fetal_kidney_predicted.compartment", group.by = "seurat_clusters")
 visualize_metadata(srat, meta = "fetal_kidney_predicted.cell_type", group.by = "seurat_clusters")
 ```
 
 ### Compare annotations with marker genes
 
-```{r fig.width=15, fig.height=15, out.width='100%'}
+```{r fig.width=20, fig.height=15, out.width='100%'}
 
 markers = list("malignant" = CellType_metadata$ENSEMBL_ID[CellType_metadata$cell_class == "malignant"],
             "immune"= CellType_metadata$ENSEMBL_ID[CellType_metadata$cell_class == "immune"],
@@ -547,53 +773,84 @@ p4 <- SCpubr::do_DotPlot(sample = srat,
 
 ### Compare annotations between them
 
-```{r fig.width=15, fig.height=15, out.width='100%'}
-p1 <- SCpubr::do_AlluvialPlot(sample = srat,
+#### Sankey plots
+
+```{r fig.width=20, fig.height=20, out.width='100%'}
+
+p1 <- do_SankeyPlot(sample = srat,
                             first_group = "fetal_kidney_predicted.compartment",
                             last_group = "seurat_clusters",
-                            repel = TRUE,
-                            
-                            
+                             type = "sankey",text_size = 5, use_labels = TRUE
                             )
 
-p2 <- SCpubr::do_AlluvialPlot(sample = srat,
+
+p2 <- do_SankeyPlot(sample = srat,
                             first_group = "fetal_full_predicted.annotation.l1",
                             last_group = "seurat_clusters",
-                            repel = TRUE
+                             type = "sankey",text_size = 5, use_labels = TRUE
                             )
 
 
-p3 <- SCpubr::do_AlluvialPlot(sample = srat,
+p3 <- do_SankeyPlot(sample = srat,
                             first_group = "singler_celltype_annotation",
                             last_group = "seurat_clusters",
-                            repel = TRUE
+                             type = "sankey",text_size = 4, use_labels = TRUE
                             )
 
 
-p4 <- SCpubr::do_AlluvialPlot(sample = srat,
+p4 <- do_SankeyPlot(sample = srat,
                             first_group = "cellassign_celltype_annotation",
                             last_group = "seurat_clusters",
-                            repel = TRUE
+                             type = "sankey",text_size = 5, use_labels = TRUE
                             )
 
 (p1|p2)/(p3|p4)
 ```
-```{r fig.width=10, fig.height=15, out.width='100%'}
-SCpubr::do_AlluvialPlot(sample = srat,
+
+```{r fig.width=30, fig.height=10, out.width='100%'}
+p1 <- do_SankeyPlot(sample = srat,
                             first_group = "fetal_kidney_predicted.compartment",
                             last_group = "fetal_full_predicted.annotation.l1",
-                            repel = TRUE
-                           
-                                                        )
+                            type = "sankey",text_size = 6, use_labels = TRUE
+ )
 
-SCpubr::do_AlluvialPlot(sample = srat,
-                            first_group = "fetal_kidney_predicted.cell_type",
-                            last_group = "fetal_full_predicted.annotation.l2",
-                            repel = TRUE
-                                                        )
+p2 <- do_SankeyPlot(sample = srat,
+                            first_group = "fetal_kidney_predicted.compartment",
+                            last_group = "fetal_kidney_predicted.cell_type",
+                            type = "sankey",text_size = 6, use_labels = TRUE                                                        )
 
+p1 | p2
 ```
+#### Heatmaps
 
+
+```{r fig.width=20, fig.height=15, out.width='100%'}
+p1 <- do_Table_Heatmap( srat,
+                            last_group = "fetal_kidney_predicted.compartment",
+                            first_group = "seurat_clusters"
+                             
+                            )
+
+
+p2 <- do_Table_Heatmap( srat,
+                            last_group = "fetal_full_predicted.annotation.l1",
+                            first_group = "seurat_clusters"
+                            )
+
+
+p3 <- do_Table_Heatmap( srat,
+                            last_group = "singler_celltype_annotation",
+                            first_group = "seurat_clusters"
+                            )
+
+
+p4 <- do_Table_Heatmap( srat,
+                            last_group = "cellassign_celltype_annotation",
+                            first_group = "seurat_clusters"
+                            )
+
+(p1|p2)/(p3|p4)
+```
 
 
 ## Session Info
