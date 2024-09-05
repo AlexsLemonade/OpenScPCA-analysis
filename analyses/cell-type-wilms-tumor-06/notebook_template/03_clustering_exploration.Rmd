@@ -28,11 +28,7 @@ knitr::opts_chunk$set(echo = TRUE,
 
 ## Introduction
 
-The aim is to explore the clustering and label transfers for the sample `param$sample_id` = 
-
-```{r}
-params$sample_id
-```
+The aim is to explore the clustering and label transfers for the sample `r param$sample_id`.
 
 In order to explore the clustering results, we look into some marker genes, pathways enrichment and label transfer.
 
