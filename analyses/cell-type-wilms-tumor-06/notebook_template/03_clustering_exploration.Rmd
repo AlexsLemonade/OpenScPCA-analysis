@@ -40,8 +40,6 @@ This approach would provide us a rapid idea of the quality of the clustering:
 
 ### Packages
 
-Load required packages in the following chunk, if needed.
-Do not install packages here; only load them with the `library()` function.
 
 ```{r packages, message=FALSE, warning=FALSE}
 library("Seurat")
