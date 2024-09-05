@@ -376,7 +376,9 @@ s.markers <- de_results[de_results$padj < params$padj_thershold & de_results$log
 # add gene symbol for easiest interpretation of the result
 s.markers$gene_ids <- s.markers$feature
 s.markers <- left_join(s.markers,feature_conversion, by = c( "gene_ids") )
-identical(s.markers$feature, s.markers$gene_ids)     # check the quality of the merge, must be true
+stopifnot(
+  "Error joining gene ids and feature names" = identical(s.markers$feature, s.markers$gene_ids)   
+)
 DT::datatable(s.markers, caption = ("marker genes"), 
               extensions = 'Buttons', 
               options = list(  dom = 'Bfrtip',
