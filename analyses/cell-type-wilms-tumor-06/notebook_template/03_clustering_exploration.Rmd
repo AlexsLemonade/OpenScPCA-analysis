@@ -166,7 +166,7 @@ For a Seurat object `object`and a metadata `metadata`, the function `visualize_m
 ```{r }
 visualize_metadata <- function(object, meta, group.by){
   
-  if(class(object@meta.data[,meta]) == "numeric"){
+  if(is.numeric(object@meta.data[,meta])){
      d <- SCpubr::do_FeaturePlot(object, 
                                               features = meta, 
                                               pt.size = 0.2, 
