@@ -128,7 +128,7 @@ For a Seurat object `object`and a features `features`, the function `visualize_f
 ```{r }
 visualize_feature <- function(object, features, group.by = "seurat_clusters"){
  
-                  feature_symbol = AnnotationDbi::select(org.Hs.eg.db, 
+                  feature_symbol <- AnnotationDbi::select(org.Hs.eg.db, 
                                 keys=features, 
                                 columns="SYMBOL", 
                                 keytype="ENSEMBL")
