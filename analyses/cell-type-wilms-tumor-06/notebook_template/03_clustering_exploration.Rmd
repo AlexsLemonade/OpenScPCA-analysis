@@ -311,15 +311,7 @@ This is just ti get a few idea.
 
 ```{r fig.width=8, fig.height=2.5, out.width='100%'}
 for(feature in CellType_metadata$ENSEMBL_ID[CellType_metadata$ENSEMBL_ID %in% rownames(srat@assays$SCT)]){
- tryCatch(
-  expr =  {
-    tmp <-  visualize_feature(srat, features = feature, group.by = "seurat_clusters")
-    print(tmp)
-  },
-  error = {
-    expr= print("feature not found")
-    }
- )
+   print(visualize_feature(srat, features = feature, group.by = "seurat_clusters"))
 }
 ```
 
