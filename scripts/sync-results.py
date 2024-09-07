@@ -61,11 +61,6 @@ def main() -> None:
         ),
     )
     parser.add_argument(
-        "--download",
-        action="store_true",
-        help="Download files from the S3 bucket to the local directory instead of uploading.",
-    )
-    parser.add_argument(
         "--dryrun",
         action="store_true",
         help="Perform a dry run: show what would be done but do not copy or delete any files.",
@@ -106,18 +101,12 @@ def main() -> None:
         )
         sys.exit(1)
 
-    source = module_root
-    destination = f"s3://{bucket}/{args.module}"
-    if args.download:
-        # if downloading, swap source and destination
-        source, destination = destination, source
-
     sync_cmd = [
         "aws",
         "s3",
         "sync",
-        source,
-        destination,
+        module_root,
+        f"s3://{bucket}/{args.module}",
         "--exclude",
         "*",
     ]
@@ -147,10 +136,7 @@ def main() -> None:
         sys.exit(1)
 
     print("Sync complete.")
-    if args.download:
-        print(f"Files have been downloaded from '{destination}' to '{source}'")
-    else:
-        print(f"Files are now available on S3 at '{destination}'")
+    print(f"Files are now available on S3 at: s3://{bucket}/{args.module}/")
 
 
 if __name__ == "__main__":
