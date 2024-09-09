@@ -10,14 +10,15 @@ Each of these groups is composed of the blastemal, epithelial, and stromal popul
 Here, we first aim to annotate the Wilms Tumor snRNA-seq samples in the SCPCP000006 (n=40) dataset. To do so we will:
 
 • Provide annotations of normal cells composing the kidney, including normal kidney epithelium, endothelium, stroma and immune cells
+
 • Provide annotations of tumor cell populations that may be present in the WT samples, including blastemal, epithelial, and stromal populations of cancer cells
 Based on the provided annotation, we would like to additionally provide a reference of marker genes for the three cancer cell populations, which is so far lacking for the WT community.
 
 The analysis is/will be divided as the following:
 
 - [x] Metadata file: compilation of a metadata file of marker genes for expected cell types that will be used for validation at a later step
-- [ ] Script: clustering of cells across a set of parameters for few samples
-- [ ] Script: label transfer from the fetal kidney atlas reference using runAzimuth
+- [x] Script: clustering of cells across a set of parameters for few samples
+- [x] Script: label transfer from the fetal kidney atlas reference using runAzimuth
 - [ ] Script: run InferCNV
 - [ ] Notebook: explore results from steps 2 to 4 for about 5 to 10 samples
 - [ ] Script: compile scripts 2 to 4 in a RMardown file with required adjustements and render it across all samples
@@ -67,11 +68,22 @@ Some differenices are expected, some marker genes or pathways are associated wit
 
 ## Output files
 
+for each of the steps, we have two types of `output`:
+
+- the `notebook` saved in the `notebook` directory, with a subfolder for each sample. 
+
+- the created objects saved in `results` directory, with a subfolder for each sample. 
+
+
+# Analysis
+
 ## Marker sets
 
-This folder is a resource for later validation of the annotated cell types.
+We first build a resource for later validation of the annotated cell types. 
+We gather from the litterature marker genes and specific genomic alterations that could help us characterizing the Wilms tumor ecosystem, including cancer and non-cancer cells. 
 
 ### The table CellType_metadata.csv contains the following column and information:
+
 - "gene_symbol" contains the symbol of the described gene, using the HUGO Gene Nomenclature
 - ENSEMBL_ID contains the stable identifier from the ENSEMBL database
 - cell_class is either "malignant" for marker genes specific to malignant population, or "non-malignant" for markers genes specific to non-malignant tissue or "both" for marker genes that can be found in malignant as well as non-malignant tissue but are still informative in respect to the cell type.
@@ -106,6 +118,7 @@ This folder is a resource for later validation of the annotated cell types.
 
 
 ### The table GeneticAlterations_metadata.csv contains the following column and information:
+
 - alteration contains the number and portion of the affected chromosome
 - gain_loss contains the information regarding the gain or loss of the corresponding genetic alteration
 - cell_class is "malignant"
@@ -122,6 +135,61 @@ This folder is a resource for later validation of the annotated cell types.
 |1q|gain|malignant|NA|10.1016/S0002-9440(10)63982-X|NA|Associated_with_relapse|
 
 
+## Clustering and label transfer from fetal references
+
+R Script to be rendered : `00_run_workflow.R`
+
+### Introduction
+
+The `00_run_workflow.R` contains the following steps:
+
+- define paths
+
+- download and create the fetal kidney reference: `download-and-create-fetal-kidney-ref.R` in `scripts`
+
+- characterize the fetal kidney reference: `00b_characterize_fetal_kidney_reference_Stewart.Rmd` in `notebook_template`
+
+- loop for each samples:
+
+-- `Seurat workflow`, nornalization and clustering: `01_seurat-processing.Rmd` in `notebook_template`
+-- `Azimuth` label transfer from the fetal full reference (Cao et al.) in `notebook_template`
+-- `Azimuth` label transfer from the fetal kidney reference (Stewart et al.) in `notebook_template`
+
+### Justification 
+
+The use of the right reference is crucial. 
+It is recommended that the cell types in the reference is representative to the cell types to be annotated in the query.
+
+Wilms tumors can contain up to three histologies that resemble fetal kidney: blastema, stroma, and epithelia [1-2].
+Because of their histological similarity to fetal kidneys, Wilms tumors are thought to arise from developmental derangements in embryonic renal progenitors.
+
+We thus decided to test and compare two fetal (kidney) references that could be use in the analysis module.
+
+##### Human fetal kidney atlas Stewart et al.
+
+We first wanted to try the human fetal kidney atlas to transfer label into the Wilms tumor samples using azimuth. 
+You can find more about the human kidney atlas here: https://www.kidneycellatlas.org/ [3]
+
+##### Human Azimuth fetal reference from Cao et al.
+
+Azimuth also provide a human fetal atlas as a reference [4]. 
+
+The data can be found on Zenodo: 
+https://zenodo.org/records/4738021#.YJIW4C2ZNQI
+
+The reference contain cells from 15 organs including kidney from fetal samples. 
+Here we will use `Azimuth` to transfer labels from the reference.
+
+### Input and outputs
+
+We start with the `_process.Rds` data to run `01_seurat-processing.Rmd`. 
+The output of `01_seurat-processing.Rmd` is saved in `results` in a subfolder for each sample and is the input of the second step `02a_label-transfer_fetal_full_reference_Cao.Rmd`.
+The output of `02a_label-transfer_fetal_full_reference_Cao.Rmd` is then the input of `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd`.
+
+At the end of the workflow, we have a `Seurat`object that contains:
+- normalization and clustering, dimensional reductions
+- label transfer from the fetal full reference
+- label transfer from the fetal kidney reference
 
 ## Software requirements
 
@@ -177,4 +245,14 @@ The `renv` lockfile is used to install R packages in the Docker image.
 
 ## Computational resources
 
+
+## References 
+
+- [1] https://www.ncbi.nlm.nih.gov/books/NBK373356/ 
+
+- [2] https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9915828/ 
+
+- [3] https://www.science.org/doi/10.1126/science.aat5031 
+
+- [4] https://www.science.org/doi/10.1126/science.aba7721
 

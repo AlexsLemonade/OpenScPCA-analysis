@@ -24,7 +24,10 @@ on:
     branches:
       - main
     paths:
-      - "analyses/metacells/**"
+      - analyses/metacells/**
+      - "!analyses/metacells/Dockerfile"
+      - "!analyses/metacells/.dockerignore"
+      - .github/workflows/run_metacells.yml
 
 jobs:
   run-module:
@@ -44,6 +47,8 @@ jobs:
 
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
 
       - name: Install and activate locked conda environment
         run: |

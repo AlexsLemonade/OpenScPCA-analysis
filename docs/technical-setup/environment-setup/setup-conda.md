@@ -2,7 +2,7 @@
 
 ## What is conda?
 
-The OpenScPCA project uses [conda](https://docs.anaconda.com/free/miniconda/index.html) to manage your software environment.
+The OpenScPCA project uses [conda](https://docs.conda.io/en/latest/) to manage your software environment.
 Conda is a command-line software management tool which helps you install and track specific versions of software.
 It also allows you to have multiple software environments with different sets of packages on the same computer.
 
@@ -25,34 +25,46 @@ There are two main reasons we use conda for OpenScPCA:
 
 ## Install conda
 
-We recommend installing [Miniconda](https://docs.anaconda.com/free/miniconda/index.html) to obtain conda.
-Miniconda is lightweight version of the full conda platform and includes the conda tool itself, Python, and a few other commonly-used packages.
+We recommend installing [Miniforge](https://github.com/conda-forge/miniforge?tab=readme-ov-file#miniforge) to obtain conda.
+Miniforge is lightweight version of the conda distribution that is free and open source.
+The installation includes the conda tool itself, Python, and a few other commonly-used packages.
 
 If you already have conda on your system, you do not need to re-install it.
 
 
-### Install Miniconda on macOS
+### Installing conda with Miniforge
 
-To install Miniconda, [download the graphical installer for macOS](https://docs.anaconda.com/free/miniconda/miniconda-install/), and follow all instructions.
+To install Miniforge, follow the [installation instructions in the Miniforge repository](https://github.com/conda-forge/miniforge?tab=readme-ov-file#install).
 
-  - If you are on a macOS computer, be sure to download one of the links ending in `pkg`, _not `bash`_:
-    - Apple silicon (M1-series) Mac users should download `Miniconda3 macOS Apple M1 64-bit pkg`
-    - Intel Mac users should download `Miniconda3 macOS Intel x86 64-bit pkg`
+Briefly, you will need to open a terminal and run the following commands:
 
-### Install Miniconda on Windows with WSL 2
+```sh
+curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
+bash Miniforge3-$(uname)-$(uname -m).sh
+```
 
-To install Miniconda onto the WSL 2 side of your Windows machine, you will need to follow the [Quick command line install instructions for Linux](https://docs.anaconda.com/free/miniconda/#quick-command-line-install).
+!!! note
+    On Windows with WSL 2, you will need to install Miniforge on the WSL 2 side of your system, starting from the [Ubuntu terminal](../../getting-started/project-tools/using-the-terminal.md).
 
-- Copy and paste all commands, in order, into the [Ubuntu terminal](../../getting-started/project-tools/using-the-terminal.md).
-  - Be sure to also take the step to initialize conda for the Bash shell.
-- Then, as prompted, close your terminal and open a new terminal window to complete installation.
+* You will be prompted first to view the license; press enter as instructed, read the license (you should be able to scroll with your arrow keys), then press `q` to return to the installer.
+* Accept the license by typing `yes`, and then continue following the prompts to complete the installation.
+* You will be asked about the installation location (you can press `enter` to accept the default, which should be fine).
+* Finally, you will be asked whether you wish to update your shell profile to automatically initialize conda.
+We recommend selecting `yes`.
+
+When the installation is complete, you will see the following message:
+
+```{ .console .no-copy title="Output message after miniforge install"}
+==> For changes to take effect, close and re-open your current shell. <==
+
+Thank you for installing Miniforge3!
+```
 
 ## Set up conda
 
 Next, you will need to set certain conda settings and install a few packages that will allow you to contribute to OpenScPCA in general.
 
-1. [Open a terminal (command line prompt)](../../getting-started/project-tools/using-the-terminal.md) to interact with conda.
-    - We recommend opening a [terminal from GitKraken](../../getting-started/project-tools/using-the-terminal.md#gitkraken) since you'll need to run some of these steps from the `OpenScPCA-analysis` folder.
+1. [Open a new terminal (command line prompt)](../../getting-started/project-tools/using-the-terminal.md) to interact with conda.
 
 1. Copy and paste the following code into the terminal, and hit enter.
 These commands will set the [recommended channels](https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/channels.html) conda should use to search for software.
@@ -60,11 +72,18 @@ These commands will set the [recommended channels](https://docs.conda.io/project
     If this still doesn't work, [you can always ask us for help](../../troubleshooting-faq/index.md).
 
     ```sh
-    conda config --add channels defaults
     conda config --add channels bioconda
     conda config --add channels conda-forge
     conda config --set channel_priority strict
     ```
+
+    ??? info "What are these channels?"
+        - The `bioconda` channel is a community-maintained repository of bioinformatics software.
+        - The `conda-forge` channel is a community-maintained repository of conda packages.
+        - The `channel_priority strict` setting ensures that conda will search for packages in the order you specify the channels.
+        This is important for ensuring that you get the correct versions of packages when you install them.
+
+        Note that we do not include the `defaults` channel in the list of channels, as this is managed by Anaconda Inc., which may require license fees for its use.
 
 
 ### Create an `openscpca` conda environment
@@ -81,7 +100,6 @@ These are specified in the `environment.yml` in the root of the repository, and 
 
 
 1. To create this environment, navigate in the terminal with `cd` to the `OpenScPCA-analysis` repository.
-    - Again, if you open a [terminal in GitKraken](../../getting-started/project-tools/using-the-terminal.md#gitkraken), you will automatically be in the repository folder.
 
 2. Enter the following command in the terminal to create the `openscpca` environment and install the packages into it:
 

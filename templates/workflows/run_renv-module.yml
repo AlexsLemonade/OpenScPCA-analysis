@@ -24,7 +24,10 @@ on:
   #   branches:
   #     - main
   #   paths:
-  #     - "analyses/{{ openscpca_module }}/**"
+  #     - analyses/{{ openscpca_module }}/**
+  #     - "!analyses/{{ openscpca_module }}/Dockerfile"
+  #     - "!analyses/{{ openscpca_module }}/.dockerignore"
+  #     - .github/workflows/run_{{ openscpca_module }}.yml
 
 jobs:
   run-module:

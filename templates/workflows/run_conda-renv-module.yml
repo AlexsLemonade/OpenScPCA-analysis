@@ -24,7 +24,10 @@ on:
   #   branches:
   #     - main
   #   paths:
-  #     - "analyses/{{ openscpca_module }}/**"
+  #     - analyses/{{ openscpca_module }}/**
+  #     - "!analyses/{{ openscpca_module }}/Dockerfile"
+  #     - "!analyses/{{ openscpca_module }}/.dockerignore"
+  #     - .github/workflows/run_{{ openscpca_module }}.yml
 
 jobs:
   run-module:
@@ -55,6 +58,8 @@ jobs:
       - name: Set up conda
         # Note that this creates and activates an environment named 'test' by default
         uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
 
       - name: Install conda-lock and activate locked conda environment
         run: |
