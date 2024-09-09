@@ -1,13 +1,12 @@
+test_mat <- matrix(
+  runif(1000, 0.1, 10),
+  nrow = 100,
+  ncol = 10
+)
+rownames(test_mat) <- as.character(1:100)
+
 test_that("calculate_clusters runs with defaults", {
-  test_mat <- matrix(
-    runif(1000, 0.1, 10),
-    nrow = 100,
-    ncol = 10
-  )
-
-  rownames(test_mat) <- 1:100
   cluster_df <- calculate_clusters(test_mat)
-
 
   expect_equal(
     names(cluster_df),
@@ -31,5 +30,29 @@ test_that("calculate_clusters runs with defaults", {
   )
   expect_true(
     all(cluster_df$resolution == 1)
+  )
+})
+
+
+test_that("calculate_clusters errors as expected", {
+  test_mat_nonames <- test_mat
+  rownames(test_mat_nonames) <- NULL
+
+  expect_error(
+    calculate_clusters(test_mat_nonames),
+    "The `mat` matrix must have row names representing cell ids e.g. barcodes."
+  )
+  expect_error(
+    calculate_clusters("not a matrix"),
+    "The `mat` argument must be a matrix."
+  )
+
+  expect_error(
+    calculate_clusters(test_mat, resolution = "string"),
+    "`resolution` must be numeric"
+  )
+  expect_error(
+    calculate_clusters(test_mat, nn = "string"),
+    "`nn` must be numeric"
   )
 })
