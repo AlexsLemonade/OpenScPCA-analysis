@@ -22,6 +22,9 @@ on:
       - main
     paths:
       - analyses/hello-python/**
+      - "!analyses/hello-python/Dockerfile"
+      - "!analyses/hello-python/.dockerignore"
+      - .github/workflows/run_hello-python.yml
 
 jobs:
   run-module:
@@ -37,6 +40,8 @@ jobs:
 
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
 
       - name: Install and activate locked conda environment
         run: |

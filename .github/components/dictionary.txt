@@ -115,6 +115,7 @@ mesenchymal
 metacell
 metacells
 Miniconda
+Miniforge
 misidentification
 MSC
 multifactor
@@ -154,11 +155,11 @@ scDblFinder
 SCE
 ScPCA
 SCPCP
+scRNA
 scrublet
 SEACells
 SemVar
 SingleR
-scRNA
 snRNA
 socio
 SSO

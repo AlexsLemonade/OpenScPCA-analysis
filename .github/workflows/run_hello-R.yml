@@ -22,6 +22,9 @@ on:
       - main
     paths:
       - analyses/hello-R/**
+      - "!analyses/hello-R/Dockerfile"
+      - "!analyses/hello-R/.dockerignore"
+      - .github/workflows/run_hello-R.yml
 jobs:
   run-module:
     if: github.repository_owner == 'AlexsLemonade'
