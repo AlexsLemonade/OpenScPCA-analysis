@@ -33,7 +33,9 @@ calculate_clusters(
 \item{seed}{Random seed to set for clustering. Default is 2024.}
 }
 \value{
-A data frame of cluster results with columns `cell_id` and `cluster`. Additional columns (TODO!) represent algorithm parameters.
+A data frame of cluster results with columns `cell_id` and `cluster`. Additional columns represent algorithm parameters
+  and include at least: `algorithm`, `weighting`, and `nn`. Louvain and leiden clustering will also include `resolution`, and
+  leiden clustering will further include `objective_function`. Any other values passed to `cluster_args` will also be included.
 }
 \description{
 Calculate graph-based clusters from a provided matrix

@@ -9,7 +9,9 @@
 #' @param seed Random seed to set for clustering. Default is 2024.
 #' @param cluster_args List of additional arguments to pass to the clustering function.
 #'
-#' @return A data frame of cluster results with columns `cell_id` and `cluster`. Additional columns (TODO!) represent algorithm parameters.
+#' @return A data frame of cluster results with columns `cell_id` and `cluster`. Additional columns represent algorithm parameters
+#'   and include at least: `algorithm`, `weighting`, and `nn`. Louvain and leiden clustering will also include `resolution`, and
+#'   leiden clustering will further include `objective_function`. Any other values passed to `cluster_args` will also be included.
 #' @export
 #'
 #' @examples
@@ -36,7 +38,6 @@ calculate_clusters <- function(
   )
 
   algorithm <- match.arg(algorithm)
-  print(algorithm)
   stopifnot(
     "`algorithm` must be one of 'louvain' (default), 'walktrap' or 'leiden'." =
       algorithm %in% c("louvain", "walktrap", "leiden")
@@ -48,13 +49,14 @@ calculate_clusters <- function(
       weighting %in% c("jaccard", "rank")
   )
 
-  # TODO: consider adding more specific checks here?
-  stopifnot(
-    "`cluster_args` must be a list." = is.list(cluster_args)
-  )
+  if (length(cluster_args) != 0) {
+    stopifnot(
+      "`cluster_args` must be a named list." = is.list(cluster_args) && !(is.null(names(cluster_args)))
+    )
+  }
 
-  # Update cluster_args list with settings that users can directly provide
-  # clusterRows throws an error if this list has a param not used by the chosen algorithm
+  # Update cluster_args list with parameters that users can directly provide
+  # note that clusterRows throws an error if this list has a param not used by the chosen algorithm
   if (algorithm != "walktrap") {
     cluster_args$resolution <- resolution
   }
@@ -76,14 +78,16 @@ calculate_clusters <- function(
 
 
   # Transform results into a table and return
-  # TODO: Should this have _all_ (non-default/user-specified) parameters in cluster.args?
-  return(
-    data.frame(
-      cell_id = rownames(mat),
-      cluster = clusters,
-      algorithm = algorithm,
-      weighting = weighting,
-      nn = nn
+  cluster_df <- data.frame(
+    cell_id = rownames(mat),
+    cluster = clusters,
+    algorithm = algorithm,
+    weighting = weighting,
+    nn = nn
+  ) |>
+    dplyr::bind_cols(
+      dplyr::bind_rows(cluster_args)
     )
-  )
+
+  return(cluster_df)
 }
