@@ -18,8 +18,8 @@
 #' }
 calculate_clusters <- function(
     mat,
-    algorithm = "louvain",
-    weighting = "jaccard",
+    algorithm = c("louvain", "walktrap", "leiden"),
+    weighting = c("jaccard", "rank"),
     nn = 10,
     resolution = 1, # louvain or leiden
     objective_function = "CPM", # leiden only
@@ -35,16 +35,17 @@ calculate_clusters <- function(
     "The `mat` matrix must have row names representing cell ids (e.g. barcodes)." = !(is.null(rownames(mat)))
   )
 
-  algorithm <- tolower(algorithm)
+  algorithm <- match.arg(algorithm)
+  print(algorithm)
   stopifnot(
     "`algorithm` must be one of 'louvain' (default), 'walktrap' or 'leiden'." =
       algorithm %in% c("louvain", "walktrap", "leiden")
   )
 
-  weighting <- tolower(weighting)
+  weighting <- match.arg(weighting)
   stopifnot(
     "`weighting` must be one of 'jaccard' (default) or 'rank'." =
-      weighting %in% c("jaccard", "rank", "leiden")
+      weighting %in% c("jaccard", "rank")
   )
 
   # TODO: consider adding more specific checks here?
