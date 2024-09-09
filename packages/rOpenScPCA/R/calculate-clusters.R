@@ -23,13 +23,16 @@ calculate_clusters <- function(
     nn = 10,
     resolution = 1, # leiden and louvain
     objective_function = "CPM", # leiden only
-    random_seed = 2024,
-    cluster_args = list()) {
-  set.seed(random_seed)
+    cluster_args = list(),
+    seed = NULL    
+) {
+  if (!is.null(seed)) {
+    set.seed(seed)
+  }
 
   # Check input arguments
   stopifnot(
-    "The `mat` argument must be a matrix." = any(class(mat) %in% c("matrix", "dgCMatrix")),
+    "The `mat` argument must be a matrix." = any(class(mat) %in% c("matrix", "Matrix")),
     "The `mat` matrix must have row names representing cell ids (e.g. barcodes)." = !(is.null(rownames(mat)))
   )
 
@@ -47,16 +50,17 @@ calculate_clusters <- function(
 
   # TODO: consider adding more specific checks here?
   stopifnot(
-    "`cluster_args` must be a list." = class(cluster_args) == "list"
+    "`cluster_args` must be a list." = is.list(cluster_args)"
   )
 
   # Update cluster_args list with settings that users can directly provide
   # clusterRows throws an error if this list has a param not used by the chosen algorithm
-  if (algorithm != "walktrap") {
+  if (algorithm == "louvain") {
     cluster_args$resolution <- resolution
   }
   if (algorithm == "leiden") {
-    cluster_args$resolution <- objective_function
+    cluster_args$resolution_parameter <- resolution
+    cluster_args$objective_function <- objective_function
   }
 
 
