@@ -7,7 +7,7 @@
 #' @param resolution Resolution parameter used by louvain and leiden clustering only. Default is 1.
 #' @param objective_function Leiden-specific parameter for whether to use the Constant Potts Model ("CPM"; default) or "modularity"
 #' @param seed Random seed to set for clustering. Default is 2024.
-#' @param cluster_args List of additional arguments to pass to the clustering function.
+#' @param cluster_args List of additional arguments to pass to the chosen clustering function. See igraph documentation for details: https://igraph.org/r/html/latest
 #'
 #' @return A data frame of cluster results with columns `cell_id` and `cluster`. Additional columns represent algorithm parameters
 #'   and include at least: `algorithm`, `weighting`, and `nn`. Louvain and leiden clustering will also include `resolution`, and
@@ -16,7 +16,18 @@
 #'
 #' @examples
 #' \dontrun{
-#' # TODO WILL ADD EXAMPLES ONCE ARGS ARE FINALIZED
+#' # cluster using default parameters
+#' cluster_df <- calculate_clusters(pca_matrix)
+#'
+#' # cluster using the leiden algorithm with a resolution of 0.1
+#' cluster_df <- calculate_clusters(pca_matrix, algorithm = "leiden", resolution = 0.1)
+#'
+#' # cluster using the leiden algorithm with a non-default of 3 iterations
+#' cluster_df <- calculate_clusters(
+#'   pca_matrix,
+#'   algorithm = "leiden",
+#'   cluster_args = list(n_iterations = 3)
+#' )
 #' }
 calculate_clusters <- function(
     mat,
