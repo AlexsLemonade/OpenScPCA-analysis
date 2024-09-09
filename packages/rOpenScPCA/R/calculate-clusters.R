@@ -24,8 +24,7 @@ calculate_clusters <- function(
     resolution = 1, # leiden and louvain
     objective_function = "CPM", # leiden only
     cluster_args = list(),
-    seed = NULL    
-) {
+    seed = NULL) {
   if (!is.null(seed)) {
     set.seed(seed)
   }
@@ -50,7 +49,7 @@ calculate_clusters <- function(
 
   # TODO: consider adding more specific checks here?
   stopifnot(
-    "`cluster_args` must be a list." = is.list(cluster_args)"
+    "`cluster_args` must be a list." = is.list(cluster_args)
   )
 
   # Update cluster_args list with settings that users can directly provide
