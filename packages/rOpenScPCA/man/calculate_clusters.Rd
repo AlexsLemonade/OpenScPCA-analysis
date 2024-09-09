@@ -50,10 +50,9 @@ cluster_df <- calculate_clusters(pca_matrix, algorithm = "leiden", resolution = 
 
 # cluster using the leiden algorithm with a non-default of 3 iterations
 cluster_df <- calculate_clusters(
- pca_matrix,
- algorithm = "leiden",
- cluster_args = list(n_iterations = 3)
+  pca_matrix,
+  algorithm = "leiden",
+  cluster_args = list(n_iterations = 3)
 )
-
 }
 }
