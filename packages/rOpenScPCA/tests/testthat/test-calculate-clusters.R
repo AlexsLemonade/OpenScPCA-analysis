@@ -60,7 +60,7 @@ test_that("calculate_clusters errors as expected", {
 
   expect_error(
     calculate_clusters(test_mat_nonames),
-    "The `mat` matrix must have row names representing cell ids e.g. barcodes."
+    "The `mat` matrix must have row names representing cell ids, e.g. barcodes."
   )
   expect_error(
     calculate_clusters("not a matrix"),

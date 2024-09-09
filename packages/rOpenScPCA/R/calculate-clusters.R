@@ -45,7 +45,7 @@ calculate_clusters <- function(
   # Check input arguments
   stopifnot(
     "The `mat` argument must be a matrix." = any(class(mat) %in% c("matrix", "Matrix")),
-    "The `mat` matrix must have row names representing cell ids (e.g. barcodes)." = !(is.null(rownames(mat)))
+    "The `mat` matrix must have row names representing cell ids, e.g. barcodes." = !(is.null(rownames(mat)))
   )
 
   algorithm <- match.arg(algorithm)
