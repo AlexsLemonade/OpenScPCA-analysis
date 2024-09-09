@@ -10,7 +10,7 @@ calculate_clusters(
   weighting = c("jaccard", "rank"),
   nn = 10,
   resolution = 1,
-  objective_function = "CPM",
+  objective_function = c("CPM", "modularity"),
   cluster_args = list(),
   seed = NULL
 )
@@ -28,7 +28,7 @@ calculate_clusters(
 
 \item{objective_function}{Leiden-specific parameter for whether to use the Constant Potts Model ("CPM"; default) or "modularity"}
 
-\item{cluster_args}{List of additional arguments to pass to the clustering function.}
+\item{cluster_args}{List of additional arguments to pass to the chosen clustering function. See igraph documentation for details: https://igraph.org/r/html/latest}
 
 \item{seed}{Random seed to set for clustering. Default is 2024.}
 }
@@ -42,6 +42,18 @@ Calculate graph-based clusters from a provided matrix
 }
 \examples{
 \dontrun{
-# TODO WILL ADD EXAMPLES ONCE ARGS ARE FINALIZED
+# cluster using default parameters
+cluster_df <- calculate_clusters(pca_matrix)
+
+# cluster using the leiden algorithm with a resolution of 0.1
+cluster_df <- calculate_clusters(pca_matrix, algorithm = "leiden", resolution = 0.1)
+
+# cluster using the leiden algorithm with a non-default of 3 iterations
+cluster_df <- calculate_clusters(
+ pca_matrix,
+ algorithm = "leiden",
+ cluster_args = list(n_iterations = 3)
+)
+
 }
 }
