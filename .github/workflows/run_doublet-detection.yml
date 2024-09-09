@@ -26,7 +26,7 @@ on:
       - analyses/doublet-detection/**
       - "!analyses/doublet-detection/Dockerfile"
       - "!analyses/doublet-detection/.dockerignore"
-      # - .github/workflows/run_doublet-detection.yml
+      - .github/workflows/run_doublet-detection.yml
 
 jobs:
   run-module:
