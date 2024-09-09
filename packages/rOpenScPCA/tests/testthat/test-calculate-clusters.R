@@ -20,7 +20,7 @@ test_that("calculate_clusters runs with defaults", {
     is.factor(cluster_df$cluster)
   )
   expect_true(
-    all(cluster_df$algorithm == "louvain"),
+    all(cluster_df$algorithm == "louvain")
   )
   expect_true(
     all(cluster_df$weighting == "jaccard")
@@ -32,6 +32,26 @@ test_that("calculate_clusters runs with defaults", {
     all(cluster_df$resolution == 1)
   )
 })
+
+
+test_that("calculate_clusters runs with additional cluster_args", {
+  cluster_df <- calculate_clusters(
+    test_mat,
+    algorithm = "leiden",
+    # the default is 2
+    cluster_args = list(n_iterations = 3)
+  )
+
+  expect_setequal(
+    names(cluster_df),
+    c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution", "objective_function", "n_iterations")
+  )
+  expect_true(
+    all(cluster_df$n_iterations == 3)
+  )
+})
+
+
 
 
 test_that("calculate_clusters errors as expected", {
