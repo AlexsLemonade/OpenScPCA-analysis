@@ -6,13 +6,13 @@
 \usage{
 calculate_clusters(
   mat,
-  algorithm = "louvain",
-  weighting = "jaccard",
+  algorithm = c("louvain", "walktrap", "leiden"),
+  weighting = c("jaccard", "rank"),
   nn = 10,
   resolution = 1,
   objective_function = "CPM",
-  random_seed = 2024,
-  cluster_args = list()
+  cluster_args = list(),
+  seed = NULL
 )
 }
 \arguments{
@@ -28,12 +28,12 @@ calculate_clusters(
 
 \item{objective_function}{Leiden-specific parameter for whether to use the Constant Potts Model ("CPM"; default) or "modularity"}
 
-\item{random_seed}{Random seed to set for clustering. Default is 2024.}
-
 \item{cluster_args}{List of additional arguments to pass to the clustering function.}
+
+\item{seed}{Random seed to set for clustering. Default is 2024.}
 }
 \value{
-A data frame of cluster results with columns `cell_id` and `cluster`. Additional columns represent algorithm parameters.
+A data frame of cluster results with columns `cell_id` and `cluster`. Additional columns (TODO!) represent algorithm parameters.
 }
 \description{
 Calculate graph-based clusters from a provided matrix

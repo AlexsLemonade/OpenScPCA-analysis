@@ -6,7 +6,7 @@
 #' @param nn Number of nearest neighbors. Default is 10.
 #' @param resolution Resolution parameter used by louvain and leiden clustering only. Default is 1.
 #' @param objective_function Leiden-specific parameter for whether to use the Constant Potts Model ("CPM"; default) or "modularity"
-#' @param random_seed Random seed to set for clustering. Default is 2024.
+#' @param seed Random seed to set for clustering. Default is 2024.
 #' @param cluster_args List of additional arguments to pass to the clustering function.
 #'
 #' @return A data frame of cluster results with columns `cell_id` and `cluster`. Additional columns (TODO!) represent algorithm parameters.
@@ -78,7 +78,7 @@ calculate_clusters <- function(
   # Transform results into a table and return
   # TODO: Should this have _all_ (non-default/user-specified) parameters in cluster.args?
   return(
-    tibble::tibble(
+    data.frame(
       cell_id = rownames(mat),
       cluster = clusters,
       algorithm = algorithm,
