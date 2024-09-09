@@ -21,7 +21,7 @@ calculate_clusters <- function(
     algorithm = "louvain",
     weighting = "jaccard",
     nn = 10,
-    resolution = 1, # leiden and louvain
+    resolution = 1, # louvain or leiden
     objective_function = "CPM", # leiden only
     cluster_args = list(),
     seed = NULL) {
@@ -54,11 +54,10 @@ calculate_clusters <- function(
 
   # Update cluster_args list with settings that users can directly provide
   # clusterRows throws an error if this list has a param not used by the chosen algorithm
-  if (algorithm == "louvain") {
+  if (algorithm != "walktrap") {
     cluster_args$resolution <- resolution
   }
   if (algorithm == "leiden") {
-    cluster_args$resolution_parameter <- resolution
     cluster_args$objective_function <- objective_function
   }
 
