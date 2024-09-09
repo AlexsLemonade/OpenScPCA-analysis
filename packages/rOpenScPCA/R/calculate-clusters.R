@@ -24,7 +24,7 @@ calculate_clusters <- function(
     weighting = c("jaccard", "rank"),
     nn = 10,
     resolution = 1, # louvain or leiden
-    objective_function = "CPM", # leiden only
+    objective_function = c("CPM", "modularity"), # leiden only
     cluster_args = list(),
     seed = NULL) {
   if (!is.null(seed)) {
@@ -38,15 +38,12 @@ calculate_clusters <- function(
   )
 
   algorithm <- match.arg(algorithm)
-  stopifnot(
-    "`algorithm` must be one of 'louvain' (default), 'walktrap' or 'leiden'." =
-      algorithm %in% c("louvain", "walktrap", "leiden")
-  )
-
   weighting <- match.arg(weighting)
+  objective_function <- match.arg(objective_function)
+
   stopifnot(
-    "`weighting` must be one of 'jaccard' (default) or 'rank'." =
-      weighting %in% c("jaccard", "rank")
+    "`resolution` must be numeric" = is.numeric(resolution),
+    "`nn` must be numeric" = is.numeric(nn)
   )
 
   if (length(cluster_args) != 0) {
