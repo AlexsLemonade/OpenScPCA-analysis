@@ -45,7 +45,6 @@ test_that("calculate_clusters runs with additional cluster_args", {
   cluster_df <- calculate_clusters(
     test_mat,
     algorithm = "leiden",
-    # the default is 2
     cluster_args = list(n_iterations = 3)
   )
 
