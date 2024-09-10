@@ -732,7 +732,7 @@ visualize_metadata(srat, meta = "fetal_kidney_predicted.cell_type", group.by = "
 markers = list("malignant" = CellType_metadata$ENSEMBL_ID[which(CellType_metadata$cell_class == "malignant")],
             "immune"= CellType_metadata$ENSEMBL_ID[which(CellType_metadata$cell_class == "immune")],
             "endothelium"= CellType_metadata$ENSEMBL_ID[which(CellType_metadata$cell_class == "endothelium")],
-            "non-malignant"= CellType_metadata$ENSEMBL_ID[CellType_metadata$cell_class == "non-malignant"])
+            "non-malignant"= CellType_metadata$ENSEMBL_ID[which(CellType_metadata$cell_class == "non-malignant")])
 
 p1 <- SCpubr::do_DotPlot(sample = srat,
                          group.by =  "fetal_kidney_predicted.compartment",
