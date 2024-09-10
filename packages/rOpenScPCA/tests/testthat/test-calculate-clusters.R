@@ -70,3 +70,19 @@ test_that("calculate_clusters errors as expected", {
   expect_error(calculate_clusters(test_mat, resolution = "string"))
   expect_error(calculate_clusters(test_mat, nn = "string"))
 })
+
+
+
+test_that("calculate_clusters handles cluster_args with length > 1", {
+  expect_warning(
+    cluster_df <- calculate_clusters(
+      test_mat,
+      cluster_args = list(too_long = 1:10)
+    )
+  )
+
+  expect_equal(
+    names(cluster_df),
+    c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution")
+  )
+})
