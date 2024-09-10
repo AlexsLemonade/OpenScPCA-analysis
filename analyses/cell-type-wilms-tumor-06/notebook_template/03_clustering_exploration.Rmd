@@ -456,7 +456,7 @@ do_Table_Heatmap <- function(data, first_group, last_group ){
 
 p <- ggplot(df, aes(x= !!sym(first_group), y = !!sym(last_group), fill = Nb)) +
    geom_tile() +
-   scale_fill_viridis(discrete=FALSE)  +
+   scale_fill_viridis_c()  +
    theme_bw() +
    theme(text = element_text(size = 20))
 
