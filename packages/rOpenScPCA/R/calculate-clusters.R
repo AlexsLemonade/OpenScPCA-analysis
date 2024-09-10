@@ -45,21 +45,18 @@ calculate_clusters <- function(
   # Check input arguments
   stopifnot(
     "The `mat` argument must be a matrix." = any(class(mat) %in% c("matrix", "Matrix")),
-    "The `mat` matrix must have row names representing cell ids, e.g. barcodes." = is.character(rownames(mat))
+    "The `mat` matrix must have row names representing cell ids, e.g. barcodes." = is.character(rownames(mat)),
+    "`resolution` must be numeric" = is.numeric(resolution),
+    "`nn` must be numeric" = is.numeric(nn)
   )
 
   algorithm <- match.arg(algorithm)
   weighting <- match.arg(weighting)
   objective_function <- match.arg(objective_function)
 
-  stopifnot(
-    "`resolution` must be numeric" = is.numeric(resolution),
-    "`nn` must be numeric" = is.numeric(nn)
-  )
-
   if (length(cluster_args)) {
     stopifnot(
-      "`cluster_args` must be a named list." = is.list(cluster_args) && !(is.null(names(cluster_args)))
+      "`cluster_args` must be a named list." = is.list(cluster_args) && !("" %in% allNames(cluster_args))
     )
   }
 
