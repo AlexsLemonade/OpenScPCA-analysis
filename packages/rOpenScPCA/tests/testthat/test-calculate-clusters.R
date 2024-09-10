@@ -16,7 +16,7 @@ test_that("calculate_clusters runs with defaults", {
     cluster_df$cell_id,
     as.character(1:100)
   )
-  expect_type(cluster_df$cluster, "factor")
+  expect_s3_class(cluster_df$cluster, "factor")
   expect_true(
     all(cluster_df$algorithm == "louvain")
   )
