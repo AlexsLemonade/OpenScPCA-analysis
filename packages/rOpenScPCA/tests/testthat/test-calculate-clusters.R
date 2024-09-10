@@ -1,5 +1,5 @@
 test_mat <- matrix(
-  runif(1000, 0.1, 10),
+  runif(1000, -3, 3),
   nrow = 100,
   ncol = 10
 )
@@ -16,9 +16,7 @@ test_that("calculate_clusters runs with defaults", {
     cluster_df$cell_id,
     as.character(1:100)
   )
-  expect_true(
-    is.factor(cluster_df$cluster)
-  )
+  expect_type(cluster_df$cluster, "factor")
   expect_true(
     all(cluster_df$algorithm == "louvain")
   )

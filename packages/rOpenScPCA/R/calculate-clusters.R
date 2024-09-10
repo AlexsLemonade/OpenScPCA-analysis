@@ -45,7 +45,7 @@ calculate_clusters <- function(
   # Check input arguments
   stopifnot(
     "The `mat` argument must be a matrix." = any(class(mat) %in% c("matrix", "Matrix")),
-    "The `mat` matrix must have row names representing cell ids, e.g. barcodes." = !(is.null(rownames(mat)))
+    "The `mat` matrix must have row names representing cell ids, e.g. barcodes." = is.character(rownames(mat))
   )
 
   algorithm <- match.arg(algorithm)
@@ -57,7 +57,7 @@ calculate_clusters <- function(
     "`nn` must be numeric" = is.numeric(nn)
   )
 
-  if (length(cluster_args) != 0) {
+  if (length(cluster_args)) {
     stopifnot(
       "`cluster_args` must be a named list." = is.list(cluster_args) && !(is.null(names(cluster_args)))
     )
@@ -65,7 +65,7 @@ calculate_clusters <- function(
 
   # Update cluster_args list with parameters that users can directly provide
   # note that clusterRows throws an error if this list has a param not used by the chosen algorithm
-  if (algorithm != "walktrap") {
+  if (algorithm %in% c("louvain", "leiden")) {
     cluster_args$resolution <- resolution
   }
   if (algorithm == "leiden") {
