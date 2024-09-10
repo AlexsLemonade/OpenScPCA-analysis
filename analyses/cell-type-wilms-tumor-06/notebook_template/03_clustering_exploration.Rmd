@@ -442,7 +442,7 @@ do_SankeyPlot <- function(sample,
 
 #### do_Table_Heatmap
 
-`do_Table_Heatmap` shows heatmap of counts of cells in groups of metadata
+`do_Table_Heatmap` shows heatmap of counts of cells for combinations of two metadata variables
 
 - `data` seurat object 
 - `first_group` is the name of the first metadata to group the cells
