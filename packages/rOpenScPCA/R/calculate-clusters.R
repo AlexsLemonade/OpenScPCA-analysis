@@ -108,7 +108,7 @@ calculate_clusters <- function(
     nn = nn
   ) |>
     dplyr::bind_cols(
-      dplyr::bind_rows(cluster_args)
+      data.frame(cluster_args)
     )
 
   return(cluster_df)
