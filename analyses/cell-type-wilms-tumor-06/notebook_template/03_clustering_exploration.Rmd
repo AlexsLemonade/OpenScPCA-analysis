@@ -211,7 +211,9 @@ MSigDB_score <- function(object, category, gs_name, name){
                     dplyr::filter(gs_name == gs_name) %>%
                     dplyr::distinct(gs_name, gene_symbol, human_ensembl_gene) %>% as.data.frame()
         set_list <- list(set_list$human_ensembl_gene)
-        object <- AddModuleScore(object, features = set_list, name = name)
+       suppressWarnings({
+            object <- AddModuleScore(object, features = set_list, name = name)
+       })
 return(object)
 }
 ```
