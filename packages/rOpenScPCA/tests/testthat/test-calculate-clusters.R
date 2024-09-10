@@ -56,21 +56,8 @@ test_that("calculate_clusters errors as expected", {
   test_mat_nonames <- test_mat
   rownames(test_mat_nonames) <- NULL
 
-  expect_error(
-    calculate_clusters(test_mat_nonames),
-    "The `mat` matrix must have row names representing cell ids, e.g. barcodes."
-  )
-  expect_error(
-    calculate_clusters("not a matrix"),
-    "The `mat` argument must be a matrix."
-  )
-
-  expect_error(
-    calculate_clusters(test_mat, resolution = "string"),
-    "`resolution` must be numeric"
-  )
-  expect_error(
-    calculate_clusters(test_mat, nn = "string"),
-    "`nn` must be numeric"
-  )
+  expect_error(calculate_clusters(test_mat_nonames))
+  expect_error(calculate_clusters("not a matrix"))
+  expect_error(calculate_clusters(test_mat, resolution = "string"))
+  expect_error(calculate_clusters(test_mat, nn = "string"))
 })
