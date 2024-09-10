@@ -541,7 +541,7 @@ visualize_metadata(srat, meta = "TP53_score1", group.by = "seurat_clusters" )
 
 #### DNA repair pathway
 
-here we will calculate a DNA_repair score using AddMduleScore and the genes of the HALLMARK_DNA_REPAIR gene set.
+here we will calculate a DNA_repair score using `AddModuleScore` and the genes of the HALLMARK_DNA_REPAIR gene set.
 
 ```{r fig.height=4, fig.width=20, warning=FALSE, out.width='100%'}
 srat <- MSigDB_score(object = srat , category = "H", gs_name = "HALLMARK_DNA_REPAIR", name = "DNA_repair_score")
