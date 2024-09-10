@@ -19,11 +19,11 @@ calculate_clusters(
 \item{mat}{Matrix, usually of PCs, where each row is a cell. Matrix must have rownames of cell ids (e.g., barcodes)}
 
 \item{algorithm}{Clustering algorithm to use. Must be one of "louvain" (default), "walktrap", or "leiden".
-Be aware that the default of "louvain" is different from the {bluster} package default of "walktrap". This difference is
+Be aware that the default of "louvain" is different from the bluster package default of "walktrap". This difference is
 because louvain clustering is more commonly-used in scRNA-seq analysis.}
 
 \item{weighting}{Weighting scheme to use. Must be one of "jaccard" (default), "rank", or "number"
-Be aware that the default of "jaccard" is different from the {bluster} package default of "rank".
+Be aware that the default of "jaccard" is different from the bluster package default of "rank".
 This difference is because jaccard weighting is more commonly-used in scRNA-seq analysis.}
 
 \item{nn}{Number of nearest neighbors. Default is 10.}
@@ -32,14 +32,15 @@ This difference is because jaccard weighting is more commonly-used in scRNA-seq 
 
 \item{objective_function}{Leiden-specific parameter for whether to use the Constant Potts Model ("CPM"; default) or "modularity"}
 
-\item{cluster_args}{List of additional arguments to pass to the chosen clustering function. See igraph documentation for details: https://igraph.org/r/html/latest}
+\item{cluster_args}{List of additional arguments to pass to the chosen clustering function. Only single-length values will be used.
+See igraph documentation for details on each clustering function: https://igraph.org/r/html/latest}
 
 \item{seed}{Random seed to set for clustering. Default is 2024.}
 }
 \value{
 A data frame of cluster results with columns `cell_id` and `cluster`. Additional columns represent algorithm parameters
   and include at least: `algorithm`, `weighting`, and `nn`. Louvain and leiden clustering will also include `resolution`, and
-  leiden clustering will further include `objective_function`. Any other values passed to `cluster_args` will also be included.
+  leiden clustering will further include `objective_function`.
 }
 \description{
 Calculate graph-based clusters from a provided matrix

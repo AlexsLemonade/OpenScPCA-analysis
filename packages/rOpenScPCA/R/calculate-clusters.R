@@ -2,10 +2,10 @@
 #'
 #' @param mat Matrix, usually of PCs, where each row is a cell. Matrix must have rownames of cell ids (e.g., barcodes)
 #' @param algorithm Clustering algorithm to use. Must be one of "louvain" (default), "walktrap", or "leiden".
-#'  Be aware that the default of "louvain" is different from the {bluster} package default of "walktrap". This difference is
+#'  Be aware that the default of "louvain" is different from the bluster package default of "walktrap". This difference is
 #'  because louvain clustering is more commonly-used in scRNA-seq analysis.
 #' @param weighting Weighting scheme to use. Must be one of "jaccard" (default), "rank", or "number"
-#'  Be aware that the default of "jaccard" is different from the {bluster} package default of "rank".
+#'  Be aware that the default of "jaccard" is different from the bluster package default of "rank".
 #'  This difference is because jaccard weighting is more commonly-used in scRNA-seq analysis.
 #' @param nn Number of nearest neighbors. Default is 10.
 #' @param resolution Resolution parameter used by louvain and leiden clustering only. Default is 1.
@@ -61,10 +61,21 @@ calculate_clusters <- function(
 
   if (length(cluster_args)) {
     stopifnot(
-      "`cluster_args` must be a named list." = is.list(cluster_args) && !("" %in% allNames(cluster_args))
+      "`cluster_args` must be a named list." = is.list(cluster_args) && !("" %in% methods::allNames(cluster_args))
     )
   }
 
+  # Do not use any arguments whose length is >1
+  if (any(sapply(cluster_args, length) > 1)) {
+    warning("Only single-length values in 'cluster_args' will be used.")
+
+    cluster_args <- cluster_args |>
+      purrr::keep(
+        \(arg) {
+          length(arg) == 1
+        }
+      )
+  }
 
   # Update cluster_args list with parameters that users can directly provide
   # note that clusterRows throws an error if this list has a param not used by the chosen algorithm
