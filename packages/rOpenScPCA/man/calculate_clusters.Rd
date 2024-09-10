@@ -7,7 +7,7 @@
 calculate_clusters(
   mat,
   algorithm = c("louvain", "walktrap", "leiden"),
-  weighting = c("jaccard", "rank"),
+  weighting = c("jaccard", "rank", "number"),
   nn = 10,
   resolution = 1,
   objective_function = c("CPM", "modularity"),
@@ -18,9 +18,13 @@ calculate_clusters(
 \arguments{
 \item{mat}{Matrix, usually of PCs, where each row is a cell. Matrix must have rownames of cell ids (e.g., barcodes)}
 
-\item{algorithm}{Clustering algorithm to use. Must be one of "louvain" (default), "walktrap", or "leiden"}
+\item{algorithm}{Clustering algorithm to use. Must be one of "louvain" (default), "walktrap", or "leiden".
+Be aware that the default of "louvain" is different from the {bluster} package default of "walktrap". This difference is
+because louvain clustering is more commonly-used in scRNA-seq analysis.}
 
-\item{weighting}{Weighting scheme to use. Must be one of "jaccard" (default) or "rank"}
+\item{weighting}{Weighting scheme to use. Must be one of "jaccard" (default), "rank", or "number"
+Be aware that the default of "jaccard" is different from the {bluster} package default of "rank".
+This difference is because jaccard weighting is more commonly-used in scRNA-seq analysis.}
 
 \item{nn}{Number of nearest neighbors. Default is 10.}
 
