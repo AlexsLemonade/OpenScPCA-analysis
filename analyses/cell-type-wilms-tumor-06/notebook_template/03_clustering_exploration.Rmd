@@ -821,6 +821,7 @@ p2 <- do_SankeyPlot(sample = srat,
 
 p1 | p2
 ```
+
 #### Heatmaps
 
 
