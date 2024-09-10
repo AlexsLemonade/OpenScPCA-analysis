@@ -16,18 +16,27 @@ test_that("calculate_clusters runs with defaults", {
     cluster_df$cell_id,
     as.character(1:100)
   )
-  expect_s3_class(cluster_df$cluster, "factor")
-  expect_true(
-    all(cluster_df$algorithm == "louvain")
+
+  expect_s3_class(
+    cluster_df$cluster,
+    "factor"
   )
-  expect_true(
-    all(cluster_df$weighting == "jaccard")
+
+  expect_equal(
+    unique(cluster_df$algorithm),
+    "louvain"
   )
-  expect_true(
-    all(cluster_df$nn == 10)
+  expect_equal(
+    unique(cluster_df$weighting),
+    "jaccard"
   )
-  expect_true(
-    all(cluster_df$resolution == 1)
+  expect_equal(
+    unique(cluster_df$nn),
+    10
+  )
+  expect_equal(
+    unique(cluster_df$resolution),
+    1
   )
 })
 
@@ -44,8 +53,9 @@ test_that("calculate_clusters runs with additional cluster_args", {
     names(cluster_df),
     c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution", "objective_function", "n_iterations")
   )
-  expect_true(
-    all(cluster_df$n_iterations == 3)
+  expect_equal(
+    unique(cluster_df$n_iterations),
+    3
   )
 })
 
