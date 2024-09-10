@@ -29,7 +29,7 @@ knitr::opts_chunk$set(echo = TRUE,
 ## Introduction
 
 The aim is to explore the clustering and label transfers for the sample `r params$sample_id`.
-
+This sample has a(n) `r favorable` subdiagnosis.
 In order to explore the clustering results, we look into some marker genes, pathways enrichment and label transfer.
 
 This approach would provide us a rapid idea of the quality of the clustering:
