@@ -25,5 +25,4 @@ RoxygenNote: 7.3.2
 Imports: 
     bluster,
     dplyr,
-    methods,
-    purrr
+    methods
