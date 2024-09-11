@@ -3,8 +3,8 @@
 #' This function is provided to simplify application of bluster package clustering functions on OpenScPCA data.
 #' In particular, this function runs bluster::clusterRows() with the bluster::NNGraphParam() function.
 #' Note that defaults for some arguments may differ from the bluster::NNGraphParam() defaults.
-#' Specifically, the clustering algorithm defaults to "louvain" and the distance measure to "jaccard"
-#' to align with common practice in scRNA-seq anaylsis.
+#' Specifically, the clustering algorithm defaults to "louvain" and the weighting scheme to "jaccard"
+#' to align with common practice in scRNA-seq analysis.
 #'
 #' @param mat Matrix, usually of PCs, where each row is a cell. Matrix must have rownames of cell ids (e.g., barcodes)
 #' @param algorithm Clustering algorithm to use. Must be one of "louvain" (default), "walktrap", or "leiden".
@@ -13,7 +13,7 @@
 #' @param resolution Resolution parameter used by louvain and leiden clustering only. Default is 1.
 #' @param objective_function Leiden-specific parameter for whether to use the Constant Potts Model ("CPM"; default) or "modularity"
 #' @param seed Random seed to set for clustering. Default is 2024.
-#' @param cluster_args List of additional arguments to pass to the chosen clustering function. 
+#' @param cluster_args List of additional arguments to pass to the chosen clustering function.
 #'   Only single values for each argument are supported (no vectors or lists).
 #'   See igraph documentation for details on each clustering function: https://igraph.org/r/html/latest
 #'
