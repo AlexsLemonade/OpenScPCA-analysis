@@ -13,8 +13,10 @@
 #' @param resolution Resolution parameter used by louvain and leiden clustering only. Default is 1.
 #' @param objective_function Leiden-specific parameter for whether to use the Constant Potts Model ("CPM"; default) or "modularity"
 #' @param seed Random seed to set for clustering. Default is 2024.
-#' @param cluster_args List of additional arguments to pass to the chosen clustering function. Only single-length values will be used.
+#' @param cluster_args List of additional arguments to pass to the chosen clustering function. 
+#'   Only single values for each argument are supported (no vectors or lists).
 #'   See igraph documentation for details on each clustering function: https://igraph.org/r/html/latest
+#'
 #' @return A data frame of cluster results with columns `cell_id` and `cluster`. Additional columns represent algorithm parameters
 #'   and include at least: `algorithm`, `weighting`, and `nn`. Louvain and leiden clustering will also include `resolution`, and
 #'   leiden clustering will further include `objective_function`.
