@@ -1,5 +1,10 @@
 #' Calculate graph-based clusters from a provided matrix
 #'
+#' This function is provided to simplify application of some bluster functions for OpenScPCA data.
+#' Note that defaults for some arguments may differ from the bluster defaults.
+#' In particular, the clustering algorithm defaults to "louvain" and the distance measure to "jaccard" 
+#' to align with common practice. 
+#'
 #' @param mat Matrix, usually of PCs, where each row is a cell. Matrix must have rownames of cell ids (e.g., barcodes)
 #' @param algorithm Clustering algorithm to use. Must be one of "louvain" (default), "walktrap", or "leiden".
 #'  Be aware that the default of "louvain" is different from the bluster package default of "walktrap". This difference is
@@ -61,20 +66,9 @@ calculate_clusters <- function(
 
   if (length(cluster_args)) {
     stopifnot(
-      "`cluster_args` must be a named list." = is.list(cluster_args) && !("" %in% methods::allNames(cluster_args))
+      "`cluster_args` must be a named list." = is.list(cluster_args) && !("" %in% methods::allNames(cluster_args)),
+      "`cluster_args` elements must all have only a single value" = all(sapply(cluster_args, length) == 1))
     )
-  }
-
-  # Do not use any arguments whose length is >1
-  if (any(sapply(cluster_args, length) > 1)) {
-    warning("Only single-length values in 'cluster_args' will be used.")
-
-    cluster_args <- cluster_args |>
-      purrr::keep(
-        \(arg) {
-          length(arg) == 1
-        }
-      )
   }
 
   # Update cluster_args list with parameters that users can directly provide
