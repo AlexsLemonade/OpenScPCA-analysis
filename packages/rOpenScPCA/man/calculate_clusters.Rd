@@ -28,7 +28,8 @@ calculate_clusters(
 
 \item{objective_function}{Leiden-specific parameter for whether to use the Constant Potts Model ("CPM"; default) or "modularity"}
 
-\item{cluster_args}{List of additional arguments to pass to the chosen clustering function. Only single-length values will be used.
+\item{cluster_args}{List of additional arguments to pass to the chosen clustering function.
+Only single values for each argument are supported (no vectors or lists).
 See igraph documentation for details on each clustering function: https://igraph.org/r/html/latest}
 
 \item{seed}{Random seed to set for clustering. Default is 2024.}
@@ -42,8 +43,8 @@ A data frame of cluster results with columns `cell_id` and `cluster`. Additional
 This function is provided to simplify application of bluster package clustering functions on OpenScPCA data.
 In particular, this function runs bluster::clusterRows() with the bluster::NNGraphParam() function.
 Note that defaults for some arguments may differ from the bluster::NNGraphParam() defaults.
-Specifically, the clustering algorithm defaults to "louvain" and the distance measure to "jaccard"
-to align with common practice in scRNA-seq anaylsis.
+Specifically, the clustering algorithm defaults to "louvain" and the weighting scheme to "jaccard"
+to align with common practice in scRNA-seq analysis.
 }
 \examples{
 \dontrun{
