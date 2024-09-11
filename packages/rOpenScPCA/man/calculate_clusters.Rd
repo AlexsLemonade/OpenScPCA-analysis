@@ -18,13 +18,9 @@ calculate_clusters(
 \arguments{
 \item{mat}{Matrix, usually of PCs, where each row is a cell. Matrix must have rownames of cell ids (e.g., barcodes)}
 
-\item{algorithm}{Clustering algorithm to use. Must be one of "louvain" (default), "walktrap", or "leiden".
-Be aware that the default of "louvain" is different from the bluster package default of "walktrap". This difference is
-because louvain clustering is more commonly-used in scRNA-seq analysis.}
+\item{algorithm}{Clustering algorithm to use. Must be one of "louvain" (default), "walktrap", or "leiden".}
 
-\item{weighting}{Weighting scheme to use. Must be one of "jaccard" (default), "rank", or "number"
-Be aware that the default of "jaccard" is different from the bluster package default of "rank".
-This difference is because jaccard weighting is more commonly-used in scRNA-seq analysis.}
+\item{weighting}{Weighting scheme to use. Must be one of "jaccard" (default), "rank", or "number"}
 
 \item{nn}{Number of nearest neighbors. Default is 10.}
 
@@ -43,7 +39,11 @@ A data frame of cluster results with columns `cell_id` and `cluster`. Additional
   leiden clustering will further include `objective_function`.
 }
 \description{
-Calculate graph-based clusters from a provided matrix
+This function is provided to simplify application of bluster package clustering functions on OpenScPCA data.
+In particular, this function runs bluster::clusterRows() with the bluster::NNGraphParam() function.
+Note that defaults for some arguments may differ from the bluster::NNGraphParam() defaults.
+Specifically, the clustering algorithm defaults to "louvain" and the distance measure to "jaccard"
+to align with common practice in scRNA-seq anaylsis.
 }
 \examples{
 \dontrun{

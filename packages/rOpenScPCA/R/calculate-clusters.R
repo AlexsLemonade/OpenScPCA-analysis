@@ -1,17 +1,14 @@
 #' Calculate graph-based clusters from a provided matrix
 #'
-#' This function is provided to simplify application of some bluster functions for OpenScPCA data.
-#' Note that defaults for some arguments may differ from the bluster defaults.
-#' In particular, the clustering algorithm defaults to "louvain" and the distance measure to "jaccard" 
-#' to align with common practice. 
+#' This function is provided to simplify application of bluster package clustering functions on OpenScPCA data.
+#' In particular, this function runs bluster::clusterRows() with the bluster::NNGraphParam() function.
+#' Note that defaults for some arguments may differ from the bluster::NNGraphParam() defaults.
+#' Specifically, the clustering algorithm defaults to "louvain" and the distance measure to "jaccard"
+#' to align with common practice in scRNA-seq anaylsis.
 #'
 #' @param mat Matrix, usually of PCs, where each row is a cell. Matrix must have rownames of cell ids (e.g., barcodes)
 #' @param algorithm Clustering algorithm to use. Must be one of "louvain" (default), "walktrap", or "leiden".
-#'  Be aware that the default of "louvain" is different from the bluster package default of "walktrap". This difference is
-#'  because louvain clustering is more commonly-used in scRNA-seq analysis.
 #' @param weighting Weighting scheme to use. Must be one of "jaccard" (default), "rank", or "number"
-#'  Be aware that the default of "jaccard" is different from the bluster package default of "rank".
-#'  This difference is because jaccard weighting is more commonly-used in scRNA-seq analysis.
 #' @param nn Number of nearest neighbors. Default is 10.
 #' @param resolution Resolution parameter used by louvain and leiden clustering only. Default is 1.
 #' @param objective_function Leiden-specific parameter for whether to use the Constant Potts Model ("CPM"; default) or "modularity"
@@ -67,7 +64,7 @@ calculate_clusters <- function(
   if (length(cluster_args)) {
     stopifnot(
       "`cluster_args` must be a named list." = is.list(cluster_args) && !("" %in% methods::allNames(cluster_args)),
-      "`cluster_args` elements must all have only a single value" = all(sapply(cluster_args, length) == 1))
+      "`cluster_args` elements must all have only a single value" = all(sapply(cluster_args, length) == 1)
     )
   }
 
