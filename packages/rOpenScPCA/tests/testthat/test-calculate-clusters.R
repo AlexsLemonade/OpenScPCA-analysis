@@ -1,9 +1,18 @@
-test_mat <- matrix(
-  runif(1000, -3, 3),
-  nrow = 100,
-  ncol = 10
+suppressPackageStartupMessages(library(SingleCellExperiment))
+
+set.seed(2024)
+sce <- splatter::simpleSimulate(nGenes = 1000, verbose = FALSE) |>
+  scater::logNormCounts() |>
+  scater::runPCA(ncomponents = 10)
+
+test_mat <- reducedDim(sce, "PCA")
+
+srat <- Seurat::CreateSeuratObject(counts = counts(sce), assay = "RNA")
+srat[["pca"]] <- Seurat::CreateDimReducObject(
+  embeddings = test_mat,
+  key = "PC_", # underscore avoids Seurat warning that it's adding an underscore
+  assay = "RNA"
 )
-rownames(test_mat) <- as.character(1:100)
 
 test_that("calculate_clusters runs with defaults", {
   cluster_df <- calculate_clusters(test_mat)
@@ -14,7 +23,7 @@ test_that("calculate_clusters runs with defaults", {
   )
   expect_equal(
     cluster_df$cell_id,
-    as.character(1:100)
+    rownames(test_mat)
   )
 
   expect_s3_class(
@@ -74,5 +83,35 @@ test_that("calculate_clusters errors as expected", {
       test_mat,
       cluster_args = list(too_long = 1:10)
     )
+  )
+})
+
+
+
+test_that("extract_pc_matrix works as expected", {
+  pc_mat_sce <- extract_pc_matrix(sce)
+  expect_identical(
+    pc_mat_sce,
+    test_mat
+  )
+
+  pc_mat_srt <- extract_pc_matrix(srat)
+  # update test_mat column names to match what will have Seurat changed them to
+  colnames(test_mat) <- gsub("^PC", "PC_", colnames(test_mat))
+  expect_identical(
+    pc_mat_srt,
+    test_mat
+  )
+})
+
+test_that("extract_pc_matrix errors as expected", {
+  expect_error(
+    extract_pc_matrix(sce, pc_name = "bad_name")
+  )
+  expect_error(
+    extract_pc_matrix(srat, pc_name = "bad_name")
+  )
+  expect_error(
+    extract_pc_matrix(test_mat)
   )
 })

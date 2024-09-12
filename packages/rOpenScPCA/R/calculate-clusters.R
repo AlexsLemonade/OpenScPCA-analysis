@@ -6,6 +6,8 @@
 #' Specifically, the clustering algorithm defaults to "louvain" and the weighting scheme to "jaccard"
 #' to align with common practice in scRNA-seq analysis.
 #'
+#' @import methods
+#'
 #' @param mat Matrix, usually of PCs, where each row is a cell. Matrix must have rownames of cell ids (e.g., barcodes)
 #' @param algorithm Clustering algorithm to use. Must be one of "louvain" (default), "walktrap", or "leiden".
 #' @param weighting Weighting scheme to use. Must be one of "jaccard" (default), "rank", or "number"
@@ -65,7 +67,7 @@ calculate_clusters <- function(
 
   if (length(cluster_args)) {
     stopifnot(
-      "`cluster_args` must be a named list." = is.list(cluster_args) && !("" %in% methods::allNames(cluster_args)),
+      "`cluster_args` must be a named list." = is.list(cluster_args) && !("" %in% allNames(cluster_args)),
       "`cluster_args` elements must all have only a single value" = all(sapply(cluster_args, length) == 1)
     )
   }
@@ -105,4 +107,62 @@ calculate_clusters <- function(
     )
 
   return(cluster_df)
+}
+
+
+
+#' Extract a principal components (PC) matrix from either a SingleCellExperiment
+#' or a Seurat object.
+#'
+#' This function first determines if the provided object is a SingleCellExperiment or
+#' Seurat object, and then extract the PC matrix. If no name for the PC matrix is provided,
+#' this function will assume the name of "PCA" for SingleCellExperiment objects, and
+#' "pca" for Seurat objects.
+#'
+#' @import SingleCellExperiment
+#' @import methods
+#'
+#' @param sc_object Either a SingleCellExperiment or Seurat object
+#' @param pc_name Optionally, the name of the PC matrix in the object. If this is
+#' not provided, the name "PCA" is assumed for SingleCellExperiment objects, and
+#' "pca" for Seurat objects.
+#'
+#' @return PC matrix with row names
+extract_pc_matrix <- function(sc_object, pc_name = NULL) {
+  # default PC names for each type of object to use if
+  #  pc_name is NULL
+  default_sce <- "PCA"
+  default_seurat <- "pca"
+
+  if (is(sc_object, "SingleCellExperiment")) {
+    pc_name <- ifelse(is.null(pc_name), default_sce, pc_name)
+    stopifnot(
+      "Could not find a PC matrix in the SingleCellExperiment object." =
+        pc_name %in% reducedDimNames(sc_object)
+    )
+
+    pca_matrix <- reducedDim(sc_object, pc_name)
+  } else if (is(sc_object, "Seurat")) {
+    pc_name <- ifelse(is.null(pc_name), default_seurat, pc_name)
+    stopifnot(
+      "Seurat package must be installed to process a Seurat object" = 
+        requireNamespace("Seurat", quietly = TRUE),
+      "Could not find a PC matrix in the Seurat object." =
+        pc_name %in% names(sc_object@reductions)
+    )
+
+    pca_matrix <- Seurat::Embeddings(
+      sc_object,
+      reduction = pc_name
+    )
+  } else {
+    stop("You must provide a SingleCellExperiment or Seurat object.")
+  }
+
+  # Ensure row names are present
+  stopifnot(
+    "The extracted PCA matrix does not have row names." = is.character(rownames(pca_matrix))
+  )
+
+  return(pca_matrix)
 }
