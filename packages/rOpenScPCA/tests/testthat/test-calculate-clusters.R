@@ -1,24 +1,20 @@
 suppressPackageStartupMessages(library(SingleCellExperiment))
-suppressPackageStartupMessages(library(Seurat))
 
-sce <- scpcaTools:::sim_sce(n_cells = 100, n_genes = 10, n_empty = 0)
-test_mat <- matrix(
-  runif(1000, -3, 3),
-  nrow = 100,
-  ncol = 10
-)
-rownames(test_mat) <- colnames(sce)
-colnames(test_mat) <- paste0("PC_", 1:10) # quiet seurat warnings
-reducedDim(sce, "PCA") <- test_mat
+set.seed(2024)
+sce <- splatter::simpleSimulate(nGenes = 1000)
+assay(sce, "logcounts") <- log1p(counts(sce))
+suppressWarnings({
+  sce <- scater::runPCA(sce)
+})
 
-srat <- CreateSeuratObject(counts = counts(sce), assay = "RNA")
-srat[["pca"]] <- CreateDimReducObject(
+test_mat <- reducedDim(sce, "PCA")
+
+srat <- Seurat::CreateSeuratObject(counts = counts(sce), assay = "RNA")
+srat[["pca"]] <- Seurat::CreateDimReducObject(
   embeddings = test_mat,
-  key = "PC_",
+  key = "PC_", # underscore avoids Seurat warning that it's adding an underscore
   assay = "RNA"
 )
-
-
 
 test_that("calculate_clusters runs with defaults", {
   cluster_df <- calculate_clusters(test_mat)
@@ -102,6 +98,8 @@ test_that("extract_pc_matrix works as expected", {
   )
 
   pc_mat_srt <- extract_pc_matrix(srat)
+  # update test_mat column names to match what will have Seurat changed them to
+  colnames(test_mat) <- gsub("^PC", "PC_", colnames(test_mat))
   expect_identical(
     pc_mat_srt,
     test_mat
