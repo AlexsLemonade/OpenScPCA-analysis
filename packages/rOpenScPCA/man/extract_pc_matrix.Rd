@@ -5,21 +5,19 @@
 \title{Extract a principal components (PC) matrix from either a SingleCellExperiment
 or a Seurat object.}
 \usage{
-extract_pc_matrix(sc_object, pc_name = NULL)
+extract_pc_matrix(sc_object, object_type, pc_name)
 }
 \arguments{
 \item{sc_object}{Either a SingleCellExperiment or Seurat object}
 
-\item{pc_name}{Optionally, the name of the PC matrix in the object. If this is
-not provided, the name "PCA" is assumed for SingleCellExperiment objects, and
-"pca" for Seurat objects.}
+\item{object_type}{Whether the object is a SingleCellExperiment ("sce") or a Seurat ("seurat") object}
+
+\item{pc_name}{The name of the PC matrix in the object}
 }
 \value{
 PC matrix with row names
 }
 \description{
-This function first determines if the provided object is a SingleCellExperiment or
-Seurat object, and then extract the PC matrix. If no name for the PC matrix is provided,
-this function will assume the name of "PCA" for SingleCellExperiment objects, and
-"pca" for Seurat objects.
+This function extract the PC matrix from either a SingleCellExperiment or Seurat object, as
+determined by the object_type argument.
 }
