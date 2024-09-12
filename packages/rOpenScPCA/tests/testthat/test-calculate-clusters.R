@@ -89,13 +89,13 @@ test_that("calculate_clusters errors as expected", {
 
 
 test_that("extract_pc_matrix works as expected", {
-  pc_mat_sce <- extract_pc_matrix(sce, "sce", "PCA")
+  pc_mat_sce <- extract_pc_matrix(sce)
   expect_identical(
     pc_mat_sce,
     test_mat
   )
 
-  pc_mat_srt <- extract_pc_matrix(srat, "seurat", "pca")
+  pc_mat_srt <- extract_pc_matrix(srat)
   # update test_mat column names to match what will have Seurat changed them to
   colnames(test_mat) <- gsub("^PC", "PC_", colnames(test_mat))
   expect_identical(
@@ -106,15 +106,12 @@ test_that("extract_pc_matrix works as expected", {
 
 test_that("extract_pc_matrix errors as expected", {
   expect_error(
-    extract_pc_matrix(sce, "sce", "bad_name")
+    extract_pc_matrix(sce, pc_name = "bad_name")
   )
   expect_error(
-    extract_pc_matrix(srat, "seurat", "bad_name")
+    extract_pc_matrix(srat, pc_name = "bad_name")
   )
   expect_error(
-    extract_pc_matrix(sce, "bad_type", "PCA")
-  )
-  expect_error(
-    extract_pc_matrix(test_mat, "sce", "PCA")
+    extract_pc_matrix(test_mat)
   )
 })
