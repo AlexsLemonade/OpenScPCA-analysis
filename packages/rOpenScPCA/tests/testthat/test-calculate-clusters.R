@@ -94,8 +94,6 @@ test_that("calculate_clusters errors as expected", {
 
 
 
-
-
 test_that("extract_pc_matrix works as expected", {
   pc_mat_sce <- extract_pc_matrix(sce)
   expect_identical(
@@ -107,5 +105,17 @@ test_that("extract_pc_matrix works as expected", {
   expect_identical(
     pc_mat_srt,
     test_mat
+  )
+})
+
+test_that("extract_pc_matrix errors as expected", {
+  expect_error(
+    extract_pc_matrix(sce, pc_name = "bad_name")
+  )
+  expect_error(
+    extract_pc_matrix(srat, pc_name = "bad_name")
+  )
+  expect_error(
+    extract_pc_matrix(test_mat)
   )
 })
