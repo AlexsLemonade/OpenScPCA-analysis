@@ -106,3 +106,33 @@ calculate_clusters <- function(
 
   return(cluster_df)
 }
+
+
+
+extract_pc_matrix <- function(sc_object, pc_name = NULL) {
+  # default PCA names for each type of object to use if
+  #  pc_name is NULL
+  default_sce <- "PCA"
+  default_seurat <- "pca"
+
+  if (is(sc_object, "SingleCellExperiment")) {
+    pca_matrix <- reducedDim(
+      sc_object,
+      ifelse(is.null(pc_name), default_sce, pc_name)
+    )
+  } else if (is(sc_object, "Seurat")) {
+    pca_matrix <- Embeddings(
+      sc_object,
+      reduction = ifelse(is.null(pc_name), default_seurat, pc_name)
+    )
+  } else {
+    stop("You must provide a SingleCellExperiment or Seurat object.")
+  }
+
+  # Ensure row names are present
+  stopifnot(
+    "The extracted PCA matrix does not have row names." = is.character(rownames(pca_matrix))
+  )
+
+  return(pca_matrix)
+}
