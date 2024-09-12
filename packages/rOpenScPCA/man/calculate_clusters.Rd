@@ -5,18 +5,21 @@
 \title{Calculate graph-based clusters from a provided matrix}
 \usage{
 calculate_clusters(
-  mat,
+  x,
   algorithm = c("louvain", "walktrap", "leiden"),
   weighting = c("jaccard", "rank", "number"),
   nn = 10,
   resolution = 1,
   objective_function = c("CPM", "modularity"),
   cluster_args = list(),
-  seed = NULL
+  seed = NULL,
+  pc_name = NULL
 )
 }
 \arguments{
-\item{mat}{Matrix, usually of PCs, where each row is a cell. Matrix must have rownames of cell ids (e.g., barcodes)}
+\item{x}{An object containing PCs that clustering can be performed in. This can be either a SingleCellExperiment
+object, a Seurat object, or a matrix where columns are PCs and rows are cells. If a matrix is provided, it must
+have row names of cell ids (e.g., barcodes).}
 
 \item{algorithm}{Clustering algorithm to use. Must be one of "louvain" (default), "walktrap", or "leiden".}
 
@@ -33,6 +36,10 @@ Only single values for each argument are supported (no vectors or lists).
 See igraph documentation for details on each clustering function: https://igraph.org/r/html/latest}
 
 \item{seed}{Random seed to set for clustering. Default is 2024.}
+
+\item{pc_name}{Name of principal components slot in provided object. This argument is only used if a SingleCellExperiment
+or Seurat object is provided. If not provided, the SingleCellExperiment object name will default to "PCA" and the
+Seurat object name will default to "pca".}
 }
 \value{
 A data frame of cluster results with columns `cell_id` and `cluster`. Additional columns represent algorithm parameters
@@ -41,20 +48,27 @@ A data frame of cluster results with columns `cell_id` and `cluster`. Additional
 }
 \description{
 This function is provided to simplify application of bluster package clustering functions on OpenScPCA data.
-In particular, this function runs bluster::clusterRows() with the bluster::NNGraphParam() function.
+In particular, this function runs bluster::clusterRows() with the bluster::NNGraphParam() function on a
+principal components matrix, provided either directly or via single-cell object.
 Note that defaults for some arguments may differ from the bluster::NNGraphParam() defaults.
 Specifically, the clustering algorithm defaults to "louvain" and the weighting scheme to "jaccard"
 to align with common practice in scRNA-seq analysis.
 }
 \examples{
 \dontrun{
-# cluster using default parameters
+# cluster PCs from a SingleCellExperiment object using default parameters
+cluster_df <- calculate_clusters(sce_object)
+
+# cluster PCs from a Seurat object using default parameters
+cluster_df <- calculate_clusters(seurat_object)
+
+# cluster directly from a matrix using default parameters
 cluster_df <- calculate_clusters(pca_matrix)
 
-# cluster using the leiden algorithm with a resolution of 0.1
+# cluster directly from a matrix using the leiden algorithm with a resolution of 0.1
 cluster_df <- calculate_clusters(pca_matrix, algorithm = "leiden", resolution = 0.1)
 
-# cluster using the leiden algorithm with a non-default of 3 iterations
+# cluster directly from a matrix using the leiden algorithm with 3 iterations
 cluster_df <- calculate_clusters(
   pca_matrix,
   algorithm = "leiden",

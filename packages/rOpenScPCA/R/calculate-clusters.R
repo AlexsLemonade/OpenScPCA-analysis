@@ -1,23 +1,29 @@
 #' Calculate graph-based clusters from a provided matrix
 #'
 #' This function is provided to simplify application of bluster package clustering functions on OpenScPCA data.
-#' In particular, this function runs bluster::clusterRows() with the bluster::NNGraphParam() function.
+#' In particular, this function runs bluster::clusterRows() with the bluster::NNGraphParam() function on a
+#' principal components matrix, provided either directly or via single-cell object.
 #' Note that defaults for some arguments may differ from the bluster::NNGraphParam() defaults.
 #' Specifically, the clustering algorithm defaults to "louvain" and the weighting scheme to "jaccard"
 #' to align with common practice in scRNA-seq analysis.
 #'
 #' @import methods
 #'
-#' @param mat Matrix, usually of PCs, where each row is a cell. Matrix must have rownames of cell ids (e.g., barcodes)
+#' @param x An object containing PCs that clustering can be performed in. This can be either a SingleCellExperiment
+#'   object, a Seurat object, or a matrix where columns are PCs and rows are cells. If a matrix is provided, it must
+#'   have row names of cell ids (e.g., barcodes).
 #' @param algorithm Clustering algorithm to use. Must be one of "louvain" (default), "walktrap", or "leiden".
 #' @param weighting Weighting scheme to use. Must be one of "jaccard" (default), "rank", or "number"
 #' @param nn Number of nearest neighbors. Default is 10.
 #' @param resolution Resolution parameter used by louvain and leiden clustering only. Default is 1.
 #' @param objective_function Leiden-specific parameter for whether to use the Constant Potts Model ("CPM"; default) or "modularity"
-#' @param seed Random seed to set for clustering. Default is 2024.
 #' @param cluster_args List of additional arguments to pass to the chosen clustering function.
 #'   Only single values for each argument are supported (no vectors or lists).
 #'   See igraph documentation for details on each clustering function: https://igraph.org/r/html/latest
+#' @param seed Random seed to set for clustering. Default is 2024.
+#' @param pc_name Name of principal components slot in provided object. This argument is only used if a SingleCellExperiment
+#'   or Seurat object is provided. If not provided, the SingleCellExperiment object name will default to "PCA" and the
+#'   Seurat object name will default to "pca".
 #'
 #' @return A data frame of cluster results with columns `cell_id` and `cluster`. Additional columns represent algorithm parameters
 #'   and include at least: `algorithm`, `weighting`, and `nn`. Louvain and leiden clustering will also include `resolution`, and
@@ -27,13 +33,19 @@
 #'
 #' @examples
 #' \dontrun{
-#' # cluster using default parameters
+#' # cluster PCs from a SingleCellExperiment object using default parameters
+#' cluster_df <- calculate_clusters(sce_object)
+#'
+#' # cluster PCs from a Seurat object using default parameters
+#' cluster_df <- calculate_clusters(seurat_object)
+#'
+#' # cluster directly from a matrix using default parameters
 #' cluster_df <- calculate_clusters(pca_matrix)
 #'
-#' # cluster using the leiden algorithm with a resolution of 0.1
+#' # cluster directly from a matrix using the leiden algorithm with a resolution of 0.1
 #' cluster_df <- calculate_clusters(pca_matrix, algorithm = "leiden", resolution = 0.1)
 #'
-#' # cluster using the leiden algorithm with a non-default of 3 iterations
+#' # cluster directly from a matrix using the leiden algorithm with 3 iterations
 #' cluster_df <- calculate_clusters(
 #'   pca_matrix,
 #'   algorithm = "leiden",
@@ -41,22 +53,33 @@
 #' )
 #' }
 calculate_clusters <- function(
-    mat,
+    x,
     algorithm = c("louvain", "walktrap", "leiden"),
     weighting = c("jaccard", "rank", "number"),
     nn = 10,
     resolution = 1, # louvain or leiden
     objective_function = c("CPM", "modularity"), # leiden only
     cluster_args = list(),
-    seed = NULL) {
+    seed = NULL,
+    pc_name = NULL) {
   if (!is.null(seed)) {
     set.seed(seed)
   }
 
+  # check and prepare matrix, as needed
+  if (any(class(x) %in% c("matrix", "Matrix"))) {
+    stopifnot(
+      "The matrix must have row names representing cell ids, e.g. barcodes." = is.character(rownames(x))
+    )
+    pca_matrix <- x # redefine with better variable name
+  } else if (is(x, "SingleCellExperiment") || is(x, "Seurat")) {
+    pca_matrix <- extract_pc_matrix(x, pc_name = pc_name)
+  } else {
+    stop("The first argument should be one of: a SingleCellExperiment object, a Seurat object, or a matrix with row names.")
+  }
+
   # Check input arguments
   stopifnot(
-    "The `mat` argument must be a matrix." = any(class(mat) %in% c("matrix", "Matrix")),
-    "The `mat` matrix must have row names representing cell ids, e.g. barcodes." = is.character(rownames(mat)),
     "`resolution` must be numeric" = is.numeric(resolution),
     "`nn` must be numeric" = is.numeric(nn)
   )
@@ -84,7 +107,7 @@ calculate_clusters <- function(
 
   # Perform clustering
   clusters <- bluster::clusterRows(
-    mat,
+    pca_matrix,
     bluster::NNGraphParam(
       k = nn,
       type = weighting,
@@ -96,7 +119,7 @@ calculate_clusters <- function(
 
   # Transform results into a table and return
   cluster_df <- data.frame(
-    cell_id = rownames(mat),
+    cell_id = rownames(pca_matrix),
     cluster = clusters,
     algorithm = algorithm,
     weighting = weighting,
@@ -145,7 +168,7 @@ extract_pc_matrix <- function(sc_object, pc_name = NULL) {
   } else if (is(sc_object, "Seurat")) {
     pc_name <- ifelse(is.null(pc_name), default_seurat, pc_name)
     stopifnot(
-      "Seurat package must be installed to process a Seurat object" = 
+      "Seurat package must be installed to process a Seurat object" =
         requireNamespace("Seurat", quietly = TRUE),
       "Could not find a PC matrix in the Seurat object." =
         pc_name %in% names(sc_object@reductions)
