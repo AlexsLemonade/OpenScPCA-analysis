@@ -8,11 +8,6 @@ To perform label transfer using Azimuth and the fetal kidney atlas, a reference 
 "https://datasets.cellxgene.cziscience.com/40ebb8e4-1a25-4a33-b8ff-02d1156e4e9b.rds"
 
 As part of the `00b_characterize_fetal_kidney_reference_Stewart.Rmd` notebook template, we characterized the fetal kidney reference and generated lists of marker genes for the compartment and cell types composing the reference. 
-The tables of marker genes can be found in the S3 bucket name `researcher-008971640512-us-east-2`:
-- `references/00a_marker_cell-type_fetal_kidney_Stewart.csv`
-- `references/00a_marker_compartment_fetal_kidney_Stewart.csv` 
-
-The output can be found in the S3 bucket name `researcher-008971640512-us-east-2` named `references/ref.Rds` and `references/idx.annoy`.
 
 
 ## Analysis per sample
