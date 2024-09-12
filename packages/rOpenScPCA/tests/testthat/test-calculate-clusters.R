@@ -1,9 +1,24 @@
+suppressPackageStartupMessages(library(SingleCellExperiment))
+suppressPackageStartupMessages(library(Seurat))
+
+sce <- scpcaTools:::sim_sce(n_cells = 1000, n_genes = 50, n_empty = 0)
 test_mat <- matrix(
   runif(1000, -3, 3),
-  nrow = 100,
-  ncol = 10
+  nrow = 1000,
+  ncol = 50
 )
-rownames(test_mat) <- as.character(1:100)
+rownames(test_mat) <- colnames(sce)
+colnames(test_mat) <- paste0("PC_", 1:50) # quiet seurat warnings
+reducedDim(sce, "PCA") <- test_mat
+
+srat <- CreateSeuratObject(counts = counts(sce), assay = "RNA")
+srat[["pca"]] <- CreateDimReducObject(
+  embeddings = test_mat,
+  key = "PC_",
+  assay = "RNA"
+)
+
+
 
 test_that("calculate_clusters runs with defaults", {
   cluster_df <- calculate_clusters(test_mat)
@@ -14,7 +29,7 @@ test_that("calculate_clusters runs with defaults", {
   )
   expect_equal(
     cluster_df$cell_id,
-    as.character(1:100)
+    rownames(test_mat)
   )
 
   expect_s3_class(
@@ -74,5 +89,23 @@ test_that("calculate_clusters errors as expected", {
       test_mat,
       cluster_args = list(too_long = 1:10)
     )
+  )
+})
+
+
+
+
+
+test_that("extract_pc_matrix works as expected", {
+  pc_mat_sce <- extract_pc_matrix(sce)
+  expect_identical(
+    pc_mat_sce,
+    test_mat
+  )
+
+  pc_mat_srt <- extract_pc_matrix(srat)
+  expect_identical(
+    pc_mat_srt,
+    test_mat
   )
 })
