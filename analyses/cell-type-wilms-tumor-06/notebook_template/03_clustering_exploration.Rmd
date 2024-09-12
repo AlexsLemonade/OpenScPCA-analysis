@@ -313,8 +313,8 @@ We expect up to 5 set of clusters:
 - endothelial cells
 
 ```{r fig.width=20, fig.height=10, out.width='100%'}
-d2 <- SCpubr::do_DimPlot(srat, reduction="umap", group.by = "seurat_clusters", label = TRUE) + ggtitle("Seurat Cluster - umap")
 d1 <- SCpubr::do_DimPlot(srat, reduction="pca", group.by = "seurat_clusters", label = TRUE) + ggtitle("Seurat Cluster - pca")
+d2 <- SCpubr::do_DimPlot(srat, reduction="umap", group.by = "seurat_clusters", label = TRUE) + ggtitle("Seurat Cluster - umap")
 v1 <- SCpubr::do_ViolinPlot(srat, features = c( "subsets_mito_percent"), ncol = 1, group.by = "seurat_clusters", legend.position = "none") 
 v2 <- SCpubr::do_ViolinPlot(srat, features = c( "detected"), ncol = 1, group.by = "seurat_clusters", legend.position = "none") 
 v3 <- SCpubr::do_ViolinPlot(srat, features = c( "sum"), ncol = 1, group.by = "seurat_clusters", legend.position = "none") 
