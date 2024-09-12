@@ -120,8 +120,7 @@ calculate_clusters <- function(
 #' "pca" for Seurat objects.
 #'
 #' @import SingleCellExperiment
-#' @import Seurat
-#' @importFrom methods is
+#' @import methods
 #'
 #' @param sc_object Either a SingleCellExperiment or Seurat object
 #' @param pc_name Optionally, the name of the PC matrix in the object. If this is
