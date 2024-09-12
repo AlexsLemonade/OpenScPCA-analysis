@@ -686,7 +686,7 @@ We were first nicely surprised that most of the cells in the Wilms tumor dataset
 
 ##### first level annotation
 
-```{r fig.width=20, fig.height=8, out.width='100%'}
+```{r fig.width=20, fig.height=15, out.width='100%'}
 p1 <- do_Table_Heatmap( srat,
                             last_group = "fetal_kidney_predicted.compartment",
                             first_group = "fetal_full_predicted.annotation.l1"
