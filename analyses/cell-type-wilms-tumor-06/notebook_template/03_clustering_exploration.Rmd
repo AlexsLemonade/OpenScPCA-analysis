@@ -510,19 +510,42 @@ Epithelial (cancer and normal) cells should be enriched in mature/adulte kidney 
 
 ### Cell annotation
 
+#### Introduction to the four annotation strategies
+
+The use of the right reference is crucial for label transfer and annotation. 
+It is recommended that the cell types in the reference is representative to the cell types to be annotated in the query.
+
+Wilms tumors can contain up to three histologies that resemble fetal kidney: blastema, stroma, and epithelia [[1](https://www.ncbi.nlm.nih.gov/books/NBK373356/), [2](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9915828/)]. 
+Because of their histological similarity to fetal kidneys, Wilms tumors are thought to arise from developmental derangements in embryonic renal progenitors.
+
+For these reasons, we expect Wilms tumor cells to map to fetal cells, especially fetal kidney cells. 
+
+Here, we investigate annotations resulting from 4 different strategies:
+
+* the `_processed.rds` objects already contain automated annotations computed by the [Data Lab](https://scpca.readthedocs.io/en/latest/getting_started.html):
+
+    + Annotations determined by SingleR, an automated reference-based method [Looney et al. 2019](https://www.nature.com/articles/s41590-018-0276-y).
+
+    + Annotations determined by CellAssign, an automated marker-gene based method [Zhang et al. 2019](https://www.nature.com/articles/s41592-019-0529-1).
+    
+* the label transfers from two fetal references using `Azimuth`, that have been performed in the previous analysis 
+
+    + Using the human fetal atlas as a reference: 
+    This is the reference developed by [Cao et al.](https://www.science.org/doi/10.1126/science.aba7721) provided by `Azimuth` for label transfer.
+    The reference contain cells from 15 organs including kidney from fetal samples.
+    The label transfer have been performed in the notebook `02a_fetal_full_reference_Cao_{sample_id}.Rmd`
+    
+    + Using the human fetal kidney atlas: 
+    [Stewart et al.](https://www.science.org/doi/10.1126/science.aat5031) created a [human fetal kidney atlas](https://www.kidneycellatlas.org/). 
+    This reference contains only fetal kidney cells and has been precisely annotated by kidney experts. 
+    The label transfer have been performed in the notebook `02b_fetal_kidney_reference_Stewart_{sample_id}.Rmd`
+
+
 #### Annotation from SingleR (no cancer or kidney specific dataset)
-
-Here, we quickly checked annotations that are present in the _processed rds object. 
-However, the automated annotation have not been performed using a cancer specific reference or a kidney reference. 
-We do not expect a nice labelling of the cells as the overlap of cell types between the reference and the query dataset is poor. 
-This support the need to do a proper label transfer from the fetal kidney atlas, which appears to be the best reference that can be applied to a Wilms tumor query. 
-
 
 ```{r fig.width=20, fig.height=10, out.width='100%'}
 visualize_metadata(srat, meta = "singler_celltype_annotation", group.by = "seurat_clusters")
 ```
-
-
 
 
 #### Annotation from cellassign (no cancer or kidney specific dataset)
@@ -533,8 +556,16 @@ visualize_metadata(srat, meta = "cellassign_celltype_annotation", group.by = "se
 ```
 
 
-
 #### Annotation from the fetal reference (Cao et al)
+
+The fetal full reference (Cao et al.) provides three levels of annotations:
+
+- `fetal_full_predicted.organ` is one of the 15 organs used for building the reference. 
+We were nicely surprised that most of the cells from the Wilms tumor cohort maped to fetal kidney cells. 
+
+- `fetal_full_predicted.annotation.l1` holds predicted cell type annotation
+
+- `fetal_full_predicted.annotation.l2` holds the combination of the predicted organ and predicted cell type annotation
 
 
 ```{r fig.width=20, fig.height=10, out.width='100%'}
@@ -543,9 +574,35 @@ visualize_metadata(srat, meta = "fetal_full_predicted.annotation.l1", group.by =
 visualize_metadata(srat, meta = "fetal_full_predicted.annotation.l2", group.by = "seurat_clusters")
 ```
 
-
-
 #### Annotation from the kidney reference (Stewart et al)
+
+The fetal kidney reference (Stewart et al.) provides two levels of annotations:
+
+- `fetal_kidney_predicted.compartment` is one of the 4 main compartments composing a fetal kidney.
+We expect immune and endothelial cells to be healthy (non-canerous) cells identified easily with high confidency. 
+We expect stroma and fetal nephron compartment to contain both normal and malignant cells.
+
+    
+    - `immune` cells
+    
+    - `stroma` cells
+    
+    - `fetal_nephron` cells
+    
+    - `endothelial` cells
+    
+
+
+- `fetal_full_predicted.annotation.l1` holds predicted cell type annotations that details further the four compartments, as for example:
+
+    - `immune` subtypes: myeloid cells, lymphocytes, ...
+    
+    - `stroma` subtypes: mesenchymal stem cells, fibroblasts, ...
+    
+    - `fetal_nephron` subtypes: podocytes, uteric bud, ...
+    
+    - `endothelial` cells
+
 
 
 ```{r fig.width=20, fig.height=10, out.width='100%'}
@@ -658,31 +715,6 @@ p4 <- do_Table_Heatmap( srat,
 
 #### Comparison of the labels from the two fetal references
 
-The use of the right reference is crucial for label transfer and annotation. 
-It is recommended that the cell types in the reference is representative to the cell types to be annotated in the query.
-
-Wilms tumors can contain up to three histologies that resemble fetal kidney: blastema, stroma, and epithelia [[1](https://www.ncbi.nlm.nih.gov/books/NBK373356/), [2](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9915828/)]. 
-Because of their histological similarity to fetal kidneys, Wilms tumors are thought to arise from developmental derangements in embryonic renal progenitors.
-
-In the previous step of the analysis, we selected two fetal references containing kidney samples and transfer the labels. 
-
-Here we aim to understand the overlap and differences between the two references. 
-
-##### Human fetal kidney atlas Stewart et al.
-
-Stewart et al. created a [human fetal kidney atlas](https://www.kidneycellatlas.org/) [[3](https://www.science.org/doi/10.1126/science.aat5031)]. 
-
-This reference contains only fetal kidney cells and has been precisely annotated by kidney experts. 
-
-##### Azimuth Human fetal atlas Cao et al.
-
-`Azimuth` also provides a human fetal atlas as a reference [[4](https://www.science.org/doi/10.1126/science.aba7721)].
-
-The data can be found on [Zenodo](https://zenodo.org/records/4738021#.YJIW4C2ZNQI).
-
-The reference contain cells from 15 organs including kidney from fetal samples.
-
-We were first nicely surprised that most of the cells in the Wilms tumor dataset mapped to "kidney" organ (see previous report `02a_fetal_all_reference_Cao_{sample_id}.html`). 
 
 ##### first level annotation
 
@@ -709,6 +741,44 @@ p2 <- do_Table_Heatmap( srat,
                              
                             )
 p2
+```
+
+
+#### Comparison of the  fetal reference with `singleR` and `cellassign`
+
+
+##### first level annotation
+
+```{r fig.width=20, fig.height=15, out.width='100%'}
+p1 <- do_Table_Heatmap( srat,
+                            last_group = "fetal_kidney_predicted.compartment",
+                            first_group = "cellassign_celltype_annotation"
+                             
+                            )
+p2 <- do_Table_Heatmap( srat,
+                            last_group = "fetal_kidney_predicted.compartment",
+                            first_group = "singler_celltype_annotation"
+                          
+                            )
+p1|p2
+```
+
+##### second level annotation
+
+```{r fig.width=20, fig.height=30, out.width='100%'}
+p1 <- do_Table_Heatmap( srat,
+                            last_group = "fetal_kidney_predicted.cell_type",
+                            first_group = "cellassign_celltype_annotation"
+                      
+                            )
+
+p1 <- do_Table_Heatmap( srat,
+                            last_group = "fetal_kidney_predicted.cell_type",
+                            first_group = "singler_celltype_annotation"
+                      
+                            )
+
+p1/p2
 ```
 
 
