@@ -515,7 +515,7 @@ Epithelial (cancer and normal) cells should be enriched in mature/adulte kidney 
 Here, we quickly checked annotations that are present in the _processed rds object. 
 However, the automated annotation have not been performed using a cancer specific reference or a kidney reference. 
 We do not expect a nice labelling of the cells as the overlap of cell types between the reference and the query dataset is poor. 
-This support the need to do a proper label transfer from the fetal kidney atlas, which is imho the best reference that can be applied to a Wilms tumor query. 
+This support the need to do a proper label transfer from the fetal kidney atlas, which appears to be the best reference that can be applied to a Wilms tumor query. 
 
 
 ```{r fig.width=20, fig.height=10, out.width='100%'}
