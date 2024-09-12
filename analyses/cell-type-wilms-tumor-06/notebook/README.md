@@ -1,7 +1,6 @@
 # Notebook directory instructions
 
 The notebook directory holds subdirectory for each of the sample in the Wilms tumor dataset SCPCP000006 and the fetal kidney reference that we used for label transfer. 
-Notebooks
 
 ## Azimuth compatible fetal kidney reference
 
