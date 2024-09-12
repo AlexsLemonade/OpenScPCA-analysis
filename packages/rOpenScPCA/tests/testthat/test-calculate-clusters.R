@@ -1,14 +1,14 @@
 suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(Seurat))
 
-sce <- scpcaTools:::sim_sce(n_cells = 1000, n_genes = 50, n_empty = 0)
+sce <- scpcaTools:::sim_sce(n_cells = 100, n_genes = 10, n_empty = 0)
 test_mat <- matrix(
   runif(1000, -3, 3),
-  nrow = 1000,
-  ncol = 50
+  nrow = 100,
+  ncol = 10
 )
 rownames(test_mat) <- colnames(sce)
-colnames(test_mat) <- paste0("PC_", 1:50) # quiet seurat warnings
+colnames(test_mat) <- paste0("PC_", 1:10) # quiet seurat warnings
 reducedDim(sce, "PCA") <- test_mat
 
 srat <- CreateSeuratObject(counts = counts(sce), assay = "RNA")
