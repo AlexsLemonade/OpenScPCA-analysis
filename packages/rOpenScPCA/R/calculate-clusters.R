@@ -109,21 +109,47 @@ calculate_clusters <- function(
 
 
 
+#' Extract a principal components (PC) matrix from either a SingleCellExperiment
+#' or a Seurat object.
+#'
+#' This function first determines if the provided object is a SingleCellExperiment or
+#' Seurat object, and then extract the PC matrix. If no name for the PC matrix is provided,
+#' this function will assume the name of "PCA" for SingleCellExperiment objects, and
+#' "pca" for Seurat objects.
+#'
+#' @param sc_object Either a SingleCellExperiment or Seurat object
+#' @param pc_name Optionally, the name of the PC matrix in the object. If this is
+#' not provided, the name "PCA" is assumed for SingleCellExperiment objects, and
+#' "pca" for Seurat objects.
+#'
+#' @return PC matrix with row names
 extract_pc_matrix <- function(sc_object, pc_name = NULL) {
-  # default PCA names for each type of object to use if
+  # default PC names for each type of object to use if
   #  pc_name is NULL
   default_sce <- "PCA"
   default_seurat <- "pca"
 
   if (is(sc_object, "SingleCellExperiment")) {
+    pc_name <- ifelse(is.null(pc_name), default_sce, pc_name)
+    stopifnot(
+      "Could not find a PC matrix in the SingleCellExperiment object." =
+        pc_name %in% reducedDimNames(sc_object)
+    )
+
     pca_matrix <- reducedDim(
       sc_object,
-      ifelse(is.null(pc_name), default_sce, pc_name)
+      pc_name
     )
   } else if (is(sc_object, "Seurat")) {
+    pc_name <- ifelse(is.null(pc_name), default_seurat, pc_name)
+    stopifnot(
+      "Could not find a PC matrix in the Seurat object." =
+        pc_name %in% names(sc_object@reductions)
+    )
+
     pca_matrix <- Embeddings(
       sc_object,
-      reduction = ifelse(is.null(pc_name), default_seurat, pc_name)
+      reduction = pc_name
     )
   } else {
     stop("You must provide a SingleCellExperiment or Seurat object.")
