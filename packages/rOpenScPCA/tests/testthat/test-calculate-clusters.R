@@ -1,11 +1,9 @@
 suppressPackageStartupMessages(library(SingleCellExperiment))
 
 set.seed(2024)
-sce <- splatter::simpleSimulate(nGenes = 1000)
-assay(sce, "logcounts") <- log1p(counts(sce))
-suppressWarnings({
-  sce <- scater::runPCA(sce)
-})
+sce <- splatter::simpleSimulate(nGenes = 1000, verbose = FALSE) |>
+  scater::logNormCounts() |>
+  scater::runPCA(ncomponents = 10)
 
 test_mat <- reducedDim(sce, "PCA")
 

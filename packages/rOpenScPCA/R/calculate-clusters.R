@@ -145,6 +145,8 @@ extract_pc_matrix <- function(sc_object, pc_name = NULL) {
   } else if (is(sc_object, "Seurat")) {
     pc_name <- ifelse(is.null(pc_name), default_seurat, pc_name)
     stopifnot(
+      "Seurat package must be installed to process a Seurat object" = 
+        requireNamespace("Seurat", quietly = TRUE),
       "Could not find a PC matrix in the Seurat object." =
         pc_name %in% names(sc_object@reductions)
     )

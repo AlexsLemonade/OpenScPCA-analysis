@@ -21,6 +21,7 @@ LazyData: true
 Suggests:
     testthat (>= 3.0.0),
     scater,
+    Seurat,
     splatter
 Config/testthat/edition: 3
 RoxygenNote: 7.3.2
@@ -28,5 +29,4 @@ Imports:
     bluster (>= 1.14),
     dplyr,
     methods,
-    SingleCellExperiment,
-    Seurat
+    SingleCellExperiment
