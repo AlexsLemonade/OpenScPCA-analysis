@@ -6,6 +6,8 @@
 #' Specifically, the clustering algorithm defaults to "louvain" and the weighting scheme to "jaccard"
 #' to align with common practice in scRNA-seq analysis.
 #'
+#' @importFrom methods allNames
+#'
 #' @param mat Matrix, usually of PCs, where each row is a cell. Matrix must have rownames of cell ids (e.g., barcodes)
 #' @param algorithm Clustering algorithm to use. Must be one of "louvain" (default), "walktrap", or "leiden".
 #' @param weighting Weighting scheme to use. Must be one of "jaccard" (default), "rank", or "number"
@@ -65,7 +67,7 @@ calculate_clusters <- function(
 
   if (length(cluster_args)) {
     stopifnot(
-      "`cluster_args` must be a named list." = is.list(cluster_args) && !("" %in% methods::allNames(cluster_args)),
+      "`cluster_args` must be a named list." = is.list(cluster_args) && !("" %in% allNames(cluster_args)),
       "`cluster_args` elements must all have only a single value" = all(sapply(cluster_args, length) == 1)
     )
   }
@@ -116,6 +118,10 @@ calculate_clusters <- function(
 #' Seurat object, and then extract the PC matrix. If no name for the PC matrix is provided,
 #' this function will assume the name of "PCA" for SingleCellExperiment objects, and
 #' "pca" for Seurat objects.
+#'
+#' @import SingleCellExperiment
+#' @import Seurat
+#' @importFrom methods is
 #'
 #' @param sc_object Either a SingleCellExperiment or Seurat object
 #' @param pc_name Optionally, the name of the PC matrix in the object. If this is
