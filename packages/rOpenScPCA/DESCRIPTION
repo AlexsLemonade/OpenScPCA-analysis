@@ -19,10 +19,16 @@ License: BSD_3_clause + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Suggests:
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    scpcaTools
 Config/testthat/edition: 3
 RoxygenNote: 7.3.2
 Imports: 
     bluster,
     dplyr,
-    methods
+    methods,
+    SingleCellExperiment,
+    Seurat
+Remotes:
+  AlexsLemonade/scpcaTools
+  
