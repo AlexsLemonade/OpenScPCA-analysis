@@ -6,7 +6,7 @@
 #' Specifically, the clustering algorithm defaults to "louvain" and the weighting scheme to "jaccard"
 #' to align with common practice in scRNA-seq analysis.
 #'
-#' @importFrom methods allNames
+#' @import methods
 #'
 #' @param mat Matrix, usually of PCs, where each row is a cell. Matrix must have rownames of cell ids (e.g., barcodes)
 #' @param algorithm Clustering algorithm to use. Must be one of "louvain" (default), "walktrap", or "leiden".
@@ -142,10 +142,7 @@ extract_pc_matrix <- function(sc_object, pc_name = NULL) {
         pc_name %in% reducedDimNames(sc_object)
     )
 
-    pca_matrix <- reducedDim(
-      sc_object,
-      pc_name
-    )
+    pca_matrix <- reducedDim(sc_object, pc_name)
   } else if (is(sc_object, "Seurat")) {
     pc_name <- ifelse(is.null(pc_name), default_seurat, pc_name)
     stopifnot(
@@ -153,7 +150,7 @@ extract_pc_matrix <- function(sc_object, pc_name = NULL) {
         pc_name %in% names(sc_object@reductions)
     )
 
-    pca_matrix <- Embeddings(
+    pca_matrix <- Seurat::Embeddings(
       sc_object,
       reduction = pc_name
     )
