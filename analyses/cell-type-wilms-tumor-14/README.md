@@ -1,28 +1,55 @@
-# Template analysis module
+# Wilms tumor annotation (SCPCP000014)
 
-This is a template analysis module.
-It is intended to be used as a starting point for new analysis modules.
-Please fill in the content below with information specific to this analysis module.
+We plan to annotate cell types for the Wilms tumor samples (n=10) in [SCPCP000014](https://scpca.alexslemonade.org/projects/SCPCP000014). Our analysis involves data clean-up for low quality nuclei and doublets, cell type annotation, and tumor cell identification.
 
 ## Description
 
-Please provide a description of your module, including:
+The goal of this analysis is to curate a validated cell type annotation for Wilms tumor samples in the portal (SCPCP000014). Specifically, we aim to generate following outcomes: (i) Lists of marker genes to identify cell types in Wilms tumor; (ii) Identification of tumor cells from normal cells; (iii) Refined annotation of cell types among normal cells; (iv) Annotation of sub-groups among tumor cells, if applicable.
 
-- What type of analysis is included?
-- What methods or tools are used?
+#### 00. Pre-processing the provided SCE objects
+This would include:
+* formatting SCE objects to Seurat objects for further analysis
+* count normalization, feature selection, transformation, PCA, UMAP, batch effect correction (if merged object)
 
-If there are multiple steps in the module, please include an outline of the analysis steps and scripts used.
+#### 01. Anchor transfer using Seurat
+
+#### 02. Curating marker gene lists
+- Tumor cell markers for Wilms tumor
+- Kidney cell types
+
+#### 03. Cell type annotation with marker gene lists
+* Cellassign
+* scType
+
+#### 04. Tumor cell identification
+- inferCNV (no reference, confused by results)
+- CopyCat?
+- Based on Tumor marker genes
+
+#### 05. Sample merging and validation
 
 ## Usage
 
+* Run scripts interactively on Rstudio.
+```R
+Rscript --vanilla xx.R
+```
 Please provide instructions on how to run the analysis module.
 What commands are needed to execute all steps in the analysis?
 
 ## Input files
 
-Please include a description of the required inputs to run the analysis module (e.g., processed `SingleCellExperiment` objects from the ScPCA Portal).
-If the input to this module is dependent on running any other scripts (e.g., `download-data.py`) or on the output of another module, please state that.
-If possible, include examples of specific commands used to obtain data.
+* Download processed SCE objects
+```bash
+# download wilms tumor dataset (n=10)
+cd /path/to/OpenScPCA-analysis
+./download-data.py --projects SCPCP000014
+./download-results.py --modules doublet-detection --projects SCPCP000014
+```
+* Create this module structure
+```bash
+./create-analysis-module.py cell-type-wilms-SCPCP000014 --use-r  --use-renv --use-conda --conda-file-only
+```
 
 ## Output files
 
@@ -36,10 +63,21 @@ If so, where are they stored?
 
 ## Software requirements
 
-Please describe the environment system used to manage software dependencies for the module (e.g., `conda`, `renv`, `docker`).
-Include the locations of any files used to set up the environment.
+- Setup conda channel priority
+```bash
+conda config --add channels bioconda
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+```
+
+- Create conda env and other packages not available on conda
+```bash
+cd /home/lightsail-user/git/OpenScPCA-analysis/analyses/cell-type-wilms-tumor-14
+conda env create -f ./conda_envs/main.yml -y -n wilms-tumor-14-main
+conda activate wilms-tumor-14-main
+Rscript --vanilla ./conda_envs/main.R
+```
 
 ## Computational resources
 
-Please indicate the computational resources that are required to run the module.
-If there are specific memory, CPU, and/or GPU requirements, please state that.
+Analysis could be executed on a virtual computer ([Standard-2XL](https://openscpca.readthedocs.io/en/latest/aws/lsfr/creating-vcs/)) via AWS Lightsail for Research.

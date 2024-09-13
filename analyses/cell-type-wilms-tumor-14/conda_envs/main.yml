@@ -1,0 +1,33 @@
+name: "wilms-tumor-14-main"
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - conda-forge::r-base>=4.3.0
+  - conda-forge::r-seurat>=5.1.0
+  - conda-forge::r-tidyverse
+  - conda-forge::r-hgnchelper
+  - conda-forge::r-openxlsx
+  - conda-forge::r-rcolorbrewer
+  - conda-forge::r-ggpubr
+  - conda-forge::r-polychrome
+  - conda-forge::r-viridis
+  - conda-forge::r-devtools
+  - conda-forge::r-pheatmap
+  - bioconda::bioconductor-celldex
+  - bioconda::bioconductor-singlecellexperiment
+  - bioconda::bioconductor-singler
+  - bioconda::bioconductor-ensembldb
+  - bioconda::bioconductor-scrnaseq
+  - bioconda::bioconductor-scuttle
+  - bioconda::bioconductor-scater
+  - bioconda::bioconductor-infercnv
+  - bioconda::bioconductor-zellkonverter
+  - bioconda::bioconductor-scmerge
+  - conda-forge::r-harmony
+  - bioconda::bioconductor-spatialexperiment
+  - bioconda::bioconductor-singlecelltk
+  - bioconda::bioconductor-glmgampoi
+  - conda-forge::r-hdf5r
+
+
