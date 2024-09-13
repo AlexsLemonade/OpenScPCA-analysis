@@ -599,7 +599,7 @@ We expect stroma and fetal nephron compartment to contain both normal and malign
     
     - `stroma` subtypes: mesenchymal stem cells, fibroblasts, ...
     
-    - `fetal_nephron` subtypes: podocytes, uteric bud, ...
+    - `fetal_nephron` subtypes: podocytes, uteric bud, mesenchymal cells (that appear to be cap mesenchyme cells) ...
     
     - `endothelial` cells
 
@@ -749,7 +749,7 @@ p2
 
 ##### first level annotation
 
-```{r fig.width=20, fig.height=15, out.width='100%'}
+```{r fig.width=20, fig.height=10, out.width='100%'}
 p1 <- do_Table_Heatmap( srat,
                             last_group = "fetal_kidney_predicted.compartment",
                             first_group = "cellassign_celltype_annotation"
@@ -772,7 +772,7 @@ p1 <- do_Table_Heatmap( srat,
                       
                             )
 
-p1 <- do_Table_Heatmap( srat,
+p2 <- do_Table_Heatmap( srat,
                             last_group = "fetal_kidney_predicted.cell_type",
                             first_group = "singler_celltype_annotation"
                       
