@@ -148,7 +148,7 @@ def main() -> None:
 
     print("Sync complete.")
     if args.download:
-        print(f"Files have been downloaded from '{destination}' to '{source}'")
+        print(f"Files have been downloaded from '{source}' to '{destination}'")
     else:
         print(f"Files are now available on S3 at '{destination}'")
 
