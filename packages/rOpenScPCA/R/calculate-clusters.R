@@ -20,7 +20,7 @@
 #' @param cluster_args List of additional arguments to pass to the chosen clustering function.
 #'   Only single values for each argument are supported (no vectors or lists).
 #'   See igraph documentation for details on each clustering function: https://igraph.org/r/html/latest
-#' @param seed Random seed to set for clustering. Default is 2024.
+#' @param seed Random seed to set for clustering.
 #' @param pc_name Name of principal components slot in provided object. This argument is only used if a SingleCellExperiment
 #'   or Seurat object is provided. If not provided, the SingleCellExperiment object name will default to "PCA" and the
 #'   Seurat object name will default to "pca".
