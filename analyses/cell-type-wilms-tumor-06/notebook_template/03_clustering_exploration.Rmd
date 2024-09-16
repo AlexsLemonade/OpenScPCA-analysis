@@ -218,6 +218,7 @@ values in `c("H", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8")`
 
 - `name` is the name of the module
 
+- `nbins` is the number of bins for `AddModuleScore` to use. Its default value is 24, which matches Seurat's default value.
 ```{r }
 MSigDB_score <- function(object, category, gs_name, name){
   
