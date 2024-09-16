@@ -391,7 +391,7 @@ Note: Chemo-treated samples should have higher DNA-damage scores.
 #### DROSHA target genes
 
 ```{r fig.height=4, fig.width=20, warning=FALSE, out.width='100%'}
-srat <- MSigDB_score(object = srat , category = "C3", gs_name = "DROSHA_TARGET_GENES", name = "DROSHA_score")
+srat <- MSigDB_score(object = srat , category = "C3", gs_name = "DROSHA_TARGET_GENES", name = "DROSHA_score", nbin = seurat_nbins)
 visualize_metadata(srat, meta = "DROSHA_score1", group.by = "seurat_clusters" )
 ```
 
