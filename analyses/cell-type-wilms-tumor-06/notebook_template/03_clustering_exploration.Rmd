@@ -300,6 +300,14 @@ return(p)
 # open the processed rds object
 srat <- readRDS(file.path(result_dir, paste0("02b-fetal_kidney_label-transfer_",params$sample_id,".Rds")))
 DefaultAssay(srat) <- "SCT"
+
+# Add number of bins to use with Seurat::AddModuleScore().
+# One sample in this project fails with the default number of bins, so we need to override it
+if (params$sample_id == "SCPCS000197") {
+  seurat_nbins <- 23 # default is 24, so this is very close
+} else {
+  seurat_nbins <- 24
+}
 ```
 
 
