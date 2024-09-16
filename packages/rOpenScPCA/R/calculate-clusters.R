@@ -151,6 +151,20 @@ calculate_clusters <- function(
 #' "pca" for Seurat objects.
 #'
 #' @return PC matrix with row names
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # extract PC matrix from SCE object, assuming default name "PCA"
+#' pca_matrix <- extract_pc_matrix(sce_object)
+#'
+#' # extract PC matrix from SCE object with non-default name "PCA_MAT"
+#' pca_matrix <- extract_pc_matrix(sce_object, pc_name = "PCA_MAT")
+#'
+#' # extract PC matrix from Seurat object, assuming default name "pca"
+#' pca_matrix <- extract_pc_matrix(seurat_object)
+#' }
 extract_pc_matrix <- function(sc_object, pc_name = NULL) {
   # default PC names for each type of object to use if
   #  pc_name is NULL
