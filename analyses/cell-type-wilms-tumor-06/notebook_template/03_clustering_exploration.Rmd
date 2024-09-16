@@ -400,7 +400,7 @@ visualize_metadata(srat, meta = "DROSHA_score1", group.by = "seurat_clusters" )
 
 
 ```{r fig.height=4, fig.width=20, warning=FALSE, out.width='100%'}
-srat <- MSigDB_score(object = srat , category = "C3", gs_name = "DICER1_TARGET_GENES", name = "DICER1_score")
+srat <- MSigDB_score(object = srat , category = "C3", gs_name = "DICER1_TARGET_GENES", name = "DICER1_score", nbin = seurat_nbins)
 visualize_metadata(srat, meta = "DICER1_score1", group.by = "seurat_clusters" )
 ```
 
