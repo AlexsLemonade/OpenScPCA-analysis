@@ -23,7 +23,7 @@ This would include:
 
 #### 04. Tumor cell identification
 - inferCNV (no reference, confused by results)
-- CopyCat?
+- CopyKat?
 - Based on Tumor marker genes
 
 #### 05. Sample merging and validation
@@ -31,8 +31,19 @@ This would include:
 ## Usage
 
 * Run scripts interactively on Rstudio.
-```R
-Rscript --vanilla xx.R
+```bash
+conda activate wilms-tumor-14-main
+export LD_LIBRARY_PATH="$CONDA_PREFIX/lib/R/lib:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$LD_LIBRARY_PATH"
+rstudio
+```
+
+* Run Rscripts with command line,
+```bash
+path_repo="/home/lightsail-user/git/OpenScPCA-analysis"
+conda activate wilms-tumor-14-main
+cd ${path_repo}
+Rscript --vanilla ${path_repo}/analyses/cell-type-wilms-tumor-14/scripts/00_preprocessing_rds.R ${path_repo}
 ```
 Please provide instructions on how to run the analysis module.
 What commands are needed to execute all steps in the analysis?
@@ -48,7 +59,7 @@ cd /path/to/OpenScPCA-analysis
 ```
 * Create this module structure
 ```bash
-./create-analysis-module.py cell-type-wilms-SCPCP000014 --use-r  --use-renv --use-conda --conda-file-only
+./create-analysis-module.py cell-type-wilms-14 --use-r  --use-renv --use-conda --conda-file-only
 ```
 
 ## Output files
