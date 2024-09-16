@@ -12,6 +12,7 @@ This would include:
 * count normalization, feature selection, transformation, PCA, UMAP, batch effect correction (if merged object)
 
 #### 01. Anchor transfer using Seurat
+  * Fetal reference from [Human Kidney atlas](https://www.kidneycellatlas.org/) works best in my preliminary analysis.
 
 #### 02. Curating marker gene lists
 - Tumor cell markers for Wilms tumor
@@ -22,21 +23,13 @@ This would include:
 * scType
 
 #### 04. Tumor cell identification
-- inferCNV (no reference, confused by results)
+- inferCNV?
 - CopyKat?
 - Based on Tumor marker genes
 
 #### 05. Sample merging and validation
 
 ## Usage
-
-* Run scripts interactively on Rstudio.
-```bash
-conda activate wilms-tumor-14-main
-export LD_LIBRARY_PATH="$CONDA_PREFIX/lib/R/lib:$LD_LIBRARY_PATH"
-export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$LD_LIBRARY_PATH"
-rstudio
-```
 
 * Run Rscripts with command line,
 ```bash
@@ -45,8 +38,14 @@ conda activate wilms-tumor-14-main
 cd ${path_repo}
 Rscript --vanilla ${path_repo}/analyses/cell-type-wilms-tumor-14/scripts/00_preprocessing_rds.R ${path_repo}
 ```
-Please provide instructions on how to run the analysis module.
-What commands are needed to execute all steps in the analysis?
+
+* Alternatively, run scripts interactively on Rstudio.
+```bash
+conda activate wilms-tumor-14-main
+export LD_LIBRARY_PATH="$CONDA_PREFIX/lib/R/lib:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$LD_LIBRARY_PATH"
+rstudio
+```
 
 ## Input files
 
@@ -64,13 +63,11 @@ cd /path/to/OpenScPCA-analysis
 
 ## Output files
 
-Please include a description of the output from your analysis, including:
+All results are sync under S3 bucket `researcher-009160072044-us-east-2`.
 
-- What type of files are created?
-- What are the contents of the output files?
-- Where are the files stored?
-- Are any intermediate files generated?
-If so, where are they stored?
+#### 00. Pre-processing the provided SCE objects
+- Path on S3: `s3://researcher-009160072044-us-east-2/cell-type-wilms-tumor-14/results/00_preprocessing_rds/`
+- Results for this section contains 10 `.rdsSeurat` objects for further analysis.
 
 ## Software requirements
 
@@ -91,4 +88,4 @@ Rscript --vanilla ./conda_envs/main.R
 
 ## Computational resources
 
-Analysis could be executed on a virtual computer ([Standard-2XL](https://openscpca.readthedocs.io/en/latest/aws/lsfr/creating-vcs/)) via AWS Lightsail for Research.
+Analysis could be executed on a virtual computer ([Standard-4XL](https://openscpca.readthedocs.io/en/latest/aws/lsfr/creating-vcs/)) via AWS Lightsail for Research.

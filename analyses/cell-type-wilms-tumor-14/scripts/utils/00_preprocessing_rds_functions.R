@@ -78,6 +78,7 @@ process_sce <- function( sample, library,
   # Seurat::DimPlot(seurat_obj, reduction = "umap", label = T)
   # obj <- Seurat::RunTSNE(obj, dims = 1:ndims)
   # Seurat::DimPlot(obj, reduction = "tsne")
-  
-  SeuratObject::SaveSeuratRds(seurat_obj, file = paste0(path_anal,"/results/",sample,".rdsSeurat"))
+
+  dir.create(paste0(path_anal,"/results/00_preprocessing_rds"),showWarnings = FALSE, recursive = TRUE)
+  SeuratObject::SaveSeuratRds(seurat_obj, file = paste0(path_anal,"/results/00_preprocessing_rds/",sample,".rdsSeurat"))
 }
