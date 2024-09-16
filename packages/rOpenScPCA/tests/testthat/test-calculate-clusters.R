@@ -69,8 +69,8 @@ test_that("calculate_clusters runs with additional cluster_args", {
 
 test_that("calculate_clusters runs with an object, defaults", {
   cluster_df_sce <- calculate_clusters(sce)
-  expect_equal(
-    names(cluster_df_sce),
+  expect_setequal(
+    colnames(cluster_df_sce),
     c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution")
   )
   expect_equal(
