@@ -335,7 +335,7 @@ d1 + d2 + (v1 + v2 +v3 + plot_layout(ncol=1) ) + plot_layout(ncol = 3, widths = 
 ```{r cell_cycle}
 s.genes <- srat@assays$RNA@meta.data$gene_ids[srat@assays$RNA@meta.data$gene_symbol %in% cc.genes$s.genes]
 g2m.genes <- srat@assays$RNA@meta.data$gene_ids[srat@assays$RNA@meta.data$gene_symbol %in% cc.genes$g2m.genes]
-srat <- CellCycleScoring(srat, s.features = s.genes, g2m.features = g2m.genes, set.ident = FALSE)
+srat <- CellCycleScoring(srat, s.features = s.genes, g2m.features = g2m.genes, set.ident = FALSE, nbin = seurat_nbins)
 ```
 
 ```{r fig.width=20, fig.height=4, out.width='100%'}
