@@ -23,3 +23,15 @@ Seurat object, and then extract the PC matrix. If no name for the PC matrix is p
 this function will assume the name of "PCA" for SingleCellExperiment objects, and
 "pca" for Seurat objects.
 }
+\examples{
+\dontrun{
+# extract PC matrix from SCE object, assuming default name "PCA"
+pca_matrix <- extract_pc_matrix(sce_object)
+
+# extract PC matrix from SCE object with non-default name "PCA_MAT"
+pca_matrix <- extract_pc_matrix(sce_object, pc_name = "PCA_MAT")
+
+# extract PC matrix from Seurat object, assuming default name "pca"
+pca_matrix <- extract_pc_matrix(seurat_object)
+}
+}
