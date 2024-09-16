@@ -371,7 +371,7 @@ for(feature in CellType_metadata$ENSEMBL_ID[CellType_metadata$ENSEMBL_ID %in% ro
 here we will calculate a TP53 score using `AddModuleScore` and the genes of the HALLMARK_P53_PATHWAY gene set.
 
 ```{r fig.height=4, fig.width=20, warning=FALSE, out.width='100%'}
-srat <- MSigDB_score(object = srat , category = "H", gs_name = "HALLMARK_P53_PATHWAY", name = "TP53_score")
+srat <- MSigDB_score(object = srat , category = "H", gs_name = "HALLMARK_P53_PATHWAY", name = "TP53_score", nbin = seurat_nbins)
 visualize_metadata(srat, meta = "TP53_score1", group.by = "seurat_clusters" )
 ```
 
