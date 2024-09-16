@@ -14,7 +14,7 @@ srat[["pca"]] <- Seurat::CreateDimReducObject(
   assay = "RNA"
 )
 
-test_that("calculate_clusters runs with defaults", {
+test_that("calculate_clusters runs with a matrix, defaults", {
   cluster_df <- calculate_clusters(test_mat)
 
   expect_equal(
@@ -67,6 +67,27 @@ test_that("calculate_clusters runs with additional cluster_args", {
   )
 })
 
+test_that("calculate_clusters runs with an object, defaults", {
+  cluster_df_sce <- calculate_clusters(sce)
+  expect_equal(
+    names(cluster_df_sce),
+    c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution")
+  )
+  expect_equal(
+    cluster_df_sce$cell_id,
+    rownames(test_mat)
+  )
+
+  cluster_df_srat <- calculate_clusters(srat)
+  expect_equal(
+    names(cluster_df_srat),
+    c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution")
+  )
+  expect_equal(
+    cluster_df_srat$cell_id,
+    rownames(test_mat)
+  )
+})
 
 
 
