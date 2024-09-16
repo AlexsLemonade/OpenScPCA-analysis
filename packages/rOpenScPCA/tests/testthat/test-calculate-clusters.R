@@ -17,8 +17,8 @@ srat[["pca"]] <- Seurat::CreateDimReducObject(
 test_that("calculate_clusters runs with a matrix, defaults", {
   cluster_df <- calculate_clusters(test_mat)
 
-  expect_equal(
-    names(cluster_df),
+  expect_setequal(
+    colnames(cluster_df),
     c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution")
   )
   expect_equal(
@@ -58,7 +58,7 @@ test_that("calculate_clusters runs with additional cluster_args", {
   )
 
   expect_setequal(
-    names(cluster_df),
+    colnames(cluster_df),
     c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution", "objective_function", "n_iterations")
   )
   expect_equal(
@@ -79,8 +79,8 @@ test_that("calculate_clusters runs with an object, defaults", {
   )
 
   cluster_df_srat <- calculate_clusters(srat)
-  expect_equal(
-    names(cluster_df_srat),
+  expect_setequal(
+    colnames(cluster_df_srat),
     c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution")
   )
   expect_equal(
