@@ -602,7 +602,7 @@ We expect stroma and fetal nephron compartment to contain both normal and malign
     
 
 
-- `fetal_full_predicted.annotation.l1` holds predicted cell type annotations that details further the four compartments, as for example:
+- `fetal_kidney_predicted.cell_type` holds predicted cell type annotations that details further the four compartments, as for example:
 
     - `immune` subtypes: myeloid cells, lymphocytes, ...
     
