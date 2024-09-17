@@ -31,14 +31,13 @@ This would include:
 
 ## Usage
 
-* Run Rscripts with command line,
+* Run Rscripts with command line
+
 ```bash
 path_repo="/home/lightsail-user/git/OpenScPCA-analysis"
-conda activate wilms-tumor-14-main
-cd ${path_repo}
-Rscript --vanilla ${path_repo}/analyses/cell-type-wilms-tumor-14/scripts/00_preprocessing_rds.R ${path_repo}
+cd ${path_repo}/analyses/cell-type-wilms-tumor-14
+Rscript --no-save ${path_repo}/analyses/cell-type-wilms-tumor-14/scripts/00_preprocessing_rds.R ${path_repo}
 ```
-
 
 ## Input files
 
@@ -60,29 +59,16 @@ All results are sync under S3 bucket `researcher-009160072044-us-east-2`.
 
 ## Software requirements
 
-- Setup conda channel priority
-```bash
-conda config --add channels bioconda
-conda config --add channels conda-forge
-conda config --set channel_priority strict
-```
-
-- Create conda env and other packages not available on conda
-```bash
-cd /home/lightsail-user/git/OpenScPCA-analysis/analyses/cell-type-wilms-tumor-14
-conda env create -f ./conda_envs/main.yml -y -n wilms-tumor-14-main
-conda activate wilms-tumor-14-main
-Rscript --vanilla ./conda_envs/main.R
-```
-
 - Install missing dependencies on AWS virtual computer:
 ```bash
 sudo apt install -y libglpk40 \
   libcurl4-openssl-dev \
   jags r-cran-rjags \
   libmagick++-dev \
-  libhdf5-dev
+  libhdf5-dev \
+  libharfbuzz-dev libfribidi-dev libtiff5-dev
 ```
+- Versions for required R packages listed in `./renv.lock`
 
 ## Computational resources
 
