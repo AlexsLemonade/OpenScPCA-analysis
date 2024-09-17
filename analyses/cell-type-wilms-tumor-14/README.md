@@ -39,13 +39,6 @@ cd ${path_repo}
 Rscript --vanilla ${path_repo}/analyses/cell-type-wilms-tumor-14/scripts/00_preprocessing_rds.R ${path_repo}
 ```
 
-* Alternatively, run scripts interactively on Rstudio.
-```bash
-conda activate wilms-tumor-14-main
-export LD_LIBRARY_PATH="$CONDA_PREFIX/lib/R/lib:$LD_LIBRARY_PATH"
-export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$LD_LIBRARY_PATH"
-rstudio
-```
 
 ## Input files
 
@@ -55,10 +48,6 @@ rstudio
 cd /path/to/OpenScPCA-analysis
 ./download-data.py --projects SCPCP000014
 ./download-results.py --modules doublet-detection --projects SCPCP000014
-```
-* Create this module structure
-```bash
-./create-analysis-module.py cell-type-wilms-14 --use-r  --use-renv --use-conda --conda-file-only
 ```
 
 ## Output files
@@ -84,6 +73,15 @@ cd /home/lightsail-user/git/OpenScPCA-analysis/analyses/cell-type-wilms-tumor-14
 conda env create -f ./conda_envs/main.yml -y -n wilms-tumor-14-main
 conda activate wilms-tumor-14-main
 Rscript --vanilla ./conda_envs/main.R
+```
+
+- Install missing dependencies on AWS virtual computer:
+```bash
+sudo apt install -y libglpk40 \
+  libcurl4-openssl-dev \
+  jags r-cran-rjags \
+  libmagick++-dev \
+  libhdf5-dev
 ```
 
 ## Computational resources
