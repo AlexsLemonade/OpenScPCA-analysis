@@ -570,7 +570,7 @@ visualize_metadata(srat, meta = "cellassign_celltype_annotation", group.by = "se
 The fetal full reference (Cao et al.) provides three levels of annotations:
 
 - `fetal_full_predicted.organ` is one of the 15 organs used for building the reference. 
-We were nicely surprised that most of the cells from the Wilms tumor cohort maped to fetal kidney cells. 
+We were nicely surprised that, for many of the samples, most of the cells from the Wilms tumor cohort mapped to fetal kidney cells. 
 
 - `fetal_full_predicted.annotation.l1` holds predicted cell type annotation
 
