@@ -34,9 +34,9 @@ This would include:
 * Run Rscripts with command line
 
 ```bash
-path_repo="/home/lightsail-user/git/OpenScPCA-analysis"
-cd ${path_repo}/analyses/cell-type-wilms-tumor-14
-Rscript --no-save ${path_repo}/analyses/cell-type-wilms-tumor-14/scripts/00_preprocessing_rds.R ${path_repo}
+cd /path/to/OpenScPCA-analysis
+cd analyses/cell-type-wilms-tumor-14
+Rscript scripts/00_preprocessing_rds.R 
 ```
 
 ## Input files
@@ -63,7 +63,7 @@ All results are sync under S3 bucket `researcher-009160072044-us-east-2`.
 ```bash
 sudo apt install -y libglpk40 \
   libcurl4-openssl-dev \
-  jags r-cran-rjags \
+  jags \
   libmagick++-dev \
   libhdf5-dev \
   libharfbuzz-dev libfribidi-dev libtiff5-dev
