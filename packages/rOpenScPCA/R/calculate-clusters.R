@@ -129,7 +129,6 @@ calculate_clusters <- function(
     )
   )
 
-
   # Transform results into a table and return
   cluster_df <- data.frame(
     cell_id = rownames(pca_matrix),
@@ -137,10 +136,15 @@ calculate_clusters <- function(
     algorithm = algorithm,
     weighting = weighting,
     nn = nn
-  ) |>
-    dplyr::bind_cols(
-      data.frame(cluster_args)
-    )
+  )
+
+  # Add in cluster_args if it has parameters to include
+  if (length(cluster_args) != 0) {
+    cluster_df <- cluster_df |>
+      dplyr::bind_cols(
+        data.frame(cluster_args)
+      )
+  }
 
   return(cluster_df)
 }

@@ -67,6 +67,26 @@ test_that("calculate_clusters runs with additional cluster_args", {
   )
 })
 
+
+
+test_that("calculate_clusters runs when cluster_args is empty", {
+  cluster_df <- calculate_clusters(
+    test_mat,
+    algorithm = "walktrap"
+  )
+
+  expect_setequal(
+    colnames(cluster_df),
+    c("cell_id", "cluster", "algorithm", "weighting", "nn")
+  )
+
+  expect_equal(
+    unique(cluster_df$algorithm),
+    "walktrap"
+  )
+})
+
+
 test_that("calculate_clusters runs with an object, defaults", {
   cluster_df_sce <- calculate_clusters(sce)
   expect_setequal(
