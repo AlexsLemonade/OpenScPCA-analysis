@@ -26,7 +26,10 @@ Suggests:
 Config/testthat/edition: 3
 RoxygenNote: 7.3.2
 Imports: 
+    BiocParallel,
     bluster (>= 1.14),
     dplyr,
     methods,
-    SingleCellExperiment
+    purrr,
+    SingleCellExperiment,
+    tidyr
