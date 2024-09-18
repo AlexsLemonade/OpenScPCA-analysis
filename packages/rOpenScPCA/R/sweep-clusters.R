@@ -104,16 +104,16 @@ sweep_clusters <- function(
     resolution = unique(resolution),
     objective_function = unique(objective_function)
   ) |>
-    # set unused parameters for the given algorithm to NA
+    # set unused parameters for the given algorithm to their defaults in calculate_clusters()
     dplyr::mutate(
-      resolution = ifelse(algorithm %in% c("louvain", "leiden"), resolution, NA_character_),
-      objective_function = ifelse(algorithm == "leiden", objective_function, NA_character_)
-    )
-  dplyr::distinct()
+      resolution = ifelse(algorithm %in% c("louvain", "leiden"), resolution, 1),
+      objective_function = ifelse(algorithm == "leiden", objective_function, "CPM")
+    ) |>
+    dplyr::distinct()
 
   sweep_results <- sweep_params |>
     purrr::pmap(
-      \(weighting, nn, resolution, objective_function) {
+      \(algorithm, weighting, nn, resolution, objective_function) {
         calculate_clusters(
           x,
           algorithm = algorithm,
