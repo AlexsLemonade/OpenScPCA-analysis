@@ -12,12 +12,7 @@ scripts/sync-results.py cell-type-wilms-tumor-14 \
     --bucket ${OPENSCPCA_RESULTS_BUCKET}
 ```
 #### 00. Pre-processing the provided SCE objects
-- Path on S3: `s3://researcher-009160072044-us-east-2/cell-type-wilms-tumor-14/results/00_preprocessing_rds/`
-- Results for this section contains several `.rdsSeurat` objects for future analysis.
-- Specifically, result Seurat objects were created from provided `_processed.rds` applying following steps:
-  - Annotate doublets based on provided results.
-  - Create Seurat object and conduct a standard workflow: `FindVariableFeatures`, `ScaleData`, `RunPCA`, `FindNeighbors`, `FindClusters`, `RunUMAP`.
-
+No result files.
 
 #### 01. Anchor transfer using Seurat
 TBD

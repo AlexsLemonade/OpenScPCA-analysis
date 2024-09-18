@@ -5,7 +5,10 @@ pre_seuratobj <- function(obj, nfeatures = 500, run_harmony = TRUE, reduction = 
                           skip_logNorm = TRUE){
   ######## Normalize, scale, feature selection
   if (skip_logNorm){
-    obj[["RNA"]]$data <- obj[["RNA"]]$counts
+    # double check if data layer is present or not
+    stopifnot("data layer must be present if skip_logNorm selected" = 
+      "data" %in% SeuratObject::Layers(obj[["RNA"]])
+    )
   }else{
     obj <- Seurat::NormalizeData(obj, normalization.method = "LogNormalize")
   }
@@ -45,13 +48,14 @@ process_sce <- function( sample, library,
 
   ######## annotate doublets
   #rds <- rds[,which(db$class == "singlet")]
-  rds$class <- db$class
+  rds$doublet_class <- db$class
   
   ######## create seurat object from the SCE counts matrix
+  seurat_obj <- SeuratObject::CreateSeuratObject(counts = SingleCellExperiment::counts(rds),assay = "RNA",project = library)
+  
+  # add normalized data if requested
   if (get_logcounts) {
-    seurat_obj <- SeuratObject::CreateSeuratObject(counts = SingleCellExperiment::logcounts(rds),assay = "RNA",project = library)
-  }else {
-    seurat_obj <- SeuratObject::CreateSeuratObject(counts = SingleCellExperiment::counts(rds),assay = "RNA",project = library)
+    SeuratObject::LayerData(seurat_obj[["RNA"]], "data") <- SingleCellExperiment::logcounts(rds)
   }
   # convert colData and rowData to data.frame for use in the Seurat object
   cell_metadata <- as.data.frame(SingleCellExperiment::colData(rds))
@@ -63,13 +67,12 @@ process_sce <- function( sample, library,
   # add metadata from SingleCellExperiment to Seurat
   seurat_obj@misc <- S4Vectors::metadata(rds)
   
-  skip_logNorm <- get_logcounts
-  seurat_obj <- pre_seuratobj(seurat_obj, nfeatures = 3000, run_harmony = F, reduction = "pca", skip_logNorm = skip_logNorm)
+  seurat_obj <- pre_seuratobj(seurat_obj, nfeatures = 3000, run_harmony = F, reduction = "pca", skip_logNorm = get_logcounts)
   
   # Seurat::DimPlot(seurat_obj, reduction = "umap", label = T)
   # obj <- Seurat::RunTSNE(obj, dims = 1:ndims)
   # Seurat::DimPlot(obj, reduction = "tsne")
 
-  dir.create(file.path(path_anal, "results", "00_preprocessing_rds"),showWarnings = FALSE, recursive = TRUE)
-  SeuratObject::SaveSeuratRds(seurat_obj, file = file.path(path_anal,"results","00_preprocessing_rds",paste0(sample,".rdsSeurat")) )
+  dir.create(file.path(path_anal, "scratch", "00_preprocessing_rds"),showWarnings = FALSE, recursive = TRUE)
+  SeuratObject::SaveSeuratRds(seurat_obj, file = file.path(path_anal,"scratch","00_preprocessing_rds",paste0(sample,".rdsSeurat")) )
 }
