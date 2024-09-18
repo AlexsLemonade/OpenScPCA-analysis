@@ -12,7 +12,7 @@
 #'
 #' @param x An object containing PCs that clustering can be performed in. This can be either a SingleCellExperiment
 #'   object, a Seurat object, or a matrix where columns are PCs and rows are cells. If a matrix is provided, it must
-#'   have row names of cell ids (e.g., barcodes).#' @param algorithm
+#'   have row names of cell ids (e.g., barcodes).
 #' @param algorithm Clustering algorithm to use. Must be one of "louvain" (default), "walktrap", or "leiden".
 #' @param weighting Weighting scheme(s) to consider when sweeping parameters.
 #' Provide a vector of unique values to vary this parameter. Options include  "jaccard" (default), "rank", or "number"
