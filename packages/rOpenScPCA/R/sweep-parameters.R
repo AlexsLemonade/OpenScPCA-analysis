@@ -101,6 +101,7 @@ calculate_clusters_sweep <- function(
           resolution = p$resolution,
           objective_function = p$objective_function,
           cluster_args,
+          threads = threads,
           seed = seed
         )
       }

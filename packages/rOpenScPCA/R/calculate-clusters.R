@@ -64,7 +64,7 @@ calculate_clusters <- function(
     resolution = 1, # louvain or leiden
     objective_function = c("CPM", "modularity"), # leiden only
     cluster_args = list(),
-    # threads = 1,
+    threads = 1,
     seed = NULL,
     pc_name = NULL) {
   if (!is.null(seed)) {
