@@ -9,7 +9,8 @@
 #'  - The objective function parameter (`objective_function`)
 #'
 #' For each algorithm specified, all parameters possible to use with that
-#' algorithm will be systematically varied.
+#' algorithm will be systematically varied. This function does not accept additional
+#' parameters besides those listed above.
 #' Note that defaults for some arguments may differ from the bluster::NNGraphParam() defaults.
 #' Specifically, the clustering algorithm defaults to "louvain" and the weighting scheme to "jaccard"
 #' to align with common practice in scRNA-seq analysis.
@@ -29,10 +30,6 @@
 #' @param objective_function Leiden-specific parameter for whether to use the
 #'   Constant Potts Model ("CPM"; default) or "modularity". Provide a vector of unique values
 #'   to vary this parameter.
-#' @param cluster_args List of additional arguments to pass to the chosen clustering function.
-#'   Parameters values in this list cannot be varied.
-#'   Only single values for each argument are supported (no vectors or lists).
-#'   See igraph documentation for details on each clustering function: https://igraph.org/r/html/latest
 #' @param seed Random seed to set for clustering.
 #' @param threads Number of threads to use. Default is 1.
 #' @param pc_name Name of principal components slot in provided object. This argument is only used
@@ -81,7 +78,6 @@ sweep_clusters <- function(
     nn = 10,
     resolution = 1, # louvain or leiden
     objective_function = "CPM", # leiden only
-    cluster_args = list(),
     threads = 1,
     seed = NULL,
     pc_name = NULL) {
@@ -122,7 +118,6 @@ sweep_clusters <- function(
           nn = nn,
           resolution = resolution,
           objective_function = objective_function,
-          cluster_args,
           threads = threads,
           seed = seed
         )
