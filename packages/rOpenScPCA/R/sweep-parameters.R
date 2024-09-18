@@ -55,7 +55,7 @@
 #'   resolution = c(0.5, 1)
 #' )
 #' }
-calculate_clusters_sweep <- function(
+sweep_clusters <- function(
     x,
     algorithm = c("louvain", "walktrap", "leiden"),
     weighting = "jaccard",
@@ -90,16 +90,15 @@ calculate_clusters_sweep <- function(
   )
 
   sweep_results <- sweep_params |>
-    purrr::transpose() |>
-    purrr::map(
-      \(p) {
+    purrr::pmap(
+      \(weighting, nn, resolution, objective_function) {
         calculate_clusters(
           x,
           algorithm = algorithm,
-          weighting = p$weighting,
-          nn = p$nn,
-          resolution = p$resolution,
-          objective_function = p$objective_function,
+          weighting = weighting,
+          nn = nn,
+          resolution = resolution,
+          objective_function = objective_function,
           cluster_args,
           threads = threads,
           seed = seed
