@@ -40,8 +40,7 @@
 #'   Columns include `cluster_set` (identifier column for results from a single clustering run),
 #'   `cell_id`, and `cluster`. Additional columns represent algorithm parameters and include at least:
 #'   `algorithm`, `weighting`, and `nn`. Louvain and leiden clustering will also include `resolution`,
-#'   and leiden clustering will further include `objective_function`. Any additional specified parameters
-#'   for the given algorithm will also be included.
+#'   and leiden clustering will further include `objective_function`.
 #'
 #' @export
 #'
