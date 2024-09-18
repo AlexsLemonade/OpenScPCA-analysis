@@ -13,6 +13,12 @@ test_that("sweep_clusters works as expected with defaults", {
     resolution = c(0.5, 1)
   )
 
+  expect_equal(
+    length(sweep_list),
+    4
+  )
+
+  # check colnames one at a time
   sweep_list |>
     purrr::walk(
       \(df) {
@@ -20,38 +26,33 @@ test_that("sweep_clusters works as expected with defaults", {
           colnames(df),
           c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution")
         )
+
+        expect_equal(
+          df$cell_id,
+          colnames(sce)
+        )
+
+        expect_s3_class(
+          df$cluster,
+          "factor"
+        )
+
+        expect_equal(
+          unique(df$algorithm),
+          "louvain"
+        )
+        expect_equal(
+          unique(df$weighting),
+          "jaccard"
+        )
+        expect_true(
+          all(unique(df$nn) == 10) || all(unique(df$nn) == 15)
+        )
+        expect_true(
+          all(unique(df$resolution) == 0.5) || all(unique(df$resolution) == 1)
+        )
       }
     )
-
-  check_sweep_list <- sweep_list |>
-    dplyr::bind_rows()
-
-  expect_equal(
-    check_sweep_list$cell_id,
-    rep(colnames(sce), 4)
-  )
-
-  expect_s3_class(
-    check_sweep_list$cluster,
-    "factor"
-  )
-
-  expect_equal(
-    unique(check_sweep_list$algorithm),
-    "louvain"
-  )
-  expect_equal(
-    unique(check_sweep_list$weighting),
-    "jaccard"
-  )
-  expect_setequal(
-    unique(check_sweep_list$nn),
-    c(10, 15)
-  )
-  expect_setequal(
-    unique(check_sweep_list$resolution),
-    c(0.5, 1)
-  )
 })
 
 
@@ -71,25 +72,52 @@ test_that("sweep_clusters works as expected with non-default algorithm", {
           colnames(df),
           c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution", "objective_function")
         )
+
+        expect_equal(
+          unique(df$algorithm),
+          "leiden"
+        )
+
+        expect_equal(
+          unique(df$objective_function),
+          "modularity"
+        )
+
+        expect_true(
+          all(unique(df$resolution) == 0.5) || all(unique(df$resolution) == 1)
+        )
       }
     )
-
-  check_sweep_list <- sweep_list |>
-    dplyr::bind_rows()
+})
 
 
-  expect_equal(
-    unique(check_sweep_list$algorithm),
-    "leiden"
+
+
+test_that("sweep_clusters works as expected with multiple algorithms", {
+  sweep_list <- sweep_clusters(
+    sce,
+    algorithm = c("walktrap", "louvain"),
+    # used by both
+    nn = c(10, 15),
+    # only used by louvain
+    resolution = c(0.5, 1)
   )
 
-  expect_equal(
-    unique(check_sweep_list$objective_function),
-    "modularity"
-  )
 
-  expect_setequal(
-    unique(check_sweep_list$resolution),
-    c(0.5, 1)
-  )
+  sweep_list |>
+    purrr::walk(
+      \(df) {
+        if (unique(df$algorithm) == "walktrap") {
+          expect_setequal(
+            colnames(df),
+            c("cell_id", "cluster", "algorithm", "weighting", "nn")
+          )
+        } else if (unique(df$algorithm) == "louvain") {
+          expect_setequal(
+            colnames(df),
+            c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution")
+          )
+        }
+      }
+    )
 })
