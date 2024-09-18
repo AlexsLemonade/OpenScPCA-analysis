@@ -40,6 +40,8 @@ See igraph documentation for details on each clustering function: https://igraph
 \item{pc_name}{Name of principal components slot in provided object. This argument is only used if a SingleCellExperiment
 or Seurat object is provided. If not provided, the SingleCellExperiment object name will default to "PCA" and the
 Seurat object name will default to "pca".}
+
+\item{threads}{Number of threads to use. Default is 1.}
 }
 \value{
 A data frame of cluster results with columns `cell_id` and `cluster`. Additional columns represent algorithm parameters
@@ -58,6 +60,9 @@ to align with common practice in scRNA-seq analysis.
 \dontrun{
 # cluster PCs from a SingleCellExperiment object using default parameters
 cluster_df <- calculate_clusters(sce_object)
+
+# cluster PCs from a SingleCellExperiment object using default parameters and 4 threads
+cluster_df <- calculate_clusters(sce_object, threads = 4)
 
 # cluster PCs from a Seurat object using default parameters
 cluster_df <- calculate_clusters(seurat_object)

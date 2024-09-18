@@ -12,6 +12,7 @@ calculate_clusters_sweep(
   resolution = 1,
   objective_function = "CPM",
   cluster_args = list(),
+  threads = 1,
   seed = NULL,
   pc_name = NULL
 )
@@ -39,6 +40,8 @@ Provide a vector of unique values to vary this parameter.}
 Parameters values in this list cannot be varied.
 Only single values for each argument are supported (no vectors or lists).
 See igraph documentation for details on each clustering function: https://igraph.org/r/html/latest}
+
+\item{threads}{Number of threads to use. Default is 1.}
 
 \item{seed}{Random seed to set for clustering.}
 
@@ -75,8 +78,8 @@ cluster_df <- calculate_clusters_sweep(sce_object, nn = c(10, 15, 20, 25))
 cluster_df <- calculate_clusters_sweep(
   sce_object,
   weighting = c("jaccard", "rank"),
-  nn = c(10, 15, 20, 25)),
+  nn = c(10, 15, 20, 25),
   resolution = c(0.5, 1)
- )
+)
 }
 }
