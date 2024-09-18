@@ -27,6 +27,7 @@
 #'   Only single values for each argument are supported (no vectors or lists).
 #'   See igraph documentation for details on each clustering function: https://igraph.org/r/html/latest
 #' @param seed Random seed to set for clustering.
+#' @param threads Number of threads to use. Default is 1.
 #' @param pc_name Name of principal components slot in provided object. This argument is only used if a SingleCellExperiment
 #'   or Seurat object is provided. If not provided, the SingleCellExperiment object name will default to "PCA" and the
 #'   Seurat object name will default to "pca".
@@ -62,6 +63,7 @@ calculate_clusters_sweep <- function(
     resolution = 1, # louvain or leiden
     objective_function = "CPM", # leiden only
     cluster_args = list(),
+    threads = 1,
     seed = NULL,
     pc_name = NULL) {
   # Ensure input is a matrix for slightly faster processing later

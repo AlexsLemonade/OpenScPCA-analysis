@@ -20,6 +20,7 @@
 #' @param cluster_args List of additional arguments to pass to the chosen clustering function.
 #'   Only single values for each argument are supported (no vectors or lists).
 #'   See igraph documentation for details on each clustering function: https://igraph.org/r/html/latest
+#' @param threads Number of threads to use. Default is 1.
 #' @param seed Random seed to set for clustering.
 #' @param pc_name Name of principal components slot in provided object. This argument is only used if a SingleCellExperiment
 #'   or Seurat object is provided. If not provided, the SingleCellExperiment object name will default to "PCA" and the
@@ -35,6 +36,9 @@
 #' \dontrun{
 #' # cluster PCs from a SingleCellExperiment object using default parameters
 #' cluster_df <- calculate_clusters(sce_object)
+#'
+#' # cluster PCs from a SingleCellExperiment object using default parameters and 4 threads
+#' cluster_df <- calculate_clusters(sce_object, threads = 4)
 #'
 #' # cluster PCs from a Seurat object using default parameters
 #' cluster_df <- calculate_clusters(seurat_object)
@@ -60,6 +64,7 @@ calculate_clusters <- function(
     resolution = 1, # louvain or leiden
     objective_function = c("CPM", "modularity"), # leiden only
     cluster_args = list(),
+    # threads = 1,
     seed = NULL,
     pc_name = NULL) {
   if (!is.null(seed)) {
@@ -81,7 +86,8 @@ calculate_clusters <- function(
   # Check input arguments
   stopifnot(
     "`resolution` must be numeric" = is.numeric(resolution),
-    "`nn` must be numeric" = is.numeric(nn)
+    "`nn` must be numeric" = is.numeric(nn),
+    "`threads` must be numeric" = is.numeric(threads)
   )
 
   algorithm <- match.arg(algorithm)
@@ -104,6 +110,12 @@ calculate_clusters <- function(
     cluster_args$objective_function <- objective_function
   }
 
+  if (threads > 1) {
+    bp_param <- BiocParallel::MulticoreParam(threads)
+  } else {
+    bp_param <- BiocParallel::SerialParam()
+  }
+
 
   # Perform clustering
   clusters <- bluster::clusterRows(
@@ -112,7 +124,8 @@ calculate_clusters <- function(
       k = nn,
       type = weighting,
       cluster.fun = algorithm,
-      cluster.args = cluster_args
+      cluster.args = cluster_args,
+      BPPARAM = bp_param
     )
   )
 
