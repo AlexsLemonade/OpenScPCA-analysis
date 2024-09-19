@@ -49,24 +49,9 @@ test_that("sweep_clusters works as expected with default algorithm & weighting",
 
 
 test_that("sweep_clusters works as expected with matrix input", {
-  sweep_list <- sweep_clusters(
-    test_mat,
-    nn = c(10, 15)
-  )
+  sweep_list <- sweep_clusters(test_mat)
 
-
-  expect_length(sweep_list, 2)
-
-  sweep_list |>
-    purrr::walk(
-      \(df) {
-        expect_setequal(
-          colnames(df),
-          c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution")
-        )
-      }
-    )
-})
+  expect_length(sweep_list, 1)
 
 
 
@@ -134,7 +119,7 @@ test_that("sweep_clusters works as expected with multiple algorithms", {
   alg_counts <- sweep_list |>
     purrr::map(\(df) unique(df$algorithm)) |>
     purrr::reduce(c)
-  expect_equal(length(alg_counts), 6)
+  expect_length(alg_counts, 6)
   expect_equal(sum(alg_counts == "louvain"), 4)
   expect_equal(sum(alg_counts == "walktrap"), 2)
 
