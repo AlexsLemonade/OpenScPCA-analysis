@@ -3,6 +3,8 @@ on:
     branches:
       - main
       - feature/*
+    paths:
+      - packages/rOpenScPCA/**
 
 name: Check the rOpenScPCA package
 
