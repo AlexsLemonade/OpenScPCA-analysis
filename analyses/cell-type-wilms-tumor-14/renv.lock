@@ -256,6 +256,23 @@
       ],
       "Hash": "0776bf7526869e0286b0463cb72fb211"
     },
+    "Polychrome": {
+      "Package": "Polychrome",
+      "Version": "1.5.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "colorspace",
+        "grDevices",
+        "graphics",
+        "methods",
+        "scatterplot3d",
+        "stats",
+        "utils"
+      ],
+      "Hash": "466f3a16617d769c773ca1f1ea878055"
+    },
     "R6": {
       "Package": "R6",
       "Version": "2.5.1",
@@ -684,6 +701,34 @@
       ],
       "Hash": "543776ae6848fde2f48ff3816d0628bc"
     },
+    "basilisk": {
+      "Package": "basilisk",
+      "Version": "1.16.0",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "basilisk.utils",
+        "dir.expiry",
+        "methods",
+        "parallel",
+        "reticulate",
+        "utils"
+      ],
+      "Hash": "0402cc833c4fa37a80b44deffce28fe6"
+    },
+    "basilisk.utils": {
+      "Package": "basilisk.utils",
+      "Version": "1.16.0",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "dir.expiry",
+        "methods",
+        "tools",
+        "utils"
+      ],
+      "Hash": "39d6ecdea862d961c3dfe4d4d7c57920"
+    },
     "bitops": {
       "Package": "bitops",
       "Version": "1.0-8",
@@ -960,6 +1005,17 @@
       ],
       "Hash": "33698c4b3127fc9f506654607fb73676"
     },
+    "dir.expiry": {
+      "Package": "dir.expiry",
+      "Version": "1.12.0",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "filelock",
+        "utils"
+      ],
+      "Hash": "41bd784b988874bccef2d4df2a69fd1a"
+    },
     "doBy": {
       "Package": "doBy",
       "Version": "4.6.22",
@@ -1079,6 +1135,16 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "aa5e1cd11c2d15497494c5292d7ffcc8"
+    },
+    "filelock": {
+      "Package": "filelock",
+      "Version": "1.0.3",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "192053c276525c8495ccfd523aa8f2d1"
     },
     "fitdistrplus": {
       "Package": "fitdistrplus",
@@ -2236,6 +2302,19 @@
       ],
       "Hash": "d316e4abb854dd1677f7bd3ad08bc4e8"
     },
+    "scatterplot3d": {
+      "Package": "scatterplot3d",
+      "Version": "0.3-44",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "grDevices",
+        "graphics",
+        "stats"
+      ],
+      "Hash": "10ee4b91ec812690bd55d9bf51edccee"
+    },
     "sctransform": {
       "Package": "sctransform",
       "Version": "0.4.1",
@@ -2687,6 +2766,25 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "51dab85c6c98e50a18d7551e9d49f76c"
+    },
+    "zellkonverter": {
+      "Package": "zellkonverter",
+      "Version": "1.14.1",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "DelayedArray",
+        "Matrix",
+        "S4Vectors",
+        "SingleCellExperiment",
+        "SummarizedExperiment",
+        "basilisk",
+        "cli",
+        "methods",
+        "reticulate",
+        "utils"
+      ],
+      "Hash": "656ccd4d9874cf077f9a688b38d03a63"
     },
     "zlibbioc": {
       "Package": "zlibbioc",
