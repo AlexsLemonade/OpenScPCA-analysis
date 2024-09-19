@@ -6,7 +6,7 @@ sce <- splatter::simpleSimulate(nGenes = 1000, verbose = FALSE) |>
   scater::runPCA(ncomponents = 10)
 
 
-test_that("sweep_clusters works as expected with defaults", {
+test_that("sweep_clusters works as expected with default algorithm & weighting", {
   sweep_list <- sweep_clusters(
     sce,
     nn = c(10, 15),
