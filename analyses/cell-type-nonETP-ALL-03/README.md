@@ -1,45 +1,101 @@
-# Template analysis module
+---
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
 
-This is a template analysis module.
-It is intended to be used as a starting point for new analysis modules.
-Please fill in the content below with information specific to this analysis module.
+# Non-ETP T-ALL Annotation (SCPCP000003)
+
+This analysis module will include code to annotate cell types in non-ETP T-ALL from SCPCP000003 (n=11) present on the ScPCA portal.
 
 ## Description
 
-Please provide a description of your module, including:
+We first aim to annotate the cell types in non-ETP T-ALL, and use the annotated B cells in the sample as the "normal" cells to identify tumor cells, since T-ALL is caused by the clonal proliferation of immature T-cell [<https://www.nature.com/articles/s41375-018-0127-8>].
 
-- What type of analysis is included?
-- What methods or tools are used?
+-   We use the cell type marker (`Azimuth_BM_level1.xlsx`) from [Azimuth Human Bone Marrow reference](https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow).
+    In total, there are 14 cell types: B, CD4T, CD8T, Other T, DC, Monocytes, Macrophages, NK, Early Erythrocytes, Late Erythrocytes, Plasma, Platelet, Stromal, and Hematopoietic Stem and Progenitor Cells (HSPC).
+    Based on the exploratory analysis, we believe that most of the cells in these samples do not express adequate markers to be distinguished at finer cell type level (eg. naive vs memory, CD14 vs CD16 etc.), and majority of the cells should belong to T-cells.
+    In addition, we include the marker genes for cancer cell in immune system from [ScType](https://sctype.app/database.php) database.
 
-If there are multiple steps in the module, please include an outline of the analysis steps and scripts used.
+-   Since ScType annotates cell types at cluster level using marker genes provided by user or from the built-in database, we employ [self-assembling manifold](https://github.com/atarashansky/self-assembling-manifold/tree/master) (SAM) algorithm, a soft feature selection strategy for better separation of homogeneous cell types.
+
+-   After cell type annotation, we provide B cells as the normal cells in the sample, if there is any, to [CopyKat](https://github.com/navinlabcode/copykat), for identification of tumor cells.
+
+Here are the steps in the module:
+
+1.  Generating a processed rds file for each sample using SAM (`scripts/00-01_processing_rds.R`)
+
+2.  Annotating cell type using ScType and identifying tumor cells using CopyKat (`scripts/02-03_annotation.R`)
 
 ## Usage
 
-Please provide instructions on how to run the analysis module.
-What commands are needed to execute all steps in the analysis?
+Before running Rscripts in R or Rstudio, we first need to prepare the input files as shown in the next section, and run the following codes in the terminal for installing required libraries:
+
+```         
+#run in terminal
+conda activate openscpca               #activating conda environment
+sudo apt install libglpk40
+sudo apt install libcurl4-openssl-dev  #before installing Seurat
+sudo apt-get install libhdf5-dev       #before installing SeuratDisk
+conda install conda-forge::anndata
+pip install sam-algorithm
+sudo apt-get install libxml2-dev libfontconfig1-dev libharfbuzz-dev  libfribidi-dev libtiff5-dev  #before installing devtools
+
+#run in R
+install.packages(c("Seurat","HGNChelper","openxlsx","devtools","renv","remotes"))
+BiocManager::install("SingleCellExperiment")
+install.packages("hdf5r", configure.args="--with-hdf5=/usr/bin/h5cc") #before installing SeuratDisk
+remotes::install_github("mojaveazure/seurat-disk")
+devtools::install_github("navinlabcode/copykat")
+```
 
 ## Input files
 
-Please include a description of the required inputs to run the analysis module (e.g., processed `SingleCellExperiment` objects from the ScPCA Portal).
-If the input to this module is dependent on running any other scripts (e.g., `download-data.py`) or on the output of another module, please state that.
-If possible, include examples of specific commands used to obtain data.
+The `scripts/00-01_processing_rds.R` requires the processed SingleCellExperiment objects (`_processed.rds`) and doublet-detection results (`_processed_scdblfinder.tsv`) from SCPCP000003.
+These files could be obtained from running the following codes:
+
+```         
+#run in terminal
+../../download-data.py --projects SCPCP000003
+../../download-results.py --projects SCPCP000003 --modules doublet-detection
+```
+
+As for the annotation, `scripts/02-03_annotation.R` requires cell type marker gene file, `Azimuth_BM_level1.xlsx`, as an input for ScType.
+This excel file contains a list of positive marker genes in Ensembl ID under `geneSymbolmore1` for each cell type, and *TMEM56* is not detected in our dataset, thus it is being removed as part of the markers for Late Eryth.
+As of now, there is no negative marker genes provided under `geneSymbolmore2`.
 
 ## Output files
 
-Please include a description of the output from your analysis, including:
+Running `scripts/00-01_processing_rds.R` will generate two types of output:
 
-- What type of files are created?
-- What are the contents of the output files?
-- Where are the files stored?
-- Are any intermediate files generated?
-If so, where are they stored?
+-   rds objects in `scratch/`
+
+-   umap plots showing leiden clustering in `plots/00-01_processing_rds/`
 
 ## Software requirements
 
-Please describe the environment system used to manage software dependencies for the module (e.g., `conda`, `renv`, `docker`).
-Include the locations of any files used to set up the environment.
+To run the analysis, execute the Rscript in R or Rstudio (version 4.4.0).
+The main libraries used are:
+
+-   Seurat (version 5.1.0)
+
+-   reticulate (version 1.39.0)
+
+-   sam-algorithm (in python)
+
+-   ScType
+
+-   CopyKat
+
+The renv.lock file contains all packages and version information.
+All python libraries are installed in the conda environment `openscpca`, and the python codes are executed in the same environment by running them in R via `reticulate`.
+To create and activate this environment from `.yml` file use:
+
+```         
+conda env create -f environment.yml --name openscpca
+conda activate openscpca
+```
 
 ## Computational resources
 
-Please indicate the computational resources that are required to run the module.
-If there are specific memory, CPU, and/or GPU requirements, please state that.
+All the commands above are currently executed in the standard 4XL virtual machine via AWS Lightsail for Research.
