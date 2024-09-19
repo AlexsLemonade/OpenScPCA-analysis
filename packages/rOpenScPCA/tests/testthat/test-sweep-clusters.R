@@ -97,6 +97,26 @@ test_that("sweep_clusters works as expected with multiple algorithms", {
     resolution = c(0.5, 1)
   )
 
+  # first count algorithms
+  alg_count_df <- sweep_list |>
+    dplyr::bind_rows(.id = "id") |>
+    dplyr::group_by(id) |>
+    dplyr::summarize(alg = unique(algorithm))
+
+  expect_equal(
+    nrow(alg_count_df),
+    6
+  )
+
+  expect_equal(
+    sum(alg_count_df$alg == "louvain"),
+    4
+  )
+
+  expect_equal(
+    sum(alg_count_df$alg == "walktrap"),
+    2
+  )
 
   sweep_list |>
     purrr::walk(
