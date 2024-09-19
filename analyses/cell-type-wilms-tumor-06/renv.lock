@@ -182,13 +182,13 @@
     },
     "BiocManager": {
       "Package": "BiocManager",
-      "Version": "1.30.24",
+      "Version": "1.30.25",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "utils"
       ],
-      "Hash": "dcb7fa4b65120de23d3496b94cc0d1da"
+      "Hash": "3aec5928ca10897d7a0a1205aae64627"
     },
     "BiocParallel": {
       "Package": "BiocParallel",
@@ -303,6 +303,26 @@
       ],
       "Hash": "c3762bb10e8aeeee633df34436463f95"
     },
+    "DOSE": {
+      "Package": "DOSE",
+      "Version": "3.30.5",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "AnnotationDbi",
+        "BiocParallel",
+        "GOSemSim",
+        "R",
+        "fgsea",
+        "ggplot2",
+        "methods",
+        "qvalue",
+        "reshape2",
+        "stats",
+        "utils"
+      ],
+      "Hash": "7cb73e3595a3d1a62fc5ad013c2f280d"
+    },
     "DT": {
       "Package": "DT",
       "Version": "0.33",
@@ -399,6 +419,28 @@
         "methods"
       ],
       "Hash": "46bfc38370acea3503c223347915e43b"
+    },
+    "GOSemSim": {
+      "Package": "GOSemSim",
+      "Version": "2.30.2",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "AnnotationDbi",
+        "DBI",
+        "GO.db",
+        "R",
+        "R.utils",
+        "Rcpp",
+        "digest",
+        "httr2",
+        "methods",
+        "rlang",
+        "stats",
+        "utils",
+        "yulab.utils"
+      ],
+      "Hash": "9a699fd26602384680ad1c092a0c3961"
     },
     "GenomeInfoDb": {
       "Package": "GenomeInfoDb",
@@ -1306,6 +1348,42 @@
       ],
       "Hash": "659c0a3bfad51dc798e4b4eb0f2cdedc"
     },
+    "ape": {
+      "Package": "ape",
+      "Version": "5.8",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "Rcpp",
+        "digest",
+        "graphics",
+        "lattice",
+        "methods",
+        "nlme",
+        "parallel",
+        "stats",
+        "utils"
+      ],
+      "Hash": "16b5ff4dff0ead9ea955f62f794b1535"
+    },
+    "aplot": {
+      "Package": "aplot",
+      "Version": "0.2.3",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "ggfun",
+        "ggplot2",
+        "ggplotify",
+        "magrittr",
+        "methods",
+        "patchwork",
+        "utils"
+      ],
+      "Hash": "d2dcbd0459b23b43cc078e2676bd7b84"
+    },
     "askpass": {
       "Package": "askpass",
       "Version": "1.2.0",
@@ -1325,6 +1403,19 @@
         "tools"
       ],
       "Hash": "50c838a310445e954bc13f26f26a6ecf"
+    },
+    "babelgene": {
+      "Package": "babelgene",
+      "Version": "22.9",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "dplyr",
+        "methods",
+        "rlang"
+      ],
+      "Hash": "8288e81d0c2c3272603f6ef394ffa6fd"
     },
     "backports": {
       "Package": "backports",
@@ -1448,14 +1539,14 @@
     },
     "caTools": {
       "Package": "caTools",
-      "Version": "1.18.2",
+      "Version": "1.18.3",
       "Source": "Repository",
-      "Repository": "RSPM",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "bitops"
       ],
-      "Hash": "34d90fa5845004236b9eacafc51d07b2"
+      "Hash": "ab79c733080d83b4ad8a2cc33c1ef393"
     },
     "cachem": {
       "Package": "cachem",
@@ -1527,6 +1618,35 @@
         "utils"
       ],
       "Hash": "0aaa05204035dc43ea0004b9c76611dd"
+    },
+    "clusterProfiler": {
+      "Package": "clusterProfiler",
+      "Version": "4.12.6",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "AnnotationDbi",
+        "DOSE",
+        "GO.db",
+        "GOSemSim",
+        "R",
+        "downloader",
+        "dplyr",
+        "enrichplot",
+        "gson",
+        "httr",
+        "igraph",
+        "magrittr",
+        "methods",
+        "plyr",
+        "qvalue",
+        "rlang",
+        "stats",
+        "tidyr",
+        "utils",
+        "yulab.utils"
+      ],
+      "Hash": "88d3784995eb4de87a53f7a7260b1a2a"
     },
     "codetools": {
       "Package": "codetools",
@@ -1706,6 +1826,17 @@
       ],
       "Hash": "80f374ef8500fcdc5d84a0345b837227"
     },
+    "downloader": {
+      "Package": "downloader",
+      "Version": "0.4",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "digest",
+        "utils"
+      ],
+      "Hash": "f4f2a915e0dedbdf016a83b63477349f"
+    },
     "dplyr": {
       "Package": "dplyr",
       "Version": "1.1.4",
@@ -1777,6 +1908,39 @@
         "utils"
       ],
       "Hash": "729daec53b663926458ccde421f5c2fb"
+    },
+    "enrichplot": {
+      "Package": "enrichplot",
+      "Version": "1.24.4",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "DOSE",
+        "GOSemSim",
+        "R",
+        "RColorBrewer",
+        "aplot",
+        "ggfun",
+        "ggnewscale",
+        "ggplot2",
+        "ggraph",
+        "ggtree",
+        "graphics",
+        "grid",
+        "igraph",
+        "magrittr",
+        "methods",
+        "plyr",
+        "purrr",
+        "reshape2",
+        "rlang",
+        "scatterpie",
+        "shadowtext",
+        "stats",
+        "utils",
+        "yulab.utils"
+      ],
+      "Hash": "654852454914778eb5631609d31ce02b"
     },
     "ensembldb": {
       "Package": "ensembldb",
@@ -1864,6 +2028,28 @@
         "R"
       ],
       "Hash": "8c406b7284bbaef08e01c6687367f195"
+    },
+    "fgsea": {
+      "Package": "fgsea",
+      "Version": "1.30.0",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "BH",
+        "BiocParallel",
+        "Matrix",
+        "R",
+        "Rcpp",
+        "cowplot",
+        "data.table",
+        "fastmatch",
+        "ggplot2",
+        "grid",
+        "scales",
+        "stats",
+        "utils"
+      ],
+      "Hash": "ead409e5a973cd285681c3bb0ade49a7"
     },
     "fitdistrplus": {
       "Package": "fitdistrplus",
@@ -2025,6 +2211,79 @@
       ],
       "Hash": "ed33b16c6d24f7ced1d68877ac2509ee"
     },
+    "ggalluvial": {
+      "Package": "ggalluvial",
+      "Version": "0.12.5",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "dplyr",
+        "ggplot2",
+        "lazyeval",
+        "rlang",
+        "stats",
+        "tidyr",
+        "tidyselect"
+      ],
+      "Hash": "29bb601821609476215720798eecf979"
+    },
+    "ggforce": {
+      "Package": "ggforce",
+      "Version": "0.4.2",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "MASS",
+        "R",
+        "Rcpp",
+        "RcppEigen",
+        "cli",
+        "ggplot2",
+        "grDevices",
+        "grid",
+        "gtable",
+        "lifecycle",
+        "polyclip",
+        "rlang",
+        "scales",
+        "stats",
+        "systemfonts",
+        "tidyselect",
+        "tweenr",
+        "utils",
+        "vctrs",
+        "withr"
+      ],
+      "Hash": "384b388bd9155468d2c851846ee69f9f"
+    },
+    "ggfun": {
+      "Package": "ggfun",
+      "Version": "0.1.6",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "cli",
+        "dplyr",
+        "ggplot2",
+        "grid",
+        "rlang",
+        "utils",
+        "yulab.utils"
+      ],
+      "Hash": "c56e3463c7358ced17ce79a4cab0fb65"
+    },
+    "ggnewscale": {
+      "Package": "ggnewscale",
+      "Version": "0.5.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "ggplot2"
+      ],
+      "Hash": "0e4714a05e572eacd7c232fde675558e"
+    },
     "ggplot2": {
       "Package": "ggplot2",
       "Version": "3.5.1",
@@ -2066,6 +2325,36 @@
       ],
       "Hash": "1547863db3b472cf7181973acf649f1a"
     },
+    "ggraph": {
+      "Package": "ggraph",
+      "Version": "2.2.1",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "MASS",
+        "R",
+        "cli",
+        "cpp11",
+        "dplyr",
+        "ggforce",
+        "ggplot2",
+        "ggrepel",
+        "graphlayouts",
+        "grid",
+        "igraph",
+        "lifecycle",
+        "memoise",
+        "rlang",
+        "scales",
+        "stats",
+        "tidygraph",
+        "utils",
+        "vctrs",
+        "viridis",
+        "withr"
+      ],
+      "Hash": "1f5d21a9e1f84b4a81ddacb8f052ca61"
+    },
     "ggrepel": {
       "Package": "ggrepel",
       "Version": "0.9.5",
@@ -2095,6 +2384,55 @@
         "withr"
       ],
       "Hash": "66488692cb8621bc78df1b9b819497a6"
+    },
+    "ggsankey": {
+      "Package": "ggsankey",
+      "Version": "0.0.99999",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "ggsankey",
+      "RemoteUsername": "davidsjoberg",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "b675d0d5144b1b5758d3b2b41e86ceee66a1e071",
+      "Requirements": [
+        "dplyr",
+        "forcats",
+        "ggplot2",
+        "magrittr",
+        "purrr",
+        "stringr",
+        "tidyr"
+      ],
+      "Hash": "90a9e048916c8c54559cb0275290cb12"
+    },
+    "ggtree": {
+      "Package": "ggtree",
+      "Version": "3.12.0",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "R",
+        "ape",
+        "aplot",
+        "cli",
+        "dplyr",
+        "ggfun",
+        "ggplot2",
+        "grid",
+        "magrittr",
+        "methods",
+        "purrr",
+        "rlang",
+        "scales",
+        "stats",
+        "tidyr",
+        "tidytree",
+        "treeio",
+        "utils",
+        "yulab.utils"
+      ],
+      "Hash": "6c4748308cbe296a022cba26e118075a"
     },
     "glmGamPoi": {
       "Package": "glmGamPoi",
@@ -2223,6 +2561,19 @@
       ],
       "Hash": "f72b5d1ed587f8905e38ee7295e88d80"
     },
+    "graphlayouts": {
+      "Package": "graphlayouts",
+      "Version": "1.1.1",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "Rcpp",
+        "RcppArmadillo",
+        "igraph"
+      ],
+      "Hash": "d329345a6a37666ca3f18f3b3c1347b7"
+    },
     "gridExtra": {
       "Package": "gridExtra",
       "Version": "2.3",
@@ -2248,6 +2599,21 @@
         "grid"
       ],
       "Hash": "5b79228594f02385d4df4979284879ae"
+    },
+    "gson": {
+      "Package": "gson",
+      "Version": "0.1.0",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "jsonlite",
+        "methods",
+        "rlang",
+        "stats",
+        "tidyr",
+        "utils"
+      ],
+      "Hash": "d37d82cf043b679dd802e91d0b2ef6a1"
     },
     "gtable": {
       "Package": "gtable",
@@ -2406,6 +2772,27 @@
         "openssl"
       ],
       "Hash": "ac107251d9d9fd72f0ca8049988f1d7f"
+    },
+    "httr2": {
+      "Package": "httr2",
+      "Version": "1.0.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "R6",
+        "cli",
+        "curl",
+        "glue",
+        "lifecycle",
+        "magrittr",
+        "openssl",
+        "rappdirs",
+        "rlang",
+        "vctrs",
+        "withr"
+      ],
+      "Hash": "10d93e97faad6b629301bb3a2fd23378"
     },
     "ica": {
       "Package": "ica",
@@ -2667,13 +3054,13 @@
     },
     "matrixStats": {
       "Package": "matrixStats",
-      "Version": "1.3.0",
+      "Version": "1.4.0",
       "Source": "Repository",
-      "Repository": "RSPM",
+      "Repository": "CRAN",
       "Requirements": [
         "R"
       ],
-      "Hash": "4b3ea27a19d669c0405b38134d89a9d1"
+      "Hash": "402a3de5925c153a18f6b81f8e3e56c6"
     },
     "memoise": {
       "Package": "memoise",
@@ -2743,6 +3130,22 @@
       ],
       "Hash": "4f50122dc256b1b6996a4703fecea821"
     },
+    "msigdbr": {
+      "Package": "msigdbr",
+      "Version": "7.5.1",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "babelgene",
+        "dplyr",
+        "magrittr",
+        "rlang",
+        "tibble",
+        "tidyselect"
+      ],
+      "Hash": "2def1d52dfe1044f82e75d25fb5dd2e5"
+    },
     "munsell": {
       "Package": "munsell",
       "Version": "0.5.1",
@@ -2789,6 +3192,17 @@
         "methods"
       ],
       "Hash": "ce5f8381cd2c38d1fc14c83d8b21efd0"
+    },
+    "org.Hs.eg.db": {
+      "Package": "org.Hs.eg.db",
+      "Version": "3.19.1",
+      "Source": "Bioconductor",
+      "Requirements": [
+        "AnnotationDbi",
+        "R",
+        "methods"
+      ],
+      "Hash": "1ac8a004ad2e4f6489dadf3a2ffeb638"
     },
     "parallelly": {
       "Package": "parallelly",
@@ -3090,6 +3504,20 @@
         "utils"
       ],
       "Hash": "ab816689019959eb97edc8ff9595c7be"
+    },
+    "qvalue": {
+      "Package": "qvalue",
+      "Version": "2.36.0",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "R",
+        "ggplot2",
+        "grid",
+        "reshape2",
+        "splines"
+      ],
+      "Hash": "16f095487215acf101cdc3ed3da237cf"
     },
     "ragg": {
       "Package": "ragg",
@@ -3428,6 +3856,25 @@
       ],
       "Hash": "d316e4abb854dd1677f7bd3ad08bc4e8"
     },
+    "scatterpie": {
+      "Package": "scatterpie",
+      "Version": "0.2.4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "dplyr",
+        "ggforce",
+        "ggfun",
+        "ggplot2",
+        "rlang",
+        "stats",
+        "tidyr",
+        "utils",
+        "yulab.utils"
+      ],
+      "Hash": "cdcdfb3c27a81d3f1f12a70a8f6bfa5c"
+    },
     "sctransform": {
       "Package": "sctransform",
       "Version": "0.4.1",
@@ -3478,6 +3925,19 @@
         "stats4"
       ],
       "Hash": "8d3102283e7ba083042118b22d805510"
+    },
+    "shadowtext": {
+      "Package": "shadowtext",
+      "Version": "0.1.4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "ggplot2",
+        "grid",
+        "scales"
+      ],
+      "Hash": "e8e4f36f4a72aff54564f730f5bc92a8"
     },
     "shiny": {
       "Package": "shiny",
@@ -3862,6 +4322,29 @@
       ],
       "Hash": "a84e2cc86d07289b3b6f5069df7a004c"
     },
+    "tidygraph": {
+      "Package": "tidygraph",
+      "Version": "1.3.1",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R6",
+        "cli",
+        "cpp11",
+        "dplyr",
+        "igraph",
+        "lifecycle",
+        "magrittr",
+        "pillar",
+        "rlang",
+        "stats",
+        "tibble",
+        "tidyr",
+        "tools",
+        "utils"
+      ],
+      "Hash": "2149824d406f233b57b087be72c5f163"
+    },
     "tidyr": {
       "Package": "tidyr",
       "Version": "1.3.1",
@@ -3900,6 +4383,28 @@
         "withr"
       ],
       "Hash": "829f27b9c4919c16b593794a6344d6c0"
+    },
+    "tidytree": {
+      "Package": "tidytree",
+      "Version": "0.4.6",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "ape",
+        "cli",
+        "dplyr",
+        "lazyeval",
+        "magrittr",
+        "methods",
+        "pillar",
+        "rlang",
+        "tibble",
+        "tidyr",
+        "tidyselect",
+        "yulab.utils"
+      ],
+      "Hash": "a700d295c0eff82fbce42eac067bb89d"
     },
     "tidyverse": {
       "Package": "tidyverse",
@@ -3961,6 +4466,42 @@
         "xfun"
       ],
       "Hash": "cfbad971a71f0e27cec22e544a08bc3b"
+    },
+    "treeio": {
+      "Package": "treeio",
+      "Version": "1.28.0",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "R",
+        "ape",
+        "dplyr",
+        "jsonlite",
+        "magrittr",
+        "methods",
+        "rlang",
+        "stats",
+        "tibble",
+        "tidytree",
+        "utils",
+        "yulab.utils"
+      ],
+      "Hash": "9e0a0b700763836cd36cb3a49be5a15d"
+    },
+    "tweenr": {
+      "Package": "tweenr",
+      "Version": "2.0.3",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "cpp11",
+        "farver",
+        "magrittr",
+        "rlang",
+        "vctrs"
+      ],
+      "Hash": "82fac2b73e6a1f3874fc000aaf96d8bc"
     },
     "tzdb": {
       "Package": "tzdb",
@@ -4029,7 +4570,7 @@
       "Package": "viridis",
       "Version": "0.6.5",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "RSPM",
       "Requirements": [
         "R",
         "ggplot2",
