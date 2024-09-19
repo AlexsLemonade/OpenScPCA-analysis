@@ -61,7 +61,7 @@ test_that("sweep_clusters works as expected with non-default algorithm", {
         expect_equal(unique(df$objective_function), "modularity")
 
         expect_true(
-          all(unique(df$resolution) == 0.5) || all(unique(df$resolution) == 1)
+          all(df$resolution == 0.5) || all(df$resolution == 1)
         )
       }
     )
