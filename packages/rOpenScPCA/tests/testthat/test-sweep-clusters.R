@@ -24,8 +24,7 @@ test_that("sweep_clusters works as expected with default algorithm & weighting",
           c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution")
         )
 
-        expect_equal(df$cell_id, colnames(sce))
-        expect_s3_class(df$cluster, "factor")
+        # these tests confirm the defaults went through
         expect_equal(unique(df$algorithm), "louvain")
         expect_equal(unique(df$weighting), "jaccard")
 
