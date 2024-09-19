@@ -5,6 +5,15 @@ sce <- splatter::simpleSimulate(nGenes = 1000, verbose = FALSE) |>
   scater::logNormCounts() |>
   scater::runPCA(ncomponents = 10)
 
+test_mat <- reducedDim(sce, "PCA")
+
+srat <- Seurat::CreateSeuratObject(counts = counts(sce), assay = "RNA")
+srat[["pca"]] <- Seurat::CreateDimReducObject(
+  embeddings = test_mat,
+  key = "PC_", # underscore avoids Seurat warning that it's adding an underscore
+  assay = "RNA"
+)
+
 
 test_that("sweep_clusters works as expected with default algorithm & weighting", {
   sweep_list <- sweep_clusters(
@@ -15,7 +24,6 @@ test_that("sweep_clusters works as expected with default algorithm & weighting",
 
   expect_length(sweep_list, 4)
 
-  # check colnames one at a time
   sweep_list |>
     purrr::walk(
       \(df) {
@@ -38,6 +46,49 @@ test_that("sweep_clusters works as expected with default algorithm & weighting",
     )
 })
 
+
+
+test_that("sweep_clusters works as expected with matrix input", {
+  sweep_list <- sweep_clusters(
+    test_mat,
+    nn = c(10, 15)
+  )
+
+
+  expect_length(sweep_list, 2)
+
+  sweep_list |>
+    purrr::walk(
+      \(df) {
+        expect_setequal(
+          colnames(df),
+          c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution")
+        )
+      }
+    )
+})
+
+
+
+test_that("sweep_clusters works as expected with Seurat input", {
+  sweep_list <- sweep_clusters(
+    srat,
+    nn = c(10, 15)
+  )
+
+
+  expect_length(sweep_list, 2)
+
+  sweep_list |>
+    purrr::walk(
+      \(df) {
+        expect_setequal(
+          colnames(df),
+          c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution")
+        )
+      }
+    )
+})
 
 
 test_that("sweep_clusters works as expected with non-default algorithm", {
