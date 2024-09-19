@@ -1,4 +1,4 @@
-# This is a workflow to run the {{ openscpca_module }} module
+# This is a workflow to run the cell-type-wilms-tumor-14 module
 #
 # Analysis modules are run based on three triggers:
 # - Manual trigger
@@ -7,14 +7,14 @@
 #
 # At initialization, only the manual trigger is active
 
-name: Run {{ openscpca_module }} analysis module
+name: Run cell-type-wilms-tumor-14 analysis module
 env:
-  MODULE_PATH: analyses/{{ openscpca_module }}
+  MODULE_PATH: analyses/cell-type-wilms-tumor-14
   AWS_DEFAULT_REGION: us-east-2
 
 concurrency:
   # only one run per branch at a time
-  group: "run_{{ openscpca_module }}_${{ github.ref }}"
+  group: "run_cell-type-wilms-tumor-14_${{ github.ref }}"
   cancel-in-progress: true
 
 on:
@@ -24,18 +24,15 @@ on:
   #   branches:
   #     - main
   #   paths:
-  #     - analyses/{{ openscpca_module }}/**
-  #     - "!analyses/{{ openscpca_module }}/Dockerfile"
-  #     - "!analyses/{{ openscpca_module }}/.dockerignore"
-  #     - .github/workflows/run_{{ openscpca_module }}.yml
+  #     - analyses/cell-type-wilms-tumor-14/**
+  #     - "!analyses/cell-type-wilms-tumor-14/Dockerfile"
+  #     - "!analyses/cell-type-wilms-tumor-14/.dockerignore"
+  #     - .github/workflows/run_cell-type-wilms-tumor-14.yml
 
 jobs:
   run-module:
-    runs-on: ubuntu-latest
     if: github.repository_owner == 'AlexsLemonade'
-    defaults:
-      run:
-        shell: bash -el {0}
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
@@ -47,28 +44,17 @@ jobs:
           r-version: 4.4.0
           use-public-rspm: true
 
+      - name: Set up pandoc
+        uses: r-lib/actions/setup-pandoc@v2
+
       - name: Set up renv
         uses: r-lib/actions/setup-renv@v2
         with:
           working-directory: ${{ env.MODULE_PATH }}
 
-      - name: Set up pandoc
-        uses: r-lib/actions/setup-pandoc@v2
-
-      - name: Set up conda
-        # Note that this creates and activates an environment named 'test' by default
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          miniforge-version: latest
-
-      - name: Install conda-lock and activate locked conda environment
-        run: |
-          conda install conda-lock
-          conda-lock install --name test ${MODULE_PATH}/conda-lock.yml
-
       # Update this step as needed to download the desired data
       - name: Download test data
-        run: ./download-data.py --test-data
+        run: ./download-data.py --test-data --format SCE
 
       - name: Run analysis module
         run: |

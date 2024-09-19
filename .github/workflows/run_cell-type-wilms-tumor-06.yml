@@ -24,7 +24,10 @@ on:
     branches:
       - main
     paths:
-      - "analyses/cell-type-wilms-tumor-06/**"
+      - analyses/cell-type-wilms-tumor-06/**
+      - "!analyses/cell-type-wilms-tumor-06/Dockerfile"
+      - "!analyses/cell-type-wilms-tumor-06/.dockerignore"
+      - .github/workflows/run_cell-type-wilms-tumor-06.yml
 
 jobs:
   run-module:

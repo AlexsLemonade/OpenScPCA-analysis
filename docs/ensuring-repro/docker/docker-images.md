@@ -80,7 +80,7 @@ FROM bioconductor/r-ver:3.19
 RUN Rscript -e "install.packages('renv')"
 
 # Disable the renv cache to install packages directly into the R library
-ENV RENV_CONFIG_CACHE_ENABLED FALSE
+ENV RENV_CONFIG_CACHE_ENABLED=FALSE
 
 # Copy the renv.lock file from the host environment to the image
 COPY renv.lock renv.lock
@@ -158,9 +158,12 @@ RUN curl -L "https://github.com/conda-forge/miniforge/releases/latest/download/M
   && conda clean --tarballs --index-cache --packages --yes \
   && find /opt/conda -follow -type f -name '*.a' -delete \
   && find /opt/conda -follow -type f -name '*.pyc' -delete \
-  && conda clean --force-pkgs-dirs --all --yes \
-  && echo ". /opt/conda/etc/profile.d/conda.sh && conda activate base" >> /etc/skel/.bashrc \
-  && echo ". /opt/conda/etc/profile.d/conda.sh && conda activate base" >> ~/.bashrc
+  && conda clean --force-pkgs-dirs --all --yes
+
+# Activate conda environments in bash
+RUN ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh \
+  && echo ". /opt/conda/etc/profile.d/conda.sh" >> /etc/skel/.bashrc \
+  && echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc
 
 # Install conda-lock
 RUN conda install --channel=conda-forge --name=base conda-lock \
@@ -170,7 +173,7 @@ RUN conda install --channel=conda-forge --name=base conda-lock \
 RUN Rscript -e "install.packages('renv')"
 
 # Disable the renv cache to install packages directly into the R library
-ENV RENV_CONFIG_CACHE_ENABLED FALSE
+ENV RENV_CONFIG_CACHE_ENABLED=FALSE
 
 # Copy conda lock file to image
 COPY conda-lock.yml conda-lock.yml
