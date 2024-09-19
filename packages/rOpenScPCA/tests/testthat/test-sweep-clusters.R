@@ -13,10 +13,7 @@ test_that("sweep_clusters works as expected with defaults", {
     resolution = c(0.5, 1)
   )
 
-  expect_equal(
-    length(sweep_list),
-    4
-  )
+  expect_length(sweep_list, 4)
 
   # check colnames one at a time
   sweep_list |>
@@ -27,10 +24,7 @@ test_that("sweep_clusters works as expected with defaults", {
           c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution")
         )
 
-        expect_equal(
-          df$cell_id,
-          colnames(sce)
-        )
+        expect_equal(df$cell_id, colnames(sce))
 
         expect_s3_class(
           df$cluster,
@@ -46,10 +40,10 @@ test_that("sweep_clusters works as expected with defaults", {
           "jaccard"
         )
         expect_true(
-          all(unique(df$nn) == 10) || all(unique(df$nn) == 15)
+          all(df$nn == 10) || all(df$nn == 15)
         )
         expect_true(
-          all(unique(df$resolution) == 0.5) || all(unique(df$resolution) == 1)
+          all(df$resolution == 0.5) || all(df$resolution == 1)
         )
       }
     )
