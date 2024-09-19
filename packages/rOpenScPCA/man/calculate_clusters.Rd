@@ -12,6 +12,7 @@ calculate_clusters(
   resolution = 1,
   objective_function = c("CPM", "modularity"),
   cluster_args = list(),
+  threads = 1,
   seed = NULL,
   pc_name = NULL
 )
@@ -34,6 +35,8 @@ have row names of cell ids (e.g., barcodes).}
 \item{cluster_args}{List of additional arguments to pass to the chosen clustering function.
 Only single values for each argument are supported (no vectors or lists).
 See igraph documentation for details on each clustering function: https://igraph.org/r/html/latest}
+
+\item{threads}{Number of threads to use. Default is 1.}
 
 \item{seed}{Random seed to set for clustering.}
 
@@ -58,6 +61,9 @@ to align with common practice in scRNA-seq analysis.
 \dontrun{
 # cluster PCs from a SingleCellExperiment object using default parameters
 cluster_df <- calculate_clusters(sce_object)
+
+# cluster PCs from a SingleCellExperiment object using default parameters and 4 threads
+cluster_df <- calculate_clusters(sce_object, threads = 4)
 
 # cluster PCs from a Seurat object using default parameters
 cluster_df <- calculate_clusters(seurat_object)

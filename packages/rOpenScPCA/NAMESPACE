@@ -2,5 +2,6 @@
 
 export(calculate_clusters)
 export(extract_pc_matrix)
+export(sweep_clusters)
 import(SingleCellExperiment)
 import(methods)
