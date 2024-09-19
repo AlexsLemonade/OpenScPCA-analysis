@@ -92,13 +92,7 @@ calculate_clusters <- function(
 
   algorithm <- match.arg(algorithm)
   weighting <- match.arg(weighting)
-
-  # this might be NA if it came from the sweep_clusters() function
-  if (is.na(objective_function)) {
-    objective_function <- NULL
-  } else {
-    objective_function <- match.arg(objective_function)
-  }
+  objective_function <- match.arg(objective_function)
 
   if (length(cluster_args)) {
     stopifnot(

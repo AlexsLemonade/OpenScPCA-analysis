@@ -99,10 +99,10 @@ sweep_clusters <- function(
     resolution = unique(resolution),
     objective_function = unique(objective_function)
   ) |>
-    # set unused parameters for the given algorithm to NA
+    # set unused parameters for the given algorithm to their defaults
     dplyr::mutate(
-      resolution = ifelse(algorithm %in% c("louvain", "leiden"), resolution, NA_real_),
-      objective_function = ifelse(algorithm == "leiden", objective_function, NA_character_)
+      resolution = ifelse(algorithm %in% c("louvain", "leiden"), resolution, 1),
+      objective_function = ifelse(algorithm == "leiden", objective_function, "CPM")
     ) |>
     dplyr::distinct()
 
