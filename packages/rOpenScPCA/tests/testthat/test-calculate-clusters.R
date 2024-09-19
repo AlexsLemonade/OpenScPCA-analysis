@@ -21,32 +21,12 @@ test_that("calculate_clusters runs with a matrix, defaults", {
     colnames(cluster_df),
     c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution")
   )
-  expect_equal(
-    cluster_df$cell_id,
-    rownames(test_mat)
-  )
-
-  expect_s3_class(
-    cluster_df$cluster,
-    "factor"
-  )
-
-  expect_equal(
-    unique(cluster_df$algorithm),
-    "louvain"
-  )
-  expect_equal(
-    unique(cluster_df$weighting),
-    "jaccard"
-  )
-  expect_equal(
-    unique(cluster_df$nn),
-    10
-  )
-  expect_equal(
-    unique(cluster_df$resolution),
-    1
-  )
+  expect_equal(cluster_df$cell_id, rownames(test_mat))
+  expect_s3_class(cluster_df$cluster, "factor")
+  expect_equal(unique(cluster_df$algorithm), "louvain")
+  expect_equal(unique(cluster_df$weighting), "jaccard")
+  expect_equal(unique(cluster_df$nn), 10)
+  expect_equal(unique(cluster_df$resolution), 1)
 })
 
 
@@ -61,10 +41,7 @@ test_that("calculate_clusters runs with additional cluster_args", {
     colnames(cluster_df),
     c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution", "objective_function", "n_iterations")
   )
-  expect_equal(
-    unique(cluster_df$n_iterations),
-    3
-  )
+  expect_equal(unique(cluster_df$n_iterations), 3)
 })
 
 
@@ -79,11 +56,7 @@ test_that("calculate_clusters runs when cluster_args is empty", {
     colnames(cluster_df),
     c("cell_id", "cluster", "algorithm", "weighting", "nn")
   )
-
-  expect_equal(
-    unique(cluster_df$algorithm),
-    "walktrap"
-  )
+  expect_equal(unique(cluster_df$algorithm), "walktrap")
 })
 
 
@@ -93,20 +66,14 @@ test_that("calculate_clusters runs with an object, defaults", {
     colnames(cluster_df_sce),
     c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution")
   )
-  expect_equal(
-    cluster_df_sce$cell_id,
-    rownames(test_mat)
-  )
+  expect_equal(cluster_df_sce$cell_id, rownames(test_mat))
 
   cluster_df_srat <- calculate_clusters(srat)
   expect_setequal(
     colnames(cluster_df_srat),
     c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution")
   )
-  expect_equal(
-    cluster_df_srat$cell_id,
-    rownames(test_mat)
-  )
+  expect_equal(cluster_df_srat$cell_id, rownames(test_mat))
 })
 
 
@@ -139,10 +106,7 @@ test_that("extract_pc_matrix works as expected", {
   pc_mat_srt <- extract_pc_matrix(srat)
   # update test_mat column names to match what will have Seurat changed them to
   colnames(test_mat) <- gsub("^PC", "PC_", colnames(test_mat))
-  expect_identical(
-    pc_mat_srt,
-    test_mat
-  )
+  expect_identical(pc_mat_srt, test_mat)
 })
 
 test_that("extract_pc_matrix errors as expected", {

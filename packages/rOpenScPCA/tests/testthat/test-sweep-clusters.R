@@ -25,20 +25,10 @@ test_that("sweep_clusters works as expected with defaults", {
         )
 
         expect_equal(df$cell_id, colnames(sce))
+        expect_s3_class(df$cluster, "factor")
+        expect_equal(unique(df$algorithm), "louvain")
+        expect_equal(unique(df$weighting), "jaccard")
 
-        expect_s3_class(
-          df$cluster,
-          "factor"
-        )
-
-        expect_equal(
-          unique(df$algorithm),
-          "louvain"
-        )
-        expect_equal(
-          unique(df$weighting),
-          "jaccard"
-        )
         expect_true(
           all(df$nn == 10) || all(df$nn == 15)
         )
@@ -67,15 +57,8 @@ test_that("sweep_clusters works as expected with non-default algorithm", {
           c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution", "objective_function")
         )
 
-        expect_equal(
-          unique(df$algorithm),
-          "leiden"
-        )
-
-        expect_equal(
-          unique(df$objective_function),
-          "modularity"
-        )
+        expect_equal(unique(df$algorithm), "leiden")
+        expect_equal(unique(df$objective_function), "modularity")
 
         expect_true(
           all(unique(df$resolution) == 0.5) || all(unique(df$resolution) == 1)
@@ -103,20 +86,10 @@ test_that("sweep_clusters works as expected with multiple algorithms", {
     dplyr::group_by(id) |>
     dplyr::summarize(alg = unique(algorithm))
 
-  expect_equal(
-    nrow(alg_count_df),
-    6
-  )
+  expect_equal(nrow(alg_count_df), 6)
+  expect_equal(sum(alg_count_df$alg == "louvain"), 4)
+  expect_equal(sum(alg_count_df$alg == "walktrap"), 2)
 
-  expect_equal(
-    sum(alg_count_df$alg == "louvain"),
-    4
-  )
-
-  expect_equal(
-    sum(alg_count_df$alg == "walktrap"),
-    2
-  )
 
   sweep_list |>
     purrr::walk(
