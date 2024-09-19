@@ -21,7 +21,7 @@ prepare_fetal_atlas <- function(scratch_out_dir, use_exist = T){
   }
   
   sce <- zellkonverter::readH5AD(path_h5ad)
-  rownames(sce) <- SingleCellExperiment::rowData(sce)$ID
+  #rownames(sce) <- SingleCellExperiment::rowData(sce)$ID
   seurat_obj <- SeuratObject::CreateSeuratObject(counts = SingleCellExperiment::counts(sce),
                                                  assay = "RNA",
                                                  project = "kidneyatlas")
@@ -60,6 +60,14 @@ run_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir,
   
   sample_obj <- SeuratObject::LoadSeuratRds( file.path(path_anal,"scratch","00_preprocessing_rds",paste0(sample,".rdsSeurat")) )
 
+  
+  # set row names as gene symbol
+  # length(intersect(rownames(ref_obj), rownames(sample_obj))) # 21207
+  # length(intersect(VariableFeatures(ref_obj), rownames(sample_obj))) # 2668
+  unique <- sample_obj[["RNA"]]@meta.data$gene_ids[!duplicated(sample_obj[["RNA"]]@meta.data$gene_symbol)]
+  sample_obj <- sample_obj[unique,]
+  rownames(sample_obj) <- sample_obj[["RNA"]]@meta.data$gene_symbol
+  
   # find anchors
   anchors <- FindTransferAnchors(reference = ref_obj, query = sample_obj)
   

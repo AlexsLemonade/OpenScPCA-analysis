@@ -2,9 +2,11 @@
 # parse arguments from command line
 args = commandArgs(trailingOnly=TRUE)
 if (length(args) == 0) {
+  # if not specifying any parameter, run all samples
   path_repo <- rprojroot::find_root(rprojroot::is_git_root)
   nsample <- 10
 } else if (length(args) == 1) {
+  # if specify the number of samples for test
   nsample <- as.numeric(args[1])
   path_repo <- rprojroot::find_root(rprojroot::is_git_root)
 } else if (length(args) == 2) {
@@ -41,8 +43,7 @@ ref_obj <- SeuratObject::LoadSeuratRds(file.path(scratch_out_dir, "kidneyatlas.r
 purrr::walk(
   meta$scpca_sample_id,
   \(sample) run_anchorTrans(path_anal = path_anal, scratch_out_dir = scratch_out_dir, results_out_dir = results_out_dir,
-                                     ref_obj = ref_obj, sample = sample,
-                                     unknown_cutoff = 0.5)
+                            ref_obj = ref_obj, sample = sample, unknown_cutoff = 0.5)
 )
 
 

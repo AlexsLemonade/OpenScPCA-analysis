@@ -47,8 +47,13 @@ process_sce <- function( sample, library,
   
 
   ######## annotate doublets
-  #rds <- rds[,which(db$class == "singlet")]
+
   rds$doublet_class <- db$class
+  # remove doublet?
+  # rds <- rds[,which(rds$doublet_class == "singlet")]
+  
+  ######## remove genes with no gene symbols
+  rds <- rds[!is.na(SingleCellExperiment::rowData(rds)$gene_symbol),]
   
   ######## create seurat object from the SCE counts matrix
   seurat_obj <- SeuratObject::CreateSeuratObject(counts = SingleCellExperiment::counts(rds),assay = "RNA",project = library)
