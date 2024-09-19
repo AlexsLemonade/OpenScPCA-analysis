@@ -81,11 +81,7 @@ test_that("sweep_clusters works as expected with multiple algorithms", {
 
   # count algorithms
   alg_counts <- sweep_list |>
-    purrr::map(
-      \(df) {
-        unique(df$algorithm)
-      }
-    ) |>
+    purrr::map(\(df) unique(df$algorithm)) |>
     purrr::reduce(c)
   expect_equal(length(alg_counts), 6)
   expect_equal(sum(alg_counts == "louvain"), 4)
