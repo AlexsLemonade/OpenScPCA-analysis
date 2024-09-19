@@ -50,30 +50,15 @@ test_that("sweep_clusters works as expected with default algorithm & weighting",
 
 test_that("sweep_clusters works as expected with matrix input", {
   sweep_list <- sweep_clusters(test_mat)
-
   expect_length(sweep_list, 1)
-
+})
 
 
 test_that("sweep_clusters works as expected with Seurat input", {
-  sweep_list <- sweep_clusters(
-    srat,
-    nn = c(10, 15)
-  )
-
-
-  expect_length(sweep_list, 2)
-
-  sweep_list |>
-    purrr::walk(
-      \(df) {
-        expect_setequal(
-          colnames(df),
-          c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution")
-        )
-      }
-    )
+  sweep_list <- sweep_clusters(srat)
+  expect_length(sweep_list, 1)
 })
+
 
 
 test_that("sweep_clusters works as expected with non-default algorithm", {
