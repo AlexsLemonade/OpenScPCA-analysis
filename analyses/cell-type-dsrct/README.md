@@ -24,7 +24,13 @@ The code for the module will be in the form of a notebook.
 ## Input files
 
 
-The input is dependent on the output fles run from `download-data.py`. This generates `SingleCellExperiment`  for DSRCT samples.
+The input is dependent on the output fles run from `download-data.py`. 
+
+```
+./download-data.py SCPCP000013
+```
+
+This downloads the `SingleCellExperiment` files for DSRCT samples.
 
 
 ## Output files
