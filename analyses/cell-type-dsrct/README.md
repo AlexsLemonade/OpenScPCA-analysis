@@ -27,7 +27,7 @@ The code for the module will be in the form of a notebook.
 The input is dependent on the output fles run from `download-data.py`. 
 
 ```
-./download-data.py SCPCP000013
+./download-data.py --projects SCPCP000013
 ```
 
 This downloads the `SingleCellExperiment` files for DSRCT samples.
