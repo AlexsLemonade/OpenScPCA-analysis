@@ -58,7 +58,7 @@ This function can be used to perform reproducible clustering while varying a set
 Multiple values can be provided for any of:
  - The algorithm (`algorithm`)
  - The weighting scheme (`weighting`)
- - Number of nearest neighrbors (`nn`)
+ - Number of nearest neighbors (`nn`)
  - The resolution parameter (`resolution`)
  - The objective function parameter (`objective_function`)
 }

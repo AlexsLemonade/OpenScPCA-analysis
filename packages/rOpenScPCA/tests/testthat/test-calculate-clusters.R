@@ -79,11 +79,6 @@ test_that("calculate_clusters runs with an object, defaults", {
 
 
 test_that("calculate_clusters errors as expected", {
-  test_mat_nonames <- test_mat
-  rownames(test_mat_nonames) <- NULL
-
-  expect_error(calculate_clusters(test_mat_nonames))
-  expect_error(calculate_clusters("not a matrix"))
   expect_error(calculate_clusters(test_mat, resolution = "string"))
   expect_error(calculate_clusters(test_mat, nn = "string"))
   expect_error(
@@ -119,4 +114,34 @@ test_that("extract_pc_matrix errors as expected", {
   expect_error(
     extract_pc_matrix(test_mat)
   )
+})
+
+
+
+
+test_that("prepare_pc_matrix works as expected with matrix input", {
+  mat <- prepare_pc_matrix(test_mat)
+  expect_identical(mat, test_mat)
+})
+
+
+test_that("prepare_pc_matrix works as expected with SCE input", {
+  mat <- prepare_pc_matrix(sce)
+  expect_identical(mat, test_mat)
+})
+
+test_that("prepare_pc_matrix works as expected with Seurat input", {
+  mat <- prepare_pc_matrix(srat)
+  # update test_mat column names to match what Seurat will have changed them to
+  colnames(test_mat) <- gsub("^PC", "PC_", colnames(test_mat))
+  expect_identical(mat, test_mat)
+})
+
+
+test_that("prepare_pc_matrix fails as expected ", {
+  test_mat_nonames <- test_mat
+  rownames(test_mat_nonames) <- NULL
+
+  expect_error(calculate_clusters(test_mat_nonames))
+  expect_error(calculate_clusters("not a matrix"))
 })

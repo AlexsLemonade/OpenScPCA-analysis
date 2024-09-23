@@ -71,17 +71,8 @@ calculate_clusters <- function(
     set.seed(seed)
   }
 
-  # check and prepare matrix, as needed
-  if (any(class(x) %in% c("matrix", "Matrix"))) {
-    stopifnot(
-      "The matrix must have row names representing cell ids, e.g. barcodes." = is.character(rownames(x))
-    )
-    pca_matrix <- x # redefine with better variable name
-  } else if (is(x, "SingleCellExperiment") || is(x, "Seurat")) {
-    pca_matrix <- extract_pc_matrix(x, pc_name = pc_name)
-  } else {
-    stop("The first argument should be one of: a SingleCellExperiment object, a Seurat object, or a matrix with row names.")
-  }
+  # check and prepare matrix
+  pca_matrix <- prepare_pc_matrix(x, pc_name = pc_name)
 
   # Check input arguments
   stopifnot(
@@ -219,4 +210,33 @@ extract_pc_matrix <- function(sc_object, pc_name = NULL) {
   )
 
   return(pca_matrix)
+}
+
+
+
+
+
+
+#' Helper function to check and/or extract a matrix of PCs from a given object
+#'
+#' @param x Either a matrix of principal components (PCs), or a SingleCellExperiment
+#'  or Seurat object containing PCs. If a matrix is provided, rows should be cells
+#'  and columns should be PCs, and row names should be cell ids (e.g., barcodes).
+#' @param pc_name Optionally, the name of the PC matrix in the object. Not used for
+#'   matrices. If this is not provided, the name "PCA" is assumed for
+#'   SingleCellExperiment objects, and "pca" for Seurat objects.
+#'
+#' @return A matrix of PCs with row names representing cell ids
+prepare_pc_matrix <- function(x, pc_name = NULL) {
+  if (any(class(x) %in% c("matrix", "Matrix"))) {
+    stopifnot(
+      "The matrix must have row names representing cell ids, e.g. barcodes." = is.character(rownames(x))
+    )
+  } else if (is(x, "SingleCellExperiment") || is(x, "Seurat")) {
+    x <- extract_pc_matrix(x, pc_name = pc_name)
+  } else {
+    stop("The first argument should be one of: a SingleCellExperiment object, a Seurat object, or a matrix with row names.")
+  }
+
+  return(x)
 }

@@ -32,4 +32,5 @@ Imports:
     methods,
     purrr,
     SingleCellExperiment,
+    tibble,
     tidyr
