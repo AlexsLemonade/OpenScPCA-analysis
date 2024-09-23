@@ -29,6 +29,8 @@ sudo apt install libcurl4-openssl-dev                 #for Seurat
 sudo apt-get install libxml2-dev libfontconfig1-dev libharfbuzz-dev  libfribidi-dev libtiff5-dev  #for devtools
 
 conda-lock install --name openscpca-cell-type-nonETP-ALL-03 conda-lock.yml
+conda activate openscpca-cell-type-nonETP-ALL-03
+pip install sam-algorithm
 Rscript -e "renv::restore()"
 ```
 
