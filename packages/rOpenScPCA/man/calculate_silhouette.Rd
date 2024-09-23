@@ -21,7 +21,10 @@ matrix is provided. If the name is not provided, the name "PCA" is assumed for
 SingleCellExperiment objects, and "pca" for Seurat objects.}
 }
 \value{
-Expanded `cluster_df` data frame with the additional column `silhouette_width`
+Expanded `cluster_df` data frame with these additional columns:
+- `silhouette_width`, the cell's silhouette width
+- `other`, the closest cluster other than the one to which the given cell was assigned
+For more information, see documentation for `bluster::approxSilhouette()`
 }
 \description{
 This function uses the `bluster::approxSilhouette()` function to calculate the

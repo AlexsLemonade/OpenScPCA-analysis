@@ -16,7 +16,7 @@ test_that("calculate_silhouette works as expected", {
 
   expect_setequal(
     colnames(df),
-    c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution", "silhouette_width", "random_extra_column")
+    c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution", "silhouette_width", "other", "random_extra_column")
   )
   expect_equal(df$cell_id, rownames(test_mat))
   expect_equal(df$cluster, cluster_df$cluster)
@@ -30,7 +30,7 @@ test_that("calculate_purity works as expected", {
 
   expect_setequal(
     colnames(df),
-    c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution", "purity", "random_extra_column")
+    c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution", "purity", "maximum", "random_extra_column")
   )
   expect_equal(df$cell_id, rownames(test_mat))
   expect_equal(df$cluster, cluster_df$cluster)

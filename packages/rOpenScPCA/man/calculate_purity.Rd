@@ -23,7 +23,10 @@ SingleCellExperiment objects, and "pca" for Seurat objects.}
 \item{...}{Additional arguments to pass to `bluster::neighborPurity()`}
 }
 \value{
-Expanded `cluster_df` data frame with the additional column `purity`
+Expanded `cluster_df` data frame with these additional columns:
+- `purity`, the cell's neighborhood purity
+- `maximum`, the cluster with the highest proportion of observations neighboring the given cell.
+For more information, see documentation for `bluster::neighborPurity()`
 }
 \description{
 This function uses the `bluster::neighborPurity()` function to calculate the

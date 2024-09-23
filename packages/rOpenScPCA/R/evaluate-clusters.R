@@ -15,9 +15,12 @@
 #'   matrix is provided. If the name is not provided, the name "PCA" is assumed for
 #'   SingleCellExperiment objects, and "pca" for Seurat objects.
 #'
-#' @return Expanded `cluster_df` data frame with the additional column `silhouette_width`
-#' @export
+#' @return Expanded `cluster_df` data frame with these additional columns:
+#' - `silhouette_width`, the cell's silhouette width
+#' - `other`, the closest cluster other than the one to which the given cell was assigned
+#' For more information, see documentation for `bluster::approxSilhouette()`
 #'
+#' @export
 #' @examples
 #' \dontrun{
 #' # calculate silhouette width for clusters stored in a data frame
@@ -39,13 +42,7 @@ calculate_silhouette <- function(
     bluster::approxSilhouette(cluster_df$cluster) |>
     as.data.frame() |>
     tibble::rownames_to_column("cell_id") |>
-    dplyr::select(
-      "cell_id",
-      "cluster",
-      # TODO: should we keep `other`? If so, this can just be
-      # dplyr::rename instead of select
-      "silhouette_width" = "width"
-    )
+    dplyr::rename("silhouette_width" = "width")
 
   # join with cluster_df in this direction, so that columns in
   # cluster_df come first
@@ -75,9 +72,12 @@ calculate_silhouette <- function(
 #'   SingleCellExperiment objects, and "pca" for Seurat objects.
 #' @param ... Additional arguments to pass to `bluster::neighborPurity()`
 #'
-#' @return Expanded `cluster_df` data frame with the additional column `purity`
-#' @export
+#' @return Expanded `cluster_df` data frame with these additional columns:
+#' - `purity`, the cell's neighborhood purity
+#' - `maximum`, the cluster with the highest proportion of observations neighboring the given cell.
+#' For more information, see documentation for `bluster::neighborPurity()`
 #'
+#' @export
 #' @examples
 #' \dontrun{
 #' # calculate neighborhood purity for clusters stored in a data frame
@@ -99,9 +99,7 @@ calculate_purity <- function(
   purity_df <- x |>
     bluster::neighborPurity(cluster_df$cluster) |>
     as.data.frame() |>
-    tibble::rownames_to_column("cell_id") |>
-    # TODO: should we keep `maximum`? If so, can remove this select statement
-    dplyr::select(-"maximum")
+    tibble::rownames_to_column("cell_id")
 
   # join with cluster_df in this direction, so that columns in
   # cluster_df come first
