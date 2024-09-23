@@ -132,7 +132,7 @@ test_that("prepare_pc_matrix works as expected with SCE input", {
 
 test_that("prepare_pc_matrix works as expected with Seurat input", {
   mat <- prepare_pc_matrix(srat)
-  # update test_mat column names to match what will have Seurat changed them to
+  # update test_mat column names to match what Seurat will have changed them to
   colnames(test_mat) <- gsub("^PC", "PC_", colnames(test_mat))
   expect_identical(mat, test_mat)
 })
