@@ -7,6 +7,12 @@ sce <- splatter::simpleSimulate(nGenes = 1000, verbose = FALSE) |>
 
 test_mat <- reducedDim(sce, "PCA")
 
+srat <- Seurat::CreateSeuratObject(counts = counts(sce), assay = "RNA")
+srat[["pca"]] <- Seurat::CreateDimReducObject(
+  embeddings = test_mat,
+  key = "PC_", # underscore avoids Seurat warning that it's adding an underscore
+  assay = "RNA"
+)
 
 test_that("sweep_clusters works as expected with default algorithm & weighting", {
   sweep_list <- sweep_clusters(
@@ -38,6 +44,19 @@ test_that("sweep_clusters works as expected with default algorithm & weighting",
       }
     )
 })
+
+
+test_that("sweep_clusters works as expected with matrix input", {
+  sweep_list <- sweep_clusters(test_mat)
+  expect_length(sweep_list, 1)
+})
+
+
+test_that("sweep_clusters works as expected with Seurat input", {
+  sweep_list <- sweep_clusters(srat)
+  expect_length(sweep_list, 1)
+})
+
 
 
 test_that("sweep_clusters works as expected with non-default algorithm", {
