@@ -20,7 +20,7 @@ test_that("calculate_silhouette works as expected", {
   )
   expect_equal(df$cell_id, rownames(test_mat))
   expect_equal(df$cluster, cluster_df$cluster)
-  expect_type(df$silhouette_width, "double")
+  expect_vector(df$silhouette_width, ptype = numeric())
   expect_s3_class(df$other, "factor")
 })
 
@@ -35,6 +35,6 @@ test_that("calculate_purity works as expected", {
   )
   expect_equal(df$cell_id, rownames(test_mat))
   expect_equal(df$cluster, cluster_df$cluster)
-  expect_type(df$purity, "double")
+  expect_vector(df$purity, ptype = numeric())
   expect_s3_class(df$maximum, "factor")
 })
