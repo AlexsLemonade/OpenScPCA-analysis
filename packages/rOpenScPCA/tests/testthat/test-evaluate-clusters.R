@@ -16,7 +16,7 @@ test_that("calculate_silhouette works as expected", {
 
   expect_setequal(
     colnames(df),
-    c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution", "silhouette_width", "other", "random_extra_column")
+    c(colnames(cluster_df), "silhouette_width", "other")
   )
   expect_equal(df$cell_id, rownames(test_mat))
   expect_equal(df$cluster, cluster_df$cluster)
