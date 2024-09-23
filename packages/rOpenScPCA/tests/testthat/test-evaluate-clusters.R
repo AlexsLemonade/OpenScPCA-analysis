@@ -20,7 +20,8 @@ test_that("calculate_silhouette works as expected", {
   )
   expect_equal(df$cell_id, rownames(test_mat))
   expect_equal(df$cluster, cluster_df$cluster)
-  expect_type(df$silhouette_width, "double") # TODO is expect_s3_class with "numeric" safer here? i imagine no decimals is near impossible?
+  expect_type(df$silhouette_width, "double")
+  expect_s3_class(df$other, "factor")
 })
 
 
@@ -34,5 +35,6 @@ test_that("calculate_purity works as expected", {
   )
   expect_equal(df$cell_id, rownames(test_mat))
   expect_equal(df$cluster, cluster_df$cluster)
-  expect_type(df$purity, "double") # TODO same expect_s3_class question
+  expect_type(df$purity, "double")
+  expect_s3_class(df$maximum, "factor")
 })
