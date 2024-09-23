@@ -4,7 +4,7 @@
 #' Multiple values can be provided for any of:
 #'  - The algorithm (`algorithm`)
 #'  - The weighting scheme (`weighting`)
-#'  - Number of nearest neighrbors (`nn`)
+#'  - Number of nearest neighbors (`nn`)
 #'  - The resolution parameter (`resolution`)
 #'  - The objective function parameter (`objective_function`)
 #'
@@ -80,16 +80,8 @@ sweep_clusters <- function(
     threads = 1,
     seed = NULL,
     pc_name = NULL) {
-  # Ensure input is a matrix for slightly faster processing later
-  if (any(class(x) %in% c("matrix", "Matrix"))) {
-    stopifnot(
-      "The matrix must have row names representing cell ids, e.g. barcodes." = is.character(rownames(x))
-    )
-  } else if (is(x, "SingleCellExperiment") || is(x, "Seurat")) {
-    x <- extract_pc_matrix(x, pc_name = pc_name)
-  } else {
-    stop("The first argument should be one of: a SingleCellExperiment object, a Seurat object, or a matrix with row names.")
-  }
+  # check and prepare matrix
+  pca_matrix <- prepare_pc_matrix(x, pc_name = pc_name)
 
   # Collect all specific inputs into a single list
   sweep_params <- tidyr::expand_grid(
@@ -110,7 +102,7 @@ sweep_clusters <- function(
     purrr::pmap(
       \(algorithm, weighting, nn, resolution, objective_function) {
         calculate_clusters(
-          x,
+          pca_matrix,
           algorithm = algorithm,
           weighting = weighting,
           nn = nn,
