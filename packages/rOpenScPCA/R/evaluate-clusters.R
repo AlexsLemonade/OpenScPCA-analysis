@@ -40,11 +40,11 @@ calculate_silhouette <- function(
     as.data.frame() |>
     tibble::rownames_to_column("cell_id") |>
     dplyr::select(
-      cell_id,
-      cluster,
+      "cell_id",
+      "cluster",
       # TODO: should we keep `other`? If so, this can just be
       # dplyr::rename instead of select
-      silhouette_width = width
+      "silhouette_width" = "width"
     )
 
   # join with cluster_df in this direction, so that columns in
@@ -101,7 +101,7 @@ calculate_purity <- function(
     as.data.frame() |>
     tibble::rownames_to_column("cell_id") |>
     # TODO: should we keep `maximum`? If so, can remove this select statement
-    dplyr::select(-maximum)
+    dplyr::select(-"maximum")
 
   # join with cluster_df in this direction, so that columns in
   # cluster_df come first
