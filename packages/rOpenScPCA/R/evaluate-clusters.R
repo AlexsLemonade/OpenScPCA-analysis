@@ -31,8 +31,8 @@ calculate_silhouette <- function(
 
   expected_df_names <- c("cell_id", "cluster")
   stopifnot(
-    "Expected columns 'cell_id' and 'cluster' in the cluster_df.",
-    expected_df_names %in% colnames(cluster_df)
+    "Expected columns 'cell_id' and 'cluster' in the cluster_df." =
+      all(expected_df_names %in% colnames(cluster_df))
   )
 
   silhouette_df <- x |>
