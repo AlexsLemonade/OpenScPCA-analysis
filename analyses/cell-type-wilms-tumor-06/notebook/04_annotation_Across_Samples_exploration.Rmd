@@ -39,13 +39,8 @@ In order to explore the label transfer results, we look into some marker genes, 
 
 ```{r packages, message=FALSE, warning=FALSE}
 library(Seurat)
-library(sctransform)
-library(SCpubr)             # for plotting 
 library(tidyverse)
 library(patchwork)
-
-library(reshape2)
-library(org.Hs.eg.db)
 
 set.seed(params$seed)
 ```
@@ -71,27 +66,54 @@ result_dir <- file.path(module_base, "results")
 
 In this notebook, we are working with all of the samples in `r params$scpca_project_id`.
 
-We work with the pre-processed and labeled `Seurat` object that is the output of `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd` saved in the `results` directory.
-
 The sample metadata can be found in `sample_metadata_file` in the `data` folder.
+
+We extracted from the pre-processed and labeled `Seurat` object (that is the output of `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd` saved in the `results` directory)
+the following information per cell:
+
+- the predicted compartment in `fetal_kidney_predicted.compartment` 
+
+- the predicted organ in `fetal_full_predicted.organ`
+
+- the sample identifier in `sample_id`
+
+- the `counts`of the endothelial marker VWF = "ENSG00000110799"
+
+- the `counts`of the immune marker PTPRC = "ENSG00000081237"
+
 
 ```{r path_to_query}
 sample_metadata_file <- file.path(repository_base, "data", "current", params$scpca_project_id, "single_cell_metadata.tsv")
 
 metadata <- read.table(sample_metadata_file, sep = "\t", header = TRUE)
+
+# Create a data frames of all annotations
+cell_type_df <- metadata$scpca_sample_id |>
+  purrr::map(
+    # For each sample_id, do the following:
+    \(sample_id) {
+
+      # Read in the Seurat object
+      srat <- readRDS(
+        file.path(result_dir, sample_id, paste0("02b-fetal_kidney_label-transfer_", sample_id, ".Rds"))
+      )
+
+      # Create and return a data frame from the Seurat object with relevant annotations
+      # this data frame will have four columns: barcode, sample_id, compartment, organ
+      data.frame(
+        compartment = srat$fetal_kidney_predicted.compartment,
+        organ = srat$fetal_full_predicted.organ, 
+        PTPRC = FetchData(object = srat, vars = "ENSG00000081237", layer = "counts"),
+        VWF = FetchData(object = srat, vars = "ENSG00000110799", layer = "counts")
+        ) |>
+        tibble::rownames_to_column("barcode") |>
+        dplyr::mutate(sample_id = sample_id)
+    }
+  ) |>
+  # now combine all dataframes to make one big one
+  dplyr::bind_rows()
+
 ```
-
-To explore the annotation results, we look into some marker genes reported here:
-
-```{r marker_genes, fig.width=12, fig.height=6, out.width='100%'}
-CellType_metadata <- read_csv(file.path(module_base, "marker-sets", "CellType_metadata.csv"))
-
-DT::datatable(CellType_metadata, caption = ("CellType_metadata"), 
-              extensions = 'Buttons', 
-              options = list(  dom = 'Bfrtip',
-                               buttons = c( 'csv', 'excel')))
-```
-
 
 ### Output file
 
@@ -100,120 +122,67 @@ The report will be saved in the `notebook` directory.
 
 ## Functions
 
-Here we defined function that will be used multiple time all along the notebook. 
-
-#### Visualize seurat clusters and metadata
-
-For a Seurat object `object`and a metadata `metadata`, the function `visualize_metadata` will plot `FeaturePlot` and `BarPlot`
-
-- `object` is the Seurat object 
-
-- `metadata` the gene or quantitative value to be plotted
-
-- `group.by` is the metadata used for grouping the violin plots 
-
-```{r }
-visualize_metadata <- function(object, meta, group.by){
-  
-  if(is.numeric(object@meta.data[,meta])){
-     d <- SCpubr::do_FeaturePlot(object, 
-                                              features = meta, 
-                                              reduction = "umap.rpca",
-                                              pt.size = 0.2, 
-                                              legend.width = 0.5, 
-                                              legend.length = 5, 
-                                              legend.position = "right") + ggtitle(meta)
-    b <- SCpubr::do_ViolinPlot(srat, 
-                                             features = meta, 
-                                             ncol = 1, 
-                                             group.by = group.by, 
-                                             legend.position = "none")
-                   
-   return(d + b + plot_layout(ncol = 2, widths = c(2,4))) 
-  }
-  
-  
-  else{
-    
-  
-  d <- SCpubr::do_DimPlot(object, reduction="umap.rpca", group.by = meta, label = TRUE, repel = TRUE) + ggtitle(paste0(meta," - umap")) + theme(text=element_text(size=18)) + NoLegend()
-  b <- SCpubr::do_BarPlot(sample = object,
-                         group.by = meta,
-                         split.by = group.by,
-                         position = "fill",
-                         font.size = 10,
-                         legend.ncol = 3) +
-                         ggtitle("% cells")+
-                         xlab(print(group.by)) +
-                         theme(text=element_text(size=18))
-  return(d + b + plot_layout(ncol = 1, heights = c(4,2)))
-  }
-  
-}
-```
-
-#### Visualize seurat clusters and markers genes
-
-For a Seurat object `object`and a features `features`, the function `visualize_feature` will plot `FeaturePlot` and `ViolinPlot`
-
-- `object` is the Seurat object 
-
-- `features` the gene or quantitative value to be plotted
-
-- `group.by` is the metadata used for grouping the violin plots 
-
-```{r }
-visualize_feature <- function(object, features, group.by = "seurat_clusters"){
- 
-                  feature_symbol <- AnnotationDbi::select(org.Hs.eg.db, 
-                                keys=features, 
-                                columns="SYMBOL", 
-                                keytype="ENSEMBL")
- 
-                  d <- SCpubr::do_FeaturePlot(object, 
-                                              features = feature_symbol$ENSEMBL,
-                                              reduction = "umap.rpca",
-                                              pt.size = 0.2, 
-                                              legend.width = 0.5, 
-                                              legend.length = 5, 
-                                              legend.position = "right") + ggtitle(feature_symbol$SYMBOL)
-                  b <- SCpubr::do_ViolinPlot(srat, 
-                                             features = feature_symbol$ENSEMBL, 
-                                             ncol = 1, 
-                                             group.by = group.by, 
-                                             legend.position = "none",
-                                             assay = "SCT") + ylab(feature_symbol$SYMBOL)
-                   
-                  return(d + b + plot_layout(ncol = 2, widths = c(2,4))) 
-}
-          
- 
-```
-
 
 #### do_Table_Heatmap
 
 `do_Table_Heatmap` shows heatmap of counts of cells for combinations of two metadata variables
 
-- `data` seurat object 
 - `first_group` is the name of the first metadata to group the cells
 - `last_group` is the name of the second metadata to group the cells
 
 ```{r fig.width=10, fig.height=4, out.width='100%'}
-do_Table_Heatmap <- function(data, first_group, last_group ){
+do_Table_Heatmap <- function(first_group, last_group ){
   
-  df <- data@meta.data %>%
-  mutate_if(sapply(data@meta.data, is.character), as.factor)  %>% 
+  df <- cell_type_df %>%
   group_by( !!sym(first_group), !!sym(last_group))%>% 
-  summarise(Nb = log(n())) 
+  summarise(Nb = n())  %>%
+  mutate(C = sum(Nb)) %>%
+  mutate(percent = Nb/C*100)
 
-p <- ggplot(df, aes(x= !!sym(first_group), y = !!sym(last_group), fill = Nb)) +
+  
+p1 <- ggplot(df, aes(x= !!sym(first_group), y = !!sym(last_group), fill = Nb)) +
    geom_tile() +
    scale_fill_viridis_c()  +
    theme_bw() +
    theme(text = element_text(size = 20)) +
    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-   guides(fill=guide_legend(title=" Number of \n cells (log)"))
+   guides(fill=guide_legend(title=" Number of \n cells"))
+
+p2 <- ggplot(df, aes(x= !!sym(first_group), y = !!sym(last_group), fill = percent)) +
+   geom_tile() +
+   scale_fill_viridis_c()  +
+   theme_bw() +
+   theme(text = element_text(size = 20)) +
+   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+   guides(fill=guide_legend(title=" Percentage of \n cells"))
+
+p <- p1 + p2 + plot_layout(ncol = 2)
+return(p)
+}
+```
+
+#### do_Feature_mean
+
+`do_Feature_mean` shows heatmap of mean expression of a feature grouped by a metadata. 
+
+- `group.by` is the name of the metadata to group the cells
+- `feature` is the name of the gene to average the expression
+
+```{r fig.width=10, fig.height=4, out.width='100%'}
+do_Feature_mean <- function(group.by, feature ){
+  
+  df <- cell_type_df %>%
+  group_by(sample_id, !!sym(group.by))%>% 
+  summarise(m = mean(!!sym(feature)))  
+
+  
+p <- ggplot(df, aes(x= sample_id, y = !!sym(group.by), fill = m)) +
+   geom_tile() +
+   scale_fill_viridis_c()  +
+   theme_bw() +
+   theme(text = element_text(size = 20)) +
+   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+   guides(fill=guide_legend(title=paste0(feature)))
 
 return(p)
 }
@@ -221,120 +190,18 @@ return(p)
 
 ## Analysis
 
-### Load the pre-processed `Seurat` object
-```{r load, message=FALSE, warning=FALSE}
-# open the processed rds object
-filelist <- list.files(result_dir, 
-                       recursive = TRUE, 
-                       pattern = "02b-fetal_kidney_label-transfer_", 
-                       full.names = TRUE)
+### Total number of cells per samples
 
-sample_id <- list.files(result_dir, 
-                       recursive = TRUE, 
-                       pattern = "02b-fetal_kidney_label-transfer_", 
-                       full.names = FALSE)
-sample_id <- colsplit(sample_id, pattern = "/", names = c("sample_id", "suffixe"))
-sample_id <- sample_id[,1]
-
-sce <- lapply(filelist, function(x) readRDS(x))
-
+```{r fig.width=5, fig.height=10, out.width='100%', results='asis'}
+tmp <- table(cell_type_df$sample_id)
+knitr::kable(tmp)
 ```
+### Predicted organ
 
-### Merge `Seurat` objects (with integration)
-
-We followed the standard `Seurat` workflow described here to merge and integrate the 40 samples from the Wilms tumor dataset `r params$scpca_project_id`.
-For more information, see the vignette [Merge objects (with integration)](https://satijalab.org/seurat/articles/essential_commands.html#merge-objects-with-integration). We have slight changes as we already performed normalization using [`SCTransform`](https://github.com/satijalab/seurat/issues/2814).
-
-```{r process, message=FALSE, warning=FALSE}
-options(future.globals.maxSize= 8912896000000)
-
-srat <- merge(sce[[1]], y = sce[2:length(sce)], 
-              add.cell.ids = sample_id, 
-              project = params$scpca_project_id)
-
-DefaultAssay(object = srat) <- "SCT"
-
-VariableFeatures(srat[["SCT"]]) <- rownames(srat[["SCT"]]@scale.data) 
-
-srat <- RunPCA(srat)
-
-srat <- IntegrateLayers(object = srat, 
-                        method = RPCAIntegration,
-                        orig.reduction = "pca", 
-                        new.reduction = 'rpca',
-                        normalization.method="SCT", verbose = FALSE)
-
-srat <- FindNeighbors(srat, dims = 1:30, reduction = "rpca")
-srat <- FindClusters(srat)
-srat <- RunUMAP(srat, reduction = "rpca", dims = 1:30, reduction.name = "umap.rpca")
-```
-
-### Quick look at the integration
-
-This is not the main point of this notebook, we expect to work on integration later on, one of the final step of the analysis. 
-We simply here would like to have a rough idea of cell/sample distribution. 
-
-```{r fig.width=15, fig.height=10, out.width='100%'}
-tmp <- colsplit(colnames(srat), pattern = "_", names = c("sample_id", "barcode"))
-srat <- AddMetaData(srat, tmp$sample_id, col.name = "sample_id")
-
-d1 <- SCpubr::do_DimPlot(srat, reduction="umap.rpca", group.by = "sample_id", label = FALSE) + ggtitle("sample_id - umap.rpca reduction")
-
-d2 <- SCpubr::do_DimPlot(srat, reduction="umap.rpca", group.by = "seurat_clusters", label = TRUE, repel = TRUE) + ggtitle("seurat_clusters - umap.rpca reduction")
-
-
-d1 | d2
-```
-
-### Cell annotation
-
-#### Introduction to the four annotation strategies
-
-The use of the right reference is crucial for label transfer and annotation. 
-It is recommended that the cell types in the reference is representative to the cell types to be annotated in the query.
-
-Wilms tumors can contain up to three histologies that resemble fetal kidney: blastema, stroma, and epithelia [[1](https://www.ncbi.nlm.nih.gov/books/NBK373356/), [2](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9915828/)]. 
-Because of their histological similarity to fetal kidneys, Wilms tumors are thought to arise from developmental derangements in embryonic renal progenitors.
-
-For these reasons, we expect Wilms tumor cells to map to fetal cells, especially fetal kidney cells. 
-
-Here, we investigate annotations resulting from 4 different strategies:
-
-* the `_processed.rds` objects already contain automated annotations computed by the [Data Lab](https://scpca.readthedocs.io/en/latest/getting_started.html):
-
-    + Annotations determined by SingleR, an automated reference-based method [Looney et al. 2019](https://www.nature.com/articles/s41590-018-0276-y).
-
-    + Annotations determined by CellAssign, an automated marker-gene based method [Zhang et al. 2019](https://www.nature.com/articles/s41592-019-0529-1).
-    
-* the label transfers from two fetal references using `Azimuth`, that have been performed in the previous analysis 
-
-    + Using the human fetal atlas as a reference: 
-    This is the reference developed by [Cao et al.](https://www.science.org/doi/10.1126/science.aba7721) provided by `Azimuth` for label transfer.
-    The reference contain cells from 15 organs including kidney from fetal samples.
-    The label transfer have been performed in the notebook `02a_fetal_full_reference_Cao_{sample_id}.Rmd`
-    
-    + Using the human fetal kidney atlas: 
-    [Stewart et al.](https://www.science.org/doi/10.1126/science.aat5031) created a [human fetal kidney atlas](https://www.kidneycellatlas.org/). 
-    This reference contains only fetal kidney cells and has been precisely annotated by kidney experts. 
-    The label transfer have been performed in the notebook `02b_fetal_kidney_reference_Stewart_{sample_id}.Rmd`
-
-
-#### Annotation from SingleR (no cancer or kidney specific dataset)
-
-```{r fig.width=20, fig.height=20, out.width='100%'}
-visualize_metadata(srat, meta = "singler_celltype_annotation", group.by = "seurat_clusters")
-```
-
-
-#### Annotation from cellassign (no cancer or kidney specific dataset)
-
-
-```{r fig.width=10, fig.height=20, out.width='100%'}
-visualize_metadata(srat, meta = "cellassign_celltype_annotation", group.by = "seurat_clusters")
-```
-
-
-#### Annotation from the fetal reference (Cao et al)
+The predicted organ comes from label transfer from the human fetal atlas. 
+This is the reference developed by [Cao et al.](https://www.science.org/doi/10.1126/science.aba7721) provided by `Azimuth` for label transfer.
+The reference contain cells from 15 organs including kidney from fetal samples.
+The label transfer have been performed in the notebook `02a_fetal_full_reference_Cao_{sample_id}.Rmd`
 
 The fetal full reference (Cao et al.) provides three levels of annotations:
 
@@ -345,27 +212,24 @@ We were nicely surprised that, for many of the samples, most of the cells from t
 
 - `fetal_full_predicted.annotation.l2` holds the combination of the predicted organ and predicted cell type annotation
 
+    
 
-```{r fig.width=15, fig.height=20, out.width='100%'}
-visualize_metadata(srat, meta = "fetal_full_predicted.organ", group.by = "seurat_clusters")
+```{r fig.width=25, fig.height=6,  results='asis'}
+tmp <- table(cell_type_df$sample_id, cell_type_df$organ)
+
+knitr::kable(tmp)
 ```
 
-
-
-```{r fig.width=30, fig.height=20, out.width='100%'}
-tmp <- table(srat$fetal_full_predicted.organ)
-percent.of.kidney <- tmp["Kidney"] / sum(tmp) * 100
+```{r fig.width=25, fig.height=6}
+do_Table_Heatmap(first_group = "sample_id", last_group = "organ")
 ```
 
-Of note, `r percent.of.kidney` % of the cells are labeled as kidney cells. 
+### Predicted compartment
 
-```{r fig.width=15, fig.height=20, out.width='100%'}
-visualize_metadata(srat, meta = "fetal_full_predicted.annotation.l1", group.by = "seurat_clusters")
-visualize_metadata(srat, meta = "fetal_full_predicted.annotation.l2", group.by = "seurat_clusters")
-```
-
-
-#### Annotation from the kidney reference (Stewart et al)
+The predicted compartment is the result of the label transfer fron the human fetal kidney atlas: 
+[Stewart et al.](https://www.science.org/doi/10.1126/science.aat5031) created a [human fetal kidney atlas](https://www.kidneycellatlas.org/). 
+This reference contains only fetal kidney cells and has been precisely annotated by kidney experts. 
+The label transfer have been performed in the notebook `02b_fetal_kidney_reference_Stewart_{sample_id}.Rmd`
 
 The fetal kidney reference (Stewart et al.) provides two levels of annotations:
 
@@ -395,63 +259,34 @@ We expect stroma and fetal nephron compartment to contain both normal and malign
     - `endothelial` cells
 
 
+We think that the first level of annotation `fetal_kidney_predicted.compartment` can be useful in identifying non-cancer cells, at least the endothelial and immune cells. 
 
-```{r fig.width=10, fig.height=10, out.width='100%'}
-visualize_metadata(srat, meta = "fetal_kidney_predicted.compartment", group.by = "seurat_clusters")
+
+```{r fig.width=25, fig.height=3, results='asis'}
+tmp <- table(cell_type_df$sample_id, cell_type_df$compartment)
+
+knitr::kable(tmp)
+```
+
+```{r fig.width=25, fig.height=3}
+
+do_Table_Heatmap(first_group = "sample_id", last_group = "compartment")
 ```
 
 
 
-```{r fig.width=30, fig.height=20, out.width='100%'}
-tmp <- table(srat$fetal_kidney_predicted.compartment)
-percent.of.immune <- 100*tmp["immune"]/sum(tmp)
-percent.of.endothelial <- 100*tmp["endothelium"]/sum(tmp)
-```
+### Evaluate annotations with marker genes
 
-Of note, `r percent.of.immune` % of the cells are labeled as immune cells and `r percent.of.endothelial` % of the cells are labeled as endothelial cells. 
+Here we evaluate with marker genes the identification of endothelial, immune cells sub-populations.
 
-Let's have a look at the repartition of cells per patient:
-
-```{r fig.width=10, fig.height=50, out.width='100%'}
-table(srat$sample_id, srat$fetal_kidney_predicted.compartment)
-```
-
-
-```{r fig.width=10, fig.height=20, out.width='100%'}
-visualize_metadata(srat, meta = "fetal_kidney_predicted.cell_type", group.by = "seurat_clusters")
-```
-
-
-### Compare annotations with marker genes
-
-#### "fetal_kidney_predicted.compartment"
-
-Here we evaluate with marker genes the identification of endothelial, immune cells and other cancer and non-cancerous sub-populations.
-
-```{r fig.height=8, fig.width=8, message=FALSE, warning=FALSE, out.width='100%'}
-
-markers = list("malignant" = CellType_metadata$ENSEMBL_ID[which(CellType_metadata$cell_class == "malignant")],
-            "immune"= CellType_metadata$ENSEMBL_ID[which(CellType_metadata$cell_class == "immune")],
-            "endothelium"= CellType_metadata$ENSEMBL_ID[which(CellType_metadata$cell_class == "endothelium")],
-            "non-malignant"= CellType_metadata$ENSEMBL_ID[which(CellType_metadata$cell_class == "non-malignant")])
-
-SCpubr::do_DotPlot(sample = srat,
-                         group.by =  "fetal_kidney_predicted.compartment",
-                         features = markers, 
-                         axis.text.x.angle = 90, 
-                         flip = TRUE, 
-                         plot.title = "fetal_kidney_predicted.compartment"
-                         ) 
-```
 
 ##### Endothelial cells
 
 We look at the endothelial marker "ENSG00000110799" = "VWF"
 
-```{r fig.height=4, fig.width=8, message=FALSE, warning=FALSE, out.width='100%'}
-visualize_feature(object = srat,
-                  features = "ENSG00000110799",
-                  group.by = "fetal_kidney_predicted.compartment")
+```{r fig.height=3, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
+do_Feature_mean(  feature = "ENSG00000110799",
+                  group.by = "compartment")
 ```
 
 ##### Immune cells
@@ -459,151 +294,9 @@ visualize_feature(object = srat,
 We look at the immune marker "ENSG00000081237" = "PTPRC" alias "CD45"
 
 
-```{r fig.height=4, fig.width=8, message=FALSE, warning=FALSE, out.width='100%'}
-visualize_feature(object = srat,
-                  features = "ENSG00000081237",
-                  group.by = "fetal_kidney_predicted.compartment")
-```
-#### "fetal_kidney_predicted.cell_type"
-
-```{r fig.height=10, fig.width=10, message=FALSE, warning=FALSE, out.width='100%'}
-
-SCpubr::do_DotPlot(sample = srat,
-                         group.by =  "fetal_kidney_predicted.cell_type",
-                         features = markers, 
-                         axis.text.x.angle = 90, 
-                         flip = TRUE,
-                         plot.title = "fetal_kidney_predicted.cell_type"
-                          )
-
-```
-#### "fetal_full_predicted.annotation.l1"
-
-```{r fig.height=10, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
-
-SCpubr::do_DotPlot(sample = srat,
-                         group.by =   "fetal_full_predicted.annotation.l1",
-                         features = markers, 
-                         axis.text.x.angle = 90, 
-                         flip = TRUE,
-                         plot.title =  "fetal_full_predicted.annotation.l1"
-                          )
-```
-#### "cellassign_celltype_annotation"
-
-```{r fig.height=15, fig.width=20, message=FALSE, warning=FALSE, out.width='100%'}
-SCpubr::do_DotPlot(sample = srat,
-                         group.by =  "cellassign_celltype_annotation",
-                         features = markers, 
-                         axis.text.x.angle = 90, 
-                         flip = TRUE,
-                         plot.title = "cellassign_celltype_annotation"
-                          )                         
-```
-
-### Compare annotations between them
-
-
-#### Annotation versus `Seurat` clusters
-
-Here we check wether one (or more) `Seurat` cluster do correspond to one label. 
-This would allow us to be more confident in the annotation of immune or endothelial cells for example.
-
-
-```{r fig.width=25, fig.height=25, out.width='100%'}
-p1 <- do_Table_Heatmap( srat,
-                            last_group = "fetal_kidney_predicted.compartment",
-                            first_group = "seurat_clusters"
-                             
-                            )
-
-
-p2 <- do_Table_Heatmap( srat,
-                            last_group = "fetal_full_predicted.annotation.l1",
-                            first_group = "seurat_clusters"
-                            )
-
-
-p3 <- do_Table_Heatmap( srat,
-                            last_group = "singler_celltype_annotation",
-                            first_group = "seurat_clusters"
-                            )
-
-
-p4 <- do_Table_Heatmap( srat,
-                            last_group = "cellassign_celltype_annotation",
-                            first_group = "seurat_clusters"
-                            )
-
-(p1|p2)/(p3|p4)
-```
-
-#### Comparison of the labels from the two fetal references
-
-
-##### first level annotation
-
-```{r fig.width=30, fig.height=12, out.width='100%'}
-p1 <- do_Table_Heatmap( srat,
-                            last_group = "fetal_kidney_predicted.compartment",
-                            first_group = "fetal_full_predicted.annotation.l1"
-                             
-                            )
-p2 <- do_Table_Heatmap( srat,
-                            last_group = "fetal_kidney_predicted.cell_type",
-                            first_group = "fetal_full_predicted.annotation.l1"
-                          
-                            )
-p1|p2
-```
-
-##### second level annotation
-
-```{r fig.width=30, fig.height=15, out.width='100%'}
-p2 <- do_Table_Heatmap( srat,
-                            last_group = "fetal_kidney_predicted.cell_type",
-                            first_group = "fetal_full_predicted.annotation.l2"
-                             
-                            )
-p2
-```
-
-
-#### Comparison of the  fetal reference with `singleR` and `cellassign`
-
-
-##### first level annotation
-
-```{r fig.width=30, fig.height=10, out.width='100%'}
-p1 <- do_Table_Heatmap( srat,
-                            last_group = "fetal_kidney_predicted.compartment",
-                            first_group = "cellassign_celltype_annotation"
-                             
-                            )
-p2 <- do_Table_Heatmap( srat,
-                            last_group = "fetal_kidney_predicted.compartment",
-                            first_group = "singler_celltype_annotation"
-                          
-                            )
-p1|p2
-```
-
-##### second level annotation
-
-```{r fig.width=30, fig.height=30, out.width='100%'}
-p1 <- do_Table_Heatmap( srat,
-                            last_group = "fetal_kidney_predicted.cell_type",
-                            first_group = "cellassign_celltype_annotation"
-                      
-                            )
-
-p2 <- do_Table_Heatmap( srat,
-                            last_group = "fetal_kidney_predicted.cell_type",
-                            first_group = "singler_celltype_annotation"
-                      
-                            )
-
-p1/p2
+```{r fig.height=3, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
+do_Feature_mean(  feature = "ENSG00000081237",
+                  group.by = "compartment")
 ```
 
 
