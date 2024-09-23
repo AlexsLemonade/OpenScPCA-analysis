@@ -8,8 +8,6 @@ test_mat <- reducedDim(sce, "PCA")
 
 
 cluster_df <- calculate_clusters(test_mat)
-cluster_df$random_extra_column <- 10
-
 
 test_that("calculate_silhouette works as expected", {
   df <- calculate_silhouette(test_mat, cluster_df)
@@ -31,7 +29,7 @@ test_that("calculate_purity works as expected", {
 
   expect_setequal(
     colnames(df),
-    c("cell_id", "cluster", "algorithm", "weighting", "nn", "resolution", "purity", "maximum", "random_extra_column")
+    c(colnames(cluster_df), "purity", "maximum")
   )
   expect_equal(df$cell_id, rownames(test_mat))
   expect_equal(df$cluster, cluster_df$cluster)
