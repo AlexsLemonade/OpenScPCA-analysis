@@ -198,14 +198,7 @@ This is the reference developed by [Cao et al.](https://www.science.org/doi/10.1
 The reference contain cells from 15 organs including kidney from fetal samples.
 The label transfer have been performed in the notebook `02a_fetal_full_reference_Cao_{sample_id}.Rmd`
 
-The fetal full reference (Cao et al.) provides three levels of annotations:
-
-- `fetal_full_predicted.organ` is one of the 15 organs used for building the reference. 
-We were nicely surprised that, for many of the samples, most of the cells from the Wilms tumor cohort mapped to fetal kidney cells. 
-
-- `fetal_full_predicted.annotation.l1` holds predicted cell type annotation
-
-- `fetal_full_predicted.annotation.l2` holds the combination of the predicted organ and predicted cell type annotation
+This notebook looks at the `fetal_full_predicted.organ` annotation from this reference. 
 
     
 
