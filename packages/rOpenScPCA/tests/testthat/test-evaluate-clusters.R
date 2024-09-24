@@ -36,3 +36,38 @@ test_that("calculate_purity works as expected", {
   expect_vector(df$purity, ptype = numeric())
   expect_s3_class(df$maximum, "factor")
 })
+
+
+
+
+
+test_that("calculate_stability works as expected with defaults", {
+  suppressWarnings({
+    df <- calculate_stability(test_mat, cluster_df$cluster)
+  })
+
+  expect_setequal(
+    colnames(df),
+    c("replicate", "ari")
+  )
+  expect_equal(nrow(df), 20)
+})
+
+
+test_that("calculate_stability works as expected with different replicates", {
+  suppressWarnings({
+    df <- calculate_stability(test_mat, cluster_df$cluster, replicates = 2)
+  })
+  expect_equal(nrow(df), 2)
+})
+
+
+test_that("calculate_stability errors as expected", {
+  expect_error({
+    calculate_stability(test_mat, cluster_df$cluster[1:5])
+  })
+
+  expect_error({
+    calculate_stability(test_mat, cluster_df)
+  })
+})
