@@ -153,7 +153,7 @@ calculate_purity <- function(
 #'   SingleCellExperiment or Seurat object is provided. If not provided, the SingleCellExperiment object
 #'   name will default to "PCA" and the Seurat object name will default to "pca".
 #'
-#' @return Data frame with two columns, `replicates` and `ari` representing the given bootstrap replicate
+#' @return Data frame with two columns, `replicate` and `ari` representing the given bootstrap replicate
 #'   and its ARI value, respectively.
 #' @export
 #'
