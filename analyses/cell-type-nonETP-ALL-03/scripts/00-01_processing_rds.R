@@ -1,15 +1,15 @@
+#!/usr/bin/env Rscript
+
+#This script uses SAM algorithm to perform soft feature selection for better separation of homogenous populations.
+#So we use SAM to preprocess the data, perform feature selection/dimensionality reduction and clustering.
+#The outputs are an intermediate rds file and umap plot showing leiden clustering results.
+
 library(Seurat)
 library(SingleCellExperiment)
-library(dplyr)
-library(cowplot)
 library(ggplot2)
-library(future)
-library(purrr)
 ######## step01 #######################################
 library(reticulate)
 use_condaenv("openscpca-cell-type-nonETP-ALL-03")
-os <- import("os")
-anndata <- import("anndata")
 samalg <- import("samalg") #https://github.com/atarashansky/self-assembling-manifold/tree/master
 
 run_sam <- function(sample, library){
@@ -57,8 +57,9 @@ data_loc <- file.path(project_root, "data/current",projectID)
 doublet_loc <- file.path(project_root, "data/current/results/doublet-detection",projectID)
 
 metadata <- read.table(file.path(data_loc,"single_cell_metadata.tsv"), sep = "\t", header = T)
-metadata <- metadata[which(metadata$scpca_project_id == projectID), ]
-sampleID <- metadata$scpca_sample_id[which(metadata$diagnosis == "Non-early T-cell precursor T-cell acute lymphoblastic leukemia")]
-libraryID <- metadata$scpca_library_id[which(metadata$diagnosis == "Non-early T-cell precursor T-cell acute lymphoblastic leukemia")]
+metadata <- metadata[which(metadata$scpca_project_id == projectID &
+                             metadata$diagnosis == "Non-early T-cell precursor T-cell acute lymphoblastic leukemia"), ]
+sampleID <- metadata$scpca_sample_id
+libraryID <- metadata$scpca_library_id
 
 purrr::walk2(sampleID, libraryID, run_sam)
