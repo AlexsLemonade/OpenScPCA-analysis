@@ -46,11 +46,13 @@ test_that("calculate_stability works as expected with defaults", {
     df <- calculate_stability(test_mat, cluster_df$cluster)
   })
 
+  expected_names <- colnames(cluster_df)[!(colnames(cluster_df) %in% c("cell_id", "cluster"))]
   expect_setequal(
     colnames(df),
-    c("replicate", "ari")
+    c("replicate", "ari", expected_names)
   )
-  expect_equal(nrow(df), 20)
+  expect_equal(df$replicate, 1:20) # checks rows too
+  expect_vector(df$ari, ptype = numeric())
 })
 
 

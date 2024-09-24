@@ -56,8 +56,10 @@ SingleCellExperiment or Seurat object is provided. If not provided, the SingleCe
 name will default to "PCA" and the Seurat object name will default to "pca".}
 }
 \value{
-Data frame with two columns, `replicate` and `ari` representing the given bootstrap replicate
-  and its ARI value, respectively.
+Data frame with columns `replicate` and `ari`, representing the given bootstrap replicate
+  and its ARI value, respectively, and columns representing clustering algorithm parameters which
+  include at least `algorithm`, `weighting`, and `nn`. Louvain and leiden clustering will also
+  include `resolution`, and leiden clustering will further include `objective_function`.
 }
 \description{
 This function generates and clusters, using provided parameters, bootstrap

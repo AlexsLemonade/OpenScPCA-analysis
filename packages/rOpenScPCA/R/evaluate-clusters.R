@@ -153,8 +153,12 @@ calculate_purity <- function(
 #'   SingleCellExperiment or Seurat object is provided. If not provided, the SingleCellExperiment object
 #'   name will default to "PCA" and the Seurat object name will default to "pca".
 #'
-#' @return Data frame with two columns, `replicate` and `ari` representing the given bootstrap replicate
-#'   and its ARI value, respectively.
+#' @return Data frame with columns `replicate` and `ari`, representing the given bootstrap replicate
+#'   and its ARI value, respectively, and columns representing clustering algorithm parameters which
+#'   include at least `algorithm`, `weighting`, and `nn`. Louvain and leiden clustering will also
+#'   include `resolution`, and leiden clustering will further include `objective_function`.
+#'
+#'
 #' @export
 #'
 #' @examples
@@ -214,14 +218,14 @@ calculate_stability <- function(
   )
 
   # calculate ARI for each cluster result bootstrap replicate
-  ari_values <- 1:replicates |>
+  all_ari_df <- 1:replicates |>
     purrr::map(
       \(i) {
         sample_cells <- sample(nrow(pca_matrix), nrow(pca_matrix), replace = TRUE)
         resampled_pca <- pca_matrix[sample_cells, , drop = FALSE]
         original_clusters <- clusters[sample_cells]
 
-        resampled_clusters <- calculate_clusters(
+        resampled_df <- calculate_clusters(
           resampled_pca,
           algorithm,
           weighting,
@@ -233,18 +237,27 @@ calculate_stability <- function(
           seed = seed
         )
 
-        # return ARI between new clustering and original clustering
-        pdfCluster::adj.rand.index(resampled_clusters$cluster, clusters[sample_cells])
+        ari <- pdfCluster::adj.rand.index(resampled_df$cluster, clusters[sample_cells])
+
+        # return df with ari and clustering parameters
+        ari_df <- resampled_df |>
+          dplyr::select(
+            -"cell_id",
+            -"cluster"
+          ) |>
+          dplyr::distinct() |>
+          dplyr::mutate(
+            replicate = i,
+            ari = ari,
+            # make these columns in front
+            .before = "algorithm"
+          )
+
+        return(ari_df)
       }
     ) |>
-    purrr::reduce(c)
+    dplyr::bind_rows()
 
 
-  # TODO: Do we want to include parameters in this data frame?
-  return(
-    data.frame(
-      replicate = 1:replicates,
-      ari = ari_values
-    )
-  )
+  return(all_ari_df)
 }
