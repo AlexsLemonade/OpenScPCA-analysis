@@ -111,6 +111,81 @@ calculate_purity <- function(
 
 
 
+#' Calculate cluster stability using the Adjusted Rand Index (ARI)
+#'
+#' This function generates and clusters, using provided parameters, bootstrap
+#' replicates calculates the Adjusted Rand Index (ARI) between each set of bootstrapped
+#' clusters and the original provided clusters. ARI measures similarity between different
+#' cluster results, where a value of 0 indicates an entirely random relationship between
+#' results, and a value of 1 indicates perfect agreement.
+#'
+#' When assessing stability, you should specify the same clustering parameters here as
+#' were used to calculate the original clusters.
+#'
+#' Note that this function will also make use of bluster::clusterRows() with the
+#' bluster::NNGraphParam() function on a principal components matrix. Note that defaults
+#' for some arguments may differ from the bluster::NNGraphParam() defaults.
+#' Specifically, the clustering algorithm defaults to "louvain" and the weighting scheme
+#' to "jaccard" to align with common practice in scRNA-seq analysis.
+#'
+#'
+#' @param x An object containing PCs that clusters were calculated from. This can be
+#'   either a SingleCellExperiment object, a Seurat object, or a matrix where columns
+#'   are PCs and rows are cells. If a matrix is provided, it must have row names of cell
+#'   ids (e.g., barcodes).
+#' @param clusters A vector of cluster ids, typically a numeric factor variable, obtained
+#'   by previously clustering the PCs.
+#' @param algorithm Clustering algorithm to use. Must be one of "louvain" (default), "walktrap", or "leiden".
+#' Usually, this should be the same algorithm used to generate the original clusters.
+#' @param weighting Weighting scheme to use. Must be one of "jaccard" (default), "rank", or "number".
+#' Usually, this should be the same weighting scheme used to generate the original clusters.
+#' @param nn Number of nearest neighbors. Default is 10.
+#' @param resolution Resolution parameter used by louvain and leiden clustering only. Default is 1.
+#' @param objective_function Leiden-specific parameter for whether to use the Constant Potts Model
+#'   ("CPM"; default) or "modularity"
+#' @param cluster_args List of additional arguments to pass to the chosen clustering function.
+#'   Only single values for each argument are supported (no vectors or lists).
+#'   See igraph documentation for details on each clustering function: https://igraph.org/r/html/latest
+#' @param n_iter Number of bootstrap replicates to perform. Default is 20.
+#' @param threads Number of threads to use. Default is 1.
+#' @param seed Random seed to set for random sampling and clustering.
+#' @param pc_name Name of principal components slot in provided object. This argument is only used if a
+#'   SingleCellExperiment or Seurat object is provided. If not provided, the SingleCellExperiment object
+#'   name will default to "PCA" and the Seurat object name will default to "pca".
+#'
+#' @return Data frame with two columns, `iteration` and `ari` representing the given bootstrap replicate
+#'   and its ARI value, respectively.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # First, cluster PCs from a SingleCellExperiment object using default parameters
+#' # and setting a seed for reproducibility
+#' cluster_df <- calculate_clusters(sce_object, seed = 11)
+#' # Second, calculate cluster stability using default parameters
+#' stability_df <- calculate_stability(sce_object, cluster_df$clusters, seed = 11)
+#'
+#'
+#'
+#' # First, cluster PCs from a SingleCellExperiment object using the leiden
+#' # algorithm and a resolution of 0.1
+#' cluster_df <- calculate_clusters(
+#'   sce_object,
+#'   algorithm = "leiden",
+#'   resolution = 0.1,
+#'   seed = 11
+#' )
+#' # Second, calculate cluster stability using the same parameters as were used
+#' # for the initial clustering
+#' stability_df <- calculate_stability(
+#'   sce_object,
+#'   cluster_df$clusters,
+#'   algorithm = "leiden",
+#'   resolution = 0.1,
+#'   seed = 11
+#' )
+#' }
 calculate_stability <- function(
     x,
     clusters,
@@ -124,8 +199,18 @@ calculate_stability <- function(
     threads = 1,
     seed = NULL,
     pc_name = NULL) {
+  if (!is.null(seed)) {
+    set.seed(seed)
+  }
+
   # ensure we have a matrix
   pca_matrix <- prepare_pc_matrix(x, pc_name = pc_name)
+
+  # check clusters and matrix compatibility
+  stopifnot(
+    "The matrix should have the same numbers of rows as the length of the clusters variable." =
+      nrow(matrix) == length(clusters)
+  )
 
   # calculate ARI for each cluster result bootstrap replicate
   ari_values <- 1:n_iter |>
