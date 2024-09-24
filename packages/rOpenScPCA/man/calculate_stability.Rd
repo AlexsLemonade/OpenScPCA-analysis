@@ -13,7 +13,7 @@ calculate_stability(
   resolution = 1,
   objective_function = c("CPM", "modularity"),
   cluster_args = list(),
-  n_iter = 20,
+  replicates = 20,
   threads = 1,
   seed = NULL,
   pc_name = NULL
@@ -45,7 +45,7 @@ Usually, this should be the same weighting scheme used to generate the original 
 Only single values for each argument are supported (no vectors or lists).
 See igraph documentation for details on each clustering function: https://igraph.org/r/html/latest}
 
-\item{n_iter}{Number of bootstrap replicates to perform. Default is 20.}
+\item{replicates}{Number of bootstrap replicates to perform. Default is 20.}
 
 \item{threads}{Number of threads to use. Default is 1.}
 
@@ -56,7 +56,7 @@ SingleCellExperiment or Seurat object is provided. If not provided, the SingleCe
 name will default to "PCA" and the Seurat object name will default to "pca".}
 }
 \value{
-Data frame with two columns, `iteration` and `ari` representing the given bootstrap replicate
+Data frame with two columns, `replicates` and `ari` representing the given bootstrap replicate
   and its ARI value, respectively.
 }
 \description{
@@ -94,7 +94,7 @@ cluster_df <- calculate_clusters(
   algorithm = "leiden",
   resolution = 0.1,
   seed = 11
- )
+)
 # Second, calculate cluster stability using the same parameters as were used
 # for the initial clustering
 stability_df <- calculate_stability(
@@ -103,6 +103,6 @@ stability_df <- calculate_stability(
   algorithm = "leiden",
   resolution = 0.1,
   seed = 11
- )
+)
 }
 }
