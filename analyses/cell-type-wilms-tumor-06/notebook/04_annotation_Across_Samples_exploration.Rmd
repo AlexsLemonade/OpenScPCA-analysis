@@ -24,7 +24,7 @@ knitr::opts_chunk$set(echo = TRUE,
 ## Introduction
 
 
-The aim is to explore the annotations and label transfers for all of the samples in `r params$scpca_project_id`.
+The aim is to explore the annotations and label transfers for all of the samples in SCPCP000006.
 
 
 In order to explore the label transfer results, we look into some marker genes, table and percentages of cells in each annotation groups (from label transfers).
