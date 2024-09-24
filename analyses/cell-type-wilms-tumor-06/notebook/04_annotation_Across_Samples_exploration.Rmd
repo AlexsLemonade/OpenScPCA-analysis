@@ -2,10 +2,6 @@
 title: "Annotation exploration for `r params$scpca_project_id`"
 author: "Maud PLASCHKA"
 date: '2024-08-13'
-params:
-  scpca_project_id: "SCPCP000006"
-  sample_id: "SCPCS000176"
-  seed: 12345
 output: 
   html_document: 
     toc: yes
