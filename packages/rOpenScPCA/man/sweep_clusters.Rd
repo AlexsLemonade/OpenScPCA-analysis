@@ -78,7 +78,7 @@ cluster_df <- sweep_clusters(
   sce_object,
   nn = c(10, 15, 20, 25),
   seed = 11
- )
+)
 
 # perform louvain clustering, with jaccard and rank weighting, and
 # varying the nearest neighbor and resolution parameters.

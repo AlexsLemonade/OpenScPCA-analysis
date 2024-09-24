@@ -78,7 +78,7 @@ cluster_df <- calculate_clusters(
   algorithm = "leiden",
   resolution = 0.1,
   seed = 11
- )
+)
 
 # cluster directly from a matrix using the leiden algorithm with 3 iterations
 cluster_df <- calculate_clusters(
