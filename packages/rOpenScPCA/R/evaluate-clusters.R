@@ -208,6 +208,7 @@ calculate_stability <- function(
 
   # check clusters and matrix compatibility
   stopifnot(
+    "The provided clusters variable should be a vector, not a data frame." = (!is.data.frame(clusters)),
     "The matrix should have the same numbers of rows as the length of the clusters variable." =
       nrow(pca_matrix) == length(clusters)
   )
