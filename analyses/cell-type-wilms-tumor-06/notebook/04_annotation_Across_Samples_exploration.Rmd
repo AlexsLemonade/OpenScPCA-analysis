@@ -38,7 +38,6 @@ library(Seurat)
 library(tidyverse)
 library(patchwork)
 
-set.seed(params$seed)
 ```
 
 
