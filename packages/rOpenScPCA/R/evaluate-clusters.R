@@ -213,7 +213,7 @@ calculate_stability <- function(
   )
 
   # calculate ARI for each cluster result bootstrap replicate
-  ari_values <- 1:n_iter |>
+  ari_values <- 1:replicates |>
     purrr::map(
       \(i) {
         sample_cells <- sample(nrow(pca_matrix), nrow(pca_matrix), replace = TRUE)
@@ -241,7 +241,7 @@ calculate_stability <- function(
 
   return(
     data.frame(
-      replicate = 1:n_iter,
+      replicate = 1:replicates,
       ari = ari_values
     )
   )
