@@ -209,7 +209,7 @@ calculate_stability <- function(
   # check clusters and matrix compatibility
   stopifnot(
     "The matrix should have the same numbers of rows as the length of the clusters variable." =
-      nrow(matrix) == length(clusters)
+      nrow(pca_matrix) == length(clusters)
   )
 
   # calculate ARI for each cluster result bootstrap replicate
@@ -239,6 +239,7 @@ calculate_stability <- function(
     purrr::reduce(c)
 
 
+  # TODO: Do we want to include parameters in this data frame?
   return(
     data.frame(
       replicate = 1:replicates,
