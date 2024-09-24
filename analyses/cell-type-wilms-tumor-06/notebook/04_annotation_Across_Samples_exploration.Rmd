@@ -236,18 +236,6 @@ We expect stroma and fetal nephron compartment to contain both normal and malign
     
 
 
-- `fetal_kidney_predicted.cell_type` holds predicted cell type annotations that details further the four compartments, as for example:
-
-    - `immune` subtypes: myeloid cells, lymphocytes, ...
-    
-    - `stroma` subtypes: mesenchymal stem cells, fibroblasts, ...
-    
-    - `fetal_nephron` subtypes: podocytes, uteric bud, mesenchymal cells (that appear to be cap mesenchyme cells) ...
-    
-    - `endothelial` cells
-
-
-We think that the first level of annotation `fetal_kidney_predicted.compartment` can be useful in identifying non-cancer cells, at least the endothelial and immune cells. 
 
 
 ```{r fig.width=25, fig.height=3, results='asis'}
