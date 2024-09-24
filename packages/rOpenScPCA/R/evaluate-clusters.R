@@ -108,3 +108,56 @@ calculate_purity <- function(
 
   return(purity_df)
 }
+
+
+
+calculate_stability <- function(
+    x,
+    clusters,
+    algorithm = c("louvain", "walktrap", "leiden"),
+    weighting = c("jaccard", "rank", "number"),
+    nn = 10,
+    resolution = 1,
+    objective_function = c("CPM", "modularity"),
+    cluster_args = list(),
+    n_iter = 20,
+    threads = 1,
+    seed = NULL,
+    pc_name = NULL) {
+  # ensure we have a matrix
+  pca_matrix <- prepare_pc_matrix(x, pc_name = pc_name)
+
+  # calculate ARI for each cluster result bootstrap replicate
+  ari_values <- 1:n_iter |>
+    purrr::map(
+      \(i) {
+        sample_cells <- sample(nrow(pca_matrix), nrow(pca_matrix), replace = TRUE)
+        resampled_pca <- pca_matrix[sample_cells, , drop = FALSE]
+        original_clusters <- clusters[sample_cells]
+
+        resampled_clusters <- calculate_clusters(
+          resampled_pca,
+          algorithm,
+          weighting,
+          nn,
+          resolution = resolution,
+          objective_function = objective_function,
+          cluster_args = cluster_args,
+          threads = threads,
+          seed = seed
+        )
+
+        # return ARI between new clustering and original clustering
+        pdfCluster::adj.rand.index(resampled_clusters$cluster, clusters[sample_cells])
+      }
+    ) |>
+    purrr::reduce(c)
+
+
+  return(
+    data.frame(
+      replicate = 1:n_iter,
+      ari = ari_values
+    )
+  )
+}
