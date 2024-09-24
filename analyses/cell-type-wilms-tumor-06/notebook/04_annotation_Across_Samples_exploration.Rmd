@@ -1,7 +1,7 @@
 ---
 title: "Annotation exploration for `r params$scpca_project_id`"
 author: "Maud PLASCHKA"
-date: '2024-08-13'
+date: "`r Sys.Date()`"
 output: 
   html_document: 
     toc: yes
