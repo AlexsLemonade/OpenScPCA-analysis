@@ -1,5 +1,5 @@
 ---
-title: "Annotation exploration for `r params$scpca_project_id`"
+title: "Annotation exploration for SCPCP000006"
 author: "Maud PLASCHKA"
 date: "`r Sys.Date()`"
 output: 
@@ -36,8 +36,9 @@ In order to explore the label transfer results, we look into some marker genes, 
 ```{r packages, message=FALSE, warning=FALSE}
 library(Seurat)
 library(tidyverse)
+library(tidyr)
 library(patchwork)
-
+library(DT)
 ```
 
 
@@ -48,7 +49,7 @@ library(patchwork)
 repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 
 # The current data directory, found within the repository base directory
-data_dir <- file.path(repository_base, "data", "current", params$scpca_project_id)
+data_dir <- file.path(repository_base, "data", "current", "SCPCP000006")
 
 # The path to this module
 module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06")
@@ -59,7 +60,7 @@ result_dir <- file.path(module_base, "results")
 
 ### Input files
 
-In this notebook, we are working with all of the samples in `r params$scpca_project_id`.
+In this notebook, we are working with all of the samples in SCPCP000006.
 
 The sample metadata can be found in `sample_metadata_file` in the `data` folder.
 
@@ -78,7 +79,7 @@ the following information per cell:
 
 
 ```{r path_to_query}
-sample_metadata_file <- file.path(repository_base, "data", "current", params$scpca_project_id, "single_cell_metadata.tsv")
+sample_metadata_file <- file.path(repository_base, "data", "current","SCPCP000006", "single_cell_metadata.tsv")
 
 metadata <- read.table(sample_metadata_file, sep = "\t", header = TRUE)
 
@@ -118,55 +119,20 @@ The report will be saved in the `notebook` directory.
 ## Functions
 
 
-#### do_Table_Heatmap
 
-`do_Table_Heatmap` shows heatmap of counts of cells for combinations of two metadata variables
-
-- `first_group` is the name of the first metadata to group the cells
-- `last_group` is the name of the second metadata to group the cells
-
-```{r fig.width=10, fig.height=4, out.width='100%'}
-do_Table_Heatmap <- function(first_group, last_group ){
-  
-  df <- cell_type_df %>%
-  group_by( !!sym(first_group), !!sym(last_group))%>% 
-  summarise(Nb = n())  %>%
-  mutate(C = sum(Nb)) %>%
-  mutate(percent = Nb/C*100)
-
-  
-p1 <- ggplot(df, aes(x= !!sym(first_group), y = !!sym(last_group), fill = Nb)) +
-   geom_tile() +
-   scale_fill_viridis_c()  +
-   theme_bw() +
-   theme(text = element_text(size = 20)) +
-   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-   guides(fill=guide_legend(title=" Number of \n cells"))
-
-p2 <- ggplot(df, aes(x= !!sym(first_group), y = !!sym(last_group), fill = percent)) +
-   geom_tile() +
-   scale_fill_viridis_c()  +
-   theme_bw() +
-   theme(text = element_text(size = 20)) +
-   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-   guides(fill=guide_legend(title=" Percentage of \n cells"))
-
-p <- p1 + p2 + plot_layout(ncol = 2)
-return(p)
-}
-```
 
 #### do_Feature_mean
 
 `do_Feature_mean` shows heatmap of mean expression of a feature grouped by a metadata. 
 
+- `df` is the name of the table containing metadata and feature expression (counts) per cells
 - `group.by` is the name of the metadata to group the cells
 - `feature` is the name of the gene to average the expression
 
 ```{r fig.width=10, fig.height=4, out.width='100%'}
-do_Feature_mean <- function(group.by, feature ){
+do_Feature_mean <- function(df, group.by, feature ){
   
-  df <- cell_type_df %>%
+  df <- df %>%
   group_by(sample_id, !!sym(group.by))%>% 
   summarise(m = mean(!!sym(feature)))  
 
@@ -176,8 +142,42 @@ p <- ggplot(df, aes(x= sample_id, y = !!sym(group.by), fill = m)) +
    scale_fill_viridis_c()  +
    theme_bw() +
    theme(text = element_text(size = 20)) +
-   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+   theme(axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5)) +
    guides(fill=guide_legend(title=paste0(feature)))
+
+return(p)
+}
+```
+
+
+#### do_Feature_boxplot
+
+`do_Feature_boxplot` shows boxplot of expression of a feature grouped by a metadata. 
+
+- `table` is the name of the table containing metadata and feature expression (counts) per cells
+- `group.by` is the name of the metadata to group the cells
+- `feature` is the name of the gene to average the expression
+
+```{r fig.width=10, fig.height=4, out.width='100%'}
+do_Feature_boxplot <- function(df, group.by, feature, split.by ){
+  
+  df <- df %>%
+    mutate(!!sym(group.by), group = factor(!!sym(group.by), levels = unique(!!sym(group.by))))
+    
+  
+  xlabs <- paste(levels(df$group),"\n(N=",table(df$group),")",sep="")
+
+
+p <- ggplot(df, 
+    aes(x = !!sym(group.by), y = !!sym(feature), fill = !!sym(group.by))
+  ) + 
+  geom_boxplot(size = 0.5, size.outlier = 0.25) +
+  facet_wrap(vars(!!sym(split.by)), scales = "free", ncol = 4) + 
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(size = 12, angle = 0, hjust = 0.5, vjust = 0), 
+    legend.position = "none"
+  ) +scale_x_discrete(labels=xlabs)
 
 return(p)
 }
@@ -185,13 +185,7 @@ return(p)
 
 ## Analysis
 
-### Total number of cells per samples
-
-```{r fig.width=5, fig.height=10, out.width='100%', results='asis'}
-tmp <- table(cell_type_df$sample_id)
-knitr::kable(tmp)
-```
-### Predicted organ
+### Total number of cells per samples and predicted organ
 
 The predicted organ comes from label transfer from the human fetal atlas. 
 This is the reference developed by [Cao et al.](https://www.science.org/doi/10.1126/science.aba7721) provided by `Azimuth` for label transfer.
@@ -200,17 +194,37 @@ The label transfer have been performed in the notebook `02a_fetal_full_reference
 
 This notebook looks at the `fetal_full_predicted.organ` annotation from this reference. 
 
-    
+Here, we are summarizing per sample:
 
-```{r fig.width=25, fig.height=6,  results='asis'}
-tmp <- table(cell_type_df$sample_id, cell_type_df$organ)
+- the percentage of cells labeled as kidney, after label transfer from the fetal full reference [Cao et al.](https://www.science.org/doi/10.1126/science.aba7721),
 
-knitr::kable(tmp)
-```
+- the percentage of cells not labeled as kidney, after label transfer from the fetal full reference [Cao et al.](https://www.science.org/doi/10.1126/science.aba7721),
 
-```{r fig.width=25, fig.height=6}
-do_Table_Heatmap(first_group = "sample_id", last_group = "organ")
-```
+- the total number of cells per sample.
+
+```{r fig.width=10, fig.height=10, out.width='100%', results='asis'}
+kidney_count_df <- cell_type_df |>
+  # make a new variable that tells us if it's kidney or not
+  dplyr::mutate(organ_type = ifelse(organ == "Kidney", "kidney", "not_kidney"))  |>
+  # count how many kidney or not
+  dplyr::count(sample_id, organ_type) |>
+  # make the data frame wide and use a value of 0 if a count is missing
+  tidyr::pivot_wider(names_from = organ_type, values_from = n, values_fill = 0) |>
+  # add a column for total, and convert other counts to percentages
+  dplyr::mutate(
+    total = kidney + not_kidney, 
+    kidney = round(kidney/total, digits = 4)*100, 
+    not_kidney = round(not_kidney/total, digits = 4)*100) |>
+  # arrange in descending order of percentage of kidney cells
+  dplyr::arrange(desc(kidney)) 
+
+DT::datatable(kidney_count_df, 
+              caption = "percentage of cells mapping to the predicted organ kidney",
+              extensions = 'Buttons', 
+              options = list(  dom = 'Bfrtip',
+                               buttons = c( 'csv', 'excel')))
+```    
+
 
 ### Predicted compartment
 
@@ -239,15 +253,21 @@ We expect stroma and fetal nephron compartment to contain both normal and malign
 
 
 ```{r fig.width=25, fig.height=3, results='asis'}
-tmp <- table(cell_type_df$sample_id, cell_type_df$compartment)
+compartment_df <- cell_type_df |>
+  # count how many per compartment
+  dplyr::count(sample_id, compartment) |>
+  # make the table wide and use a value of 0 if a count is missing
+  tidyr::pivot_wider(names_from = compartment, values_from = n, values_fill = 0) |>
+  # order the columns how we want to show them
+  dplyr::select(sample_id, fetal_nephron, stroma, endothelium, immune) 
 
-knitr::kable(tmp)
+DT::datatable(compartment_df, 
+              caption = "counts of cells in each compartment",
+              extensions = 'Buttons', 
+              options = list(  dom = 'Bfrtip',
+                               buttons = c( 'csv', 'excel')))
 ```
 
-```{r fig.width=25, fig.height=3}
-
-do_Table_Heatmap(first_group = "sample_id", last_group = "compartment")
-```
 
 
 
@@ -260,9 +280,18 @@ Here we evaluate with marker genes the identification of endothelial, immune cel
 
 We look at the endothelial marker "ENSG00000110799" = "VWF"
 
-```{r fig.height=3, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
-do_Feature_mean(  feature = "ENSG00000110799",
+```{r fig.height=6, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
+do_Feature_mean( df = cell_type_df,
+                  feature = "ENSG00000110799",
                   group.by = "compartment")
+```
+
+```{r fig.height=25, fig.width=20, message=FALSE, warning=FALSE, out.width='100%'}
+do_Feature_boxplot( df = cell_type_df,
+                    feature = "ENSG00000110799",
+                    group.by = "compartment",
+                    split.by = "sample_id")
+
 ```
 
 ##### Immune cells
@@ -270,9 +299,18 @@ do_Feature_mean(  feature = "ENSG00000110799",
 We look at the immune marker "ENSG00000081237" = "PTPRC" alias "CD45"
 
 
-```{r fig.height=3, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
-do_Feature_mean(  feature = "ENSG00000081237",
+```{r fig.height=6, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
+do_Feature_mean(  df = cell_type_df,
+                  feature = "ENSG00000081237",
                   group.by = "compartment")
+```
+
+```{r fig.height=25, fig.width=20, message=FALSE, warning=FALSE, out.width='100%'}
+do_Feature_boxplot( df = cell_type_df,
+                    feature = "ENSG00000081237",
+                    group.by = "compartment",
+                    split.by = "sample_id")
+
 ```
 
 
