@@ -4,20 +4,7 @@
 \alias{calculate_stability}
 \title{Calculate cluster stability using the Adjusted Rand Index (ARI)}
 \usage{
-calculate_stability(
-  x,
-  clusters,
-  algorithm = c("louvain", "walktrap", "leiden"),
-  weighting = c("jaccard", "rank", "number"),
-  nn = 10,
-  resolution = 1,
-  objective_function = c("CPM", "modularity"),
-  cluster_args = list(),
-  replicates = 20,
-  threads = 1,
-  seed = NULL,
-  pc_name = NULL
-)
+calculate_stability(x, clusters, replicates = 20, seed = NULL, ...)
 }
 \arguments{
 \item{x}{An object containing PCs that clusters were calculated from. This can be
@@ -28,32 +15,12 @@ ids (e.g., barcodes).}
 \item{clusters}{A vector of cluster ids, typically a numeric factor variable, obtained
 by previously clustering the PCs.}
 
-\item{algorithm}{Clustering algorithm to use. Must be one of "louvain" (default), "walktrap", or "leiden".
-Usually, this should be the same algorithm used to generate the original clusters.}
-
-\item{weighting}{Weighting scheme to use. Must be one of "jaccard" (default), "rank", or "number".
-Usually, this should be the same weighting scheme used to generate the original clusters.}
-
-\item{nn}{Number of nearest neighbors. Default is 10.}
-
-\item{resolution}{Resolution parameter used by louvain and leiden clustering only. Default is 1.}
-
-\item{objective_function}{Leiden-specific parameter for whether to use the Constant Potts Model
-("CPM"; default) or "modularity"}
-
-\item{cluster_args}{List of additional arguments to pass to the chosen clustering function.
-Only single values for each argument are supported (no vectors or lists).
-See igraph documentation for details on each clustering function: https://igraph.org/r/html/latest}
-
 \item{replicates}{Number of bootstrap replicates to perform. Default is 20.}
 
-\item{threads}{Number of threads to use. Default is 1.}
+\item{seed}{Random seed}
 
-\item{seed}{Random seed to set for random sampling and clustering.}
-
-\item{pc_name}{Name of principal components slot in provided object. This argument is only used if a
-SingleCellExperiment or Seurat object is provided. If not provided, the SingleCellExperiment object
-name will default to "PCA" and the Seurat object name will default to "pca".}
+\item{...}{Additional arguments to pass to `calculate_clusters()` which calculates bootstrapped clusters.
+Usually, these should be the same parameters used to generate the original clusters.}
 }
 \value{
 Data frame with columns `replicate` and `ari`, representing the given bootstrap replicate
@@ -87,6 +54,17 @@ cluster_df <- calculate_clusters(sce_object, seed = 11)
 # Second, calculate cluster stability using default parameters
 stability_df <- calculate_stability(sce_object, cluster_df$clusters, seed = 11)
 
+
+# First, cluster PCs from a SingleCellExperiment object using default parameters
+# and setting a seed for reproducibility
+cluster_df <- calculate_clusters(sce_object, seed = 11)
+# Second, calculate cluster stability using default parameters and 50 replicates
+stability_df <- calculate_stability(
+  sce_object,
+  cluster_df$clusters,
+  replicates = 50,
+  seed = 11
+)
 
 
 # First, cluster PCs from a SingleCellExperiment object using the leiden
