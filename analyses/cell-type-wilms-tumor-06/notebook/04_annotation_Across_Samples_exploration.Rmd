@@ -15,8 +15,8 @@ output:
 
 knitr::opts_chunk$set(echo = TRUE,
                       message=FALSE,
-                      warnings=FALSE
-                      )
+                      warnings=FALSE,
+                      knitr.digits.signif = FALSE)
 
 ```
 
@@ -154,7 +154,7 @@ return(p)
 
 `do_Feature_boxplot` shows boxplot of expression of a feature grouped by a metadata. 
 
-- `table` is the name of the table containing metadata and feature expression (counts) per cells
+- `df` is the name of the table containing metadata and feature expression (counts) per cells
 - `group.by` is the name of the metadata to group the cells
 - `feature` is the name of the gene to average the expression
 
@@ -162,22 +162,18 @@ return(p)
 do_Feature_boxplot <- function(df, group.by, feature, split.by ){
   
   df <- df %>%
-    mutate(!!sym(group.by), group = factor(!!sym(group.by), levels = unique(!!sym(group.by))))
+    mutate(!!sym(group.by), group  = factor(!!sym(group.by), levels = c("fetal_nephron", "stroma", "immune", "endothelium")))
     
-  
-  xlabs <- paste(levels(df$group),"\n(N=",table(df$group),")",sep="")
-
-
-p <- ggplot(df, 
-    aes(x = !!sym(group.by), y = !!sym(feature), fill = !!sym(group.by))
+  p <- ggplot(df, 
+    aes(x = group, y = !!sym(feature), fill = group)
   ) + 
   geom_boxplot(size = 0.5, size.outlier = 0.25) +
-  facet_wrap(vars(!!sym(split.by)), scales = "free", ncol = 4) + 
+  facet_wrap(vars(!!sym(split.by)), scale = "free_y", ncol = 4) + 
   theme_bw() +
   theme(
     axis.text.x = element_text(size = 12, angle = 0, hjust = 0.5, vjust = 0), 
     legend.position = "none"
-  ) +scale_x_discrete(labels=xlabs)
+  ) 
 
 return(p)
 }
@@ -203,6 +199,7 @@ Here, we are summarizing per sample:
 - the total number of cells per sample.
 
 ```{r fig.width=10, fig.height=10, out.width='100%', results='asis'}
+
 kidney_count_df <- cell_type_df |>
   # make a new variable that tells us if it's kidney or not
   dplyr::mutate(organ_type = ifelse(organ == "Kidney", "kidney", "not_kidney"))  |>
@@ -213,8 +210,8 @@ kidney_count_df <- cell_type_df |>
   # add a column for total, and convert other counts to percentages
   dplyr::mutate(
     total = kidney + not_kidney, 
-    kidney = round(kidney/total, digits = 4)*100, 
-    not_kidney = round(not_kidney/total, digits = 4)*100) |>
+    kidney = round(kidney/total,  4)*100, 
+    not_kidney = round(not_kidney/total, 4)*100) |>
   # arrange in descending order of percentage of kidney cells
   dplyr::arrange(desc(kidney)) 
 
@@ -249,8 +246,50 @@ We expect stroma and fetal nephron compartment to contain both normal and malign
     - `endothelial` cells
     
 
+For each compartment, we sumarized the percentage of cells that do match kidney annotation or not:
 
+```{r fig.width=10, fig.height=10, out.width='100%', results='asis'}
 
+compartment_count_df <- cell_type_df |>
+  # make a new variable that tells us if it's kidney or not
+  dplyr::mutate(organ_type = ifelse(organ == "Kidney", "kidney", "not_kidney"))  |>
+  # count how many kidney or not
+  dplyr::count(compartment, organ_type) |>
+  # make the data frame wide and use a value of 0 if a count is missing
+  tidyr::pivot_wider(names_from = organ_type, values_from = n, values_fill = 0) |>
+  # add a column for total, and convert other counts to percentages
+  dplyr::mutate(
+    total = kidney + not_kidney, 
+    kidney = round(kidney/total,  4)*100, 
+    not_kidney = round(not_kidney/total, 4)*100) |>
+  # arrange in descending order of percentage of kidney cells
+  dplyr::arrange(desc(kidney)) 
+
+DT::datatable(compartment_count_df, 
+              caption = "percentage of cells mapping to the predicted organ kidney",
+              extensions = 'Buttons', 
+              options = list(  dom = 'Bfrtip',
+                               buttons = c( 'csv', 'excel')))
+```   
+What is the predicted organ of cells that are not labeled as kidney cell?
+
+```{r fig.width=25, fig.height=3, results='asis'}
+compartment_df <- cell_type_df |>
+  # count how many per compartment
+  dplyr::count(organ, compartment) |>
+  # make the table wide and use a value of 0 if a count is missing
+  tidyr::pivot_wider(names_from = compartment, values_from = n, values_fill = 0) |>
+  # order the columns how we want to show them
+  dplyr::select(organ, fetal_nephron, stroma, endothelium, immune) 
+
+DT::datatable(compartment_df, 
+              caption = "counts of cells in each compartment",
+              extensions = 'Buttons', 
+              options = list(  dom = 'Bfrtip',
+                               buttons = c( 'csv', 'excel')))
+```
+
+We also checked the number of cell in each compartment per sample, to assess the presence/absence of non-cancer cells (endothelia and immune) that could help the inference of copy number alterations. 
 
 ```{r fig.width=25, fig.height=3, results='asis'}
 compartment_df <- cell_type_df |>
