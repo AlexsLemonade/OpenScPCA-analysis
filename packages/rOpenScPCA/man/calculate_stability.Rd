@@ -4,7 +4,14 @@
 \alias{calculate_stability}
 \title{Calculate cluster stability using the Adjusted Rand Index (ARI)}
 \usage{
-calculate_stability(x, clusters, replicates = 20, seed = NULL, ...)
+calculate_stability(
+  x,
+  clusters,
+  replicates = 20,
+  seed = NULL,
+  pc_name = NULL,
+  ...
+)
 }
 \arguments{
 \item{x}{An object containing PCs that clusters were calculated from. This can be
@@ -19,8 +26,13 @@ by previously clustering the PCs.}
 
 \item{seed}{Random seed}
 
-\item{...}{Additional arguments to pass to `calculate_clusters()` which calculates bootstrapped clusters.
-Usually, these should be the same parameters used to generate the original clusters.}
+\item{pc_name}{Optionally, the name of the PC matrix in the object. Not used if a
+matrix is provided. If the name is not provided, the name "PCA" is assumed for
+SingleCellExperiment objects, and "pca" for Seurat objects.}
+
+\item{...}{Additional arguments to pass to `calculate_clusters()` which calculates
+bootstrapped clusters. Usually, these will be the same arguments used to generate
+the original clusters.}
 }
 \value{
 Data frame with columns `replicate` and `ari`, representing the given bootstrap replicate

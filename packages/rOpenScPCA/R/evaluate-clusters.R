@@ -137,8 +137,12 @@ calculate_purity <- function(
 #'   by previously clustering the PCs.
 #' @param replicates Number of bootstrap replicates to perform. Default is 20.
 #' @param seed Random seed
-#' @param ... Additional arguments to pass to `calculate_clusters()` which calculates bootstrapped clusters.
-#'   Usually, these should be the same parameters used to generate the original clusters.
+#' @param pc_name Optionally, the name of the PC matrix in the object. Not used if a
+#'   matrix is provided. If the name is not provided, the name "PCA" is assumed for
+#'   SingleCellExperiment objects, and "pca" for Seurat objects.
+#' @param ... Additional arguments to pass to `calculate_clusters()` which calculates
+#'   bootstrapped clusters. Usually, these will be the same arguments used to generate
+#'   the original clusters.
 #'
 #' @return Data frame with columns `replicate` and `ari`, representing the given bootstrap replicate
 #'   and its ARI value, respectively, and columns representing clustering algorithm parameters which
@@ -193,6 +197,7 @@ calculate_stability <- function(
     clusters,
     replicates = 20,
     seed = NULL,
+    pc_name = NULL,
     ...) {
   if (!is.null(seed)) {
     set.seed(seed)
