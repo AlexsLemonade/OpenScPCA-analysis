@@ -42,6 +42,8 @@ test_that("calculate_purity works as expected", {
 
 
 test_that("calculate_stability works as expected with defaults", {
+  # note that we suppress warnings since this calculation done on fake
+  # test data gives expected warnings about ties during the ARI calculation.
   suppressWarnings({
     df <- calculate_stability(test_mat, cluster_df$cluster)
   })
@@ -57,6 +59,8 @@ test_that("calculate_stability works as expected with defaults", {
 
 
 test_that("calculate_stability works as expected with different replicates", {
+  # note that we suppress warnings since this calculation done on fake
+  # test data gives expected warnings about ties during the ARI calculation.
   suppressWarnings({
     df <- calculate_stability(test_mat, cluster_df$cluster, replicates = 2)
   })
