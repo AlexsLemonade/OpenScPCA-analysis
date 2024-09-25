@@ -193,16 +193,10 @@ calculate_purity <- function(
 calculate_stability <- function(
     x,
     clusters,
-    algorithm = c("louvain", "walktrap", "leiden"),
-    weighting = c("jaccard", "rank", "number"),
-    nn = 10,
-    resolution = 1,
-    objective_function = c("CPM", "modularity"),
-    cluster_args = list(),
     replicates = 20,
-    threads = 1,
     seed = NULL,
-    pc_name = NULL) {
+    ...
+) {
   if (!is.null(seed)) {
     set.seed(seed)
   }
@@ -212,8 +206,7 @@ calculate_stability <- function(
 
   # check clusters and matrix compatibility
   stopifnot(
-    "The provided clusters variable should be a vector, not a data frame." = (!is.data.frame(clusters)),
-    "The matrix should have the same numbers of rows as the length of the clusters variable." =
+    "The number of rows in the matrix must equal the length of the clusters vector." =
       nrow(pca_matrix) == length(clusters)
   )
 
@@ -221,33 +214,22 @@ calculate_stability <- function(
   all_ari_df <- 1:replicates |>
     purrr::map(
       \(i) {
-        sample_cells <- sample(nrow(pca_matrix), nrow(pca_matrix), replace = TRUE)
-        resampled_pca <- pca_matrix[sample_cells, , drop = FALSE]
+        sample_cells <- sample(nrow(pca_matrix), replace = TRUE)
+        resampled_pca <- pca_matrix[sample_cells, ]
         original_clusters <- clusters[sample_cells]
 
-        resampled_df <- calculate_clusters(
-          resampled_pca,
-          algorithm,
-          weighting,
-          nn,
-          resolution = resolution,
-          objective_function = objective_function,
-          cluster_args = cluster_args,
-          threads = threads,
-          seed = seed
-        )
+        resampled_df <- calculate_clusters(resampled_pca, ...)
 
         ari <- pdfCluster::adj.rand.index(resampled_df$cluster, clusters[sample_cells])
 
         # return df with ari and clustering parameters
         ari_df <- resampled_df |>
+          head(1) |>
           dplyr::select(
             -"cell_id",
             -"cluster"
           ) |>
-          dplyr::distinct() |>
           dplyr::mutate(
-            replicate = i,
             ari = ari,
             # make these columns in front
             .before = "algorithm"
@@ -256,7 +238,7 @@ calculate_stability <- function(
         return(ari_df)
       }
     ) |>
-    dplyr::bind_rows()
+    dplyr::bind_rows(.id = "replicate")
 
 
   return(all_ari_df)
