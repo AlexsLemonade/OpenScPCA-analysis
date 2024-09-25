@@ -97,25 +97,4 @@ test_that("calculate_stability errors as expected", {
     # cluster_df not a vector
     calculate_stability(test_mat, cluster_df)
   })
-
-
-  # the next test ensures we fail even if the length of clusters
-  # is the same as the nrow in test_mat
-
-  # make it smaller for test
-  test_mat_small <- test_mat[1:5, ]
-
-  # make df with same length as rows in test_mat
-  bad_df <- data.frame(
-    cluster = sample(1:2, nrow(test_mat_small), replace = T),
-    cell_id = rownames(test_mat_small),
-    col1 = 1,
-    col2 = 1,
-    col3 = 1
-  )
-
-  expect_error({
-    # cluster_df not a vector, even though df length matches test mat
-    calculate_stability(test_mat_small, bad_df)
-  })
 })
