@@ -89,6 +89,7 @@ test_that("calculate_stability works as expected with object and pc_name", {
 
 test_that("calculate_stability errors as expected", {
   expect_error({
+    # mismatched cluster vector length
     calculate_stability(test_mat, cluster_df$cluster[1:5])
   })
 

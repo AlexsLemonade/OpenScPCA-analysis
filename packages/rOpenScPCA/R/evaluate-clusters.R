@@ -222,15 +222,12 @@ calculate_stability <- function(
 
         resampled_df <- calculate_clusters(resampled_pca, ...)
 
-        ari <- pdfCluster::adj.rand.index(resampled_df$cluster, clusters[sample_cells])
+        ari <- pdfCluster::adj.rand.index(resampled_df$cluster, original_clusters)
 
         # return df with ari and clustering parameters
         ari_df <- resampled_df |>
           dplyr::slice(1) |>
-          dplyr::select(
-            -"cell_id",
-            -"cluster"
-          ) |>
+          dplyr::select(!c("cell_id", "cluster")) |>
           dplyr::mutate(
             replicate = i, # define this variable here to ensure it's numeric
             ari = ari
