@@ -208,6 +208,7 @@ calculate_stability <- function(
 
   # check clusters and matrix compatibility
   stopifnot(
+    "The provided clusters variable must be a vector" = is.factor(clusters) || is.vector(clusters),
     "The number of rows in the matrix must equal the length of the clusters vector." =
       nrow(pca_matrix) == length(clusters)
   )
@@ -229,8 +230,11 @@ calculate_stability <- function(
           dplyr::slice(1) |>
           dplyr::select(!c("cell_id", "cluster")) |>
           dplyr::mutate(
-            replicate = i, # define this variable here to ensure it's numeric
-            ari = ari
+            # define this variable here to ensure it's numeric
+            replicate = i,
+            ari = ari,
+            # ensure these columns come first
+            .before = "algorithm"
           )
 
         return(ari_df)
