@@ -30,6 +30,7 @@ Imports:
     bluster (>= 1.14),
     dplyr,
     methods,
+    pdfCluster,
     purrr,
     SingleCellExperiment,
     tibble,

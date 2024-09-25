@@ -47,8 +47,12 @@
 #' @examples
 #' \dontrun{
 #' # perform louvain clustering with jaccard weighting (defaults),
-#' # varying the nearest neighobor parameter.
-#' cluster_df <- sweep_clusters(sce_object, nn = c(10, 15, 20, 25))
+#' # varying the nearest neighobor parameter, and set a seed for reproducibility
+#' cluster_df <- sweep_clusters(
+#'   sce_object,
+#'   nn = c(10, 15, 20, 25),
+#'   seed = 11
+#' )
 #'
 #' # perform louvain clustering, with jaccard and rank weighting, and
 #' # varying the nearest neighbor and resolution parameters.
@@ -57,7 +61,8 @@
 #'   algorithm = "louvain",
 #'   weighting = c("jaccard", "rank"),
 #'   nn = c(10, 15, 20, 25),
-#'   resolution = c(0.5, 1)
+#'   resolution = c(0.5, 1),
+#'   seed = 11
 #' )
 #'
 #' # perform walktrap and louvain clustering with jaccard weighting, and
@@ -67,7 +72,8 @@
 #'   algorithm = c("walktrap", "louvain"),
 #'   weighting = "jaccard",
 #'   nn = c(10, 15, 20, 25),
-#'   resolution = c(0.5, 1)
+#'   resolution = c(0.5, 1),
+#'   seed = 11
 #' )
 #' }
 sweep_clusters <- function(

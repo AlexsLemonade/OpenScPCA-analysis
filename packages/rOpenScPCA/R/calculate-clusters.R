@@ -34,26 +34,33 @@
 #'
 #' @examples
 #' \dontrun{
-#' # cluster PCs from a SingleCellExperiment object using default parameters
-#' cluster_df <- calculate_clusters(sce_object)
+#' # cluster PCs from a SingleCellExperiment object using default parameters and
+#' # a random seed for reproducibility
+#' cluster_df <- calculate_clusters(sce_object, seed = 11)
 #'
 #' # cluster PCs from a SingleCellExperiment object using default parameters and 4 threads
-#' cluster_df <- calculate_clusters(sce_object, threads = 4)
+#' cluster_df <- calculate_clusters(sce_object, threads = 4, seed = 11)
 #'
 #' # cluster PCs from a Seurat object using default parameters
-#' cluster_df <- calculate_clusters(seurat_object)
+#' cluster_df <- calculate_clusters(seurat_object, seed = 11)
 #'
 #' # cluster directly from a matrix using default parameters
-#' cluster_df <- calculate_clusters(pca_matrix)
+#' cluster_df <- calculate_clusters(pca_matrix, seed = 11)
 #'
 #' # cluster directly from a matrix using the leiden algorithm with a resolution of 0.1
-#' cluster_df <- calculate_clusters(pca_matrix, algorithm = "leiden", resolution = 0.1)
+#' cluster_df <- calculate_clusters(
+#'   pca_matrix,
+#'   algorithm = "leiden",
+#'   resolution = 0.1,
+#'   seed = 11
+#' )
 #'
 #' # cluster directly from a matrix using the leiden algorithm with 3 iterations
 #' cluster_df <- calculate_clusters(
 #'   pca_matrix,
 #'   algorithm = "leiden",
-#'   cluster_args = list(n_iterations = 3)
+#'   cluster_args = list(n_iterations = 3),
+#'   seed = 11
 #' )
 #' }
 calculate_clusters <- function(
