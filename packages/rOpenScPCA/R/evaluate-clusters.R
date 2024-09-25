@@ -221,7 +221,7 @@ calculate_stability <- function(
 
         # return df with ari and clustering parameters
         ari_df <- resampled_df |>
-          head(1) |>
+          dplyr::slice(1) |>
           dplyr::select(
             -"cell_id",
             -"cluster"
