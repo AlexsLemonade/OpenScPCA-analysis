@@ -10,6 +10,7 @@ if (length(args) == 0) {
   nsample <- as.numeric(args[1])
   path_repo <- rprojroot::find_root(rprojroot::is_git_root)
 } else if (length(args) == 2) {
+  # if specify the number of samples & repo path 
   nsample <- as.numeric(args[1])
   path_repo <- args[2]
 }else {
@@ -42,8 +43,23 @@ ref_obj <- SeuratObject::LoadSeuratRds(file.path(scratch_out_dir, "kidneyatlas.r
 
 purrr::walk(
   meta$scpca_sample_id,
-  \(sample) run_anchorTrans(path_anal = path_anal, scratch_out_dir = scratch_out_dir, results_out_dir = results_out_dir,
-                            ref_obj = ref_obj, sample = sample, unknown_cutoff = 0.5)
+  \(sample) run_anchorTrans(path_anal = path_anal, 
+                            scratch_out_dir = scratch_out_dir, 
+                            results_out_dir = results_out_dir,
+                            ref_obj = ref_obj, 
+                            sample = sample, 
+                            level = "compartment",
+                            unknown_cutoff = 0.5, ndims = 20)
 )
 
+purrr::walk(
+  meta$scpca_sample_id,
+  \(sample) run_anchorTrans(path_anal = path_anal, 
+                            scratch_out_dir = scratch_out_dir, 
+                            results_out_dir = results_out_dir,
+                            ref_obj = ref_obj, 
+                            sample = sample, 
+                            level = "celltype",
+                            unknown_cutoff = 0.5, ndims = 20)
+)
 
