@@ -1,0 +1,96 @@
+---
+title: "Testing SEACells results"
+output: html_notebook
+---
+
+
+## Setup
+
+```{r setup}
+library(ggplot2)
+library(reticulate)
+reticulate::use_condaenv("openscpca-metacells")
+```
+
+```{python imports}
+import pathlib
+
+import matplotlib
+import matplotlib.pyplot as plt
+import scanpy as sc
+import seaborn as sns
+import SEACells
+```
+
+## Path definitions
+
+```{r paths}
+root_dir <- rprojroot::find_root(rprojroot::is_git_root)
+data_dir <- file.path(root_dir, "data", "current")
+
+infile <- file.path(data_dir, "SCPCP000001/SCPCS000001/SCPCL000001_processed_rna.h5ad")
+```
+
+## Load data
+```{python load_data}
+ad = sc.read(r.infile)
+
+# put the highly variable genes in a column of adata.var
+ad.var["highly_variable"] = ad.var.gene_ids.isin(ad.uns["highly_variable_genes"])
+```
+
+## Run SEACells
+
+```{python run_seacells}
+n_SEACells = round(ad.n_obs / 75)
+n_waypoint_eigs = 10
+
+model = SEACells.core.SEACells(
+    ad,
+    build_kernel_on="X_pca",
+    n_SEACells=n_SEACells,
+    n_waypoint_eigs=n_waypoint_eigs,
+    convergence_epsilon=1e-5,
+)
+```
+```{python}
+model.construct_kernel_matrix()
+M = model.kernel_matrix
+```
+
+```{python}
+sns.clustermap(M.toarray()[:500, :500])
+plt.show()
+```
+
+```{python}
+model.initialize_archetypes()
+SEACells.plot.plot_initialization(ad, model)
+```
+
+```{python}
+model.fit(min_iter=10, max_iter=50)
+model.plot_convergence()
+```
+
+
+```{python}
+SEACells.plot.plot_2D(ad, key="X_umap", colour_metacells=True)
+```
+
+```{python}
+SEACells.plot.plot_SEACell_sizes(ad, bins=10)
+```
+
+```{python}
+purity = SEACells.evaluate.compute_celltype_purity(
+    ad, "singler_celltype_ontology"
+)
+```
+
+```{r purity_plot}
+ggplot(py$purity, aes(y = singler_celltype_ontology_purity)) +
+  geom_boxplot() +
+  labs(title = "Celltype purity",
+       y = "Celltype purity (singler)")
+```
