@@ -1,45 +1,38 @@
-# Template analysis module
-
-This is a template analysis module.
-It is intended to be used as a starting point for new analysis modules.
-Please fill in the content below with information specific to this analysis module.
+# Glioblastoma cell type identification
 
 ## Description
 
-Please provide a description of your module, including:
-
-- What type of analysis is included?
-- What methods or tools are used?
-
-If there are multiple steps in the module, please include an outline of the analysis steps and scripts used.
+This module aims to identify the cell types present and provide labels for 16 pediatric Glioblastoma samples. This is split into the following objectives:
+- [ ] Visualise the data quality of each sample using standard quality control metrics (gene count, mitochondrial reads etc.)
+- [ ] Create a linear regression model using CellTypist with Glioblastoma atlas 'GBMap' (Core) as reference data
+- [ ] Apply the linear regression model using CellTypist to each sample individually
+- [ ] Use the pre-generated UMAP to cluster the cells and isolate clusters with low model confidence
+- [ ] Manually label the low-confidence clusters using known marker genes and differential expression analysis
+- [ ] Provide final cell labels for each sample 
 
 ## Usage
 
-Please provide instructions on how to run the analysis module.
-What commands are needed to execute all steps in the analysis?
+In progress
 
 ## Input files
 
-Please include a description of the required inputs to run the analysis module (e.g., processed `SingleCellExperiment` objects from the ScPCA Portal).
-If the input to this module is dependent on running any other scripts (e.g., `download-data.py`) or on the output of another module, please state that.
-If possible, include examples of specific commands used to obtain data.
+The input is dependent on the output fles run from `download-data.py`. 
+
+```
+./download-data.py --projects SCPCP00001
+```
+
+This downloads the `SingleCellExperiment` files for Glioblastoma samples.
+
 
 ## Output files
 
-Please include a description of the output from your analysis, including:
-
-- What type of files are created?
-- What are the contents of the output files?
-- Where are the files stored?
-- Are any intermediate files generated?
-If so, where are they stored?
+In progress
 
 ## Software requirements
 
-Please describe the environment system used to manage software dependencies for the module (e.g., `conda`, `renv`, `docker`).
-Include the locations of any files used to set up the environment.
+The analysis will be done in Python version 3.11 primarily using the `scanpy' and `CellTypist' packages. 
 
 ## Computational resources
 
-Please indicate the computational resources that are required to run the module.
-If there are specific memory, CPU, and/or GPU requirements, please state that.
+TBC
