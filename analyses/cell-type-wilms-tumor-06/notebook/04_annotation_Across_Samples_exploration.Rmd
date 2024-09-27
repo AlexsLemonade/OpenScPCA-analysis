@@ -246,7 +246,9 @@ We expect stroma and fetal nephron compartment to contain both normal and malign
     - `endothelial` cells
     
 
-For each compartment, we sumarized the percentage of cells that do match kidney annotation or not:
+For each compartment, we sumarized the percentage of cells that do match kidney annotation or not. 
+Please note that this table is <u>not</u> sample-specific but contains all samples pooled into one.
+
 
 ```{r fig.width=10, fig.height=10, out.width='100%', results='asis'}
 
@@ -271,7 +273,9 @@ DT::datatable(compartment_count_df,
               options = list(  dom = 'Bfrtip',
                                buttons = c( 'csv', 'excel')))
 ```   
+
 What is the predicted organ of cells that are not labeled as kidney cell?
+Please note that this table is <u>not</u> sample-specific but contains all samples pooled into one.
 
 ```{r fig.width=25, fig.height=3, results='asis'}
 compartment_df <- cell_type_df |>
@@ -352,6 +356,54 @@ do_Feature_boxplot( df = cell_type_df,
                     split.by = "sample_id")
 
 ```
+
+## Conclusion
+
+### Assessment of the quality of label transfer
+
+Looking at the `predicted.organ` label (from the human fetal atlas, [Cao et al.](https://www.science.org/doi/10.1126/science.aba7721)), we can be confident about the label transfer.  
+
+The majority of fetal nephron cell (92%) has been predicted as kidney.
+The fact that the other `compartments` (i.e. stroma, endothelial and immune) do not really match to kidney cells (less than one third predicted as kidney) shouldn't be a concern and and shouldn't be interpreted as a poor label transfer or annotation.
+
+It is indeed known that Wilms tumor stroma (sometimes) shows (unexpected) differentiation into cell types such as skeletal muscle cells, fat tissue, cartilage, bone and even glial cells  [[1](https://academic.oup.com/jnci/article/89/15/1089/2526288?login=false)-[2](https://www.ncbi.nlm.nih.gov/books/NBK373364/)].
+For that reason, we are not surprised that most stroma cells are not predicted as kidney cells.
+
+
+Regarding the immune compartment, it is not of a surprise that cancer cells, and/or treatment, modulate the immune microenvironment, via the attraction of immune cells that are not usually in the kidney and/or induction of a cancer-associated phenotype.
+For that reason, we are not surprised that immune cells can be resembling immune cells from other organs.
+
+
+### Next step
+
+The next step of the analysis is to test whether `copyKAT` can help us distinguishing cancer cells from non-malignant cell types.
+[`copyKAT`](https://github.com/navinlabcode/copykat) (Copynumber Karyotyping of Tumors) is a computational tool using integrative Bayesian approaches to identify genome-wide aneuploidy in single cells to separate tumor cells from normal cells, using high-throughput sc-RNAseq data. 
+The underlying logic for calculating DNA copy number events from RNAseq data is that gene expression levels of many adjacent genes can provide depth information to infer genomic copy number in that region.
+
+Of note, it is known that `CopyKAT` has difficulty in predicting tumor and normal cells in the cases of pediatric and liquid tumors that have a few CNAs, such as Wilms tumors. 
+`CopyKAT` provides two ways to bypass this:
+
+- by providing a vector of cell names of known normal cells from the same dataset 
+
+- or by try to search for T cells.
+
+
+For that reason, we will first try to run `CopyKAT` on 2-5 samples that have a decent amount (>100 cells when possible) of normal cells (endothelial and immune cells) and for which we are quite confident with the label transfer:
+
+- sample `SCPCS000194` has > `85` % of cells predicted as kidney and `234` + `83` endothelium and immune cells.
+
+- sample `SCPCS000179` has > `94` % of cells predicted as kidney and `25` + `111` endothelium and immune cells.
+
+- sample `SCPCS000184` has > `96` % of cells predicted as kidney and `39` + `70` endothelium and immune cells.
+
+- sample `SCPCS000205` has > `89` % of cells predicted as kidney and `92` + `76` endothelium and immune cells.
+
+- sample `SCPCS0000208` has > `95` % of cells predicted as kidney and `18` + `35` endothelium and immune cells.
+
+
+For the selected samples, we will run `copyKAT` with and without providing a list of normal cells. 
+That will be useful to us to see how consistent results are.
+Also it will inform us about how we might analyze samples that aren't predicted to have that many (or sometimes any at all!) endothelial or immune cells.
 
 
 ## Session Info
