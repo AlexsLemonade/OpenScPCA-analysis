@@ -313,6 +313,7 @@ DT::datatable(compartment_df,
 ### Evaluate annotations with marker genes
 
 Here we evaluate with marker genes the identification of endothelial, immune cells sub-populations.
+We expect that cells labeled as endothelial and immune cells will have higher expression of these markers compared to other cell types. 
 
 
 ##### Endothelial cells
