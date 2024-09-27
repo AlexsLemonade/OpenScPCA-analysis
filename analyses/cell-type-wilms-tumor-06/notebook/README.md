@@ -34,4 +34,4 @@ In brief, we explore the clustering results, we look into some marker genes, pat
 At some step during the analysis, a global picture was required to interprete correctly the results and take the best decision for the next steps. 
 
 - `04_annotation_Across_Samples_exploration.html` is the output of the [`04_annotation_Across_Samples_exploration.Rmd`](../notebook/04_annotation_Across_Samples_exploration.Rmd) notebook. 
-In brief, we integrated the samples from the Wilms tumor dataset SCPCP000006 and explored the clustering and label transfer results. 
+In brief, we explored the label transfer results across all samples in the Wilms tumor dataset SCPCP000006.
