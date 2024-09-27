@@ -13,7 +13,7 @@ prepare_fetal_atlas <- function(scratch_out_dir, use_exist = T){
     return(0)
   }
   
-  # download kidney fetal atlas
+  # download kidney fetal atlas, do not re-download
   if (!file.exists(path_h5ad)) {
     download.file('https://cellgeni.cog.sanger.ac.uk/kidneycellatlas/Fetal_full_v3.h5ad', 
                   destfile = path_h5ad, 
@@ -21,7 +21,7 @@ prepare_fetal_atlas <- function(scratch_out_dir, use_exist = T){
   }
   
   sce <- zellkonverter::readH5AD(path_h5ad)
-  #rownames(sce) <- SingleCellExperiment::rowData(sce)$ID
+  rownames(sce) <- SingleCellExperiment::rowData(sce)$ID
   seurat_obj <- SeuratObject::CreateSeuratObject(counts = SingleCellExperiment::counts(sce),
                                                  assay = "RNA",
                                                  project = "kidneyatlas")
@@ -61,21 +61,21 @@ run_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir,
 
   
   # set row names as gene symbol, since reference obj uses gene symbol by default
-  # length(intersect(rownames(ref_obj), rownames(sample_obj))) # 21207, make sure gene symbol consistency
-  # length(intersect(VariableFeatures(ref_obj), rownames(sample_obj))) # 2668, candidate genes used for transfer
-  unique <- sample_obj[["RNA"]]@meta.data$gene_ids[!duplicated(sample_obj[["RNA"]]@meta.data$gene_symbol)]
-  sample_obj <- sample_obj[unique,]
-  rownames(sample_obj) <- sample_obj[["RNA"]]@meta.data$gene_symbol
+  # length(intersect(rownames(ref_obj), rownames(sample_obj))) # make sure gene symbol consistency
+  # length(intersect(VariableFeatures(ref_obj), rownames(sample_obj))) # candidate genes used for transfer
+  # unique <- sample_obj[["RNA"]]@meta.data$gene_ids[!duplicated(sample_obj[["RNA"]]@meta.data$gene_symbol)]
+  # sample_obj <- sample_obj[unique,]
+  # rownames(sample_obj) <- sample_obj[["RNA"]]@meta.data$gene_symbol
   
   # find anchors
   anchors <- FindTransferAnchors(reference = ref_obj, query = sample_obj, dims = 1:ndims)
   nanchors <- nrow(anchors@anchors)
-  # clean annotation
+  # clean annotation, too few stroma, immune and endo
   # ref_obj@meta.data <- ref_obj@meta.data %>%
   #   mutate(annot = case_when(compartment == "stroma" ~ "stroma",
   #                            compartment == "immune" ~ "immune",
   #                            compartment == "endothelium" ~ "endothelium",
-  #                            TRUE ~ level))
+  #                            TRUE ~ celltype))
   if (level == "compartment") {
     ref_obj@meta.data <- ref_obj@meta.data %>%
       mutate(annot = compartment)
@@ -121,7 +121,8 @@ run_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir,
                                   nrow = 1, ncol = 1)
   ggpubr::ggexport(plotlist = multi_page,
                    filename = filename,
-                   width = ifelse(length( unique(predictions$predicted.id) ) < 15,9,12), height = 6)
+                   width = ifelse(length( unique(predictions$predicted.id) ) < 15,9,12), 
+                   height = ifelse(length( unique(predictions$predicted.id) ) < 15,6,9))
   
   # save prediction table
   write.csv(predictions, file = filename_csv)

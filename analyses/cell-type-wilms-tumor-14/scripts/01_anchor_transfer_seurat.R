@@ -10,7 +10,7 @@ if (length(args) == 0) {
   nsample <- as.numeric(args[1])
   path_repo <- rprojroot::find_root(rprojroot::is_git_root)
 } else if (length(args) == 2) {
-  # if specify the number of samples & repo path 
+  # if specify the number of samples & followd by repo path 
   nsample <- as.numeric(args[1])
   path_repo <- args[2]
 }else {
