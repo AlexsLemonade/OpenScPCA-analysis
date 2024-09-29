@@ -73,5 +73,6 @@ jobs:
       - name: Run analysis module
         run: |
           cd ${MODULE_PATH}
-          # run preprocessing script only for now.
+          # run individual scripts for now, until we have a main script
           Rscript scripts/00_preprocessing_rds.R
+          Rscript scripts/01_anchor_transfer_seurat.R
