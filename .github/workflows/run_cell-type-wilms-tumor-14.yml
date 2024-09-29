@@ -47,6 +47,18 @@ jobs:
       - name: Set up pandoc
         uses: r-lib/actions/setup-pandoc@v2
 
+      - name: Install system dependencies
+        run: |
+          sudo apt-get install -y \
+            jags \
+            libcurl4-openssl-dev \
+            libfribidi-dev \
+            libglpk40 \
+            libharfbuzz-dev \
+            libhdf5-dev \
+            libmagick++-dev \
+            libtiff5-dev
+
       - name: Set up renv
         uses: r-lib/actions/setup-renv@v2
         with:
