@@ -31,7 +31,7 @@ In brief, we explore the clustering results, we look into some marker genes, pat
 
 ## Global analysis
 
-At some step during the analysis, a global picture was required to interprete correctly the results and take the best decision for the next steps. 
+The next step in analysis is to identify tumor vs. normal cells.
 
 - `04_annotation_Across_Samples_exploration.html` is the output of the [`04_annotation_Across_Samples_exploration.Rmd`](../notebook/04_annotation_Across_Samples_exploration.Rmd) notebook. 
-In brief, we explored the label transfer results across all samples in the Wilms tumor dataset SCPCP000006.
+In brief, we explored the label transfer results across all samples in the Wilms tumor dataset SCPCP000006 in order to identify a few samples that we can begin next analysis steps with.
