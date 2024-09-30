@@ -91,6 +91,13 @@ for (sample_id in metadata$scpca_sample_id) {
   }
 }
 
+if (!running_ci) {
+  rmarkdown::render(input = file.path(notebook_output_dir, "04_annotation_Across_Samples_exploration.Rmd"),
+                    output_format = "html_document",
+                    output_file = "04_annotation_Across_Samples_exploration.html",
+                    output_dir = notebook_output_dir)
+}
+
 
 
 
