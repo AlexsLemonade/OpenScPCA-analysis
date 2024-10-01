@@ -8,6 +8,7 @@ library(SingleCellExperiment)
 run_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir,
                             ref_obj, sample, 
                             level = "celltype", # celltype or compartment
+                            k_weight = 50,
                             unknown_cutoff = 0.5, ndims = 20) {
   # perspective output files
   filename <- file.path(results_out_dir, paste0(sample, "_", level,".pdf"))
@@ -42,7 +43,7 @@ run_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir,
   }
   ref_obj@meta.data$annot <- factor(ref_obj@meta.data$annot)
   # transfer labels
-  predictions <- TransferData(anchorset = anchors, refdata = ref_obj$annot, dims = 1:ndims)
+  predictions <- TransferData(anchorset = anchors, refdata = ref_obj$annot, dims = 1:ndims, k.weight = k_weight)
   predictions <- mutate(predictions, predicted.id = case_when(prediction.score.max < unknown_cutoff ~ "Unknown",
                                                               TRUE ~ predicted.id))
   sample_obj <- AddMetaData(object = sample_obj, metadata = predictions)

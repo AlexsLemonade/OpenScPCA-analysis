@@ -21,12 +21,19 @@ option_list <- list(
     type = "character",
     default = "all",
     help = "list of samples to run (starts with ), seperated by comma. Default is processing all samples in this cohort."
+  ),
+  make_option(
+    opt_str = c("--testing"),
+    type = "logical",
+    default = FALSE,
+    action = "store_true",
+    help = "Use this flag when running on test data"
   )
 )
 
 # Parse options
 opt <- parse_args(OptionParser(option_list = option_list))
-
+running_ci <- opt$testing
 
 # make sure all input files exist
 stopifnot(
@@ -68,6 +75,13 @@ if (opt$samples == "all") {
   samples <- unlist(strsplit(opt$samples, split = ","))
 }
 
+# Use the default value for k.weight when working with real data
+if (running_ci) {
+  k_weight <- 15  # Smaller number when working with simulated data (n = 100 cells)
+} else {
+  k_weight <- 50  # (Current) Seurat default
+}
+
 
 # create output dirs
 scratch_out_dir <- file.path(path_anal, "scratch", "01_anchor_transfer_seurat")
@@ -89,6 +103,7 @@ purrr::walk(
                             ref_obj = ref_obj, 
                             sample = sample, 
                             level = "compartment",
+                            k_weight = k_weight,
                             unknown_cutoff = 0.5, ndims = 20)
 )
 
@@ -100,6 +115,7 @@ purrr::walk(
                             ref_obj = ref_obj, 
                             sample = sample, 
                             level = "celltype",
+                            k_weight = k_weight,
                             unknown_cutoff = 0.5, ndims = 20)
 )
 
