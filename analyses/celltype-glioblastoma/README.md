@@ -19,10 +19,10 @@ In progress
 The input is dependent on the output fles run from `download-data.py`. 
 
 ```
-./download-data.py --projects SCPCP00001
+./download-data.py --projects SCPCP00001 --format anndata
 ```
 
-This downloads the `SingleCellExperiment` files for Glioblastoma samples.
+This downloads the `Anndata` files for Glioblastoma samples.
 
 
 ## Output files
