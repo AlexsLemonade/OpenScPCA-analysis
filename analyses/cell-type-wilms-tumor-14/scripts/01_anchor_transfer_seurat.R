@@ -1,48 +1,88 @@
 #!/usr/bin/env Rscript
 # parse arguments from command line
-args = commandArgs(trailingOnly=TRUE)
-if (length(args) == 0) {
-  # if not specifying any parameter, run all samples
-  path_repo <- rprojroot::find_root(rprojroot::is_git_root)
-  nsample <- 10
-} else if (length(args) == 1) {
-  # if specify the number of samples for test
-  nsample <- as.numeric(args[1])
-  path_repo <- rprojroot::find_root(rprojroot::is_git_root)
-} else if (length(args) == 2) {
-  # if specify the number of samples & followd by repo path 
-  nsample <- as.numeric(args[1])
-  path_repo <- args[2]
-}else {
-  stop("Usage: Rscript 01_anchor_transfer_seurat.R <optional_num_of_test_samples> <opt_path_repo>", call.=FALSE)
+library(optparse)
+library(dplyr)
+
+option_list <- list(
+  make_option(
+    opt_str = c("--reference"),
+    type = "character",
+    default = NULL,
+    help = "Path to converted seurat object for reference database"
+  ),
+  make_option(
+    opt_str = c("--metadata"),
+    type = "character",
+    default = NULL,
+    help = "Path to cohort metadata"
+  ),
+  make_option(
+    opt_str = c("--samples"),
+    type = "character",
+    default = "all",
+    help = "list of samples to run (starts with ), seperated by comma. Default is processing all samples in this cohort."
+  )
+)
+
+# Parse options
+opt <- parse_args(OptionParser(option_list = option_list))
+
+
+# make sure all input files exist
+stopifnot(
+  "reference does not exist" = file.exists(opt$reference),
+  "metadata does not exist" = file.exists(opt$metadata)
+)
+
+
+
+# args = commandArgs(trailingOnly=TRUE)
+# if (length(args) == 0) {
+#   # if not specifying any parameter, run all samples
+#   path_repo <- rprojroot::find_root(rprojroot::is_git_root)
+#   nsample <- 10
+# } else if (length(args) == 1) {
+#   # if specify the number of samples for test
+#   nsample <- as.numeric(args[1])
+#   path_repo <- rprojroot::find_root(rprojroot::is_git_root)
+# } else if (length(args) == 2) {
+#   # if specify the number of samples & followd by repo path 
+#   nsample <- as.numeric(args[1])
+#   path_repo <- args[2]
+# }else {
+#   stop("Usage: Rscript 01_anchor_transfer_seurat.R <optional_num_of_test_samples> <opt_path_repo>", call.=FALSE)
+# }
+
+
+
+
+path_repo <- rprojroot::find_root(rprojroot::is_git_root)
+path_anal <- file.path(path_repo,"analyses","cell-type-wilms-tumor-14") 
+# path_meta <- file.path(path_repo,"data","current","SCPCP000014","single_cell_metadata.tsv") # keep for debug
+path_meta <- file.path(opt$metadata)
+meta <- read.table(path_meta, sep = "\t", header = TRUE, stringsAsFactors = FALSE) 
+
+if (opt$samples == "all") {
+  samples <- meta$scpca_sample_id
+} else {
+  samples <- unlist(strsplit(opt$samples, split = ","))
 }
 
-library(dplyr)
-library(Seurat)
-library(ggpubr)
-
-path_anal <- file.path(path_repo,"analyses","cell-type-wilms-tumor-14") 
-path_proj <- file.path(path_repo,"data","current","SCPCP000014")
-path_meta <- file.path(path_proj,"single_cell_metadata.tsv")
-meta <- read.table(path_meta, sep = "\t", header = T, stringsAsFactors = F) %>%
-  head(n = nsample)
 
 # create output dirs
 scratch_out_dir <- file.path(path_anal, "scratch", "01_anchor_transfer_seurat")
-dir.create(scratch_out_dir, showWarnings = F, recursive = T)
+dir.create(scratch_out_dir, showWarnings = FALSE, recursive = TRUE)
 results_out_dir <- file.path(path_anal, "results", "01_anchor_transfer_seurat")
-dir.create(results_out_dir, showWarnings = F, recursive = T)
+dir.create(results_out_dir, showWarnings = FALSE, recursive = TRUE)
 
 source(file = file.path(path_anal,"scripts","utils","01_anchor_transfer_seurat_functions.R"))
 
-########### Prepare reference seurat obj ##########
-prepare_fetal_atlas(scratch_out_dir = scratch_out_dir, use_exist = T)
 
 ########### Run anchor transfer ##########
-ref_obj <- SeuratObject::LoadSeuratRds(file.path(scratch_out_dir, "kidneyatlas.rdsSeurat"))
+ref_obj <- SeuratObject::LoadSeuratRds(opt$reference)
 
 purrr::walk(
-  meta$scpca_sample_id,
+  samples,
   \(sample) run_anchorTrans(path_anal = path_anal, 
                             scratch_out_dir = scratch_out_dir, 
                             results_out_dir = results_out_dir,
@@ -53,7 +93,7 @@ purrr::walk(
 )
 
 purrr::walk(
-  meta$scpca_sample_id,
+  samples,
   \(sample) run_anchorTrans(path_anal = path_anal, 
                             scratch_out_dir = scratch_out_dir, 
                             results_out_dir = results_out_dir,
