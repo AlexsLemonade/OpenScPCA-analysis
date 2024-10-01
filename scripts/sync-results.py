@@ -146,11 +146,12 @@ def main() -> None:
         )
         sys.exit(1)
 
-    print("Sync complete.")
-    if args.download:
-        print(f"Files have been downloaded from '{source}' to '{destination}'")
-    else:
-        print(f"Files are now available on S3 at '{destination}'")
+    if not args.dryrun:
+      print("Sync complete.")
+      if args.download:
+          print(f"Files have been downloaded from '{source}' to '{destination}'")
+      else:
+          print(f"Files are now available on S3 at '{destination}'")
 
 
 if __name__ == "__main__":

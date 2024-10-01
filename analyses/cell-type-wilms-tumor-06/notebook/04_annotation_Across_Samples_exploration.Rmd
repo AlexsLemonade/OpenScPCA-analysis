@@ -1,0 +1,416 @@
+---
+title: "Annotation exploration for SCPCP000006"
+author: "Maud PLASCHKA"
+date: "`r Sys.Date()`"
+output: 
+  html_document: 
+    toc: yes
+    toc_float: yes
+    code_folding: hide
+    highlight: pygments
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE,
+                      message=FALSE,
+                      warnings=FALSE,
+                      knitr.digits.signif = FALSE)
+
+```
+
+
+## Introduction
+
+
+The aim is to explore the annotations and label transfers for all of the samples in SCPCP000006.
+
+
+In order to explore the label transfer results, we look into some marker genes, table and percentages of cells in each annotation groups (from label transfers).
+
+
+### Packages
+
+
+```{r packages, message=FALSE, warning=FALSE}
+library(Seurat)
+library(tidyverse)
+library(tidyr)
+library(patchwork)
+library(DT)
+```
+
+
+### Base directories
+
+```{r base paths, eval=TRUE}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The current data directory, found within the repository base directory
+data_dir <- file.path(repository_base, "data", "current", "SCPCP000006")
+
+# The path to this module
+module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06")
+
+result_dir <- file.path(module_base, "results")
+```
+
+
+### Input files
+
+In this notebook, we are working with all of the samples in SCPCP000006.
+
+The sample metadata can be found in `sample_metadata_file` in the `data` folder.
+
+We extracted from the pre-processed and labeled `Seurat` object (that is the output of `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd` saved in the `results` directory)
+the following information per cell:
+
+- the predicted compartment in `fetal_kidney_predicted.compartment` 
+
+- the predicted organ in `fetal_full_predicted.organ`
+
+- the sample identifier in `sample_id`
+
+- the `counts`of the endothelial marker VWF = "ENSG00000110799"
+
+- the `counts`of the immune marker PTPRC = "ENSG00000081237"
+
+
+```{r path_to_query}
+sample_metadata_file <- file.path(repository_base, "data", "current","SCPCP000006", "single_cell_metadata.tsv")
+
+metadata <- read.table(sample_metadata_file, sep = "\t", header = TRUE)
+
+# Create a data frames of all annotations
+cell_type_df <- metadata$scpca_sample_id |>
+  purrr::map(
+    # For each sample_id, do the following:
+    \(sample_id) {
+
+      # Read in the Seurat object
+      srat <- readRDS(
+        file.path(result_dir, sample_id, paste0("02b-fetal_kidney_label-transfer_", sample_id, ".Rds"))
+      )
+
+      # Create and return a data frame from the Seurat object with relevant annotations
+      # this data frame will have four columns: barcode, sample_id, compartment, organ
+      data.frame(
+        compartment = srat$fetal_kidney_predicted.compartment,
+        organ = srat$fetal_full_predicted.organ, 
+        PTPRC = FetchData(object = srat, vars = "ENSG00000081237", layer = "counts"),
+        VWF = FetchData(object = srat, vars = "ENSG00000110799", layer = "counts")
+        ) |>
+        tibble::rownames_to_column("barcode") |>
+        dplyr::mutate(sample_id = sample_id)
+    }
+  ) |>
+  # now combine all dataframes to make one big one
+  dplyr::bind_rows()
+
+```
+
+### Output file
+
+The report will be saved in the `notebook` directory. 
+
+
+## Functions
+
+
+
+
+#### do_Feature_mean
+
+`do_Feature_mean` shows heatmap of mean expression of a feature grouped by a metadata. 
+
+- `df` is the name of the table containing metadata and feature expression (counts) per cells
+- `group.by` is the name of the metadata to group the cells
+- `feature` is the name of the gene to average the expression
+
+```{r fig.width=10, fig.height=4, out.width='100%'}
+do_Feature_mean <- function(df, group.by, feature ){
+  
+  df <- df %>%
+  group_by(sample_id, !!sym(group.by))%>% 
+  summarise(m = mean(!!sym(feature)))  
+
+  
+p <- ggplot(df, aes(x= sample_id, y = !!sym(group.by), fill = m)) +
+   geom_tile() +
+   scale_fill_viridis_c()  +
+   theme_bw() +
+   theme(text = element_text(size = 20)) +
+   theme(axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5)) +
+   guides(fill=guide_legend(title=paste0(feature)))
+
+return(p)
+}
+```
+
+
+#### do_Feature_boxplot
+
+`do_Feature_boxplot` shows boxplot of expression of a feature grouped by a metadata. 
+
+- `df` is the name of the table containing metadata and feature expression (counts) per cells
+- `group.by` is the name of the metadata to group the cells
+- `feature` is the name of the gene to average the expression
+
+```{r fig.width=10, fig.height=4, out.width='100%'}
+do_Feature_boxplot <- function(df, group.by, feature, split.by ){
+  
+  df <- df %>%
+    mutate(!!sym(group.by), group  = factor(!!sym(group.by), levels = c("fetal_nephron", "stroma", "immune", "endothelium")))
+    
+  p <- ggplot(df, 
+    aes(x = group, y = !!sym(feature), fill = group)
+  ) + 
+  geom_boxplot(size = 0.5, size.outlier = 0.25) +
+  facet_wrap(vars(!!sym(split.by)), scale = "free_y", ncol = 4) + 
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(size = 12, angle = 0, hjust = 0.5, vjust = 0), 
+    legend.position = "none"
+  ) 
+
+return(p)
+}
+```
+
+## Analysis
+
+### Total number of cells per samples and predicted organ
+
+The predicted organ comes from label transfer from the human fetal atlas. 
+This is the reference developed by [Cao et al.](https://www.science.org/doi/10.1126/science.aba7721) provided by `Azimuth` for label transfer.
+The reference contain cells from 15 organs including kidney from fetal samples.
+The label transfer have been performed in the notebook `02a_fetal_full_reference_Cao_{sample_id}.Rmd`
+
+This notebook looks at the `fetal_full_predicted.organ` annotation from this reference. 
+
+Here, we are summarizing per sample:
+
+- the percentage of cells labeled as kidney, after label transfer from the fetal full reference [Cao et al.](https://www.science.org/doi/10.1126/science.aba7721),
+
+- the percentage of cells not labeled as kidney, after label transfer from the fetal full reference [Cao et al.](https://www.science.org/doi/10.1126/science.aba7721),
+
+- the total number of cells per sample.
+
+```{r fig.width=10, fig.height=10, out.width='100%', results='asis'}
+
+kidney_count_df <- cell_type_df |>
+  # make a new variable that tells us if it's kidney or not
+  dplyr::mutate(organ_type = ifelse(organ == "Kidney", "kidney", "not_kidney"))  |>
+  # count how many kidney or not
+  dplyr::count(sample_id, organ_type) |>
+  # make the data frame wide and use a value of 0 if a count is missing
+  tidyr::pivot_wider(names_from = organ_type, values_from = n, values_fill = 0) |>
+  # add a column for total, and convert other counts to percentages
+  dplyr::mutate(
+    total = kidney + not_kidney, 
+    kidney = round(kidney/total,  4)*100, 
+    not_kidney = round(not_kidney/total, 4)*100) |>
+  # arrange in descending order of percentage of kidney cells
+  dplyr::arrange(desc(kidney)) 
+
+DT::datatable(kidney_count_df, 
+              caption = "percentage of cells mapping to the predicted organ kidney",
+              extensions = 'Buttons', 
+              options = list(  dom = 'Bfrtip',
+                               buttons = c( 'csv', 'excel')))
+```    
+
+
+### Predicted compartment
+
+The predicted compartment is the result of the label transfer fron the human fetal kidney atlas: 
+[Stewart et al.](https://www.science.org/doi/10.1126/science.aat5031) created a [human fetal kidney atlas](https://www.kidneycellatlas.org/). 
+This reference contains only fetal kidney cells and has been precisely annotated by kidney experts. 
+The label transfer have been performed in the notebook `02b_fetal_kidney_reference_Stewart_{sample_id}.Rmd`
+
+The fetal kidney reference (Stewart et al.) provides two levels of annotations:
+
+- `fetal_kidney_predicted.compartment` is one of the 4 main compartments composing a fetal kidney.
+We expect immune and endothelial cells to be healthy (non-canerous) cells identified easily with high confidency. 
+We expect stroma and fetal nephron compartment to contain both normal and malignant cells.
+
+    
+    - `immune` cells
+    
+    - `stroma` cells
+    
+    - `fetal_nephron` cells
+    
+    - `endothelial` cells
+    
+
+For each compartment, we sumarized the percentage of cells that do match kidney annotation or not. 
+Please note that this table is <u>not</u> sample-specific but contains all samples pooled into one.
+
+
+```{r fig.width=10, fig.height=10, out.width='100%', results='asis'}
+
+compartment_count_df <- cell_type_df |>
+  # make a new variable that tells us if it's kidney or not
+  dplyr::mutate(organ_type = ifelse(organ == "Kidney", "kidney", "not_kidney"))  |>
+  # count how many kidney or not
+  dplyr::count(compartment, organ_type) |>
+  # make the data frame wide and use a value of 0 if a count is missing
+  tidyr::pivot_wider(names_from = organ_type, values_from = n, values_fill = 0) |>
+  # add a column for total, and convert other counts to percentages
+  dplyr::mutate(
+    total = kidney + not_kidney, 
+    kidney = round(kidney/total,  4)*100, 
+    not_kidney = round(not_kidney/total, 4)*100) |>
+  # arrange in descending order of percentage of kidney cells
+  dplyr::arrange(desc(kidney)) 
+
+DT::datatable(compartment_count_df, 
+              caption = "percentage of cells mapping to the predicted organ kidney",
+              extensions = 'Buttons', 
+              options = list(  dom = 'Bfrtip',
+                               buttons = c( 'csv', 'excel')))
+```   
+
+What is the predicted organ of cells that are not labeled as kidney cell?
+Please note that this table is <u>not</u> sample-specific but contains all samples pooled into one.
+
+```{r fig.width=25, fig.height=3, results='asis'}
+compartment_df <- cell_type_df |>
+  # count how many per compartment
+  dplyr::count(organ, compartment) |>
+  # make the table wide and use a value of 0 if a count is missing
+  tidyr::pivot_wider(names_from = compartment, values_from = n, values_fill = 0) |>
+  # order the columns how we want to show them
+  dplyr::select(organ, fetal_nephron, stroma, endothelium, immune) 
+
+DT::datatable(compartment_df, 
+              caption = "counts of cells in each compartment",
+              extensions = 'Buttons', 
+              options = list(  dom = 'Bfrtip',
+                               buttons = c( 'csv', 'excel')))
+```
+
+We also checked the number of cell in each compartment per sample, to assess the presence/absence of non-cancer cells (endothelia and immune) that could help the inference of copy number alterations. 
+
+```{r fig.width=25, fig.height=3, results='asis'}
+compartment_df <- cell_type_df |>
+  # count how many per compartment
+  dplyr::count(sample_id, compartment) |>
+  # make the table wide and use a value of 0 if a count is missing
+  tidyr::pivot_wider(names_from = compartment, values_from = n, values_fill = 0) |>
+  # order the columns how we want to show them
+  dplyr::select(sample_id, fetal_nephron, stroma, endothelium, immune) 
+
+DT::datatable(compartment_df, 
+              caption = "counts of cells in each compartment",
+              extensions = 'Buttons', 
+              options = list(  dom = 'Bfrtip',
+                               buttons = c( 'csv', 'excel')))
+```
+
+
+
+
+### Evaluate annotations with marker genes
+
+Here we evaluate with marker genes the identification of endothelial, immune cells sub-populations.
+We expect that cells labeled as endothelial and immune cells will have higher expression of these markers compared to other cell types. 
+
+
+##### Endothelial cells
+
+We look at the endothelial marker "ENSG00000110799" = "VWF"
+
+```{r fig.height=6, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
+do_Feature_mean( df = cell_type_df,
+                  feature = "ENSG00000110799",
+                  group.by = "compartment")
+```
+
+```{r fig.height=25, fig.width=20, message=FALSE, warning=FALSE, out.width='100%'}
+do_Feature_boxplot( df = cell_type_df,
+                    feature = "ENSG00000110799",
+                    group.by = "compartment",
+                    split.by = "sample_id")
+
+```
+
+##### Immune cells
+
+We look at the immune marker "ENSG00000081237" = "PTPRC" alias "CD45"
+
+
+```{r fig.height=6, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
+do_Feature_mean(  df = cell_type_df,
+                  feature = "ENSG00000081237",
+                  group.by = "compartment")
+```
+
+```{r fig.height=25, fig.width=20, message=FALSE, warning=FALSE, out.width='100%'}
+do_Feature_boxplot( df = cell_type_df,
+                    feature = "ENSG00000081237",
+                    group.by = "compartment",
+                    split.by = "sample_id")
+
+```
+
+## Conclusion
+
+### Assessment of the quality of label transfer
+
+Looking at the `predicted.organ` label (from the human fetal atlas, [Cao et al.](https://www.science.org/doi/10.1126/science.aba7721)), we can be confident about the label transfer.  
+
+The majority of fetal nephron cell (92%) has been predicted as kidney.
+The fact that the other `compartments` (i.e. stroma, endothelial and immune) do not really match to kidney cells (less than one third predicted as kidney) shouldn't be a concern and and shouldn't be interpreted as a poor label transfer or annotation.
+
+It is indeed known that Wilms tumor stroma (sometimes) shows (unexpected) differentiation into cell types such as skeletal muscle cells, fat tissue, cartilage, bone and even glial cells  [[1](https://academic.oup.com/jnci/article/89/15/1089/2526288?login=false)-[2](https://www.ncbi.nlm.nih.gov/books/NBK373364/)].
+For that reason, we are not surprised that most stroma cells are not predicted as kidney cells.
+
+
+Regarding the immune compartment, it is not of a surprise that cancer cells, and/or treatment, modulate the immune microenvironment, via the attraction of immune cells that are not usually in the kidney and/or induction of a cancer-associated phenotype.
+For that reason, we are not surprised that immune cells can be resembling immune cells from other organs.
+
+
+### Next step
+
+The next step of the analysis is to test whether `copyKAT` can help us distinguishing cancer cells from non-malignant cell types.
+[`copyKAT`](https://github.com/navinlabcode/copykat) (Copynumber Karyotyping of Tumors) is a computational tool using integrative Bayesian approaches to identify genome-wide aneuploidy in single cells to separate tumor cells from normal cells, using high-throughput sc-RNAseq data. 
+The underlying logic for calculating DNA copy number events from RNAseq data is that gene expression levels of many adjacent genes can provide depth information to infer genomic copy number in that region.
+
+Of note, it is known that `CopyKAT` has difficulty in predicting tumor and normal cells in the cases of pediatric and liquid tumors that have a few CNAs, such as Wilms tumors. 
+`CopyKAT` provides two ways to bypass this:
+
+- by providing a vector of cell names of known normal cells from the same dataset 
+
+- or by try to search for T cells.
+
+
+For that reason, we will first try to run `CopyKAT` on 2-5 samples that have a decent amount (>100 cells when possible) of normal cells (endothelial and immune cells) and for which we are quite confident with the label transfer:
+
+- sample `SCPCS000194` has > `85` % of cells predicted as kidney and `234` + `83` endothelium and immune cells.
+
+- sample `SCPCS000179` has > `94` % of cells predicted as kidney and `25` + `111` endothelium and immune cells.
+
+- sample `SCPCS000184` has > `96` % of cells predicted as kidney and `39` + `70` endothelium and immune cells.
+
+- sample `SCPCS000205` has > `89` % of cells predicted as kidney and `92` + `76` endothelium and immune cells.
+
+- sample `SCPCS0000208` has > `95` % of cells predicted as kidney and `18` + `35` endothelium and immune cells.
+
+
+For the selected samples, we will run `copyKAT` with and without providing a list of normal cells. 
+That will be useful to us to see how consistent results are.
+Also it will inform us about how we might analyze samples that aren't predicted to have that many (or sometimes any at all!) endothelial or immune cells.
+
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
+
+

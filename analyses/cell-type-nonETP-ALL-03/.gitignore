@@ -1,0 +1,11 @@
+# Results should not be committed
+/results/*
+!/results/README.md
+
+#Plots should not be committed
+/plots/*
+!/plots/.gitkeep
+
+# Ignore the scratch directory (but keep it present)
+/scratch/*
+!/scratch/.gitkeep
