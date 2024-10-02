@@ -75,7 +75,7 @@ jobs:
       - name: Install conda-lock and activate locked conda environment
         run: |
           conda install conda-lock
-          conda-lock install --name test ${MODULE_PATH}/conda-lock.yml
+          conda-lock install --name openscpca-cell-type-nonETP-ALL-03 ${MODULE_PATH}/conda-lock.yml
 
       # Update this step as needed to download the desired data
       - name: Download test data

@@ -12,7 +12,7 @@ LABEL org.opencontainers.image.source="https://github.com/AlexsLemonade/OpenScPC
 ENV OPENSCPCA_DOCKER=TRUE
 
 # set a name for the conda environment
-ARG ENV_NAME=openscpca-analysis
+ARG ENV_NAME=openscpca-cell-type-nonETP-ALL-03
 
 # set environment variables to install conda
 ENV PATH="/opt/conda/bin:${PATH}"
