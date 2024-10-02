@@ -7,6 +7,8 @@ set -euo pipefail
 
 # Set the working directory to the directory of this file
 cd "$(dirname "${BASH_SOURCE[0]}")"
+# set CI variable if unset
+CI_TESTING=${CI_TESTING:-0}
 
 scratch_dir="scratch"
 results_dir="results"
@@ -37,7 +39,14 @@ Rscript scripts/${step_name}.R \
 Rscript scripts/00_preprocessing_rds.R
 
 ## Assign anchors 
+if [ "$CI_TESTING" -eq 0 ]; then
+  TEST_FLAG=""
+else
+  TEST_FLAG="--testing"
+fi
+
 Rscript scripts/01_anchor_transfer_seurat.R \
   --reference "${ref_seurat}" \
   --metadata "${meta_path}" \
-  --samples SCPCS000514,SCPCS000515 
+  --samples SCPCS000514,SCPCS000515 \
+  $TEST_FLAG

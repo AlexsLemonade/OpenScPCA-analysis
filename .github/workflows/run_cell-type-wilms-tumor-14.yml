@@ -74,4 +74,4 @@ jobs:
         run: |
           cd ${MODULE_PATH}
           # run module script
-          bash run_cell-type-wilms-14.sh
+          CI_TESTING=1 bash run_cell-type-wilms-14.sh
