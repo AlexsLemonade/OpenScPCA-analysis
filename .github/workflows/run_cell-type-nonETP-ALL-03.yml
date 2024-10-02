@@ -54,7 +54,9 @@ jobs:
 
       # Update this step as needed to download the desired data
       - name: Download test data
-        run: ./download-data.py --test-data --format SCE
+        run: |
+          ./download-data.py --projects SCPCP000003 --test-data --format SCE
+          ./download-results.py --projects SCPCP000003 --test-data --modules doublet-detection
 
       - name: Run analysis module
         run: |
