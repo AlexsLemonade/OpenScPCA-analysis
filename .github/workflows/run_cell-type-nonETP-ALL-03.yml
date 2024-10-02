@@ -19,15 +19,15 @@ concurrency:
 
 on:
   workflow_dispatch:
-  # workflow_call:
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - analyses/cell-type-nonETP-ALL-03/**
-  #     - "!analyses/cell-type-nonETP-ALL-03/Dockerfile"
-  #     - "!analyses/cell-type-nonETP-ALL-03/.dockerignore"
-  #     - .github/workflows/run_cell-type-nonETP-ALL-03.yml
+  workflow_call:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - analyses/cell-type-nonETP-ALL-03/**
+      - "!analyses/cell-type-nonETP-ALL-03/Dockerfile"
+      - "!analyses/cell-type-nonETP-ALL-03/.dockerignore"
+      - .github/workflows/run_cell-type-nonETP-ALL-03.yml
 
 jobs:
   run-module:
