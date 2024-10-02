@@ -125,7 +125,7 @@ run_annot <- function(ind.sam){
     copykat.test <- copykat(rawmat=seu@assays[["RNA"]]@counts, id.type="Ensemble",
                             ngene.chr=5, win.size=25, KS.cut=0.1, sam.name=ind.sam,
                             distance="euclidean", norm.cell.names=norm.cells,
-                            output.seg="FALSE", plot.genes="TRUE", genome="hg20",n.cores=50)
+                            output.seg="FALSE", plot.genes="TRUE", genome="hg20",n.cores=1)
     idx <- match(colnames(seu), copykat.test$prediction$cell.names)
     seu$copykat.pred <- copykat.test$prediction$copykat.pred[idx]
     DimPlot(seu, reduction = "Xumap_", group.by = "copykat.pred") +

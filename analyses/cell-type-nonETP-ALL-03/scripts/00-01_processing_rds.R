@@ -43,7 +43,7 @@ run_sam <- function(ind.sample, ind.library){
   final.obj[["ADT"]]@data <- logcounts(altExp(sce, "adt"))
   final.obj[["ADT"]] <- AddMetaData(final.obj[["ADT"]], as.data.frame(rowData(altExp(sce, "adt"))))
   
-  saveRDS(final.obj, file.path(out_loc,"scratch",paste0(ind.sample,".rds")))
+  saveRDS(final.obj, file.path(out_loc,"results/rds",paste0(ind.sample,".rds")))
   unlink(paste0("sam.",ind.sample,".h5ad"))
 
   DimPlot(final.obj, reduction = "Xumap_", group.by = "leiden_clusters", label = T) + 
