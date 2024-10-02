@@ -84,3 +84,5 @@ jobs:
         run: |
           cd ${MODULE_PATH}
           # run module script(s) here
+          Rscript scripts/00-01_processing_rds.R
+          Rscript scripts/02-03_annotation.R
