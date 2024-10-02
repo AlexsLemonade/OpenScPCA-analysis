@@ -73,7 +73,5 @@ jobs:
       - name: Run analysis module
         run: |
           cd ${MODULE_PATH}
-          # run individual scripts for now, until we have a main script
-          Rscript scripts/00_preprocessing_rds.R
-          # anchor transfer
-          Rscript scripts/01_anchor_transfer_seurat.R --testing
+          # run module script
+          bash run_cell-type-wilms-14.sh
