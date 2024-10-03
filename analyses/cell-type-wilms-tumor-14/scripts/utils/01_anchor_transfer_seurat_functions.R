@@ -70,6 +70,7 @@ plot_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir, plots_
                              level = "celltype",
                              nanchors){
   filename <- file.path(plots_out_dir, paste0(library, "_", level,".pdf"))
+  filename_core <- file.path(plots_out_dir, paste0(library, "_", level,"_core.png"))
   
   # anchor transfer plot
   pred_ids <- unique(sample_obj$predicted.id)
@@ -106,4 +107,10 @@ plot_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir, plots_
                    filename = filename,
                    width = ifelse(length( pred_ids ) < 15,9,12), 
                    height = ifelse(length( pred_ids ) < 15,6,9))
+  
+  # save pngs
+  ggsave(p, file = filename_core,
+         device = "png", dpi = 72,
+         width = ifelse(length( pred_ids ) < 15,9,12),
+         height = ifelse(length( pred_ids ) < 15,6,9))
 }

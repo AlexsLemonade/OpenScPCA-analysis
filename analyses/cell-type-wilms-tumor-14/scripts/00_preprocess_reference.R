@@ -35,7 +35,7 @@ library(SingleCellExperiment)
 
 prepare_fetal_atlas <- function(in_fetal_atlas = in_fetal_atlas,
                                 out_fetal_atlas = out_fetal_atlas,
-                                use_exist = T){
+                                use_exist = TRUE){
 
   # do not re-prepare reference atlas
   if (file.exists(out_fetal_atlas) & use_exist) {
@@ -82,5 +82,5 @@ prepare_fetal_atlas <- function(in_fetal_atlas = in_fetal_atlas,
 ########### Prepare reference seurat obj ##########
 prepare_fetal_atlas(in_fetal_atlas = opt$in_fetal_atlas,
                     out_fetal_atlas = opt$out_fetal_atlas,
-                    use_exist = T)
+                    use_exist = TRUE)
 

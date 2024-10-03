@@ -20,7 +20,7 @@ option_list <- list(
     opt_str = c("--libraries"),
     type = "character",
     default = "all",
-    help = "list of libraries to run (starts with ), seperated by comma. Default is processing all libraries in this cohort."
+    help = "list of libraries to run, comma separated. Default is processing all libraries in this cohort."
   ),
   make_option(
     opt_str = c("--testing"),
