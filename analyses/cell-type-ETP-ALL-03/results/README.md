@@ -1,5 +1,16 @@
 # Results directory instructions
 
-Files in the results directory should not be directly committed to the repository.
+Run the following codes to sync the results in a Lightsail virtual computer:
 
-Instead, copy results files to an S3 bucket and add a link to the S3 location in this README file.
+```         
+cd /home/lightsail-user/OpenScPCA-analysis
+scripts/sync-results.py cell-type-ETP-ALL-03 --bucket researcher-650251722463-us-east-2
+```
+
+These are the generated outputs for each sample in the S3 bucket:
+
+-   `rds` objects: `s3://researcher-650251722463-us-east-2/cell-type-ETP-ALL-03/results/rds`
+
+-   metadata and ScType results: `s3://researcher-650251722463-us-east-2/cell-type-ETP-ALL-03/results/`
+
+-   umap and dot plots: `s3://researcher-650251722463-us-east-2/cell-type-ETP-ALL-03/plots`
