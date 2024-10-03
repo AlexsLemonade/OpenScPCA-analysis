@@ -31,23 +31,11 @@ This would include:
 
 ## Usage
 
-* Run Rscripts with command line, first navigate to this analysis module
+* Run Rscripts with command line
 ```bash
 cd /path/to/OpenScPCA-analysis
 cd analyses/cell-type-wilms-tumor-14
-```
-
-* Pre-processing the provided SCE objects
-```bash
-Rscript scripts/00_preprocessing_rds.R 
-```
-
-* Anchor transfer using Seurat
-```bash
-# generate results for all 10 samples
-Rscript scripts/01_anchor_transfer_seurat.R 
-# test to generate results for first 2 samples
-Rscript scripts/01_anchor_transfer_seurat.R 2
+bash ./run_cell-type-wilms-14.sh
 ```
 
 ## Input files

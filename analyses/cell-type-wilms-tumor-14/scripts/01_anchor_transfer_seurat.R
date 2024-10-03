@@ -17,10 +17,10 @@ option_list <- list(
     help = "Path to cohort metadata"
   ),
   make_option(
-    opt_str = c("--samples"),
+    opt_str = c("--libraries"),
     type = "character",
     default = "all",
-    help = "list of samples to run (starts with ), seperated by comma. Default is processing all samples in this cohort."
+    help = "list of libraries to run (starts with ), seperated by comma. Default is processing all libraries in this cohort."
   ),
   make_option(
     opt_str = c("--testing"),
@@ -43,24 +43,6 @@ stopifnot(
 
 
 
-# args = commandArgs(trailingOnly=TRUE)
-# if (length(args) == 0) {
-#   # if not specifying any parameter, run all samples
-#   path_repo <- rprojroot::find_root(rprojroot::is_git_root)
-#   nsample <- 10
-# } else if (length(args) == 1) {
-#   # if specify the number of samples for test
-#   nsample <- as.numeric(args[1])
-#   path_repo <- rprojroot::find_root(rprojroot::is_git_root)
-# } else if (length(args) == 2) {
-#   # if specify the number of samples & followd by repo path 
-#   nsample <- as.numeric(args[1])
-#   path_repo <- args[2]
-# }else {
-#   stop("Usage: Rscript 01_anchor_transfer_seurat.R <optional_num_of_test_samples> <opt_path_repo>", call.=FALSE)
-# }
-
-
 
 
 path_repo <- rprojroot::find_root(rprojroot::is_git_root)
@@ -69,10 +51,10 @@ path_anal <- file.path(path_repo,"analyses","cell-type-wilms-tumor-14")
 path_meta <- file.path(opt$metadata)
 meta <- read.table(path_meta, sep = "\t", header = TRUE, stringsAsFactors = FALSE) 
 
-if (opt$samples == "all") {
-  samples <- meta$scpca_sample_id
+if (opt$libraries == "all") {
+  libraries <- meta$scpca_library_id
 } else {
-  samples <- unlist(strsplit(opt$samples, split = ","))
+  libraries <- stringr::str_split_1(opt$libraries, ",")
 }
 
 # Use the default value for k.weight when working with real data
@@ -88,32 +70,37 @@ scratch_out_dir <- file.path(path_anal, "scratch", "01_anchor_transfer_seurat")
 dir.create(scratch_out_dir, showWarnings = FALSE, recursive = TRUE)
 results_out_dir <- file.path(path_anal, "results", "01_anchor_transfer_seurat")
 dir.create(results_out_dir, showWarnings = FALSE, recursive = TRUE)
+plots_out_dir <- file.path(path_anal, "plots", "01_anchor_transfer_seurat")
+dir.create(results_out_dir, showWarnings = FALSE, recursive = TRUE)
 
 source(file = file.path(path_anal,"scripts","utils","01_anchor_transfer_seurat_functions.R"))
 
 
 ########### Run anchor transfer ##########
+#ref_obj <- SeuratObject::LoadSeuratRds("scratch/00_preprocess_reference/kidneyatlas.rdsSeurat")
 ref_obj <- SeuratObject::LoadSeuratRds(opt$reference)
 
 purrr::walk(
-  samples,
-  \(sample) run_anchorTrans(path_anal = path_anal, 
+  libraries,
+  \(library) run_anchorTrans(path_anal = path_anal, 
                             scratch_out_dir = scratch_out_dir, 
                             results_out_dir = results_out_dir,
+                            plots_out_dir = plots_out_dir,
                             ref_obj = ref_obj, 
-                            sample = sample, 
+                            library = library, 
                             level = "compartment",
                             k_weight = k_weight,
                             unknown_cutoff = 0.5, ndims = 20)
 )
 
 purrr::walk(
-  samples,
-  \(sample) run_anchorTrans(path_anal = path_anal, 
+  libraries,
+  \(library) run_anchorTrans(path_anal = path_anal, 
                             scratch_out_dir = scratch_out_dir, 
                             results_out_dir = results_out_dir,
+                            plots_out_dir = plots_out_dir,
                             ref_obj = ref_obj, 
-                            sample = sample, 
+                            library = library, 
                             level = "celltype",
                             k_weight = k_weight,
                             unknown_cutoff = 0.5, ndims = 20)

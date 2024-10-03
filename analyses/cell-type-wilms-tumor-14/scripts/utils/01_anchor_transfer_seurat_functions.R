@@ -1,21 +1,20 @@
 library(dplyr)
 library(Seurat)
 library(ggpubr)
-library(zellkonverter)
 library(SingleCellExperiment)
 
 
-run_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir,
-                            ref_obj, sample, 
+run_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir, plots_out_dir,
+                            ref_obj, library, 
                             level = "celltype", # celltype or compartment
                             k_weight = 50,
                             unknown_cutoff = 0.5, ndims = 20) {
   # perspective output files
-  filename <- file.path(results_out_dir, paste0(sample, "_", level,".pdf"))
-  filename_csv <- file.path(results_out_dir, paste0(sample, "_", level,".csv"))
+  filename <- file.path(results_out_dir, paste0(library, "_", level,".pdf"))
+  filename_csv <- file.path(results_out_dir, paste0(library, "_", level,".csv"))
 
   
-  sample_obj <- SeuratObject::LoadSeuratRds( file.path(path_anal,"scratch","00_preprocessing_rds",paste0(sample,".rdsSeurat")) )
+  sample_obj <- SeuratObject::LoadSeuratRds( file.path(path_anal,"scratch","00_preprocessing_rds",paste0(library,".rdsSeurat")) )
 
   
   # set row names as gene symbol, since reference obj uses gene symbol by default
@@ -34,6 +33,8 @@ run_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir,
   #                            compartment == "immune" ~ "immune",
   #                            compartment == "endothelium" ~ "endothelium",
   #                            TRUE ~ celltype))
+  # ref_obj@meta.data <- ref_obj@meta.data %>%
+  #   mutate(annot = ifelse(level == "compartment", compartment, celltype))
   if (level == "compartment") {
     ref_obj@meta.data <- ref_obj@meta.data %>%
       mutate(annot = compartment)
@@ -43,9 +44,9 @@ run_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir,
   }
   ref_obj@meta.data$annot <- factor(ref_obj@meta.data$annot)
   # transfer labels
-  predictions <- TransferData(anchorset = anchors, refdata = ref_obj$annot, dims = 1:ndims, k.weight = k_weight)
-  predictions <- mutate(predictions, predicted.id = case_when(prediction.score.max < unknown_cutoff ~ "Unknown",
-                                                              TRUE ~ predicted.id))
+  predictions <- TransferData(anchorset = anchors, refdata = ref_obj$annot, dims = 1:ndims, k.weight = k_weight) %>%
+    mutate(predicted.id = ifelse(prediction.score.max < unknown_cutoff, "Unknown", predicted.id))
+  # add prediction to metadata
   sample_obj <- AddMetaData(object = sample_obj, metadata = predictions)
   
   # save prediction table
@@ -55,19 +56,20 @@ run_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir,
   plot_anchorTrans(path_anal = path_anal, 
                    scratch_out_dir = scratch_out_dir, 
                    results_out_dir = results_out_dir,
+                   plots_out_dir = plots_out_dir,
                    sample_obj = sample_obj,
-                   sample = sample, 
+                   library = library, 
                    level = level,
                    nanchors = nanchors)
   
 }
 
-plot_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir,
+plot_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir, plots_out_dir,
                              sample_obj,
-                             sample, 
+                             library, 
                              level = "celltype",
                              nanchors){
-  filename <- file.path(results_out_dir, paste0(sample, "_", level,".pdf"))
+  filename <- file.path(plots_out_dir, paste0(library, "_", level,".pdf"))
   
   # anchor transfer plot
   pred_ids <- unique(sample_obj$predicted.id)
@@ -78,7 +80,7 @@ plot_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir,
   
   p1 <- Seurat::DimPlot(sample_obj, reduction = "umap", group.by = "predicted.id", 
                         label = F, cols = color, alpha = 0.1) +
-    ggtitle(paste0(sample))
+    ggtitle(paste0(library))
   p2 <- Seurat::DimPlot(sample_obj, reduction = "umap", label = T)
   # df <- sample_obj@meta.data %>%
   #   dplyr::group_by(seurat_clusters, predicted.id) %>%
@@ -91,11 +93,11 @@ plot_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir,
   p <- ggpubr::ggarrange(toprow, p3, ncol = 1)
   p_split <- Seurat::DimPlot(sample_obj, reduction = "umap", group.by = "predicted.id", 
                              label = F, cols = color, split.by = "predicted.id", ncol = 3, alpha = 0.1) +
-    ggtitle(sample)
+    ggtitle(library)
   p_hist <- ggplot(sample_obj@meta.data, aes(x = prediction.score.max)) +
     geom_histogram(bins = 100) +
     xlim(0,1) + 
-    ggtitle(paste0("Prediction score distribution ", sample, ", nanchors = ",nanchors))
+    ggtitle(paste0("Prediction score distribution ", library, ", nanchors = ",nanchors))
   
   # save plots
   multi_page <- ggpubr::ggarrange(p, p_split, p_hist,

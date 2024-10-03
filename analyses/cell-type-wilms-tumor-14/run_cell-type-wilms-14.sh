@@ -50,3 +50,15 @@ Rscript scripts/01_anchor_transfer_seurat.R \
   --metadata "${meta_path}" \
   --samples SCPCS000514,SCPCS000515 \
   $TEST_FLAG
+
+# run specific samples
+# Rscript scripts/01_anchor_transfer_seurat.R \
+#   --reference "${ref_seurat}" \
+#   --metadata "${meta_path}" \
+#   --libraries SCPCL000846,SCPCL000847  \
+#    $TEST_FLAG
+# run all samples
+Rscript scripts/01_anchor_transfer_seurat.R \
+  --reference "${ref_seurat}" \
+  --metadata "${meta_path}" \
+  $TEST_FLAG
