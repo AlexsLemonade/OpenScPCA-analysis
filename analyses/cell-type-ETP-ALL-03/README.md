@@ -42,7 +42,7 @@ The `scripts/00-01_processing_rds.R` requires the processed SingleCellExperiment
 ../../download-results.py --projects SCPCP000003 --modules doublet-detection
 ```
 
-As for the annotation, `scripts/02-03_annotation.R` requires cell type marker gene file, `Azimuth_BM_level1.csv`, as an input for ScType. This excel file contains a list of positive marker genes in Ensembl ID under `geneSymbolmore1` for each cell type; *TMEM56* and *CD235a* are not detected in our dataset, thus they are being removed as part of the markers for Late Eryth and Pre Eryth respectively. As of now, there is no negative marker genes provided under `geneSymbolmore2`.
+As for the annotation, `scripts/02-03_annotation.R` requires cell type marker gene file, `Azimuth_BM_level1.csv`, as an input for ScType. This excel file contains a list of positive marker genes in Ensembl ID under `ensembl_id_positive_marker` for each cell type; *TMEM56* and *CD235a* are not detected in our dataset, thus they are being removed as part of the markers for Late Eryth and Pre Eryth respectively. As of now, there is no negative marker genes provided under `ensembl_id_negative_marker`.
 
 ## Output files
 
