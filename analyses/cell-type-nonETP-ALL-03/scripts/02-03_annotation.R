@@ -98,7 +98,7 @@ plot_modulescore <- function(gs_list, seu, sample.name){
   DotPlot(seu, features = features.vec) + theme(axis.text.x = element_text(angle=45,hjust=1))  +
     ggtitle(paste0(sample.name,": cell type module score")) +
     scale_color_gradient2(low = scales::muted("blue"), mid = "whitesmoke", high = scales::muted("red"), midpoint = 0)
-  ggsave(file.path(out_loc,"plots",paste0(sample.name,"_features_dotplot.png")), width = 7, height = 7)
+  ggsave(file.path(out_loc,"plots",paste0(sample.name,"_features_dotplot.png")), width = 7, height = 7, bg = "white")
 }
 
 run_annot <- function(ind.lib){
