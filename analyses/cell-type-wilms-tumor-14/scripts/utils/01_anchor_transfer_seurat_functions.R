@@ -110,7 +110,7 @@ plot_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir, plots_
   
   # save pngs
   ggsave(p, file = filename_core,
-         device = "png", dpi = 72,
+         device = "png", dpi = 200,
          width = ifelse(length( pred_ids ) < 15,9,12),
          height = ifelse(length( pred_ids ) < 15,6,9))
 }
