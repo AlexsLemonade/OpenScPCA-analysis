@@ -47,7 +47,7 @@ run_sam <- function(ind.sample, ind.library){
 
   DimPlot(final.obj, reduction = "Xumap_", group.by = "leiden_clusters", label = T) + 
     ggtitle(paste0(ind.library,": leiden_clusters"))
-  ggsave(file.path(out_loc,"plots",paste0(ind.library,"_leidenCluster.png")), width = 7, height = 7)
+  ggsave(file.path(out_loc,"plots",paste0(ind.library,"_leidenCluster.png")), width = 6, height = 6, dpi = 150)
 }
 
 project_root  <- rprojroot::find_root(rprojroot::is_git_root)
