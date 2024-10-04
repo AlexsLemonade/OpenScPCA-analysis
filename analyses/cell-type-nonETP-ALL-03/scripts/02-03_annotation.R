@@ -98,7 +98,7 @@ plot_modulescore <- function(gs_list, seu, sample.name){
   DotPlot(seu, features = features.vec) + theme(axis.text.x = element_text(angle=45,hjust=1))  +
     ggtitle(paste0(sample.name,": cell type module score")) +
     scale_color_gradient2(low = scales::muted("blue"), mid = "whitesmoke", high = scales::muted("red"), midpoint = 0)
-  ggsave(file.path(out_loc,"plots",paste0(sample.name,"_features_dotplot.png")), width = 7, height = 7, bg = "white")
+  ggsave(file.path(out_loc,"plots",paste0(sample.name,"_features_dotplot.png")), width = 7, height = 7, bg = "white", dpi = 150)
 }
 
 run_annot <- function(ind.lib){
@@ -117,9 +117,9 @@ run_annot <- function(ind.lib){
   p1 <- DimPlot(seu, reduction = "Xumap_", group.by = "sctype_classification", cols = ct_color) +
     ggtitle(paste0(ind.lib,": cell type"))
   p2 <- DimPlot(seu, reduction = "Xumap_", group.by = "lowConfidence_annot", cols = ct_color) +
-    ggtitle(paste0(ind.lib,": low confidence annotation"))
+    ggtitle("low confidence annotation")
   p1 + p2
-  ggsave(file.path(out_loc,"plots",paste0(ind.lib,"_celltype.png")), width = 10, height = 5)
+  ggsave(file.path(out_loc,"plots",paste0(ind.lib,"_celltype.png")), width = 10, height = 4, dpi = 150)
 
   plot_modulescore(gs_list, seu, ind.lib)
   
@@ -135,7 +135,7 @@ run_annot <- function(ind.lib){
     seu$copykat.pred <- copykat.test$prediction$copykat.pred[idx]
     DimPlot(seu, reduction = "Xumap_", group.by = "copykat.pred") +
       ggtitle(paste0(ind.lib,": copykat prediction"))
-    ggsave(file.path(out_loc,"plots",paste0(ind.lib,"_copykatPred.png")), width = 7, height = 7)
+    ggsave(file.path(out_loc,"plots",paste0(ind.lib,"_copykatPred.png")), width = 6, height = 6, dpi = 150)
     
     voi <- c('leiden_clusters','sctype_classification','lowConfidence_annot','copykat.pred')
     final.obj$copykat.pred <- seu$copykat.pred
