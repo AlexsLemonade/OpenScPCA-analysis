@@ -2,9 +2,6 @@
 /results/*
 !/results/README.md
 
-# multipanel plots are not committed
-/plots/multipanels_*
-
 # Ignore the scratch directory (but keep it present)
 /scratch/*
 !/scratch/.gitkeep
