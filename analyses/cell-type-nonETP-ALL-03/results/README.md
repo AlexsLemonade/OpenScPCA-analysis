@@ -11,6 +11,5 @@ These are the generated outputs for each sample in the S3 bucket:
 
 -   `rds` objects: `s3://researcher-650251722463-us-east-2/cell-type-nonETP-ALL-03/results/rds`
 -   metadata and ScType results: `s3://researcher-650251722463-us-east-2/cell-type-nonETP-ALL-03/results/`
--   umap and dot plots: `s3://researcher-650251722463-us-east-2/cell-type-nonETP-ALL-03/plots` (are also found in the repository plots/)
-
-There are also `multipanels_` umap plots in `s3://researcher-650251722463-us-east-2/cell-type-nonETP-ALL-03/plots`, combining the umap plots for all samples.
+-   CopyKat results: `s3://researcher-650251722463-us-east-2/cell-type-nonETP-ALL-03/results/copykat_output`
+-   umap and dot plots: `s3://researcher-650251722463-us-east-2/cell-type-nonETP-ALL-03/plots` (are also found in the repository plots/).

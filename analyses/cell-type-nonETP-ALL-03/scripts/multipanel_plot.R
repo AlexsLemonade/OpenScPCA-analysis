@@ -1,26 +1,29 @@
 #!/usr/bin/env Rscript
 
-#This script combines UMAP plots of all samples into one multi-panel plot
+#This script combines multiple UMAP plots from an individual library into one multi-panel plot
 
 library(Seurat)
 library(ggplot2)
 
-multiplot <- function(meta.variable, n_row=3){
-  if (meta.variable %in% c("sctype_classification","lowConfidence_annot")){
-    clrs <- ct_color
-  }else{
-    clrs <- NULL
-  }
+multiplot <- function(annot.obj, library.id, ct.colors, n.row = 2, 
+                      variables.to.plot = c("leiden_clusters","sctype_classification","lowConfidence_annot","copykat.pred")){
   plot.list <- list()
-  for (i in 1:length(libraryID)){
+  for (plot.type in variables.to.plot){
+    if (plot.type %in% c("sctype_classification","lowConfidence_annot")){
+      clrs <- ct.colors
+    } else{
+      clrs <- NULL
+    }
+    
     tryCatch({
-      plot.list[[i]] <- DimPlot(seu.list[[i]], reduction = "Xumap_", group.by = meta.variable, 
-                                label = T, cols = clrs, repel = T) +
-        ggtitle(libraryID[i]) + NoLegend() + theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+      plot.list[[plot.type]] <- DimPlot(annot.obj, reduction = "Xumap_", group.by = plot.type, 
+                                        label = T, cols = clrs, repel = T) + NoLegend()
     }, error=function(e){})
   }
-  cowplot::plot_grid(plotlist = plot.list, nrow = n_row)
-  ggsave(file.path(out_loc,"plots",paste0("multipanels_",meta.variable,".png")), width = 20, height = 12, bg = "white")
+
+  cowplot::plot_grid(plotlist = plot.list, nrow = n.row) + 
+    cowplot::draw_figure_label(library.id, position = "top", size = 18, fontface = "bold")
+  ggsave(file.path(out_loc,"plots",paste0("multipanels_",library.id,".png")), width = 12, height = 12, bg = "white", dpi = 150)
 }
 
 project_root  <- rprojroot::find_root(rprojroot::is_git_root)
@@ -39,9 +42,9 @@ names(ct_color) <- c("B","CD4 T","CD8 T","DC","HSPC","Mono","NK","Other T","Macr
                      "Early Eryth","Late Eryth","Plasma","Platelet","Stromal","Blast","Cancer","Pre Eryth","Unknown")
 
 seu.list <- list()
-for (i in 1:length(libraryID)){
-  seu.list[[i]] <- readRDS(file.path(out_loc,"results/rds",paste0(libraryID[i],".rds")))
+for (lib_iter in 1:length(libraryID)){
+  seu.list[[lib_iter]] <- readRDS(file.path(out_loc,"results/rds",paste0(libraryID[lib_iter],".rds")))
+  names(seu.list)[lib_iter] <- libraryID[lib_iter]
 }
-voi <- c("leiden_clusters","sctype_classification","lowConfidence_annot","copykat.pred")
 
-purrr::walk(voi, multiplot)
+purrr::walk2(seu.list, names(seu.list), ~ multiplot (annot.obj = .x, library.id = .y, ct.colors = ct_color))
