@@ -114,12 +114,6 @@ run_annot <- function(ind.lib){
   #res[[2]] - A table with top 10 cell types with the highest scores for each cluster
   write.table(res[[2]], file = file.path(out_loc,"results",paste0(ind.lib,"_sctype_top10_celltypes_perCluster.txt")),
               row.names = F, sep = "\t", quote = F)
-  p1 <- DimPlot(seu, reduction = "Xumap_", group.by = "sctype_classification", cols = ct_color) +
-    ggtitle(paste0(ind.lib,": cell type"))
-  p2 <- DimPlot(seu, reduction = "Xumap_", group.by = "lowConfidence_annot", cols = ct_color) +
-    ggtitle("low confidence annotation")
-  p1 + p2
-  ggsave(file.path(out_loc,"plots",paste0(ind.lib,"_celltype.png")), width = 10, height = 4, dpi = 150)
 
   plot_modulescore(gs_list, seu, ind.lib)
   
@@ -133,17 +127,15 @@ run_annot <- function(ind.lib){
                             output.seg="FALSE", plot.genes="TRUE", genome="hg20",n.cores=n_cores)
     idx <- match(colnames(seu), copykat.test$prediction$cell.names)
     seu$copykat.pred <- copykat.test$prediction$copykat.pred[idx]
-    DimPlot(seu, reduction = "Xumap_", group.by = "copykat.pred") +
-      ggtitle(paste0(ind.lib,": copykat prediction"))
-    ggsave(file.path(out_loc,"plots",paste0(ind.lib,"_copykatPred.png")), width = 6, height = 6, dpi = 150)
 
     voi <- c('leiden_clusters','sctype_classification','lowConfidence_annot','copykat.pred')
     final.obj$copykat.pred <- seu$copykat.pred
   }else{
     voi <- c('leiden_clusters','sctype_classification','lowConfidence_annot')
   }
-
-  write.table(data.frame(FetchData(seu, vars = voi)), sep = "\t", quote = F,
+  
+  voi_df <- data.frame(FetchData(seu, vars = voi)) |> tibble::rownames_to_column(var = "barcode")
+  write.table(voi_df, sep = "\t", quote = F, row.names = F, 
               file = file.path(out_loc,"results",paste0(ind.lib,"_metadata.txt")))
   final.obj$sctype_classification <- seu$sctype_classification
   final.obj$lowConfidence_annot <- seu$lowConfidence_annot
@@ -155,6 +147,8 @@ project_root  <- rprojroot::find_root(rprojroot::is_git_root)
 projectID <- "SCPCP000003"
 out_loc <- file.path(project_root, "analyses/cell-type-ETP-ALL-03")
 data_loc <- file.path(project_root, "data/current",projectID)
+dir.create(file.path(out_loc, "results/copykat_output"), showWarnings = FALSE)
+setwd(file.path(out_loc, "results/copykat_output"))
 
 metadata <- read.table(file.path(data_loc,"single_cell_metadata.tsv"), sep = "\t", header = T)
 metadata <- metadata[which(metadata$scpca_project_id == projectID &
@@ -163,9 +157,5 @@ libraryID <- metadata$scpca_library_id
 # DB file
 db <- file.path(out_loc,"Azimuth_BM_level1.csv")
 tissue <- "Immune system"  
-ct_color <- c("darkorchid","skyblue2","dodgerblue2","gold","beige","sienna1","green4","navy",
-              "chocolate4","red","darkred","#6A3D9A","maroon","yellow4","grey35","black","lightpink","grey80")
-names(ct_color) <- c("B","CD4 T","CD8 T","DC","HSPC","Mono","NK","Other T","Macrophage",
-                     "Early Eryth","Late Eryth","Plasma","Platelet","Stromal","Blast","Cancer","Pre Eryth","Unknown")
 
 purrr::walk(libraryID, run_annot)
