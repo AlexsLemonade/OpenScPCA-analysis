@@ -99,6 +99,7 @@ plot_modulescore <- function(gs_list, seu, sample.name){
     ggtitle(paste0(sample.name,": cell type module score")) +
     scale_color_gradient2(low = scales::muted("blue"), mid = "whitesmoke", high = scales::muted("red"), midpoint = 0)
   ggsave(file.path(out_loc,"plots",paste0(sample.name,"_features_dotplot.png")), width = 7, height = 7, bg = "white", dpi = 150)
+  return (seu)
 }
 
 run_annot <- function(ind.lib){
@@ -115,7 +116,7 @@ run_annot <- function(ind.lib){
   write.table(res[[2]], file = file.path(out_loc,"results",paste0(ind.lib,"_sctype_top10_celltypes_perCluster.txt")),
               row.names = F, sep = "\t", quote = F)
 
-  plot_modulescore(gs_list, seu, ind.lib)
+  seu <- plot_modulescore(gs_list, seu, ind.lib)
   
   #using copykat for tumor cells identification
   norm.cells <- colnames(seu)[which(seu$sctype_classification=="B")]
