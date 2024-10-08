@@ -1,12 +1,12 @@
 # Non-ETP T-ALL Annotation (SCPCP000003)
 
-This analysis module will include code to annotate cell types in non-ETP T-ALL from SCPCP000003 (n=11) present on the ScPCA portal.
+This analysis module will include code to annotate cell types and tumor/normal status in non-ETP T-ALL from SCPCP000003 (n=11) present on the ScPCA portal.
 
 ## Description
 
 We first aim to annotate the cell types in non-ETP T-ALL, and use the annotated B cells in the sample as the "normal" cells to identify tumor cells, since T-ALL is caused by the clonal proliferation of immature T-cell [<https://www.nature.com/articles/s41375-018-0127-8>].
 
--   We use the cell type marker (`Azimuth_BM_level1.csv`) from [Azimuth Human Bone Marrow reference](https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow). In total, there are 14 cell types: B, CD4T, CD8T, Other T, DC, Monocytes, Macrophages, NK, Early Erythrocytes, Late Erythrocytes, Plasma, Platelet, Stromal, and Hematopoietic Stem and Progenitor Cells (HSPC). Based on the exploratory analysis, we believe that most of the cells in these samples do not express adequate markers to be distinguished at finer cell type level (eg. naive vs memory, CD14 vs CD16 etc.), and majority of the cells should belong to T-cells. In addition, we include the marker genes for cancer cell in immune system from [ScType](https://sctype.app/database.php) database.
+-   We use the cell type marker (`Azimuth_BM_level1.csv`) from [Azimuth Human Bone Marrow reference](https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow). In total, there are 14 cell types: B, CD4T, CD8T, Other T, DC, Monocytes, Macrophages, NK, Early Erythrocytes, Late Erythrocytes, Plasma, Platelet, Stromal, and Hematopoietic Stem and Progenitor Cells (HSPC). Based on the exploratory analysis, we believe that most of the cells in these samples do not express adequate markers to be distinguished at finer cell type level (eg. naive vs memory, CD14 vs CD16 etc.), and majority of the cells should belong to T-cells. In addition, we include the marker genes for blast cell [[Bhasin et al. (2023)](https://www.nature.com/articles/s41598-023-39152-z)] as well as erythroid precursor and cancer cell in immune system [[ScType](https://sctype.app/database.php) database].
 
 -   Since ScType annotates cell types at cluster level using marker genes provided by user or from the built-in database, we employ [self-assembling manifold](https://github.com/atarashansky/self-assembling-manifold/tree/master) (SAM) algorithm, a soft feature selection strategy for better separation of homogeneous cell types.
 
@@ -42,7 +42,7 @@ The `scripts/00-01_processing_rds.R` requires the processed SingleCellExperiment
 ../../download-results.py --projects SCPCP000003 --modules doublet-detection
 ```
 
-As for the annotation, `scripts/02-03_annotation.R` requires cell type marker gene file, `Azimuth_BM_level1.csv`, as an input for ScType. This excel file contains a list of positive marker genes in Ensembl ID under `geneSymbolmore1` for each cell type, and *TMEM56* is not detected in our dataset, thus it is being removed as part of the markers for Late Eryth. As of now, there is no negative marker genes provided under `geneSymbolmore2`.
+As for the annotation, `scripts/02-03_annotation.R` requires cell type marker gene file, `Azimuth_BM_level1.csv`, as an input for ScType. This excel file contains a list of positive marker genes in Ensembl ID under `ensembl_id_positive_marker` for each cell type; *TMEM56* and *CD235a* are not detected in our dataset, thus they are being removed as part of the markers for Late Eryth and Pre Eryth respectively. As of now, there is no negative marker genes provided under `ensembl_id_negative_marker`.
 
 ## Output files
 
@@ -51,6 +51,14 @@ Running `scripts/00-01_processing_rds.R` will generate two types of output:
 -   `rds` objects in `scratch/`
 
 -   umap plots showing leiden clustering in `plots/`
+
+Running `scripts/02-03_annotation.R` will generate several outputs:
+
+-   updated `rds` objects in `scratch/`
+
+-   umap plots showing cell type and CopyKat prediction (if there is any) and dotplots showing the features added with `AddModuleScore()` in `plots/`
+
+-   ScType results of top 10 possible cell types in a cluster (`_sctype_top10_celltypes_perCluster.txt`) and metadata file tabulating leiden cluster, cell type, low confidence cell type, and CopyKat prediction for each cell (`_metadata.txt`) in `results/`
 
 ## Software requirements
 
