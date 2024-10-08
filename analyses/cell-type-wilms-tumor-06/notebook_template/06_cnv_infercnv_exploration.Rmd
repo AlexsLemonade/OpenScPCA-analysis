@@ -1,0 +1,130 @@
+---
+title: "Copykat and infercnv CNV results exploration for `r params$sample_id`"
+author: "Maud PLASCHKA"
+date: '2024-08-13'
+params:
+  scpca_project_id: "SCPCP000006"
+  sample_id: "SCPCS000194"
+output: 
+  html_document: 
+    toc: yes
+    toc_float: yes
+    code_folding: hide
+    highlight: pygments
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE,
+                      message=FALSE,
+                      warnings=FALSE
+                      )
+
+```
+
+
+## Introduction
+
+
+```{r}
+
+subdiagnosis <- readr::read_tsv(
+  file.path("..", "..", "..", "data", "current", params$scpca_project_id, "single_cell_metadata.tsv"),
+  show_col_types = FALSE
+  ) |>
+  dplyr::filter(scpca_sample_id == params$sample_id) |>
+  dplyr::pull(subdiagnosis)
+
+```
+
+This notebook explores using [`CopyKAT`](https://github.com/navinlabcode/copykat) or [`infercnv`](https://github.com/broadinstitute/inferCNV/wiki) to estimate tumor and normal cells in `r params$sample_id` from SCPCP000006. 
+This sample has a(n) `r subdiagnosis` subdiagnosis.
+
+
+`CopyKAT` was run using the `05_copyKAT.R` script with and without a normal reference, using 2 different methods to calculate the distance, namely `euclidean` or `spearman`. 
+
+`infercnv` was run using the `06_inferCNV.R` script with and without a normal reference. We also tested the impact of the subselection of normal cells using either immune, and/or endothelial cells as healthy reference.
+
+In this notebook, we just want to compare the heatmaps of CNV profiles, and evaluate how comparable are the methods and how snesible they are to key parameters such as choice of distance or choice of healthy reference. 
+
+
+
+### Base directories
+
+```{r base paths, eval=TRUE}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The path to this module
+module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06")
+```
+
+
+### Input files
+
+The input for this notebook are the results of `05_copyKAT.R` and `06_inferCNV.R`
+
+```{r}
+
+result_dir <- file.path(module_base, "results", params$sample_id)
+
+```
+
+
+
+### CopyKAT results
+
+Below we look at the heatmaps produced by `CopyKAT`. 
+
+#### Heatmaps without reference
+
+##### `distance` = `euclidean`
+
+![](`r file.path(result_dir, "05_copyKAT", "noref", "euclidean", glue::glue("{params$sample_id}_copykat_heatmap.jpeg"))`)
+
+##### `distance` = `spearman`
+
+![](`r file.path(result_dir, "05_copyKAT", "noref", "spearman", glue::glue("{params$sample_id}_copykat_heatmap.jpeg"))`)
+
+#### Heatmasp with endothelial cells as reference
+
+##### `distance` = `euclidean`
+
+![](`r file.path(result_dir, "05_copyKAT", "ref", "euclidean", glue::glue("{params$sample_id}_copykat_heatmap.jpeg"))`)
+
+##### `distance` = `spearman`
+
+![](`r file.path(result_dir, "05_copyKAT", "ref", "spearman", glue::glue("{params$sample_id}_copykat_heatmap.jpeg"))`)
+
+
+### infercnv results
+
+#### Heatmaps without reference
+![](`r file.path(result_dir, "06_infercnv", "none", "infercnv.png")`)
+
+#### Heatmaps with immune cells as reference
+![](`r file.path(result_dir, "06_infercnv", "immune", "infercnv.png")`)
+
+#### Heatmaps with endothelium cells as reference
+![](`r file.path(result_dir, "06_infercnv", "endothelium", "infercnv.png")`)
+
+#### Heatmaps with immune and endothelium cells as reference
+![](`r file.path(result_dir, "06_infercnv", "both", "infercnv.png")`)
+
+
+
+
+
+## Conclusions
+
+
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
+
+

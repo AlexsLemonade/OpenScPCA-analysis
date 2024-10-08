@@ -35,3 +35,22 @@ The next step in analysis is to identify tumor vs. normal cells.
 
 - `04_annotation_Across_Samples_exploration.html` is the output of the [`04_annotation_Across_Samples_exploration.Rmd`](../notebook/04_annotation_Across_Samples_exploration.Rmd) notebook. 
 In brief, we explored the label transfer results across all samples in the Wilms tumor dataset SCPCP000006 in order to identify a few samples that we can begin next analysis steps with.
+
+## Exploratory analysis
+
+We selected in [`04_annotation_Across_Samples_exploration.Rmd`](../notebook/04_annotation_Across_Samples_exploration.Rmd) 5 samples to test for aneuploidy and CNV inference:
+- sample SCPCS000194 has > 85 % of cells predicted as kidney and 234 + 83 endothelium and immune cells.
+- sample SCPCS000179 has > 94 % of cells predicted as kidney and 25 + 111 endothelium and immune cells.
+- sample SCPCS000184 has > 96 % of cells predicted as kidney and 39 + 70 endothelium and immune cells.
+- sample SCPCS000205 has > 89 % of cells predicted as kidney and 92 + 76 endothelium and immune cells.
+- sample SCPCS0000208 has > 95 % of cells predicted as kidney and 18 + 35 endothelium and immune cells.
+
+We wanted to test `copykat` results obtained with or without normal cells as reference, using either an euclidean or statistical (spearman) method for CNV heatmap clustering. 
+This impact the final decision made by `copykat` for each cell to be either aneuploid or diploid, and it is thus crucial to explore the results using the different methods.
+For each of th eselected samples, we explore the results in the `notebooks` `05_cnv_copykat_{distance_parameter}_exploration_{sample_id}.html`.
+These `notebooks` are inspired by the plots written for the Ewing Sarcoma analysis in [`03-copykat.Rmd`](06_cnv_exploration_SCPCS000179.html).
+
+We also tested `infercnv` results obtained with or without normal cells as reference. 
+As we are not sure how exhaustive the normal reference cell list as to be, we tested the sensitivity of infercnv in regard to the definition of the normal cells, using either only immune cells, only endothelial cells or both of them as healthy reference.
+
+For each of the samples, we compare the heatmap of infered CNV in the `notebook` `06_cnv_exploration_{sample_id}.html` 
