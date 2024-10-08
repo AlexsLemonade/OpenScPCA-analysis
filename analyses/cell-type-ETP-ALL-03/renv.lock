@@ -163,6 +163,19 @@
       ],
       "Hash": "a3c822ef3c124828e25e7a9611beeb50"
     },
+    "HGNChelper": {
+      "Package": "HGNChelper",
+      "Version": "0.8.14",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "methods",
+        "splitstackshape",
+        "utils"
+      ],
+      "Hash": "ed5a67b4c7ae01edd46809f1387adbee"
+    },
     "IRanges": {
       "Package": "IRanges",
       "Version": "2.38.1",
@@ -1680,23 +1693,6 @@
       ],
       "Hash": "c62edf62de70cadf40553e10c739049d"
     },
-    "openxlsx": {
-      "Package": "openxlsx",
-      "Version": "4.2.7",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "Rcpp",
-        "grDevices",
-        "methods",
-        "stats",
-        "stringi",
-        "utils",
-        "zip"
-      ],
-      "Hash": "4eb6bb5d6b95b2e3177f0dd1e7b9ca0e"
-    },
     "parallelDist": {
       "Package": "parallelDist",
       "Version": "0.2.6",
@@ -2329,6 +2325,17 @@
       ],
       "Hash": "d580c24751e31aae523216b214a008dd"
     },
+    "splitstackshape": {
+      "Package": "splitstackshape",
+      "Version": "1.4.8",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "data.table"
+      ],
+      "Hash": "69b26ceb9f7976f347049b4d470c2d65"
+    },
     "stringi": {
       "Package": "stringi",
       "Version": "1.8.4",
@@ -2552,13 +2559,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "51dab85c6c98e50a18d7551e9d49f76c"
-    },
-    "zip": {
-      "Package": "zip",
-      "Version": "2.3.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "fcc4bd8e6da2d2011eb64a5e5cc685ab"
     },
     "zlibbioc": {
       "Package": "zlibbioc",
