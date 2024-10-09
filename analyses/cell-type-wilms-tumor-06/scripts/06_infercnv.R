@@ -64,7 +64,7 @@ counts <- GetAssayData(object = srat, assay = "RNA", layer = "counts")
 # Create a dataframe of annotation ---------------------------------------------
 annot_df <- data.frame(condition = as.character(srat$fetal_kidney_predicted.compartment))
 rownames(annot_df) <- colnames(counts)
-normal_cells <- NULL
+stopifnot("Incorrect reference provided" = reference %in% c("none", "immune", "endothelium", "both")
 if(opts$reference == "both"){
   normal_cells <- c("endothelium", "immune")
 } else if(opts$reference == "none"){
