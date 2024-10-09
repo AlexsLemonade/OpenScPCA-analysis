@@ -12,7 +12,6 @@
 library(optparse)
 library(Seurat)
 library(infercnv)
-library(reshape2)
 # Parse arguments --------------------------------------------------------------
 # set up arguments
 option_list <- list(
