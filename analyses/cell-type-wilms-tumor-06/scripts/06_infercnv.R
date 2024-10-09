@@ -96,7 +96,7 @@ if (!file.exists(gene_order_file)) {
 # Run infercnv ------------------------------------------------------------------
 # create inferCNV object and run method
 
-infercnv_obj = infercnv::CreateInfercnvObject(
+infercnv_obj <- infercnv::CreateInfercnvObject(
   raw_counts_matrix = as.matrix(counts),
   annotations_file = annot_df,
   ref_group_names = normal_cells,
