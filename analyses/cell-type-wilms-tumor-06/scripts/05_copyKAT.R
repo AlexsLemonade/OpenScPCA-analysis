@@ -31,8 +31,8 @@ option_list <- list(
   ,
   make_option(
     opt_str = c("-d", "--distance"),
-    type = "integer",
-    default = 16,
+    type = "character",
+    default = euclidean,
     help = "method used to calculate distance in copyKAT"
   )
 )
