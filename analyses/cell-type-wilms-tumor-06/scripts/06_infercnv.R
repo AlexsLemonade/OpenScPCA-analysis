@@ -102,7 +102,7 @@ infercnv_obj <- infercnv::CreateInfercnvObject(
   ref_group_names = normal_cells,
   gene_order_file = gene_order_file)
 
-infercnv_obj = infercnv::run(
+infercnv_obj <- infercnv::run(
   infercnv_obj,
   cutoff=0.1, # cutoff=1 works well for Smart-seq2, and cutoff=0.1 works well for 10x Genomics
   out_dir=output_dir, 
