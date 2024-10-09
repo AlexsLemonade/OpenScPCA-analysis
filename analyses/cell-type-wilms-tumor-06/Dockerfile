@@ -16,10 +16,10 @@ ENV OPENSCPCA_DOCKER=TRUE
 ENV RENV_CONFIG_CACHE_ENABLED=FALSE
 
 # Install renv
-RUN R -e "install.packages('renv')"
+RUN Rscript -e 'install.packages("renv")'
 
 # Install Rhtslib first to prevent package installation errors
-RUN R -e 'BiocManager::install("Rhtslib")'
+RUN Rscript -e 'BiocManager::install("Rhtslib")'
 
 # Copy the renv.lock file from the host environment to the image
 COPY renv.lock renv.lock
