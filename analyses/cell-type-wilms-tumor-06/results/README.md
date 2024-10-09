@@ -50,7 +50,7 @@ We selected previously 5 samples to test for these parameters:
 - sample SCPCS0000208 has > 95 % of cells predicted as kidney and 18 + 35 endothelium and immune cells.
 
 For each of the samples, we ran `05_copyKAT.R` script, defining the `distance` parameters. 
-The outputs of `copykat` are saved in the `results\{sample_id}\05_copykat` folder.
+The outputs of `copykat` are saved in the `{sample_id}/05_copykat` folder.
 
 ## using `infercnv`
 
