@@ -64,4 +64,4 @@ We selected previously 5 samples to test for these parameters:
 - sample SCPCS0000208 has > 95 % of cells predicted as kidney and 18 + 35 endothelium and immune cells.
 
 For each of the samples, we ran `06_infercnv.R` script, defining either no (none) normal cells as reference, or immune and/or endothelial cells.  
-The outputs of `infercnv` are saved in the `results\{sample_id}\06_infercnv` folder.
+The outputs of `infercnv` are saved in the `{sample_id}/06_infercnv` folder.
