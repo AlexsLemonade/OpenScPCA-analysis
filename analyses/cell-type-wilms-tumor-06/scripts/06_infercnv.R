@@ -49,7 +49,7 @@ module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06"
 result_dir <- file.path(module_base, "results", opts$sample_id)
 # path to output infercnv object
 
-output_dir <- file.path(result_dir,  "06_infercnv", opts$reference )
+output_dir <- file.path(result_dir,  "06_infercnv", "reference-"opts$reference )
 
 
 
