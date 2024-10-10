@@ -13,8 +13,8 @@ Authors@R: c(
            role = c("aut"))
     )
 Maintainer: Stephanie J. Spielman <stephanie.spielman@ccdatalab.org>
-Description: This package contains utility functions that support single-cell
-    RNA-sequencing analysis in R-based OpenScPCA analysis module code.
+Description: This package contains utility functions that support single-cell RNA-seq
+    analysis in R-based OpenScPCA analysis module code.
 License: BSD_3_clause + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -35,8 +35,8 @@ Imports:
     SingleCellExperiment,
     tibble,
     tidyr
-biocViews: 
+biocViews:
     GeneExpression,
-    Transcriptomics, 
-    SingleCell, 
+    Transcriptomics,
+    SingleCell,
     Clustering
