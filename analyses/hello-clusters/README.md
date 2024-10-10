@@ -39,10 +39,8 @@ If you use this package in your analysis module, you should install and track it
 
 ```
 # First, install rOpenScPCA
-renv::install("AlexsLemonade/OpenScPCA-analysis/packages/rOpenScPCA")
+renv::install("AlexsLemonade/OpenScPCA-analysis:packages/rOpenScPCA")
 
-# If you are re-installing OpenScPCA, use force=TRUE
-renv::install("AlexsLemonade/OpenScPCA-analysis/packages/rOpenScPCA", force = TRUE)
 
 
 # Second, run snapshot to add the package to renv.lock

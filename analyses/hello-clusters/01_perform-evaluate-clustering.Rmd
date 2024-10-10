@@ -46,7 +46,7 @@ repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 data_dir <- file.path(repository_base, "data", "current")
 
 # The path to this module
-module_base <- file.path(repository_base, "analyses", "hell-c")
+module_base <- file.path(repository_base, "analyses", "hello-clusters")
 ```
 
 #### Input and output files
