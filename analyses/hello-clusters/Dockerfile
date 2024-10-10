@@ -1,5 +1,5 @@
-# A template docker file for creating a new analysis
-FROM ubuntu:22.04
+# Dockerfile for the hello-clusters analysis module
+FROM bioconductor/r-ver:3.19
 
 # Labels following the Open Containers Initiative (OCI) recommendations
 # For more information, see https://specs.opencontainers.org/image-spec/annotations/?v=v1.0.1
