@@ -4,6 +4,7 @@
 
 library(Seurat)
 library(ggplot2)
+library(dplyr)
 
 copykatInterpret <- function(annot.obj, library.id, ct.colors){
   tryCatch({
@@ -19,12 +20,13 @@ copykatInterpret <- function(annot.obj, library.id, ct.colors){
       dplyr::count(name = "proportion")
     p2 <- ggplot(df, aes(x = copykat.pred, y = proportion, fill =  lowConfidence_annot)) +
       geom_bar(width = 0.5, stat = "identity", position = "fill")+scale_fill_manual(values = ct_color)
-    p1 + p2
+    cowplot::plot_grid(plotlist = list(p1,p2), nrow = 1) + 
+      cowplot::draw_figure_label(library.id, position = "top", size = 14, fontface = "bold")
     ggsave(file.path(out_loc,"plots/copykat_exploration",paste0(library.id,"_celltypeVScopykat.png")), width = 10, height = 5, bg = "white", dpi = 150)
     
     ### plotting blast module scores 
     Idents(annot.obj) <- factor(annot.obj$copykat.pred, levels = c("aneuploid","diploid","not.defined")) 
-    VlnPlot(annot.obj, features = "Blast_Features1") + ggtitle("Blast module scores") + NoLegend()
+    VlnPlot(annot.obj, features = "Blast_Features1") + ggtitle(paste0(library.id,": Blast module score")) + NoLegend()
     ggsave(file.path(out_loc,"plots/copykat_exploration",paste0(library.id,"_blastModuleScore.png")), width = 6, height = 6, bg = "white", dpi = 150)
   }, error=function(e){})
 }
