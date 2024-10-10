@@ -1,10 +1,4 @@
 # This is a workflow to build the docker image for the hello-clusters module
-#
-# Docker modules are run on pull requests when code for files that affect the Docker image have changed.
-# If other files are used during the Docker build, they should be added to `paths`
-#
-# At module initialization, this workflow is inactive, and needs to be activated manually
-
 name: Build docker image for hello-clusters
 
 concurrency:
@@ -13,22 +7,22 @@ concurrency:
   cancel-in-progress: true
 
 on:
-   pull_request:
-     branches:
-       - main
-     paths:
-       - "analyses/hello-clusters/Dockerfile"
-       - "analyses/hello-clusters/.dockerignore"
-       - "analyses/hello-clusters/renv.lock"
-       - "analyses/hello-clusters/conda-lock.yml"
-   push:
-     branches:
-       - main
-     paths:
-       - "analyses/hello-clusters/Dockerfile"
-       - "analyses/hello-clusters/.dockerignore"
-       - "analyses/hello-clusters/renv.lock"
-       - "analyses/hello-clusters/conda-lock.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - analyses/hello-clusters/Dockerfile
+      - analyses/hello-clusters/.dockerignore
+      - analyses/hello-clusters/renv.lock
+      - analyses/hello-clusters/conda-lock.yml
+  push:
+    branches:
+      - main
+    paths:
+      - analyses/hello-clusters/Dockerfile
+      - analyses/hello-clusters/.dockerignore
+      - analyses/hello-clusters/renv.lock
+      - analyses/hello-clusters/conda-lock.yml
   workflow_dispatch:
     inputs:
       push-ecr:
