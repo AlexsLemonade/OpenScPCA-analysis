@@ -5,13 +5,14 @@
 #
 # USAGE:
 # Rscript 06_infercnv.R \
-#   --sample_id SCPCS000194
-#   --ncore 16
-#
+#   --sample_id SCPCS000205
+#   --reference one of none, immune, endothelium, both
+
 
 library(optparse)
 library(Seurat)
 library(infercnv)
+
 # Parse arguments --------------------------------------------------------------
 # set up arguments
 option_list <- list(
@@ -24,15 +25,8 @@ option_list <- list(
   make_option(
     opt_str = c("-r", "--reference"),
     type = "character",
-    default = NULL,
+    default = "both",
     help = "Reference cells to use as normal cells, either none, immune, endothelium or both"
-  ),
-  make_option(
-    opt_str = c("-g", "--gene_order_file"),
-    type = "character",
-    default = NULL,
-    help = "Path to gene order file as tab delimited .txt file with no column headers.
-      Columns are: Ensembl gene id, chr, start, stop."
   )
 )
 
@@ -42,14 +36,35 @@ opts <- parse_args(OptionParser(option_list = option_list))
 
 # The base path for the OpenScPCA repository, found by its (hidden) .git directory
 repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
 # The path to this module
 module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06")
+
 # Path to the result directory
 result_dir <- file.path(module_base, "results", opts$sample_id)
+
 # path to output infercnv object
+output_dir <- file.path(result_dir,  "06_infercnv", glue::glue("reference-",opts$reference ))
+output_rds <- file.path(output_dir, glue::glue("06_infercnv_",opts$sample_id,"_reference-", opts$reference, ".rds"))
+# path to heatmap png
+png_file <- glue::glue("infercnv.png")
+scratch_png <- file.path(output_dir, png_file)
+output_png <- file.path(output_dir,  glue::glue("06_infercnv_",opts$sample_id,"_reference-", opts$reference,  "_heatmap.png"))
 
-output_dir <- file.path(result_dir,  "06_infercnv", "reference-"opts$reference )
 
+# Define functions -------------------------------------------------------------
+# read_infercnv_mat will read outputs saved automatically by of infercnv in file_path
+read_infercnv_mat <- function(file_path) {
+  obs_table <- readr::read_delim(file = file_path, delim = ' ', quote = '"', skip = 1,
+                                 col_names = FALSE, progress = FALSE, show_col_types = FALSE)
+  mat <- t(as.matrix(obs_table[, -1]))
+  cell_names <- readr::read_delim(file = file_path, delim = ' ', quote = '"', n_max = 1,
+                                  col_names = FALSE, progress = FALSE, show_col_types = FALSE)
+  cell_names <- as.character(cell_names[1, ])
+  rownames(mat) <- cell_names
+  colnames(mat) <- as.character(dplyr::pull(obs_table, 1))
+  return(mat)
+}
 
 
 # Read in data -----------------------------------------------------------------
@@ -63,7 +78,9 @@ counts <- GetAssayData(object = srat, assay = "RNA", layer = "counts")
 # Create a dataframe of annotation ---------------------------------------------
 annot_df <- data.frame(condition = as.character(srat$fetal_kidney_predicted.compartment))
 rownames(annot_df) <- colnames(counts)
-stopifnot("Incorrect reference provided" = reference %in% c("none", "immune", "endothelium", "both")
+
+stopifnot("Incorrect reference provided" = opts$reference %in% c("none", "immune", "endothelium", "both"))
+
 if(opts$reference == "both"){
   normal_cells <- c("endothelium", "immune")
 } else if(opts$reference == "none"){
@@ -75,23 +92,8 @@ if(opts$reference == "both"){
 # create output directory if it does not exist
 dir.create(output_dir, recursive = TRUE)
 
-# make sure we have a genome position file
-if (is.null(opts$gene_order_file)){
-  gene_order_file <- file.path("scratch", 'gencode_v19_gene_pos.txt')
-} else{
-  gene_order_file <- opts$gene_order_file
-}
-if (!file.exists(gene_order_file)) {
-  download.file(url = 'https://data.broadinstitute.org/Trinity/CTAT/cnv/gencode_v21_gen_pos.complete.txt',
-                destfile = gene_order_file)
-  gene_order <- read_tsv(gene_order_file, col_names =  FALSE)
-  tmp <- gsub("\\..*","",gene_order$X1) 
-  tmp <- gsub(".*\\|","",tmp) 
-  gene_order$X1 <- tmp
-  gene_order <- gene_order[grepl("ENSG", x = gene_order$X1),]
-  
-  write_tsv(col_names = FALSE, gene_order, gene_order_file, append = FALSE)
-}
+# retrieve the gene order file created in `06a_build-geneposition.R`
+gene_order_file <- file.path(module_base, "results", "references", "gencode_v19_gene_pos.txt")
 
 # Run infercnv ------------------------------------------------------------------
 # create inferCNV object and run method
@@ -107,9 +109,18 @@ infercnv_obj <- infercnv::run(
   cutoff=0.1, # cutoff=1 works well for Smart-seq2, and cutoff=0.1 works well for 10x Genomics
   out_dir=output_dir, 
   cluster_by_groups=T, 
-  plot_steps=F,
-  denoise=T,
-  sd_amplifier=3,  # sets midpoint for logistic
-  noise_logistic=TRUE,
-  HMM = F  # turns gradient filtering on
+  denoise=FALSE,
+  HMM=FALSE,
+  save_rds = FALSE,
+  save_final_rds = FALSE
 )
+
+
+saveRDS(infercnv_obj, output_rds)
+fs::file_copy(scratch_png, output_png, overwrite = TRUE)
+
+# remove outputs from infercnv that we don't want to keep
+files.in.dir <- list.files(output_dir, full.names = T)
+files.to.keep <- c(output_png, output_rds)
+files.to.remove <- list(files.in.dir[!(files.in.dir %in% files.to.keep)])
+do.call(unlink, files.to.remove)

@@ -92,67 +92,18 @@ for (sample_id in metadata$scpca_sample_id) {
 }
 
 if (!running_ci) {
+  # Run notebook template to explore label transfer and clustering for all samples at once
   rmarkdown::render(input = file.path(notebook_output_dir, "04_annotation_Across_Samples_exploration.Rmd"),
                     output_format = "html_document",
                     output_file = "04_annotation_Across_Samples_exploration.html",
                     output_dir = notebook_output_dir)
-}
-
-
-# We run copyKAT and infercnv for a subselection of samples selected in "04_annotation_Across_Samples_exploration.Rmd" with and without healthy cells as reference
-
-for (sample_id in c("SCPCS000179",
-                    "SCPCS000184",
-                    "SCPCS000194", 
-                    "SCPCS000205",
-                    "SCPCS000208")){
   
-  # We run and explore copykat using euclidian distance parameter
-  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "05_copyKAT.R"), " --sample_id ", sample_id, " --n_core ", 32, " --distance ", "euclidean"))
-
-  # We run and explore copykat using spearman distance parameter
-  
-  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "05_copyKAT.R"), " --sample_id ", sample_id, " --n_core ", 32, " --distance ", "spearman"))
-  
-  # We run and explore infercnv using immune cells as reference
-  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "immune"))
- 
-  # We run and explore infercnv using endothelial cells as reference
-  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "endothelium"))
-  
-  # We run and explore infercnv using immune and endothelium cells as reference
-  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "both"))
-  
-  # We run and explore infercnv using no normal reference
-  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "none"))
+  # Run infercnv and copykat for a selection of samples
+  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "run-cnv.R")))
   
 }
 
-# Next PR, we explore the results of inferCNV and copykat
 
-for (sample_id in c("SCPCS000179",
-                    "SCPCS000184",
-                    "SCPCS000194", 
-                    "SCPCS000205",
-                    "SCPCS000208")){
 
- rmarkdown::render(input = file.path(notebook_template_dir, "05_cnv_copykat_exploration.Rmd"),
-                    params = list(sample_id = sample_id, distance = "euclidean"),
-                    output_format = "html_document",
-                    output_file = paste0("05_cnv_copykat_euclidean_exploration_", sample_id, ".html"),
-                    output_dir = file.path(notebook_output_dir, sample_id))
 
- rmarkdown::render(input = file.path(notebook_template_dir, "05_cnv_copykat_exploration.Rmd"),
-                    params = list(sample_id = sample_id, distance = "spearman"),
-                    output_format = "html_document",
-                    output_file = paste0("05_cnv_copykat_spearman_exploration_", sample_id, ".html"),
-                    output_dir = file.path(notebook_output_dir, sample_id))
-
- rmarkdown::render(input = file.path(notebook_template_dir, "06_cnv_infercnv_exploration.Rmd"),
-                    params = list(sample_id = sample_id),
-                    output_format = "html_document",
-                    output_file = paste0("06_cnv_exploration_", sample_id, ".html"),
-                    output_dir = file.path(notebook_output_dir, sample_id))
-
-}
 
