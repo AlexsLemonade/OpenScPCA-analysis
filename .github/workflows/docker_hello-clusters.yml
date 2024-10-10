@@ -13,22 +13,22 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - "analyses/hello-clusters/Dockerfile"
-  #     - "analyses/hello-clusters/.dockerignore"
-  #     - "analyses/hello-clusters/renv.lock"
-  #     - "analyses/hello-clusters/conda-lock.yml"
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - "analyses/hello-clusters/Dockerfile"
-  #     - "analyses/hello-clusters/.dockerignore"
-  #     - "analyses/hello-clusters/renv.lock"
-  #     - "analyses/hello-clusters/conda-lock.yml"
+   pull_request:
+     branches:
+       - main
+     paths:
+       - "analyses/hello-clusters/Dockerfile"
+       - "analyses/hello-clusters/.dockerignore"
+       - "analyses/hello-clusters/renv.lock"
+       - "analyses/hello-clusters/conda-lock.yml"
+   push:
+     branches:
+       - main
+     paths:
+       - "analyses/hello-clusters/Dockerfile"
+       - "analyses/hello-clusters/.dockerignore"
+       - "analyses/hello-clusters/renv.lock"
+       - "analyses/hello-clusters/conda-lock.yml"
   workflow_dispatch:
     inputs:
       push-ecr:
