@@ -36,7 +36,6 @@ Imports:
     tibble,
     tidyr
 biocViews: 
-    Software, 
     GeneExpression,
     Transcriptomics, 
     SingleCell, 
