@@ -50,7 +50,13 @@ We selected previously 5 samples to test for these parameters:
 - sample SCPCS0000208 has > 95 % of cells predicted as kidney and 18 + 35 endothelium and immune cells.
 
 For each of the samples, we ran `05_copyKAT.R` script, defining the `distance` parameters. 
-The outputs of `copykat` are saved in the `{sample_id}/05_copykat` folder.
+
+For each sample and each condition (reference and distance), we saved in `results/{sample_id}/05_copykat/{reference}/{distance}/`:
+
+- the final `copykat` rds object in `05_copykat_{sample_id}_{reference}_distance-{selection}.rds`
+- the heatmap of CNV in `05_copykat_{sample_id}_{reference}_distance-{selection}_copykat_heatmap.jpeg`
+- the prediction (aneuploid or diploid value per cell) in `05_copykat_{sample_id}_{reference}_distance-{selection}_copykat_prediction.txt`
+- the CNA matrix `05_copykat_{sample_id}_{reference}_distance-{selection}_copykat_CNA_results.txt`
 
 ## using `infercnv`
 
@@ -63,5 +69,19 @@ We selected previously 5 samples to test for these parameters:
 - sample SCPCS000205 has > 89 % of cells predicted as kidney and 92 + 76 endothelium and immune cells.
 - sample SCPCS0000208 has > 95 % of cells predicted as kidney and 18 + 35 endothelium and immune cells.
 
-For each of the samples, we ran `06_infercnv.R` script, defining either no (none) normal cells as reference, or immune and/or endothelial cells.  
-The outputs of `infercnv` are saved in the `{sample_id}/06_infercnv` folder.
+`infercnv` requires a gene position file that we build in `06a_build-geneposition.R` and saved as `gencode_v19_gen_pos.complete.txt` in `results/references`.
+
+For each sample and each condition (reference), we saved in `results/{sample_id}/06_infercnv/reference-{selection}`:
+- the final `infercnv`rds object in `06_infercnv_{sample_id}_reference-{selection}.rds`
+- the heatmap of CNV in `06_infercnv_{sample_id}_reference-{selection}_heatmap.png`
+
+Of note, the final `infercnv` rds object includes the following slots:
+
+- 'infercnv_obj@ expr.data' : contains the processed expression matrix as it exists at the end of that stage for which that inferCNV object represents.
+
+- 'infercnv_obj@reference_grouped_cell_indices' : list containing the expression matrix column indices that correspond to each of the normal (reference) cell types.
+
+- 'infercnv_obj@observation_grouped_cell_indices' : similar list as above, but corresponds to the tumor cell types.
+
+Based on the above slots, it would be straightforward to extract info of interest and/or move data into other analysis frameworks.
+

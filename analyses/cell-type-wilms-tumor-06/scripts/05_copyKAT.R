@@ -12,14 +12,14 @@
 library(optparse)
 library(Seurat)
 library(copykat)
-
+library(fs)
 # Parse arguments --------------------------------------------------------------
 # set up arguments
 option_list <- list(
   make_option(
     opt_str = c("-s", "--sample_id"),
     type = "character",
-    default = "SCPCS000205",
+    default = "SCPCS000179",
     help = "The sample_id of the sample to be used for inference of genomic copy number using copyKAT "
   ),
   make_option(
@@ -32,7 +32,7 @@ option_list <- list(
   make_option(
     opt_str = c("-d", "--distance"),
     type = "character",
-    default = euclidean,
+    default = "euclidean",
     help = "method used to calculate distance in copyKAT"
   )
 )
@@ -47,10 +47,45 @@ repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06")
 # Path to the result directory
 result_dir <- file.path(module_base, "results", opts$sample_id)
-# path to output copykat object
-copykat_output_obj_noref <- file.path(result_dir,  "copyKAT", "noref", "05_final-copykat.rds")
-copykat_output_obj_ref <- file.path(result_dir, "copyKAT", "ref", "05_final-copykat.rds")
 
+
+# Create directories to save the results of copykat with/without reference using opts$distance
+dir.create(file.path(result_dir,  "05_copyKAT", "noref", opts$distance), recursive = TRUE)
+dir.create(file.path(result_dir,  "05_copyKAT", "ref", opts$distance), recursive = TRUE)
+
+# define scratch directory for tempory saving the output of copykat
+scratch_dir <- file.path(module_base, "scratch", opts$sample_id)
+dir.create(scratch_dir, recursive = TRUE)
+
+# path for copykat rds output
+name_ref <- glue::glue("05_copykat_",opts$sample_id,"_ref_distance-", opts$distance, ".rds")
+name_ref_full <- file.path(result_dir,  "05_copyKAT", "ref", opts$distance, name_ref)
+name_no_ref <- glue::glue("05_copykat_",opts$sample_id,"_noref_distance-", opts$distance, ".rds")
+name_no_ref_full <- file.path(result_dir,  "05_copyKAT", "noref", opts$distance, name_no_ref)
+
+# path to scratch and final heatmap file to copy over
+jpeg_file <- glue::glue(opts$sample_id,"_copykat_heatmap.jpeg")
+scratch_jpeg <- file.path(scratch_dir, jpeg_file)
+output_jpeg_ref <- file.path(result_dir,  "05_copyKAT", "ref", opts$distance, glue::glue("05_copykat_",opts$sample_id,"_ref_distance-", opts$distance, "_copykat_heatmap.jpeg"))
+output_jpeg_noref <- file.path(result_dir,  "05_copyKAT", "noref", opts$distance, glue::glue("05_copykat_",opts$sample_id,"_noref_distance-", opts$distance, "_copykat_heatmap.jpeg"))
+
+# path to scratch and final .txt prediction file to copy over
+prediction_file <- glue::glue(opts$sample_id,"_copykat_prediction.txt")
+scratch_prediction <- file.path(scratch_dir, prediction_file)
+output_prediction_ref <- file.path(result_dir,  "05_copyKAT", "ref", opts$distance, glue::glue("05_copykat_",opts$sample_id,"_ref_distance-", opts$distance, "_copykat_prediction.txt"))
+output_prediction_noref <- file.path(result_dir,  "05_copyKAT", "noref", opts$distance, glue::glue("05_copykat_",opts$sample_id,"_noref_distance-", opts$distance, "_copykat_prediction.txt"))
+
+# path to scratch and final .txt CNA file to copy over
+CNA_file <- glue::glue(opts$sample_id,"_copykat_CNA_results.txt")
+scratch_CNA <- file.path(scratch_dir, CNA_file)
+output_CNA_ref <- file.path(result_dir,  "05_copyKAT", "ref", opts$distance, glue::glue("05_copykat_",opts$sample_id,"_ref_distance-", opts$distance, "_copykat_CNA_results.txt"))
+output_CNA_noref <- file.path(result_dir,  "05_copyKAT", "noref", opts$distance, glue::glue("05_copykat_",opts$sample_id,"_noref_distance-", opts$distance, "_copykat_CNA_results.txt"))
+
+
+# change working directory of the script to the scratch directory
+# this ensures copykat files get saved to the right location
+# there is no option to specify an output directory when running copykat
+setwd(scratch_dir)
 
 # Read in data -----------------------------------------------------------------
 srat <- readRDS(
@@ -63,12 +98,8 @@ exp.rawdata <- GetAssayData(object = srat, assay = "RNA", layer = "counts")
 # Extract normal cells ---------------------------------------------------------
 normal_cell <- WhichCells(object = srat, expression = fetal_kidney_predicted.compartment %in% c("endothelium", "immune"))
 
-# Run copyKAT ------------------------------------------------------------------
-# change working directory of the script to the result directory
-# this ensures copykat files get saved to the right location
-# there is no option to specify an output directory when running copykat
-dir.create(file.path(result_dir,  "05_copyKAT", "noref", opts$distance), recursive = TRUE)
-setwd(file.path(result_dir,  "05_copyKAT", "noref", opts$distance))
+# Run copyKAT and save output --------------------------------------------------
+
 copykat.noref <- copykat(rawmat=exp.rawdata, 
                          sam.name=opts$sample_id, 
                          distance=opts$distance, 
@@ -80,8 +111,12 @@ copykat.noref <- copykat(rawmat=exp.rawdata,
                          output.seg = FALSE,
                          KS.cut = 0.05)
 
-dir.create(file.path(result_dir,  "05_copyKAT", "ref", opts$distance), recursive = TRUE)
-setwd(file.path(result_dir,  "05_copyKAT", "ref", opts$distance))
+saveRDS(copykat.noref, name_no_ref_full)
+fs::file_copy(scratch_jpeg, output_jpeg_noref, overwrite = TRUE)
+fs::file_copy(scratch_prediction, output_prediction_noref, overwrite = TRUE)
+fs::file_copy(scratch_CNA, output_CNA_noref, overwrite = TRUE)
+
+
 copykat.ref <- copykat(rawmat=exp.rawdata, 
                        sam.name=opts$sample_id, 
                        distance=opts$distance, 
@@ -94,5 +129,7 @@ copykat.ref <- copykat(rawmat=exp.rawdata,
                        KS.cut = 0.05
                         )
 
-
-
+saveRDS(copykat.ref,name_ref_full)
+fs::file_copy(scratch_jpeg, output_jpeg_ref, overwrite = TRUE)
+fs::file_copy(scratch_prediction, output_prediction_ref, overwrite = TRUE)
+fs::file_copy(scratch_CNA, output_CNA_ref, overwrite = TRUE)
