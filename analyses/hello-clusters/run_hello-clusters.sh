@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script renders this module's example notebooks that.
+# This script renders this module's example notebooks.
 # This script is primarily used for testing.
 # Please refer to the individual notebooks in this module for examples of performing and evaluating clustering with rOpenScPCA.
 
