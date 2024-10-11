@@ -10,16 +10,23 @@ copykatInterpret <- function(annot.obj, library.id, ct.colors){
   tryCatch({
     exprs <- data.frame(FetchData(annot.obj, vars = c("sctype_classification","copykat.pred","lowConfidence_annot")))
     df <- exprs %>%
-      dplyr::group_by(copykat.pred, sctype_classification) %>%
-      dplyr::count(name = "proportion")
-    p1 <- ggplot(df, aes(x = copykat.pred, y = proportion, fill =  sctype_classification)) +
-            geom_bar(width = 0.5, stat = "identity", position = "fill")+scale_fill_manual(values = ct_color)
+      group_by(copykat.pred, sctype_classification) %>%
+      count(name = "Frequency")
+    total_df <- df %>%
+      group_by(copykat.pred) %>%
+      summarise(Total = sum(Frequency))
+    p1 <- ggplot() +
+      geom_bar(data = df, aes(x = copykat.pred, y = Frequency, fill =  sctype_classification), width = 0.5, stat = "identity", position = "fill") +
+      geom_text(data = total_df, aes(y = 100, x = copykat.pred, label = Total), size = 4, position = position_fill(vjust = 1.02)) +
+      scale_fill_manual(values = ct_color)
     
     df <- exprs %>%
       dplyr::group_by(copykat.pred, lowConfidence_annot) %>%
-      dplyr::count(name = "proportion")
-    p2 <- ggplot(df, aes(x = copykat.pred, y = proportion, fill =  lowConfidence_annot)) +
-      geom_bar(width = 0.5, stat = "identity", position = "fill")+scale_fill_manual(values = ct_color)
+      dplyr::count(name = "Frequency")
+    p2 <- ggplot() + 
+      geom_bar(data = df, aes(x = copykat.pred, y = Frequency, fill =  lowConfidence_annot), width = 0.5, stat = "identity", position = "fill") +
+      geom_text(data = total_df, aes(y = 100, x = copykat.pred, label = Total), size = 4, position = position_fill(vjust = 1.02)) + 
+      scale_fill_manual(values = ct_color)
     cowplot::plot_grid(plotlist = list(p1,p2), nrow = 1) + 
       cowplot::draw_figure_label(library.id, position = "top", size = 14, fontface = "bold")
     ggsave(file.path(out_loc,"plots/copykat_exploration",paste0(library.id,"_celltypeVScopykat.png")), width = 10, height = 5, bg = "white", dpi = 150)
