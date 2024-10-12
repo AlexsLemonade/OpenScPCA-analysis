@@ -4,9 +4,6 @@ repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 # The path to this module
 module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06")
 
-# We build the gene position file reference for infercnv ------------------------
-system(command = glue::glue("Rscript ", file.path(module_base, "scripts", "06a_build-geneposition.R")))
-
 # We run copyKAT and infercnv for a subselection of samples selected in "04_annotation_Across_Samples_exploration.Rmd" with and without healthy cells as reference
 
 for (sample_id in c("SCPCS000179",

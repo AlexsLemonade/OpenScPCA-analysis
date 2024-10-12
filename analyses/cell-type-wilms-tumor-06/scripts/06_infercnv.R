@@ -5,7 +5,7 @@
 #
 # USAGE:
 # Rscript 06_infercnv.R \
-#   --sample_id SCPCS000205
+#   --sample_id SCPCS000179
 #   --reference one of none, immune, endothelium, both
 
 
@@ -19,7 +19,7 @@ option_list <- list(
   make_option(
     opt_str = c("-s", "--sample_id"),
     type = "character",
-    default = "SCPCS000205",
+    default = "SCPCS000179",
     help = "The sample_id of the sample to be used for inference of genomic copy number using infercnv "
   ),
   make_option(
@@ -50,7 +50,8 @@ output_rds <- file.path(output_dir, glue::glue("06_infercnv_",opts$sample_id,"_r
 png_file <- glue::glue("infercnv.png")
 scratch_png <- file.path(output_dir, png_file)
 output_png <- file.path(output_dir,  glue::glue("06_infercnv_",opts$sample_id,"_reference-", opts$reference,  "_heatmap.png"))
-
+# path to updated seurat object
+output_srat <- file.path(result_dir, glue::glue("06_infercnv_", params$sample_id, "_reference-", params$reference, ".rds"))
 
 # Define functions -------------------------------------------------------------
 # read_infercnv_mat will read outputs saved automatically by of infercnv in file_path
@@ -108,14 +109,23 @@ infercnv_obj <- infercnv::run(
   infercnv_obj,
   cutoff=0.1, # cutoff=1 works well for Smart-seq2, and cutoff=0.1 works well for 10x Genomics
   out_dir=output_dir, 
+  analysis_mode='subclusters',
   cluster_by_groups=T, 
-  denoise=FALSE,
-  HMM=FALSE,
-  save_rds = FALSE,
-  save_final_rds = FALSE
+  denoise=TRUE,
+  HMM=TRUE,
+  save_rds = TRUE,
+  save_final_rds = TRUE
 )
 
+srat = infercnv::add_to_seurat(infercnv_output_path=output_dir,
+                                     seurat_obj=srat,
+                                     top_n=10
+)
 
+# save seurat object with additional infercnv data
+saveRDS(srat, output_srat)
+
+# save some infercnv outputs
 saveRDS(infercnv_obj, output_rds)
 fs::file_copy(scratch_png, output_png, overwrite = TRUE)
 
@@ -124,3 +134,4 @@ files.in.dir <- list.files(output_dir, full.names = T)
 files.to.keep <- c(output_png, output_rds)
 files.to.remove <- list(files.in.dir[!(files.in.dir %in% files.to.keep)])
 do.call(unlink, files.to.remove)
+

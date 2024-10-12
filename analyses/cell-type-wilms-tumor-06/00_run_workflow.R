@@ -37,6 +37,8 @@ module_base <- file.path(root_dir, "analyses", "cell-type-wilms-tumor-06")
 # Download and create the fetal kidney reference (Stewart et al) ----------
 system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "download-and-create-fetal-kidney-ref.R")))
 
+# We build the gene position file reference for infercnv ------------------------
+system(command = glue::glue("Rscript ", file.path(module_base, "scripts", "06a_build-geneposition.R")))
 
 # Characterize the two fetal references -----------------------------------------
 
