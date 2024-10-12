@@ -13,6 +13,9 @@ library(optparse)
 library(Seurat)
 library(copykat)
 library(fs)
+library(jpeg)
+library(png)
+
 # Parse arguments --------------------------------------------------------------
 # set up arguments
 option_list <- list(
@@ -66,8 +69,8 @@ name_no_ref_full <- file.path(result_dir,  "05_copyKAT", "noref", opts$distance,
 # path to scratch and final heatmap file to copy over
 jpeg_file <- glue::glue(opts$sample_id,"_copykat_heatmap.jpeg")
 scratch_jpeg <- file.path(scratch_dir, jpeg_file)
-output_jpeg_ref <- file.path(result_dir,  "05_copyKAT", "ref", opts$distance, glue::glue("05_copykat_",opts$sample_id,"_ref_distance-", opts$distance, "_copykat_heatmap.jpeg"))
-output_jpeg_noref <- file.path(result_dir,  "05_copyKAT", "noref", opts$distance, glue::glue("05_copykat_",opts$sample_id,"_noref_distance-", opts$distance, "_copykat_heatmap.jpeg"))
+output_jpeg_ref <- file.path(result_dir,  "05_copyKAT", "ref", opts$distance, glue::glue("05_copykat_",opts$sample_id,"_ref_distance-", opts$distance, "_copykat_heatmap.png"))
+output_jpeg_noref <- file.path(result_dir,  "05_copyKAT", "noref", opts$distance, glue::glue("05_copykat_",opts$sample_id,"_noref_distance-", opts$distance, "_copykat_heatmap.png"))
 
 # path to scratch and final .txt prediction file to copy over
 prediction_file <- glue::glue(opts$sample_id,"_copykat_prediction.txt")
@@ -98,7 +101,7 @@ exp.rawdata <- GetAssayData(object = srat, assay = "RNA", layer = "counts")
 # Extract normal cells ---------------------------------------------------------
 normal_cell <- WhichCells(object = srat, expression = fetal_kidney_predicted.compartment %in% c("endothelium", "immune"))
 
-# Run copyKAT and save output --------------------------------------------------
+# Run copyKAT without reference ------------------------------------------------
 
 copykat.noref <- copykat(rawmat=exp.rawdata, 
                          sam.name=opts$sample_id, 
@@ -111,11 +114,17 @@ copykat.noref <- copykat(rawmat=exp.rawdata,
                          output.seg = FALSE,
                          KS.cut = 0.05)
 
+# Save copykat output without reference ----------------------------------------
+
 saveRDS(copykat.noref, name_no_ref_full)
-fs::file_copy(scratch_jpeg, output_jpeg_noref, overwrite = TRUE)
+
+img <- readJPEG(scratch_jpeg)
+writePNG(img, target = output_jpeg_noref)
+
 fs::file_copy(scratch_prediction, output_prediction_noref, overwrite = TRUE)
 fs::file_copy(scratch_CNA, output_CNA_noref, overwrite = TRUE)
 
+# Run copyKAT with reference  --------------------------------------------------
 
 copykat.ref <- copykat(rawmat=exp.rawdata, 
                        sam.name=opts$sample_id, 
@@ -129,7 +138,12 @@ copykat.ref <- copykat(rawmat=exp.rawdata,
                        KS.cut = 0.05
                         )
 
+# Save copykat output with reference -------------------------------------------
+
 saveRDS(copykat.ref,name_ref_full)
-fs::file_copy(scratch_jpeg, output_jpeg_ref, overwrite = TRUE)
+
+img <- readJPEG(scratch_jpeg)
+writePNG(img, target = output_jpeg_ref)
+
 fs::file_copy(scratch_prediction, output_prediction_ref, overwrite = TRUE)
 fs::file_copy(scratch_CNA, output_CNA_ref, overwrite = TRUE)
