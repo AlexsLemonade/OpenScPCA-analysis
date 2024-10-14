@@ -1,4 +1,4 @@
-# we download and adapt the genome position file
+# This script downloads and adapt the genome position file for use with infercnv
 
 # The base path for the OpenScPCA repository, found by its (hidden) .git directory
 repository_base <- rprojroot::find_root(rprojroot::is_git_root)
