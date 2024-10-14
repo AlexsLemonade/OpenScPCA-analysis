@@ -561,7 +561,7 @@
       "Package": "HiddenMarkov",
       "Version": "1.8-13",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Hash": "26d4e106f5429773167ccf8f55581cdd"
     },
     "IRanges": {
@@ -1340,7 +1340,7 @@
       "Package": "TH.data",
       "Version": "1.1-2",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Requirements": [
         "MASS",
         "R",
@@ -1464,7 +1464,7 @@
       "Package": "argparse",
       "Version": "2.2.3",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Requirements": [
         "R",
         "R6",
@@ -1741,7 +1741,7 @@
       "Package": "coda",
       "Version": "0.19-4.1",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Requirements": [
         "R",
         "lattice"
@@ -1762,7 +1762,7 @@
       "Package": "coin",
       "Version": "1.4-3",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Requirements": [
         "R",
         "libcoin",
@@ -1974,7 +1974,7 @@
       "Package": "doParallel",
       "Version": "1.0.17",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Requirements": [
         "R",
         "foreach",
@@ -2184,7 +2184,7 @@
       "Package": "fastcluster",
       "Version": "1.2.6",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Requirements": [
         "R"
       ],
@@ -2233,7 +2233,7 @@
       "Package": "findpython",
       "Version": "1.0.8",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Hash": "8f9aa3ce842296afaad4083b839481a1"
     },
     "fitdistrplus": {
@@ -2284,7 +2284,7 @@
       "Package": "foreach",
       "Version": "1.5.2",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Requirements": [
         "R",
         "codetools",
@@ -3015,8 +3015,8 @@
     "infercnv": {
       "Package": "infercnv",
       "Version": "1.20.0",
-      "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
       "Requirements": [
         "BiocGenerics",
         "HiddenMarkov",
@@ -3087,12 +3087,22 @@
       "Package": "iterators",
       "Version": "1.0.14",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Requirements": [
         "R",
         "utils"
       ],
       "Hash": "8954069286b4b2b0d023d1b288dce978"
+    },
+    "jpeg": {
+      "Package": "jpeg",
+      "Version": "0.1-10",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "031a0b683d001a7519202f0628fc0358"
     },
     "jquerylib": {
       "Package": "jquerylib",
@@ -3219,7 +3229,7 @@
       "Package": "libcoin",
       "Version": "1.0-10",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Requirements": [
         "R",
         "mvtnorm",
@@ -3423,7 +3433,7 @@
       "Package": "modeltools",
       "Version": "0.2-23",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Requirements": [
         "methods",
         "stats",
@@ -3536,7 +3546,7 @@
       "Package": "parallelDist",
       "Version": "0.2.6",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Requirements": [
         "R",
         "Rcpp",
@@ -3590,7 +3600,7 @@
       "Package": "phyclust",
       "Version": "0.1-34",
       "Source": "Repository",
-      "Repository": "https://bioconductor.org/packages/3.19/container-binaries/bioconductor_docker",
+      "Repository": "RSPM",
       "Requirements": [
         "R",
         "ape"

@@ -18,16 +18,16 @@ for (sample_id in c("SCPCS000179",
   # We run and explore copykat using spearman distance parameter
   
   system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "05_copyKAT.R"), " --sample_id ", sample_id, " --n_core ", 32, " --distance ", "spearman"))
-  
-  # We run and explore infercnv using immune cells as reference
-  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "immune"))
-  
-  # We run and explore infercnv using endothelial cells as reference
-  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "endothelium"))
-  
+
   # We run and explore infercnv using immune and endothelium cells as reference
   system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "both"))
   
+  # We run and explore infercnv using immune cells as reference
+  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "immune"))
+
+  # We run and explore infercnv using endothelial cells as reference
+  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "endothelium"))
+
   # We run and explore infercnv using no normal reference
   system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "none"))
   
