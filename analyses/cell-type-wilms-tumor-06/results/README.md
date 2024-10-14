@@ -54,7 +54,7 @@ For each of the samples, we ran `05_copyKAT.R` script, defining the `distance` p
 For each sample and each condition (reference and distance), we saved in `results/{sample_id}/05_copykat/{reference}/{distance}/`:
 
 - the final `copykat` rds object in `05_copykat_{sample_id}_{reference}_distance-{selection}.rds`
-- the heatmap of CNV in `05_copykat_{sample_id}_{reference}_distance-{selection}_copykat_heatmap.jpeg`
+- the heatmap of CNV in `05_copykat_{sample_id}_{reference}_distance-{selection}_copykat_heatmap.png`
 - the prediction (aneuploid or diploid value per cell) in `05_copykat_{sample_id}_{reference}_distance-{selection}_copykat_prediction.txt`
 - the CNA matrix `05_copykat_{sample_id}_{reference}_distance-{selection}_copykat_CNA_results.txt`
 
@@ -84,4 +84,10 @@ Of note, the final `infercnv` rds object includes the following slots:
 - 'infercnv_obj@observation_grouped_cell_indices' : similar list as above, but corresponds to the tumor cell types.
 
 Based on the above slots, it would be straightforward to extract info of interest and/or move data into other analysis frameworks.
+
+In addition, fot the condition `reference = "both"`, we ran `infercnv` with `HMM = TRUE`. 
+[HMM CNV prediction methods](https://github.com/broadinstitute/infercnv/wiki/inferCNV-HMM-based-CNV-Prediction-Methods) will allow us to explore the CNV results better, with an easy [merge](https://github.com/broadinstitute/infercnv/wiki/Extracting-features) of `infercnv` result with the `Seurat` object.
+However, HMM CNV prediction methods uses a lot of resources, including time (~2h/sample/condition), and often lead to RSession end. 
+This is why we only ran the HMM model for one `reference` condition. After selection of the best reference to use, we will run it for all samples. 
+
 

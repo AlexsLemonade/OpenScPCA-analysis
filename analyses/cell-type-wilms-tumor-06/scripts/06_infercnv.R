@@ -51,7 +51,7 @@ png_file <- glue::glue("infercnv.png")
 scratch_png <- file.path(output_dir, png_file)
 output_png <- file.path(output_dir,  glue::glue("06_infercnv_",opts$sample_id,"_reference-", opts$reference,  "_heatmap.png"))
 # path to updated seurat object
-output_srat <- file.path(result_dir, glue::glue("06_infercnv_", params$sample_id, "_reference-", params$reference, ".rds"))
+output_srat <- file.path(result_dir, glue::glue("06_infercnv_", opts$sample_id, "_reference-", opts$reference, ".rds"))
 
 # Define functions -------------------------------------------------------------
 # read_infercnv_mat will read outputs saved automatically by of infercnv in file_path
@@ -98,6 +98,13 @@ gene_order_file <- file.path(module_base, "results", "references", "gencode_v19_
 
 # Run infercnv ------------------------------------------------------------------
 # create inferCNV object and run method
+options(future.globals.maxSize= 89128960000000)
+
+# We only run the CNV HMM prediction model if the reference is "both"
+HMM_logical = FALSE
+if(opts$reference == "both){
+  HMM_logical = TRUE
+}
 
 infercnv_obj <- infercnv::CreateInfercnvObject(
   raw_counts_matrix = as.matrix(counts),
@@ -112,18 +119,12 @@ infercnv_obj <- infercnv::run(
   analysis_mode='subclusters',
   cluster_by_groups=T, 
   denoise=TRUE,
-  HMM=TRUE,
+  HMM=HMM_logical,
   save_rds = TRUE,
   save_final_rds = TRUE
 )
 
-srat = infercnv::add_to_seurat(infercnv_output_path=output_dir,
-                                     seurat_obj=srat,
-                                     top_n=10
-)
 
-# save seurat object with additional infercnv data
-saveRDS(srat, output_srat)
 
 # save some infercnv outputs
 saveRDS(infercnv_obj, output_rds)
