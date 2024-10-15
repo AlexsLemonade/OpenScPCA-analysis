@@ -23,6 +23,7 @@ on:
   pull_request:
     branches:
       - main
+      - feature/*
     paths:
       - analyses/cell-type-wilms-tumor-06/**
       - "!analyses/cell-type-wilms-tumor-06/Dockerfile"
