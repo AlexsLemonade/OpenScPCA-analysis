@@ -35,6 +35,7 @@ metadata <- read.table(sample_metadata_file, sep = "\t", header = TRUE)
 module_base <- file.path(root_dir, "analyses", "cell-type-wilms-tumor-06")
 
 # Download and create the references for label transfer, and download the homolog file for ID mapping ----------
+system(command = glue::glue("Rscript ", file.path(module_base, "scripts", "download-reference-files.R")))
 system(command = glue::glue("Rscript ", file.path(module_base, "scripts", "prepare-fetal-references.R")))
 
 # We build the gene position file reference for infercnv ------------------------
