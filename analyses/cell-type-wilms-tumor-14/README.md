@@ -76,11 +76,3 @@ sudo apt install -y libglpk40 \
 
 Analysis could be executed on a virtual computer ([Standard-4XL](https://openscpca.readthedocs.io/en/latest/aws/lsfr/creating-vcs/)) via AWS Lightsail for Research.
 
-## Exploratory analysis
-```bash
-cd /path/to/OpenScPCA-analysis
-cd analyses/cell-type-wilms-tumor-14
-# generate CNV results using copykat
-Rscript exploratory_analysis/03_runCopyKat.R
-
-```
