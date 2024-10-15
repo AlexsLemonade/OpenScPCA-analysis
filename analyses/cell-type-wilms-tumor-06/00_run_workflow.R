@@ -36,7 +36,7 @@ module_base <- file.path(root_dir, "analyses", "cell-type-wilms-tumor-06")
 
 # Download and create the references for label transfer, and download the homolog file for ID mapping ----------
 kidney_ref_url <- "https://datasets.cellxgene.cziscience.com/40ebb8e4-1a25-4a33-b8ff-02d1156e4e9b.rds"
-kidney_ref_file <- file.path(module_base, "scratch", "kidney_ref.rds")
+kidney_ref_file <- file.path(module_base, "scratch", "fetal_kidney.rds")
 if (!file.exists(kidney_ref_file)) {
   download.file(kidney_ref_url, kidney_ref_file)
 }
@@ -63,7 +63,8 @@ rmarkdown::render(
   input = file.path(notebook_template_dir, "00b_characterize_fetal_kidney_reference_Stewart.Rmd"),
   output_format = "html_document",
   output_file = "00b_characterization_fetal_kidney_reference_Stewart.html",
-  output_dir = file.path(notebook_output_dir, "00-reference")
+  output_dir = file.path(notebook_output_dir, "00-reference"),
+  params = list(fetal_kidney_path = kidney_ref_file)
 )
 
 
