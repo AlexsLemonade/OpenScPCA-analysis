@@ -41,17 +41,9 @@ for (sample_id in c("SCPCS000179",
   # We run and explore infercnv using no normal reference
   system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "none"))
   
-}
-
-
 # We explore `copykat` result rendering one notebook per sample tested
 
-for (sample_id in c("SCPCS000179",
-                    "SCPCS000184",
-                    "SCPCS000194", 
-                    "SCPCS000205",
-                    "SCPCS000208")){
-  
+
   rmarkdown::render(input = file.path(notebook_template_dir, "05_copykat_exploration.Rmd"),
                     params = list(sample_id = sample_id, seed = 12345),
                     output_format = "html_document",
