@@ -50,7 +50,9 @@ if (!file.exists(homologs_file)) {
     destfile = homologs_file
   )
 }
-system(command = glue::glue("Rscript ", file.path(module_base, "scripts", "prepare-fetal-references.R")))
+system(command = glue::glue(
+  "Rscript {file.path(module_base, 'scripts', 'prepare-fetal-references.R')} --kidney_ref_file {kidney_ref_file}"
+))
 
 # We build the gene position file reference for infercnv ------------------------
 system(command = glue::glue("Rscript ", file.path(module_base, "scripts", "06a_build-geneposition.R")))
