@@ -43,7 +43,9 @@ This notebook explores using [`CopyKAT`](https://github.com/navinlabcode/copykat
 This sample has a(n) `r subdiagnosis` subdiagnosis.
 
 
-`CopyKAT` was run using the `copyKAT.R` script with and without a normal reference, using either an euclidean or statistical (spearman) method to calculate distance in `copyKAT`. 
+`CopyKAT` was run using the `05_copyKAT.R` script using either an euclidean or statistical (spearman) method to calculate distance in `copyKAT`. 
+`CopyKAT` was run with and without a normal reference.
+Immune and endothelial cells as identified by label transfer were used as the references cells where applicable.
 
 These results are read into this notebook and used to: 
   
