@@ -6,7 +6,7 @@ This directory contains all scripts used for cell typing Wilms tumor samples fro
 
 This script is used to download and create the fetal kidney reference (Stewart et al).
 
-## `run-cnv.R`
+## `explore-cnv-methods.R`
 
 This script is used to run 2 CNV inference methods `copykat` and `infercnv` for a selection of samples from SCPCP00006.
 
