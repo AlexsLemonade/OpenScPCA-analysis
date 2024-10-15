@@ -1,14 +1,15 @@
 # `scripts` directory instructions
 
-This directory contains all scripts used for cell typing Wilms tumor samples from SCPCP00006.
+This directory contains all scripts used for cell typing Wilms tumor samples from SCPCP000006.
 
-## `download-and-create-fetal-kidney-ref.R`
+## `prepare-fetal-references.R`
 
-This script is used to download and create the fetal kidney reference (Stewart et al).
+This script is used to download and create the fetal kidney reference (Stewart et al) and the full fetal reference (Cao et al).
+It also downloads the Azimuth homologs file for converting gene IDs.
 
 ## `explore-cnv-methods.R`
 
-This script is used to run 2 CNV inference methods `copykat` and `infercnv` for a selection of samples from SCPCP00006.
+This script is used to run 2 CNV inference methods `copykat` and `infercnv` for a selection of samples from SCPCP000006.
 
 We selected previously 5 samples to test for different parameters of `copykat` and `infercnv`:
 
@@ -20,7 +21,7 @@ We selected previously 5 samples to test for different parameters of `copykat` a
 
 ### `06a_build-geneposition.R`
 
-This script build the gene position file that will be used in `06_infercnv.R` for each of the samples. 
+This script build the gene position file that will be used in `06_infercnv.R` for each of the samples.
 We build the position file once via downloading the `gencode_v19_gen_pos.complete.txt` from the [Trinity/CTAT](https://data.broadinstitute.org/Trinity/CTAT/cnv/gencode_v19_gen_pos.complete.txt)
 05_copyKAT.R and 06_infercnv.R for 5 samples.
 
@@ -28,9 +29,9 @@ The `gencode_v19_gen_pos.complete.txt` is then saved in `results/references`.
 
 ### `05_copyKAT.R`
 
-This script is used to run `copykat`. 
-Please note that `copykat` can take more than one hour per sample, even when using quite a lot of resources. 
-By default, we run `copykat` with 16 cores but we are actually calling it with 32 cores (using 32 cpus). 
+This script is used to run `copykat`.
+Please note that `copykat` can take more than one hour per sample, even when using quite a lot of resources.
+By default, we run `copykat` with 16 cores but we are actually calling it with 32 cores (using 32 cpus).
 
 For each sample and each condition (reference and distance), we saved in `results/{sample_id}/05_copykat/{reference}/{distance}/`:
 
@@ -42,8 +43,8 @@ For each sample and each condition (reference and distance), we saved in `result
 ### `06_infercnv.R`
 
 This script is used to run `infercnv`.
-We test for the sensitivity of `infercnv` in regards to the selection of normal cells used as reference. 
-Therefore, the parameter `reference` indicates if we want to select immune and/or endothelial cells as reference or no cell at all. 
+We test for the sensitivity of `infercnv` in regards to the selection of normal cells used as reference.
+Therefore, the parameter `reference` indicates if we want to select immune and/or endothelial cells as reference or no cell at all.
 
 For each sample and each condition (reference), we saved in `results/{sample_id}/06_infercnv/reference-{selection}`:
 - the final `infercnv`rds object in `06_infercnv_{sample_id}_reference-{selection}.rds`

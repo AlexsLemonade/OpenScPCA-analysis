@@ -70,17 +70,17 @@ Some differenices are expected, some marker genes or pathways are associated wit
 
 for each of the steps, we have two types of `output`:
 
-- the `notebook` saved in the `notebook` directory, with a subfolder for each sample. 
+- the `notebook` saved in the `notebook` directory, with a subfolder for each sample.
 
-- the created objects saved in `results` directory, with a subfolder for each sample. 
+- the created objects saved in `results` directory, with a subfolder for each sample.
 
 
 # Analysis
 
 ## Marker sets
 
-We first build a resource for later validation of the annotated cell types. 
-We gather from the litterature marker genes and specific genomic alterations that could help us characterizing the Wilms tumor ecosystem, including cancer and non-cancer cells. 
+We first build a resource for later validation of the annotated cell types.
+We gather from the litterature marker genes and specific genomic alterations that could help us characterizing the Wilms tumor ecosystem, including cancer and non-cancer cells.
 
 ### The table CellType_metadata.csv contains the following column and information:
 
@@ -145,26 +145,26 @@ The `00_run_workflow.R` contains the following steps:
 
 - define paths
 
-- download and create the fetal kidney reference: `download-and-create-fetal-kidney-ref.R` in `scripts`
+- download and create the references: `prepare-fetal-references.R` in `scripts`
 
 - characterize the fetal kidney reference: `00b_characterize_fetal_kidney_reference_Stewart.Rmd` in `notebook_template`
 
 - loop for each samples:
 
   - `Seurat workflow`, normalization and clustering: `01_seurat-processing.Rmd` in `notebook_template`
-    
+
   - `Azimuth` label transfer from the fetal full reference (Cao et al.): `02a_label-transfer_fetal_full_reference_Cao.Rmd` in `notebook_template`
-    
+
   - `Azimuth` label transfer from the fetal kidney reference (Stewart et al.): `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd` in `notebook_template`
-    
+
   - Exploration of clustering, label transfers, marker genes and pathways: `03_clustering_exploration.Rmd` in `notebook_template`
-    
+
 
 For each sample and each of the step, an html report is generated and accessible in the directory `notebook`.
 
-### Justification 
+### Justification
 
-The use of the right reference is crucial. 
+The use of the right reference is crucial.
 It is recommended that the cell types in the reference is representative to the cell types to be annotated in the query.
 
 Wilms tumors can contain up to three histologies that resemble fetal kidney: blastema, stroma, and epithelia [1-2].
@@ -174,22 +174,21 @@ We thus decided to test and compare two fetal (kidney) references that could be 
 
 ##### Human fetal kidney atlas Stewart et al.
 
-We first wanted to try the human fetal kidney atlas to transfer label into the Wilms tumor samples using azimuth. 
+We first wanted to try the human fetal kidney atlas to transfer label into the Wilms tumor samples using azimuth.
 You can find more about the human kidney atlas here: https://www.kidneycellatlas.org/ [3]
 
 ##### Human Azimuth fetal reference from Cao et al.
 
-Azimuth also provide a human fetal atlas as a reference [4]. 
+Azimuth also provide a human fetal atlas as a reference [4].
 
-The data can be found on Zenodo: 
+The data can be found on Zenodo:
 https://zenodo.org/records/4738021#.YJIW4C2ZNQI
 
-The reference contain cells from 15 organs including kidney from fetal samples. 
-Here we will use `Azimuth` to transfer labels from the reference.
+The reference contain cells from 15 organs including kidney from fetal samples.
 
 ### Input and outputs
 
-We start with the `_process.Rds` data to run `01_seurat-processing.Rmd`. 
+We start with the `_process.Rds` data to run `01_seurat-processing.Rmd`.
 The output of `01_seurat-processing.Rmd` is saved in `results` in a subfolder for each sample and is the input of the second step `02a_label-transfer_fetal_full_reference_Cao.Rmd`.
 The output of `02a_label-transfer_fetal_full_reference_Cao.Rmd` is then the input of `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd`.
 Following the same approach, the output of `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd` is the input of `03_clustering_exploration.Rmd`.
@@ -242,7 +241,7 @@ If you are on a Mac with an M series chip, you will not be able to use RStudio S
 You must build an ARM image locally to be able to use RStudio Server within the container.
 
 #### A note for Halbritter lab internal development
-This work has been developed on a system that uses podman instead of docker. The steps to run the docker/podman images are slightly different and we saved in run-podman-internal.sh our internal approach to run the container. Please, refer to the Docker section to build and run the container instead. 
+This work has been developed on a system that uses podman instead of docker. The steps to run the docker/podman images are slightly different and we saved in run-podman-internal.sh our internal approach to run the container. Please, refer to the Docker section to build and run the container instead.
 
 ### renv
 
@@ -254,13 +253,13 @@ The `renv` lockfile is used to install R packages in the Docker image.
 ## Computational resources
 
 
-## References 
+## References
 
-- [1] https://www.ncbi.nlm.nih.gov/books/NBK373356/ 
+- [1] https://www.ncbi.nlm.nih.gov/books/NBK373356/
 
-- [2] https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9915828/ 
+- [2] https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9915828/
 
-- [3] https://www.science.org/doi/10.1126/science.aat5031 
+- [3] https://www.science.org/doi/10.1126/science.aat5031
 
 - [4] https://www.science.org/doi/10.1126/science.aba7721
 
