@@ -2,10 +2,14 @@
 
 This directory contains all scripts used for cell typing Wilms tumor samples from SCPCP000006.
 
+
+## `download-reference-files.R`
+
+This script is used to download the fetal kidney reference (Stewart et al) and the Azimuth homologs file for converting gene IDs.
+
 ## `prepare-fetal-references.R`
 
-This script is used to download and create the fetal kidney reference (Stewart et al) and the full fetal reference (Cao et al).
-It also downloads the Azimuth homologs file for converting gene IDs.
+This script is used to create the fetal kidney reference (Stewart et al) and the full fetal reference (Cao et al).
 
 ## `explore-cnv-methods.R`
 
