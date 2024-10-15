@@ -51,7 +51,6 @@ These results are read into this notebook and used to:
   
   - Visualize diploid and aneuploid cells on the UMAP. 
   - Evaluate common copy number gains and losses in Wilms tumor. 
-  - Calculate the confusion matrix comparing manual annotations of tumor cells to using `CopyKAT` to annotate tumor cells. 
   - Compare the annotations from `CopyKAT` to cell type annotations using label transfer and the fetal (kidney) references. 
 
 
