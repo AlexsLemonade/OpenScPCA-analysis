@@ -242,7 +242,7 @@ ggplot(cnv_df, aes(x = mean_cnv_detection, color = copykat.pred)) +
 
 ## Conclusions
 
-From the heatmap of CNV and the mean CNV detection plots, it is difficult to see any CNV pattern that drive the identification of aneuploid cells. 
+From the heatmap of CNV and the mean CNV detection plots, there does not appear to be any pattern that drives the identification of aneuploid cells. 
 The assignment of the aneuploidy/diploidy value might relies on very few CNV and/or an arbitrary threshold. 
 This might be why the assignement of aneuploidy/diploidy values differs between condition (and between runs!!).
 
