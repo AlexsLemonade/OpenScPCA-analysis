@@ -1,0 +1,82 @@
+---
+title: "Exploratory analysis using Copykat"
+author: "Jingxuan Chen"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+## Introduction
+
+This a template for an analysis notebook using R Markdown.
+
+It is a good idea to start with a brief introduction to the analysis, including the purpose of the analysis, the data used, and the methods applied.
+Replace this text with your own introduction, and be sure to update the `title:` and `author:` fields in the YAML header at the top of the document.
+
+Don't forget to rename this file as well!
+
+
+## Setup
+
+### Packages
+
+```{r packages}
+library(dplyr)
+library(Seurat)
+library(copykat)
+library(ggplot2)
+```
+
+
+### Paths
+
+Setting paths to directories and files for input and output at the start of a notebook can be helpful for organization and reproducibility.
+You may not know all of the paths you need when you start a notebook, but once you do, keeping them all in one place is helpful, both for yourself in the future and for other users of the notebook.
+
+
+#### Base directories
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+path_repo <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The path to this module
+path_anal <- file.path(path_repo,"analyses","cell-type-wilms-tumor-14") 
+```
+
+#### Input and output files
+
+Only run for one sample
+
+```{r paths}
+library <- "SCPCL000850"
+# Input files
+
+
+# Output files
+```
+
+## Analysis content
+
+Organize the remainder of your content into sections and subsections as appropriate for your analysis.
+
+Add a new code chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I* on Windows or Linux, *Cmd+Option+I* on a Mac.
+Be sure to comment your code and explain your steps as you go.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it.
+To preview the HTML file, click the *Preview* button or press *Ctrl+Shift+K* on Windows or Linux, *Cmd+Shift+K* on a Mac.
+
+The preview shows you a rendered HTML copy of the contents of the editor.
+Consequently, *Preview* does not run any R code chunks.
+Instead, the output of the chunk when it was last run in the editor is displayed.
+
+It is usually a good idea to rerun the entire notebook before sharing any output, to ensure that the notebook and output files are fully up to date.
+You can do this by clicking on the *Run* menu in the toolbar and clicking on *Restart R and Run All Chunks*.
+
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
