@@ -96,15 +96,16 @@ dir.create(output_dir, recursive = TRUE)
 # retrieve the gene order file created in `06a_build-geneposition.R`
 gene_order_file <- file.path(module_base, "results", "references", "gencode_v19_gene_pos.txt")
 
+# We only run the CNV HMM prediction model if the reference is "both"
+HMM_logical = FALSE
+if(opts$reference == "both"){
+  HMM_logical <- TRUE
+}
+
+
 # Run infercnv ------------------------------------------------------------------
 # create inferCNV object and run method
 options(future.globals.maxSize= 89128960000000)
-
-# We only run the CNV HMM prediction model if the reference is "both"
-HMM_logical = FALSE
-if(opts$reference == "both){
-  HMM_logical = TRUE
-}
 
 infercnv_obj <- infercnv::CreateInfercnvObject(
   raw_counts_matrix = as.matrix(counts),
@@ -124,7 +125,16 @@ infercnv_obj <- infercnv::run(
   save_final_rds = TRUE
 )
 
+if(HMM_logical == TRUE){
+  
+srat = infercnv::add_to_seurat(infercnv_output_path=output_dir,
+                                     seurat_obj=srat,
+                                     top_n=10
+)
+}
 
+# save seurat object with additional infercnv data
+saveRDS(srat, output_srat)
 
 # save some infercnv outputs
 saveRDS(infercnv_obj, output_rds)

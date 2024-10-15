@@ -12,15 +12,21 @@ for (sample_id in c("SCPCS000179",
                     "SCPCS000205",
                     "SCPCS000208")){
   
-  # We run and explore copykat using euclidian distance parameter
-  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "05_copyKAT.R"), " --sample_id ", sample_id, " --n_core ", 32, " --distance ", "euclidean"))
+  # We run and explore copykat using euclidian distance parameter and normal cell as reference
+  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "05_copyKAT.R"), " --sample_id ", sample_id, " --n_core ", 32, " --distance ", "euclidean", " --use_reference ", "ref"))
   
-  # We run and explore copykat using spearman distance parameter
+  # We run and explore copykat using spearman distance parameter and normal cell as reference
   
-  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "05_copyKAT.R"), " --sample_id ", sample_id, " --n_core ", 32, " --distance ", "spearman"))
+  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "05_copyKAT.R"), " --sample_id ", sample_id, " --n_core ", 32, " --distance ", "spearman", " --use_reference ", "ref"))
 
-  # We run and explore infercnv using immune and endothelium cells as reference
-  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "both"))
+  
+  # We run and explore copykat using euclidian distance parameter and without normal cell as reference
+  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "05_copyKAT.R"), " --sample_id ", sample_id, " --n_core ", 32, " --distance ", "euclidean", " --use_reference ", "noref"))
+  
+  # We run and explore copykat using spearman distance parameter and without normal cell as reference
+  
+  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "05_copyKAT.R"), " --sample_id ", sample_id, " --n_core ", 32, " --distance ", "spearman", " --use_reference ", "noref"))
+  
   
   # We run and explore infercnv using immune cells as reference
   system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "immune"))

@@ -101,7 +101,7 @@ if (!running_ci) {
                     output_dir = notebook_output_dir)
   
   # Run infercnv and copykat for a selection of samples
-  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "run-cnv.R")))
+  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "explore-cnv-methods.R")))
   
 }
 
