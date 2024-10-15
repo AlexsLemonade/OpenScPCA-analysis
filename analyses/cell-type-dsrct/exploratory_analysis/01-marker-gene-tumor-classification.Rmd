@@ -63,13 +63,11 @@ metadata_DSRCT <- dplyr::filter(metadata, diagnosis == 'Desmoplastic small round
 
 
 ```{r paths}
-sce_file_list <- list()
-for (i in 1:dim(metadata_DSRCT)[1])
-{
-  # Input files
-  sce_file <- paste0(metadata_DSRCT$scpca_library_id[i], '_processed.rds')
-  sce_file_list[[i]] <- file.path(data_dir, "SCPCP000013", metadata_DSRCT$scpca_sample_id[i], sce_file)
-}
+sce_file_list <- file.path(
+  data_dir, "SCPCP000013",  
+  metadata_DSRCT$scpca_sample_id, 
+  paste0(metadata_DSRCT$scpca_library_id, "_processed.rds")
+)
 
 marker_genes <- file.path(module_base, "references", "tumor-marker-genes.tsv")
 
@@ -83,13 +81,10 @@ fs::dir_create(results_dir)
 
 Read in each data as a separate object `SingleCellExperiment` in the list. 
 ```{r}
-sce_list <- lapply(sce_file_list, function(x){
-  # read in processed sce
-  sce <- readr::read_rds(x)
-})
+sce_list <- lapply(sce_file_list, readr::read_rds)
 
 #adding the sample id to the name of each SingleCellExperiment
-names(sce_list) <- metadata_DSRCT$scpca_sample_id
+names(sce_list) <- metadata_DSRCT$scpca_library_id
 
 # read in marker genes table 
 marker_genes_df <- readr::read_tsv(marker_genes) |> 
