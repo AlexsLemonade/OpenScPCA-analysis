@@ -8,12 +8,9 @@
 # - A fetal kidney atlas (Stewart) obtained from CELLxGENE. This is saved to <output_dir>/stewart_formatted_ref.rds
 # - A fetal organ reference (Cao) obtained from Azimuth. This is saved to <output_dir>/cao_formatted_ref.rds
 #
-# The script also downloads and saves an ID mapping file from Azimuth which will be used to convert ensembl IDs to
-#  gene names during label transfer. This is saved to <output_dir>/homologs.rds
-#
 # USAGE:
 # Rscript prepare-fetal-references.R \
-#   --kidney_url https://datasets.cellxgene.cziscience.com/40ebb8e4-1a25-4a33-b8ff-02d1156e4e9b.rds \
+#   --kidney_ref_file ../scratch/fetal_kidney.rds \
 #   --output_dir ../results/references \
 #   --seed 2024
 #
@@ -26,22 +23,16 @@ library(Azimuth)
 # set up arguments
 option_list <- list(
   make_option(
-    opt_str = c("-u", "--kidney_url"),
+    opt_str = c("--kidney_ref_file"),
     type = "character",
-    default = "https://datasets.cellxgene.cziscience.com/40ebb8e4-1a25-4a33-b8ff-02d1156e4e9b.rds",
-    help = "The URL of the fetal kidney atlas from CELLxGENE"
-  ),
-  make_option(
-    opt_str = c("--homologs_url"),
-    type = "character",
-    default = "https://seurat.nygenome.org/azimuth/references/homologs.rds",
-    help = "The URL of the homologs.rds file from Azimuth"
+    default = "scratch/fetal_kidney.rds",
+    help = "The relative path from the current directory to the fetal kidney atlas downloaded from CELLxGENE"
   ),
   make_option(
     opt_str = c("-d", "--output_dir"),
     type = "character",
     default = "results/references",
-    help = "Output directory for the Azimuth references, relative to the module directory"
+    help = "Output directory for the Azimuth references, relative to the current directory"
   ),
   make_option(
     opt_str = c("-s", "--seed"),
@@ -112,31 +103,16 @@ prepare_azimuth_reference <- function(reference, annotation_levels) {
 
 # Define paths -------------------------------------------
 
-project_root <- rprojroot::find_root(rprojroot::is_git_root)
-module_dir <- file.path(
-  project_root,
-  "analyses",
-  "cell-type-wilms-tumor-06"
-)
-
 
 # Create output directory and define paths for final reference files
-output_dir <- file.path(
-  module_dir,
-  opts$output_dir
-)
-dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(opts$output_dir, recursive = TRUE, showWarnings = FALSE)
 stewart_ref_file <- file.path(
-  output_dir,
+  opts$output_dir,
   "stewart_formatted_ref.rds"
 )
 cao_ref_file <- file.path(
-  output_dir,
+  opts$output_dir,
   "cao_formatted_ref.rds"
-)
-homologs_file <- file.path(
-  output_dir,
-  "homologs.rds"
 )
 
 # Define the annotation levels to use for each reference ----------------
@@ -146,18 +122,11 @@ cao_annotation_levels <- c("annotation.l1", "annotation.l2", "organ")
 
 # Prepare Stewart (fetal kidney) reference ------------------------------
 
-# path where downloaded RDS file will be stored
-path_to_data <- file.path(
-  module_dir,
-  "scratch",
-  "fetal_kidney.rds"
-)
-
-# Download data
-download.file(url = opts$kidney_url, destfile = path_to_data)
-
 # Read in data
-seurat <- readRDS(path_to_data)
+if (!file.exists(opts$kidney_ref_file)) {
+  stop("The kidney reference file does not exist. Make sure to run download-reference-files.R to download it first.")
+}
+seurat <- readRDS(opts$kidney_ref_file)
 
 # Transform and dimension reduction
 set.seed(opts$seed)
@@ -197,7 +166,6 @@ stewart_ref_list <- prepare_azimuth_reference(fetal_kidney, stewart_annotation_l
 saveRDS(stewart_ref_list, stewart_ref_file)
 
 
-
 # Prepare Cao (full fetal organ) reference ------------------------------
 
 # Load in the reference, keeping only the $map portion
@@ -209,7 +177,3 @@ cao_ref_list <- prepare_azimuth_reference(fetus_ref, cao_annotation_levels)
 
 # export formatted reference
 saveRDS(cao_ref_list, cao_ref_file)
-
-
-# Finally, download the ID mapping file from Seurat ---------------------
-download.file(url = opts$homologs_url, destfile = homologs_file)
