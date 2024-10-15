@@ -13,22 +13,22 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - "analyses/cell-type-nonETP-ALL-03/Dockerfile"
-  #     - "analyses/cell-type-nonETP-ALL-03/.dockerignore"
-  #     - "analyses/cell-type-nonETP-ALL-03/renv.lock"
-  #     - "analyses/cell-type-nonETP-ALL-03/conda-lock.yml"
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - "analyses/cell-type-nonETP-ALL-03/Dockerfile"
-  #     - "analyses/cell-type-nonETP-ALL-03/.dockerignore"
-  #     - "analyses/cell-type-nonETP-ALL-03/renv.lock"
-  #     - "analyses/cell-type-nonETP-ALL-03/conda-lock.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "analyses/cell-type-nonETP-ALL-03/Dockerfile"
+      - "analyses/cell-type-nonETP-ALL-03/.dockerignore"
+      - "analyses/cell-type-nonETP-ALL-03/renv.lock"
+      - "analyses/cell-type-nonETP-ALL-03/conda-lock.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "analyses/cell-type-nonETP-ALL-03/Dockerfile"
+      - "analyses/cell-type-nonETP-ALL-03/.dockerignore"
+      - "analyses/cell-type-nonETP-ALL-03/renv.lock"
+      - "analyses/cell-type-nonETP-ALL-03/conda-lock.yml"
   workflow_dispatch:
     inputs:
       push-ecr:
