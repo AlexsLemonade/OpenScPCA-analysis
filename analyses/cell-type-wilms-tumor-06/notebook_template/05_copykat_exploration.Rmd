@@ -1,7 +1,7 @@
 ---
 title: "Copykat CNV results exploration for `r params$sample_id`"
 author: "Maud PLASCHKA"
-date: '2024-08-13'
+date: "`r Sys.Date()`"
 params:
   sample_id: "SCPCS000194"
   seed: 12345
