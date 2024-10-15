@@ -35,7 +35,21 @@ metadata <- read.table(sample_metadata_file, sep = "\t", header = TRUE)
 module_base <- file.path(root_dir, "analyses", "cell-type-wilms-tumor-06")
 
 # Download and create the references for label transfer, and download the homolog file for ID mapping ----------
-system(command = glue::glue("Rscript ", file.path(module_base, "scripts", "download-reference-files.R")))
+kidney_ref_file <- file.path(module_base, "scratch", "kidney_ref.rds")
+homologs_file <- file.path(module_base, "scratch", "homologs.rds")
+if (!file.exists(kidney_ref_file)) {
+  download.file(
+    url = "https://datasets.cellxgene.cziscience.com/40ebb8e4-1a25-4a33-b8ff-02d1156e4e9b.rds",
+    destfile = kidney_ref_file
+  )
+}
+
+if (!file.exists(homologs_file)) {
+  download.file(
+    url = "https://seurat.nygenome.org/azimuth/references/homologs.rds",
+    destfile = homologs_file
+  )
+}
 system(command = glue::glue("Rscript ", file.path(module_base, "scripts", "prepare-fetal-references.R")))
 
 # We build the gene position file reference for infercnv ------------------------

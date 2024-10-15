@@ -124,7 +124,7 @@ cao_annotation_levels <- c("annotation.l1", "annotation.l2", "organ")
 
 # Read in data
 if (!file.exists(opts$kidney_ref_file)) {
-  stop("The kidney reference file does not exist. Make sure to run download-reference-files.R to download it first.")
+  stop("The kidney reference file could not be found.")
 }
 seurat <- readRDS(opts$kidney_ref_file)
 
