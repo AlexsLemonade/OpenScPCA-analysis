@@ -1,4 +1,7 @@
 ## Exploratory analysis
+
+#### CNV analysis
+Scripts to run exploratory CNV analysis, including running `CopyKat` and `inferCNV`.
 ```bash
 cd /path/to/OpenScPCA-analysis
 cd analyses/cell-type-wilms-tumor-14

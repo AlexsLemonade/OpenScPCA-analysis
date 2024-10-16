@@ -76,3 +76,5 @@ sudo apt install -y libglpk40 \
 
 Analysis could be executed on a virtual computer ([Standard-4XL](https://openscpca.readthedocs.io/en/latest/aws/lsfr/creating-vcs/)) via AWS Lightsail for Research.
 
+## Exploratory analysis
+In addition to the main pipeline, some exloratory analysis in R notebooks are added into the `./exploratory_analysis` folder, including CNV analysis. Check `./exploratory_analysis/README.md` for more details.
