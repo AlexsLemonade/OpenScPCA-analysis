@@ -137,7 +137,7 @@ We gather from the litterature marker genes and specific genomic alterations tha
 
 ## Clustering and label transfer from fetal references
 
-R Script to be rendered : `00_run_workflow.sh`
+Bash script to be run : `00_run_workflow.sh`
 
 ### Introduction
 
