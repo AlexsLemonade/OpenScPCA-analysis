@@ -7,7 +7,7 @@ params:
   lfc_threshold: 1
   rate1_threshold: 0.5
   seed: 12345
-  fetal_kidney_path: "scratch/fetal_kidney.rds"
+  fetal_kidney_path: "../scratch/fetal_kidney.rds"
 output: 
   html_document: 
     toc: yes
