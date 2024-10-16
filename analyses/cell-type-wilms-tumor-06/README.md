@@ -253,7 +253,6 @@ The `renv` lockfile is used to install R packages in the Docker image.
 
 ## Computational resources
 
-
 ## References 
 
 - [1] https://www.ncbi.nlm.nih.gov/books/NBK373356/ 
