@@ -9,7 +9,6 @@ jobs:
   pre-commit:
     if: github.repository_owner == 'AlexsLemonade'
     runs-on: ubuntu-latest
-    name: Run Pre-commit
 
     steps:
       - uses: actions/checkout@v4
