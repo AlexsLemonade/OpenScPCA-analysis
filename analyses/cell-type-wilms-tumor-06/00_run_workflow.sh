@@ -26,9 +26,6 @@ notebook_output_dir="notebook"
 # Download and create the fetal kidney reference (Stewart et al)
 Rscript scripts/download-and-create-fetal-kidney-ref.R
 
-# Build the gene position file reference for infercnv
-Rscript scripts/06a_build-geneposition.R
-
 # Characterize the fetal kidney reference (Stewart et al.)
 Rscript -e "rmarkdown::render('${notebook_template_dir}/00b_characterize_fetal_kidney_reference_Stewart.Rmd',
     output_format = 'html_document',
@@ -90,6 +87,9 @@ if [[ $IS_CI -eq 0 ]]; then
                   output_format = 'html_document',
                   output_file = '04_annotation_Across_Samples_exploration.html',
                   output_dir = ${notebook_output_dir})"
+
+  # Build the gene position file reference for infercnv
+  Rscript scripts/06a_build-geneposition.R
 
   # Run infercnv and copykat for a selection of samples
   # This script calls scripts/05_copyKAT.R and scripts/06_infercnv.R
