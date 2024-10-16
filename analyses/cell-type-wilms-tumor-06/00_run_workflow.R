@@ -34,95 +34,78 @@ metadata <- read.table(sample_metadata_file, sep = "\t", header = TRUE)
 # set path to this module--------------------------------------------------------
 module_base <- file.path(root_dir, "analyses", "cell-type-wilms-tumor-06")
 
-# Download and create the references for label transfer, and download the homolog file for ID mapping ----------
-kidney_ref_url <- "https://datasets.cellxgene.cziscience.com/40ebb8e4-1a25-4a33-b8ff-02d1156e4e9b.rds"
-kidney_ref_file <- file.path(module_base, "scratch", "fetal_kidney.rds")
-if (!file.exists(kidney_ref_file)) {
-  download.file(kidney_ref_url, kidney_ref_file)
-}
-
-homologs_url <- "https://seurat.nygenome.org/azimuth/references/homologs.rds"
-homologs_file <- file.path(module_base, "scratch", "homologs.rds")
-if (!file.exists(homologs_file)) {
-  download.file(homologs_url, homologs_file)
-}
-
-system(command = glue::glue(
-  "Rscript {file.path(module_base, 'scripts', 'prepare-fetal-references.R')} --kidney_ref_file {kidney_ref_file}"
-))
+# Download and create the fetal kidney reference (Stewart et al) ----------
+system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "download-and-create-fetal-kidney-ref.R")))
 
 # We build the gene position file reference for infercnv ------------------------
 system(command = glue::glue("Rscript ", file.path(module_base, "scripts", "06a_build-geneposition.R")))
 
-# Characterize the fetal kidney reference -----------------------------------------
+# Characterize the two fetal references -----------------------------------------
 
+# Characterize the fetal full reference (Cao et al.)
+# To be done, next PR
 notebook_template_dir <- file.path(module_base, "notebook_template")
 notebook_output_dir <- file.path(module_base, "notebook")
 # Characterize the fetal kidney reference (Stewart et al.)
-rmarkdown::render(
-  input = file.path(notebook_template_dir, "00b_characterize_fetal_kidney_reference_Stewart.Rmd"),
-  output_format = "html_document",
-  output_file = "00b_characterization_fetal_kidney_reference_Stewart.html",
-  output_dir = file.path(notebook_output_dir, "00-reference"),
-  params = list(fetal_kidney_path = kidney_ref_file)
-)
+rmarkdown::render(input = file.path(notebook_template_dir, "00b_characterize_fetal_kidney_reference_Stewart.Rmd"),
+                  output_format = "html_document",
+                  output_file = "00b_characterization_fetal_kidney_reference_Stewart.html",
+                  output_dir = file.path(notebook_output_dir, "00-reference"))
 
 
 # Run the workflow for (all) samples in the project -----------------------------
 for (sample_id in metadata$scpca_sample_id) {
+
   # create a directory to save the pre-processed and labeled `Seurat` objects
   dir.create(file.path(module_base, "results", sample_id), showWarnings = FALSE)
   # create a directory to save the notebooks
   dir.create(file.path(module_base, "notebook", sample_id), showWarnings = FALSE)
 
   # Pre-process the data - `Seurat` workflow
-  rmarkdown::render(
-    input = file.path(notebook_template_dir, "01_seurat-processing.Rmd"),
-    params = list(scpca_project_id = project_id, sample_id = sample_id),
-    output_format = "html_document",
-    output_file = paste0("01_seurat_processing_", sample_id, ".html"),
-    output_dir = file.path(notebook_output_dir, sample_id)
-  )
+  rmarkdown::render(input = file.path(notebook_template_dir, "01_seurat-processing.Rmd"),
+                    params = list(scpca_project_id = project_id, sample_id = sample_id),
+                    output_format = "html_document",
+                    output_file = paste0("01_seurat_processing_", sample_id, ".html"),
+                    output_dir = file.path(notebook_output_dir,  sample_id))
 
   if (!running_ci) {
     # Label transfer from the Cao reference using Azimuth
-    rmarkdown::render(
-      input = file.path(notebook_template_dir, "02a_label-transfer_fetal_full_reference_Cao.Rmd"),
-      params = list(scpca_project_id = project_id, sample_id = sample_id),
-      output_format = "html_document",
-      output_file = paste0("02a_fetal_all_reference_Cao_", sample_id, ".html"),
-      output_dir = file.path(notebook_output_dir, sample_id)
-    )
+    rmarkdown::render(input = file.path(notebook_template_dir, "02a_label-transfer_fetal_full_reference_Cao.Rmd"),
+                      params = list(scpca_project_id = project_id, sample_id = sample_id),
+                      output_format = "html_document",
+                      output_file = paste0("02a_fetal_all_reference_Cao_", sample_id, ".html"),
+                      output_dir = file.path(notebook_output_dir, sample_id))
 
     # Label transfer from the Stewart reference using Seurat
-    rmarkdown::render(
-      input = file.path(notebook_template_dir, "02b_label-transfer_fetal_kidney_reference_Stewart.Rmd"),
-      params = list(scpca_project_id = project_id, sample_id = sample_id),
-      output_format = "html_document",
-      output_file = paste0("02b_fetal_kidney_reference_Stewart_", sample_id, ".html"),
-      output_dir = file.path(notebook_output_dir, sample_id)
-    )
-
+    rmarkdown::render(input = file.path(notebook_template_dir, "02b_label-transfer_fetal_kidney_reference_Stewart.Rmd"),
+                      params = list(scpca_project_id = project_id, sample_id = sample_id),
+                      output_format = "html_document",
+                      output_file = paste0("02b_fetal_kidney_reference_Stewart_", sample_id, ".html"),
+                      output_dir = file.path(notebook_output_dir, sample_id))
+    
     # Cluster exploration
-    rmarkdown::render(
-      input = file.path(notebook_template_dir, "03_clustering_exploration.Rmd"),
-      params = list(scpca_project_id = project_id, sample_id = sample_id),
-      output_format = "html_document",
-      output_file = paste0("03_clustering_exploration_", sample_id, ".html"),
-      output_dir = file.path(notebook_output_dir, sample_id)
-    )
+    rmarkdown::render(input = file.path(notebook_template_dir, "03_clustering_exploration.Rmd"),
+                      params = list(scpca_project_id = project_id, sample_id = sample_id),
+                      output_format = "html_document",
+                      output_file = paste0("03_clustering_exploration_", sample_id, ".html"),
+                      output_dir = file.path(notebook_output_dir, sample_id))
+
   }
 }
 
 if (!running_ci) {
   # Run notebook template to explore label transfer and clustering for all samples at once
-  rmarkdown::render(
-    input = file.path(notebook_output_dir, "04_annotation_Across_Samples_exploration.Rmd"),
-    output_format = "html_document",
-    output_file = "04_annotation_Across_Samples_exploration.html",
-    output_dir = notebook_output_dir
-  )
-
+  rmarkdown::render(input = file.path(notebook_output_dir, "04_annotation_Across_Samples_exploration.Rmd"),
+                    output_format = "html_document",
+                    output_file = "04_annotation_Across_Samples_exploration.html",
+                    output_dir = notebook_output_dir)
+  
   # Run infercnv and copykat for a selection of samples
-  system(command = glue::glue("Rscript ", file.path(module_base, "scripts", "explore-cnv-methods.R")))
+  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "explore-cnv-methods.R")))
+  
 }
+
+
+
+
+
