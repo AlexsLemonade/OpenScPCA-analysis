@@ -19,7 +19,7 @@ The analysis is/will be divided as the following:
 - [x] Metadata file: compilation of a metadata file of marker genes for expected cell types that will be used for validation at a later step
 - [x] Script: clustering of cells across a set of parameters for few samples
 - [x] Script: label transfer from the fetal kidney atlas reference using runAzimuth
-- [ ] Script: run InferCNV
+- [x] Script: run copykat and inferCNV
 - [ ] Notebook: explore results from steps 2 to 4 for about 5 to 10 samples
 - [ ] Script: compile scripts 2 to 4 in a RMardown file with required adjustements and render it across all samples
 - [ ] Notebook: explore results from step 6, integrate all samples together and annotate the dataset using (i) metadatafile, (ii) CNV information, (iii) label transfer information
@@ -252,7 +252,6 @@ You can install packages within the container and use `renv::snapshot()` to upda
 The `renv` lockfile is used to install R packages in the Docker image.
 
 ## Computational resources
-
 
 ## References
 
