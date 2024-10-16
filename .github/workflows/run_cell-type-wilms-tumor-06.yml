@@ -57,9 +57,13 @@ jobs:
         with:
           working-directory: ${{ env.MODULE_PATH }}
 
-      # Update this step as needed to download the desired data
-      - name: Download test data
-        run: ./download-data.py --test-data --format SCE --projects SCPCP000006
+      - name: Download test data in SCE format
+        env:
+          # Use all samples for testing unless this is triggered by a PR, in which case only use a subset of samples for faster testing
+          # These samples were selected because they are the subset of samples explored when evaluating CNV methods,
+          # so they must be present to run the module workflow in full.
+          DOWNLOAD_FLAG: ${{ github.event_name != 'pull_request' && '--projects SCPCP000006' || '--samples SCPCS000179,SCPCS000184,SCPCS000194,SCPCS000205,SCPCS0000208' }}
+        run: ./download-data.py --test-data --format SCE ${DOWNLOAD_FLAG}
 
       - name: Run analysis module
         run: TESTING=1 bash 00_run_workflow.sh
