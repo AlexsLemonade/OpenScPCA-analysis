@@ -29,10 +29,9 @@ run_sam <- function(ind.sample, ind.library){
   sam$preprocess_data()
   sam$run(distance = 'correlation')
   sam$clustering(method = "leiden") #leiden clustering is the default algorithm in SAM
-  sam$save_anndata(paste0("sam.",ind.sample,".h5ad"))
+  sam$save_anndata(paste0("sam.",ind.library,".h5ad"))
   
-  
-  final.obj <- schard::h5ad2seurat(paste0("sam.",ind.sample,".h5ad"))
+  final.obj <- schard::h5ad2seurat(paste0("sam.",ind.library,".h5ad"))
   final.obj <- AddMetaData(final.obj, as.data.frame(colData(sce)))
   final.obj[["RNA"]]@counts <- counts(sce)
   final.obj[["RNA"]] <- AddMetaData(final.obj[["RNA"]], as.data.frame(rowData(sce)))
@@ -43,12 +42,8 @@ run_sam <- function(ind.sample, ind.library){
   final.obj[["ADT"]]@data <- logcounts(altExp(sce, "adt"))
   final.obj[["ADT"]] <- AddMetaData(final.obj[["ADT"]], as.data.frame(rowData(altExp(sce, "adt"))))
   
-  saveRDS(final.obj, file.path(out_loc,"results/rds",paste0(ind.sample,".rds")))
-  unlink(paste0("sam.",ind.sample,".h5ad"))
-
-  DimPlot(final.obj, reduction = "Xumap_", group.by = "leiden_clusters", label = T) + 
-    ggtitle(paste0(ind.sample,": leiden_clusters"))
-  ggsave(file.path(out_loc,"plots",paste0(ind.sample,"_leidenCluster.pdf")), width = 7, height = 7)
+  saveRDS(final.obj, file.path(out_loc,"results/rds",paste0(ind.library,".rds")))
+  unlink(paste0("sam.",ind.library,".h5ad"))
 }
 
 project_root  <- rprojroot::find_root(rprojroot::is_git_root)
@@ -56,6 +51,7 @@ projectID <- "SCPCP000003"
 out_loc <- file.path(project_root, "analyses/cell-type-nonETP-ALL-03")
 data_loc <- file.path(project_root, "data/current",projectID)
 doublet_loc <- file.path(project_root, "data/current/results/doublet-detection",projectID)
+dir.create(file.path(out_loc, "results/rds"), showWarnings = FALSE)
 
 metadata <- read.table(file.path(data_loc,"single_cell_metadata.tsv"), sep = "\t", header = T)
 metadata <- metadata[which(metadata$scpca_project_id == projectID &
