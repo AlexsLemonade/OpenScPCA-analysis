@@ -19,6 +19,8 @@ It is not meant to be run as a standalone action.
 
 ## Repository maintenance
 
+* `pre-commit.yml` runs pre-commit checks defined by the `.pre-commit-config.yaml` file.
+  When modules reach the development stage where they should be automatically checked, they should be added to this text file.
 * `spellcheck.yml` performs spell checking of markdown and R Markdown documents.
 * `code-styling.yml` performs code styling using `styler` and `ruff`.
   * This workflow also consumes `modules_code-styling.txt` to determine which modules to style.
