@@ -22,17 +22,18 @@ data_dir="../../data/current"
 notebook_template_dir="notebook_template"
 notebook_output_dir="notebook"
 
-# Download files used for label tranfer:
+# Download files used for label transfer
+# We'll define file names with absolute paths for robustness
 
 # First, download the fetal kidney reference (Stewart et al)
 kidney_ref_url="https://datasets.cellxgene.cziscience.com/40ebb8e4-1a25-4a33-b8ff-02d1156e4e9b.rds"
-kidney_ref_file="scratch/fetal_kidney.rds"
+kidney_ref_file="${PWD}/scratch/fetal_kidney.rds"
 if [[ ! -f $kidney_ref_file ]]; then
   curl -o $kidney_ref_file $kidney_ref_url
 fi
 # Second, download the homologs file for gene ID conversion
 homologs_url="https://seurat.nygenome.org/azimuth/references/homologs.rds"
-homologs_file="scratch/homologs.rds"
+homologs_file="${PWD}/scratch/homologs.rds"
 if [[ ! -f $homologs_file ]]; then
   curl -o $homologs_file $homologs_url
 fi
@@ -45,7 +46,7 @@ Rscript -e "rmarkdown::render('${notebook_template_dir}/00b_characterize_fetal_k
     output_format = 'html_document',
     output_file = '00b_characterization_fetal_kidney_reference_Stewart.html',
     output_dir = '${notebook_output_dir}/00-reference',
-    params = list(fetal_kidney_path = '../${kidney_ref_file}'))" # path relative to notebook
+    params = list(fetal_kidney_path = '${kidney_ref_file}'))"
 
 
 # Run the label transfer and cluster exploration for all samples in the project
