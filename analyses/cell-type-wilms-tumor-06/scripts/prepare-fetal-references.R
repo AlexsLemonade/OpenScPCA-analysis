@@ -168,7 +168,9 @@ saveRDS(stewart_ref_list, stewart_ref_file)
 
 # Prepare Cao (full fetal organ) reference ------------------------------
 
-# Load in the reference, keeping only the $map portion
+# Install and load in the reference, keeping only the $map portion
+options(timeout = 600) # often needed for SeuratData installs
+SeuratData::InstallData("fetusref")
 fetus_ref <- SeuratData::LoadData("fetusref", type = "azimuth")$map
 
 
