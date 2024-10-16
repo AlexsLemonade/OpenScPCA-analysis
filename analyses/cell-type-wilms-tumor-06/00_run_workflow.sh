@@ -51,7 +51,7 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
 
     # Pre-process the data - `Seurat` workflow
     Rscript -e "rmarkdown::render('${notebook_template_dir}/01_seurat-processing.Rmd',
-                    params = list(scpca_project_id = ${project_id}, sample_id = ${sample_id}),
+                    params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}'),
                     output_format = 'html_document',
                     output_file = '01_seurat_processing_${sample_id}.html',
                     output_dir = '${sample_notebook_dir}')"
@@ -61,21 +61,21 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
 
         # Label transfer from the Cao reference using Azimuth
         Rscript -e "rmarkdown::render('${notebook_template_dir}/02a_label-transfer_fetal_full_reference_Cao.Rmd',
-                        params = list(scpca_project_id = ${project_id}, sample_id = ${sample_id}),
+                        params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}'),
                         output_format = 'html_document',
                         output_file = '02a_fetal_all_reference_Cao_${sample_id}.html',
                         output_dir = '${sample_notebook_dir}')"
 
         # Label transfer from the Stewart reference using Seurat
         Rscript -e "rmarkdown::render('${notebook_template_dir}/02a_label-transfer_fetal_full_reference_Stewart.Rmd',
-                        params = list(scpca_project_id = ${project_id}, sample_id = ${sample_id}),
+                        params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}'),
                         output_format = 'html_document',
                         output_file = '02a_fetal_all_reference_Stewart_${sample_id}.html',
                         output_dir = '${sample_notebook_dir}')"
 
         # Cluster exploration
         Rscript -e "rmarkdown::render('${notebook_template_dir}/03_clustering_exploration.Rmd',
-                        params = list(scpca_project_id = ${project_id}, sample_id = ${sample_id}),
+                        params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}'),
                         output_format = 'html_document',
                         output_file = '03_clustering_exploration_${sample_id}.html',
                         output_dir = '${sample_notebook_dir}')"
