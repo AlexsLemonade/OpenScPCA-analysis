@@ -34,28 +34,16 @@ metadata <- read.table(sample_metadata_file, sep = "\t", header = TRUE)
 # set path to this module--------------------------------------------------------
 module_base <- file.path(root_dir, "analyses", "cell-type-wilms-tumor-06")
 
-# Download and create the references for label transfer, and download the homolog file for ID mapping ----------
-kidney_ref_url <- "https://datasets.cellxgene.cziscience.com/40ebb8e4-1a25-4a33-b8ff-02d1156e4e9b.rds"
-kidney_ref_file <- file.path(module_base, "scratch", "fetal_kidney.rds")
-if (!file.exists(kidney_ref_file)) {
-  download.file(kidney_ref_url, kidney_ref_file)
-}
-
-homologs_url <- "https://seurat.nygenome.org/azimuth/references/homologs.rds"
-homologs_file <- file.path(module_base, "scratch", "homologs.rds")
-if (!file.exists(homologs_file)) {
-  download.file(homologs_url, homologs_file)
-}
-
-system(command = glue::glue(
-  "Rscript {file.path(module_base, 'scripts', 'prepare-fetal-references.R')} --kidney_ref_file {kidney_ref_file}"
-))
+# Download and create the fetal kidney reference (Stewart et al) ----------
+system(command = glue::glue("Rscript ", file.path(module_base, "scripts", "download-and-create-fetal-kidney-ref.R")))
 
 # We build the gene position file reference for infercnv ------------------------
 system(command = glue::glue("Rscript ", file.path(module_base, "scripts", "06a_build-geneposition.R")))
 
-# Characterize the fetal kidney reference -----------------------------------------
+# Characterize the two fetal references -----------------------------------------
 
+# Characterize the fetal full reference (Cao et al.)
+# To be done, next PR
 notebook_template_dir <- file.path(module_base, "notebook_template")
 notebook_output_dir <- file.path(module_base, "notebook")
 # Characterize the fetal kidney reference (Stewart et al.)
@@ -63,8 +51,7 @@ rmarkdown::render(
   input = file.path(notebook_template_dir, "00b_characterize_fetal_kidney_reference_Stewart.Rmd"),
   output_format = "html_document",
   output_file = "00b_characterization_fetal_kidney_reference_Stewart.html",
-  output_dir = file.path(notebook_output_dir, "00-reference"),
-  params = list(fetal_kidney_path = kidney_ref_file)
+  output_dir = file.path(notebook_output_dir, "00-reference")
 )
 
 
