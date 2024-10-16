@@ -43,13 +43,13 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Install aws-cli to support the data download
+      - name: Install aws-cli
         run: |
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip
           sudo ./aws/install
 
-      - name: Download test data in SCE format
+      - name: Download test data
         env:
           # Use all samples for testing unless this is triggered by a PR, in which case only use a subset of samples for faster testing
           # These samples were selected because they are the subset of samples explored when evaluating CNV methods,
