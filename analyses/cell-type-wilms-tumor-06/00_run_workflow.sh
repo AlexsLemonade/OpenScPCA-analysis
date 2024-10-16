@@ -96,10 +96,3 @@ if [[ $IS_CI -eq 0 ]]; then
   Rscript scripts/explore-cnv-methods.R
 
 fi
-
-
-
-
-
-
-
