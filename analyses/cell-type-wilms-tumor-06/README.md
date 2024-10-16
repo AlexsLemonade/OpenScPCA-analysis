@@ -137,11 +137,11 @@ We gather from the litterature marker genes and specific genomic alterations tha
 
 ## Clustering and label transfer from fetal references
 
-R Script to be rendered : `00_run_workflow.R`
+Bash script to be run : `00_run_workflow.sh`
 
 ### Introduction
 
-The `00_run_workflow.R` contains the following steps:
+The `00_run_workflow.sh` contains the following steps:
 
 - define paths
 
@@ -262,4 +262,3 @@ The `renv` lockfile is used to install R packages in the Docker image.
 - [3] https://www.science.org/doi/10.1126/science.aat5031
 
 - [4] https://www.science.org/doi/10.1126/science.aba7721
-
