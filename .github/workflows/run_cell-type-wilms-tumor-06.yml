@@ -23,6 +23,7 @@ on:
   pull_request:
     branches:
       - main
+      - feature/*
     paths:
       - analyses/cell-type-wilms-tumor-06/**
       - "!analyses/cell-type-wilms-tumor-06/Dockerfile"
@@ -61,5 +62,5 @@ jobs:
         run: ./download-data.py --test-data --format SCE --projects SCPCP000006
 
       - name: Run analysis module
-        run: Rscript 00_run_workflow.R --testing
+        run: TESTING=1 bash 00_run_workflow.sh
         working-directory: ${{ env.MODULE_PATH }}
