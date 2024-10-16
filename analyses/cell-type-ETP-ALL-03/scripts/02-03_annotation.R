@@ -119,7 +119,14 @@ run_annot <- function(ind.lib){
   seu <- plot_modulescore(gs_list, seu, ind.lib)
   
   #using copykat for tumor cells identification
-  norm.cells <- colnames(seu)[which(seu$sctype_classification=="B")]
+  special.lib <- c("SCPCL000055","SCPCL000066","SCPCL000709","SCPCL000696")
+  special.norm <- c(15,11,13,18) ## from manual checking of B cells location (should be separated if possible)
+  if (ind.lib %in% special.lib){
+    norm.cells <- colnames(seu)[which(seu$leiden_clusters == special.norm[match(ind.lib,special.lib)])]
+  }else{
+    norm.cells <- colnames(seu)[which(seu$sctype_classification=="B")]
+  }
+
   n_cores <- parallel::detectCores() - 1
   if (length(norm.cells) > 0){    #the sample has B cells annotated
     copykat.test <- copykat(rawmat=seu@assays[["RNA"]]@counts, id.type="Ensemble",
