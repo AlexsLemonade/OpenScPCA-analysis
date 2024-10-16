@@ -22,9 +22,23 @@ data_dir="../../data/current"
 notebook_template_dir="notebook_template"
 notebook_output_dir="notebook"
 
+# Download files used for label tranfer:
 
-# Download and create the fetal kidney reference (Stewart et al)
-Rscript scripts/download-and-create-fetal-kidney-ref.R
+# First, download the fetal kidney reference (Stewart et al)
+kidney_ref_url="https://datasets.cellxgene.cziscience.com/40ebb8e4-1a25-4a33-b8ff-02d1156e4e9b.rds"
+kidney_ref_file="scratch/fetal_kidney.rds"
+if [[ ! -f $kidney_ref_file ]]; then
+  curl -o $kidney_ref_file $kidney_ref_url
+fi
+# Second, download the homologs file for gene ID conversion
+homologs_url="https://seurat.nygenome.org/azimuth/references/homologs.rds"
+homologs_file="scratch/homologs.rds"
+if [[ ! -f $homologs_file ]]; then
+  curl -o $homologs_file $homologs_url
+fi
+
+# Create the fetal references for label transfer (Stewart et al and Cao et al)
+Rscript scripts/prepare-fetal-references.R --kidney_ref_file "${kidney_ref_file}"
 
 # Characterize the fetal kidney reference (Stewart et al.)
 Rscript -e "rmarkdown::render('${notebook_template_dir}/00b_characterize_fetal_kidney_reference_Stewart.Rmd',
