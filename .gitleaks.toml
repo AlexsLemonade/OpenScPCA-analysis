@@ -5,4 +5,7 @@ useDefault = true
 [allowlist]
 # skip base64 encoded images, which might have substrings that look like tokens
 regexTarget = "line"
-regexes = ['''(?i)<img src="data:image\/.+;base64,.+?".+\/>''']
+regexes = [
+    '''(?i)<img src="data:image\/.+;base64,.+?".+\/>''',
+    '''i--;break;case V\.ui\.keyCode\.END:.+;break;case V\.ui\.keyC'''
+]
