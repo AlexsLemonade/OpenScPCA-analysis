@@ -145,7 +145,7 @@ The `00_run_workflow.sh` contains the following steps:
 
 - define paths
 
-- download and create the fetal kidney reference: `download-and-create-fetal-kidney-ref.R` in `scripts`
+- download and create the references: `prepare-fetal-references.R` in `scripts`
 
 - characterize the fetal kidney reference: `00b_characterize_fetal_kidney_reference_Stewart.Rmd` in `notebook_template`
 
@@ -185,7 +185,6 @@ The data can be found on Zenodo:
 https://zenodo.org/records/4738021#.YJIW4C2ZNQI
 
 The reference contain cells from 15 organs including kidney from fetal samples.
-Here we will use `Azimuth` to transfer labels from the reference.
 
 ### Input and outputs
 
@@ -262,4 +261,3 @@ The `renv` lockfile is used to install R packages in the Docker image.
 - [3] https://www.science.org/doi/10.1126/science.aat5031
 
 - [4] https://www.science.org/doi/10.1126/science.aba7721
-
