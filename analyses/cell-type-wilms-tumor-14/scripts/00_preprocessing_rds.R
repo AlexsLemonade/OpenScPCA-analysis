@@ -24,5 +24,5 @@ source(file = file.path(path_anal,"scripts","utils","00_preprocessing_rds_functi
 purrr::walk2(
   meta$scpca_sample_id,
   meta$scpca_library_id,
-  \(sample, library) process_sce(sample, library, path_proj = path_proj, db_proj = db_proj, path_anal = path_anal, get_logcounts = TRUE)
+  \(sample, library) process_sce(sample, library, path_proj = path_proj, db_proj = db_proj, path_anal = path_anal, get_logcounts = FALSE)
 )
