@@ -1,0 +1,9 @@
+cell_type	gene_symbol	ensembl_gene_id	source
+tumor	ST6GALNAC5	ENSG00000117069	internal
+tumor	CACNA2D2	ENSG00000007402	internal
+tumor	IQCJ-SCHIP1	ENSG00000283154	internal
+tumor	PTPRQ	ENSG00000139304	Internal
+tumor	GAL	ENSG00000069482	https://doi.org/10.1002/gcc.22955
+tumor	GALP	ENSG00000197487	https://doi.org/10.1002/gcc.22955
+tumor	GJB2	ENSG00000165474	https://doi.org/10.1002/gcc.22955
+
