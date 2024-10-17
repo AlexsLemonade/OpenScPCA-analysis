@@ -31,7 +31,7 @@ This would include:
 
 ## Usage
 
-* Run Rscripts with command line
+* Run main pipeline with command line
 ```bash
 cd /path/to/OpenScPCA-analysis
 cd analyses/cell-type-wilms-tumor-14
@@ -75,3 +75,6 @@ sudo apt install -y libglpk40 \
 ## Computational resources
 
 Analysis could be executed on a virtual computer ([Standard-4XL](https://openscpca.readthedocs.io/en/latest/aws/lsfr/creating-vcs/)) via AWS Lightsail for Research.
+
+## Exploratory analysis
+In addition to the main pipeline, some exploratory analysis in R notebooks are added into the `./exploratory_analysis` folder, including CNV analysis. Check `./exploratory_analysis/README.md` for more details.
