@@ -1830,10 +1830,13 @@
     "copykat": {
       "Package": "copykat",
       "Version": "1.1.0",
-      "Source": "git",
-      "RemoteType": "git",
-      "RemoteUrl": "https://github.com/navinlabcode/copykat",
-      "RemoteRef": "",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "navinlabcode",
+      "RemoteRepo": "copykat",
+      "RemoteRef": "master",
+      "RemoteSha": "d7d6569ae9e30bf774908301af312f626de4cbd5",
       "Requirements": [
         "MCMCpack",
         "RColorBrewer",
@@ -1844,7 +1847,7 @@
         "parallel",
         "parallelDist"
       ],
-      "Hash": "c7812efbc20f93d6c9fddcb922cad040"
+      "Hash": "be634c76aad6f3f5bc87d075b41e956b"
     },
     "cowplot": {
       "Package": "cowplot",
