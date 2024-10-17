@@ -33,6 +33,9 @@ jobs:
   run-module:
     if: github.repository_owner == 'AlexsLemonade'
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
 
     steps:
       - name: Checkout repo
@@ -47,16 +50,43 @@ jobs:
       - name: Set up pandoc
         uses: r-lib/actions/setup-pandoc@v2
 
+      - name: Install system dependencies
+        run: |
+          sudo apt-get install -y libcurl4-openssl-dev \
+            libhdf5-dev \
+            libglpk40 \
+            libxml2-dev \
+            libfontconfig1-dev \
+            libharfbuzz-dev \
+            libfribidi-dev \
+            libtiff5-dev
+
       - name: Set up renv
         uses: r-lib/actions/setup-renv@v2
         with:
           working-directory: ${{ env.MODULE_PATH }}
 
+      - name: Set up conda
+      # Note that this creates and activates an environment named 'test' by default
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+
+      - name: Install conda-lock and activate locked conda environment
+        run: |
+          conda install conda-lock
+          conda-lock install --name openscpca-cell-type-ETP-ALL-03 ${MODULE_PATH}/conda-lock.yml
+
       # Update this step as needed to download the desired data
       - name: Download test data
-        run: ./download-data.py --test-data --format SCE
+        run: |
+          ./download-data.py --projects SCPCP000003 --test-data --format SCE
+          ./download-results.py --projects SCPCP000003 --test-data --modules doublet-detection
 
       - name: Run analysis module
         run: |
           cd ${MODULE_PATH}
           # run module script(s) here
+          Rscript scripts/00-01_processing_rds.R
+          Rscript scripts/02-03_annotation.R
+          Rscript scripts/multipanel_plot.R
