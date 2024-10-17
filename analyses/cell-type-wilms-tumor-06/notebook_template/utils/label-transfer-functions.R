@@ -28,11 +28,6 @@ prepare_query <- function(query, reference_rownames, homolog_file = homologs_fil
   # Convert the query (sample) row names from ensembl IDs to gene names to match what
   # the Azimuth reference uses
   # Source: https://github.com/satijalab/azimuth/blob/243ee5db80fcbffa3452c944254a325a3da2ef9e/R/azimuth.R#L99-L104
-  query <- ConvertGeneNames(
-    object = query,
-    reference.names = rownames(x = reference),
-    homolog.table = "https://seurat.nygenome.org/azimuth/references/homologs.rds"
-  )
   query <- Azimuth::ConvertGeneNames(
     object = query,
     reference.names = reference_rownames,
