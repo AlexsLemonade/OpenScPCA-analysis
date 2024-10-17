@@ -17,48 +17,6 @@ library(ggplot2)
 # load cell type annotation function
 source("https://github.com/IanevskiAleksandr/sc-type/raw/6db9eef49f185cf4d79bfec92a20fcf1edcccafb/R/sctype_score_.R")
 
-gene_sets_prepare <- function(path_to_db_file, cell_type){
-  cell_markers = read.csv(path_to_db_file, header = T)
-  cell_markers = cell_markers[cell_markers$tissueType == cell_type,] 
-  cell_markers$ensembl_id_positive_marker = gsub(" ","",cell_markers$ensembl_id_positive_marker); cell_markers$ensembl_id_negative_marker = gsub(" ","",cell_markers$ensembl_id_negative_marker)
-  
-  # correct gene symbols from the given DB (up-genes)
-  cell_markers$ensembl_id_positive_marker = sapply(1:nrow(cell_markers), function(i){
-    markers_all = gsub(" ", "", unlist(strsplit(cell_markers$ensembl_id_positive_marker[i],",")))
-    markers_all = toupper(markers_all[markers_all != "NA" & markers_all != ""])
-    markers_all = sort(markers_all)
-    
-    if(length(markers_all) > 0){
-      suppressMessages({markers_all = unique(na.omit(markers_all))}) #since the markers are provided in Ensembl ID, I removed checkGeneSymbols function here 
-      paste0(markers_all, collapse=",")
-    } else {
-      ""
-    }
-  })
-  
-  # correct gene symbols from the given DB (down-genes)
-  cell_markers$ensembl_id_negative_marker = sapply(1:nrow(cell_markers), function(i){
-    markers_all = gsub(" ", "", unlist(strsplit(cell_markers$ensembl_id_negative_marker[i],",")))
-    markers_all = toupper(markers_all[markers_all != "NA" & markers_all != ""])
-    markers_all = sort(markers_all)
-    
-    if(length(markers_all) > 0){
-      suppressMessages({markers_all = unique(na.omit(markers_all))}) #since the markers are provided in Ensembl ID, I removed checkGeneSymbols function here 
-      paste0(markers_all, collapse=",")
-    } else {
-      ""
-    }
-  })
-  
-  cell_markers$ensembl_id_positive_marker = gsub("///",",",cell_markers$ensembl_id_positive_marker);cell_markers$ensembl_id_positive_marker = gsub(" ","",cell_markers$ensembl_id_positive_marker)
-  cell_markers$ensembl_id_negative_marker = gsub("///",",",cell_markers$ensembl_id_negative_marker);cell_markers$ensembl_id_negative_marker = gsub(" ","",cell_markers$ensembl_id_negative_marker)
-  
-  gs = lapply(1:nrow(cell_markers), function(j) gsub(" ","",unlist(strsplit(toString(cell_markers$ensembl_id_positive_marker[j]),",")))); names(gs) = cell_markers$cellName
-  gs2 = lapply(1:nrow(cell_markers), function(j) gsub(" ","",unlist(strsplit(toString(cell_markers$ensembl_id_negative_marker[j]),",")))); names(gs2) = cell_markers$cellName
-  
-  list(gs_positive = gs, gs_negative = gs2)
-}
-
 running_scType <- function(gs_list, annot.obj, assay = "RNA", thres = 4){
   # check Seurat object version (scRNA-seq matrix extracted differently in Seurat v4/v5)
   seurat_package_v5 <- isFALSE('counts' %in% names(attributes(annot.obj[[assay]])));
@@ -85,7 +43,7 @@ running_scType <- function(gs_list, annot.obj, assay = "RNA", thres = 4){
     cl_type = sctype_scores[sctype_scores$cluster==cluster_num,];
     annot.obj@meta.data$sctype_classification[annot.obj@meta.data$leiden_clusters == cluster_num] = as.character(cl_type$type[1])
   }
-  return (list(annot.obj, cL_results))
+  return (list(annot.obj, cL_results, es.max))
 }
 
 plot_modulescore <- function(gs_list, seu, sample.name){
@@ -113,8 +71,10 @@ run_annot <- function(ind.lib){
   res <- running_scType(gs_list, seu)
   seu <- res[[1]]
   #res[[2]] - A table with top 10 cell types with the highest scores for each cluster
+  #res[[3]] - A cell type x cells table tabulating the ScType score of each cell for all cell types
   write.table(res[[2]], file = file.path(out_loc,"results",paste0(ind.lib,"_sctype_top10_celltypes_perCluster.txt")),
               row.names = F, sep = "\t", quote = F)
+  write.table(t(res[[3]]), file = file.path(out_loc,"results",paste0(ind.lib,"_sctype_scores.txt")), sep = "\t", quote = F)
 
   seu <- plot_modulescore(gs_list, seu, ind.lib)
   
@@ -155,6 +115,8 @@ metadata <- read.table(file.path(data_loc,"single_cell_metadata.tsv"), sep = "\t
 metadata <- metadata[which(metadata$scpca_project_id == projectID &
                              metadata$diagnosis == "Non-early T-cell precursor T-cell acute lymphoblastic leukemia"), ]
 libraryID <- metadata$scpca_library_id
+
+source(file.path(out_loc, "scripts/util/gene-set-functions.R"))
 # DB file
 db <- file.path(out_loc,"Azimuth_BM_level1.csv")
 tissue <- "Immune system"  

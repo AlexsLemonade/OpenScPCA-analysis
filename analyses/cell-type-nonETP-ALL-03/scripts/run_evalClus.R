@@ -11,13 +11,13 @@ run_eval <- function(ind.lib){
   seu <- readRDS(file.path(out_loc,"results/rds",paste0(ind.lib,".rds")))
   clusID.df <- data.frame(FetchData(seu, vars = "leiden_clusters"))|> tibble::rownames_to_column(var = "cell_id")
   colnames(clusID.df)[2] <- "cluster"
-  cluster_df1 <- calculate_silhouette(x = seu, cluster_df = clusID.df, pc_name = "Xpca_")
-  cluster_df2 <- calculate_purity(x = seu, cluster_df = clusID.df, pc_name = "Xpca_")
+  cluster_df1 <- rOpenScPCA::calculate_silhouette(x = seu, cluster_df = clusID.df, pc_name = "Xpca_")
+  cluster_df2 <- rOpenScPCA::calculate_purity(x = seu, cluster_df = clusID.df, pc_name = "Xpca_")
   final_df <- merge(cluster_df1, cluster_df2, by = c("cell_id","cluster"))
   perClus_df <- final_df %>% group_by(cluster) %>%
     summarise(avgSil = mean(silhouette_width), avgPur = mean(purity)) %>%
     data.frame()
-  stability_df <- calculate_stability(x = seu, clusters = clusID.df$cluster, pc_name = "Xpca_",
+  stability_df <- rOpenScPCA::calculate_stability(x = seu, clusters = clusID.df$cluster, pc_name = "Xpca_",
                                       algorithm = "leiden", resolution = 1.0, seed = 10)
   write.table(final_df, sep = "\t", row.names = F, quote = F,
               file = file.path(out_loc,"results/evalClus/",paste0(ind.lib,"_sil-purity_perCell.txt")))
@@ -34,7 +34,7 @@ data_loc <- file.path(project_root, "data/current",projectID)
 dir.create(file.path(out_loc, "results/evalClus"), showWarnings = FALSE)
 
 #loading functions for evaluating clusters
-source(file.path(out_loc,"scripts/evaluate-clusters.R"))
+#source(file.path(out_loc,"scripts/evaluate-clusters.R"))
 
 metadata <- read.table(file.path(data_loc,"single_cell_metadata.tsv"), sep = "\t", header = T)
 metadata <- metadata[which(metadata$scpca_project_id == projectID &
