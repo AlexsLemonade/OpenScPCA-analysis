@@ -22,8 +22,17 @@ jobs:
   doublet-detection:
     uses: ./.github/workflows/run_doublet-detection.yml
 
+  metacells:
+    uses: ./.github/workflows/run_metacells.yml
+
   cell-type-ewings:
     uses: ./.github/workflows/run_cell-type-ewings.yml
+
+  cell-type-wilms-06:
+    uses: ./.github/workflows/run_cell-type-wilms-tumor-06.yml
+
+  cell-type-wilms-14:
+    uses: ./.github/workflows/run_cell-type-wilms-tumor-14.yml
 
   ## Add additional modules above this comment, and to the needs list below
   check-jobs:
