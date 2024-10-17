@@ -3,6 +3,26 @@
     "Version": "4.4.1",
     "Repositories": [
       {
+        "Name": "BioCsoft",
+        "URL": "https://bioconductor.org/packages/3.19/bioc"
+      },
+      {
+        "Name": "BioCann",
+        "URL": "https://bioconductor.org/packages/3.19/data/annotation"
+      },
+      {
+        "Name": "BioCexp",
+        "URL": "https://bioconductor.org/packages/3.19/data/experiment"
+      },
+      {
+        "Name": "BioCworkflows",
+        "URL": "https://bioconductor.org/packages/3.19/workflows"
+      },
+      {
+        "Name": "BioCbooks",
+        "URL": "https://bioconductor.org/packages/3.19/books"
+      },
+      {
         "Name": "CRAN",
         "URL": "https://p3m.dev/cran/latest"
       }
@@ -1028,13 +1048,8 @@
     "Seurat": {
       "Package": "Seurat",
       "Version": "5.1.0",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "seurat",
-      "RemoteUsername": "satijalab",
-      "RemoteRef": "v5.1.0",
-      "RemoteSha": "1549dcb3075eaeac01c925c4b4bb73c73450fc50",
+      "Source": "Repository",
+      "Repository": "RSPM",
       "Requirements": [
         "KernSmooth",
         "MASS",
@@ -1095,7 +1110,7 @@
         "utils",
         "uwot"
       ],
-      "Hash": "9e89609201828df08e9c5df431a73157"
+      "Hash": "aa2040fec3d03e3e598e0b406a84a104"
     },
     "SeuratData": {
       "Package": "SeuratData",
@@ -1105,7 +1120,6 @@
       "RemoteHost": "api.github.com",
       "RemoteRepo": "seurat-data",
       "RemoteUsername": "satijalab",
-      "RemoteRef": "HEAD",
       "RemoteSha": "4dc08e022f51c324bc7bf785b1b5771d2742701d",
       "Requirements": [
         "R",
@@ -1116,7 +1130,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "58823864a94ee08545fb114c5c629f51"
+      "Hash": "d4671ad1dc5b2a049a4e3dd79ce80a5e"
     },
     "SeuratDisk": {
       "Package": "SeuratDisk",
@@ -1816,10 +1830,13 @@
     "copykat": {
       "Package": "copykat",
       "Version": "1.1.0",
-      "Source": "git",
-      "RemoteType": "git",
-      "RemoteUrl": "https://github.com/navinlabcode/copykat",
-      "RemoteRef": "",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "navinlabcode",
+      "RemoteRepo": "copykat",
+      "RemoteRef": "master",
+      "RemoteSha": "d7d6569ae9e30bf774908301af312f626de4cbd5",
       "Requirements": [
         "MCMCpack",
         "RColorBrewer",
@@ -1830,7 +1847,7 @@
         "parallel",
         "parallelDist"
       ],
-      "Hash": "c7812efbc20f93d6c9fddcb922cad040"
+      "Hash": "be634c76aad6f3f5bc87d075b41e956b"
     },
     "cowplot": {
       "Package": "cowplot",
@@ -2206,6 +2223,19 @@
         "R"
       ],
       "Hash": "8c406b7284bbaef08e01c6687367f195"
+    },
+    "fetusref.SeuratData": {
+      "Package": "fetusref.SeuratData",
+      "Version": "1.0.0",
+      "Source": "URL",
+      "RemoteType": "url",
+      "RemoteUrl": "https://seurat.nygenome.org/src/contrib/fetusref.SeuratData_1.0.0.tar.gz",
+      "Remotes": "mojaveazure/exdata",
+      "Requirements": [
+        "R",
+        "SeuratObject"
+      ],
+      "Hash": "6d1896d4902cc9e7070fed8ac774e1fe"
     },
     "fgsea": {
       "Package": "fgsea",
