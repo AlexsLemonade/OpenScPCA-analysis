@@ -50,5 +50,13 @@ for (sample_id in c("SCPCS000179",
                     output_file = paste0("05_copykat_exploration_", sample_id,".html"),
                     output_dir = file.path(notebook_output_dir, sample_id))
 
+  # We explore `infercnv` result rendering one notebook per sample tested
+
+  rmarkdown::render(input = file.path(notebook_template_dir, "06_cnv_infercnv_exploration.Rmd"),
+                  params = list(sample_id = sample_id, seed = 12345),
+                  output_format = "html_document",
+                  output_file = paste0("06_infercnv_exploration_", sample_id,".html"),
+                  output_dir = file.path(notebook_output_dir, sample_id))
+
 }
 
