@@ -74,7 +74,7 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
 
         # Label transfer from the Cao reference using Azimuth
         Rscript -e "rmarkdown::render('${notebook_template_dir}/02a_label-transfer_fetal_full_reference_Cao.Rmd',
-                        params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}'),
+                        params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}', testing = 1),
                         output_format = 'html_document',
                         output_file = '02a_fetal_all_reference_Cao_${sample_id}.html',
                         output_dir = '${sample_notebook_dir}')"
