@@ -74,14 +74,14 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
 
         # Label transfer from the Cao reference using Azimuth
         Rscript -e "rmarkdown::render('${notebook_template_dir}/02a_label-transfer_fetal_full_reference_Cao.Rmd',
-                        params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}', testing = 1),
+                        params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}', homologs_file = '${homologs_file}', testing = 1),
                         output_format = 'html_document',
                         output_file = '02a_fetal_all_reference_Cao_${sample_id}.html',
                         output_dir = '${sample_notebook_dir}')"
 
         # Label transfer from the Stewart reference using Seurat
         Rscript -e "rmarkdown::render('${notebook_template_dir}/02a_label-transfer_fetal_full_reference_Stewart.Rmd',
-                        params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}'),
+                        params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}', homologs_file = '${homologs_file}', testing = 1),
                         output_format = 'html_document',
                         output_file = '02a_fetal_all_reference_Stewart_${sample_id}.html',
                         output_dir = '${sample_notebook_dir}')"
