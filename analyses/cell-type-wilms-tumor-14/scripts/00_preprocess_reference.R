@@ -65,10 +65,16 @@ prepare_fetal_atlas <- function(in_fetal_atlas = in_fetal_atlas,
   seurat_obj[["RNA"]]@meta.data <- row_metadata
   # add metadata from SingleCellExperiment to Seurat
   seurat_obj@misc <- S4Vectors::metadata(sce)
-  # log transform counts
+  
+  # normalization
+  options(future.globals.maxSize = 2000 * 1024^2)
+  # log transform counts using strandard seurat workflow
   seurat_obj <- Seurat::NormalizeData(seurat_obj, normalization.method = "LogNormalize")
   seurat_obj <- Seurat::FindVariableFeatures(seurat_obj, selection.method = "vst", nfeatures = 3000)
   seurat_obj <- Seurat::ScaleData(seurat_obj)
+  # normalize with SCTransform
+  seurat_obj <- Seurat::SCTransform(seurat_obj, conserve.memory = TRUE)
+    
   ndims <- 50
   seurat_obj <- Seurat::RunPCA(seurat_obj, npcs = ndims)
   seurat_obj <- Seurat::FindNeighbors(seurat_obj, dims = 1:ndims)
