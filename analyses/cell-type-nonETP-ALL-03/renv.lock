@@ -1145,6 +1145,22 @@
       ],
       "Hash": "c2efdd5f0bcd1ea861c2d4e2a883a67d"
     },
+    "forcats": {
+      "Package": "forcats",
+      "Version": "1.0.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "cli",
+        "glue",
+        "lifecycle",
+        "magrittr",
+        "rlang",
+        "tibble"
+      ],
+      "Hash": "1a0a9a3d5083d0d573c4214576f1e690"
+    },
     "formatR": {
       "Package": "formatR",
       "Version": "1.14",
@@ -2093,6 +2109,30 @@
         "survival"
       ],
       "Hash": "017561f17632c065388b7062da030952"
+    },
+    "rOpenScPCA": {
+      "Package": "rOpenScPCA",
+      "Version": "0.1.0",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "AlexsLemonade",
+      "RemoteRepo": "OpenScPCA-analysis",
+      "RemoteSubdir": "packages/rOpenScPCA",
+      "RemoteRef": "main",
+      "RemoteSha": "a5c36235eff73530cf496c4d82715e33e79fc90e",
+      "Requirements": [
+        "BiocParallel",
+        "SingleCellExperiment",
+        "bluster",
+        "dplyr",
+        "methods",
+        "pdfCluster",
+        "purrr",
+        "tibble",
+        "tidyr"
+      ],
+      "Hash": "f320ea9842ac8f8eb77685aa3155751d"
     },
     "rappdirs": {
       "Package": "rappdirs",
