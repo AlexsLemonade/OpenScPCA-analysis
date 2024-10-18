@@ -16,6 +16,10 @@ for (sample_id in c("SCPCS000179",
                     "SCPCS000205",
                     "SCPCS000208")){
   
+  ##############################################################################
+  #################################`copykat`  ##################################
+  ##############################################################################
+  
   # We run and explore copykat using euclidian distance parameter and normal cell as reference
   system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "05_copyKAT.R"), " --sample_id ", sample_id, " --n_core ", 32, " --distance ", "euclidean", " --use_reference ", "ref"))
   
@@ -23,7 +27,6 @@ for (sample_id in c("SCPCS000179",
   
   system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "05_copyKAT.R"), " --sample_id ", sample_id, " --n_core ", 32, " --distance ", "spearman", " --use_reference ", "ref"))
 
-  
   # We run and explore copykat using euclidian distance parameter and without normal cell as reference
   system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "05_copyKAT.R"), " --sample_id ", sample_id, " --n_core ", 32, " --distance ", "euclidean", " --use_reference ", "noref"))
   
@@ -31,27 +34,39 @@ for (sample_id in c("SCPCS000179",
   
   system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "05_copyKAT.R"), " --sample_id ", sample_id, " --n_core ", 32, " --distance ", "spearman", " --use_reference ", "noref"))
   
+  # We explore `copykat` result rendering one notebook per sample tested
   
-  # We run and explore infercnv using immune cells as reference
-  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "immune"))
-
-  # We run and explore infercnv using endothelial cells as reference
-  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "endothelium"))
-
-  # We run and explore infercnv using no normal reference
-  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "none"))
-  
-# We explore `copykat` result rendering one notebook per sample tested
-
-
   rmarkdown::render(input = file.path(notebook_template_dir, "05_copykat_exploration.Rmd"),
                     params = list(sample_id = sample_id, seed = 12345),
                     output_format = "html_document",
                     output_file = paste0("05_copykat_exploration_", sample_id,".html"),
                     output_dir = file.path(notebook_output_dir, sample_id))
+  
+  ##############################################################################
+  #################################`infercnv`  #################################
+  ##############################################################################
+      
+  # We run and explore infercnv using immune cells as reference and no HMM model
+  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "immune", " --HMM ", "no"))
 
-  # We explore `infercnv` result rendering one notebook per sample tested
+  # We run and explore infercnv using endothelial cells as reference and no HMM model
+  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "endothelium", " --HMM ", "no"))
 
+  # We run and explore infercnv using no normal reference and no HMM model
+  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "none", " --HMM ", "no"))
+  
+  # We run and explore infercnv using both endothelial and immune cells as reference and no HMM model
+  
+  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "both", " --HMM ", "no"))
+  
+  # We run and explore infercnv using both endothelial and immune cells as reference and i3 HMM model
+  
+   system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "both", " --HMM ", "i3"))
+
+  # We run and explore infercnv using both endothelial and immune cells as reference and i6 HMM model
+  
+ #  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "both", " --HMM ", "i6")) 
+  
   rmarkdown::render(input = file.path(notebook_template_dir, "06_cnv_infercnv_exploration.Rmd"),
                   params = list(sample_id = sample_id, seed = 12345),
                   output_format = "html_document",
@@ -60,3 +75,10 @@ for (sample_id in c("SCPCS000179",
 
 }
 
+ 
+    
+    
+    
+  
+  
+  
