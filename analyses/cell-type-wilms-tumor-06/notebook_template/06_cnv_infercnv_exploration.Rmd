@@ -1,0 +1,445 @@
+---
+title: "`infercnv` results exploration for `r params$sample_id`"
+author: "Maud PLASCHKA"
+date: "`r Sys.Date()`"
+params:
+  scpca_project_id: "SCPCP000006"
+  sample_id: "SCPCS000179"
+  seed: 12345
+output: 
+  html_document: 
+    toc: yes
+    toc_float: yes
+    code_folding: hide
+    highlight: pygments
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE,
+                      message=FALSE,
+                      warnings=FALSE
+                      )
+
+```
+
+
+## Introduction
+
+
+```{r}
+
+subdiagnosis <- readr::read_tsv(
+  file.path("..", "..", "..", "data", "current", params$scpca_project_id, "single_cell_metadata.tsv"),
+  show_col_types = FALSE
+  ) |>
+  dplyr::filter(scpca_sample_id == params$sample_id) |>
+  dplyr::pull(subdiagnosis)
+
+```
+
+This notebook explores using [`infercnv`](https://github.com/broadinstitute/inferCNV/wiki) to estimate tumor and normal cells in `r params$sample_id` from SCPCP000006. 
+This sample has a(n) `r subdiagnosis` subdiagnosis.
+
+`infercnv` was run using the `06_inferCNV.R` script with and without a normal reference. We also tested the impact of the subselection of normal cells using either immune, and/or endothelial cells as healthy reference.
+
+In this notebook, we just want to compare the heatmaps of CNV profiles, and evaluate how comparable are the methods and how sensible they are to key parameters such as selection of healthy reference. 
+
+
+### Libraries
+
+
+```{r}
+
+library(infercnv)
+library(SCpubr)
+library(ggplot2)
+library(patchwork)
+library(Seurat)
+
+```
+
+
+### Functions
+
+Here we defined function that will be used multiple time all along the notebook. 
+
+#### Visualize CNV grouped by clusters or other metadata
+
+For a Seurat object `object`, the function `Do_CNV_heatmap` load the `infercnv` object created with the script `06_infercnv.R` using `reference_value` as a reference and call the function `SCpubr::do_CopyNumberVariantPlot` to plot the mean CNV score in each group defined in `group.by`.
+
+- `object` is the Seurat object 
+
+- `infercnv_obj` is the `infercnv` object
+
+- `group.by` is the metadata used for grouping the violin plots
+
+```{r}
+
+Do_CNV_heatmap <- function(object, infercnv_obj, group.by){
+  
+
+  chromosome_locations = SCpubr::human_chr_locations
+
+  out <- SCpubr::do_CopyNumberVariantPlot(sample = object,
+                                        infercnv_object = infercnv_obj,
+                                        using_metacells = FALSE,
+                                        chromosome_locations = chromosome_locations,
+                                        return_object = FALSE,
+                                        group.by = group.by
+                                        )
+  out <- out + 
+    ggtitle(glue::glue("Copy Number Variant Plot, ", reference_value)) +
+    ylab(label = "")
+  
+  return(out)
+}
+
+```
+
+#### Calculate a global CNV score per cell to check the general distribution
+
+For a `Seurat` object an `infercnv` object created with the script `06_infercnv.R` using `reference_value` as a reference, the function `Do_CNV_score` load the `infercnv` object and calculate a CNV score per cell.
+The score is calculated based on the [biostar discussion](https://www.biostars.org/p/9573777/).
+It 
+
+- `reference_value` is the selection of normal cells used for `infercnv`
+
+
+```{r}
+
+Do_CNV_score <- function(seurat_oject,infercnv_obj,reference_value){
+  
+  score <- apply(infercnv_obj@expr.data,2,function(x){ sum(x < 0.90 | x > 1.10)/length(x) })
+  
+  seurat_obj <- AddMetaData(seurat_oject, score, col.name = glue::glue("CNV-score_", reference_value))
+  return(seurat_obj)
+}
+```
+
+
+#### Visualize seurat clusters and metadata
+
+For a Seurat object `object`and a metadata `metadata`, the function `visualize_metadata` will plot `FeaturePlot` and `BarPlot`
+
+- `object` is the Seurat object 
+
+- `meta` the gene or quantitative value to be plotted
+
+- `group.by` is the metadata used for grouping the violin plots 
+
+```{r }
+visualize_metadata <- function(object, meta, group.by){
+  
+  if(is.numeric(object@meta.data[,meta])){
+     d <- SCpubr::do_FeaturePlot(object, 
+                                              features = meta, 
+                                              pt.size = 0.2, 
+                                              legend.width = 0.5, 
+                                              legend.length = 5, 
+                                              legend.position = "right") + ggtitle(meta)
+    b <- SCpubr::do_ViolinPlot(object, 
+                                             features = meta, 
+                                             ncol = 1, 
+                                             group.by = group.by, 
+                                             legend.position = "none")
+                   
+   return(d + b + plot_layout(ncol = 2, widths = c(2,4))) 
+  }
+  
+  
+  else{
+    
+  
+  d <- SCpubr::do_DimPlot(object, reduction="umap", group.by = group.by, label = TRUE, repel = TRUE) + ggtitle(paste0(meta," - umap")) + theme(text=element_text(size=18))
+  b <- SCpubr::do_BarPlot(sample = object,
+                         group.by = meta,
+                         split.by = group.by,
+                         position = "fill",
+                         font.size = 10,
+                         legend.ncol = 3) +
+                         ggtitle("% cells")+
+                         xlab(print(group.by)) +
+                         theme(text=element_text(size=18))
+  return(d + b + plot_layout(ncol = 2, widths = c(2,4)))
+  }
+  
+}
+```
+
+
+
+#### Visualize seurat clusters and markers genes
+
+For a Seurat object `object`and a features `features`, the function `visualize_feature` will plot `FeaturePlot` and `ViolinPlot`
+
+- `object` is the Seurat object 
+
+- `features` the gene or quantitative value to be plotted
+
+- `group.by` is the metadata used for grouping the violin plots 
+
+```{r }
+visualize_feature <- function(object, features, group.by ){
+ 
+                  d <- SCpubr::do_FeaturePlot(object, 
+                                              features = features, 
+                                              pt.size = 0.2, 
+                                              legend.width = 0.5, 
+                                              legend.length = 5, 
+                                              legend.position = "right") + ggtitle(features)
+                  b <- SCpubr::do_ViolinPlot(object, 
+                                             features = features, 
+                                             ncol = 1, 
+                                             group.by = group.by, 
+                                             legend.position = "none",
+                                             assay = "SCT") + ylab(features)
+                   
+                  return(d + b + plot_layout(ncol = 2, widths = c(2,4))) 
+}
+```
+
+
+#### Visualize CNV density
+
+For a Seurat object `object`and a features `features`, the function `visualize_feature` will plot `FeaturePlot` and `ViolinPlot`
+
+- `object` is the Seurat object 
+
+- `features` the gene or quantitative value to be plotted
+
+- `group.by` is the metadata used for grouping the violin plots 
+
+```{r }
+visualize_density <- function(object, features, group.by ){
+ 
+                  d <- SCpubr::do_RidgePlot(object, 
+                                            feature = features, 
+                                            group.by = group.by, 
+                                             legend.position = "none",
+                                             assay = "SCT") + ylab(features)
+                   
+                  return(d) 
+}
+          
+ 
+```
+
+### Base directories
+
+```{r base paths, eval=TRUE}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The path to this module
+module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06")
+```
+
+
+### Input files
+
+The input for this notebook are the results of `06_inferCNV.R`
+
+```{r}
+
+result_dir <- file.path(module_base, "results", params$sample_id, "06_infercnv")
+
+```
+
+#### `Seurat` object
+
+We load the `Seurat` object generated in `06_infercnv.R`
+
+```{r}
+
+srat <- readRDS(file.path(module_base, "results", params$sample_id, glue::glue("02b-fetal_kidney_label-transfer_", params$sample_id, ".Rds")))
+
+```
+
+## Analysis
+
+### Heatmap of infercnv results
+
+Here we plot the output of `infercnv` as heatmaps of CNV.
+We first look at the png file generated by the `infercnv` function.
+We then used the `infercnv object` to look at mean CNV value across compartments (immune, endothelial, stroma and fetal nephron). 
+
+#### Without reference
+
+![](`r file.path(result_dir, "reference-none_HMM-no" , glue::glue("06_infercnv_", params$sample_id, "_", "reference-none_HMM-no", "_heatmap.png"))`)
+
+#### With immune cells as reference
+
+![](`r file.path(result_dir, "reference-immune_HMM-no" , glue::glue("06_infercnv_", params$sample_id, "_", "reference-immune_HMM-no", "_heatmap.png"))`)
+
+#### With endothelium cells as reference
+
+![](`r file.path(result_dir, "reference-endothelium_HMM-no" , glue::glue("06_infercnv_", params$sample_id, "_", "reference-endothelium_HMM-no", "_heatmap.png"))`)
+
+#### With immune and endothelium cells as reference
+
+![](`r file.path(result_dir, "reference-both_HMM-no" , glue::glue("06_infercnv_", params$sample_id, "_", "reference-both_HMM-no", "_heatmap.png"))`)
+
+
+### Summarize CNV per chromosome and compartment
+
+```{r fig.width=20, fig.height=5, out.width='100%', out.height='100%'}
+infercnv_obj <- list()
+for(reference_value in c("reference-none", "reference-immune", "reference-endothelium", "reference-both")){
+  infercnv_obj[[reference_value]] <- readRDS(file.path(result_dir, glue::glue(reference_value, "_HMM-no") , glue::glue("06_infercnv_", params$sample_id, "_", reference_value, "_HMM-no.rds")))
+  print(Do_CNV_heatmap(object = srat, infercnv_obj = infercnv_obj[[reference_value]], group.by = "fetal_kidney_predicted.compartment"))
+}
+
+```
+
+### Try to calculate  single CNV score and see if it can be use to define cells with CNV
+
+```{r fig.width=20, fig.height=5, out.width='100%', out.height='100%', warning=FALSE}
+
+for(reference_value in c("reference-none", "reference-immune", "reference-endothelium", "reference-both")){
+  srat <- Do_CNV_score(srat,infercnv_obj = infercnv_obj[[reference_value]], reference_value)
+  p1 <- visualize_feature(srat, glue::glue("CNV-score_", reference_value) , group.by = "fetal_kidney_predicted.compartment" )
+  p2 <- visualize_density(srat, features=glue::glue("CNV-score_", reference_value), group.by = "fetal_kidney_predicted.compartment")
+  print(p1 + p2 + plot_layout(ncol = 3, widths = c(1,2,2)))
+}
+
+```
+
+This unique CNV score do not look so promising. 
+We might have to select chromosomes we would like to look at, i.e. the one relevant for Wilms tumor.
+
+
+### Explore infercnv results generated with immune and endothelial cells as reference, using a HMM i3 model
+
+#### Load the `Seurat` object
+
+We load the `Seurat` object generated in `06_infercnv.R`
+
+```{r}
+
+srat <- readRDS(file.path(module_base, "results", params$sample_id, glue::glue("06_infercnv_HMM-i3_", params$sample_id, "_reference-both.rds")))
+
+```
+
+#### Plot UMAP of known Wilms tumor related alteration
+
+As a reminder, we plot the label transfer from the fetal kidney atlas. 
+
+```{r fig.width=20, fig.height=8, out.width='100%'}
+
+visualize_metadata(srat, "seurat_clusters", "fetal_kidney_predicted.compartment")
+
+```
+
+#### Feature plot and repartition of the CNV per chromosome
+
+For each chromosome, we look at the repartition of the `proportion_cnv_` in cells labeled as immune, endothelial, stroma and fetal nephron.
+`proportion_cnv_` is the proportion in number of genes that are part of any cnv/loss/duplication in the given chr.
+
+This should allow a quick visual check that immune and endothelial cells do not expressed any CNV. If so, we should check if genes driving the CNV score are not key immune or endothelium genes.
+
+Also, we should visualize if one area of the umap do not have CNV and could be identify as additional normal cell subset. 
+
+
+```{r fig.width=10, fig.height=5, out.width='45%', out.height='45%'}
+for(i in 1:22){
+  print(visualize_feature(srat, features=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment"))
+}
+```
+
+
+####  Distribution of CNV estimation in the Wilms tumor copartments
+
+For each chromosome, we look at the distribution of the `proportion_cnv_` in cells labeled as immune, endothelial, stroma and fetal nephron.
+`proportion_cnv_` is the proportion in number of genes that are part of any cnv/loss/duplication in the given chr.
+
+We are quite confident that immune and endothelial cells are well identified by label transfer done in `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd`. 
+The distribution of CNV for endothelial and immune cells should thus be a single peak center on 0.
+
+We do not know if fetal nephron and stroma cells are a mix of normal and cancer cells. 
+Would they be a group of normal cells, we should expect a single peak center on 0 for every chromosome. 
+As we expect to have a large number of cancer with heterogeneous CNV, we should see multiple peaks. 
+
+```{r fig.width=5, fig.height=5, out.width='40%', out.height='40%', warning=FALSE}
+for(i in 1:22){
+  print(visualize_density(srat, features=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment"))
+}
+```
+
+### Explore infercnv results generated with immune and endothelial cells as reference, using a HMM i6 model
+
+#### Load the `Seurat` object
+
+We load the `Seurat` object generated in `06_infercnv.R`
+
+```{r}
+
+srat <- readRDS(file.path(module_base, "results", params$sample_id, glue::glue("06_infercnv_HMM-i6_", params$sample_id, "_reference-both.rds")))
+
+```
+
+
+#### Feature plot and repartition of the CNV per chromosome
+
+For each chromosome, we look at the repartition of the `proportion_cnv_` in cells labeled as immune, endothelial, stroma and fetal nephron.
+`proportion_cnv_` is the proportion in number of genes that are part of any cnv/loss/duplication in the given chr.
+
+This should allow a quick visual check that immune and endothelial cells do not expressed any CNV. If so, we should check if genes driving the CNV score are not key immune or endothelium genes.
+
+Also, we should visualize if one area of the umap do not have CNV and could be identify as additional normal cell subset. 
+
+
+```{r fig.width=10, fig.height=5, out.width='45%', out.height='45%'}
+for(i in 1:22){
+  print(visualize_feature(srat, features=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment"))
+}
+```
+
+
+####  Distribution of CNV estimation in the Wilms tumor copartments
+
+For each chromosome, we look at the distribution of the `proportion_cnv_` in cells labeled as immune, endothelial, stroma and fetal nephron.
+`proportion_cnv_` is the proportion in number of genes that are part of any cnv/loss/duplication in the given chr.
+
+We are quite confident that immune and endothelial cells are well identified by label transfer done in `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd`. 
+The distribution of CNV for endothelial and immune cells should thus be a single peak center on 0.
+
+We do not know if fetal nephron and stroma cells are a mix of normal and cancer cells. 
+Would they be a group of normal cells, we should expect a single peak center on 0 for every chromosome. 
+As we expect to have a large number of cancer with heterogeneous CNV, we should see multiple peaks. 
+
+```{r fig.width=5, fig.height=5, out.width='40%', out.height='40%', warning=FALSE}
+for(i in 1:22){
+  print(visualize_density(srat, features=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment"))
+}
+```
+
+
+## Conclusions
+
+- Providing no reference is not a good option, as we think that most of the cells are cancer cells with few CNV. 
+Without healthy reference, `infercnv` take the mean of expression across the cells as a reference. 
+In case of events that are well shared by _a majority_ of the cells, they will be smoothed.
+
+- For some CNV and specific chromosome, the choice a the reference do not affect the result: ch18, ch17.
+- Some CNV values differs depending on the choice of the reference, for chr5 for example. 
+
+This is an issue if we want to have the exact CNV pattern. 
+
+There are three samples with a very low (<5) number of immune + endothelial cells: SCPCS000197 (4 endothelial), SCPCS000190 (1 immune), SCPCS000177	(2 immune) for which it might be problematic to run `infercnv`.
+
+I am not sure if some endothelial cells might be missclassified? 
+To be careful when we look at % of alterations within a compartment, as there are sometimes very few immune and/or endothelial cells, some % can be easily high without being meaningful.  
+
+HMM-i3 model looks "cleaner" than the HMM-i6 model, with less CNV found in immune and endothelial cells. 
+
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
+
+
