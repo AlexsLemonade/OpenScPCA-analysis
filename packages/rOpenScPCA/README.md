@@ -9,7 +9,7 @@ This package contains utility functions to support single-cell RNAseq analysis i
 ```r
 # Install the package with renv
 renv::install("AlexsLemonade/OpenScPCA-analysis:packages/rOpenScPCA")
-# You can then add to a renv.lock fole with renv::snapshot()
+# You can then add to a renv.lock file with renv::snapshot()
 
 # Install the package with remotes
 remotes::install_github("AlexsLemonade/OpenScPCA-analysis/packages/rOpenScPCA")
