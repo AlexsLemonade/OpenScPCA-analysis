@@ -17,8 +17,10 @@ run_eval <- function(ind.lib){
   perClus_df <- final_df %>% group_by(cluster) %>%
     summarise(avgSil = mean(silhouette_width), avgPur = mean(purity)) %>%
     data.frame()
-  stability_df <- rOpenScPCA::calculate_stability(x = seu, clusters = clusID.df$cluster, pc_name = "Xpca_",
-                                      algorithm = "leiden", resolution = 1.0, seed = 10)
+  stability_df <- rOpenScPCA::calculate_stability(x = seu, clusters = clusID.df$cluster, 
+                                                  pc_name = "Xpca_",algorithm = "leiden", 
+                                                  resolution = 1.0, objective_function = "modularity", 
+                                                  seed = 10)
   write.table(final_df, sep = "\t", row.names = F, quote = F,
               file = file.path(out_loc,"results/evalClus/",paste0(ind.lib,"_sil-purity_perCell.txt")))
   write.table(stability_df, sep = "\t", row.names = F, quote = F,
