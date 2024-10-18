@@ -1,18 +1,17 @@
-
 FROM bioconductor/r-ver:3.19
 
 # Labels following the Open Containers Initiative (OCI) recommendations
 # For more information, see https://specs.opencontainers.org/image-spec/annotations/?v=v1.0.1
-LABEL org.opencontainers.image.title="openscpca/cell-type-nonETP-ALL-03"
-LABEL org.opencontainers.image.description="Docker image for the OpenScPCA analysis module 'cell-type-nonETP-ALL-03'"
+LABEL org.opencontainers.image.title="openscpca/cell-type-ETP-ALL-03"
+LABEL org.opencontainers.image.description="Docker image for the OpenScPCA analysis module 'cell-type-ETP-ALL-03'"
 LABEL org.opencontainers.image.authors="OpenScPCA scpca@ccdatalab.org"
-LABEL org.opencontainers.image.source="https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/cell-type-nonETP-ALL-03"
+LABEL org.opencontainers.image.source="https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/cell-type-ETP-ALL-03"
 
 # Set an environment variable to allow checking if we are in an OpenScPCA container
 ENV OPENSCPCA_DOCKER=TRUE
 
 # set a name for the conda environment
-ARG ENV_NAME=openscpca-cell-type-nonETP-ALL-03
+ARG ENV_NAME=openscpca-cell-type-ETP-ALL-03
 
 # set environment variables to install conda
 ENV PATH="/opt/conda/bin:${PATH}"
