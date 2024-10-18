@@ -37,6 +37,8 @@ module_base <- file.path(root_dir, "analyses", "cell-type-wilms-tumor-06")
 # Download and create the fetal kidney reference (Stewart et al) ----------
 system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "download-and-create-fetal-kidney-ref.R")))
 
+# We build the gene position file reference for infercnv ------------------------
+system(command = glue::glue("Rscript ", file.path(module_base, "scripts", "06a_build-geneposition.R")))
 
 # Characterize the two fetal references -----------------------------------------
 
@@ -92,10 +94,15 @@ for (sample_id in metadata$scpca_sample_id) {
 }
 
 if (!running_ci) {
+  # Run notebook template to explore label transfer and clustering for all samples at once
   rmarkdown::render(input = file.path(notebook_output_dir, "04_annotation_Across_Samples_exploration.Rmd"),
                     output_format = "html_document",
                     output_file = "04_annotation_Across_Samples_exploration.html",
                     output_dir = notebook_output_dir)
+  
+  # Run infercnv and copykat for a selection of samples
+  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "explore-cnv-methods.R")))
+  
 }
 
 
