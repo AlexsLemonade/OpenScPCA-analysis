@@ -55,7 +55,7 @@ Bcell_check <- function(ind.lib, methods = c("ScType","SingleR","CellAssign"),
 }
 
 #trying to find which cells in the annotated B from ScType are indeed B cells, by looking at the B cell ScType score
-#using the 95 percentile of non-B ScType score as cutoff
+#using the 99 percentile of non-B ScType score as cutoff
 plot_Bscore <- function(ind.lib){
   seu <- readRDS(file.path(out_loc,"results/rds",paste0(ind.lib,".rds")))
   sctype.score <- read.table(file.path(out_loc,"results",paste0(ind.lib,"_sctype_scores.txt")), 
@@ -90,8 +90,14 @@ plot_Bscore <- function(ind.lib){
     ylab(expr(bold(ScType)*~"("*!!length(new.B)*")"))
   p2 + p1 + patchwork::plot_annotation(title = paste0(ind.lib,": new B cells by 99 percentile cutoff of non-B ScType score")) &  
     theme(plot.title = element_text(hjust = 0.5, face="bold")) 
-  ggsave(file.path(out_loc,"plots/sctype_exploration",paste0(ind.lib,"_newBcells.png")), 
+  ggsave(file.path(out_loc,"plots/sctype_exploration",paste0(ind.lib,"_newBcells.png")),
          width = 10, height = 5, bg = "white", dpi = 150)
+  
+  #writing annotation file for normal vs unknown cells
+  annot.df <- data.frame(FetchData(seu, vars = "sctype_classification"))
+  annot.df$sctype_classification[match(new.B, rownames(annot.df))] <- "new B"
+  write.table(annot.df, file = file.path(out_loc,"results",paste0(ind.lib,"_newB-normal-annotation.txt")),
+              sep = "\t", quote = F, col.names = F)
 }
 
 project_root  <- rprojroot::find_root(rprojroot::is_git_root)
