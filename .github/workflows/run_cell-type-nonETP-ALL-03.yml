@@ -89,4 +89,5 @@ jobs:
           # run module script(s) here
           Rscript scripts/00-01_processing_rds.R
           Rscript scripts/02-03_annotation.R
-          Rscript scripts/multipanel_plot.R
+          Rscript scripts/04_multipanel_plot.R
+          Rscript scripts/05_cluster_evaluation.R
