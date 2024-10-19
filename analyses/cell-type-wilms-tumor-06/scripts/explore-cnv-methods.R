@@ -65,7 +65,7 @@ for (sample_id in c("SCPCS000179",
 
   # We run and explore infercnv using both endothelial and immune cells as reference and i6 HMM model
   
- #  system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "both", " --HMM ", "i6")) 
+   system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference ", "both", " --HMM ", "i6")) 
   
   rmarkdown::render(input = file.path(notebook_template_dir, "06_cnv_infercnv_exploration.Rmd"),
                   params = list(sample_id = sample_id, seed = 12345),

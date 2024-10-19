@@ -96,12 +96,6 @@ if(opts$reference == "both"){
   normal_cells <- opts$reference
 }
 
-# create output directory if it does not exist
-dir.create(output_dir, recursive = TRUE)
-
-# retrieve the gene order file created in `06a_build-geneposition.R`
-gene_order_file <- file.path(module_base, "results", "references", "gencode_v19_gene_pos.txt")
-
 # We only run the CNV HMM prediction model if the reference is "both"
 HMM_logical = TRUE
 HMM_type <- opts$HMM
@@ -110,6 +104,12 @@ if(opts$HMM == "no"){
   HMM_logical <- FALSE
   HMM_type <- NULL
 }
+
+# create output directory if it does not exist
+dir.create(output_dir, recursive = TRUE)
+
+# retrieve the gene order file created in `06a_build-geneposition.R`
+gene_order_file <- file.path(module_base, "results", "references", "gencode_v19_gene_pos.txt")
 
 # Run infercnv ------------------------------------------------------------------
 # create inferCNV object and run method
@@ -134,7 +134,7 @@ infercnv_obj <- infercnv::run(
   save_final_rds = TRUE
 )
 
-if(HMM_logical == TRUE){
+if(HMM_logical){
 # Add `infercnv` data to the `Seurat` object  
 srat = infercnv::add_to_seurat(infercnv_output_path=output_dir,
                                      seurat_obj=srat,

@@ -42,9 +42,25 @@ subdiagnosis <- readr::read_tsv(
 This notebook explores using [`infercnv`](https://github.com/broadinstitute/inferCNV/wiki) to estimate tumor and normal cells in `r params$sample_id` from SCPCP000006. 
 This sample has a(n) `r subdiagnosis` subdiagnosis.
 
-`infercnv` was run using the `06_inferCNV.R` script with and without a normal reference. We also tested the impact of the subselection of normal cells using either immune, and/or endothelial cells as healthy reference.
+`infercnv` was run using the `06_inferCNV.R` script with and without a normal reference. We tested the impact of the sub-selection of normal cells using either immune, and/or endothelial cells as healthy reference.
+In addition, we are exploring the use of the [HMM based CNV Prediction Methods](https://github.com/broadinstitute/infercnv/wiki/inferCNV-HMM-based-CNV-Prediction-Methods).
 
-In this notebook, we just want to compare the heatmaps of CNV profiles, and evaluate how comparable are the methods and how sensible they are to key parameters such as selection of healthy reference. 
+`infercnv` currently support two models for HMM-based CNV prediction, what we refer to as the i3 and i6 models. These are set in the 'infercnv::run()' as HMM_type='i3' or HMM_type='i6' (i6 is default). Each method operates on the 'preliminary infercnv object' which has been processed through the standard inferCNV processing routines, involving subtraction of signal corresponding to 'normal (reference)' cells and smoothing operations.
+
+- i3 HMM is a three-state CNV model representing deletion, neutral, and amplification states. 
+- i6 HMM: a six-state CNV model that predicts the following CNV levels:
+
+   - state 1 : 0x = complete loss
+   - state 2 : 0.5x = loss of one copy
+   - state 3 : 1x = neutral
+   - state 4 : 1.5x = addition of one copy
+   - state 5 : 2x = addition of two copies
+   - state 6 : 3x = essentially a placeholder for >2x copies but modeled as 3x.
+   
+   
+Of note, running `infercnv` with a i6 HMM model is very long, ~2hours of running time per sample, while i3 HMM model only requires ~10min per sample.
+
+In this notebook, we want to compare the heatmaps of CNV profiles, and evaluate how comparable are the methods and how sensible they are to key parameters such as selection of healthy reference. 
 
 
 ### Libraries
@@ -79,13 +95,10 @@ For a Seurat object `object`, the function `Do_CNV_heatmap` load the `infercnv` 
 
 Do_CNV_heatmap <- function(object, infercnv_obj, group.by){
   
-
-  chromosome_locations = SCpubr::human_chr_locations
-
   out <- SCpubr::do_CopyNumberVariantPlot(sample = object,
                                         infercnv_object = infercnv_obj,
                                         using_metacells = FALSE,
-                                        chromosome_locations = chromosome_locations,
+                                        chromosome_locations = SCpubr::human_chr_locations,
                                         return_object = FALSE,
                                         group.by = group.by
                                         )
@@ -100,18 +113,19 @@ Do_CNV_heatmap <- function(object, infercnv_obj, group.by){
 
 #### Calculate a global CNV score per cell to check the general distribution
 
-For a `Seurat` object an `infercnv` object created with the script `06_infercnv.R` using `reference_value` as a reference, the function `Do_CNV_score` load the `infercnv` object and calculate a CNV score per cell.
+For a `Seurat` object an `infercnv` object created with the script `06_infercnv.R` using `reference_value` as a reference, the function `Do_CNV_score` calculate a CNV score per cell.
 The score is calculated based on the [biostar discussion](https://www.biostars.org/p/9573777/).
-It 
+The function `Do_CNV_score` returns the `Seurat` object with an additional metadata named `CNV-score_{reference_value}.`
 
 - `reference_value` is the selection of normal cells used for `infercnv`
+- `seurat_object` and `infercnv_obj` are the `Seurat`and `infercnv` object created with the script `06_infercnv.R`
 
 
 ```{r}
 
 Do_CNV_score <- function(seurat_oject,infercnv_obj,reference_value){
   
-  score <- apply(infercnv_obj@expr.data,2,function(x){ sum(x < 0.90 | x > 1.10)/length(x) })
+  score <- apply(infercnv_obj@expr.data,2,function(x){ sum(x < 0.95 | x > 1.05)/length(x) })
   
   seurat_obj <- AddMetaData(seurat_oject, score, col.name = glue::glue("CNV-score_", reference_value))
   return(seurat_obj)
@@ -328,7 +342,7 @@ As a reminder, we plot the label transfer from the fetal kidney atlas.
 
 ```{r fig.width=20, fig.height=8, out.width='100%'}
 
-visualize_metadata(srat, "seurat_clusters", "fetal_kidney_predicted.compartment")
+visualize_metadata(srat, "fetal_kidney_predicted.compartment", "seurat_clusters")
 
 ```
 
