@@ -26,7 +26,7 @@ option_list <- list(
     opt_str = c("-r", "--reference"),
     type = "character",
     default = "both",
-    help = "Reference cells to use as normal cells, either none, immune, endothelium or both"
+    help = "Reference cells to use as normal cells, either none, immune, endothelium, both or pull"
   ),
   make_option(
     opt_str = c("-m", "--HMM"),
@@ -48,6 +48,10 @@ module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06"
 
 # Path to the result directory
 result_dir <- file.path(module_base, "results", opts$sample_id)
+
+# path to the pull of normal cells (inter-patient)
+srat_normal_file <- file.path(module_base, "results","references", '06b_normal-cell-reference.rds')
+
 
 # path to output infercnv object
 output_dir <- file.path(result_dir,  "06_infercnv", glue::glue("reference-",opts$reference, "_HMM-", opts$HMM ))
@@ -79,6 +83,28 @@ srat <- readRDS(
   file.path(result_dir,  paste0("02b-fetal_kidney_label-transfer_",  opts$sample_id, ".Rds"))
 )
 
+
+stopifnot("Incorrect reference provided" = opts$reference %in% c("none", "immune", "endothelium", "both", "pull"))
+
+if(opts$reference == "both"){
+  normal_cells <- c("endothelium", "immune")
+} else if(opts$reference == "none"){
+  normal_cells <- NULL
+} else if(opts$reference == "pull"){
+  srat_normal <- readRDS(srat_normal_file)
+  # we merge the spike-in cells into the `Seurat` object
+  srat <- merge(srat, srat_normal)
+  srat <- JoinLayers(srat) # else GetAssayData won't work 
+  # we rename the `fetal_kidney_predicted.compartment` for these cells as "spike"
+  to_rename <- srat@meta.data$fetal_kidney_predicted.compartment
+  names(to_rename) <- rownames(srat@meta.data)
+  to_rename[grepl("spike", names(to_rename))] <- "spike"
+  srat@meta.data$fetal_kidney_predicted.compartment <- to_rename
+  normal_cells <- "spike"
+} else{
+  normal_cells <- opts$reference
+}
+
 # Extract raw counts -----------------------------------------------------------
 counts <- GetAssayData(object = srat, assay = "RNA", layer = "counts")
 
@@ -86,15 +112,6 @@ counts <- GetAssayData(object = srat, assay = "RNA", layer = "counts")
 annot_df <- data.frame(condition = as.character(srat$fetal_kidney_predicted.compartment))
 rownames(annot_df) <- colnames(counts)
 
-stopifnot("Incorrect reference provided" = opts$reference %in% c("none", "immune", "endothelium", "both"))
-
-if(opts$reference == "both"){
-  normal_cells <- c("endothelium", "immune")
-} else if(opts$reference == "none"){
-  normal_cells <- NULL
-} else{
-  normal_cells <- opts$reference
-}
 
 # We only run the CNV HMM prediction model if the reference is "both"
 HMM_logical = TRUE
