@@ -32,6 +32,7 @@ library(Seurat)
 library(ggpubr)
 library(zellkonverter)
 library(SingleCellExperiment)
+library(glmGamPoi)
 
 prepare_fetal_atlas <- function(in_fetal_atlas = in_fetal_atlas,
                                 out_fetal_atlas = out_fetal_atlas,
