@@ -49,12 +49,6 @@ module_base <- file.path(repository_base, "analyses", "cell-type-DSRCT")
 
 
 ```{r}
-# source in helper functions: make_jaccard_matrix() and jaccard() 
-jaccard_functions <- file.path(module_base, "scripts", "utils", "jaccard-functions.R")
-source(jaccard_functions)
-```
-
-```{r}
 metadata_file <- file.path(data_dir, "SCPCP000013", "single_cell_metadata.tsv")
 metadata <- read.csv(metadata_file,  sep = '\t')
 metadata_DSRCT <- dplyr::filter(metadata, diagnosis == 'Desmoplastic small round cell tumor')
@@ -162,7 +156,10 @@ for(i in 1:length(umap_df_list)){
     ) +
     guides(colour = guide_colorbar(title.position = "bottom", title.hjust = 0.5)) +
     ggtitle(names(umap_df_list)[i])
+  
+  tiff(filename = paste0('../plots/marker_expression_', names(umap_df_list)[i], '.tiff'), width = 6, height = 6, units = 'in', res = 150)
   print(p)
+  dev.off()
 }
   
 
@@ -188,6 +185,11 @@ for(i in 1:length(umap_df_list_excluded)) {
     theme(legend.position = "none") + 
     ggtitle(names(umap_df_list_excluded)[i])
   print(p)
+  
+  #save plots
+  tiff(filename = paste0('../plots/marker_distribution_', names(umap_df_list)[i], '.tiff'), width = 6, height = 6, units = 'in', res = 150)
+  print(p)
+  dev.off()
 }
 ```
 
@@ -220,7 +222,15 @@ for(i in 1:length(umap_df_list_excluded_scaled)) {
     facet_wrap(vars(gene_symbol), scales = 'free_y') +
     theme(legend.position = "none") + 
     ggtitle(names(umap_df_list_excluded_scaled)[i])
+  
   print(p)
+  
+  #save plots
+  tiff(filename = paste0('../plots/marker_distribution_zscaled_', names(umap_df_list)[i], '.tiff'), width = 6, height = 6, units = 'in', res = 150)
+  print(p)
+  dev.off()
+  
+  
 }
 ```
 
@@ -256,6 +266,11 @@ for(i in 1:length(marker_sum_exp)) {
   scale_color_viridis_c() +
     ggtitle(names(umap_df_list_excluded_scaled)[i])
   print(p)
+  
+    #save plots
+  tiff(filename = paste0('../plots/UMAP_marker_expression_', names(umap_df_list)[i], '.tiff'), width = 6, height = 6, units = 'in', res = 150)
+  print(p)
+  dev.off()
 }
 
 ```
@@ -276,6 +291,11 @@ for(i in 1:length(marker_sum_exp)) {
   geom_point(size = 0.5, alpha = 1) +
   ggtitle(names(umap_df_list_excluded_scaled)[i])
   print(p)
+  
+#save plots
+  tiff(filename = paste0('../plots/UMAP_classification_', names(umap_df_list)[i], '.tiff'), width = 6, height = 6, units = 'in', res = 150)
+  print(p)
+  dev.off()
 }
 
 ```
@@ -301,6 +321,11 @@ for(i in 1:length(marker_sum_exp)) {
   scale_color_viridis_c() +
     ggtitle(names(umap_df_list_excluded_scaled)[i])
   print(p)
+  
+  #save plots
+  tiff(filename = paste0('../plots/UMAP_marker_expression_cluster_', names(umap_df_list)[i], '.tiff'), width = 6, height = 6, units = 'in', res = 150)
+  print(p)
+  dev.off()
 }
 
 ```
@@ -323,6 +348,10 @@ for(i in 1:length(marker_sum_exp)) {
   geom_point(size = 0.5, alpha = 1) +
   ggtitle(names(umap_df_list_excluded_scaled)[i])
   print(p)
+  tiff(filename = paste0('../plots/UMAP_classification_cluster_', names(umap_df_list)[i], '.tiff'), width = 6, height = 6, units = 'in', res = 150)
+  print(p)
+  dev.off()
+
 }
 
 ```
@@ -336,7 +365,6 @@ Based on my experiences, the above plots show that we are unable to adequately d
 - For the next steps, we may try to use `SingleR` or `CellAssign` to identify the normal cells and then work to identify remaining cells as tumor cells. Normal cells may have more definitive markers than tumor cells. 
 
 ## Save outputs 
-
 ```{r}
 # get an RDS of the processed data
 saveRDS(sce_file_list, '../results/SCPCP000013_sce_file_list.rds')
