@@ -354,7 +354,7 @@ p <- do_Feature_densityplot( df = cell_type_df,
 p +  geom_vline(xintercept=params$mapping_score_thr)
 ```
 
-Some cells have an excellent mapping score (>0,85) while other performed worth. Let's have a look at the repartiction per patient. 
+Some cells have an excellent mapping score (>0,85) while other performed worse. Let's have a look at the compartments per patient. 
 
 ```{r fig.height=15, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
 p <- do_Feature_boxplot( df = cell_type_df,
