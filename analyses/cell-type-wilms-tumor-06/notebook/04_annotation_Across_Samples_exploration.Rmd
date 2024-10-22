@@ -196,7 +196,7 @@ return(p)
 - `feature` is the name of the gene to average the expression
 
 ```{r fig.width=10, fig.height=4, out.width='100%'}
-do_Feature_densityplot <- function(df, group.by, feature, split.by = NULL  ){
+do_Feature_densityplot <- function(df, group.by, feature){
   
   df <- df %>%
     mutate(!!sym(group.by), group  = factor(!!sym(group.by), levels = c("fetal_nephron", "stroma", "immune", "endothelium")))
