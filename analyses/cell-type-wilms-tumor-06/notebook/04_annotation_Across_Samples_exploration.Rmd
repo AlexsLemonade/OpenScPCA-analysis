@@ -379,7 +379,7 @@ p <- do_Feature_boxplot( df = cell_type_df,
                   group.by = "compartment",
                     split.by = "treatment")
 
-p + geom_hline(yintercept = params$mapping_score_thr)
+p + geom_hline(yintercept = params$mapping_score_thr) + coord_cartesian(ylim = c(0.25,1))
 
 ```
 
