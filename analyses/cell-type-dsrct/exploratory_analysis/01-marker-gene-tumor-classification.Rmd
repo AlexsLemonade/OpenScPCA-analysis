@@ -156,7 +156,6 @@ for(i in 1:length(umap_df_list)){
     ) +
     guides(colour = guide_colorbar(title.position = "bottom", title.hjust = 0.5)) +
     ggtitle(names(umap_df_list)[i])
-  print(p)
   
   #save plots
   ggsave(
