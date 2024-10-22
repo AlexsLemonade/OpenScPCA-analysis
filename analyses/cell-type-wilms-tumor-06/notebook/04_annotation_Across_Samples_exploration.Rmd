@@ -1,5 +1,5 @@
 ---
-title: "Annotation exploration for SCPCP000006"
+title: "Annotation exploration for SCPCP000006, mapping score threshold `r params$mapping_score_thr`"
 author: "Maud PLASCHKA"
 date: "`r Sys.Date()`"
 params: 
@@ -28,8 +28,10 @@ knitr::opts_chunk$set(echo = TRUE,
 
 The aim is to explore the annotations and label transfers for all of the samples in SCPCP000006.
 
-
 In order to explore the label transfer results, we look into some marker genes, table and percentages of cells in each annotation groups (from label transfers).
+
+We also looked into the mapping scores for each of the compartments and explored the potential effects of score thresholds.
+In this notebook, we fixed the mapping score threshold to `r params$mapping_score_thr`.
 
 
 ### Packages
@@ -97,13 +99,14 @@ cell_type_df <- metadata$scpca_sample_id |>
       )
 
       # Create and return a data frame from the Seurat object with relevant annotations
-      # this data frame will have four columns: barcode, sample_id, compartment, organ
+      # this data frame will have six columns: barcode, compartment, organ, compartment_score, VWF and PTPRC
       data.frame(
         compartment = srat$fetal_kidney_predicted.compartment,
         compartment_score = srat$fetal_kidney_predicted.compartment.score,
         organ = srat$fetal_full_predicted.organ, 
         PTPRC = FetchData(object = srat, vars = "ENSG00000081237", layer = "counts"),
-        VWF = FetchData(object = srat, vars = "ENSG00000110799", layer = "counts")
+        VWF = FetchData(object = srat, vars = "ENSG00000110799", layer = "counts"),
+        umap = srat@reductions$umap@cell.embeddings
         ) |>
         tibble::rownames_to_column("barcode") |>
         dplyr::mutate(sample_id = sample_id)
@@ -115,6 +118,15 @@ cell_type_df <- metadata$scpca_sample_id |>
   dplyr::left_join(metadata, by = c("sample_id" = "scpca_sample_id")) |>
   # Create column for whether the compartment score passes threshold
   dplyr::mutate(pass_mapping_QC = compartment_score > params$mapping_score_thr)
+
+
+# we create a data frames of annotation of cells that pass the mapping score threshold
+cell_type_df_pass <- cell_type_df  |>
+  dplyr::filter(pass_mapping_QC)
+
+# we create a data frames of annotation of cells that don't pass the mapping score threshold
+cell_type_df_nopass <- cell_type_df  |>
+  dplyr::filter(!pass_mapping_QC)
 ```
 
 ### Output file
@@ -345,6 +357,7 @@ DT::datatable(compartment_df,
 ```
 ### Label transfer (mapping) scores for the four compartments
 
+The vertical line drawn correspods to the threshold explored in the notebook.
 
 ```{r fig.height=5, fig.width=10, message=FALSE, warning=FALSE, out.width='100%'}
 p <- do_Feature_densityplot( df = cell_type_df,
@@ -354,7 +367,7 @@ p <- do_Feature_densityplot( df = cell_type_df,
 p +  geom_vline(xintercept=params$mapping_score_thr)
 ```
 
-Some cells have an excellent mapping score (>0,85) while other performed worse. Let's have a look at the compartments per patient. 
+Some cells have an excellent mapping score (> `r params$mapping_score_thr`) while other performed worse. Let's have a look at the compartments per patient. 
 
 ```{r fig.height=15, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
 p <- do_Feature_boxplot( df = cell_type_df,
@@ -410,7 +423,6 @@ p + geom_hline(yintercept = params$mapping_score_thr) + coord_cartesian(ylim = c
 ```
 
 We do not really see a pattern linking the label transfer score and some meta/clinical data. 
-For the later CNV analysis, we can apply a threshold of `r params$mapping_score_thr` for the `fetal_kidney_predicted.compartment.score` while selecting for normal cells, i.e. `immune` and/or `endothelial` cells.
 
 We finally look for each patient and compartment, the number of cells that have a mapping score > `r params$mapping_score_thr` (TRUE).
 
@@ -443,33 +455,107 @@ We look at the endothelial marker "ENSG00000110799" = "VWF"
 ```{r fig.height=6, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
 do_Feature_mean( df = cell_type_df,
                     feature = "ENSG00000110799",
-                    group.by = "compartment")
+                    group.by = "compartment") +
+  ggtitle("VWF expression averaged by compartment for all cells")
 ```
+
+```{r fig.height=6, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
+do_Feature_mean( df = cell_type_df_pass,
+                    feature = "ENSG00000110799",
+                    group.by = "compartment") +
+  ggtitle("VWF expression averaged by compartment for cells passing the mapping score threshold")
+```
+
+
+```{r fig.height=6, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
+do_Feature_mean( df = cell_type_df_nopass,
+                    feature = "ENSG00000110799",
+                    group.by = "compartment") +
+  ggtitle("VWF expression averaged by compartment for cells that don't pass the mapping score threshold")
+```
+
 
 ```{r fig.height=25, fig.width=20, message=FALSE, warning=FALSE, out.width='100%'}
 do_Feature_boxplot( df = cell_type_df,
                     feature = "ENSG00000110799",
                     group.by = "compartment",
-                    split.by = "sample_id")
+                    split.by = "sample_id")  +
+  ggtitle("boxplot of VWF expression for all cells")
 
 ```
+
+
 
 ##### Immune cells
 
 We look at the immune marker "ENSG00000081237" = "PTPRC" alias "CD45"
 
+```{r fig.height=6, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
+do_Feature_mean( df = cell_type_df,
+                    feature = "ENSG00000081237",
+                    group.by = "compartment") +
+  ggtitle("PTPRC expression averaged by compartment for all cells")
+```
 
 ```{r fig.height=6, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
-do_Feature_mean(  df = cell_type_df,
-                  feature = "ENSG00000081237",
-                  group.by = "compartment")
+do_Feature_mean( df = cell_type_df_pass,
+                    feature = "ENSG00000081237",
+                    group.by = "compartment") +
+  ggtitle("PTPRC expression averaged by compartment for cells passing the mapping score threshold")
+```
+
+
+```{r fig.height=6, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
+do_Feature_mean( df = cell_type_df_nopass,
+                    feature = "ENSG00000081237",
+                    group.by = "compartment") +
+  ggtitle("PTPRC expression averaged by compartment for cellsthat are not passing the mapping score threshold")
 ```
 
 ```{r fig.height=25, fig.width=20, message=FALSE, warning=FALSE, out.width='100%'}
 do_Feature_boxplot( df = cell_type_df,
                     feature = "ENSG00000081237",
                     group.by = "compartment",
-                    split.by = "sample_id")
+                    split.by = "sample_id")  +
+  ggtitle("boxplot of PTPRC expression for all cells")
+
+```
+
+### Umap reduction
+
+We look at the umap reduction per sample. 
+
+#### All cells
+
+Point are colored per compartment:
+
+- red = endothelial
+
+- green = fetal nephron
+
+- cyan = immune
+
+- purple = stroma
+
+Black cross show cell that do not pass the mapping threshold.
+
+```{r fig.height=25, fig.width=20, message=FALSE, warning=FALSE, out.width='100%'}
+ggplot(cell_type_df, aes( x = umap.umap_1, y = umap.umap_2, color = compartment), shape = 19, size = 2)+
+  geom_point() +
+  geom_point(data = cell_type_df_nopass, mapping = aes( x = umap.umap_1, y = umap.umap_2),  shape = 4, color = "black", alpha = 0.3) +
+  facet_wrap(facets = ~sample_id)
+```
+
+#### Cells passing the mapping score threshold
+
+Point are colored per compartment. 
+Here we only plotted cells that do pass the mapping score threshold.
+
+```{r fig.height=25, fig.width=20, message=FALSE, warning=FALSE, out.width='100%'}
+ggplot(cell_type_df_pass, aes( x = umap.umap_1, y = umap.umap_2, color = compartment), shape = 19, size = 2)+
+  geom_point() +
+  facet_wrap(facets = ~sample_id)
+
 
 ```
 
@@ -504,18 +590,17 @@ Of note, it is known that `CopyKAT` has difficulty in predicting tumor and norma
 - or by try to search for T cells.
 
 
-For that reason, we will first try to run `CopyKAT` on 2-5 samples that have a decent amount (>100 cells when possible) of normal cells (endothelial and immune cells) and for which we are quite confident with the label transfer:
+For that reason, we will first try to run `CopyKAT` on 2-5 samples that have a majority of cells mapping to kidney and a decent amount (>100 cells when possible) of normal cells (endothelial and immune cells) and for which we are quite confident with the label transfer:
 
-- sample `SCPCS000194` has > `85` % of cells predicted as kidney and `234` + `83` endothelium and immune cells.
+- sample `SCPCS000194` 
 
-- sample `SCPCS000179` has > `94` % of cells predicted as kidney and `25` + `111` endothelium and immune cells.
+- sample `SCPCS000179`
 
-- sample `SCPCS000184` has > `96` % of cells predicted as kidney and `39` + `70` endothelium and immune cells.
+- sample `SCPCS000184`
 
-- sample `SCPCS000205` has > `89` % of cells predicted as kidney and `92` + `76` endothelium and immune cells.
+- sample `SCPCS000205`
 
-- sample `SCPCS0000208` has > `95` % of cells predicted as kidney and `18` + `35` endothelium and immune cells.
-
+- sample `SCPCS0000208`
 
 For the selected samples, we will run `copyKAT` with and without providing a list of normal cells. 
 That will be useful to us to see how consistent results are.

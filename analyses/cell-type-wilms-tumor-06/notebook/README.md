@@ -36,6 +36,9 @@ The next step in analysis is to identify tumor vs. normal cells.
 - `04_annotation_Across_Samples_exploration.html` is the output of the [`04_annotation_Across_Samples_exploration.Rmd`](../notebook/04_annotation_Across_Samples_exploration.Rmd) notebook. 
 In brief, we explored the label transfer results across all samples in the Wilms tumor dataset SCPCP000006 in order to identify a few samples that we can begin next analysis steps with.
 
+One way to evaluate the label transfer is to look at the mapping score for each label being transfered, which more or less correspond to the certainty for a label transfer to be _TRUE_. 
+We render the notebook with different thresholds for the mapping score and evaluate the impact of filtering out cells with a mapping score below 0.5, 0.75, 0.85 and 0.95.
+
 ## Exploratory analysis
 
 We selected in [`04_annotation_Across_Samples_exploration.Rmd`](../notebook/04_annotation_Across_Samples_exploration.Rmd) 5 samples to test for aneuploidy and CNV inference:
