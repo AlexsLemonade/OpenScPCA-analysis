@@ -110,12 +110,11 @@ cell_type_df <- metadata$scpca_sample_id |>
     }
   ) |>
   # now combine all dataframes to make one big one
-  dplyr::bind_rows()
-
-cell_type_df <- merge(cell_type_df, metadata, by.x = "sample_id", by.y = "scpca_sample_id")
-
-cell_type_df$pass_mapping_QC <- FALSE 
-cell_type_df$pass_mapping_QC[cell_type_df$compartment_score > params$mapping_score_thr] <- TRUE
+  dplyr::bind_rows() |>
+  # Combine with metadata
+  dplyr::left_join(metadata, by = c("sample_id" = "scpca_sample_id")) |>
+  # Create column for whether the compartment score passes threshold
+  dplyr::mutate(pass_mapping_QC = compartment_score > params$mapping_score_thr)
 ```
 
 ### Output file
