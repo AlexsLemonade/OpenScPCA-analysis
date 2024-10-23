@@ -102,20 +102,11 @@ The first thing we do here is just create a faceted UMAP showing the expression 
 
 ```{r}
 umap_df_list <- lapply(sce_list, function(x) {
-  # get the gene expression counts for all marker genes
-  marker_gene_exp <- logcounts(x[marker_genes, ]) |>
-    as.matrix() |>
-    t() |>
-    as.data.frame() |>
-    tibble::rownames_to_column("barcodes")
-  
-  # pull out the UMAP coordinates and make a data frame to use for plotting
+# pull out the UMAP coordinates and genes and make a data frame to use for plotting
   umap_df <- x |>
-    scuttle::makePerCellDF(use.dimred = "UMAP") |>
+    scuttle::makePerCellDF(features = marker_genes, use.dimred = "UMAP") |>
     # replace UMAP.1 with UMAP1
     dplyr::rename_with(\(x) stringr::str_replace(x, "^UMAP\\.", "UMAP")) |>
-    # add in marker gene expression to dataframe
-    dplyr::left_join(marker_gene_exp, by = "barcodes") |>
     # combine all genes into a single column for easy faceting
     tidyr::pivot_longer(cols = starts_with("ENSG"),
                         names_to = "ensembl_gene_id",
@@ -131,7 +122,6 @@ umap_df_list <- lapply(sce_list, function(x) {
                   cluster)
 })
 
-names(umap_df_list) <- metadata_DSRCT$scpca_sample_id
 ```
 
 
@@ -297,7 +287,8 @@ for(i in 1:length(marker_sum_exp)) {
   #save plots
   ggsave(
     filename = paste0(
-      '../plots/UMAP_marker_expression_',
+      module_base,
+      '/plots/UMAP_marker_expression_',
       names(umap_df_list)[i],
       '.png'
     ),
@@ -331,7 +322,8 @@ for(i in 1:length(marker_sum_exp)) {
   #save plots
   ggsave(
     filename = paste0(
-      '../plots/UMAP_classification_',
+      module_base,
+      '/plots/UMAP_classification_',
       names(umap_df_list)[i],
       '.png'
     ),
@@ -369,7 +361,7 @@ for(i in 1:length(marker_sum_exp)) {
   
   #save plots
   ggsave(
-    filename = paste0('../plots/UMAP_marker_expression_cluster_', names(umap_df_list)[i], '.png'),
+    filename = paste0(module_base, '/plots/UMAP_marker_expression_cluster_', names(umap_df_list)[i], '.png'),
     plot = p,
     width = 6,
     height = 6,
@@ -402,6 +394,7 @@ for(i in 1:length(marker_sum_exp)) {
   #save plots
   ggsave(
     filename = paste0(
+      module_base,
       '../plots/UMAP_classification_cluster_',
       names(umap_df_list)[i],
       '.png'
