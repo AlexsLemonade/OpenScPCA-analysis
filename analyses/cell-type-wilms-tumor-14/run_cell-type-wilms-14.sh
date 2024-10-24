@@ -25,6 +25,7 @@ scratch_dir_step="${scratch_dir}/${step_name}" && mkdir -p ${scratch_dir_step}
 # Download and process reference data
 ref_h5ad="${scratch_dir_step}/Fetal_full_v3.h5ad" 
 ref_seurat="${scratch_dir_step}/kidneyatlas.rdsSeurat" 
+ref_seurat_sct="${scratch_dir_step}/kidneyatlas_SCT.rdsSeurat" 
 
 if [[ ! -e ${ref_h5ad} ]]; then
     ref_url="https://cellgeni.cog.sanger.ac.uk/kidneycellatlas/Fetal_full_v3.h5ad"
@@ -34,6 +35,7 @@ fi
 Rscript scripts/${step_name}.R \
     --in_fetal_atlas "${ref_h5ad}" \
     --out_fetal_atlas "${ref_seurat}"
+
 
 ## Preprocess data
 Rscript scripts/00_preprocessing_rds.R
@@ -57,4 +59,6 @@ fi
 Rscript scripts/01_anchor_transfer_seurat.R \
   --reference "${ref_seurat}" \
   --metadata "${meta_path}" \
+  --run_LogNormalize \
+  --run_SCT \
   $TEST_FLAG

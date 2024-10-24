@@ -1,6 +1,8 @@
 library(dplyr)
 library(Seurat)
 library(ggpubr)
+library(glmGamPoi)
+
 pre_seuratobj <- function(obj, nfeatures = 500, run_harmony = TRUE, reduction = "harmony", ndims = 50,
                           skip_logNorm = TRUE){
   ######## Normalize, scale, feature selection
@@ -14,7 +16,7 @@ pre_seuratobj <- function(obj, nfeatures = 500, run_harmony = TRUE, reduction = 
   }
   obj <- Seurat::FindVariableFeatures(obj, selection.method = "vst", nfeatures = nfeatures)
   obj <- Seurat::ScaleData(obj, features = Seurat::VariableFeatures(object = obj))
-  # obj <- Seurat::SCTransform(obj)
+  obj <- Seurat::SCTransform(obj)
   obj <- Seurat::RunPCA(obj, features = Seurat::VariableFeatures(object = obj))
   # Seurat::ElbowPlot(obj, ndims = 50)
   

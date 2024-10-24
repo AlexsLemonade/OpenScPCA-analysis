@@ -28,12 +28,28 @@ option_list <- list(
     default = FALSE,
     action = "store_true",
     help = "Use this flag when running on test data"
+  ),
+  make_option(
+    opt_str = c("--run_LogNormalize"),
+    type = "logical",
+    default = FALSE,
+    action = "store_true",
+    help = "Use this flag to generate results based on normalization method LogNormalize"
+  ),
+  make_option(
+    opt_str = c("--run_SCT"),
+    type = "logical",
+    default = FALSE,
+    action = "store_true",
+    help = "Use this flag to generate results based on normalization method SCT"
   )
 )
 
 # Parse options
 opt <- parse_args(OptionParser(option_list = option_list))
 running_ci <- opt$testing
+run_LogNormalize <- opt$run_LogNormalize
+run_SCT <- opt$run_SCT
 
 # make sure all input files exist
 stopifnot(
@@ -77,32 +93,80 @@ source(file = file.path(path_anal,"scripts","utils","01_anchor_transfer_seurat_f
 
 
 ########### Run anchor transfer ##########
+# library = "SCPCL000850"
 #ref_obj <- SeuratObject::LoadSeuratRds("scratch/00_preprocess_reference/kidneyatlas.rdsSeurat")
 ref_obj <- SeuratObject::LoadSeuratRds(opt$reference)
 
-purrr::walk(
-  libraries,
-  \(library) run_anchorTrans(path_anal = path_anal, 
-                            scratch_out_dir = scratch_out_dir, 
-                            results_out_dir = results_out_dir,
-                            plots_out_dir = plots_out_dir,
-                            ref_obj = ref_obj, 
-                            library = library, 
-                            level = "compartment",
-                            k_weight = k_weight,
-                            unknown_cutoff = 0.5, ndims = 20)
-)
+if (run_LogNormalize) {
+  used_assay <- "RNA"
+  
+  # make sure output folder exists
+  dir.create(file.path(scratch_out_dir,used_assay), showWarnings = FALSE, recursive = TRUE)
+  dir.create(file.path(results_out_dir,used_assay), showWarnings = FALSE, recursive = TRUE)
+  dir.create(file.path(plots_out_dir,used_assay), showWarnings = FALSE, recursive = TRUE)
+  
+  purrr::walk(
+    libraries,
+    \(library) run_anchorTrans(path_anal = path_anal, 
+                               scratch_out_dir = file.path(scratch_out_dir,used_assay), 
+                               results_out_dir = file.path(results_out_dir,used_assay),
+                               plots_out_dir = file.path(plots_out_dir,used_assay),
+                               ref_obj = ref_obj, 
+                               library = library, 
+                               level = "compartment",
+                               k_weight = k_weight,
+                               unknown_cutoff = 0.5, ndims = 15,
+                               obj_assay = used_assay)
+  )
+  
+  purrr::walk(
+    libraries,
+    \(library) run_anchorTrans(path_anal = path_anal, 
+                               scratch_out_dir = file.path(scratch_out_dir,used_assay), 
+                               results_out_dir = file.path(results_out_dir,used_assay),
+                               plots_out_dir = file.path(plots_out_dir,used_assay),
+                               ref_obj = ref_obj, 
+                               library = library, 
+                               level = "celltype",
+                               k_weight = k_weight,
+                               unknown_cutoff = 0.5, ndims = 15,
+                               obj_assay = used_assay)
+  )
+}
 
-purrr::walk(
-  libraries,
-  \(library) run_anchorTrans(path_anal = path_anal, 
-                            scratch_out_dir = scratch_out_dir, 
-                            results_out_dir = results_out_dir,
-                            plots_out_dir = plots_out_dir,
-                            ref_obj = ref_obj, 
-                            library = library, 
-                            level = "celltype",
-                            k_weight = k_weight,
-                            unknown_cutoff = 0.5, ndims = 20)
-)
-
+if (run_SCT) {
+  used_assay <- "SCT"
+  
+  # make sure output folder exists
+  dir.create(file.path(scratch_out_dir,used_assay), showWarnings = FALSE, recursive = TRUE)
+  dir.create(file.path(results_out_dir,used_assay), showWarnings = FALSE, recursive = TRUE)
+  dir.create(file.path(plots_out_dir,used_assay), showWarnings = FALSE, recursive = TRUE)
+  
+  purrr::walk(
+    libraries,
+    \(library) run_anchorTrans(path_anal = path_anal, 
+                               scratch_out_dir = file.path(scratch_out_dir,used_assay), 
+                               results_out_dir = file.path(results_out_dir,used_assay),
+                               plots_out_dir = file.path(plots_out_dir,used_assay),
+                               ref_obj = ref_obj, 
+                               library = library, 
+                               level = "compartment",
+                               k_weight = k_weight,
+                               unknown_cutoff = 0.5, ndims = 15,
+                               obj_assay = used_assay)
+  )
+  
+  purrr::walk(
+    libraries,
+    \(library) run_anchorTrans(path_anal = path_anal, 
+                               scratch_out_dir = file.path(scratch_out_dir,used_assay), 
+                               results_out_dir = file.path(results_out_dir,used_assay),
+                               plots_out_dir = file.path(plots_out_dir,used_assay),
+                               ref_obj = ref_obj, 
+                               library = library, 
+                               level = "celltype",
+                               k_weight = k_weight,
+                               unknown_cutoff = 0.5, ndims = 15,
+                               obj_assay = used_assay)
+  )
+}

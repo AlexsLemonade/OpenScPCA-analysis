@@ -8,14 +8,18 @@ run_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir, plots_o
                             ref_obj, library, 
                             level = "celltype", # celltype or compartment
                             k_weight = 50,
-                            unknown_cutoff = 0.5, ndims = 20) {
+                            unknown_cutoff = 0.5, ndims = 15,
+                            obj_assay = "RNA") {
   # perspective output files
-  filename <- file.path(results_out_dir, paste0(library, "_", level,".pdf"))
+  # filename <- file.path(results_out_dir, paste0(library, "_", level,".pdf"))
   filename_csv <- file.path(results_out_dir, paste0(library, "_", level,".csv"))
 
   
   sample_obj <- SeuratObject::LoadSeuratRds( file.path(path_anal,"scratch","00_preprocessing_rds",paste0(library,".rdsSeurat")) )
-
+  
+  # set active assay
+  DefaultAssay(sample_obj) <- obj_assay
+  DefaultAssay(ref_obj) <- obj_assay
   
   # set row names as gene symbol, since reference obj uses gene symbol by default
   # length(intersect(rownames(ref_obj), rownames(sample_obj))) # make sure gene symbol consistency
@@ -25,7 +29,8 @@ run_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir, plots_o
   # rownames(sample_obj) <- sample_obj[["RNA"]]@meta.data$gene_symbol
   
   # find anchors
-  anchors <- FindTransferAnchors(reference = ref_obj, query = sample_obj, dims = 1:ndims)
+  anchors <- FindTransferAnchors(reference = ref_obj, query = sample_obj, 
+                                 dims = 1:ndims)
   nanchors <- nrow(anchors@anchors)
   # clean annotation, too few stroma, immune and endo
   # ref_obj@meta.data <- ref_obj@meta.data %>%
@@ -40,7 +45,11 @@ run_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir, plots_o
       mutate(annot = compartment)
   } else {
     ref_obj@meta.data <- ref_obj@meta.data %>%
-      mutate(annot = celltype)
+      mutate(annot = celltype) %>%
+      mutate(annot = case_when(compartment == "stroma" ~ "stroma",
+                              compartment == "immune" ~ "immune",
+                              compartment == "endothelium" ~ "endothelium",
+                              TRUE ~ annot))
   }
   ref_obj@meta.data$annot <- factor(ref_obj@meta.data$annot)
   # transfer labels
@@ -68,9 +77,14 @@ plot_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir, plots_
                              sample_obj,
                              library, 
                              level = "celltype",
-                             nanchors){
-  filename <- file.path(plots_out_dir, paste0(library, "_", level,".pdf"))
-  filename_core <- file.path(plots_out_dir, paste0(library, "_", level,"_core.png"))
+                             nanchors = 0,
+                             plot_cluster = "seurat_clusters", # by default, plot cluster generated in preprocess (SCT)
+                             internal = FALSE){
+  # 'internal' flag to return a core plot for future exploration
+  if (internal == FALSE) {
+    filename <- file.path(plots_out_dir, paste0(library, "_", level,".pdf"))
+    filename_core <- file.path(plots_out_dir, paste0(library, "_", level,"_core.png"))
+  }
   
   # anchor transfer plot
   pred_ids <- unique(sample_obj$predicted.id)
@@ -82,11 +96,11 @@ plot_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir, plots_
   p1 <- Seurat::DimPlot(sample_obj, reduction = "umap", group.by = "predicted.id", 
                         label = F, cols = color, alpha = 0.1) +
     ggtitle(paste0(library))
-  p2 <- Seurat::DimPlot(sample_obj, reduction = "umap", label = T)
+  p2 <- Seurat::DimPlot(sample_obj, reduction = "umap", group.by = plot_cluster, label = T)
   # df <- sample_obj@meta.data %>%
   #   dplyr::group_by(seurat_clusters, predicted.id) %>%
   #   dplyr::count(name = "sum")
-  p3 <- ggplot(sample_obj@meta.data, aes(x = seurat_clusters, fill =  predicted.id)) +
+  p3 <- ggplot(sample_obj@meta.data, aes(x = get(plot_cluster), fill =  predicted.id)) +
     geom_bar(width = 0.5, position = "fill") +
     scale_fill_manual(values = color) +
     labs(y = "Proportion of cells")
@@ -99,6 +113,9 @@ plot_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir, plots_
     geom_histogram(bins = 100) +
     xlim(0,1) + 
     ggtitle(paste0("Prediction score distribution ", library, ", nanchors = ",nanchors))
+  
+  # for internal use
+  if (internal == TRUE) return(p)
   
   # save plots
   multi_page <- ggpubr::ggarrange(p, p_split, p_hist,

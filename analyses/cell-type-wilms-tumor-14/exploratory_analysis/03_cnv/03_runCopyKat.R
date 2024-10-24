@@ -23,7 +23,7 @@ dir.create(library_out_dir, showWarnings = FALSE, recursive = TRUE)
 # load pre-processed sample objs & anchor transfer results
 obj <- SeuratObject::LoadSeuratRds( file.path(path_anal,"scratch","00_preprocessing_rds",paste0(library,".rdsSeurat")) )
 level <- "compartment"
-predictions <- read.csv( file.path(path_anal, "results", "01_anchor_transfer_seurat", paste0(library, "_", level,".csv")) ) 
+predictions <- read.csv( file.path(path_anal, "results", "01_anchor_transfer_seurat", "RNA", paste0(library_id, "_", level,".csv")) ) 
 obj <- AddMetaData(object = obj, metadata = predictions)
 
 # prepare copykat input matrix & normal cell list
