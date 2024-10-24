@@ -397,11 +397,7 @@ for(i in 1:length(marker_sum_exp)) {
   ggsave(
     filename = paste0(
       module_base,
-<<<<<<< HEAD
       '/plots/UMAP_classification_cluster_',
-=======
-      '../plots/UMAP_classification_cluster_',
->>>>>>> danhtruong/danhtruong/cell-type-dsrct
       names(umap_df_list)[i],
       '.png'
     ),
