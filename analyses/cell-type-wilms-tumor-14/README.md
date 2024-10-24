@@ -31,12 +31,11 @@ This would include:
 
 ## Usage
 
-* Run Rscripts with command line
-
+* Run main pipeline with command line
 ```bash
 cd /path/to/OpenScPCA-analysis
 cd analyses/cell-type-wilms-tumor-14
-Rscript scripts/00_preprocessing_rds.R 
+bash ./run_cell-type-wilms-14.sh
 ```
 
 ## Input files
@@ -53,9 +52,12 @@ cd /path/to/OpenScPCA-analysis
 
 All results are sync under S3 bucket `researcher-009160072044-us-east-2`.
 
-#### 00. Pre-processing the provided SCE objects
-- Path on S3: `s3://researcher-009160072044-us-east-2/cell-type-wilms-tumor-14/results/00_preprocessing_rds/`
-- Results for this section contains 10 `.rdsSeurat` objects for further analysis.
+#### 00. Pre-processing the provided SCE objects 
+- Results for this section contains 10 `.rdsSeurat` objects for further analysis, stored in `scratch/` folder.
+
+#### 01. Anchor transfer using Seurat
+- Path on S3 `s3://researcher-009160072044-us-east-2/cell-type-wilms-tumor-14/results/01_anchor_transfer_seurat`. 
+- For more description, see `./results/README.md`.
 
 ## Software requirements
 
@@ -73,3 +75,6 @@ sudo apt install -y libglpk40 \
 ## Computational resources
 
 Analysis could be executed on a virtual computer ([Standard-4XL](https://openscpca.readthedocs.io/en/latest/aws/lsfr/creating-vcs/)) via AWS Lightsail for Research.
+
+## Exploratory analysis
+In addition to the main pipeline, some exploratory analysis in R notebooks are added into the `./exploratory_analysis` folder, including CNV analysis. Check `./exploratory_analysis/README.md` for more details.

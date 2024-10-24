@@ -1,0 +1,62 @@
+# This is a workflow to run the celltype-glioblastoma module
+#
+# Analysis modules are run based on three triggers:
+# - Manual trigger
+# - On pull requests where code in the module has changed
+# - As a reusable workflow called from a separate workflow which periodically runs all modules
+#
+# At initialization, only the manual trigger is active
+
+name: Run celltype-glioblastoma analysis module
+env:
+  MODULE_PATH: analyses/celltype-glioblastoma
+  AWS_DEFAULT_REGION: us-east-2
+
+concurrency:
+  # only one run per branch at a time
+  group: "run_celltype-glioblastoma_${{ github.ref }}"
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  # workflow_call:
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - analyses/celltype-glioblastoma/**
+  #     - "!analyses/celltype-glioblastoma/Dockerfile"
+  #     - "!analyses/celltype-glioblastoma/.dockerignore"
+  #     - .github/workflows/run_celltype-glioblastoma.yml
+
+jobs:
+  run-module:
+    if: github.repository_owner == 'AlexsLemonade'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up conda
+        # Note that this creates and activates an environment named 'test' by default
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+
+      - name: Install and activate locked conda environment
+        run: |
+          conda install conda-lock
+          conda-lock install --name test ${MODULE_PATH}/conda-lock.yml
+
+      # Update this step as needed to download the desired data
+      - name: Download test data
+        run: ./download-data.py --test-data --format AnnData
+
+      - name: Run analysis module
+        run: |
+          cd ${MODULE_PATH}
+          # run module script(s) here
