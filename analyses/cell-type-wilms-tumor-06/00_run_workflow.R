@@ -94,12 +94,14 @@ for (sample_id in metadata$scpca_sample_id) {
 }
 
 if (!running_ci) {
+  for(thr in c(0.5, 0.75, 0.85, 0.95)){
   # Run notebook template to explore label transfer and clustering for all samples at once
   rmarkdown::render(input = file.path(notebook_output_dir, "04_annotation_Across_Samples_exploration.Rmd"),
+                    params = list(mapping_score_thr = thr),
                     output_format = "html_document",
-                    output_file = "04_annotation_Across_Samples_exploration.html",
+                    output_file = glue::glue("04_annotation_Across_Samples_exploration_predicted.score_threshold_",thr,".html"),
                     output_dir = notebook_output_dir)
-  
+  }
   # Run infercnv and copykat for a selection of samples
   system(command = glue::glue("Rscript ", file.path(module_base,"scripts", "explore-cnv-methods.R")))
   
