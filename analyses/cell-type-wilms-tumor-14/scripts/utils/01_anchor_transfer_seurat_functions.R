@@ -10,7 +10,7 @@ run_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir, plots_o
                             k_weight = 50,
                             unknown_cutoff = 0.5, ndims = 15,
                             obj_assay = "RNA") {
-  # perspective output files
+  # prospective output files
   # filename <- file.path(results_out_dir, paste0(library, "_", level,".pdf"))
   filename_csv <- file.path(results_out_dir, paste0(library, "_", level,".csv"))
 

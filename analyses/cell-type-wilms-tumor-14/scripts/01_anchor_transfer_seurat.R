@@ -97,76 +97,33 @@ source(file = file.path(path_anal,"scripts","utils","01_anchor_transfer_seurat_f
 #ref_obj <- SeuratObject::LoadSeuratRds("scratch/00_preprocess_reference/kidneyatlas.rdsSeurat")
 ref_obj <- SeuratObject::LoadSeuratRds(opt$reference)
 
-if (run_LogNormalize) {
-  used_assay <- "RNA"
-  
-  # make sure output folder exists
-  dir.create(file.path(scratch_out_dir,used_assay), showWarnings = FALSE, recursive = TRUE)
-  dir.create(file.path(results_out_dir,used_assay), showWarnings = FALSE, recursive = TRUE)
-  dir.create(file.path(plots_out_dir,used_assay), showWarnings = FALSE, recursive = TRUE)
-  
-  purrr::walk(
-    libraries,
-    \(library) run_anchorTrans(path_anal = path_anal, 
-                               scratch_out_dir = file.path(scratch_out_dir,used_assay), 
-                               results_out_dir = file.path(results_out_dir,used_assay),
-                               plots_out_dir = file.path(plots_out_dir,used_assay),
-                               ref_obj = ref_obj, 
-                               library = library, 
-                               level = "compartment",
-                               k_weight = k_weight,
-                               unknown_cutoff = 0.5, ndims = 15,
-                               obj_assay = used_assay)
-  )
-  
-  purrr::walk(
-    libraries,
-    \(library) run_anchorTrans(path_anal = path_anal, 
-                               scratch_out_dir = file.path(scratch_out_dir,used_assay), 
-                               results_out_dir = file.path(results_out_dir,used_assay),
-                               plots_out_dir = file.path(plots_out_dir,used_assay),
-                               ref_obj = ref_obj, 
-                               library = library, 
-                               level = "celltype",
-                               k_weight = k_weight,
-                               unknown_cutoff = 0.5, ndims = 15,
-                               obj_assay = used_assay)
-  )
+# set up assays
+assays <- c()
+if(run_LogNormalize){assays <- c(assays, "RNA")}
+if(run_SCT){assays <-  c(assays, "SCT")}
+# create directories as needed
+for (assay in assays){
+  dir.create(file.path(scratch_out_dir, assay), showWarnings = FALSE, recursive = TRUE)
+  dir.create(file.path(results_out_dir, assay), showWarnings = FALSE, recursive = TRUE)
+  dir.create(file.path(plots_out_dir, assay), showWarnings = FALSE, recursive = TRUE)
 }
-
-if (run_SCT) {
-  used_assay <- "SCT"
-  
-  # make sure output folder exists
-  dir.create(file.path(scratch_out_dir,used_assay), showWarnings = FALSE, recursive = TRUE)
-  dir.create(file.path(results_out_dir,used_assay), showWarnings = FALSE, recursive = TRUE)
-  dir.create(file.path(plots_out_dir,used_assay), showWarnings = FALSE, recursive = TRUE)
-  
-  purrr::walk(
-    libraries,
-    \(library) run_anchorTrans(path_anal = path_anal, 
-                               scratch_out_dir = file.path(scratch_out_dir,used_assay), 
-                               results_out_dir = file.path(results_out_dir,used_assay),
-                               plots_out_dir = file.path(plots_out_dir,used_assay),
-                               ref_obj = ref_obj, 
-                               library = library, 
-                               level = "compartment",
-                               k_weight = k_weight,
-                               unknown_cutoff = 0.5, ndims = 15,
-                               obj_assay = used_assay)
+# create arguments
+arg_df <- tidyr::expand_grid(
+  library_id = libraries,
+  assay = assays,
+  annotation_level = c("compartment", "celltype")
+)
+purrr::pwalk(arg_df,
+  \(library_id, assay, annotation_level) run_anchorTrans(
+    path_anal = path_anal, 
+    scratch_out_dir = file.path(scratch_out_dir, assay), 
+    results_out_dir = file.path(results_out_dir, assay),
+    plots_out_dir = file.path(plots_out_dir, assay),
+    ref_obj = ref_obj, 
+    library = library_id, 
+    level = annotation_level,
+    k_weight = k_weight,
+    unknown_cutoff = 0.5, ndims = 15,
+    obj_assay = assay
   )
-  
-  purrr::walk(
-    libraries,
-    \(library) run_anchorTrans(path_anal = path_anal, 
-                               scratch_out_dir = file.path(scratch_out_dir,used_assay), 
-                               results_out_dir = file.path(results_out_dir,used_assay),
-                               plots_out_dir = file.path(plots_out_dir,used_assay),
-                               ref_obj = ref_obj, 
-                               library = library, 
-                               level = "celltype",
-                               k_weight = k_weight,
-                               unknown_cutoff = 0.5, ndims = 15,
-                               obj_assay = used_assay)
-  )
-}
+)
