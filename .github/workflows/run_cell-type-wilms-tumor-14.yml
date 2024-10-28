@@ -37,7 +37,9 @@ jobs:
 
     steps:
       - name: Install git
-        run: apt-get install git
+        run: |
+          apt-get update
+          apt-get install -y git
 
       - name: Install aws-cli
         run: |
