@@ -36,14 +36,14 @@ jobs:
     container: public.ecr.aws/openscpca/cell-type-wilms-tumor-14:latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
       - name: Install aws-cli
         run: |
-          curl https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o /tmp/awscliv2.zip
-          unzip -q /tmp/awscliv2.zip
-          /tmp/aws/install
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip -q awscliv2.zip
+          ./aws/install
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       # Update this step as needed to download the desired data
       - name: Download test data and results
