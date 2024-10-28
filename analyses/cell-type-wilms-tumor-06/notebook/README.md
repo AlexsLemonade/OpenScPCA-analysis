@@ -39,6 +39,16 @@ In brief, we explored the label transfer results across all samples in the Wilms
 One way to evaluate the label transfer is to look at the mapping score for each label being transfered, which more or less correspond to the certainty for a label transfer to be _TRUE_. 
 We render the notebook with different thresholds for the mapping score and evaluate the impact of filtering out cells with a mapping score below 0.5, 0.75, 0.85 and 0.95.
 
+Of important notes:
+
+- The stroma compartment often has a poor mapping score. This is for me an indication that these cells might be cancer cells and not normal stromal cells.
+
+- We would rather use the `mapping.score` threshold to select normal cells for which we have a high confidency, i.e. immune and endothelial cells, but not to filter out all cells below the threshold.
+
+- While a `mapping.score` of 0.5 is much too low (almost all cells having a higher `mapping.score`) and 0.95 is too high (so few cells pass the threshold), 0.75 and 0.85 looked both appropriate for our purpose. 
+
+--> We decided to go with the most stringent threshold of 0.85 as we want to be sure of our selection of normal cells (i.e. endothelial and immune cells) that we will use to run `infercnv`.
+
 ## Exploratory analysis
 
 We selected in [`04_annotation_Across_Samples_exploration.Rmd`](../notebook/04_annotation_Across_Samples_exploration.Rmd) 5 samples to test for aneuploidy and CNV inference:
