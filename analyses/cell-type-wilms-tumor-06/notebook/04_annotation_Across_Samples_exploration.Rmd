@@ -160,8 +160,8 @@ p <- ggplot(df, aes(x= sample_id, y = !!sym(group.by), fill = m)) +
    scale_fill_viridis_c()  +
    theme_bw() +
    theme(text = element_text(size = 20)) +
-   theme(axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5)) +
-   guides(fill=guide_legend(title=paste0(feature)))
+   theme(axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5), title = element_text(size = rel(0.75))) +
+   guides(fill=guide_colourbar(title=paste0(feature)))
 
 return(p)
 }
