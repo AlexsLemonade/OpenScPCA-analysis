@@ -156,8 +156,10 @@ output_dir <- file.path(module_base, "results", params$sample_id)
 srat <- readRDS(file.path(data_dir, paste0("01-Seurat_", params$sample_id, ".Rds")))
 
 # prepare the query for label transfer
+# we don't want to overwrite the srat object since `prepare_query`
+#  removes features that are not present in the reference
 DefaultAssay(srat) <- "RNA"
-srat <- prepare_query(srat, rownames(reference), params$homologs_file)
+query <- prepare_query(srat, rownames(reference), params$homologs_file)
 ```
 
 
@@ -172,8 +174,8 @@ if (params$testing) {
 } else {
   k.weight <- 50 # Azimuth default
 }
-s <- transfer_labels(
-  srat,
+query_labeled <- transfer_labels(
+  query,
   reference,
   dims,
   refdata,
@@ -185,9 +187,12 @@ annotation_columns <- c(
   glue::glue("predicted.{annotation_levels}"),
   glue::glue("predicted.{annotation_levels}.score")
 )
-metadata_to_trasfer <- s@meta.data[, annotation_columns]
+metadata_to_trasfer <- query_labeled@meta.data[, annotation_columns]
 
 srat <- AddMetaData(srat, metadata_to_trasfer, col.name = paste0("fetal_full_", annotation_columns))
+
+rm(query)
+rm(query_labeled)
 ```
 
 ```{r plot_azimuth, fig.height=15, fig.width=8, warnings=FALSE}
