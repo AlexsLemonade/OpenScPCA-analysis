@@ -496,7 +496,7 @@ For each chromosome, we look at the repartition of the `proportion_cnv_` in cell
 
 ```{r fig.width=10, fig.height=5, out.width='45%', out.height='45%'}
 for(i in 1:22){
-  print(visualize_feature(srat_i6, features=c(glue::glue("proportion_cnv_chr", i)), group.by = "fetal_kidney_predicted.compartment"))
+  print(visualize_feature(srat_i6, feature=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment"))
 }
 ```
 
