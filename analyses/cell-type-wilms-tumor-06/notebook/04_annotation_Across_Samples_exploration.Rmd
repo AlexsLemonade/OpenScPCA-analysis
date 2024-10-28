@@ -509,7 +509,7 @@ do_Feature_mean( df = cell_type_df_pass,
 do_Feature_mean( df = cell_type_df_nopass,
                     feature = "ENSG00000081237",
                     group.by = "compartment") +
-  ggtitle("PTPRC expression averaged by compartment for cellsthat are not passing the mapping score threshold")
+  ggtitle("PTPRC expression averaged by compartment for cells that are not passing the mapping score threshold")
 ```
 
 ```{r fig.height=25, fig.width=20, message=FALSE, warning=FALSE, out.width='100%'}
