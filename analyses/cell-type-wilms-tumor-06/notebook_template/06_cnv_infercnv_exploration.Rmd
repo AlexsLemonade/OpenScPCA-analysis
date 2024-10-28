@@ -241,6 +241,78 @@ visualize_density <- function(object, features, group.by ){
  
 ```
 
+#### Wrapper function to explore `infercnv` HMM cnv prediction
+
+The `wrapper_explore_hmm` take as input the `infercnv_obj` generated with `infercnv` HMM cnv predictions.
+The wrapper allows the following steps and plots:
+
+
+##### Feature plot and repartition of the CNV per chromosome
+
+For each chromosome, we look at the repartition of the `proportion_cnv_` in cells labeled as immune, endothelial, stroma and fetal nephron.
+`proportion_cnv_` is the proportion in number of genes that are part of any cnv/loss/duplication in the given chr.
+
+#####  Distribution of CNV estimation in the Wilms tumor copartments
+
+For each chromosome, we look at the distribution of the `proportion_cnv_` in cells labeled as immune, endothelial, stroma and fetal nephron.
+`proportion_cnv_` is the proportion in number of genes that are part of any cnv/loss/duplication in the given chr.
+
+We are quite confident that immune and endothelial cells are well identified by label transfer done in `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd`. 
+The distribution of CNV for endothelial and immune cells should thus be a single peak center on 0.
+
+We do not know if fetal nephron and stroma cells are a mix of normal and cancer cells. 
+Would they be a group of normal cells, we should expect a single peak center on 0 for every chromosome. 
+As we expect to have a large number of cancer with heterogeneous CNV, we should see multiple peaks. 
+
+##### DotPlot
+
+The `Dotplot` representation summarizes the percentage of cells in each compartment with cnv in each of the 22 chromosomes. 
+
+##### CNV score
+
+Finally, we try to calculate  single CNV score and assess its potential in identifying cells with CNV versus normal cells without CNV.
+
+We simply checked for each chromosome if the cell `has_cnv_chr`. 
+Would the cell have more than `cnv_threshold` chromosome with CNV, the global `has_cnv_score` will be TRUE.
+Else, the cell will have a `has_cnv_score` set to FALSE.
+
+
+```{r}
+
+wrapper_explore_hmm <- function(infercnv_obj, cnv_threshold = 1){
+
+  p <- list()
+  #### Plot UMAP of known Wilms tumor related alteration
+  p[["compartment"]] <- visualize_metadata(infercnv_obj, "fetal_kidney_predicted.compartment", "seurat_clusters")
+  #### Feature plot and repartition of the CNV per chromosome
+  for(i in 1:22){
+  tmp1 <- visualize_feature(infercnv_obj, feature=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment")
+  tmp2 <- visualize_density(infercnv_obj, features=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment")
+  p[[glue::glue("proportion_cnv_chr", i)]] <- tmp1 + tmp2 + plot_layout(ncol = 3, widths = c(1,2,2))
+  }
+  #### DotPlot
+  p[["Dotplot"]] <- DotPlot(infercnv_obj, features =  colnames(infercnv_obj@meta.data)[grepl("has_cnv_chr", colnames(infercnv_obj@meta.data))], group.by = "fetal_kidney_predicted.compartment", assay = "SCT") + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  #### CNV score
+  meta <- infercnv_obj@meta.data
+  meta$has_cnv_score <- rowSums(meta[,grepl("has_cnv_chr", colnames(meta))])
+  meta$has_cnv_score[meta$has_cnv_score > cnv_threshold] <- "CNV"
+
+  # we know that some immune cells might have false positive CNV 
+  meta$has_cnv_score[meta$has_cnv_score %in% c(0:cnv_threshold)] <- "no CNV"
+  infercnv_obj <- AddMetaData(infercnv_obj, meta$has_cnv_score, col.name =  "has_cnv_score") 
+  p[["infercnv_obj"]] <- infercnv_obj
+
+  p[["cnv_seurat"]] <- visualize_metadata(infercnv_obj, "has_cnv_score", "seurat_clusters")
+  p[["cnv_compartment"]] <- visualize_metadata(infercnv_obj, "has_cnv_score", "fetal_kidney_predicted.compartment")
+
+return(p)
+
+  
+}
+
+```
+
 ### Base directories
 
 ```{r base paths, eval=TRUE}
@@ -354,122 +426,22 @@ We might have to select chromosomes we would like to look at, i.e. the one relev
 
 We then explore infercnv results generated with immune and endothelial cells as reference, using a [HMM-i3 prediction models](https://github.com/broadinstitute/infercnv/wiki/infercnv-i3-HMM-type).
 
-
-#### Load the `Seurat` object
-
 We load the `Seurat` object generated in `06_infercnv.R`
 
 ```{r}
 
+#### Load the `Seurat` object
 srat_i3 <- readRDS(file.path(module_base, "results", params$sample_id, glue::glue("06_infercnv_HMM-i3_", params$sample_id, "_reference-both.rds")))
 
-```
-
-#### Plot UMAP of known Wilms tumor related alteration
-
-As a reminder, we plot the label transfer from the fetal kidney atlas. 
-
-Immune and endothelial cells shouldn't show any CNV.
-
-The stroma and fetal nephron compartments may contain normal cells with no CNV or cancer cells with low to high CNV profiles.
-
-
-```{r fig.width=20, fig.height=8, out.width='100%'}
-
-visualize_metadata(srat_i3, "fetal_kidney_predicted.compartment", "seurat_clusters")
 
 ```
 
-#### Feature plot and repartition of the CNV per chromosome
+and explore the CNV results using the `wrapper_explore_hmm` fucntion.
 
-For each chromosome, we look at the repartition of the `proportion_cnv_` in cells labeled as immune, endothelial, stroma and fetal nephron.
-`proportion_cnv_` is the proportion in number of genes that are part of any cnv/loss/duplication in the given chr.
-
-This should allow a quick visual check that immune and endothelial cells do not expressed any CNV. 
-If not, we should check if genes driving the CNV score are not key immune or endothelium genes.
-
-
-The `umap` reduction visualization might allow the identification of cluster(s) of normal cells with no CNV.
-
-```{r fig.width=10, fig.height=5, out.width='45%', out.height='45%'}
-for(i in 1:22){
-  print(visualize_feature(srat_i3, feature=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment"))
-}
-```
-
-
-####  CNV distribution in the Wilms tumor compartments
-
-For each chromosome, we look at the distribution of the `proportion_cnv_` in cells labeled as immune, endothelial, stroma and fetal nephron.
-`proportion_cnv_` is the proportion in number of genes that are part of any cnv/loss/duplication in the given chr.
-
-We are quite confident that immune and endothelial cells are well identified by label transfer done in `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd`. 
-The distribution of CNV for endothelial and immune cells should thus be a single peak center on 0.
-
-We do not know if fetal nephron and stroma cells are a mix of normal and cancer cells. 
-Would they be a group of normal cells, we should expect a single peak center on 0 for every chromosome. 
-As we expect to have a large number of cancer with heterogeneous CNV, we should see multiple peaks. 
-
-```{r fig.width=5, fig.height=5, out.width='40%', out.height='40%', warning=FALSE}
-for(i in 1:22){
-  print(visualize_density(srat_i3, features=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment"))
-}
-```
-
-
-#### DotPlot
-
-The `Dotplot` representation summarizes the percentage of cells in each compartment with cnv in each of the 22 chromosomes. 
-
-The HMM-i3 prediction model with intra-patient reference (composed of immune and endothelium cells) perform really well in identifying Wilms tumor relevant CNV.
-No false positive CNV are observed in the immune and endothelium compartment. 
-
-
-```{r fig.width=15, fig.height=5, out.width='100%'}
-
-DotPlot(srat_i3, features =  colnames(srat_i3@meta.data)[grepl("has_cnv_chr", colnames(srat_i3@meta.data))], group.by = "fetal_kidney_predicted.compartment", assay = "SCT") + 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-
-```
-
-
-#### CNV score
-
-Here, we try to calculate a single CNV score and assess its potential in iditenfying cells with CNV versus normal cells without CNV.
-
-We simply checked for each chromosome if the cell `has_cnv_chr`. 
-Would the cell have one or more chromosome with CNV, the global `has_cnv_score` will be TRUE.
-Else, the cell will have a `has_cnv_score` set to FALSE.
-
-```{r fig.width=20, fig.height=5, out.width='100%', out.height='100%', warning=FALSE}
-meta <- srat_i3@meta.data
-
-meta$has_cnv_score <- rowSums(meta[,grepl("has_cnv_chr", colnames(meta))])
-meta$has_cnv_score[meta$has_cnv_score > 1] <- "CNV"
-
-# we know that some immune cells might have false positive CNV 
-meta$has_cnv_score[meta$has_cnv_score %in% c(0,1)] <- "no CNV"
-
-srat_i3 <- AddMetaData(srat_i3, meta$has_cnv_score, col.name =  "has_cnv_score")
-
-```
-
-We identified clusters with no/low CNV while the majority of the `Seurat` cluster present CNV on more than one chromosome.
-
-```{r fig.width=20, fig.height=8, out.width='100%'}
-
-visualize_metadata(srat_i3, "has_cnv_score", "seurat_clusters")
-
-```
-
-Immune and endothelial cells have a majority of cells with no/low CNV profile, which confirm their annotation as normal cells. 
-The fetal nephron and stroma copartments are mainly composed of cancer cells with more than one chromosome affected by a CNV. 
-
-```{r fig.width=20, fig.height=8, out.width='100%'}
-
-visualize_metadata(srat_i3, "has_cnv_score", "fetal_kidney_predicted.compartment")
-
-
+```{r fig.width=16, fig.height=8, out.width='100%', out.height='100%', warning=FALSE}
+p <- list()
+p <- wrapper_explore_hmm(srat_i3, cnv_threshold = 1)
+p
 ```
 
 
@@ -477,8 +449,6 @@ visualize_metadata(srat_i3, "has_cnv_score", "fetal_kidney_predicted.compartment
 
 We then explore `infercnv` results generated with immune and endothelial cells as reference, using a [HMM-i6 model](https://github.com/broadinstitute/infercnv/wiki/infercnv-i6-HMM-type).
 
-
-#### Load the `Seurat` object
 
 We load the `Seurat` object generated in `06_infercnv.R`
 
@@ -489,86 +459,10 @@ srat_i6 <- readRDS(file.path(module_base, "results", params$sample_id, glue::glu
 ```
 
 
-#### Feature plot and repartition of the CNV per chromosome
-
-For each chromosome, we look at the repartition of the `proportion_cnv_` in cells labeled as immune, endothelial, stroma and fetal nephron.
-`proportion_cnv_` is the proportion in number of genes that are part of any cnv/loss/duplication in the given chr.
-
-```{r fig.width=10, fig.height=5, out.width='45%', out.height='45%'}
-for(i in 1:22){
-  print(visualize_feature(srat_i6, feature=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment"))
-}
-```
-
-
-####  Distribution of CNV estimation in the Wilms tumor copartments
-
-For each chromosome, we look at the distribution of the `proportion_cnv_` in cells labeled as immune, endothelial, stroma and fetal nephron.
-`proportion_cnv_` is the proportion in number of genes that are part of any cnv/loss/duplication in the given chr.
-
-We are quite confident that immune and endothelial cells are well identified by label transfer done in `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd`. 
-The distribution of CNV for endothelial and immune cells should thus be a single peak center on 0.
-
-We do not know if fetal nephron and stroma cells are a mix of normal and cancer cells. 
-Would they be a group of normal cells, we should expect a single peak center on 0 for every chromosome. 
-As we expect to have a large number of cancer with heterogeneous CNV, we should see multiple peaks. 
-
-```{r fig.width=5, fig.height=5, out.width='40%', out.height='40%', warning=FALSE}
-for(i in 1:22){
-  print(visualize_density(srat_i6, features=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment"))
-}
-```
-
-
-#### DotPlot
-
-The `Dotplot` representation summarizes the percentage of cells in each compartment with cnv in each of the 22 chromosomes. 
-
-The HMM-i3 prediction model with intra-patient reference (composed of immune and endothelium cells) perform really well in identifying Wilms tumor relevant CNV.
-No false positive CNV are observed in the immune and endothelium compartment. 
-
-```{r fig.width=15, fig.height=5, out.width='100%'}
-
-DotPlot(srat_i6, features =  colnames(srat_i6@meta.data)[grepl("has_cnv_chr", colnames(srat_i6@meta.data))], group.by = "fetal_kidney_predicted.compartment", assay = "SCT") + 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-
-```
-
-#### CNV score
-
-Finally, we try to calculate  single CNV score and assess its potential in iditenfying cells with CNV versus normal cells without CNV.
-
-We simply checked for each chromosome if the cell `has_cnv_chr`. 
-Would the cell have one or more chromosome with CNV, the global `has_cnv_score` will be TRUE.
-Else, the cell will have a `has_cnv_score` set to FALSE.
-
-
-```{r fig.width=20, fig.height=5, out.width='100%', out.height='100%', warning=FALSE}
-meta <- srat_i6@meta.data
-
-meta$has_cnv_score <- rowSums(meta[,grepl("has_cnv_chr", colnames(meta))])
-meta$has_cnv_score[meta$has_cnv_score > 1] <- "CNV"
-
-# we know that some immune cells might have false positive CNV 
-meta$has_cnv_score[meta$has_cnv_score %in% c(0,1)] <- "no CNV"
-
-srat_i6 <- AddMetaData(srat_i6, meta$has_cnv_score, col.name =  "has_cnv_score")
-
-```
-
-
-```{r fig.width=20, fig.height=8, out.width='100%'}
-
-visualize_metadata(srat_i6, "has_cnv_score", "seurat_clusters")
-
-```
-
-
-```{r fig.width=20, fig.height=8, out.width='100%'}
-
-visualize_metadata(srat_i6, "has_cnv_score", "fetal_kidney_predicted.compartment")
-
-
+```{r fig.width=16, fig.height=8, out.width='100%', out.height='100%', warning=FALSE}
+q <- list()
+q <- wrapper_explore_hmm(srat_i6, cnv_threshold = 1)
+q
 ```
 
 
@@ -591,111 +485,20 @@ Such a transfer is required as the merged `Seurat` object + spike-in cells does 
 ```{r}
 seurat_full <- readRDS(file.path(module_base, "results", params$sample_id, glue::glue("06_infercnv_HMM-i3_", params$sample_id, "_reference-pull.rds")))
 # subset non spike-in cells
-keep_cells <- colnames(seurat_full)[!grepl("spike", colnames(seurat_full))]
+keep_cells <- colnames(srat)
 seurat <- subset(seurat_full, cells = keep_cells)
 
-meta <- seurat@meta.data
+meta <- seurat@meta.data[colnames(srat),]
 
 # merge the new info into the srat metadata
-srat <- AddMetaData(srat, meta[,grepl("_cnv_chr", colnames(meta))], col.name = colnames(meta[grepl("_cnv_chr", colnames(meta))]))
+srat_pull <- AddMetaData(srat, meta[,grepl("_cnv_chr", colnames(meta))], col.name = colnames(meta[grepl("_cnv_chr", colnames(meta))]))
 ```
 
 
-#### Plot UMAP of known Wilms tumor related alteration
-
-As a reminder, we plot the label transfer from the fetal kidney atlas. 
-
-```{r fig.width=20, fig.height=8, out.width='100%'}
-
-visualize_metadata(srat, "fetal_kidney_predicted.compartment", "seurat_clusters")
-
-```
-
-#### Feature plot and repartition of the CNV per chromosome
-
-For each chromosome, we look at the repartition of the `proportion_cnv_` in cells labeled as immune, endothelial, stroma and fetal nephron.
-`proportion_cnv_` is the proportion in number of genes that are part of any cnv/loss/duplication in the given chr.
-
-This should allow a quick visual check that immune and endothelial cells do not expressed any CNV. If so, we should check if genes driving the CNV score are not key immune or endothelium genes.
-
-Also, we should visualize if one area of the umap do not have CNV and could be identify as additional normal cell subset. 
-
-
-```{r fig.width=10, fig.height=5, out.width='45%', out.height='45%'}
-for(i in 1:22){
-  print(visualize_feature(srat, feature=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment"))
-}
-```
-
-
-####  Distribution of CNV estimation in the Wilms tumor copartments
-
-For each chromosome, we look at the distribution of the `proportion_cnv_` in cells labeled as immune, endothelial, stroma and fetal nephron.
-`proportion_cnv_` is the proportion in number of genes that are part of any cnv/loss/duplication in the given chr.
-
-We are quite confident that immune and endothelial cells are well identified by label transfer done in `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd`. 
-The distribution of CNV for endothelial and immune cells should thus be a single peak center on 0.
-
-We do not know if fetal nephron and stroma cells are a mix of normal and cancer cells. 
-Would they be a group of normal cells, we should expect a single peak center on 0 for every chromosome. 
-As we expect to have a large number of cancer with heterogeneous CNV, we should see multiple peaks. 
-
-```{r fig.width=5, fig.height=5, out.width='40%', out.height='40%', warning=FALSE}
-for(i in 1:22){
-  print(visualize_density(srat, features=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment"))
-}
-```
-
-
-#### DotPlot
-
-The `Dotplot` representation summarizes the percentage of cells in each compartment with cnv in each of the 22 chromosomes. 
-
-The HMM-i3 prediction model with inter-patient reference (composed of immune and endothelium cells) perform quite well in identifying Wilms tumor relevant CNV.
-However, sample variation induced false positive CNV such as CNV on chromosome 5 and 13 observed in the endothelium compartment. 
-
-```{r fig.width=15, fig.height=5, out.width='100%'}
-
-DotPlot(srat, features =  colnames(srat@meta.data)[grepl("proportion_cnv_chr", colnames(srat@meta.data))], group.by = "fetal_kidney_predicted.compartment", assay = "SCT") + 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-
-```
-
-#### CNV score
-
-Finally, we try to calculate  single CNV score and assess its potential in iditenfying cells with CNV versus normal cells without CNV.
-
-We simply checked for each chromosome if the cell `has_cnv_chr`. 
-Would the cell have three or more chromosome with CNV, the global `has_cnv_score` will be TRUE.
-Else, the cell will have a `has_cnv_score` set to FALSE.
-
-Of note, as we know that the use of a ~universal inter-patient reference of normal cells can induce false positive CNV in some chromosomes, we decided to allow up to 2 CNV in normal cells. 
-
-```{r fig.width=20, fig.height=5, out.width='100%', out.height='100%', warning=FALSE}
-meta <- srat@meta.data
-meta$has_cnv_score <- rowSums(meta[,grepl("has_cnv_chr", colnames(meta))])
-meta$has_cnv_score[meta$has_cnv_score > 2] <- "CNV"
-
-# we know that some immune cells might have false positive CNV 
-meta$has_cnv_score[meta$has_cnv_score %in% c(0,1, 2)] <- "no CNV"
-
-srat <- AddMetaData(srat, meta$has_cnv_score, col.name =  "has_cnv_score")
-
-```
-
-
-```{r fig.width=20, fig.height=8, out.width='100%'}
-
-visualize_metadata(srat, "has_cnv_score", "seurat_clusters")
-
-```
-
-
-```{r fig.width=20, fig.height=8, out.width='100%'}
-
-visualize_metadata(srat, "has_cnv_score", "fetal_kidney_predicted.compartment")
-
-
+```{r fig.width=16, fig.height=8, out.width='100%', out.height='100%', warning=FALSE}
+pull <- list()
+pull <- wrapper_explore_hmm(srat_pull, cnv_threshold = 3)
+pull
 ```
 
 
@@ -712,11 +515,11 @@ We compare here the binary CNV scores calculated with the three HMM prediction m
 
 ```{r fig.width=20, fig.height=8, out.width='100%'}
 
-p1 <- SCpubr::do_DimPlot(srat, "has_cnv_score", plot.title = "inter-patient reference, HMM-i3", reduction = "umap")
+p1 <- SCpubr::do_DimPlot(pull$infercnv_obj, "has_cnv_score", plot.title = "inter-patient reference, HMM-i3", reduction = "umap")
 
-p2 <- SCpubr::do_DimPlot(srat_i3, "has_cnv_score", plot.title = "intra-patient reference, HMM-i3", reduction = "umap")
+p2 <- SCpubr::do_DimPlot(p$infercnv_obj, "has_cnv_score", plot.title = "intra-patient reference, HMM-i3", reduction = "umap")
 
-p3 <- SCpubr::do_DimPlot(srat_i6, "has_cnv_score", plot.title = "intra-patient reference, HMM-i6", reduction = "umap")
+p3 <- SCpubr::do_DimPlot(q$infercnv_obj, "has_cnv_score", plot.title = "intra-patient reference, HMM-i6", reduction = "umap")
 
 p1 + p2 + p3 + plot_layout(ncol = 3)
 
