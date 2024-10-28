@@ -33,36 +33,17 @@ jobs:
   run-module:
     if: github.repository_owner == 'AlexsLemonade'
     runs-on: ubuntu-latest
+    container: public.ecr.aws/openscpca/cell-type-wilms-tumor-14:latest
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up R
-        uses: r-lib/actions/setup-r@v2
-        with:
-          r-version: 4.4.0
-          use-public-rspm: true
-
-      - name: Set up pandoc
-        uses: r-lib/actions/setup-pandoc@v2
-
-      - name: Install system dependencies
+      - name: Install aws-cli
         run: |
-          sudo apt-get install -y \
-            jags \
-            libcurl4-openssl-dev \
-            libfribidi-dev \
-            libglpk40 \
-            libharfbuzz-dev \
-            libhdf5-dev \
-            libmagick++-dev \
-            libtiff5-dev
-
-      - name: Set up renv
-        uses: r-lib/actions/setup-renv@v2
-        with:
-          working-directory: ${{ env.MODULE_PATH }}
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
 
       # Update this step as needed to download the desired data
       - name: Download test data and results
