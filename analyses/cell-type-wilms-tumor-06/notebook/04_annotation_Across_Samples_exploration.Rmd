@@ -1,9 +1,9 @@
 ---
-title: "Annotation exploration for SCPCP000006, mapping score threshold `r params$mapping_score_thr`"
+title: "Annotation exploration for SCPCP000006, `predicted.score` threshold `r params$predicted.score_thr`"
 author: "Maud PLASCHKA"
 date: "`r Sys.Date()`"
 params: 
-  mapping_score_thr: 0.85
+  predicted.score_thr: 0.85
 output: 
   html_document: 
     toc: yes
@@ -30,8 +30,8 @@ The aim is to explore the annotations and label transfers for all of the samples
 
 In order to explore the label transfer results, we look into some marker genes, table and percentages of cells in each annotation groups (from label transfers).
 
-We also looked into the mapping scores for each of the compartments and explored the potential effects of score thresholds.
-In this notebook, we fixed the mapping score threshold to `r params$mapping_score_thr`.
+We also looked into the `predicted.score` for each of the compartments and explored the potential effects of score thresholds.
+In this notebook, we fixed the `predicted.score` threshold to `r params$predicted.score_thr`.
 
 
 ### Packages
@@ -117,14 +117,14 @@ cell_type_df <- metadata$scpca_sample_id |>
   # Combine with metadata
   dplyr::left_join(metadata, by = c("sample_id" = "scpca_sample_id")) |>
   # Create column for whether the compartment score passes threshold
-  dplyr::mutate(pass_mapping_QC = compartment_score > params$mapping_score_thr)
+  dplyr::mutate(pass_mapping_QC = compartment_score > params$predicted.score_thr)
 
 
-# we create a data frames of annotation of cells that pass the mapping score threshold
+# we create a data frames of annotation of cells that pass the `predicted.score` threshold
 cell_type_df_pass <- cell_type_df  |>
   dplyr::filter(pass_mapping_QC)
 
-# we create a data frames of annotation of cells that don't pass the mapping score threshold
+# we create a data frames of annotation of cells that don't pass the `predicted.score` threshold
 cell_type_df_nopass <- cell_type_df  |>
   dplyr::filter(!pass_mapping_QC)
 ```
@@ -355,7 +355,8 @@ DT::datatable(compartment_df,
               options = list(  dom = 'Bfrtip',
                                buttons = c( 'csv', 'excel')))
 ```
-### Label transfer (mapping) scores for the four compartments
+
+### Label transfer predicted.score for the four compartments
 
 The vertical line drawn correspods to the threshold explored in the notebook.
 
@@ -364,10 +365,10 @@ p <- do_Feature_densityplot( df = cell_type_df,
                     feature = "compartment_score",
                     group.by = "compartment"
                     )
-p +  geom_vline(xintercept=params$mapping_score_thr)
+p +  geom_vline(xintercept=params$predicted.score_thr)
 ```
 
-Some cells have an excellent mapping score (> `r params$mapping_score_thr`) while other performed worse. Let's have a look at the compartments per patient. 
+Some cells have an excellent `predicted.score` (> `r params$predicted.score_thr`) while other performed worse. Let's have a look at the compartments per patient. 
 
 ```{r fig.height=15, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
 p <- do_Feature_boxplot( df = cell_type_df,
@@ -375,11 +376,11 @@ p <- do_Feature_boxplot( df = cell_type_df,
                   group.by = "compartment",
                     split.by = "sample_id")
 
-p + geom_hline(yintercept = params$mapping_score_thr)  + coord_cartesian(ylim = c(0.25,1))
+p + geom_hline(yintercept = params$predicted.score_thr)  + coord_cartesian(ylim = c(0.25,1))
 
 ```
 
-Regarding the endothelial cells, some patient have very high mapping scores while others perform poorly. 
+Regarding the endothelial cells, some patient have very high `predicted.score` while others perform poorly. 
 Let's have a look if this can be linked to some metadata/clinical data.
 
 
@@ -392,7 +393,7 @@ p <- do_Feature_boxplot( df = cell_type_df,
                   group.by = "compartment",
                     split.by = "treatment")
 
-p + geom_hline(yintercept = params$mapping_score_thr) + coord_cartesian(ylim = c(0.25,1))
+p + geom_hline(yintercept = params$predicted.score_thr) + coord_cartesian(ylim = c(0.25,1))
 
 ```
 
@@ -406,7 +407,7 @@ p <- do_Feature_boxplot( df = cell_type_df,
                   group.by = "compartment",
                     split.by = "subdiagnosis")
 
-p + geom_hline(yintercept = params$mapping_score_thr) + coord_cartesian(ylim = c(0.25,1))
+p + geom_hline(yintercept = params$predicted.score_thr) + coord_cartesian(ylim = c(0.25,1))
 
 ```
 
@@ -418,13 +419,13 @@ p <- do_Feature_boxplot( df = cell_type_df,
                   group.by = "compartment",
                     split.by = "disease_timing")
 
-p + geom_hline(yintercept = params$mapping_score_thr) + coord_cartesian(ylim = c(0.25,1))
+p + geom_hline(yintercept = params$predicted.score_thr) + coord_cartesian(ylim = c(0.25,1))
 
 ```
 
 We do not really see a pattern linking the label transfer score and some meta/clinical data. 
 
-We finally look for each patient and compartment, the number of cells that have a mapping score > `r params$mapping_score_thr` (TRUE).
+We finally look for each patient and compartment, the number of cells that have a `predicted.score` > `r params$predicted.score_thr` (TRUE).
 
 ```{r fig.width=25, fig.height=3, results='asis'}
 scores_df <- cell_type_df |>
@@ -463,7 +464,7 @@ do_Feature_mean( df = cell_type_df,
 do_Feature_mean( df = cell_type_df_pass,
                     feature = "ENSG00000110799",
                     group.by = "compartment") +
-  ggtitle("VWF expression averaged by compartment for cells passing the mapping score threshold")
+  ggtitle("VWF expression averaged by compartment for cells passing the `predicted.score` threshold")
 ```
 
 
@@ -471,7 +472,7 @@ do_Feature_mean( df = cell_type_df_pass,
 do_Feature_mean( df = cell_type_df_nopass,
                     feature = "ENSG00000110799",
                     group.by = "compartment") +
-  ggtitle("VWF expression averaged by compartment for cells that don't pass the mapping score threshold")
+  ggtitle("VWF expression averaged by compartment for cells that don't pass the `predicted.score` threshold")
 ```
 
 
@@ -501,7 +502,7 @@ do_Feature_mean( df = cell_type_df,
 do_Feature_mean( df = cell_type_df_pass,
                     feature = "ENSG00000081237",
                     group.by = "compartment") +
-  ggtitle("PTPRC expression averaged by compartment for cells passing the mapping score threshold")
+  ggtitle("PTPRC expression averaged by compartment for cells passing the `predicted.score` threshold")
 ```
 
 
@@ -509,7 +510,7 @@ do_Feature_mean( df = cell_type_df_pass,
 do_Feature_mean( df = cell_type_df_nopass,
                     feature = "ENSG00000081237",
                     group.by = "compartment") +
-  ggtitle("PTPRC expression averaged by compartment for cells that are not passing the mapping score threshold")
+  ggtitle("PTPRC expression averaged by compartment for cells that are not passing the predicted score threshold")
 ```
 
 ```{r fig.height=25, fig.width=20, message=FALSE, warning=FALSE, out.width='100%'}
@@ -537,7 +538,7 @@ Point are colored per compartment:
 
 - purple = stroma
 
-Black cross show cell that do not pass the mapping threshold.
+Black cross show cell that do not pass the `predicted.score` threshold.
 
 ```{r fig.height=25, fig.width=20, message=FALSE, warning=FALSE, out.width='100%'}
 ggplot(cell_type_df, aes( x = umap.umap_1, y = umap.umap_2, color = compartment), shape = 19, size = 2)+
@@ -546,10 +547,10 @@ ggplot(cell_type_df, aes( x = umap.umap_1, y = umap.umap_2, color = compartment)
   facet_wrap(facets = ~sample_id)
 ```
 
-#### Cells passing the mapping score threshold
+#### Cells passing the `predicted.score` threshold
 
 Point are colored per compartment. 
-Here we only plotted cells that do pass the mapping score threshold.
+Here we only plotted cells that do pass the `predicted.score` threshold.
 
 ```{r fig.height=25, fig.width=20, message=FALSE, warning=FALSE, out.width='100%'}
 ggplot(cell_type_df_pass, aes( x = umap.umap_1, y = umap.umap_2, color = compartment), shape = 19, size = 2)+
