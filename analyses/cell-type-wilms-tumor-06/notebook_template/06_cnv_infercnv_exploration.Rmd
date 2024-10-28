@@ -90,9 +90,11 @@ For a Seurat object `object`, the function `Do_CNV_heatmap` load the `infercnv` 
 
 - `group.by` is the metadata used for grouping the violin plots
 
+- `reference_value` indicates the reference used for `infercnv`, either endothelial, immune, both or pool.
+
 ```{r}
 
-Do_CNV_heatmap <- function(object, infercnv_obj, group.by){
+Do_CNV_heatmap <- function(object, infercnv_obj, group.by, reference_value){
   
   out <- SCpubr::do_CopyNumberVariantPlot(sample = object,
                                         infercnv_object = infercnv_obj,
@@ -189,25 +191,25 @@ For a Seurat object `object`and a features `features`, the function `visualize_f
 
 - `object` is the Seurat object 
 
-- `features` the gene or quantitative value to be plotted
+- `feature` the gene or quantitative value to be plotted
 
 - `group.by` is the metadata used for grouping the violin plots 
 
 ```{r }
-visualize_feature <- function(object, features, group.by ){
+visualize_feature <- function(object, feature, group.by ){
  
                   d <- SCpubr::do_FeaturePlot(object, 
-                                              features = features, 
+                                              features = feature, 
                                               pt.size = 0.2, 
                                               legend.width = 0.5, 
                                               legend.length = 5, 
-                                              legend.position = "right") + ggtitle(features)
+                                              legend.position = "right") + ggtitle(as.character(feature))
                   b <- SCpubr::do_ViolinPlot(object, 
-                                             features = features, 
+                                             features = feature, 
                                              ncol = 1, 
                                              group.by = group.by, 
                                              legend.position = "none",
-                                             assay = "SCT") + ylab(features)
+                                             assay = "SCT") + ylab(as.character(feature))
                    
                   return(d + b + plot_layout(ncol = 2, widths = c(2,4))) 
 }
@@ -305,7 +307,7 @@ We then used the `infercnv object` to look at mean CNV value across compartments
 infercnv_obj <- list()
 for(reference_value in c("reference-none", "reference-immune", "reference-endothelium", "reference-both")){
   infercnv_obj[[reference_value]] <- readRDS(file.path(result_dir, glue::glue(reference_value, "_HMM-no") , glue::glue("06_infercnv_", params$sample_id, "_", reference_value, "_HMM-no.rds")))
-  print(Do_CNV_heatmap(object = srat, infercnv_obj = infercnv_obj[[reference_value]], group.by = "fetal_kidney_predicted.compartment"))
+  print(Do_CNV_heatmap(object = srat, infercnv_obj = infercnv_obj[[reference_value]], group.by = "fetal_kidney_predicted.compartment", reference_value = reference_value))
 }
 
 ```
@@ -334,7 +336,7 @@ Ideally, the CNV score distribution should show two peaks, one for the normal ce
 
 for(reference_value in c("reference-none", "reference-immune", "reference-endothelium", "reference-both")){
   srat <- Do_CNV_score(srat,infercnv_obj = infercnv_obj[[reference_value]], reference_value)
-  p1 <- visualize_feature(srat, glue::glue("CNV-score_", reference_value) , group.by = "fetal_kidney_predicted.compartment" )
+  p1 <- visualize_feature(srat, feature =  glue::glue("CNV-score_", reference_value) , group.by = "fetal_kidney_predicted.compartment" )
   p2 <- visualize_density(srat, features=glue::glue("CNV-score_", reference_value), group.by = "fetal_kidney_predicted.compartment")
   print(p1 + p2 + plot_layout(ncol = 3, widths = c(1,2,2)))
 }
@@ -391,7 +393,7 @@ The `umap` reduction visualization might allow the identification of cluster(s) 
 
 ```{r fig.width=10, fig.height=5, out.width='45%', out.height='45%'}
 for(i in 1:22){
-  print(visualize_feature(srat_i3, features=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment"))
+  print(visualize_feature(srat_i3, feature=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment"))
 }
 ```
 
@@ -494,7 +496,7 @@ For each chromosome, we look at the repartition of the `proportion_cnv_` in cell
 
 ```{r fig.width=10, fig.height=5, out.width='45%', out.height='45%'}
 for(i in 1:22){
-  print(visualize_feature(srat_i6, features=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment"))
+  print(visualize_feature(srat_i6, feature=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment"))
 }
 ```
 
@@ -576,10 +578,9 @@ visualize_metadata(srat_i6, "has_cnv_score", "fetal_kidney_predicted.compartment
 
 We lastly explore `infercnv` results generated with a pull of immune and endothelial cells from different Wilms tumor samples as reference, using a HMM-i3 prediction model.
 
-The selection of normal cells to be spiked-in as a normal reference prior running `infercnv` has been performed in `06a_build-normal-cell_reference.R.
+The selection of normal cells to be spiked-in as a normal reference prior running `infercnv` has been performed in `06b_build-normal-cell_reference.R.
 We selected samples that haven't been pre-treated with chemotherapies. Indeed, even if normal cells shouldn't be affected by chemotherapy in terms of CNV, we are not sure how chemotherapies can affect the CNV profile of normal cells.
-We thus decided to only take endothelial and immune cells from non-treated samples to build the reference of normal cells.
-
+We thus decided to only take endothelial and immune cells from non-treated samples whose label transfer scores are greater than 0.85 to build the reference of normal cells.
 
 #### Load the `Seurat` object
 
@@ -622,7 +623,7 @@ Also, we should visualize if one area of the umap do not have CNV and could be i
 
 ```{r fig.width=10, fig.height=5, out.width='45%', out.height='45%'}
 for(i in 1:22){
-  print(visualize_feature(srat, features=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment"))
+  print(visualize_feature(srat, feature=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment"))
 }
 ```
 
