@@ -13,22 +13,22 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - "analyses/cell-type-wilms-tumor-14/Dockerfile"
-  #     - "analyses/cell-type-wilms-tumor-14/.dockerignore"
-  #     - "analyses/cell-type-wilms-tumor-14/renv.lock"
-  #     - "analyses/cell-type-wilms-tumor-14/conda-lock.yml"
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - "analyses/cell-type-wilms-tumor-14/Dockerfile"
-  #     - "analyses/cell-type-wilms-tumor-14/.dockerignore"
-  #     - "analyses/cell-type-wilms-tumor-14/renv.lock"
-  #     - "analyses/cell-type-wilms-tumor-14/conda-lock.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "analyses/cell-type-wilms-tumor-14/Dockerfile"
+      - "analyses/cell-type-wilms-tumor-14/.dockerignore"
+      - "analyses/cell-type-wilms-tumor-14/renv.lock"
+      - "analyses/cell-type-wilms-tumor-14/conda-lock.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "analyses/cell-type-wilms-tumor-14/Dockerfile"
+      - "analyses/cell-type-wilms-tumor-14/.dockerignore"
+      - "analyses/cell-type-wilms-tumor-14/renv.lock"
+      - "analyses/cell-type-wilms-tumor-14/conda-lock.yml"
   workflow_dispatch:
     inputs:
       push-ecr:
