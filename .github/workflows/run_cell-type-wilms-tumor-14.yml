@@ -36,6 +36,9 @@ jobs:
     container: public.ecr.aws/openscpca/cell-type-wilms-tumor-14:latest
 
     steps:
+      - name: Install git
+        run: apt-get install git
+
       - name: Install aws-cli
         run: |
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
