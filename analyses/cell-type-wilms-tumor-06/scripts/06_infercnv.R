@@ -8,6 +8,11 @@
 #   --sample_id SCPCS000179
 #   --reference one of none, immune, endothelium, both
 
+# OUTPUT :
+# For every condition, the `infercnv` object and final `infercnv` heatmap are saved in the corresponding subfolder
+# When running the HMM- CNV prediction, the proportion of CNV per chromosome is saved as a metadata for each cells.
+# The updated `Seurat` object is additionally saved under the {sample_id} subfolder for easy use downstream.
+
 
 library(optparse)
 library(Seurat)
