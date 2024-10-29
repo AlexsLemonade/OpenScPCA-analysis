@@ -282,17 +282,21 @@ Else, the cell will have a `has_cnv_score` set to FALSE.
 wrapper_explore_hmm <- function(infercnv_obj, cnv_threshold = 1){
 
   p <- list()
+
   #### Plot UMAP of known Wilms tumor related alteration
   p[["compartment"]] <- visualize_metadata(infercnv_obj, "fetal_kidney_predicted.compartment", "seurat_clusters")
+  
   #### Feature plot and repartition of the CNV per chromosome
   for(i in 1:22){
-  tmp1 <- visualize_feature(infercnv_obj, feature=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment")
-  tmp2 <- visualize_density(infercnv_obj, features=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment")
-  p[[glue::glue("proportion_cnv_chr", i)]] <- tmp1 + tmp2 + plot_layout(ncol = 3, widths = c(1,2,2))
+    tmp1 <- visualize_feature(infercnv_obj, feature=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment")
+    tmp2 <- visualize_density(infercnv_obj, features=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment")
+    p[[glue::glue("proportion_cnv_chr", i)]] <- tmp1 + tmp2 + plot_layout(ncol = 3, widths = c(1,2,2))
   }
+  
   #### DotPlot
   p[["Dotplot"]] <- DotPlot(infercnv_obj, features =  colnames(infercnv_obj@meta.data)[grepl("has_cnv_chr", colnames(infercnv_obj@meta.data))], group.by = "fetal_kidney_predicted.compartment", assay = "SCT") + 
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  
   #### CNV score
   meta <- infercnv_obj@meta.data
   meta$has_cnv_score <- rowSums(meta[,grepl("has_cnv_chr", colnames(meta))])
