@@ -11,7 +11,7 @@
 # OUTPUT :
 # For every condition, the `infercnv` object and final `infercnv` heatmap are saved in the corresponding {sample_id}/06_infercnv results subfolder
 # When running the HMM- CNV prediction, the proportion of CNV per chromosome is saved as a metadata for each cells.
-# The updated `Seurat` object is additionally saved under the {sample_id} subfolder for easy use downstream.
+# The updated `Seurat` object is additionally saved under the {sample_id} results subfolder for easy use downstream.
 
 
 library(optparse)
