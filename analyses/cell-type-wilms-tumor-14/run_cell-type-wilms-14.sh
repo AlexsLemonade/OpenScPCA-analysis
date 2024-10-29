@@ -68,5 +68,5 @@ Rscript scripts/01_anchor_transfer_seurat.R \
   $TEST_FLAG
 
 Rscript scripts/summary_results.R \
-  --metadata "${meta_path}"
-  
+  --metadata "${meta_path}" \
+  $TEST_FLAG

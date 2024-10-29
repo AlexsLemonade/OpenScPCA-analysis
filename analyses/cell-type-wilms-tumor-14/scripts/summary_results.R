@@ -11,11 +11,25 @@ option_list <- list(
     type = "character",
     default = NULL,
     help = "Path to cohort metadata"
+  ),
+  make_option(
+    opt_str = c("--testing"),
+    type = "logical",
+    default = FALSE,
+    action = "store_true",
+    help = "Use this flag when running on test data"
   )
 )
 
 # Parse options
 opt <- parse_args(OptionParser(option_list = option_list))
+running_ci <- opt$testing
+
+if (running_ci) {
+  assays <- c("RNA")
+} else {
+  assays <- c("RNA", "SCT")
+}
 
 path_repo <- rprojroot::find_root(rprojroot::is_git_root)
 path_anal <- file.path(path_repo,"analyses","cell-type-wilms-tumor-14") 
@@ -48,7 +62,8 @@ read_library_csv <- function(library_id,
 
 
 concat_sample <- function(anchor_assay,
-                         level) {
+                         level,
+                         meta) {
   prediction_concat <- purrr::map2(
     meta$scpca_library_id,
     meta$scpca_sample_id,
@@ -66,12 +81,13 @@ concat_sample <- function(anchor_assay,
 
 ################### Creating summary table ################### 
 
+
 arg_df <- tidyr::expand_grid(
-  anchor_assay = c("RNA", "SCT"),
+  anchor_assay = assays,
   level = c("compartment", "celltype")
 )
 dfs <- purrr::pmap(arg_df,
-             \(anchor_assay, level) concat_sample(anchor_assay = anchor_assay, level = level)
+             \(anchor_assay, level) concat_sample(anchor_assay, level, meta)
 )
 final_table <- dfs %>%
   purrr::reduce(left_join)
