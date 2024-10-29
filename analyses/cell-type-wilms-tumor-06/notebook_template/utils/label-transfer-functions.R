@@ -41,7 +41,7 @@ prepare_query <- function(query, reference_rownames, homolog_file = homologs_fil
     calcn <- as.data.frame(x = Seurat:::CalcN(object = query[["RNA"]]))
     colnames(x = calcn) <- paste(
       colnames(x = calcn),
-      "RNA",
+      NULL, # assay
       sep = "_"
     )
     query <- AddMetaData(
@@ -58,7 +58,8 @@ prepare_query <- function(query, reference_rownames, homolog_file = homologs_fil
     query_symbols <- PercentageFeatureSet(
       object = query,
       pattern = "^MT-",
-      col.name = "percent.mt"
+      col.name = "percent.mt",
+      assay = NULL
     )
   }
 
@@ -94,7 +95,7 @@ transfer_labels <- function(
     reference,
     reference_dims,
     refdata,
-    k.weight = 10,
+    k.weight = 50,
     n.trees = 20,
     mapping.score.k = 80,
     ksmooth = 80,
@@ -107,7 +108,7 @@ transfer_labels <- function(
     k.filter = NA,
     reference.neighbors = "refdr.annoy.neighbors",
     reference.assay = "refAssay",
-    query.assay = "RNA",
+    query.assay = NULL,
     reference.reduction = "refDR",
     normalization.method = "SCT",
     features = rownames(Loadings(reference[["refDR"]])),
@@ -122,7 +123,7 @@ transfer_labels <- function(
   query <- TransferData(
     reference = reference,
     query = query,
-    query.assay = "RNA",
+    query.assay = NULL,
     dims = 1:reference_dims,
     anchorset = anchors,
     refdata = refdata,
