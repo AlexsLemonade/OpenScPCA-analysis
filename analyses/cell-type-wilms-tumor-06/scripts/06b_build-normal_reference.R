@@ -4,6 +4,9 @@ repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 # The path to this module
 module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06")
 
+# Define threshold score. Only cells with annotations greater than this threshold will be used
+score_threshold <- 0.85
+
 # Select samples that haven't be pre-treated with chemotherapies
 # Even if normal cells shouldn't be affected by chemotherapy in terns of CNV, we decided to only take endothelial and immune cells from non-treated samples to build the reference of normal cells
 
