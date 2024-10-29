@@ -1,7 +1,9 @@
 ---
-title: "Annotation exploration for SCPCP000006"
+title: "Annotation exploration for SCPCP000006, `predicted.score` threshold `r params$predicted.score_thr`"
 author: "Maud PLASCHKA"
 date: "`r Sys.Date()`"
+params: 
+  predicted.score_thr: 0.85
 output: 
   html_document: 
     toc: yes
@@ -26,8 +28,10 @@ knitr::opts_chunk$set(echo = TRUE,
 
 The aim is to explore the annotations and label transfers for all of the samples in SCPCP000006.
 
-
 In order to explore the label transfer results, we look into some marker genes, table and percentages of cells in each annotation groups (from label transfers).
+
+We also looked into the `predicted.score` for each of the compartments and explored the potential effects of score thresholds.
+In this notebook, we fixed the `predicted.score` threshold to `r params$predicted.score_thr`.
 
 
 ### Packages
@@ -95,20 +99,34 @@ cell_type_df <- metadata$scpca_sample_id |>
       )
 
       # Create and return a data frame from the Seurat object with relevant annotations
-      # this data frame will have four columns: barcode, sample_id, compartment, organ
+      # this data frame will have six columns: barcode, compartment, organ, compartment_score, VWF and PTPRC
       data.frame(
         compartment = srat$fetal_kidney_predicted.compartment,
+        compartment_score = srat$fetal_kidney_predicted.compartment.score,
         organ = srat$fetal_full_predicted.organ, 
         PTPRC = FetchData(object = srat, vars = "ENSG00000081237", layer = "counts"),
-        VWF = FetchData(object = srat, vars = "ENSG00000110799", layer = "counts")
+        VWF = FetchData(object = srat, vars = "ENSG00000110799", layer = "counts"),
+        umap = srat@reductions$umap@cell.embeddings
         ) |>
         tibble::rownames_to_column("barcode") |>
         dplyr::mutate(sample_id = sample_id)
     }
   ) |>
   # now combine all dataframes to make one big one
-  dplyr::bind_rows()
+  dplyr::bind_rows() |>
+  # Combine with metadata
+  dplyr::left_join(metadata, by = c("sample_id" = "scpca_sample_id")) |>
+  # Create column for whether the compartment score passes threshold
+  dplyr::mutate(pass_mapping_QC = compartment_score > params$predicted.score_thr)
 
+
+# we create a data frames of annotation of cells that pass the `predicted.score` threshold
+cell_type_df_pass <- cell_type_df  |>
+  dplyr::filter(pass_mapping_QC)
+
+# we create a data frames of annotation of cells that don't pass the `predicted.score` threshold
+cell_type_df_nopass <- cell_type_df  |>
+  dplyr::filter(!pass_mapping_QC)
 ```
 
 ### Output file
@@ -142,8 +160,8 @@ p <- ggplot(df, aes(x= sample_id, y = !!sym(group.by), fill = m)) +
    scale_fill_viridis_c()  +
    theme_bw() +
    theme(text = element_text(size = 20)) +
-   theme(axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5)) +
-   guides(fill=guide_legend(title=paste0(feature)))
+   theme(axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5), title = element_text(size = rel(0.75))) +
+   guides(fill=guide_colourbar(title=paste0(feature)))
 
 return(p)
 }
@@ -155,8 +173,10 @@ return(p)
 `do_Feature_boxplot` shows boxplot of expression of a feature grouped by a metadata. 
 
 - `df` is the name of the table containing metadata and feature expression (counts) per cells
-- `group.by` is the name of the metadata to group the cells
 - `feature` is the name of the gene to average the expression
+- `group.by` is the name of the metadata to group the cells
+- `split.by` is the name of the metadata to split the plots
+
 
 ```{r fig.width=10, fig.height=4, out.width='100%'}
 do_Feature_boxplot <- function(df, group.by, feature, split.by ){
@@ -174,6 +194,31 @@ do_Feature_boxplot <- function(df, group.by, feature, split.by ){
     axis.text.x = element_text(size = 12, angle = 0, hjust = 0.5, vjust = 0), 
     legend.position = "none"
   ) 
+
+return(p)
+}
+```
+
+#### do_Feature_densityplot
+
+`do_Feature_densityplot` shows boxplot of expression of a feature grouped by a metadata. 
+
+- `df` is the name of the table containing metadata and feature expression (counts) per cells
+- `group.by` is the name of the metadata to group the cells
+- `feature` is the name of the gene to average the expression
+
+```{r fig.width=10, fig.height=4, out.width='100%'}
+do_Feature_densityplot <- function(df, group.by, feature){
+  
+  df <- df %>%
+    mutate(!!sym(group.by), group  = factor(!!sym(group.by), levels = c("fetal_nephron", "stroma", "immune", "endothelium")))
+    
+  p <- ggplot(df, 
+    aes(x = !!sym(feature),  fill = group)
+  ) + 
+  geom_density() +
+  facet_wrap(vars(!!sym(group.by)), scale = "free_y", ncol = 4) + 
+  theme_bw() 
 
 return(p)
 }
@@ -311,7 +356,91 @@ DT::datatable(compartment_df,
                                buttons = c( 'csv', 'excel')))
 ```
 
+### Label transfer predicted.score for the four compartments
 
+The vertical line drawn correspods to the threshold explored in the notebook.
+
+```{r fig.height=5, fig.width=10, message=FALSE, warning=FALSE, out.width='100%'}
+p <- do_Feature_densityplot( df = cell_type_df,
+                    feature = "compartment_score",
+                    group.by = "compartment"
+                    )
+p +  geom_vline(xintercept=params$predicted.score_thr)
+```
+
+Some cells have an excellent `predicted.score` (> `r params$predicted.score_thr`) while other performed worse. Let's have a look at the compartments per patient. 
+
+```{r fig.height=15, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
+p <- do_Feature_boxplot( df = cell_type_df,
+                    feature = "compartment_score",
+                  group.by = "compartment",
+                    split.by = "sample_id")
+
+p + geom_hline(yintercept = params$predicted.score_thr)  + coord_cartesian(ylim = c(0.25,1))
+
+```
+
+Regarding the endothelial cells, some patient have very high `predicted.score` while others perform poorly. 
+Let's have a look if this can be linked to some metadata/clinical data.
+
+
+
+##### Treatment
+
+```{r fig.height=3, fig.width=10, message=FALSE, warning=FALSE, out.width='100%'}
+p <- do_Feature_boxplot( df = cell_type_df,
+                    feature = "compartment_score",
+                  group.by = "compartment",
+                    split.by = "treatment")
+
+p + geom_hline(yintercept = params$predicted.score_thr) + coord_cartesian(ylim = c(0.25,1))
+
+```
+
+
+
+##### Subdiagnosis
+
+```{r fig.height=3, fig.width=10, message=FALSE, warning=FALSE, out.width='100%'}
+p <- do_Feature_boxplot( df = cell_type_df,
+                    feature = "compartment_score",
+                  group.by = "compartment",
+                    split.by = "subdiagnosis")
+
+p + geom_hline(yintercept = params$predicted.score_thr) + coord_cartesian(ylim = c(0.25,1))
+
+```
+
+##### Disease timing
+
+```{r fig.height=3, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
+p <- do_Feature_boxplot( df = cell_type_df,
+                    feature = "compartment_score",
+                  group.by = "compartment",
+                    split.by = "disease_timing")
+
+p + geom_hline(yintercept = params$predicted.score_thr) + coord_cartesian(ylim = c(0.25,1))
+
+```
+
+We do not really see a pattern linking the label transfer score and some meta/clinical data. 
+
+We finally look for each patient and compartment, the number of cells that have a `predicted.score` > `r params$predicted.score_thr` (TRUE).
+
+```{r fig.width=25, fig.height=3, results='asis'}
+scores_df <- cell_type_df |>
+  # count how many per compartment
+  dplyr::count(sample_id, compartment, pass_mapping_QC) |>
+  # make the table wide and use a value of 0 if a count is missing
+  tidyr::pivot_wider(names_from = pass_mapping_QC, values_from = n, values_fill = 0) 
+
+
+DT::datatable(scores_df, 
+              caption = "counts of cells that have a good/poor mapping in each compartment",
+              extensions = 'Buttons', 
+              options = list(  dom = 'Bfrtip',
+                               buttons = c( 'csv', 'excel')))
+```
 
 
 ### Evaluate annotations with marker genes
@@ -326,34 +455,108 @@ We look at the endothelial marker "ENSG00000110799" = "VWF"
 
 ```{r fig.height=6, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
 do_Feature_mean( df = cell_type_df,
-                  feature = "ENSG00000110799",
-                  group.by = "compartment")
+                    feature = "ENSG00000110799",
+                    group.by = "compartment") +
+  ggtitle("VWF expression averaged by compartment for all cells")
 ```
+
+```{r fig.height=6, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
+do_Feature_mean( df = cell_type_df_pass,
+                    feature = "ENSG00000110799",
+                    group.by = "compartment") +
+  ggtitle("VWF expression averaged by compartment for cells passing the `predicted.score` threshold")
+```
+
+
+```{r fig.height=6, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
+do_Feature_mean( df = cell_type_df_nopass,
+                    feature = "ENSG00000110799",
+                    group.by = "compartment") +
+  ggtitle("VWF expression averaged by compartment for cells that don't pass the `predicted.score` threshold")
+```
+
 
 ```{r fig.height=25, fig.width=20, message=FALSE, warning=FALSE, out.width='100%'}
 do_Feature_boxplot( df = cell_type_df,
                     feature = "ENSG00000110799",
                     group.by = "compartment",
-                    split.by = "sample_id")
+                    split.by = "sample_id")  +
+  ggtitle("boxplot of VWF expression for all cells")
 
 ```
+
+
 
 ##### Immune cells
 
 We look at the immune marker "ENSG00000081237" = "PTPRC" alias "CD45"
 
+```{r fig.height=6, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
+do_Feature_mean( df = cell_type_df,
+                    feature = "ENSG00000081237",
+                    group.by = "compartment") +
+  ggtitle("PTPRC expression averaged by compartment for all cells")
+```
 
 ```{r fig.height=6, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
-do_Feature_mean(  df = cell_type_df,
-                  feature = "ENSG00000081237",
-                  group.by = "compartment")
+do_Feature_mean( df = cell_type_df_pass,
+                    feature = "ENSG00000081237",
+                    group.by = "compartment") +
+  ggtitle("PTPRC expression averaged by compartment for cells passing the `predicted.score` threshold")
+```
+
+
+```{r fig.height=6, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
+do_Feature_mean( df = cell_type_df_nopass,
+                    feature = "ENSG00000081237",
+                    group.by = "compartment") +
+  ggtitle("PTPRC expression averaged by compartment for cells that are not passing the predicted score threshold")
 ```
 
 ```{r fig.height=25, fig.width=20, message=FALSE, warning=FALSE, out.width='100%'}
 do_Feature_boxplot( df = cell_type_df,
                     feature = "ENSG00000081237",
                     group.by = "compartment",
-                    split.by = "sample_id")
+                    split.by = "sample_id")  +
+  ggtitle("boxplot of PTPRC expression for all cells")
+
+```
+
+### Umap reduction
+
+We look at the umap reduction per sample. 
+
+#### All cells
+
+Point are colored per compartment:
+
+- red = endothelial
+
+- green = fetal nephron
+
+- cyan = immune
+
+- purple = stroma
+
+Black cross show cell that do not pass the `predicted.score` threshold.
+
+```{r fig.height=25, fig.width=20, message=FALSE, warning=FALSE, out.width='100%'}
+ggplot(cell_type_df, aes( x = umap.umap_1, y = umap.umap_2, color = compartment), shape = 19, size = 2)+
+  geom_point() +
+  geom_point(data = cell_type_df_nopass, mapping = aes( x = umap.umap_1, y = umap.umap_2),  shape = 4, color = "black", alpha = 0.3) +
+  facet_wrap(facets = ~sample_id)
+```
+
+#### Cells passing the `predicted.score` threshold
+
+Point are colored per compartment. 
+Here we only plotted cells that do pass the `predicted.score` threshold.
+
+```{r fig.height=25, fig.width=20, message=FALSE, warning=FALSE, out.width='100%'}
+ggplot(cell_type_df_pass, aes( x = umap.umap_1, y = umap.umap_2, color = compartment), shape = 19, size = 2)+
+  geom_point() +
+  facet_wrap(facets = ~sample_id)
+
 
 ```
 
@@ -388,18 +591,17 @@ Of note, it is known that `CopyKAT` has difficulty in predicting tumor and norma
 - or by try to search for T cells.
 
 
-For that reason, we will first try to run `CopyKAT` on 2-5 samples that have a decent amount (>100 cells when possible) of normal cells (endothelial and immune cells) and for which we are quite confident with the label transfer:
+For that reason, we will first try to run `CopyKAT` on 2-5 samples that have a majority of cells mapping to kidney and a decent amount (>100 cells when possible) of normal cells (endothelial and immune cells) and for which we are quite confident with the label transfer:
 
-- sample `SCPCS000194` has > `85` % of cells predicted as kidney and `234` + `83` endothelium and immune cells.
+- sample `SCPCS000194` 
 
-- sample `SCPCS000179` has > `94` % of cells predicted as kidney and `25` + `111` endothelium and immune cells.
+- sample `SCPCS000179`
 
-- sample `SCPCS000184` has > `96` % of cells predicted as kidney and `39` + `70` endothelium and immune cells.
+- sample `SCPCS000184`
 
-- sample `SCPCS000205` has > `89` % of cells predicted as kidney and `92` + `76` endothelium and immune cells.
+- sample `SCPCS000205`
 
-- sample `SCPCS0000208` has > `95` % of cells predicted as kidney and `18` + `35` endothelium and immune cells.
-
+- sample `SCPCS0000208`
 
 For the selected samples, we will run `copyKAT` with and without providing a list of normal cells. 
 That will be useful to us to see how consistent results are.
