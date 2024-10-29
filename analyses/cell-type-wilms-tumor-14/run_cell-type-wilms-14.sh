@@ -66,3 +66,7 @@ Rscript scripts/01_anchor_transfer_seurat.R \
   --run_LogNormalize \
   $SCT_FLAG \
   $TEST_FLAG
+
+Rscript scripts/summary_results.R \
+  --metadata "${meta_path}"
+  

@@ -20,6 +20,7 @@ run_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir, plots_o
   # set active assay
   DefaultAssay(sample_obj) <- obj_assay
   DefaultAssay(ref_obj) <- obj_assay
+  normalization_method <- ifelse(obj_assay == "SCT", "SCT", "LogNormalize")
   
   # set row names as gene symbol, since reference obj uses gene symbol by default
   # length(intersect(rownames(ref_obj), rownames(sample_obj))) # make sure gene symbol consistency
@@ -29,7 +30,7 @@ run_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir, plots_o
   # rownames(sample_obj) <- sample_obj[["RNA"]]@meta.data$gene_symbol
   
   # find anchors
-  anchors <- FindTransferAnchors(reference = ref_obj, query = sample_obj, 
+  anchors <- FindTransferAnchors(reference = ref_obj, query = sample_obj, normalization.method = normalization_method,
                                  dims = 1:ndims)
   nanchors <- nrow(anchors@anchors)
   # clean annotation, too few stroma, immune and endo
@@ -45,11 +46,11 @@ run_anchorTrans <- function(path_anal, scratch_out_dir, results_out_dir, plots_o
       mutate(annot = compartment)
   } else {
     ref_obj@meta.data <- ref_obj@meta.data %>%
-      mutate(annot = celltype) %>%
-      mutate(annot = case_when(compartment == "stroma" ~ "stroma",
-                              compartment == "immune" ~ "immune",
-                              compartment == "endothelium" ~ "endothelium",
-                              TRUE ~ annot))
+      mutate(annot = celltype) # %>%
+      # mutate(annot = case_when(compartment == "stroma" ~ "stroma",
+      #                         compartment == "immune" ~ "immune",
+      #                         compartment == "endothelium" ~ "endothelium",
+      #                         TRUE ~ annot))
   }
   ref_obj@meta.data$annot <- factor(ref_obj@meta.data$annot)
   # transfer labels
