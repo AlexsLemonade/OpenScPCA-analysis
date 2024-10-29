@@ -1,0 +1,393 @@
+---
+title: "Compare label transfer results between Azimuth and Azimuth-adapted strategy"
+author: Stephanie Spielman, Data Lab
+output: 
+  html_notebook: 
+    toc: yes
+    toc_float: yes
+params:
+  seed: 12345
+---
+
+
+The goal of this notebook is to compare label transfer results between:
+
+- Label transfer code with Azimuth currently in `main` at commit `6af112d`. These results are referred to as `"azimuth"`.
+- Label transfer code adapted from Azimuth. These results are referred to as `"adapted_azimuth"`.
+
+
+## Setup
+
+```{r setup}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+options(future.globals.maxSize = 891289600000000)
+
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(patchwork)
+  library(Seurat)
+})
+
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06")
+result_dir <- file.path(module_base, "results")
+
+
+# functions to perform label transfer with azimuth-adapted approach
+source(
+  file.path(module_base, "notebook_template", "utils", "label-transfer-functions.R")
+)
+
+# Output files
+full_results_file <- file.path(module_base, "scratch", "compare-label-transfer_fetal-full.rds")
+kidney_results_file <- file.path(module_base, "scratch", "compare-label-transfer_fetal-kidney.rds")
+```
+
+## Functions
+
+```{r functions}
+# Make a heatmap of counts for label transfer strategies
+plot_count_heatmap <- function(df, title, sample_id) {
+  all_preds <- union(df$azimuth, df$adapted_azimuth)
+
+  plotme <- data.frame(
+    azimuth = all_preds,
+    adapted_azimuth = all_preds
+  ) |>
+    expand(azimuth, adapted_azimuth) |>
+    mutate(n = NA_integer_) |>
+    anti_join(distinct(df)) |>
+    bind_rows(
+      df |> count(azimuth, adapted_azimuth)
+    ) |>
+    arrange(azimuth) |>
+    mutate(
+      color = case_when(
+        is.na(n) ~ "white",
+        n <= 20 ~ "grey90",
+        n <= 50 ~ "lightblue",
+        n <= 100 ~ "cornflowerblue",
+        n <= 500 ~ "red",
+        n <= 1000 ~ "yellow2",
+        .default = "yellow"
+      )
+    )
+
+  ggplot(plotme) +
+    aes(x = azimuth, y = adapted_azimuth, fill = color, label = n) +
+    geom_tile(alpha = 0.5) +
+    geom_abline(color = "firebrick", alpha = 0.5) +
+    geom_text(size = 3.5) +
+    # scale_fill_viridis_c(name = "count", na.value = "grey90") +
+    scale_fill_identity() +
+    theme_bw() +
+    theme(
+      axis.text.y = element_text(size = 7),
+      axis.text.x = element_text(angle = 30, size = 7, hjust = 1),
+      legend.position = "bottom",
+      legend.title = element_text(size = 9),
+      legend.text = element_text(size = 8)
+    ) +
+    labs(
+      title = glue::glue("{sample_id}: {str_to_title(title)}")
+    )
+}
+
+
+# Wrapper function to compare results between approaches
+# Makes two plots:
+# - heatmap comparing counts for cell labels between approaches
+# - density plot of annotation scores for labels that agree and disagree between approaches
+compare <- function(df, compare_column, score_column, title) {
+  spread_df <- df |>
+    select({{ compare_column }}, barcode, version) |>
+    pivot_wider(names_from = version, values_from = {{ compare_column }})
+
+
+  heatmap <- plot_count_heatmap(spread_df, title, unique(df$sample_id))
+
+  disagree_barcodes <- spread_df |>
+    filter(azimuth != adapted_azimuth) |>
+    pull(barcode)
+
+  df2 <- df |>
+    mutate(
+      agree = ifelse(barcode %in% disagree_barcodes, "labels disagree", "labels agree"),
+      agree = fct_relevel(agree, "labels disagree", "labels agree")
+    )
+
+  density_plot <- ggplot(df2) +
+    aes(x = {{ score_column }}, fill = agree) +
+    geom_density(alpha = 0.6) +
+    theme_bw() +
+    ggtitle(
+      glue::glue("Disagree count: {length(disagree_barcodes)} out of {nrow(spread_df)}")
+    ) +
+    theme(legend.position = "bottom")
+
+  print(heatmap + density_plot + plot_layout(widths = c(2, 1)))
+}
+```
+
+
+## Label transfer
+
+This section both:
+
+- Reads in existing Azimuth label transfer results
+- Performs label transfer with Azimuth-adapted approach
+
+If results are already available, we read in the files rather than regenerating results.
+
+```{r}
+# sample ids to process
+sample_ids <- c("SCPCS000179", "SCPCS000184", "SCPCS000194", "SCPCS000205", "SCPCS000208")
+
+# read in seurat input objects, as needed
+if ((!file.exists(full_results_file)) || (!file.exists(kidney_results_file))) {
+  srat_objects <- sample_ids |>
+    purrr::map(
+      \(id) {
+        srat <- readRDS(
+          file.path(result_dir, id, glue::glue("01-Seurat_{id}.Rds"))
+        )
+        DefaultAssay(srat) <- "RNA"
+
+        return(srat)
+      }
+    )
+  names(srat_objects) <- sample_ids
+}
+```
+
+
+### Label transfer for fetal full
+
+```{r}
+if (!file.exists(full_results_file)) {
+  # read reference
+  ref <- readRDS(file.path(
+    module_base,
+    "results",
+    "references",
+    "cao_formatted_ref.rds"
+  ))
+  full_reference <- ref$reference
+  full_refdata <- ref$refdata
+  full_dims <- ref$dims
+  full_annotation_columns <- c(
+    glue::glue("predicted.{ref$annotation_levels}"),
+    glue::glue("predicted.{ref$annotation_levels}.score")
+  )
+
+
+  fetal_full <- srat_objects |>
+    purrr::imap(
+      \(srat, id) {
+        # Perform label transfer with new code
+        set.seed(params$seed)
+        query <- prepare_query(srat, rownames(full_reference), file.path(module_base, "scratch", "homologs.rds"))
+        query <- transfer_labels(
+          query,
+          full_reference,
+          full_dims,
+          full_refdata
+        )
+
+        # Read in results from existing Azimuth label transfer code
+        srat_02a <- readRDS(
+          file.path(result_dir, id, glue::glue("02a-fetal_full_label-transfer_{id}.Rds"))
+        )
+
+        # create final data frame with all annotations
+        query@meta.data[, full_annotation_columns] |>
+          tibble::rownames_to_column(var = "barcode") |>
+          mutate(
+            sample_id = id,
+            version = "adapted_azimuth"
+          ) |>
+          # existing results
+          bind_rows(
+            data.frame(
+              sample_id = id,
+              barcode = colnames(srat_02a),
+              version = "azimuth",
+              predicted.annotation.l1 = srat_02a$fetal_full_predicted.annotation.l1,
+              predicted.annotation.l1.score = srat_02a$fetal_full_predicted.annotation.l1.score,
+              predicted.annotation.l2 = srat_02a$fetal_full_predicted.annotation.l2,
+              predicted.annotation.l2.score = srat_02a$fetal_full_predicted.annotation.l2.score,
+              predicted.organ = srat_02a$fetal_full_predicted.organ,
+              predicted.organ.score = srat_02a$fetal_full_predicted.organ.score
+            )
+          )
+      }
+    )
+  write_rds(fetal_full, full_results_file)
+} else {
+  fetal_full <- read_rds(full_results_file)
+}
+```
+
+
+### Label transfer for fetal kidney
+
+
+```{r}
+if (!file.exists(kidney_results_file)) {
+  # read reference
+  ref <- readRDS(file.path(
+    module_base,
+    "results",
+    "references",
+    "stewart_formatted_ref.rds"
+  ))
+
+  # Pull out information from the reference object we need for label transfer
+  kidney_reference <- ref$reference
+  kidney_refdata <- ref$refdata
+  kidney_dims <- ref$dims
+  kidney_annotation_columns <- c(
+    glue::glue("predicted.{ref$annotation_levels}"),
+    glue::glue("predicted.{ref$annotation_levels}.score")
+  )
+
+
+  fetal_kidney <- srat_objects |>
+    purrr::imap(
+      \(srat, id) {
+        # Perform label transfer with new code
+        set.seed(params$seed)
+        query <- prepare_query(srat, rownames(kidney_reference), file.path(module_base, "scratch", "homologs.rds"))
+        query <- transfer_labels(
+          query,
+          kidney_reference,
+          kidney_dims,
+          kidney_refdata
+        )
+
+        # Read in results from existing Azimuth label transfer code
+        srat_02b <- readRDS(
+          file.path(result_dir, id, glue::glue("02b-fetal_kidney_label-transfer_{id}.Rds"))
+        )
+
+        # create final data frame with all annotations
+        query@meta.data[, kidney_annotation_columns] |>
+          tibble::rownames_to_column(var = "barcode") |>
+          mutate(
+            sample_id = id,
+            version = "adapted_azimuth"
+          ) |>
+          # existing results
+          bind_rows(
+            data.frame(
+              sample_id = id,
+              barcode = colnames(srat_02b),
+              version = "azimuth",
+              predicted.compartment = srat_02b$fetal_kidney_predicted.compartment,
+              predicted.compartment.score = srat_02b$fetal_kidney_predicted.compartment.score,
+              predicted.cell_type = srat_02b$fetal_kidney_predicted.cell_type,
+              predicted.cell_type.score = srat_02b$fetal_kidney_predicted.cell_type.score
+            )
+          )
+      }
+    )
+
+  write_rds(fetal_kidney, kidney_results_file)
+} else {
+  fetal_kidney <- read_rds(kidney_results_file)
+}
+```
+
+
+## Compare results
+
+We expect:
+- The majority of annotations match between approaches, with heatmap counts primarily falling along the diagonal
+- Any annotations that disagree should have low scores
+
+
+### Fetal full reference
+
+Note that results from the L2 reference are not plotted because they are not used in cell type annotation.
+
+
+```{r fig.height=8, fig.width=14}
+fetal_full |>
+  purrr::walk(
+    \(dat) {
+      compare(dat, predicted.annotation.l1, predicted.annotation.l1.score, "l1")
+      compare(dat, predicted.organ, predicted.organ.score, "organ")
+    }
+  )
+```
+
+
+### Fetal kidney reference
+
+```{r fig.height=8, fig.width=14}
+fetal_kidney |>
+  purrr::walk(
+    \(dat) {
+      compare(dat, predicted.compartment, predicted.compartment.score, "compartment")
+      compare(dat, predicted.cell_type, predicted.cell_type.score, "cell_type")
+    }
+  )
+```
+
+
+
+## Conclusions
+
+The vast majority of the time, labels agree. 
+Generally speaking, when labels do not agree, their annotation scores are much lower, which is as expected.
+ 
+Additional notable differences are shown in tables below:
+    
+### Fetal full reference:
+
+- The Azimuth-adapted approach occasionally calls kidney or kidney-related cells as intestine or intestine epithelial
+- Some other kidney-related differences are noted:
+
+| Sample | Reference | Count | Azimuth | Azimuth-adapted |
+|--------|-----------|-------|---------|-----------------|
+| SCPSC000179 | L1 | 70 | Metanephritic cells | Intestinal epithelial cells | 
+| SCPSC000179 | Organ | 64 | Kidney | Intestine | 
+| SCPSC000179 | Organ | 20 | Lung | Kidney | 
+| SCPSC000194 | L1 | 60 | Stromal cells | Mesangial cells | 
+| SCPSC000194 | Organ | 35 | Kidney | Intestine | 
+| SCPSC000194 | Organ | 36 | Lung | Kidney | 
+| SCPSC000205 | Organ | 56 | Kidney | Intestine |
+| SCPSC000208 | L1 | 101 | Mesangial cells | Metanephritic cells |  
+| SCPSC000208 | L1 | 101 | Intestinal epithelial cells | Metanephritic cells |  
+| SCPSC000208 | Organ | 149 | Kidney | Intestine | 
+
+
+### Fetal kidney reference:
+
+
+- There are a small but notable number of cells flipped between mesenchyme and kidney cells, in particular for sample SCPSC000184.
+This is the main discrepancy.
+- Most of the cell type differences are not necessarily biologically meaningful for our purposes, as listed below. These are not noted in the table.
+   - `kidney cell` vs `podocyte`
+   - `kidney epithelial cell` vs `kidney cell` 
+   - `mesenchymal cell` vs `mesenchymal stem cell` 
+- There are a decent number of times when stroma and fetal nephron are flipped, but this makes sense given that we expect many of the stroma may be tumor.
+- Disagreeing annotation scores when using the cell type reference were often higher, but many of the disagreements for this reference were not meaningful (e.g. `kidney epithelial cell` vs `kidney cell`).
+
+
+| Sample | Reference | Count | Azimuth | Azimuth-adapted |
+|--------|-----------|-------|---------|-----------------|
+| SCPSC000179 | cell type | 202 | mesenchymal cell | kidney epithelial cell | 
+| SCPSC000184 | compartment | 111 | fetal nephron |  stroma | 
+| SCPSC000184 | cell type | 536 | kidney epithelial cell | mesenchymal cell | 
+| SCPSC000194 | compartment | 565 | fetal nephron |  stroma | 
+| SCPSC000194 | cell type  | 89 | kidney epithelial cell | mesenchymal cell | 
+| SCPSC000205 | compartment  | 684 | fetal nephron |  stroma | 
+| SCPSC000208 | compartment  | 2111 | fetal nephron |  stroma | 
+
+
+## Session Info
+
+```{r}
+sessionInfo()
+```
