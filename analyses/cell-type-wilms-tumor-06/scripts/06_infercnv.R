@@ -6,7 +6,7 @@
 # USAGE:
 # Rscript 06_infercnv.R \
 #   --sample_id SCPCS000179
-#   --reference one of none, immune, endothelium, both
+#   --reference one of none, immune, endothelium, both, pull
 
 # OUTPUT :
 # For every condition, the `infercnv` object and final `infercnv` heatmap are saved in the corresponding {sample_id}/06_infercnv results subfolder
