@@ -50,8 +50,8 @@ Rscript -e "rmarkdown::render('${notebook_template_dir}/00b_characterize_fetal_k
 
 
 # Run the label transfer and cluster exploration for all samples in the project
-for sample_id in SCPCS000168; do #${data_dir}/${project_id}/SCPCS*; do
-  #  sample_id=$(basename $sample_dir)
+for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
+    sample_id=$(basename $sample_dir)
 
     # define and create sample-specific directories
     # directory for the pre-processed and labeled `Seurat` objects
