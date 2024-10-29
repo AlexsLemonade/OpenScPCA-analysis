@@ -51,6 +51,7 @@ All results are sync under S3 bucket `researcher-009160072044-us-east-2`.
 #### 01. Anchor transfer using Seurat
 - Path on S3 `s3://researcher-009160072044-us-east-2/cell-type-wilms-tumor-14/results/01_anchor_transfer_seurat`. 
 - For more description, see `./results/README.md`.
+- Summary table for cell type annotation is available on S3 at `s3://researcher-009160072044-us-east-2/cell-type-wilms-tumor-14/results/01_anchor_transfer_seurat/summary_results.csv`.
 
 ## Software requirements
 

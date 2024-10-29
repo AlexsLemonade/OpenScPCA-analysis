@@ -1,10 +1,6 @@
 # Results should not be committed
 /results/*
 !/results/README.md
-# except for cell type summary table
-!/results/01_anchor_transfer_seurat
-/results/01_anchor_transfer_seurat/*
-!/results/01_anchor_transfer_seurat/summary_results.csv.gz
 
 # Ignore the scratch directory (but keep it present)
 /scratch/*
