@@ -1,6 +1,8 @@
 library(dplyr)
 library(Seurat)
 library(ggpubr)
+library(glmGamPoi)
+
 pre_seuratobj <- function(obj, nfeatures = 500, run_harmony = TRUE, reduction = "harmony", ndims = 50,
                           skip_logNorm = TRUE){
   ######## Normalize, scale, feature selection
