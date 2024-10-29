@@ -31,7 +31,7 @@ option_list <- list(
     opt_str = c("-r", "--reference"),
     type = "character",
     default = "both",
-    help = "Reference cells to use as normal cells, either none, immune, endothelium, both or pull"
+    help = "Reference cells to use as normal cells, either none, immune, endothelium, both or pull. The 'pull` option will pull in normal cells from other samples to include in the reference."
   ),
   make_option(
     opt_str = c("-m", "--HMM"),
