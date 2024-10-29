@@ -6,7 +6,7 @@ FROM bioconductor/r-ver:3.19
 LABEL org.opencontainers.image.title="openscpca/cell-type-nonETP-ALL-03"
 LABEL org.opencontainers.image.description="Docker image for the OpenScPCA analysis module 'cell-type-nonETP-ALL-03'"
 LABEL org.opencontainers.image.authors="OpenScPCA scpca@ccdatalab.org"
-LABEL org.opencontainers.image.source="https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/templates/analysis-module"
+LABEL org.opencontainers.image.source="https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/cell-type-nonETP-ALL-03"
 
 # Set an environment variable to allow checking if we are in an OpenScPCA container
 ENV OPENSCPCA_DOCKER=TRUE
