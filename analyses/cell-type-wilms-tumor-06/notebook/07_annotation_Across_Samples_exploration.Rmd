@@ -91,7 +91,7 @@ In this notebook, we are working with all of the samples in SCPCP000006.
 
 The sample metadata can be found in `sample_metadata_file` in the `data` folder.
 
-We extracted from the pre-processed and labeled `Seurat` object (that is the output of `06_infercnv_HMM-i3_SCPCS000169_reference-both.rds` saved in the `results` directory)
+We extracted from the pre-processed and labeled `Seurat` object from `results/{sample_id}/06_infercnv_HMM-i3_SCPCS000169_reference-both.rds`.
 the following information per cell:
 
 - the predicted compartment in `fetal_kidney_predicted.compartment` and `fetal_kidney_predicted.compartment.score`
