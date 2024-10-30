@@ -3,7 +3,7 @@
 library(Seurat)
 library(ggplot2)
 
-writeout <- function(ind.lib, ct.colors = ct_color, project.ID = projectID, n.row = 1){
+writeout <- function(ind.lib, sample.ID, ct.colors, n.row = 1){
   seu <- readRDS(file.path(out_loc,"results/rds",paste0(ind.lib,".rds")))
   voi <- c('newB.copykat.pred','sctype_classification')
   changeName.voi <- c('tumor_cell_classification','cell_type_assignment')
@@ -11,7 +11,7 @@ writeout <- function(ind.lib, ct.colors = ct_color, project.ID = projectID, n.ro
     voi_df <- data.frame(FetchData(seu, vars = voi)) |> tibble::rownames_to_column(var = "cell_barcode")
   }, error=function(e){})
   colnames(voi_df)[2:length(voi_df)] <- changeName.voi[match(colnames(voi_df)[2:length(voi_df)],voi)]
-  final.df <- data.frame(scpca_sample_id=rep(project.ID, nrow(voi_df)), voi_df, 
+  final.df <- data.frame(scpca_sample_id=rep(sample.ID, nrow(voi_df)), voi_df, 
                          CL_ontology_id=gene.df$ontologyID[match(voi_df$cell_type_assignment,gene.df$cellName)])
   write.table(final.df, sep = "\t", quote = F, row.names = F,
               file = file.path(out_loc,"results/submission_table",paste0(ind.lib,"_metadata.tsv")))
@@ -50,4 +50,6 @@ metadata <- read.table(file.path(data_loc,"single_cell_metadata.tsv"), sep = "\t
 metadata <- metadata[which(metadata$scpca_project_id == projectID &
                              metadata$diagnosis == "Non-early T-cell precursor T-cell acute lymphoblastic leukemia"), ]
 libraryID <- metadata$scpca_library_id
-purrr::walk(libraryID, ~ writeout(ind.lib = .x))
+sampleID <- metadata$scpca_sample_id
+
+purrr::walk2(libraryID, sampleID, ~ writeout(ind.lib = .x, sample.ID = .y, ct.colors = ct_color))
