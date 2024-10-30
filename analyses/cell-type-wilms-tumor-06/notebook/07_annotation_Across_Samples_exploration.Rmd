@@ -30,7 +30,7 @@ knitr::opts_chunk$set(echo = TRUE,
 The aim is to combine label transfer and CNV inference to annotate Wilms tumor samples in SCPCP000006.
 The proposed annotation will be based on the combination of:
 
-- the label transfer from the fetal kidney reference (Stewart et al.), in particular the `fetal_kidney_predicted.compartment` and `fetal_kidney:predicted.cell_type`, as well as the `mapping.score` for each compartment,
+- the label transfer from the fetal kidney reference (Stewart et al.), in particular the `fetal_kidney_predicted.compartment` and `fetal_kidney:predicted.cell_type`, as well as the `prediction.score` for each compartment,
 
 - the predicted CNV calculated using intra-sample endothelial and immune cells (`--reference both`) as normal reference
 
