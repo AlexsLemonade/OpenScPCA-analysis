@@ -92,3 +92,7 @@ jobs:
           Rscript scripts/02-03_annotation.R
           Rscript scripts/04_multipanel_plot.R
           Rscript scripts/05_cluster_evaluation.R
+          Rscript scripts/06_sctype_exploration.R
+          Rscript scripts/07_run_copykat.R
+          Rscript scripts/markerGenes_submission.R
+          Rscript scripts/writeout_submission.R
