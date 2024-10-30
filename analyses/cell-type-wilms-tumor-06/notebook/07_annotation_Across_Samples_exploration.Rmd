@@ -328,16 +328,15 @@ cell_type_df$first.level_annotation <- "unknown"
 
 # Define normal cells
 # We first pick up the immune and endothelial cells annotated via the label transfer compartments under the condition that the predicted score is above the threshold
-cell_type_df$first.level_annotation[  cell_type_df$compartment %in% c("fetal_nephron", "stroma") &
-                                      cell_type_df$has_cnv_score == "no CNV"]                          <- "normal"
-
-cell_type_df$first.level_annotation[  cell_type_df$compartment %in% c("endothelium", "immune") &
-                                      (cell_type_df$compartment.score > params$predicted.celltype.threshold |
-                                      cell_type_df$has_cnv_score == "no CNV") ]                        <- "normal"
-
-# Define cancer cells
-cell_type_df$first.level_annotation[  cell_type_df$compartment %in% c("fetal_nephron", "stroma") &
-                                      cell_type_df$has_cnv_score == "CNV" ]                            <- "cancer"
+cell_type_df <- cell_type_df |>
+  mutate(first.level_annotation = case_when(
+    # assign normal/cancer based on condition
+    compartment %in% c("fetal_nephron", "stroma") && has_cnv_score == "no CNV" ~ "normal",
+    compartment %in% c("endothelium", "immune") && has_cnv_score == "no CNV" ~ "normal",
+    compartment %in% c("fetal_nephron", "stroma") && has_cnv_score == "CNV" ~ "cancer",
+    # all other cells are unknown
+    .default ~ "unknown"
+  ))
 
 ```   
 
