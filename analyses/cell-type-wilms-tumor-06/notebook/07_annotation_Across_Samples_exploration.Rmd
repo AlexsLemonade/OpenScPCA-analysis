@@ -64,7 +64,6 @@ unknown | - | the rest of the cells | - | proportion_cnv_chr     -1     -4     -
 ```{r packages, message=FALSE, warning=FALSE}
 library(Seurat)
 library(tidyverse)
-library(tidyr)
 library(patchwork)
 library(DT)
 ```
