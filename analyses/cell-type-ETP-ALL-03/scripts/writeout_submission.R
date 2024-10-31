@@ -5,13 +5,17 @@ library(ggplot2)
 
 writeout <- function(ind.lib, sample.ID, ct.colors, n.row = 1){
   seu <- readRDS(file.path(out_loc,"results/rds",paste0(ind.lib,".rds")))
-  voi <- c('newB.copykat.pred','sctype_classification')
-  changeName.voi <- c('tumor_cell_classification','cell_type_assignment')
+  voi <- c('tumor_cell_classification','cell_type_assignment')
+  tumor_classification <- c('tumor','normal','unknown')
+  names(tumor_classification) <- c('aneuploid','diploid','not.defined')
+  seu$cell_type_assignment <- seu$sctype_classification
+  tryCatch({
+    seu$tumor_cell_classification <- as.vector(tumor_classification[match(seu$newB.copykat.pred,names(tumor_classification))])
+  }, error=function(e){})
   tryCatch({
     voi_df <- data.frame(FetchData(seu, vars = voi)) |> tibble::rownames_to_column(var = "cell_barcode")
   }, error=function(e){})
-  colnames(voi_df)[2:length(voi_df)] <- changeName.voi[match(colnames(voi_df)[2:length(voi_df)],voi)]
-  final.df <- data.frame(scpca_sample_id=rep(sample.ID, nrow(voi_df)), voi_df, 
+  final.df <- data.frame(scpca_sample_id=rep(sample.ID, nrow(voi_df)), voi_df,
                          CL_ontology_id=gene.df$ontologyID[match(voi_df$cell_type_assignment,gene.df$cellName)])
   write.table(final.df, sep = "\t", quote = F, row.names = F,
               file = file.path(out_loc,"results/submission_table",paste0(ind.lib,"_metadata.tsv")))
@@ -19,15 +23,14 @@ writeout <- function(ind.lib, sample.ID, ct.colors, n.row = 1){
   ## plotting the variables
   plot.list <- list()
   for (plot.type in voi){
-    if (plot.type == "sctype_classification"){
+    if (plot.type == "cell_type_assignment"){
       clrs <- ct.colors
     } else{
       clrs <- NULL
     }
     tryCatch({
       plot.list[[plot.type]] <- DimPlot(seu, reduction = "Xumap_", group.by = plot.type, 
-                                        label = T, cols = clrs, repel = T) + 
-        ggtitle(changeName.voi[match(plot.type, voi)])
+                                        label = T, cols = clrs, repel = T) 
     }, error=function(e){})
   }
   cowplot::plot_grid(plotlist = plot.list, nrow = n.row) + patchwork::plot_annotation(title = ind.lib) &  
@@ -39,6 +42,7 @@ project_root  <- rprojroot::find_root(rprojroot::is_git_root)
 projectID <- "SCPCP000003"
 out_loc <- file.path(project_root, "analyses/cell-type-ETP-ALL-03")
 data_loc <- file.path(project_root, "data/current",projectID)
+dir.create(file.path(out_loc, "results/submission_table"), showWarnings = FALSE)
 
 gene.df <- read.table(file.path(out_loc, "Azimuth_BM_level1.csv"), sep = ",", header = T)
 ct_color <- c("darkorchid","skyblue2","dodgerblue2","gold","beige","sienna1","green4","navy",
