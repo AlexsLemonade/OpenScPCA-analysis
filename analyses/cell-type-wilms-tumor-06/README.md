@@ -20,9 +20,9 @@ The analysis is/will be divided as the following:
 - [x] Script: clustering of cells across a set of parameters for few samples
 - [x] Script: label transfer from the fetal kidney atlas reference using runAzimuth
 - [x] Script: run copykat and inferCNV
-- [ ] Notebook: explore results from steps 2 to 4 for about 5 to 10 samples
+- [x] Notebook: explore results from steps 2 to 4 for about 5 to 10 samples
 - [ ] Script: compile scripts 2 to 4 in a RMardown file with required adjustements and render it across all samples
-- [ ] Notebook: explore results from step 6, integrate all samples together and annotate the dataset using (i) metadatafile, (ii) CNV information, (iii) label transfer information
+- [x] Notebook: explore results from step 6, integrate all samples together and annotate the dataset using (i) metadatafile, (ii) CNV information, (iii) label transfer information
 
 ## Usage
 From Rstudio, run the Rmd reports or render the R scripts (see below R studio session set up).
@@ -158,7 +158,24 @@ The `00_run_workflow.R` contains the following steps:
   - `Azimuth` label transfer from the fetal kidney reference (Stewart et al.): `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd` in `notebook_template`
     
   - Exploration of clustering, label transfers, marker genes and pathways: `03_clustering_exploration.Rmd` in `notebook_template`
+
+  - CNV inference using [`infercnv`](https://github.com/broadinstitute/inferCNV/wiki) with endothelial and immune cells as reference from either the same patient or a pool of upfront resection Wilms tumor samples: `06_infercnv.R` in `script` 
     
+
+While we only selected the `infercnv` method with endothelium and immune cells as normal reference for the main workflow across samples, our  analysis includes an exploration of cnv inference methods based on `copykat` and `infercnv` on a subselection of samples: 
+the `script` `explore-cnv-methods.R` calls the independent scripts `05_copyKAT.R` and `06_infercnv.R` for the samples
+		    - "SCPCS000179",
+                    - "SCPCS000184",
+                    - "SCPCS000194", 
+                    - "SCPCS000205",
+                    - "SCPCS000208".
+
+In addition, we explored the results for all samples in one notebook twice during the analysis:
+
+- the notebook `04_annotation_Across_Samples_exploration.Rmd` explored the annotations obtained by label transfer in all samples
+
+- the notebook `07_annotation_Across_Samples_exploration.Rmd` explored the potential of combining label transfer and cnv to finalize the annotation of the Wilms tumor dataset.
+
 
 For each sample and each of the step, an html report is generated and accessible in the directory `notebook`.
 
@@ -192,12 +209,17 @@ Here we will use `Azimuth` to transfer labels from the reference.
 We start with the `_process.Rds` data to run `01_seurat-processing.Rmd`. 
 The output of `01_seurat-processing.Rmd` is saved in `results` in a subfolder for each sample and is the input of the second step `02a_label-transfer_fetal_full_reference_Cao.Rmd`.
 The output of `02a_label-transfer_fetal_full_reference_Cao.Rmd` is then the input of `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd`.
-Following the same approach, the output of `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd` is the input of `03_clustering_exploration.Rmd`.
+Following the same approach, the output of `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd` is the input of `03_clustering_exploration.Rmd` and `06_infercnv.R`.
+The outputs of `06_infercnv.R` `06_infercnv_HMM-i3_{sample_id}_{reference-type}.rds` is finally the input of `07_annotation_Across_Samples_exploration.Rmd`.
+
+All inputs/outputs generated and used in the main workflow are saved in the `results/{sample_id}` folder.
+Results in subfolders such as `results/{sample_id}/05_copyKAT` or `results/{sample_id}/06_infercnv` have been obtained for a subselection of samples in the exploratory analysis, and are thus kept separated from the results of the main workflow.
 
 At the end of the workflow, we have a `Seurat`object that contains:
 - normalization and clustering, dimensional reductions
 - label transfer from the fetal full reference
 - label transfer from the fetal kidney reference
+- cnv predictions using `infercnv`
 
 ## Software requirements
 
@@ -209,6 +231,8 @@ The main packages used are:
 - SCpubr for visualization
 - DT for table visualization
 - DElegate for differential expression analysis
+
+The dependencies required are saved in `components/dependencies.R`
 
 ### Docker
 

@@ -6,7 +6,12 @@
 # USAGE:
 # Rscript 06_infercnv.R \
 #   --sample_id SCPCS000179
-#   --reference one of none, immune, endothelium, both
+#   --reference one of none, immune, endothelium, both, pull
+
+# OUTPUT :
+# For every condition, the `infercnv` object and final `infercnv` heatmap are saved in the corresponding {sample_id}/06_infercnv results subfolder
+# When running the HMM- CNV prediction, the proportion of CNV per chromosome is saved as a metadata for each cells.
+# The updated `Seurat` object is additionally saved under the {sample_id} results subfolder for easy use downstream.
 
 
 library(optparse)
@@ -26,7 +31,13 @@ option_list <- list(
     opt_str = c("-r", "--reference"),
     type = "character",
     default = "both",
-    help = "Reference cells to use as normal cells, either none, immune, endothelium or both"
+    help = "Reference cells to use as normal cells, either none, immune, endothelium, both or pull. The 'pull` option will pull in normal cells from other samples to include in the reference."
+  ),
+  make_option(
+    opt_str = c("-m", "--HMM"),
+    type = "character",
+    default = "i3",
+    help = "If running an additional HMM model to call CNV, either no, or i3 or i6"
   )
 )
 
@@ -43,15 +54,19 @@ module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06"
 # Path to the result directory
 result_dir <- file.path(module_base, "results", opts$sample_id)
 
+# path to the pull of normal cells (inter-patient)
+srat_normal_file <- file.path(module_base, "results","references", '06b_normal-cell-reference.rds')
+
+
 # path to output infercnv object
-output_dir <- file.path(result_dir,  "06_infercnv", glue::glue("reference-",opts$reference ))
-output_rds <- file.path(output_dir, glue::glue("06_infercnv_",opts$sample_id,"_reference-", opts$reference, ".rds"))
+output_dir <- file.path(result_dir,  "06_infercnv", glue::glue("reference-",opts$reference, "_HMM-", opts$HMM ))
+output_rds <- file.path(output_dir, glue::glue("06_infercnv_",opts$sample_id,"_reference-", opts$reference, "_HMM-", opts$HMM, ".rds"))
 # path to heatmap png
 png_file <- glue::glue("infercnv.png")
 scratch_png <- file.path(output_dir, png_file)
-output_png <- file.path(output_dir,  glue::glue("06_infercnv_",opts$sample_id,"_reference-", opts$reference,  "_heatmap.png"))
+output_png <- file.path(output_dir,  glue::glue("06_infercnv_",opts$sample_id,"_reference-", opts$reference, "_HMM-", opts$HMM,  "_heatmap.png"))
 # path to updated seurat object
-output_srat <- file.path(result_dir, glue::glue("06_infercnv_", opts$sample_id, "_reference-", opts$reference, ".rds"))
+output_srat <- file.path(result_dir, glue::glue("06_infercnv_", "HMM-", opts$HMM, "_", opts$sample_id, "_reference-", opts$reference,  ".rds"))
 
 # Define functions -------------------------------------------------------------
 # read_infercnv_mat will read outputs saved automatically by of infercnv in file_path
@@ -73,6 +88,28 @@ srat <- readRDS(
   file.path(result_dir,  paste0("02b-fetal_kidney_label-transfer_",  opts$sample_id, ".Rds"))
 )
 
+
+stopifnot("Incorrect reference provided" = opts$reference %in% c("none", "immune", "endothelium", "both", "pull"))
+
+if(opts$reference == "both"){
+  normal_cells <- c("endothelium", "immune")
+} else if(opts$reference == "none"){
+  normal_cells <- NULL
+} else if(opts$reference == "pull"){
+  srat_normal <- readRDS(srat_normal_file)
+  # we merge the spike-in cells into the `Seurat` object
+  srat <- merge(srat, srat_normal)
+  srat <- JoinLayers(srat) # else GetAssayData won't work 
+  # we rename the `fetal_kidney_predicted.compartment` for these cells as "spike"
+  to_rename <- srat@meta.data$fetal_kidney_predicted.compartment
+  names(to_rename) <- rownames(srat@meta.data)
+  to_rename[grepl("spike", names(to_rename))] <- "spike"
+  srat@meta.data$fetal_kidney_predicted.compartment <- to_rename
+  normal_cells <- "spike"
+} else{
+  normal_cells <- opts$reference
+}
+
 # Extract raw counts -----------------------------------------------------------
 counts <- GetAssayData(object = srat, assay = "RNA", layer = "counts")
 
@@ -80,14 +117,14 @@ counts <- GetAssayData(object = srat, assay = "RNA", layer = "counts")
 annot_df <- data.frame(condition = as.character(srat$fetal_kidney_predicted.compartment))
 rownames(annot_df) <- colnames(counts)
 
-stopifnot("Incorrect reference provided" = opts$reference %in% c("none", "immune", "endothelium", "both"))
 
-if(opts$reference == "both"){
-  normal_cells <- c("endothelium", "immune")
-} else if(opts$reference == "none"){
-  normal_cells <- NULL
-} else{
-  normal_cells <- opts$reference
+# We only run the CNV HMM prediction model if the reference is "both"
+HMM_logical = TRUE
+HMM_type <- opts$HMM
+
+if(opts$HMM == "no"){
+  HMM_logical <- FALSE
+  HMM_type <- NULL
 }
 
 # create output directory if it does not exist
@@ -95,13 +132,6 @@ dir.create(output_dir, recursive = TRUE)
 
 # retrieve the gene order file created in `06a_build-geneposition.R`
 gene_order_file <- file.path(module_base, "results", "references", "gencode_v19_gene_pos.txt")
-
-# We only run the CNV HMM prediction model if the reference is "both"
-HMM_logical = FALSE
-if(opts$reference == "both"){
-  HMM_logical <- TRUE
-}
-
 
 # Run infercnv ------------------------------------------------------------------
 # create inferCNV object and run method
@@ -121,20 +151,22 @@ infercnv_obj <- infercnv::run(
   cluster_by_groups=T, 
   denoise=TRUE,
   HMM=HMM_logical,
+  HMM_type = HMM_type,
   save_rds = TRUE,
   save_final_rds = TRUE
 )
 
-if(HMM_logical == TRUE){
-  
+if(HMM_logical){
+# Add `infercnv` data to the `Seurat` object  
 srat = infercnv::add_to_seurat(infercnv_output_path=output_dir,
                                      seurat_obj=srat,
-                                     top_n=10
-)
+                                     top_n=10)
+
+# save `Seurat` object 
+saveRDS(srat, output_srat)
 }
 
-# save seurat object with additional infercnv data
-saveRDS(srat, output_srat)
+
 
 # save some infercnv outputs
 saveRDS(infercnv_obj, output_rds)
