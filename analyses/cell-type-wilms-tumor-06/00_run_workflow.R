@@ -117,7 +117,7 @@ if (!running_ci) {
   # Run infercnv for all samples with HMM i3 and using "both" as the reference
   for (sample_id in metadata$scpca_sample_id) {
     # don't repeat inference on selection of samples it's already been run on
-    output_file <- file.path(module_base, "results", sample_id, glue::glue("06_infercnv_HMM-i3_{sample_id}_reference-pull.rds"))
+    output_file <- file.path(module_base, "results", sample_id, glue::glue("06_infercnv_HMM-i3_{sample_id}_reference-both.rds"))
     if (!file.exists(output_file)) {
       system(command = glue::glue("Rscript ", file.path(module_base, "scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference both --HMM i3"))
     }
