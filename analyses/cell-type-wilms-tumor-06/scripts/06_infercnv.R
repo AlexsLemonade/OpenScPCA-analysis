@@ -38,11 +38,18 @@ option_list <- list(
     type = "character",
     default = "i3",
     help = "If running an additional HMM model to call CNV, either no, or i3 or i6"
+  ),
+  make_option(
+    opt_str = c("--seed"),
+    type = "character",
+    default = "12345",
+    help = "Random seed to set"
   )
 )
 
 opts <- parse_args(OptionParser(option_list = option_list))
 
+set.seed(opts$seed)
 # paths to data ----------------------------------------------------------------
 
 # The base path for the OpenScPCA repository, found by its (hidden) .git directory
@@ -92,17 +99,20 @@ srat <- readRDS(
   file.path(result_dir, paste0("02b-fetal_kidney_label-transfer_", opts$sample_id, ".Rds"))
 )
 
-
 stopifnot("Incorrect reference provided" = opts$reference %in% c("none", "immune", "endothelium", "both", "pull"))
 
-if (opts$reference == "both") {
-  normal_cells <- c("endothelium", "immune")
 
-  # keep only the labels actually present in the annotations to avoid infercnv error
-  normal_cells <- normal_cells[normal_cells %in% unique(srat@meta.data$fetal_kidney_predicted.compartment)]
+if (opts$reference %in% c("both", "endothelium", "immune")) {
+  # the total count of normal cells needs to be greater than 1
+  total_normal <- sum(srat@meta.data$fetal_kidney_predicted.compartment %in% normal_cells)
+  stopifnot("There must be more than 1 normal cell to use a reference." = length(normal_cells) > 1)
 
-  # if there are none, error
-  stopifnot("There are no normal cells to use as reference." = length(normal_cells) > 0)
+  if (opts$reference == "both") {
+    normal_cells <- c("endothelium", "immune")
+
+    # keep only the labels actually present in the annotations to avoid infercnv error
+    normal_cells <- normal_cells[normal_cells %in% unique(srat@meta.data$fetal_kidney_predicted.compartment)]
+  }
 } else if (opts$reference == "none") {
   normal_cells <- NULL
 } else if (opts$reference == "pull") {
