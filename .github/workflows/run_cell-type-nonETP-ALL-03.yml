@@ -88,11 +88,19 @@ jobs:
         run: |
           cd ${MODULE_PATH}
           # run module script(s) here
+          printf "\n\nRunning 00-01_processing_rds.R\n"
           Rscript scripts/00-01_processing_rds.R
+          printf "\n\nRunning 02-03_annotation.R\n"
           Rscript scripts/02-03_annotation.R
+          printf "\n\nRunning 04_multipanel_plot.R\n"
           Rscript scripts/04_multipanel_plot.R
+          printf "\n\nRunning 05_cluster_evaluation.R\n"
           Rscript scripts/05_cluster_evaluation.R
+          printf "\n\nRunning 06_sctype_exploration.R\n"
           Rscript scripts/06_sctype_exploration.R
+          printf "\n\nRunning 07_run_copykat.R\n"
           Rscript scripts/07_run_copykat.R
+          printf "\n\nRunning markerGenes_submission.R\n"
           Rscript scripts/markerGenes_submission.R
+          printf "\n\nRunning writeout_submission.R\n"
           Rscript scripts/writeout_submission.R
