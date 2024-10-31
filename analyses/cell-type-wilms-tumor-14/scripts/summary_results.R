@@ -89,7 +89,18 @@ arg_df <- tidyr::expand_grid(
 dfs <- purrr::pmap(arg_df,
              \(anchor_assay, level) concat_sample(anchor_assay, level, meta)
 )
+# add rough tumor cell classification, CM = tumor cells, immune/endothelium = normal
 final_table <- dfs %>%
-  purrr::reduce(left_join)
+  purrr::reduce(left_join) %>%
+  mutate(tumor_cell_classification_RNA = case_when(
+    cell_type_assignment_RNA_compartment == "immune" | cell_type_assignment_RNA_compartment == "endothelium" ~ "normal",
+    cell_type_assignment_RNA_compartment == "fetal_nephron" & cell_type_assignment_RNA_celltype == "Cap mesenchyme" ~ "tumor",
+    TRUE ~ "unknown"
+  ),
+  tumor_cell_classification_SCT = case_when(
+    cell_type_assignment_SCT_compartment == "immune" | cell_type_assignment_SCT_compartment == "endothelium" ~ "normal",
+    cell_type_assignment_SCT_compartment == "fetal_nephron" & cell_type_assignment_SCT_celltype == "Cap mesenchyme" ~ "tumor",
+    TRUE ~ "unknown"
+  ))
 
 write.csv(final_table, file = outfile)
