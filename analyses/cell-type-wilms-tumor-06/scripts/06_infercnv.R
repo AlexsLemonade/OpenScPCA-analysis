@@ -103,16 +103,17 @@ stopifnot("Incorrect reference provided" = opts$reference %in% c("none", "immune
 
 
 if (opts$reference %in% c("both", "endothelium", "immune")) {
-  # the total count of normal cells needs to be greater than 1
-  total_normal <- sum(srat@meta.data$fetal_kidney_predicted.compartment %in% normal_cells)
-  stopifnot("There must be more than 1 normal cell to use a reference." = length(normal_cells) > 1)
-
   if (opts$reference == "both") {
     normal_cells <- c("endothelium", "immune")
 
     # keep only the labels actually present in the annotations to avoid infercnv error
     normal_cells <- normal_cells[normal_cells %in% unique(srat@meta.data$fetal_kidney_predicted.compartment)]
+  } else {
+    normal_cells <- opts$reference
   }
+  # the total count of normal cells needs to be greater than 1
+  total_normal <- sum(srat@meta.data$fetal_kidney_predicted.compartment %in% normal_cells)
+  stopifnot("There must be more than 1 normal cell to use a reference." = length(normal_cells) > 1)
 } else if (opts$reference == "none") {
   normal_cells <- NULL
 } else if (opts$reference == "pull") {
