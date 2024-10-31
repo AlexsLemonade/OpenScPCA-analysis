@@ -56,7 +56,7 @@ rmarkdown::render(
 
 
 # Run the workflow for (all) samples in the project -----------------------------
-for (sample_id in metadata$scpca_sample_id) {
+for (sample_id in unique(metadata$scpca_sample_id)) {
   # create a directory to save the pre-processed and labeled `Seurat` objects
   dir.create(file.path(module_base, "results", sample_id), showWarnings = FALSE)
   # create a directory to save the notebooks
@@ -115,7 +115,7 @@ if (!running_ci) {
   system(command = glue::glue("Rscript ", file.path(module_base, "scripts", "explore-cnv-methods.R")))
 
   # Run infercnv for all samples with HMM i3 and using "both" as the reference
-  for (sample_id in metadata$scpca_sample_id) {
+  for (sample_id in unique(metadata$scpca_sample_id)) {
     # don't repeat inference on selection of samples it's already been run on
     output_file <- file.path(module_base, "results", sample_id, glue::glue("06_infercnv_HMM-i3_{sample_id}_reference-both.rds"))
     if (!file.exists(output_file)) {
