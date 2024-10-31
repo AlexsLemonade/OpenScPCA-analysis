@@ -96,12 +96,16 @@ final_table <- dfs %>%
     cell_type_assignment_RNA_compartment %in% normal_compartments ~ "normal",
     cell_type_assignment_RNA_compartment == "fetal_nephron" & cell_type_assignment_RNA_celltype == "Cap mesenchyme" ~ "tumor",
     .default = "unknown"
-  ) ) %>%
-  { if ("SCT" %in% assays) mutate(., tumor_cell_classification_SCT = case_when(
-    cell_type_assignment_SCT_compartment %in% normal_compartments ~ "normal",
-    cell_type_assignment_SCT_compartment == "fetal_nephron" & cell_type_assignment_SCT_celltype == "Cap mesenchyme" ~ "tumor",
-    .default = "unknown"
-  ) ) else . } %>% 
+  ) )
+if ("SCT" %in% assays) {
+  final_table <- final_table %>%
+    mutate( tumor_cell_classification_SCT = case_when(
+      cell_type_assignment_SCT_compartment %in% normal_compartments ~ "normal",
+      cell_type_assignment_SCT_compartment == "fetal_nephron" & cell_type_assignment_SCT_celltype == "Cap mesenchyme" ~ "tumor",
+      .default = "unknown"
+    ) )
+}
+final_table <- final_table %>%
   # use logNormalize as "default" final result, combine immune, endo, and stroma compartments
   mutate( cell_type_assignment = if_else(cell_type_assignment_RNA_compartment != "fetal_nephron", 
                                          cell_type_assignment_RNA_compartment, 
