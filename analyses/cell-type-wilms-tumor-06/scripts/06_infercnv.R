@@ -55,27 +55,31 @@ module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06"
 result_dir <- file.path(module_base, "results", opts$sample_id)
 
 # path to the pull of normal cells (inter-patient)
-srat_normal_file <- file.path(module_base, "results","references", '06b_normal-cell-reference.rds')
+srat_normal_file <- file.path(module_base, "results", "references", "06b_normal-cell-reference.rds")
 
 
 # path to output infercnv object
-output_dir <- file.path(result_dir,  "06_infercnv", glue::glue("reference-",opts$reference, "_HMM-", opts$HMM ))
-output_rds <- file.path(output_dir, glue::glue("06_infercnv_",opts$sample_id,"_reference-", opts$reference, "_HMM-", opts$HMM, ".rds"))
+output_dir <- file.path(result_dir, "06_infercnv", glue::glue("reference-", opts$reference, "_HMM-", opts$HMM))
+output_rds <- file.path(output_dir, glue::glue("06_infercnv_", opts$sample_id, "_reference-", opts$reference, "_HMM-", opts$HMM, ".rds"))
 # path to heatmap png
 png_file <- glue::glue("infercnv.png")
 scratch_png <- file.path(output_dir, png_file)
-output_png <- file.path(output_dir,  glue::glue("06_infercnv_",opts$sample_id,"_reference-", opts$reference, "_HMM-", opts$HMM,  "_heatmap.png"))
+output_png <- file.path(output_dir, glue::glue("06_infercnv_", opts$sample_id, "_reference-", opts$reference, "_HMM-", opts$HMM, "_heatmap.png"))
 # path to updated seurat object
-output_srat <- file.path(result_dir, glue::glue("06_infercnv_", "HMM-", opts$HMM, "_", opts$sample_id, "_reference-", opts$reference,  ".rds"))
+output_srat <- file.path(result_dir, glue::glue("06_infercnv_", "HMM-", opts$HMM, "_", opts$sample_id, "_reference-", opts$reference, ".rds"))
 
 # Define functions -------------------------------------------------------------
 # read_infercnv_mat will read outputs saved automatically by of infercnv in file_path
 read_infercnv_mat <- function(file_path) {
-  obs_table <- readr::read_delim(file = file_path, delim = ' ', quote = '"', skip = 1,
-                                 col_names = FALSE, progress = FALSE, show_col_types = FALSE)
+  obs_table <- readr::read_delim(
+    file = file_path, delim = " ", quote = '"', skip = 1,
+    col_names = FALSE, progress = FALSE, show_col_types = FALSE
+  )
   mat <- t(as.matrix(obs_table[, -1]))
-  cell_names <- readr::read_delim(file = file_path, delim = ' ', quote = '"', n_max = 1,
-                                  col_names = FALSE, progress = FALSE, show_col_types = FALSE)
+  cell_names <- readr::read_delim(
+    file = file_path, delim = " ", quote = '"', n_max = 1,
+    col_names = FALSE, progress = FALSE, show_col_types = FALSE
+  )
   cell_names <- as.character(cell_names[1, ])
   rownames(mat) <- cell_names
   colnames(mat) <- as.character(dplyr::pull(obs_table, 1))
@@ -85,28 +89,34 @@ read_infercnv_mat <- function(file_path) {
 
 # Read in data -----------------------------------------------------------------
 srat <- readRDS(
-  file.path(result_dir,  paste0("02b-fetal_kidney_label-transfer_",  opts$sample_id, ".Rds"))
+  file.path(result_dir, paste0("02b-fetal_kidney_label-transfer_", opts$sample_id, ".Rds"))
 )
 
 
 stopifnot("Incorrect reference provided" = opts$reference %in% c("none", "immune", "endothelium", "both", "pull"))
 
-if(opts$reference == "both"){
+if (opts$reference == "both") {
   normal_cells <- c("endothelium", "immune")
-} else if(opts$reference == "none"){
+
+  # keep only the labels actually present in the annotations to avoid infercnv error
+  normal_cells <- normal_cells[normal_cells %in% unique(srat@meta.data$fetal_kidney_predicted.compartment)]
+
+  # if there are none, error
+  stopifnot("There are no normal cells to use as reference." = length(normal_cells) > 0)
+} else if (opts$reference == "none") {
   normal_cells <- NULL
-} else if(opts$reference == "pull"){
+} else if (opts$reference == "pull") {
   srat_normal <- readRDS(srat_normal_file)
   # we merge the spike-in cells into the `Seurat` object
   srat <- merge(srat, srat_normal)
-  srat <- JoinLayers(srat) # else GetAssayData won't work 
+  srat <- JoinLayers(srat) # else GetAssayData won't work
   # we rename the `fetal_kidney_predicted.compartment` for these cells as "spike"
   to_rename <- srat@meta.data$fetal_kidney_predicted.compartment
   names(to_rename) <- rownames(srat@meta.data)
   to_rename[grepl("spike", names(to_rename))] <- "spike"
   srat@meta.data$fetal_kidney_predicted.compartment <- to_rename
   normal_cells <- "spike"
-} else{
+} else {
   normal_cells <- opts$reference
 }
 
@@ -119,10 +129,10 @@ rownames(annot_df) <- colnames(counts)
 
 
 # We only run the CNV HMM prediction model if the reference is "both"
-HMM_logical = TRUE
+HMM_logical <- TRUE
 HMM_type <- opts$HMM
 
-if(opts$HMM == "no"){
+if (opts$HMM == "no") {
   HMM_logical <- FALSE
   HMM_type <- NULL
 }
@@ -135,35 +145,38 @@ gene_order_file <- file.path(module_base, "results", "references", "gencode_v19_
 
 # Run infercnv ------------------------------------------------------------------
 # create inferCNV object and run method
-options(future.globals.maxSize= 89128960000000)
+options(future.globals.maxSize = 89128960000000)
 
 infercnv_obj <- infercnv::CreateInfercnvObject(
   raw_counts_matrix = as.matrix(counts),
   annotations_file = annot_df,
   ref_group_names = normal_cells,
-  gene_order_file = gene_order_file)
+  gene_order_file = gene_order_file
+)
 
 infercnv_obj <- infercnv::run(
   infercnv_obj,
-  cutoff=0.1, # cutoff=1 works well for Smart-seq2, and cutoff=0.1 works well for 10x Genomics
-  out_dir=output_dir, 
-  analysis_mode='subclusters',
-  cluster_by_groups=T, 
-  denoise=TRUE,
-  HMM=HMM_logical,
+  cutoff = 0.1, # cutoff=1 works well for Smart-seq2, and cutoff=0.1 works well for 10x Genomics
+  out_dir = output_dir,
+  analysis_mode = "subclusters",
+  cluster_by_groups = T,
+  denoise = TRUE,
+  HMM = HMM_logical,
   HMM_type = HMM_type,
   save_rds = TRUE,
   save_final_rds = TRUE
 )
 
-if(HMM_logical){
-# Add `infercnv` data to the `Seurat` object  
-srat = infercnv::add_to_seurat(infercnv_output_path=output_dir,
-                                     seurat_obj=srat,
-                                     top_n=10)
+if (HMM_logical) {
+  # Add `infercnv` data to the `Seurat` object
+  srat <- infercnv::add_to_seurat(
+    infercnv_output_path = output_dir,
+    seurat_obj = srat,
+    top_n = 10
+  )
 
-# save `Seurat` object 
-saveRDS(srat, output_srat)
+  # save `Seurat` object
+  saveRDS(srat, output_srat)
 }
 
 
@@ -177,4 +190,3 @@ files.in.dir <- list.files(output_dir, full.names = T)
 files.to.keep <- c(output_png, output_rds)
 files.to.remove <- list(files.in.dir[!(files.in.dir %in% files.to.keep)])
 do.call(unlink, files.to.remove)
-
