@@ -20,40 +20,37 @@ The analysis is/will be divided as the following:
 - [x] Script: clustering of cells across a set of parameters for few samples
 - [x] Script: label transfer from the fetal kidney atlas reference using runAzimuth
 - [x] Script: run copykat and inferCNV
-- [ ] Notebook: explore results from steps 2 to 4 for about 5 to 10 samples
-- [ ] Script: compile scripts 2 to 4 in a RMardown file with required adjustements and render it across all samples
-- [ ] Notebook: explore results from step 6, integrate all samples together and annotate the dataset using (i) metadatafile, (ii) CNV information, (iii) label transfer information
+- [x] Notebook: explore results from steps 2 to 4 for about 5 to 10 samples
+- [x] Script: Run inferCNV for all samples
+- [x] Notebook: explore results from step 6, integrate all samples together and annotate the dataset using (i) metadatafile, (ii) CNV information, (iii) label transfer information
 
 ## Usage
-From Rstudio, run the Rmd reports or render the R scripts (see below R studio session set up).
-You can also simply have a look at the html reports in the notebook folder.
-Here, no need to run anything, we try to guide you through the analysis. Have a look at the code using the unhide code button on the top right of each chunk!
 
-## Input files
-
-### single nuclei data
-
-We work with the _processed.rds SingleCellExperiment objects.
-From the module directory, make sure that the conda environment is set-up:
+1. Ensure the conda environment is activated.
 
 ```shell
 conda activate openscpca
 ```
 
-log into AWS CLI:
+2. log into AWS CLI:
 ```shell
 # replace `openscpca` with your AWS CLI profile name if it differs
 export AWS_PROFILE=openscpca
 aws sso login
 ```
+Of note, this requires AWS CLI setup to run as intended: https://openscpca.readthedocs.io/en/latest/technical-setup/environment-setup/configure-aws-cli/
 
-use download-data.py to download the data as the following:
+
+3. use download-data.py to download the data as the following:
 ```shell
 ../../download-data.py --projects SCPCP000006
 ```
 This is saving the data in OpenScPCA-analysis/data/current/SCPCP000006
 
-Of note, this requires AWS CLI setup to run as intended: https://openscpca.readthedocs.io/en/latest/technical-setup/environment-setup/configure-aws-cli/
+4. Run the module:
+```shell
+Rscript 00_run_workflow.R
+```
 
 ### sample metadata
 
@@ -135,11 +132,7 @@ We gather from the litterature marker genes and specific genomic alterations tha
 |1q|gain|malignant|NA|10.1016/S0002-9440(10)63982-X|NA|Associated_with_relapse|
 
 
-## Clustering and label transfer from fetal references
-
-Bash script to be run : `00_run_workflow.sh`
-
-### Introduction
+## workflow description
 
 The `00_run_workflow.sh` contains the following steps:
 
@@ -158,6 +151,23 @@ The `00_run_workflow.sh` contains the following steps:
   - `Azimuth` label transfer from the fetal kidney reference (Stewart et al.): `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd` in `notebook_template`
 
   - Exploration of clustering, label transfers, marker genes and pathways: `03_clustering_exploration.Rmd` in `notebook_template`
+
+  - CNV inference using [`infercnv`](https://github.com/broadinstitute/inferCNV/wiki) with endothelial and immune cells as reference from either the same patient or a pool of upfront resection Wilms tumor samples: `06_infercnv.R` in `script`
+
+
+While we only selected the `infercnv` method with endothelium and immune cells as normal reference for the main workflow across samples, our  analysis includes an exploration of cnv inference methods based on `copykat` and `infercnv` on a subselection of samples:
+the `script` `explore-cnv-methods.R` calls the independent scripts `05_copyKAT.R` and `06_infercnv.R` for the samples
+		    - "SCPCS000179",
+        - "SCPCS000184",
+        - "SCPCS000194",
+        - "SCPCS000205",
+        - "SCPCS000208".
+
+In addition, we explored the results for all samples in one notebook twice during the analysis:
+
+- the notebook `04_annotation_Across_Samples_exploration.Rmd` explored the annotations obtained by label transfer in all samples
+
+- the notebook `07_annotation_Across_Samples_exploration.Rmd` explored the potential of combining label transfer and cnv to finalize the annotation of the Wilms tumor dataset.
 
 
 For each sample and each of the step, an html report is generated and accessible in the directory `notebook`.
@@ -185,29 +195,34 @@ The data can be found on Zenodo:
 https://zenodo.org/records/4738021#.YJIW4C2ZNQI
 
 The reference contain cells from 15 organs including kidney from fetal samples.
+Here we will use an `Azimuth`-adapted approach to transfer labels from the reference.
 
 ### Input and outputs
 
 We start with the `_process.Rds` data to run `01_seurat-processing.Rmd`.
 The output of `01_seurat-processing.Rmd` is saved in `results` in a subfolder for each sample and is the input of the second step `02a_label-transfer_fetal_full_reference_Cao.Rmd`.
 The output of `02a_label-transfer_fetal_full_reference_Cao.Rmd` is then the input of `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd`.
-Following the same approach, the output of `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd` is the input of `03_clustering_exploration.Rmd`.
+Following the same approach, the output of `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd` is the input of `03_clustering_exploration.Rmd` and `06_infercnv.R`.
+The outputs of `06_infercnv.R` `06_infercnv_HMM-i3_{sample_id}_{reference-type}.rds` is finally the input of `07_combined_annotation_across_samples_exploration.Rmd`, which produces a TSV with annotations in `results/SCPCP000006-annotations.tsv `.
+
+
+All inputs/outputs generated and used in the main workflow are saved in the `results/{sample_id}` folder.
+Results in subfolders such as `results/{sample_id}/05_copyKAT` or `results/{sample_id}/06_infercnv` have been obtained for a subselection of samples in the exploratory analysis, and are thus kept separated from the results of the main workflow.
 
 At the end of the workflow, we have a `Seurat`object that contains:
 - normalization and clustering, dimensional reductions
 - label transfer from the fetal full reference
 - label transfer from the fetal kidney reference
+- cnv predictions using `infercnv`
 
 ## Software requirements
 
-To perform the analysis, run the RMarkdown script in R (version 4.4.1).
-The main packages used are:
-- Seurat version 5
-- Azimuth version 5
-- inferCNV
-- SCpubr for visualization
-- DT for table visualization
-- DElegate for differential expression analysis
+### renv
+
+This module uses `renv`.
+If you are using RStudio Server within the container, the `renv` project will not be activated by default.
+You can install packages within the container and use `renv::snapshot()` to update the lockfile without activating the project without a problem in our testing.
+The `renv` lockfile is used to install R packages in the Docker image.
 
 ### Docker
 
@@ -243,14 +258,10 @@ You must build an ARM image locally to be able to use RStudio Server within the 
 #### A note for Halbritter lab internal development
 This work has been developed on a system that uses podman instead of docker. The steps to run the docker/podman images are slightly different and we saved in run-podman-internal.sh our internal approach to run the container. Please, refer to the Docker section to build and run the container instead.
 
-### renv
-
-This module uses `renv`.
-If you are using RStudio Server within the container, the `renv` project will not be activated by default.
-You can install packages within the container and use `renv::snapshot()` to update the lockfile without activating the project without a problem in our testing.
-The `renv` lockfile is used to install R packages in the Docker image.
 
 ## Computational resources
+
+This module may require up to 16 cores to run certain exploratory steps, but the main workflow can be run on a laptop.
 
 ## References
 

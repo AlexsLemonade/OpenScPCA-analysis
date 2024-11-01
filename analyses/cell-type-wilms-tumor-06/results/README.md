@@ -86,3 +86,6 @@ However, HMM CNV prediction methods uses a lot of resources, including time (~2h
 This is why we only ran the HMM model for one `reference` condition. After selection of the best reference to use, we will run it for all samples.
 
 
+## Annotations
+
+Annotations in `SCPCP000006-annotations.tsv` were produced by `notebook/07_combined_annotation_across_samples_exploration.Rmd`.
