@@ -156,10 +156,18 @@ output_dir <- file.path(module_base, "results", params$sample_id)
 ```{r load, message=FALSE, warning=FALSE}
 # open the processed rds object
 srat <- readRDS(file.path(data_dir, paste0("02a-fetal_full_label-transfer_", params$sample_id, ".Rds")))
+srat_assay <- "RNA"
 
 # prepare the query for label transfer
-DefaultAssay(srat) <- "RNA"
-srat <- prepare_query(srat, rownames(reference), params$homologs_file)
+# we don't want to overwrite the srat object since `prepare_query`
+#  removes features that are not present in the reference
+DefaultAssay(srat) <- srat_assay
+query <- prepare_query(
+  srat,
+  rownames(reference),
+  srat_assay,
+  params$homologs_file
+)
 ```
 
 
@@ -174,13 +182,15 @@ if (params$testing) {
 } else {
   k.weight <- 50 # Azimuth default
 }
-s <- transfer_labels(
-  srat,
+query_labeled <- transfer_labels(
+  query,
   reference,
   dims,
   refdata,
+  query.assay = srat_assay,
   k.weight = k.weight
 )
+
 
 # We transfer the annotation to the pre-processed `Seurat` object as we don't want to keep changes done on the query by Azimuth
 annotation_columns <- c(

@@ -154,12 +154,18 @@ output_dir <- file.path(module_base, "results", params$sample_id)
 ```{r load, message=FALSE, warning=FALSE}
 # open the processed rds object
 srat <- readRDS(file.path(data_dir, paste0("01-Seurat_", params$sample_id, ".Rds")))
+srat_assay <- "RNA"
 
 # prepare the query for label transfer
 # we don't want to overwrite the srat object since `prepare_query`
 #  removes features that are not present in the reference
-DefaultAssay(srat) <- "RNA"
-query <- prepare_query(srat, rownames(reference), params$homologs_file)
+DefaultAssay(srat) <- srat_assay
+query <- prepare_query(
+  srat,
+  rownames(reference),
+  srat_assay,
+  params$homologs_file
+)
 ```
 
 
@@ -179,6 +185,7 @@ query_labeled <- transfer_labels(
   reference,
   dims,
   refdata,
+  query.assay = srat_assay,
   k.weight = k.weight
 )
 
