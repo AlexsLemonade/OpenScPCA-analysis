@@ -519,7 +519,7 @@ length(unique(annotations_table$scpca_sample_id))
 ## Conclusion
 
 - Combining label transfer and CNV inference we annotated 38/40 Wilms tumor samples in SCPCP000006. For the two remaining samples, we need to investigate inferCNV further:
-    - SCPCS000190 only has 1 normal cell, so we cannot specify a reference for inferCNV
+    - SCPCS000190 only has 1 normal cell, which is insuffient as a reference for inferCNV
     - SCPCS000203 does not run properly through inferCNV; cells are removed from the inferCNV inference, and why requires further investigation
 
 - The heatmaps of cnv proportion and marker genes support our annotations, but signals with some marker genes are very low.
