@@ -54,9 +54,13 @@ rmarkdown::render(
   output_dir = file.path(notebook_output_dir, "00-reference")
 )
 
+sample_ids <- metadata |>
+  dplyr::filter(seq_unit != "spot") |>
+  dplyr::pull(scpca_sample_id) |>
+  unique()
 
 # Run the workflow for (all) samples in the project -----------------------------
-for (sample_id in unique(metadata$scpca_sample_id)) {
+for (sample_id in sample_ids) {
   # create a directory to save the pre-processed and labeled `Seurat` objects
   dir.create(file.path(module_base, "results", sample_id), showWarnings = FALSE)
   # create a directory to save the notebooks
@@ -115,11 +119,18 @@ if (!running_ci) {
   system(command = glue::glue("Rscript ", file.path(module_base, "scripts", "explore-cnv-methods.R")))
 
   # Run infercnv for all samples with HMM i3 and using "both" as the reference
-  for (sample_id in unique(metadata$scpca_sample_id)) {
+  for (sample_id in sample_ids) {
+    # We currently skip samples SCPCS000190 and SCPSC000203:
+    # - SCPCS000190: insufficient cells to use as a reference
+    # - SCPSC000203: inferCNV is returning an error that requires further debugging:
+    #   Cell names in Seurat object and infercnv results do not match
+    if (sample_id %in% c("SCPCS000190", "SCPCS000203")) {
+      next
+    }
     # don't repeat inference on selection of samples it's already been run on
     output_file <- file.path(module_base, "results", sample_id, glue::glue("06_infercnv_HMM-i3_{sample_id}_reference-both.rds"))
     if (!file.exists(output_file)) {
-      system(command = glue::glue("Rscript ", file.path(module_base, "scripts", "06_infercnv.R"), " --sample_id ", sample_id, " --reference both --HMM i3"))
+      system(command = glue::glue("Rscript {file.path(module_base, 'scripts', '06_infercnv.R')} --sample_id {sample_id} --reference {reference} --HMM i3"))
     }
   }
 
