@@ -21,10 +21,15 @@
 #'
 #' @param query The Seurat object which will undergo label transfer
 #' @param reference_rownames The rownames (aka, features) in the reference object
+#' @param assay Name of assay in query to prepare
 #' @param homolog_file Path to the homologs.rds file obtained from Seurat
 #'
 #' @return Seurat object prepared for label transfer
-prepare_query <- function(query, reference_rownames, homolog_file = homologs_file) {
+prepare_query <- function(
+    query,
+    reference_rownames,
+    assay = NULL,
+    homolog_file = homologs_file) {
   # Convert the query (sample) row names from ensembl IDs to gene names to match what
   # the Azimuth reference uses
   # Source: https://github.com/satijalab/azimuth/blob/243ee5db80fcbffa3452c944254a325a3da2ef9e/R/azimuth.R#L99-L104
@@ -41,7 +46,7 @@ prepare_query <- function(query, reference_rownames, homolog_file = homologs_fil
     calcn <- as.data.frame(x = Seurat:::CalcN(object = query[["RNA"]]))
     colnames(x = calcn) <- paste(
       colnames(x = calcn),
-      NULL, # assay
+      assay,
       sep = "_"
     )
     query <- AddMetaData(
@@ -59,7 +64,7 @@ prepare_query <- function(query, reference_rownames, homolog_file = homologs_fil
       object = query,
       pattern = "^MT-",
       col.name = "percent.mt",
-      assay = NULL
+      assay = assay
     )
   }
 
@@ -77,8 +82,9 @@ prepare_query <- function(query, reference_rownames, homolog_file = homologs_fil
 #' @param query The Seurat object which will undergo label transfer
 #' @param reference The reference dataset
 #' @param reference_dims Dimensions calculated from the reference dataset
-#' @param refdata object used by Azimuth
+#' @param refdata Annotation information used by TransferData
 #' @param reference_dims Number of dimensions to use in the anchor weighting procedure
+#' @param query.assay name of assay in query to use
 #' @param k.weight Number of neighbors to consider when weighting anchors. This should be
 #' <=15 when running on OpenScPCA test data
 #' @param n.trees More trees gives higher precision when using annoy approximate
@@ -95,6 +101,7 @@ transfer_labels <- function(
     reference,
     reference_dims,
     refdata,
+    query.assay = NULL,
     k.weight = 50,
     n.trees = 20,
     mapping.score.k = 80,
@@ -108,7 +115,7 @@ transfer_labels <- function(
     k.filter = NA,
     reference.neighbors = "refdr.annoy.neighbors",
     reference.assay = "refAssay",
-    query.assay = NULL,
+    query.assay = query.assay,
     reference.reduction = "refDR",
     normalization.method = "SCT",
     features = rownames(Loadings(reference[["refDR"]])),
@@ -123,7 +130,7 @@ transfer_labels <- function(
   query <- TransferData(
     reference = reference,
     query = query,
-    query.assay = NULL,
+    query.assay = query.assay,
     dims = 1:reference_dims,
     anchorset = anchors,
     refdata = refdata,
