@@ -157,6 +157,8 @@ gene_order_file <- file.path(module_base, "results", "references", "gencode_v19_
 # Run infercnv ------------------------------------------------------------------
 # create inferCNV object and run method
 options(future.globals.maxSize = 89128960000000)
+options(scipen = 100) # recommended for infercnv analysis_mode = "subclusters"
+
 
 infercnv_obj <- infercnv::CreateInfercnvObject(
   raw_counts_matrix = as.matrix(counts),
