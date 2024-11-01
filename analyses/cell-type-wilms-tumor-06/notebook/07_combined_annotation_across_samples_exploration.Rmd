@@ -119,9 +119,13 @@ the following information per cell:
 sample_metadata_file <- file.path(repository_base, "data", "current", "SCPCP000006", "single_cell_metadata.tsv")
 
 metadata <- read.table(sample_metadata_file, sep = "\t", header = TRUE)
+sample_ids <- metadata |>
+  dplyr::filter(seq_unit != "spot") |>
+  dplyr::pull(scpca_sample_id) |>
+  unique()
 
 # Create a data frames of all annotations
-cell_type_df <- unique(metadata$scpca_sample_id) |>
+cell_type_df <- sample_ids |>
   purrr::map(
     # For each sample_id, do the following:
     \(sample_id) {
