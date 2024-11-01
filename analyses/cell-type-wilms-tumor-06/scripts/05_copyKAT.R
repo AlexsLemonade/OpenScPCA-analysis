@@ -45,7 +45,7 @@ option_list <- list(
     help = "either to run copyKAT with or without reference normal cells"
   ),
   make_option(
-    opt_str = "seed",
+    opt_str = "--seed",
     type = "integer",
     default = 12345,
     help = "random seed to set"
