@@ -164,7 +164,9 @@ infercnv_obj <- infercnv::CreateInfercnvObject(
   raw_counts_matrix = as.matrix(counts),
   annotations_file = annot_df,
   ref_group_names = normal_cells,
-  gene_order_file = gene_order_file
+  gene_order_file = gene_order_file,
+  # ensure all cells are included
+  min_max_counts_per_cell = c(-Inf, +Inf)
 )
 
 infercnv_obj <- infercnv::run(

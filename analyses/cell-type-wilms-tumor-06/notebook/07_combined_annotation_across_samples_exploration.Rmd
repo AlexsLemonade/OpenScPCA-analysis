@@ -138,90 +138,88 @@ cell_type_df <- unique(metadata$scpca_sample_id) |>
       )
 
       # Read in the Seurat object
-      if (file.exists(input_file)) {
-        srat <- readRDS(input_file)
+      srat <- readRDS(input_file)
 
-        # Create and return a data frame from the Seurat object with relevant annotations
-        # this data frame will have four columns: barcode, sample_id, compartment, organ
-        data.frame(
-          # label transfer from the fetal kidney reference
-          cell_type = srat$fetal_kidney_predicted.cell_type,
-          compartment = srat$fetal_kidney_predicted.compartment,
+      # Create and return a data frame from the Seurat object with relevant annotations
+      # this data frame will have four columns: barcode, sample_id, compartment, organ
+      data.frame(
+        # label transfer from the fetal kidney reference
+        cell_type = srat$fetal_kidney_predicted.cell_type,
+        compartment = srat$fetal_kidney_predicted.compartment,
 
-          # predicted.scores from the label transfer from the fetal kidney reference
-          cell_type.score = srat$fetal_kidney_predicted.cell_type.score,
-          compartment.score = srat$fetal_kidney_predicted.compartment.score,
+        # predicted.scores from the label transfer from the fetal kidney reference
+        cell_type.score = srat$fetal_kidney_predicted.cell_type.score,
+        compartment.score = srat$fetal_kidney_predicted.compartment.score,
 
-          # cell embedding
-          umap = srat@reductions$umap@cell.embeddings,
+        # cell embedding
+        umap = srat@reductions$umap@cell.embeddings,
 
-          # marker genes
-          PTPRC = FetchData(object = srat, vars = "ENSG00000081237", layer = "counts"),
-          VWF = FetchData(object = srat, vars = "ENSG00000110799", layer = "counts"),
-          VIM = FetchData(object = srat, vars = "ENSG00000026025", layer = "counts"),
-          CITED1 = FetchData(object = srat, vars = "ENSG00000125931", layer = "counts"),
-          CDH1 = FetchData(object = srat, vars = "ENSG00000039068", layer = "counts"),
-          PODXL = FetchData(object = srat, vars = "ENSG00000128567", layer = "counts"),
-          COL6A3 = FetchData(object = srat, vars = "ENSG00000163359", layer = "counts"),
-          SIX2 = FetchData(object = srat, vars = "ENSG00000170577", layer = "counts"),
-          NCAM1 = FetchData(object = srat, vars = "ENSG00000149294", layer = "counts"),
-          THY1 = FetchData(object = srat, vars = "ENSG00000154096", layer = "counts"),
-
+        # marker genes
+        PTPRC = FetchData(object = srat, vars = "ENSG00000081237", layer = "counts"),
+        VWF = FetchData(object = srat, vars = "ENSG00000110799", layer = "counts"),
+        VIM = FetchData(object = srat, vars = "ENSG00000026025", layer = "counts"),
+        CITED1 = FetchData(object = srat, vars = "ENSG00000125931", layer = "counts"),
+        CDH1 = FetchData(object = srat, vars = "ENSG00000039068", layer = "counts"),
+        PODXL = FetchData(object = srat, vars = "ENSG00000128567", layer = "counts"),
+        COL6A3 = FetchData(object = srat, vars = "ENSG00000163359", layer = "counts"),
+        SIX2 = FetchData(object = srat, vars = "ENSG00000170577", layer = "counts"),
+        NCAM1 = FetchData(object = srat, vars = "ENSG00000149294", layer = "counts"),
+        THY1 = FetchData(object = srat, vars = "ENSG00000154096", layer = "counts"),
 
 
 
 
-          # proportion of cnv per chromosome
-          proportion_cnv_chr1 = srat$proportion_cnv_chr1,
-          proportion_cnv_chr2 = srat$proportion_cnv_chr2,
-          proportion_cnv_chr3 = srat$proportion_cnv_chr3,
-          proportion_cnv_chr4 = srat$proportion_cnv_chr4,
-          proportion_cnv_chr5 = srat$proportion_cnv_chr5,
-          proportion_cnv_chr6 = srat$proportion_cnv_chr6,
-          proportion_cnv_chr7 = srat$proportion_cnv_chr7,
-          proportion_cnv_chr8 = srat$proportion_cnv_chr8,
-          proportion_cnv_chr9 = srat$proportion_cnv_chr9,
-          proportion_cnv_chr10 = srat$proportion_cnv_chr10,
-          proportion_cnv_chr11 = srat$proportion_cnv_chr11,
-          proportion_cnv_chr12 = srat$proportion_cnv_chr12,
-          proportion_cnv_chr13 = srat$proportion_cnv_chr13,
-          proportion_cnv_chr14 = srat$proportion_cnv_chr14,
-          proportion_cnv_chr15 = srat$proportion_cnv_chr15,
-          proportion_cnv_chr16 = srat$proportion_cnv_chr16,
-          proportion_cnv_chr17 = srat$proportion_cnv_chr17,
-          proportion_cnv_chr18 = srat$proportion_cnv_chr18,
-          proportion_cnv_chr19 = srat$proportion_cnv_chr19,
-          proportion_cnv_chr20 = srat$proportion_cnv_chr20,
-          proportion_cnv_chr21 = srat$proportion_cnv_chr21,
-          proportion_cnv_chr22 = srat$proportion_cnv_chr22,
 
-          # cnv global estimation per chromosome
-          has_cnv_chr1 = srat$has_cnv_chr1,
-          has_cnv_chr2 = srat$has_cnv_chr2,
-          has_cnv_chr3 = srat$has_cnv_chr3,
-          has_cnv_chr4 = srat$has_cnv_chr4,
-          has_cnv_chr5 = srat$has_cnv_chr5,
-          has_cnv_chr6 = srat$has_cnv_chr6,
-          has_cnv_chr7 = srat$has_cnv_chr7,
-          has_cnv_chr8 = srat$has_cnv_chr8,
-          has_cnv_chr9 = srat$has_cnv_chr9,
-          has_cnv_chr10 = srat$has_cnv_chr10,
-          has_cnv_chr11 = srat$has_cnv_chr11,
-          has_cnv_chr12 = srat$has_cnv_chr12,
-          has_cnv_chr13 = srat$has_cnv_chr13,
-          has_cnv_chr14 = srat$has_cnv_chr14,
-          has_cnv_chr15 = srat$has_cnv_chr15,
-          has_cnv_chr16 = srat$has_cnv_chr16,
-          has_cnv_chr17 = srat$has_cnv_chr17,
-          has_cnv_chr18 = srat$has_cnv_chr18,
-          has_cnv_chr19 = srat$has_cnv_chr19,
-          has_cnv_chr20 = srat$has_cnv_chr20,
-          has_cnv_chr21 = srat$has_cnv_chr21,
-          has_cnv_chr22 = srat$has_cnv_chr22
-        ) |>
-          tibble::rownames_to_column("barcode") |>
-          dplyr::mutate(sample_id = sample_id)
-      }
+        # proportion of cnv per chromosome
+        proportion_cnv_chr1 = srat$proportion_cnv_chr1,
+        proportion_cnv_chr2 = srat$proportion_cnv_chr2,
+        proportion_cnv_chr3 = srat$proportion_cnv_chr3,
+        proportion_cnv_chr4 = srat$proportion_cnv_chr4,
+        proportion_cnv_chr5 = srat$proportion_cnv_chr5,
+        proportion_cnv_chr6 = srat$proportion_cnv_chr6,
+        proportion_cnv_chr7 = srat$proportion_cnv_chr7,
+        proportion_cnv_chr8 = srat$proportion_cnv_chr8,
+        proportion_cnv_chr9 = srat$proportion_cnv_chr9,
+        proportion_cnv_chr10 = srat$proportion_cnv_chr10,
+        proportion_cnv_chr11 = srat$proportion_cnv_chr11,
+        proportion_cnv_chr12 = srat$proportion_cnv_chr12,
+        proportion_cnv_chr13 = srat$proportion_cnv_chr13,
+        proportion_cnv_chr14 = srat$proportion_cnv_chr14,
+        proportion_cnv_chr15 = srat$proportion_cnv_chr15,
+        proportion_cnv_chr16 = srat$proportion_cnv_chr16,
+        proportion_cnv_chr17 = srat$proportion_cnv_chr17,
+        proportion_cnv_chr18 = srat$proportion_cnv_chr18,
+        proportion_cnv_chr19 = srat$proportion_cnv_chr19,
+        proportion_cnv_chr20 = srat$proportion_cnv_chr20,
+        proportion_cnv_chr21 = srat$proportion_cnv_chr21,
+        proportion_cnv_chr22 = srat$proportion_cnv_chr22,
+
+        # cnv global estimation per chromosome
+        has_cnv_chr1 = srat$has_cnv_chr1,
+        has_cnv_chr2 = srat$has_cnv_chr2,
+        has_cnv_chr3 = srat$has_cnv_chr3,
+        has_cnv_chr4 = srat$has_cnv_chr4,
+        has_cnv_chr5 = srat$has_cnv_chr5,
+        has_cnv_chr6 = srat$has_cnv_chr6,
+        has_cnv_chr7 = srat$has_cnv_chr7,
+        has_cnv_chr8 = srat$has_cnv_chr8,
+        has_cnv_chr9 = srat$has_cnv_chr9,
+        has_cnv_chr10 = srat$has_cnv_chr10,
+        has_cnv_chr11 = srat$has_cnv_chr11,
+        has_cnv_chr12 = srat$has_cnv_chr12,
+        has_cnv_chr13 = srat$has_cnv_chr13,
+        has_cnv_chr14 = srat$has_cnv_chr14,
+        has_cnv_chr15 = srat$has_cnv_chr15,
+        has_cnv_chr16 = srat$has_cnv_chr16,
+        has_cnv_chr17 = srat$has_cnv_chr17,
+        has_cnv_chr18 = srat$has_cnv_chr18,
+        has_cnv_chr19 = srat$has_cnv_chr19,
+        has_cnv_chr20 = srat$has_cnv_chr20,
+        has_cnv_chr21 = srat$has_cnv_chr21,
+        has_cnv_chr22 = srat$has_cnv_chr22
+      ) |>
+        tibble::rownames_to_column("barcode") |>
+        dplyr::mutate(sample_id = sample_id)
     }
   ) |>
   # now combine all dataframes to make one big one
@@ -524,7 +522,7 @@ length(unique(annotations_table$scpca_sample_id))
 
 ## Conclusion
 
-- Combining label transfer and CNV inference we annotated 39/40 Wilms tumor samples in SCPCP000006. For the remaining samples (SCPCS000203), we need to investigate inferCNV further, since for some reason inferCNV removes cells from the inference and errors.
+- Combining label transfer and CNV inference we have produced draft annotations for all 40 Wilms tumor samples in SCPCP000006
 
 - The heatmaps of cnv proportion and marker genes support our annotations, but signals with some marker genes are very low.
 Also, there is no universal marker for each entity of Wilms tumor that cover all tumor cells from all patient. 

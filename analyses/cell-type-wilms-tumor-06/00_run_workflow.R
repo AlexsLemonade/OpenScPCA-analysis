@@ -128,12 +128,6 @@ if (!running_ci) {
       reference <- "both"
     }
 
-    # We currently skip SCPSC000203 since infer returns an error that requires further debugging:
-    #   Cell names in Seurat object and infercnv results do not match
-    if (sample_id == "SCPCS000203") {
-      next
-    }
-
     # don't repeat inference on selection of samples it's already been run on
     output_file <- file.path(module_base, "results", sample_id, glue::glue("06_infercnv_HMM-i3_{sample_id}_reference-{reference}.rds"))
     if (!file.exists(output_file)) {
