@@ -181,17 +181,25 @@ if (!file.exists(full_results_file)) {
   )
 
 
+  # Perform label transfer with new code
+  assay <- "RNA"
   fetal_full <- srat_objects |>
     purrr::imap(
       \(srat, id) {
-        # Perform label transfer with new code
         set.seed(params$seed)
-        query <- prepare_query(srat, rownames(full_reference), file.path(module_base, "scratch", "homologs.rds"))
+
+        query <- prepare_query(
+          srat,
+          rownames(full_reference),
+          assay,
+          file.path(module_base, "scratch", "homologs.rds")
+        )
         query <- transfer_labels(
           query,
           full_reference,
           full_dims,
-          full_refdata
+          full_refdata,
+          query.assay = assay
         )
 
         # Read in results from existing Azimuth label transfer code
@@ -252,17 +260,25 @@ if (!file.exists(kidney_results_file)) {
   )
 
 
+  # Perform label transfer with new code
+  assay <- "RNA"
   fetal_kidney <- srat_objects |>
     purrr::imap(
       \(srat, id) {
-        # Perform label transfer with new code
         set.seed(params$seed)
-        query <- prepare_query(srat, rownames(kidney_reference), file.path(module_base, "scratch", "homologs.rds"))
+
+        query <- prepare_query(
+          srat,
+          rownames(kidney_reference),
+          assay,
+          file.path(module_base, "scratch", "homologs.rds")
+        )
         query <- transfer_labels(
           query,
           kidney_reference,
           kidney_dims,
-          kidney_refdata
+          kidney_refdata,
+          query.assay = assay
         )
 
         # Read in results from existing Azimuth label transfer code
@@ -358,32 +374,22 @@ Additional notable differences are shown in tables below:
 | SCPSC000194 | Organ | 36 | Lung | Kidney | 
 | SCPSC000205 | Organ | 56 | Kidney | Intestine |
 | SCPSC000208 | L1 | 101 | Mesangial cells | Metanephritic cells |  
-| SCPSC000208 | L1 | 101 | Intestinal epithelial cells | Metanephritic cells |  
+| SCPSC000208 | L1 | 75 | Intestinal epithelial cells | Metanephritic cells |  
 | SCPSC000208 | Organ | 149 | Kidney | Intestine | 
 
 
 ### Fetal kidney reference:
 
-
-- There are a small but notable number of cells flipped between mesenchyme and kidney cells, in particular for sample SCPSC000184.
-This is the main discrepancy.
-- Most of the cell type differences are not necessarily biologically meaningful for our purposes, as listed below. These are not noted in the table.
+- Most of the cell type differences are not in the table below because they are not necessarily biologically meaningful for our purposes:
    - `kidney cell` vs `podocyte`
    - `kidney epithelial cell` vs `kidney cell` 
    - `mesenchymal cell` vs `mesenchymal stem cell` 
-- There are a decent number of times when stroma and fetal nephron are flipped, but this makes sense given that we expect many of the stroma may be tumor.
-- Disagreeing annotation scores when using the cell type reference were often higher, but many of the disagreements for this reference were not meaningful (e.g. `kidney epithelial cell` vs `kidney cell`).
 
 
 | Sample | Reference | Count | Azimuth | Azimuth-adapted |
 |--------|-----------|-------|---------|-----------------|
-| SCPSC000179 | cell type | 202 | mesenchymal cell | kidney epithelial cell | 
-| SCPSC000184 | compartment | 111 | fetal nephron |  stroma | 
-| SCPSC000184 | cell type | 536 | kidney epithelial cell | mesenchymal cell | 
-| SCPSC000194 | compartment | 565 | fetal nephron |  stroma | 
-| SCPSC000194 | cell type  | 89 | kidney epithelial cell | mesenchymal cell | 
-| SCPSC000205 | compartment  | 684 | fetal nephron |  stroma | 
-| SCPSC000208 | compartment  | 2111 | fetal nephron |  stroma | 
+| SCPSC000179 | cell type | 94 | mesenchymal cell | kidney epithelial cell | 
+| SCPSC000205 | compartment  | 52 | fetal nephron |  stroma | 
 
 
 ## Session Info
