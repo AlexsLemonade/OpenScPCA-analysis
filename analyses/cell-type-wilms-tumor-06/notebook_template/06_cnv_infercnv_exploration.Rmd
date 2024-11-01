@@ -16,12 +16,11 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-
-knitr::opts_chunk$set(echo = TRUE,
-                      message=FALSE,
-                      warnings=FALSE
-                      )
-
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warnings = FALSE
+)
 ```
 
 
@@ -29,14 +28,12 @@ knitr::opts_chunk$set(echo = TRUE,
 
 
 ```{r}
-
 subdiagnosis <- readr::read_tsv(
   file.path("..", "..", "..", "data", "current", params$scpca_project_id, "single_cell_metadata.tsv"),
   show_col_types = FALSE
-  ) |>
+) |>
   dplyr::filter(scpca_sample_id == params$sample_id) |>
   dplyr::pull(subdiagnosis)
-
 ```
 
 This notebook explores using [`infercnv`](https://github.com/broadinstitute/inferCNV/wiki) to estimate tumor and normal cells in `r params$sample_id` from SCPCP000006. 
@@ -67,7 +64,6 @@ In this notebook, we want to compare the heatmaps of CNV profiles, and evaluate 
 
 
 ```{r}
-
 library(infercnv)
 library(SCpubr)
 library(ggplot2)
@@ -93,23 +89,21 @@ For a Seurat object `object`, the function `Do_CNV_heatmap` load the `infercnv` 
 - `reference_value` indicates the reference used for `infercnv`, either endothelial, immune, both or pool.
 
 ```{r}
-
-Do_CNV_heatmap <- function(object, infercnv_obj, group.by, reference_value){
-  
-  out <- SCpubr::do_CopyNumberVariantPlot(sample = object,
-                                        infercnv_object = infercnv_obj,
-                                        using_metacells = FALSE,
-                                        chromosome_locations = SCpubr::human_chr_locations,
-                                        return_object = FALSE,
-                                        group.by = group.by
-                                        )
-  out <- out + 
+Do_CNV_heatmap <- function(object, infercnv_obj, group.by, reference_value) {
+  out <- SCpubr::do_CopyNumberVariantPlot(
+    sample = object,
+    infercnv_object = infercnv_obj,
+    using_metacells = FALSE,
+    chromosome_locations = SCpubr::human_chr_locations,
+    return_object = FALSE,
+    group.by = group.by
+  )
+  out <- out +
     ggtitle(glue::glue("Copy Number Variant Plot, ", reference_value)) +
     ylab(label = "")
-  
+
   return(out)
 }
-
 ```
 
 #### Calculate a global CNV score per cell to check the general distribution
@@ -123,11 +117,11 @@ The function `Do_CNV_score` returns the `Seurat` object with an additional metad
 
 
 ```{r}
+Do_CNV_score <- function(seurat_oject, infercnv_obj, reference_value) {
+  score <- apply(infercnv_obj@expr.data, 2, function(x) {
+    sum(x < 0.95 | x > 1.05) / length(x)
+  })
 
-Do_CNV_score <- function(seurat_oject,infercnv_obj,reference_value){
-  
-  score <- apply(infercnv_obj@expr.data,2,function(x){ sum(x < 0.95 | x > 1.05)/length(x) })
-  
   seurat_obj <- AddMetaData(seurat_oject, score, col.name = glue::glue("CNV-score_", reference_value))
   return(seurat_obj)
 }
@@ -145,41 +139,38 @@ For a Seurat object `object`and a metadata `metadata`, the function `visualize_m
 - `group.by` is the metadata used for grouping the violin plots 
 
 ```{r }
-visualize_metadata <- function(object, meta, group.by){
-  
-  if(is.numeric(object@meta.data[,meta])){
-     d <- SCpubr::do_FeaturePlot(object, 
-                                              features = meta, 
-                                              pt.size = 0.2, 
-                                              legend.width = 0.5, 
-                                              legend.length = 5, 
-                                              legend.position = "right") + ggtitle(meta)
-    b <- SCpubr::do_ViolinPlot(object, 
-                                             features = meta, 
-                                             ncol = 1, 
-                                             group.by = group.by, 
-                                             legend.position = "none")
-                   
-   return(d + b + plot_layout(ncol = 2, widths = c(2,4))) 
+visualize_metadata <- function(object, meta, group.by) {
+  if (is.numeric(object@meta.data[, meta])) {
+    d <- SCpubr::do_FeaturePlot(object,
+      features = meta,
+      pt.size = 0.2,
+      legend.width = 0.5,
+      legend.length = 5,
+      legend.position = "right"
+    ) + ggtitle(meta)
+    b <- SCpubr::do_ViolinPlot(object,
+      features = meta,
+      ncol = 1,
+      group.by = group.by,
+      legend.position = "none"
+    )
+
+    return(d + b + plot_layout(ncol = 2, widths = c(2, 4)))
+  } else {
+    d <- SCpubr::do_DimPlot(object, reduction = "umap", group.by = group.by, label = TRUE, repel = TRUE) + ggtitle(paste0(meta, " - umap")) + theme(text = element_text(size = 18))
+    b <- SCpubr::do_BarPlot(
+      sample = object,
+      group.by = meta,
+      split.by = group.by,
+      position = "fill",
+      font.size = 10,
+      legend.ncol = 3
+    ) +
+      ggtitle("% cells") +
+      xlab(print(group.by)) +
+      theme(text = element_text(size = 18))
+    return(d + b + plot_layout(ncol = 2, widths = c(2, 4)))
   }
-  
-  
-  else{
-    
-  
-  d <- SCpubr::do_DimPlot(object, reduction="umap", group.by = group.by, label = TRUE, repel = TRUE) + ggtitle(paste0(meta," - umap")) + theme(text=element_text(size=18))
-  b <- SCpubr::do_BarPlot(sample = object,
-                         group.by = meta,
-                         split.by = group.by,
-                         position = "fill",
-                         font.size = 10,
-                         legend.ncol = 3) +
-                         ggtitle("% cells")+
-                         xlab(print(group.by)) +
-                         theme(text=element_text(size=18))
-  return(d + b + plot_layout(ncol = 2, widths = c(2,4)))
-  }
-  
 }
 ```
 
@@ -196,22 +187,23 @@ For a Seurat object `object`and a features `features`, the function `visualize_f
 - `group.by` is the metadata used for grouping the violin plots 
 
 ```{r }
-visualize_feature <- function(object, feature, group.by ){
- 
-                  d <- SCpubr::do_FeaturePlot(object, 
-                                              features = feature, 
-                                              pt.size = 0.2, 
-                                              legend.width = 0.5, 
-                                              legend.length = 5, 
-                                              legend.position = "right") + ggtitle(as.character(feature))
-                  b <- SCpubr::do_ViolinPlot(object, 
-                                             features = feature, 
-                                             ncol = 1, 
-                                             group.by = group.by, 
-                                             legend.position = "none",
-                                             assay = "SCT") + ylab(as.character(feature))
-                   
-                  return(d + b + plot_layout(ncol = 2, widths = c(2,4))) 
+visualize_feature <- function(object, feature, group.by) {
+  d <- SCpubr::do_FeaturePlot(object,
+    features = feature,
+    pt.size = 0.2,
+    legend.width = 0.5,
+    legend.length = 5,
+    legend.position = "right"
+  ) + ggtitle(as.character(feature))
+  b <- SCpubr::do_ViolinPlot(object,
+    features = feature,
+    ncol = 1,
+    group.by = group.by,
+    legend.position = "none",
+    assay = "SCT"
+  ) + ylab(as.character(feature))
+
+  return(d + b + plot_layout(ncol = 2, widths = c(2, 4)))
 }
 ```
 
@@ -227,18 +219,16 @@ For a Seurat object `object`and a features `features`, the function `visualize_f
 - `group.by` is the metadata used for grouping the violin plots 
 
 ```{r }
-visualize_density <- function(object, features, group.by ){
- 
-                  d <- SCpubr::do_RidgePlot(object, 
-                                            feature = features, 
-                                            group.by = group.by, 
-                                             legend.position = "none",
-                                             assay = "SCT") + ylab(features)
-                   
-                  return(d) 
+visualize_density <- function(object, features, group.by) {
+  d <- SCpubr::do_RidgePlot(object,
+    feature = features,
+    group.by = group.by,
+    legend.position = "none",
+    assay = "SCT"
+  ) + ylab(features)
+
+  return(d)
 }
-          
- 
 ```
 
 #### Wrapper function to explore `infercnv` HMM cnv prediction
@@ -278,43 +268,40 @@ Else, the cell will have a `has_cnv_score` set to FALSE.
 
 
 ```{r}
-
-wrapper_explore_hmm <- function(infercnv_obj, cnv_threshold = 1){
-
+wrapper_explore_hmm <- function(infercnv_obj, cnv_threshold = 1) {
   p <- list()
 
   #### Plot UMAP of known Wilms tumor related alteration
   p[["compartment"]] <- visualize_metadata(infercnv_obj, "fetal_kidney_predicted.compartment", "seurat_clusters")
-  
-  #### Feature plot and repartition of the CNV per chromosome
-  for(i in 1:22){
-    tmp1 <- visualize_feature(infercnv_obj, feature=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment")
-    tmp2 <- visualize_density(infercnv_obj, features=glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment")
-    p[[glue::glue("proportion_cnv_chr", i)]] <- tmp1 + tmp2 + plot_layout(ncol = 3, widths = c(1,2,2))
-  }
-  
-  #### DotPlot
-  p[["Dotplot"]] <- DotPlot(infercnv_obj, features =  colnames(infercnv_obj@meta.data)[grepl("has_cnv_chr", colnames(infercnv_obj@meta.data))], group.by = "fetal_kidney_predicted.compartment", assay = "SCT") + 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-  
-  #### CNV score
-  meta <- infercnv_obj@meta.data
-  meta$has_cnv_score <- rowSums(meta[,grepl("has_cnv_chr", colnames(meta))])
-  meta$has_cnv_score[meta$has_cnv_score > cnv_threshold] <- "CNV"
 
-  # we know that some immune cells might have false positive CNV 
-  meta$has_cnv_score[meta$has_cnv_score %in% c(0:cnv_threshold)] <- "no CNV"
-  infercnv_obj <- AddMetaData(infercnv_obj, meta$has_cnv_score, col.name =  "has_cnv_score") 
+  #### Feature plot and repartition of the CNV per chromosome
+  for (i in 1:22) {
+    tmp1 <- visualize_feature(infercnv_obj, feature = glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment")
+    tmp2 <- visualize_density(infercnv_obj, features = glue::glue("proportion_cnv_chr", i), group.by = "fetal_kidney_predicted.compartment")
+    p[[glue::glue("proportion_cnv_chr", i)]] <- tmp1 + tmp2 + plot_layout(ncol = 3, widths = c(1, 2, 2))
+  }
+
+  #### DotPlot
+  p[["Dotplot"]] <- DotPlot(infercnv_obj, features = colnames(infercnv_obj@meta.data)[grepl("has_cnv_chr", colnames(infercnv_obj@meta.data))], group.by = "fetal_kidney_predicted.compartment", assay = "SCT") +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+  #### CNV score
+  meta <- infercnv_obj@meta.data |>
+    mutate(has_cnv_score = rowSums(meta[, grepl("has_cnv_chr", colnames(meta))])) |>
+    mutate(has_cnv_score = case_when(
+      has_cnv_score > cnv_threshold ~ "CNV",
+      has_cnv_score <= cnv_threshold ~ "no CNV"
+    ))
+
+
+  infercnv_obj <- AddMetaData(infercnv_obj, meta$has_cnv_score, col.name = "has_cnv_score")
   p[["infercnv_obj"]] <- infercnv_obj
 
   p[["cnv_seurat"]] <- visualize_metadata(infercnv_obj, "has_cnv_score", "seurat_clusters")
   p[["cnv_compartment"]] <- visualize_metadata(infercnv_obj, "has_cnv_score", "fetal_kidney_predicted.compartment")
 
-return(p)
-
-  
+  return(p)
 }
-
 ```
 
 ### Base directories
@@ -333,9 +320,7 @@ module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06"
 The input for this notebook are the results of `06_inferCNV.R`
 
 ```{r}
-
 result_dir <- file.path(module_base, "results", params$sample_id, "06_infercnv")
-
 ```
 
 #### `Seurat` object
@@ -343,9 +328,7 @@ result_dir <- file.path(module_base, "results", params$sample_id, "06_infercnv")
 We load the `Seurat` object generated in `06_infercnv.R`
 
 ```{r}
-
 srat <- readRDS(file.path(module_base, "results", params$sample_id, glue::glue("02b-fetal_kidney_label-transfer_", params$sample_id, ".Rds")))
-
 ```
 
 ## Analysis
@@ -381,11 +364,10 @@ We then used the `infercnv object` to look at mean CNV value across compartments
 
 ```{r fig.width=20, fig.height=5, out.width='100%', out.height='100%'}
 infercnv_obj <- list()
-for(reference_value in c("reference-none", "reference-immune", "reference-endothelium", "reference-both")){
-  infercnv_obj[[reference_value]] <- readRDS(file.path(result_dir, glue::glue(reference_value, "_HMM-no") , glue::glue("06_infercnv_", params$sample_id, "_", reference_value, "_HMM-no.rds")))
+for (reference_value in c("reference-none", "reference-immune", "reference-endothelium", "reference-both")) {
+  infercnv_obj[[reference_value]] <- readRDS(file.path(result_dir, glue::glue(reference_value, "_HMM-no"), glue::glue("06_infercnv_", params$sample_id, "_", reference_value, "_HMM-no.rds")))
   print(Do_CNV_heatmap(object = srat, infercnv_obj = infercnv_obj[[reference_value]], group.by = "fetal_kidney_predicted.compartment", reference_value = reference_value))
 }
-
 ```
 These heatmaps emphasize the importance of the selection of normal cells prior the inference of CNV.
 The normal reference should contain as much cell types as possible, in order to minimize false positive CNV.
@@ -409,14 +391,12 @@ We would expect:
 Ideally, the CNV score distribution should show two peaks, one for the normal cells with no CNV, one for cancer cells with more genomic rearrangements.
 
 ```{r fig.width=20, fig.height=5, out.width='100%', out.height='100%', warning=FALSE}
-
-for(reference_value in c("reference-none", "reference-immune", "reference-endothelium", "reference-both")){
-  srat <- Do_CNV_score(srat,infercnv_obj = infercnv_obj[[reference_value]], reference_value)
-  p1 <- visualize_feature(srat, feature =  glue::glue("CNV-score_", reference_value) , group.by = "fetal_kidney_predicted.compartment" )
-  p2 <- visualize_density(srat, features=glue::glue("CNV-score_", reference_value), group.by = "fetal_kidney_predicted.compartment")
-  print(p1 + p2 + plot_layout(ncol = 3, widths = c(1,2,2)))
+for (reference_value in c("reference-none", "reference-immune", "reference-endothelium", "reference-both")) {
+  srat <- Do_CNV_score(srat, infercnv_obj = infercnv_obj[[reference_value]], reference_value)
+  p1 <- visualize_feature(srat, feature = glue::glue("CNV-score_", reference_value), group.by = "fetal_kidney_predicted.compartment")
+  p2 <- visualize_density(srat, features = glue::glue("CNV-score_", reference_value), group.by = "fetal_kidney_predicted.compartment")
+  print(p1 + p2 + plot_layout(ncol = 3, widths = c(1, 2, 2)))
 }
-
 ```
 
 This unique CNV score does not look promising. 
@@ -433,11 +413,8 @@ We then explore infercnv results generated with immune and endothelial cells as 
 We load the `Seurat` object generated in `06_infercnv.R`
 
 ```{r}
-
 #### Load the `Seurat` object
 srat_i3 <- readRDS(file.path(module_base, "results", params$sample_id, glue::glue("06_infercnv_HMM-i3_", params$sample_id, "_reference-both.rds")))
-
-
 ```
 
 and explore the CNV results using the `wrapper_explore_hmm` fucntion.
@@ -457,9 +434,7 @@ We then explore `infercnv` results generated with immune and endothelial cells a
 We load the `Seurat` object generated in `06_infercnv.R`
 
 ```{r}
-
 srat_i6 <- readRDS(file.path(module_base, "results", params$sample_id, glue::glue("06_infercnv_HMM-i6_", params$sample_id, "_reference-both.rds")))
-
 ```
 
 
@@ -492,10 +467,10 @@ seurat_full <- readRDS(file.path(module_base, "results", params$sample_id, glue:
 keep_cells <- colnames(srat)
 seurat <- subset(seurat_full, cells = keep_cells)
 
-meta <- seurat@meta.data[colnames(srat),]
+meta <- seurat@meta.data[colnames(srat), ]
 
 # merge the new info into the srat metadata
-srat_pull <- AddMetaData(srat, meta[,grepl("_cnv_chr", colnames(meta))], col.name = colnames(meta[grepl("_cnv_chr", colnames(meta))]))
+srat_pull <- AddMetaData(srat, meta[, grepl("_cnv_chr", colnames(meta))], col.name = colnames(meta[grepl("_cnv_chr", colnames(meta))]))
 ```
 
 
@@ -518,7 +493,6 @@ We compare here the binary CNV scores calculated with the three HMM prediction m
 
 
 ```{r fig.width=20, fig.height=8, out.width='100%'}
-
 p1 <- SCpubr::do_DimPlot(pull$infercnv_obj, "has_cnv_score", plot.title = "inter-patient reference, HMM-i3", reduction = "umap")
 
 p2 <- SCpubr::do_DimPlot(p$infercnv_obj, "has_cnv_score", plot.title = "intra-patient reference, HMM-i3", reduction = "umap")
@@ -526,7 +500,6 @@ p2 <- SCpubr::do_DimPlot(p$infercnv_obj, "has_cnv_score", plot.title = "intra-pa
 p3 <- SCpubr::do_DimPlot(q$infercnv_obj, "has_cnv_score", plot.title = "intra-patient reference, HMM-i6", reduction = "umap")
 
 p1 + p2 + p3 + plot_layout(ncol = 3)
-
 ```
 
 
