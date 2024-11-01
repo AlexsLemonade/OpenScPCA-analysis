@@ -120,15 +120,22 @@ if (!running_ci) {
 
   # Run infercnv for all samples with HMM i3 and using "both" as the reference
   for (sample_id in sample_ids) {
-    # We currently skip samples SCPCS000190 and SCPSC000203:
-    # - SCPCS000190: insufficient cells to use as a reference
-    # - SCPSC000203: inferCNV is returning an error that requires further debugging:
+    # We run SCPCS000190 with "none" instead of "both" since it does not have
+    # enough "normal" cells to use as a reference
+    if (sample_id == "SCPCS000190") {
+      reference <- "none"
+    } else {
+      reference <- "both"
+    }
+
+    # We currently skip SCPSC000203 since infer returns an error that requires further debugging:
     #   Cell names in Seurat object and infercnv results do not match
-    if (sample_id %in% c("SCPCS000190", "SCPCS000203")) {
+    if (sample_id == "SCPCS000203") {
       next
     }
+
     # don't repeat inference on selection of samples it's already been run on
-    output_file <- file.path(module_base, "results", sample_id, glue::glue("06_infercnv_HMM-i3_{sample_id}_reference-both.rds"))
+    output_file <- file.path(module_base, "results", sample_id, glue::glue("06_infercnv_HMM-i3_{sample_id}_reference-{reference}.rds"))
     if (!file.exists(output_file)) {
       system(command = glue::glue("Rscript {file.path(module_base, 'scripts', '06_infercnv.R')} --sample_id {sample_id} --reference {reference} --HMM i3"))
     }
