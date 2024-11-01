@@ -194,9 +194,9 @@ annotation_columns <- c(
   glue::glue("predicted.{annotation_levels}"),
   glue::glue("predicted.{annotation_levels}.score")
 )
-metadata_to_trasfer <- query_labeled@meta.data[, annotation_columns]
+metadata_to_transfer <- query_labeled@meta.data[, annotation_columns]
 
-srat <- AddMetaData(srat, metadata_to_trasfer, col.name = paste0("fetal_full_", annotation_columns))
+srat <- AddMetaData(srat, metadata_to_transfer, col.name = paste0("fetal_full_", annotation_columns))
 
 rm(query)
 rm(query_labeled)
