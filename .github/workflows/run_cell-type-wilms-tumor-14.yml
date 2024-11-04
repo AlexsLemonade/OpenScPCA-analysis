@@ -64,6 +64,11 @@ jobs:
         with:
           working-directory: ${{ env.MODULE_PATH }}
 
+      - name: Initialize zellkonverter environment
+        run: |
+          cd ${MODULE_PATH}
+          Rscript -e "proc <- basilisk::basiliskStart(env = zellkonverter::zellkonverterAnnDataEnv(), testload = 'anndata'); basilisk::basiliskStop(proc)"
+
       # Update this step as needed to download the desired data
       - name: Download test data and results
         run: |

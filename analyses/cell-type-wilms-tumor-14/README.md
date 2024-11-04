@@ -12,26 +12,19 @@ This would include:
 * count normalization, feature selection, transformation, PCA, UMAP, batch effect correction (if merged object)
 
 #### 01. Anchor transfer using Seurat
-  * Fetal reference from [Human Kidney atlas](https://www.kidneycellatlas.org/) works best in my preliminary analysis.
+* Fetal reference from [Human Kidney atlas](https://www.kidneycellatlas.org/) works best in my preliminary analysis.
 
-#### 02. Curating marker gene lists
-- Tumor cell markers for Wilms tumor
-- Kidney cell types
+#### 02. Exploring clustering
+* Alternative feature selection strategy
+* Alternative clustering algorithms
 
-#### 03. Cell type annotation with marker gene lists
-* Cellassign
-* scType
-
-#### 04. Tumor cell identification
-- inferCNV?
-- CopyKat?
-- Based on Tumor marker genes
-
-#### 05. Sample merging and validation
+#### 03. Exploring copy number variation
+* inferCNV
+* CopyKat
 
 ## Usage
 
-* Run Rscripts with command line
+* Run main pipeline with command line
 ```bash
 cd /path/to/OpenScPCA-analysis
 cd analyses/cell-type-wilms-tumor-14
@@ -58,6 +51,7 @@ All results are sync under S3 bucket `researcher-009160072044-us-east-2`.
 #### 01. Anchor transfer using Seurat
 - Path on S3 `s3://researcher-009160072044-us-east-2/cell-type-wilms-tumor-14/results/01_anchor_transfer_seurat`. 
 - For more description, see `./results/README.md`.
+- Summary table for cell type annotation is available on S3 at `s3://researcher-009160072044-us-east-2/cell-type-wilms-tumor-14/results/01_anchor_transfer_seurat/summary_results.csv`.
 
 ## Software requirements
 
@@ -75,3 +69,6 @@ sudo apt install -y libglpk40 \
 ## Computational resources
 
 Analysis could be executed on a virtual computer ([Standard-4XL](https://openscpca.readthedocs.io/en/latest/aws/lsfr/creating-vcs/)) via AWS Lightsail for Research.
+
+## Exploratory analysis
+In addition to the main pipeline, some exploratory analysis in R notebooks are added into the `./exploratory_analysis` folder, including CNV analysis. Check `./exploratory_analysis/README.md` for more details.
