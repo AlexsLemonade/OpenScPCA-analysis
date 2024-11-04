@@ -80,7 +80,7 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
     Rscript -e "rmarkdown::render('${notebook_template_dir}/02b_label-transfer_fetal_kidney_reference_Stewart.Rmd',
                     params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}', homologs_file = '${homologs_file}', testing = ${IS_CI}),
                     output_format = 'html_document',
-                    output_file = '02a_fetal_all_reference_Stewart_${sample_id}.html',
+                    output_file = '02b_fetal_all_reference_Stewart_${sample_id}.html',
                     output_dir = '${sample_notebook_dir}')"
 
     # Temporarily this code is not run in CI.
