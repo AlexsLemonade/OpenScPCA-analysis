@@ -33,15 +33,12 @@ knitr::opts_chunk$set(
 The aim is to characterize the human fetal kidney from the kidney cell atlas.
 You can find more about the human kidney atlas here: https://www.kidneycellatlas.org/ [1]
 The rds data can be download using the download link https://datasets.cellxgene.cziscience.com/40ebb8e4-1a25-4a33-b8ff-02d1156e4e9b.rds
-The azimuth compatible reference has been downloaded and created in the `R script` `download-and-create-fetal-kidney-ref.R`
+The reference was been downloaded and created in the script `scripts/prepare-fetal-references.R`.
 
 ## Packages
 
-Load required packages in the following chunk, if needed.
-Do not install packages here; only load them with the `library()` function.
-
 ```{r packages, message=FALSE, warning=FALSE}
-library("Seurat")
+library(Seurat)
 library(Azimuth)
 library(SCpubr)
 library(tidyverse)
