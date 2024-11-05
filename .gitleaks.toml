@@ -8,5 +8,5 @@ regexes = [
     # skip base64 encoded images, which might have substrings that look like tokens
     '''(?i)<img src="data:image\/.+;base64,.+?".+\/>''',
     # skip jQuery definition function
-    '''^!function\(.+jQuery'''
+    '''^!function\(.+?jQuery'''
 ]

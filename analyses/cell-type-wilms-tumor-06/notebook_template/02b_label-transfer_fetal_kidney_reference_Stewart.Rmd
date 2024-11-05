@@ -6,6 +6,8 @@ params:
   scpca_project_id: "SCPCP000006"
   sample_id: "SCPCS000176"
   seed: 12345
+  homologs_file: "../scratch/homologs.rds"
+  testing: 0
 output: 
   html_document: 
     toc: yes
@@ -16,10 +18,11 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,
-                      message=FALSE,
-                      warnings=FALSE
-                      )
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warnings = FALSE
+)
 ```
 
 
@@ -67,9 +70,8 @@ Load required packages in the following chunk, if needed.
 Do not install packages here; only load them with the `library()` function.
 
 ```{r packages, message=FALSE, warning=FALSE}
-library("Seurat")
+library(Seurat)
 library(sctransform)
-library(Azimuth)
 library(SCpubr)
 library(tidyverse)
 library(patchwork)
@@ -92,6 +94,17 @@ data_dir <- file.path(repository_base, "data", "current", params$scpca_project_i
 module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06")
 ```
 
+```{r}
+# load functions for label transfer
+source(
+  file.path(
+    module_base,
+    "notebook_template",
+    "utils",
+    "label-transfer-functions.R"
+  )
+)
+```
 
 ### Input files
 
@@ -100,7 +113,22 @@ module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06"
 The reference has been download and pre-process in the `R Script` `download-and-create-fetal-kidney-ref.R`
 
 ```{r path_to_reference}
-path_to_reference <- file.path(module_base, "results", "references")
+path_to_ref <- file.path(
+  module_base,
+  "results",
+  "references",
+  "stewart_formatted_ref.rds"
+)
+if (!file.exists(path_to_ref)) {
+  stop("Reference file could not be found. Make sure `scripts/prepare-fetal-references.R` has been run first.")
+}
+ref <- readRDS(path_to_ref)
+
+# Pull out information from the reference object we need for label transfer
+reference <- ref$reference
+refdata <- ref$refdata
+dims <- ref$dims
+annotation_levels <- ref$annotation_levels
 ```
 
 #### Query
@@ -127,47 +155,80 @@ output_dir <- file.path(module_base, "results", params$sample_id)
 ### Load the pre-processed `Seurat` object
 ```{r load, message=FALSE, warning=FALSE}
 # open the processed rds object
-srat <- readRDS(file.path(data_dir, paste0("02a-fetal_full_label-transfer_",params$sample_id,".Rds")))
+srat <- readRDS(file.path(data_dir, paste0("02a-fetal_full_label-transfer_", params$sample_id, ".Rds")))
+srat_assay <- "RNA"
+
+# prepare the query for label transfer
+# we don't want to overwrite the srat object since `prepare_query`
+#  removes features that are not present in the reference
+DefaultAssay(srat) <- srat_assay
+query <- prepare_query(
+  srat,
+  rownames(reference),
+  srat_assay,
+  params$homologs_file
+)
 ```
 
 
 ### Azimuth annotation from fetal kidney
 
 ```{r run_azimuth, message=FALSE, warnings=FALSE}
-DefaultAssay(srat) <- "RNA"
-options(future.globals.maxSize= 8912896000000)
+options(future.globals.maxSize = 8912896000000)
 
-data <-  RunAzimuth(srat, path_to_reference, assay = 'RNA')
-# We transfer the annotation to the pre-processed `Seurat`object as we don't want to keep changes done on the query by `RunAzimuth`
-metadata_vec <- c("predicted.compartment.score", "predicted.compartment", "predicted.cell_type.score", "predicted.cell_type")
-metadata_to_trasfer <- data@meta.data[, metadata_vec]
-srat <- AddMetaData(srat, metadata_to_trasfer, col.name = paste0("fetal_kidney_", metadata_vec))
+# determine k.weight based CI
+if (params$testing) {
+  k.weight <- 10 # only for test datasets
+} else {
+  k.weight <- 50 # Azimuth default
+}
+query_labeled <- transfer_labels(
+  query,
+  reference,
+  dims,
+  refdata,
+  query.assay = srat_assay,
+  k.weight = k.weight
+)
+
+
+# We transfer the annotation to the pre-processed `Seurat` object as we don't want to keep changes done on the query by Azimuth
+annotation_columns <- c(
+  glue::glue("predicted.{annotation_levels}"),
+  glue::glue("predicted.{annotation_levels}.score")
+)
+metadata_to_transfer <- query_labeled@meta.data[, annotation_columns]
+
+srat <- AddMetaData(srat, metadata_to_transfer, col.name = paste0("fetal_kidney_", annotation_columns))
 ```
 
 ```{r plot_azimuth, fig.height=8, fig.width=8, warnings=FALSE}
+d1 <- DimPlot(srat, reduction = "umap", dims = c(1, 2), group.by = "fetal_kidney_predicted.compartment", label = TRUE, repel = TRUE) + NoLegend()
+d2 <- DimPlot(srat, reduction = "umap", dims = c(1, 2), group.by = "fetal_kidney_predicted.cell_type", label = TRUE, repel = TRUE) + NoLegend()
 
-d1 <- DimPlot(srat, reduction = "umap", dims = c(1,2), group.by = "fetal_kidney_predicted.compartment", label = TRUE, repel = TRUE) + NoLegend()
-d2 <- DimPlot(srat, reduction = "umap", dims = c(1,2), group.by = "fetal_kidney_predicted.cell_type", label = TRUE, repel = TRUE) + NoLegend()
+f1 <- SCpubr::do_BarPlot(
+  sample = srat,
+  group.by = "fetal_kidney_predicted.compartment",
+  split.by = "seurat_clusters",
+  position = "fill",
+  font.size = 10,
+  legend.ncol = 3
+) +
+  ggtitle("% cells") +
+  xlab(params$sample_id)
 
-f1 <- SCpubr::do_BarPlot(sample = srat,
-                         group.by = "fetal_kidney_predicted.compartment",
-                         split.by = "seurat_clusters",
-                         position = "fill",
-                         font.size = 10,
-                         legend.ncol = 3) +
-                         ggtitle("% cells")+
-                         xlab(params$sample_id)
+f2 <- SCpubr::do_BarPlot(
+  sample = srat,
+  group.by = "fetal_kidney_predicted.cell_type",
+  split.by = "seurat_clusters",
+  position = "fill",
+  font.size = 10,
+  legend.ncol = 3
+) +
+  ggtitle("% cells") +
+  xlab(params$sample_id)
 
-f2 <- SCpubr::do_BarPlot(sample = srat,
-                         group.by = "fetal_kidney_predicted.cell_type",
-                         split.by = "seurat_clusters",
-                         position = "fill",
-                         font.size = 10,
-                         legend.ncol = 3) +
-                         ggtitle("% cells")+
-                         xlab(params$sample_id)
-
-(d1/f1) | (d2/f2) 
+(d1 / f1) | (d2 / f2)
 ```
 
 Note:
@@ -187,7 +248,7 @@ In our case, cap-mesenchyme contains blastema and primitive epitheliul cancer ce
 ## Save the `Seurat`object
 
 ```{r save}
-saveRDS(object = srat, file = file.path(output_dir, paste0("02b-fetal_kidney_label-transfer_",params$sample_id,".Rds")))
+saveRDS(object = srat, file = file.path(output_dir, paste0("02b-fetal_kidney_label-transfer_", params$sample_id, ".Rds")))
 ```
 
 ## Session info
