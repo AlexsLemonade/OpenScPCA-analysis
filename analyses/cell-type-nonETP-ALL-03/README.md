@@ -8,15 +8,21 @@ We first aim to annotate the cell types in non-ETP T-ALL, and use the annotated 
 
 -   We use the cell type marker (`Azimuth_BM_level1.csv`) from [Azimuth Human Bone Marrow reference](https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow). In total, there are 14 cell types: B, CD4T, CD8T, Other T, DC, Monocytes, Macrophages, NK, Early Erythrocytes, Late Erythrocytes, Plasma, Platelet, Stromal, and Hematopoietic Stem and Progenitor Cells (HSPC). Based on the exploratory analysis, we believe that most of the cells in these samples do not express adequate markers to be distinguished at finer cell type level (eg. naive vs memory, CD14 vs CD16 etc.), and majority of the cells should belong to T-cells. In addition, we include the marker genes for blast cell [[Bhasin et al. (2023)](https://www.nature.com/articles/s41598-023-39152-z)] as well as erythroid precursor and cancer cell in immune system [[ScType](https://sctype.app/database.php) database].
 
+    \*\*`Azimuth_BM_level1.csv` is converted to `submission_markerGenes.tsv`, in the final submission format.
+
 -   Since ScType annotates cell types at cluster level using marker genes provided by user or from the built-in database, we employ [self-assembling manifold](https://github.com/atarashansky/self-assembling-manifold/tree/master) (SAM) algorithm, a soft feature selection strategy for better separation of homogeneous cell types.
 
--   After cell type annotation, we provide B cells as the normal cells in the sample, if there is any, to [CopyKat](https://github.com/navinlabcode/copykat), for identification of tumor cells.
+-   After cell type annotation, we fine-tune the annotated B cells by applying 99 percentile cutoff of non-B ScType score on the "B cell clusters". We then use the new B cells (i.e those cells which passed the cutoff) as the normal cells in running [CopyKat](https://github.com/navinlabcode/copykat), for the identification of tumor cells. We could not detect strong B cell signal in `SCPCL000082`.
 
 Here are the steps in the module:
 
 1.  Generating a processed rds file for each sample using SAM (`scripts/00-01_processing_rds.R`)
 
 2.  Annotating cell type using ScType and identifying tumor cells using CopyKat (`scripts/02-03_annotation.R`)
+
+3.  Fine-tuning the B cells (`scripts/06_sctype_exploration.R`)
+
+4.  Re-running CopyKat (`scripts/07_run_copykat.R`)
 
 ## Usage
 
@@ -44,21 +50,15 @@ The `scripts/00-01_processing_rds.R` requires the processed SingleCellExperiment
 
 As for the annotation, `scripts/02-03_annotation.R` requires cell type marker gene file, `Azimuth_BM_level1.csv`, as an input for ScType. This excel file contains a list of positive marker genes in Ensembl ID under `ensembl_id_positive_marker` for each cell type; *TMEM56* and *CD235a* are not detected in our dataset, thus they are being removed as part of the markers for Late Eryth and Pre Eryth respectively. As of now, there is no negative marker genes provided under `ensembl_id_negative_marker`.
 
-## Output files
+## Important output files
 
-Running `scripts/00-01_processing_rds.R` will generate two types of output:
+-   `rds` objects in `results/rds`
 
--   `rds` objects in `scratch/`
+-   ScType results of top 10 possible cell types in a cluster (`results/_sctype_top10_celltypes_perCluster.txt`) and ScType score (`results/_sctype_scores.txt`)
 
--   umap plots showing leiden clustering in `plots/`
+-   location of fine-tuned B cells in umap (`plots/sctype_exploration/_newBcells.png`) and the cell type assignment with added fine-tuned B cells (`results/_newB-normal-annotation.txt`)
 
-Running `scripts/02-03_annotation.R` will generate several outputs:
-
--   updated `rds` objects in `scratch/`
-
--   umap plots showing cell type and CopyKat prediction (if there is any) and dotplots showing the features added with `AddModuleScore()` in `plots/`
-
--   ScType results of top 10 possible cell types in a cluster (`_sctype_top10_celltypes_perCluster.txt`) and metadata file tabulating leiden cluster, cell type, low confidence cell type, and CopyKat prediction for each cell (`_metadata.txt`) in `results/`
+-   final submission table (`results/submission_table/_metadata.tsv`) and the umap plots showing cell_type_assignment from ScType and tumor_cell_classification from CopyKat using fine-tuned B cells (`results/submission_table/multipanels_.png`)
 
 ## Software requirements
 
