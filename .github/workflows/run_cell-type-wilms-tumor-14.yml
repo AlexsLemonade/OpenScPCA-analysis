@@ -59,6 +59,5 @@ jobs:
       - name: Run analysis module
         run: |
           cd ${MODULE_PATH}
-          ls
           # run module script
           CI_TESTING=1 bash run_cell-type-wilms-14.sh

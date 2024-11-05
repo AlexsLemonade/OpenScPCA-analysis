@@ -23,6 +23,8 @@ scratch_dir="scratch"
 results_dir="results"
 data_dir="../../data/current/SCPCP000014"
 
+ls -l ${data_dir}
+
 meta_path="${data_dir}/single_cell_metadata.tsv"
 
 
@@ -31,22 +33,26 @@ meta_path="${data_dir}/single_cell_metadata.tsv"
 step_name="00_preprocess_reference"
 scratch_dir_step="${scratch_dir}/${step_name}" && mkdir -p ${scratch_dir_step}
 
+
+
 # Download and process reference data
 ref_h5ad="${scratch_dir_step}/Fetal_full_v3.h5ad"
 ref_seurat="${scratch_dir_step}/kidneyatlas.rdsSeurat"
 ref_seurat_sct="${scratch_dir_step}/kidneyatlas_SCT.rdsSeurat"
 
+echo "Downloading reference data"
 if [[ ! -e ${ref_h5ad} ]]; then
     ref_url="https://cellgeni.cog.sanger.ac.uk/kidneycellatlas/Fetal_full_v3.h5ad"
     curl -s -o ${ref_h5ad} ${ref_url}
 fi
 
+echo "Processing reference data"
 Rscript scripts/${step_name}.R \
     --in_fetal_atlas "${ref_h5ad}" \
     --out_fetal_atlas "${ref_seurat}" \
     $SCT_FLAG
 
-
+echo "Preprocessing data"
 ## Preprocess data
 Rscript scripts/00_preprocessing_rds.R
 
@@ -59,6 +65,7 @@ Rscript scripts/00_preprocessing_rds.R
 #   --libraries SCPCL000846,SCPCL000847  \
 #    $TEST_FLAG
 
+echo "running anchor transfer"
 # run all samples
 Rscript scripts/01_anchor_transfer_seurat.R \
   --reference "${ref_seurat}" \
@@ -67,6 +74,7 @@ Rscript scripts/01_anchor_transfer_seurat.R \
   $SCT_FLAG \
   $TEST_FLAG
 
+echo "summarizing results"
 Rscript scripts/summary_results.R \
   --metadata "${meta_path}" \
   $TEST_FLAG
