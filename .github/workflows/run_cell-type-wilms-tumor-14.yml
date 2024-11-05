@@ -50,6 +50,11 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Initialize zellkonverter environment
+        run: |
+          cd ${MODULE_PATH}
+          Rscript -e "proc <- basilisk::basiliskStart(env = zellkonverter::zellkonverterAnnDataEnv(), testload = 'anndata'); basilisk::basiliskStop(proc)"
+
       # Update this step as needed to download the desired data
       - name: Download test data and results
         run: |
