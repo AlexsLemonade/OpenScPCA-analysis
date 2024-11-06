@@ -37,7 +37,8 @@ subdiagnosis <- readr::read_tsv(
   show_col_types = FALSE
 ) |>
   dplyr::filter(scpca_sample_id == params$sample_id) |>
-  dplyr::pull(subdiagnosis)
+  dplyr::pull(subdiagnosis) |>
+  unique()
 ```
 
 The aim is to explore the clustering and label transfers for the sample `r params$sample_id`.
@@ -49,7 +50,7 @@ In order to explore the clustering results, we look into some marker genes, path
 This approach would provide us a rapid idea of the quality of the clustering:
 
 - in the case each cluster do have a set of specific marker genes, we could expect each of the cluster to have at least a different phenotype,
-- if marker genes are mostly shared between clusters, we might have overclustered,
+- if marker genes are mostly shared between clusters, we might have over-clustered,
 - if no marker genes are found, the quality of cells in the clusters might be impaired (high mitochondrial content? ribosomal content?)
 
 ### Packages
@@ -206,15 +207,15 @@ visualize_feature <- function(object, features, group.by = "seurat_clusters") {
 
 #### Calculate `ModuleScore` from a `MSigDB` dataset
 
-For a Seurat object `object`, the function `MSigDB_score` will calculate a score using `AddModuleScore()` function for a MSigDB gene set `gs_name` in the category `category`
+For a Seurat object `object`, the function `MSigDB_score` will calculate a score using `AddModuleScore()` function for a `MSigDB` gene set `gs_name` in the category `category`
 
 - `object` is the Seurat object to calculate the score.
 Score will be added in the metadata of this object.
 
-- `category` is a MSigDB collection (https://www.gsea-msigdb.org/gsea/msigdb/collections.jsp).
+- `category` is a `MSigDB` collection (https://www.gsea-msigdb.org/gsea/msigdb/collections.jsp).
 values in `c("H", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8")`
 
-- `gs_name` is the name of a MSigDB gene set, e.g. `"HALLMARK_P53_PATHWAY"`
+- `gs_name` is the name of a `MSigDB` gene set, e.g. `"HALLMARK_P53_PATHWAY"`
 
 - `name` is the name of the module
 
@@ -238,7 +239,7 @@ MSigDB_score <- function(object, category, gs_name, name, nbin = 24) {
 
 `Enrichment_plot`aim to perform enrichment of the marker genes for each of the Seurat clusters and summarize the results in a `dotplot`.
 
-- `category` is the MSigDB category or collection to be used
+- `category` is the `MSigDB` category or collection to be used
 values in `c("H", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8")`
 
 - `signatures` is a list of marker genes per cluster
@@ -358,7 +359,7 @@ visualize_metadata(srat, meta = "G2M.Score", group.by = "seurat_clusters")
 
 ### Look at specific genes
 
-Here, we open the table of marker genes marker-sets/CellType_metadata.csv.
+Here, we open the table of marker genes `marker-sets/CellType_metadata.csv`.
 Note: we do not expect to have a clear and nice pattern of expression for all of the following markers in every tumor.
 This is just ti get a few idea.
 
@@ -395,7 +396,7 @@ visualize_metadata(srat, meta = "DNA_repair_score1", group.by = "seurat_clusters
 Note: Chemo-treated samples should have higher DNA-damage scores.
 
 
-#### DROSHA target genes
+#### `DROSHA` target genes
 
 ```{r fig.height=4, fig.width=20, warning=FALSE, out.width='100%'}
 srat <- MSigDB_score(object = srat, category = "C3", gs_name = "DROSHA_TARGET_GENES", name = "DROSHA_score", nbin = seurat_nbins)
@@ -403,7 +404,7 @@ visualize_metadata(srat, meta = "DROSHA_score1", group.by = "seurat_clusters")
 ```
 
 
-#### DICER1 target genes
+#### `DICER1` target genes
 
 
 ```{r fig.height=4, fig.width=20, warning=FALSE, out.width='100%'}
@@ -416,9 +417,9 @@ visualize_metadata(srat, meta = "DICER1_score1", group.by = "seurat_clusters")
 
 In addition to the list of known marker genes, we used an unbiased approach to find transcripts that characterized the different clusters.
 
-We run DElegate::FindAllMarkers2 to find markers of the different clusters and manually check if they do make sense.
-DElegate::FindAllMarkers2 is an improved version of Seurat::FindAllMarkers based on pseudobulk differential expression method.
-Please check the preprint from Chistoph Hafemeister: https://www.biorxiv.org/content/10.1101/2023.03.28.534443v1
+We run `DElegate::FindAllMarkers2` to find markers of the different clusters and manually check if they do make sense.
+`DElegate::FindAllMarkers2` is an improved version of `Seurat::FindAllMarkers` based on pseudobulk differential expression method.
+Please check the preprint from Hafemeister: https://www.biorxiv.org/content/10.1101/2023.03.28.534443v1
 and tool described here: https://github.com/cancerbits/DElegate
 
 Of note, we won't use it for annotation, this is just here to get an idea!
@@ -488,13 +489,13 @@ Here we perform enrichment analysis of the marker genes found in the previous se
 
 We defined as universe/background all the genes expressed in the dataset, meaning the rownames of the Seurat object.
 
-We used three gene sets from MSiGDB:
+We used three gene sets from `MSigDB`:
 
-- the hallmark gene sets  are coherently expressed signatures derived by aggregating many MSigDB gene sets to represent well-defined biological states or processes.
+- the hallmark gene sets  are coherently expressed signatures derived by aggregating many `MSigDB` gene sets to represent well-defined biological states or processes.
 - the C3 : regulatory target gene sets  based on gene target predictions for microRNA seed sequences and predicted transcription factor binding sites.
 - the C8 : cell type signature gene sets  curated from cluster markers identified in single-cell sequencing studies of human tissue.
 
-We used enricher function from clusterProfiler to perform enrichment analysis.
+We used enricher function from `clusterProfiler` to perform enrichment analysis.
 
 ```{r enrichment, eval=!params$testing}
 # define background genes = universe for enrichment
@@ -506,27 +507,27 @@ for (i in unique(s.markers$group1)) {
 }
 ```
 
-#### Hallmarks MSiGDB gene sets
+#### Hallmarks `MSigDB` gene sets
 
 ```{r fig.width=20, fig.height=8, out.width='100%', eval=!params$testing}
 Enrichment_plot(category = "H", signatures = signatures, background = background)
 ```
 
 
-EMT signature should be enriched in stroma cluster.
-E2F/proliferation should be enriched in blastema cluster.
-MYC(N), TP53 must be enriched in blastema cluster.
+`EMT` signature should be enriched in stroma cluster.
+`E2F`/proliferation should be enriched in blastema cluster.
+`MYC(N)`, `TP53` must be enriched in blastema cluster.
 
 
 
-#### C8 MSiGDB cell type signature gene sets
+#### C8 `MSigDB` cell type signature gene sets
 
 ```{r fig.width=20, fig.height=25, out.width='100%', eval=!params$testing}
 Enrichment_plot(category = "C8", signatures = signatures, background = background)
 ```
 
-The MSigDB C8 gene set is quite relevant for kidney and nephroblastoma annotations.
-Epithelial (cancer and normal) cells should be enriched in mature/adulte kidney pathways while blastema cancer cells will show enrichment of fetal kidney development pathway / cap mesenchyme.
+The `MSigDB` C8 gene set is quite relevant for kidney and nephroblastoma annotations.
+Epithelial (cancer and normal) cells should be enriched in mature/adult kidney pathways while blastema cancer cells will show enrichment of fetal kidney development pathway / cap mesenchyme.
 
 ### Cell annotation
 
@@ -535,7 +536,7 @@ Epithelial (cancer and normal) cells should be enriched in mature/adulte kidney 
 The use of the right reference is crucial for label transfer and annotation.
 It is recommended that the cell types in the reference is representative to the cell types to be annotated in the query.
 
-Wilms tumors can contain up to three histologies that resemble fetal kidney: blastema, stroma, and epithelia [[1](https://www.ncbi.nlm.nih.gov/books/NBK373356/), [2](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9915828/)].
+Wilms tumors can contain up to three histologies that resemble fetal kidney: blastema, stroma, and epithelia. [[1](https://www.ncbi.nlm.nih.gov/books/NBK373356/), [2](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9915828/)].
 Because of their histological similarity to fetal kidneys, Wilms tumors are thought to arise from developmental derangements in embryonic renal progenitors.
 
 For these reasons, we expect Wilms tumor cells to map to fetal cells, especially fetal kidney cells.
@@ -544,9 +545,9 @@ Here, we investigate annotations resulting from 4 different strategies:
 
 * the `_processed.rds` objects already contain automated annotations computed by the [Data Lab](https://scpca.readthedocs.io/en/latest/getting_started.html):
 
-    + Annotations determined by SingleR, an automated reference-based method [Looney et al. 2019](https://www.nature.com/articles/s41590-018-0276-y).
+    + Annotations determined by `SingleR`, an automated reference-based method [Looney et al. 2019](https://www.nature.com/articles/s41590-018-0276-y).
 
-    + Annotations determined by CellAssign, an automated marker-gene based method [Zhang et al. 2019](https://www.nature.com/articles/s41592-019-0529-1).
+    + Annotations determined by `CellAssign`, an automated marker-gene based method [Zhang et al. 2019](https://www.nature.com/articles/s41592-019-0529-1).
 
 * the label transfers from two fetal references using `Azimuth`, that have been performed in the previous analysis
 
@@ -561,14 +562,14 @@ Here, we investigate annotations resulting from 4 different strategies:
     The label transfer have been performed in the notebook `02b_fetal_kidney_reference_Stewart_{sample_id}.Rmd`
 
 
-#### Annotation from SingleR (no cancer or kidney specific dataset)
+#### Annotation from `SingleR` (no cancer or kidney specific dataset)
 
 ```{r fig.width=20, fig.height=10, out.width='100%'}
 visualize_metadata(srat, meta = "singler_celltype_annotation", group.by = "seurat_clusters")
 ```
 
 
-#### Annotation from cellassign (no cancer or kidney specific dataset)
+#### Annotation from `CellAssign` (no cancer or kidney specific dataset)
 
 
 ```{r fig.width=20, fig.height=10, out.width='100%'}
@@ -599,7 +600,7 @@ visualize_metadata(srat, meta = "fetal_full_predicted.annotation.l2", group.by =
 The fetal kidney reference (Stewart et al.) provides two levels of annotations:
 
 - `fetal_kidney_predicted.compartment` is one of the 4 main compartments composing a fetal kidney.
-We expect immune and endothelial cells to be healthy (non-canerous) cells identified easily with high confidency.
+We expect immune and endothelial cells to be healthy (non-cancerous) cells identified easily with high confidence.
 We expect stroma and fetal nephron compartment to contain both normal and malignant cells.
 
 
@@ -707,7 +708,7 @@ p6 <- SCpubr::do_DotPlot(
 
 #### Annotation versus `Seurat` clusters
 
-Here we check wether one (or more) `Seurat` cluster do correspond to one label.
+Here we check whether one (or more) `Seurat` cluster do correspond to one label.
 This would allow us to be more confident in the annotation of immune or endothelial cells for example.
 
 
@@ -766,7 +767,7 @@ p2
 ```
 
 
-#### Comparison of the  fetal reference with `singleR` and `cellassign`
+#### Comparison of the  fetal reference with `SingleR` and `CellAssign`
 
 
 ##### first level annotation
