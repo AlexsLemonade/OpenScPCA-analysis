@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-# Run `infercnv` for one sample with or without a healthy reference
+# Run `infercnv` for one sample with or without a healthy reference, where reference cells must pass the provided annotation score threshold
 # infercnv
 #
 # USAGE:
@@ -38,6 +38,12 @@ option_list <- list(
     type = "character",
     default = "i3",
     help = "If running an additional HMM model to call CNV, either no, or i3 or i6"
+  ),
+  make_option(
+    opt_str = c("-t", "--threshold"),
+    type = "numeric",
+    default = 0.85,
+    help = "Threshold prediction score from label transfer to consider a normal cell in the reference"
   ),
   make_option(
     opt_str = c("--seed"),
@@ -101,22 +107,29 @@ srat <- readRDS(
 
 stopifnot("Incorrect reference provided" = opts$reference %in% c("none", "immune", "endothelium", "both", "pull"))
 
+normal_label <- "normal" # label normal cells to use as normal
 
 if (opts$reference %in% c("both", "endothelium", "immune")) {
   if (opts$reference == "both") {
     normal_cells <- c("endothelium", "immune")
-
-    # keep only the labels actually present in the annotations to avoid infercnv error
-    normal_cells <- normal_cells[normal_cells %in% unique(srat@meta.data$fetal_kidney_predicted.compartment)]
   } else {
     normal_cells <- opts$reference
   }
-  # the total count of normal cells needs to be greater than 1
-  total_normal <- sum(srat@meta.data$fetal_kidney_predicted.compartment %in% normal_cells)
-  stopifnot("There must be more than 1 normal cell to use a reference." = length(normal_cells) > 1)
+
+  # Determine which cells pass the threshold and rename them to "normal"
+  to_rename <- srat@meta.data$fetal_kidney_predicted.compartment
+  names(to_rename) <- rownames(srat@meta.data)
+  to_rename[to_rename %in% normal_cells &
+    srat@meta.data$fetal_kidney_predicted.compartment.score > opts$threshold] <- normal_label
+  srat@meta.data$fetal_kidney_predicted.compartment <- to_rename
+  normal_cells <- normal_label # now they are called "normal"
+
+  # the total count of normal cells should be be greater than 3
+  total_normal <- sum(srat@meta.data$fetal_kidney_predicted.compartment == normal_label)
+  stopifnot("There must be at least 3 normal cells to use a reference." = total_normal >= 3)
 } else if (opts$reference == "none") {
   normal_cells <- NULL
-} else if (opts$reference == "pull") {
+} else { # pull
   srat_normal <- readRDS(srat_normal_file)
   # we merge the spike-in cells into the `Seurat` object
   srat <- merge(srat, srat_normal)
@@ -124,11 +137,9 @@ if (opts$reference %in% c("both", "endothelium", "immune")) {
   # we rename the `fetal_kidney_predicted.compartment` for these cells as "spike"
   to_rename <- srat@meta.data$fetal_kidney_predicted.compartment
   names(to_rename) <- rownames(srat@meta.data)
-  to_rename[grepl("spike", names(to_rename))] <- "spike"
+  to_rename[grepl("spike", names(to_rename))] <- normal_label
   srat@meta.data$fetal_kidney_predicted.compartment <- to_rename
-  normal_cells <- "spike"
-} else {
-  normal_cells <- opts$reference
+  normal_cells <- normal_label
 }
 
 # Extract raw counts -----------------------------------------------------------
@@ -138,8 +149,6 @@ counts <- GetAssayData(object = srat, assay = "RNA", layer = "counts")
 annot_df <- data.frame(condition = as.character(srat$fetal_kidney_predicted.compartment))
 rownames(annot_df) <- colnames(counts)
 
-
-# We only run the CNV HMM prediction model if the reference is "both"
 HMM_logical <- TRUE
 HMM_type <- opts$HMM
 
