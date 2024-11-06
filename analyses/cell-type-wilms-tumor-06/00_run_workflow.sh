@@ -61,7 +61,7 @@ if [[ $RUN_EXPLORATORY -eq 1 ]]; then
       output_file = '00b_characterization_fetal_kidney_reference_Stewart.html',
       output_dir = '${notebook_output_dir}/00-reference',
       params = list(fetal_kidney_path = '${kidney_ref_file}'))"
-done
+fi
 
 
 # Run the label transfer and cluster exploration for all samples in the project
