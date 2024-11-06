@@ -22,6 +22,7 @@
 set -euo pipefail
 
 IS_CI=${TESTING:-0}
+RUN_EXPLORATORY=${RUN_EXPLORATORY:-0}
 project_id="SCPCP000006"
 
 # Ensure script is being run from its directory
