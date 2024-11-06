@@ -83,17 +83,12 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
                     output_file = '02b_fetal_kidney_reference_Stewart_${sample_id}.html',
                     output_dir = '${sample_notebook_dir}')"
 
-    # Temporarily this code is not run in CI.
-    if [[ $IS_CI -eq 0 ]]; then
-
-
-        # Cluster exploration
-        Rscript -e "rmarkdown::render('${notebook_template_dir}/03_clustering_exploration.Rmd',
-                        params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}'),
-                        output_format = 'html_document',
-                        output_file = '03_clustering_exploration_${sample_id}.html',
-                        output_dir = '${sample_notebook_dir}')"
-    fi
+    # Cluster exploration
+    Rscript -e "rmarkdown::render('${notebook_template_dir}/03_clustering_exploration.Rmd',
+                    params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}'),
+                    output_format = 'html_document',
+                    output_file = '03_clustering_exploration_${sample_id}.html',
+                    output_dir = '${sample_notebook_dir}')"
 done
 
 # Temporarily this code is not run in CI.
