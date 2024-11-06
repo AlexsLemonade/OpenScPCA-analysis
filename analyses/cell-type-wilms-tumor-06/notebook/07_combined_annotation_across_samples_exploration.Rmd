@@ -32,7 +32,7 @@ The proposed annotation will be based on the combination of:
 
 - the label transfer from the fetal kidney reference (Stewart et al.), in particular the `fetal_kidney_predicted.compartment` and `fetal_kidney:predicted.cell_type`, as well as the `prediction.score` for each compartment,
 
-- the predicted CNV calculated using intra-sample endothelial and immune cells (`--reference both`) as normal reference
+- the predicted CNV calculated using intra-sample endothelial and immune cells (`--reference both`) as normal reference; no reference was used for samples with fewer than 3 predicted normal cells.
 
 
 
@@ -129,8 +129,9 @@ cell_type_df <- sample_ids |>
   purrr::map(
     # For each sample_id, do the following:
     \(sample_id) {
-      # This sample was run with "none" for reference
-      if (sample_id == "SCPCS000190") {
+      # These samples were run with "none" as the reference
+      none_reference_samples <- c("SCPCS000177", "SCPCS000180", "SCPCS000181", "SCPCS000190", "SCPCS000197")
+      if (sample_id %in% none_reference_samples) {
         reference <- "none"
       } else {
         reference <- "both"
