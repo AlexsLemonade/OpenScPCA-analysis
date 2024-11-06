@@ -97,7 +97,7 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
     # Cluster exploration
     if [[ $RUN_EXPLORATORY -eq 1 ]]; then
       Rscript -e "rmarkdown::render('${notebook_template_dir}/03_clustering_exploration.Rmd',
-                      params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}'),
+                      params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}', testing = ${IS_CI}),
                       output_format = 'html_document',
                       output_file = '03_clustering_exploration_${sample_id}.html',
                       output_dir = '${sample_notebook_dir}')"
