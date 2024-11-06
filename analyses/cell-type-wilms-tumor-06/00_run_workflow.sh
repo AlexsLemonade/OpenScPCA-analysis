@@ -54,11 +54,14 @@ fi
 Rscript scripts/prepare-fetal-references.R --kidney_ref_file "${kidney_ref_file}"
 
 # Characterize the fetal kidney reference (Stewart et al.)
-Rscript -e "rmarkdown::render('${notebook_template_dir}/00b_characterize_fetal_kidney_reference_Stewart.Rmd',
-    output_format = 'html_document',
-    output_file = '00b_characterization_fetal_kidney_reference_Stewart.html',
-    output_dir = '${notebook_output_dir}/00-reference',
-    params = list(fetal_kidney_path = '${kidney_ref_file}'))"
+# This step does not directly contribute to the final annotations
+if [[ $RUN_EXPLORATORY -eq 1 ]]; then
+  Rscript -e "rmarkdown::render('${notebook_template_dir}/00b_characterize_fetal_kidney_reference_Stewart.Rmd',
+      output_format = 'html_document',
+      output_file = '00b_characterization_fetal_kidney_reference_Stewart.html',
+      output_dir = '${notebook_output_dir}/00-reference',
+      params = list(fetal_kidney_path = '${kidney_ref_file}'))"
+done
 
 
 # Run the label transfer and cluster exploration for all samples in the project
@@ -96,6 +99,7 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
                     output_dir = '${sample_notebook_dir}')"
 
     # Cluster exploration
+    # This step does not directly contribute to the final annotations
     if [[ $RUN_EXPLORATORY -eq 1 ]]; then
       Rscript -e "rmarkdown::render('${notebook_template_dir}/03_clustering_exploration.Rmd',
                       params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}', testing = ${IS_CI}),
