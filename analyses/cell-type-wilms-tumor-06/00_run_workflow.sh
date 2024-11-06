@@ -2,8 +2,9 @@
 
 # This script runs the module workflow.
 # There are two variables this script will take:
-# 1. The TESTING variable controls whether test data should be used.
-#  Setting TESTING=1 will use the test data.
+# 1. The TESTING variable controls certain settings to use when this
+#  script is being run in CI or more generally being run with test data.
+#  Setting TESTING=1 will turn on these settings for test data.
 #  This variable is 0 by default.
 # 2. The RUN_EXPLORATORY variable controls whether optional exploratory
 #  steps that do not directly contribute to final cell type annotations
