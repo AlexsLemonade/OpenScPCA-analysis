@@ -1,16 +1,29 @@
 #!/bin/bash
 
 # This script runs the module workflow.
+# There are two variables this script will take:
+# 1. The TESTING variable controls certain settings to use when this
+#  script is being run in CI or more generally being run with test data.
+#  Setting TESTING=1 will turn on these settings for test data.
+#  This variable is 0 by default.
+# 2. The RUN_EXPLORATORY variable controls whether optional exploratory
+#  steps that do not directly contribute to final cell type annotations
+#  should be run. Setting RUN_EXPLORATORY=1 will run those steps.
+#  This variable is 0 by default.
 #
-# USAGE:
-# bash 00_run_workflow.sh
+# Default usage:
+# ./00_run_workflow.sh
 #
-# USAGE in CI:
-# TESTING=1 bash 00_run_workflow.sh
+# Usage in CI:
+# TESTING=1 ./00_run_workflow.sh
+#
+# Usage when running exploratory steps:
+# RUN_EXPLORATORY=1 ./00_run_workflow.sh
 
 set -euo pipefail
 
 IS_CI=${TESTING:-0}
+RUN_EXPLORATORY=${RUN_EXPLORATORY:-0}
 project_id="SCPCP000006"
 
 # Ensure script is being run from its directory
@@ -42,11 +55,14 @@ fi
 Rscript scripts/prepare-fetal-references.R --kidney_ref_file "${kidney_ref_file}"
 
 # Characterize the fetal kidney reference (Stewart et al.)
-Rscript -e "rmarkdown::render('${notebook_template_dir}/00b_characterize_fetal_kidney_reference_Stewart.Rmd',
-    output_format = 'html_document',
-    output_file = '00b_characterization_fetal_kidney_reference_Stewart.html',
-    output_dir = '${notebook_output_dir}/00-reference',
-    params = list(fetal_kidney_path = '${kidney_ref_file}'))"
+# This step does not directly contribute to the final annotations
+if [[ $RUN_EXPLORATORY -eq 1 ]]; then
+  Rscript -e "rmarkdown::render('${notebook_template_dir}/00b_characterize_fetal_kidney_reference_Stewart.Rmd',
+      output_format = 'html_document',
+      output_file = '00b_characterization_fetal_kidney_reference_Stewart.html',
+      output_dir = '${notebook_output_dir}/00-reference',
+      params = list(fetal_kidney_path = '${kidney_ref_file}'))"
+fi
 
 
 # Run the label transfer and cluster exploration for all samples in the project
@@ -83,16 +99,14 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
                     output_file = '02b_fetal_kidney_reference_Stewart_${sample_id}.html',
                     output_dir = '${sample_notebook_dir}')"
 
-    # Temporarily this code is not run in CI.
-    if [[ $IS_CI -eq 0 ]]; then
-
-
-        # Cluster exploration
-        Rscript -e "rmarkdown::render('${notebook_template_dir}/03_clustering_exploration.Rmd',
-                        params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}'),
-                        output_format = 'html_document',
-                        output_file = '03_clustering_exploration_${sample_id}.html',
-                        output_dir = '${sample_notebook_dir}')"
+    # Cluster exploration
+    # This step does not directly contribute to the final annotations
+    if [[ $RUN_EXPLORATORY -eq 1 ]]; then
+      Rscript -e "rmarkdown::render('${notebook_template_dir}/03_clustering_exploration.Rmd',
+                      params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}', testing = ${IS_CI}),
+                      output_format = 'html_document',
+                      output_file = '03_clustering_exploration_${sample_id}.html',
+                      output_dir = '${sample_notebook_dir}')"
     fi
 done
 
