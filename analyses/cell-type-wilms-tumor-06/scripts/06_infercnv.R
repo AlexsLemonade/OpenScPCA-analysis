@@ -1,12 +1,18 @@
 #!/usr/bin/env Rscript
 
-# Run `infercnv` for one sample with or without a healthy reference, where reference cells must pass the provided annotation score threshold
-# infercnv
+# Run `infercnv` for one sample with or without a healthy reference and optionally with HMM
 #
 # USAGE:
 # Rscript 06_infercnv.R \
-#   --sample_id SCPCS000179
-#   --reference one of none, immune, endothelium, both, pull
+#   --sample_id SCPCS000179 \
+#   --reference <none, immune, endothelium, both, pull> \
+#   --HMM <i3, i6, no>
+#
+# Additional optional arguments include:
+# --testing: Use this flag if running with test data, to avoid errors when identifying reference cells which may not be present in test data
+# --score_threshold: Annotation prediction score threshold to use when identifying cells to use in reference
+# --seed: Integer to set the random seed
+
 
 # OUTPUT :
 # For every condition, the `infercnv` object and final `infercnv` heatmap are saved in the corresponding {sample_id}/06_infercnv results subfolder
@@ -40,10 +46,16 @@ option_list <- list(
     help = "If running an additional HMM model to call CNV, either no, or i3 or i6"
   ),
   make_option(
-    opt_str = c("-t", "--threshold"),
+    opt_str = c("--score_threshold"),
     type = "numeric",
     default = 0.85,
     help = "Threshold prediction score from label transfer to consider a normal cell in the reference"
+  ),
+  make_option(
+    opt_str = c("--testing"),
+    action = "store_true",
+    default = FALSE,
+    help = "This flag should be specified when test data is being used to override the reference option to not use a reference, due to test data limitations."
   ),
   make_option(
     opt_str = c("--seed"),
@@ -109,37 +121,43 @@ stopifnot("Incorrect reference provided" = opts$reference %in% c("none", "immune
 
 normal_label <- "normal" # label normal cells to use as normal
 
-if (opts$reference %in% c("both", "endothelium", "immune")) {
-  if (opts$reference == "both") {
-    normal_cells <- c("endothelium", "immune")
-  } else {
-    normal_cells <- opts$reference
-  }
 
-  # Determine which cells pass the threshold and rename them to "normal"
-  to_rename <- srat@meta.data$fetal_kidney_predicted.compartment
-  names(to_rename) <- rownames(srat@meta.data)
-  to_rename[to_rename %in% normal_cells &
-    srat@meta.data$fetal_kidney_predicted.compartment.score > opts$threshold] <- normal_label
-  srat@meta.data$fetal_kidney_predicted.compartment <- to_rename
-  normal_cells <- normal_label # now they are called "normal"
-
-  # the total count of normal cells should be be greater than 3
-  total_normal <- sum(srat@meta.data$fetal_kidney_predicted.compartment == normal_label)
-  stopifnot("There must be at least 3 normal cells to use a reference." = total_normal >= 3)
-} else if (opts$reference == "none") {
+# If we are testing, do not use normal cells regardless of specified reference
+if (opts$testing) {
   normal_cells <- NULL
-} else { # pull
-  srat_normal <- readRDS(srat_normal_file)
-  # we merge the spike-in cells into the `Seurat` object
-  srat <- merge(srat, srat_normal)
-  srat <- JoinLayers(srat) # else GetAssayData won't work
-  # we rename the `fetal_kidney_predicted.compartment` for these cells as "spike"
-  to_rename <- srat@meta.data$fetal_kidney_predicted.compartment
-  names(to_rename) <- rownames(srat@meta.data)
-  to_rename[grepl("spike", names(to_rename))] <- normal_label
-  srat@meta.data$fetal_kidney_predicted.compartment <- to_rename
-  normal_cells <- normal_label
+} else {
+  if (opts$reference %in% c("both", "endothelium", "immune")) {
+    if (opts$reference == "both") {
+      normal_cells <- c("endothelium", "immune")
+    } else {
+      normal_cells <- opts$reference
+    }
+
+    # Determine which cells pass the threshold and rename them to "normal"
+    to_rename <- srat@meta.data$fetal_kidney_predicted.compartment
+    names(to_rename) <- rownames(srat@meta.data)
+    to_rename[to_rename %in% normal_cells &
+      srat@meta.data$fetal_kidney_predicted.compartment.score > opts$score_threshold] <- normal_label
+    srat@meta.data$fetal_kidney_predicted.compartment <- to_rename
+    normal_cells <- normal_label # now they are called "normal"
+
+    # the total count of normal cells should be be greater than 3
+    total_normal <- sum(srat@meta.data$fetal_kidney_predicted.compartment == normal_label)
+    stopifnot("There must be at least 3 normal cells to use a reference." = total_normal >= 3)
+  } else if (opts$reference == "none") {
+    normal_cells <- NULL
+  } else { # pull
+    srat_normal <- readRDS(srat_normal_file)
+    # we merge the spike-in cells into the `Seurat` object
+    srat <- merge(srat, srat_normal)
+    srat <- JoinLayers(srat) # else GetAssayData won't work
+    # we rename the `fetal_kidney_predicted.compartment` for these cells as "spike"
+    to_rename <- srat@meta.data$fetal_kidney_predicted.compartment
+    names(to_rename) <- rownames(srat@meta.data)
+    to_rename[grepl("spike", names(to_rename))] <- normal_label
+    srat@meta.data$fetal_kidney_predicted.compartment <- to_rename
+    normal_cells <- normal_label
+  }
 }
 
 # Extract raw counts -----------------------------------------------------------
