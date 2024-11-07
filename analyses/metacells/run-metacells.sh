@@ -17,9 +17,16 @@ results_dir="results/${project}/${sample}"
 mkdir -p ${results_dir}
 
 # run the SEACells script
+echo "Calculating SEACells..."
 python scripts/run-seacells.py \
     ${test_file} \
     --adata_out ${results_dir}/${library}_seacells.h5ad \
     --model_out ${results_dir}/${library}_seacells_model.pkl \
     --logfile ${results_dir}/${library}_seacells.log \
     --seed 2024
+
+echo "Rendering test notebook"
+Rscript -e "rmarkdown::render(
+    'notebooks/testing-seacells.Rmd',
+    params=list(project_id=''${project}', sample_id='${sample}', library_id='${library}')
+  )"
