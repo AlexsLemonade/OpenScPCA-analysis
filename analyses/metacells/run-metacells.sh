@@ -28,5 +28,5 @@ python scripts/run-seacells.py \
 echo "Rendering test notebook"
 Rscript -e "rmarkdown::render(
     'notebooks/testing-seacells.Rmd',
-    params=list(project_id=''${project}', sample_id='${sample}', library_id='${library}')
+    params=list(project_id='${project}', sample_id='${sample}', library_id='${library}')
   )"
