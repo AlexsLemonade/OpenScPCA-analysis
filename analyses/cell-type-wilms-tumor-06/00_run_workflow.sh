@@ -110,20 +110,60 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
     fi
 done
 
-# Temporarily this code is not run in CI.
-if [[ $IS_CI -eq 0 ]]; then
+
+# This step is run here because it must be run both for:
+# - scripts/explore-cnv-methods.R (exploratory; calls 06_infercnv.R)
+# - 06_infercnv.R (not exploratory)
+Rscript scripts/06a_build-geneposition.R
+
+# These steps do not directly contribute to the final annotations
+if [[ $RUN_EXPLORATORY -eq 1 ]]; then
 
   # Run notebook template to explore label transfer and clustering for all samples at once
-  Rscript -e "rmarkdown::render('${notebook_output_dir}/04_annotation_Across_Samples_exploration.Rmd',
-                  output_format = 'html_document',
-                  output_file = '04_annotation_Across_Samples_exploration.html',
-                  output_dir = ${notebook_output_dir})"
-
-  # Build the gene position file reference for infercnv
-  Rscript scripts/06a_build-geneposition.R
+  for score_threshold in 0.5 0.75 0.85 0.95; do
+    Rscript -e "rmarkdown::render('${notebook_output_dir}/04_annotation_Across_Samples_exploration.Rmd',
+                    params = list(predicted.score_thr = ${score_threshold}),
+                    output_format = 'html_document',
+                    output_file = '04_annotation_Across_Samples_exploration_predicted.score_threshold_${score_threshold}.html',
+                    output_dir = '${notebook_output_dir}')"
+  done
 
   # Run infercnv and copykat for a selection of samples
   # This script calls scripts/05_copyKAT.R and scripts/06_infercnv.R
   Rscript scripts/explore-cnv-methods.R
 
+fi
+
+
+# Temporarily, this code is not run in CI
+if [[ $IS_CI -eq 0 ]]; then
+
+  # Run infercnv for all samples with HMM i3 and using "both" as the reference
+  for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
+      sample_id=$(basename $sample_dir)
+
+      # These samples do not have sufficient normal cells to run with a reference in infercnv
+      samples_no_reference=("SCPCS000177" "SCPCS000180" "SCPCS000181" "SCPCS000190" "SCPCS000197")
+
+      # Define inferCNV reference set
+      if [[ " ${samples_no_reference[*]} " =~ " ${sample_id} " ]]; then
+        reference="none"
+      else
+        reference="both"
+      fi
+
+      # don't repeat inference on selection of samples since certain
+      #   output files will already exist if exploratory steps were run
+      output_file="${results_dir}/${sample_id}/06_infercnv_HMM-i3_${sample_id}_reference-${reference}.rds"
+      if [[ ! -f $output_file ]]; then
+        Rscript scripts/06_infercnv.R --sample_id $sample_id --reference $reference --HMM i3
+      fi
+  done
+
+  # Render notebook to make draft annotations
+  Rscript -e "rmarkdown::render('${notebook_template_dir}/07_combined_annotation_across_samples_exploration.Rmd',
+                          params = list(predicted.celltype.threshold = 0.85, cnv_threshold = 0),
+                          output_format = 'html_document',
+                          output_file = '07_combined_annotation_across_samples_exploration.html',
+                          output_dir = '${notebook_template_dir}')"
 fi
