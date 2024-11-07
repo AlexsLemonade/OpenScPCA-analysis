@@ -2075,10 +2075,9 @@
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "AlexsLemonade",
-      "RemoteRepo": "OpenScPCA-analysis",
-      "RemoteSubdir": "packages/rOpenScPCA",
+      "RemoteRepo": "rOpenScPCA",
       "RemoteRef": "main",
-      "RemoteSha": "d446cf35158d53e500e8bcacb08d9f2de4688b5a",
+      "RemoteSha": "fc784446f8d86b072e6f7f67287adfff598f4911",
       "Requirements": [
         "BiocParallel",
         "SingleCellExperiment",
@@ -2090,7 +2089,7 @@
         "tibble",
         "tidyr"
       ],
-      "Hash": "5c214b8e7ab3d7fd01fa32daeb51c5f8"
+      "Hash": "80a604c3be8af1ae30bcda4f96c4e290"
     },
     "rappdirs": {
       "Package": "rappdirs",
