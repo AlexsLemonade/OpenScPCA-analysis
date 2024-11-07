@@ -23,7 +23,6 @@ scratch_dir="scratch"
 results_dir="results"
 data_dir="../../data/current/SCPCP000014"
 
-ls -l ${data_dir}
 
 meta_path="${data_dir}/single_cell_metadata.tsv"
 
