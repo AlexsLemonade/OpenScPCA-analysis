@@ -42,7 +42,7 @@ ref_seurat_sct="${scratch_dir_step}/kidneyatlas_SCT.rdsSeurat"
 echo "Downloading reference data"
 if [[ ! -e ${ref_h5ad} ]]; then
     ref_url="https://cellgeni.cog.sanger.ac.uk/kidneycellatlas/Fetal_full_v3.h5ad"
-    curl -s --show-error -L -o ${ref_h5ad} ${ref_url}
+    curl -s --show-error --ipv4 -L -o ${ref_h5ad} ${ref_url}
 fi
 
 echo "Processing reference data"
