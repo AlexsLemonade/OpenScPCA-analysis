@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - name: General file size limit
         id: check-added-large-files
@@ -10,7 +10,8 @@ repos:
           (?x)(
               \.html$|
               \.ipynb$|
-              conda-lock\.yml$
+              conda-lock\.yml$|
+              \.png$
           )
       - name: Large file size limit
         id: check-added-large-files
@@ -22,7 +23,7 @@ repos:
       - id: check-case-conflict
       - id: check-merge-conflict
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.18.4
+    rev: v8.20.1
     hooks:
       - id: gitleaks
   - repo: local

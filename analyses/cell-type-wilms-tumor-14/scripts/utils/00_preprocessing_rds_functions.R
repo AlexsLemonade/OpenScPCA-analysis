@@ -1,6 +1,8 @@
 library(dplyr)
 library(Seurat)
 library(ggpubr)
+library(glmGamPoi)
+
 pre_seuratobj <- function(obj, nfeatures = 500, run_harmony = TRUE, reduction = "harmony", ndims = 50,
                           skip_logNorm = TRUE){
   ######## Normalize, scale, feature selection
@@ -14,7 +16,7 @@ pre_seuratobj <- function(obj, nfeatures = 500, run_harmony = TRUE, reduction = 
   }
   obj <- Seurat::FindVariableFeatures(obj, selection.method = "vst", nfeatures = nfeatures)
   obj <- Seurat::ScaleData(obj, features = Seurat::VariableFeatures(object = obj))
-  # obj <- Seurat::SCTransform(obj)
+  obj <- Seurat::SCTransform(obj)
   obj <- Seurat::RunPCA(obj, features = Seurat::VariableFeatures(object = obj))
   # Seurat::ElbowPlot(obj, ndims = 50)
   
@@ -47,8 +49,13 @@ process_sce <- function( sample, library,
   
 
   ######## annotate doublets
-  #rds <- rds[,which(db$class == "singlet")]
+
   rds$doublet_class <- db$class
+  # remove doublet?
+  # rds <- rds[,which(rds$doublet_class == "singlet")]
+  
+  ######## remove genes with no gene symbols
+  rds <- rds[!is.na(SingleCellExperiment::rowData(rds)$gene_symbol),]
   
   ######## create seurat object from the SCE counts matrix
   seurat_obj <- SeuratObject::CreateSeuratObject(counts = SingleCellExperiment::counts(rds),assay = "RNA",project = library)
@@ -74,5 +81,5 @@ process_sce <- function( sample, library,
   # Seurat::DimPlot(obj, reduction = "tsne")
 
   dir.create(file.path(path_anal, "scratch", "00_preprocessing_rds"),showWarnings = FALSE, recursive = TRUE)
-  SeuratObject::SaveSeuratRds(seurat_obj, file = file.path(path_anal,"scratch","00_preprocessing_rds",paste0(sample,".rdsSeurat")) )
+  SeuratObject::SaveSeuratRds(seurat_obj, file = file.path(path_anal,"scratch","00_preprocessing_rds",paste0(library,".rdsSeurat")) )
 }

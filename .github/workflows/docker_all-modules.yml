@@ -39,6 +39,9 @@ jobs:
           - cell-type-ewings
           - doublet-detection
           - cell-type-wilms-tumor-06
+          - cell-type-wilms-tumor-14
+          - cell-type-nonETP-ALL-03
+          - cell-type-ETP-ALL-03
     uses: ./.github/workflows/build-push-docker-module.yml
     if: github.repository_owner == 'AlexsLemonade'
     with:

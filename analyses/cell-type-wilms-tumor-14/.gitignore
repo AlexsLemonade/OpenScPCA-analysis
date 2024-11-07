@@ -5,3 +5,7 @@
 # Ignore the scratch directory (but keep it present)
 /scratch/*
 !/scratch/.gitkeep
+
+# Plots for certain steps should not be committed
+/plots/01_anchor_transfer_seurat/*.pdf
+/plots/01_anchor_transfer_seurat/*/*.pdf

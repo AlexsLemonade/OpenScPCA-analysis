@@ -19,15 +19,15 @@ concurrency:
 
 on:
   workflow_dispatch:
-  # workflow_call:
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - analyses/cell-type-wilms-tumor-14/**
-  #     - "!analyses/cell-type-wilms-tumor-14/Dockerfile"
-  #     - "!analyses/cell-type-wilms-tumor-14/.dockerignore"
-  #     - .github/workflows/run_cell-type-wilms-tumor-14.yml
+  workflow_call:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - analyses/cell-type-wilms-tumor-14/**
+      - "!analyses/cell-type-wilms-tumor-14/Dockerfile"
+      - "!analyses/cell-type-wilms-tumor-14/.dockerignore"
+      - .github/workflows/run_cell-type-wilms-tumor-14.yml
 
 jobs:
   run-module:
@@ -47,16 +47,36 @@ jobs:
       - name: Set up pandoc
         uses: r-lib/actions/setup-pandoc@v2
 
+      - name: Install system dependencies
+        run: |
+          sudo apt-get install -y \
+            jags \
+            libcurl4-openssl-dev \
+            libfribidi-dev \
+            libglpk40 \
+            libharfbuzz-dev \
+            libhdf5-dev \
+            libmagick++-dev \
+            libtiff5-dev
+
       - name: Set up renv
         uses: r-lib/actions/setup-renv@v2
         with:
           working-directory: ${{ env.MODULE_PATH }}
 
+      - name: Initialize zellkonverter environment
+        run: |
+          cd ${MODULE_PATH}
+          Rscript -e "proc <- basilisk::basiliskStart(env = zellkonverter::zellkonverterAnnDataEnv(), testload = 'anndata'); basilisk::basiliskStop(proc)"
+
       # Update this step as needed to download the desired data
-      - name: Download test data
-        run: ./download-data.py --test-data --format SCE
+      - name: Download test data and results
+        run: |
+          ./download-data.py --test-data --projects SCPCP000014 --format SCE
+          ./download-results.py --test-data --projects SCPCP000014 --modules doublet-detection
 
       - name: Run analysis module
         run: |
           cd ${MODULE_PATH}
-          # run module script(s) here
+          # run module script
+          CI_TESTING=1 bash run_cell-type-wilms-14.sh

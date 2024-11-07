@@ -22,10 +22,25 @@ jobs:
   doublet-detection:
     uses: ./.github/workflows/run_doublet-detection.yml
 
+  metacells:
+    uses: ./.github/workflows/run_metacells.yml
+
   cell-type-ewings:
     uses: ./.github/workflows/run_cell-type-ewings.yml
 
-  ## Add additional modules above this comment, and to the needs list below
+  cell-type-wilms-06:
+    uses: ./.github/workflows/run_cell-type-wilms-tumor-06.yml
+
+  cell-type-wilms-14:
+    uses: ./.github/workflows/run_cell-type-wilms-tumor-14.yml
+
+  cell-type-ETP-ALL-03:
+      uses: ./.github/workflows/run_cell-type-ETP-ALL-03.yml
+
+  cell-type-nonETP-ALL-03:
+      uses: ./.github/workflows/run_cell-type-nonETP-ALL-03.yml
+
+      ## Add additional modules above this comment, and to the needs list below
   check-jobs:
     if: ${{ always() }}
     needs:
@@ -33,6 +48,10 @@ jobs:
       - hello-python
       - doublet-detection
       - cell-type-ewings
+      - cell-type-wilms-06
+      - cell-type-wilms-14
+      - cell-type-ETP-ALL-03
+      - cell-type-nonETP-ALL-03
     runs-on: ubuntu-latest
     steps:
       - name: Checkout template file
