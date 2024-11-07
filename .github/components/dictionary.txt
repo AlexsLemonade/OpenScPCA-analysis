@@ -63,6 +63,8 @@ doxxing
 dropdown
 ECM
 ECR
+endothelia
+endothelial
 endothelium
 enforceability
 Ensembl
@@ -191,6 +193,7 @@ scRNA
 scrublet
 SEACells
 SemVar
+seq
 SingleR
 snRNA
 socio
