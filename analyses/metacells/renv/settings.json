@@ -7,7 +7,6 @@
     "Depends",
     "LinkingTo"
   ],
-  "pak.enabled": true,
   "ppm.enabled": true,
   "ppm.ignored.urls": [],
   "r.version": null,
