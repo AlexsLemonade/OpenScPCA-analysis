@@ -2,7 +2,7 @@
 
 ## Description
 
-This module provides examples of how to use clustering functionality in the `rOpenScPCA` package. 
+This module provides examples of how to use clustering functionality in the [`rOpenScPCA` package](https://github.com/AlexsLemonade/rOpenScPCA/). 
 
 When clustering scRNA-seq data, in particular when those clusters are used in downstream analyses, it is important to evaluate the quality of the clusters.
 The `rOpenScPCA` package provides several functions that leverage the [`bluster` package](https://bioconductor.org/packages/release/bioc/html/bluster.html) to facilitate performing and evaluating graph-based clustering in a reproducible manner.
@@ -11,6 +11,7 @@ The `rOpenScPCA` package provides several functions that leverage the [`bluster`
 
 The function `calculate_clusters()` can be used to perform graph-based clustering.
 By default, this function uses the Louvain algorithm with Jaccard weighting.
+
 ### Evaluate clustering
 
 `rOpenScPCA` contains several functions to calculate quality metrics for a particular clustering result:
@@ -34,14 +35,13 @@ The function `sweep_clusters()` allows you to generate clustering results from a
 
 ## Installing rOpenScPCA
 
-The `rOpenScPCA` package is disseminated in the `OpenScPCA-analysis` repository in the `packages` directory. 
+The `rOpenScPCA` package is available in the [`AlexsLemonade/rOpenScPCA` repository](https://github.com/AlexsLemonade/rOpenScPCA/).
+
 If you use this package in your analysis module, you should install and track it with `renv` as follows:
 
 ```
 # First, install rOpenScPCA
-renv::install("AlexsLemonade/OpenScPCA-analysis:packages/rOpenScPCA")
-
-
+renv::install("AlexsLemonade/rOpenScPCA")
 
 # Second, run snapshot to add the package to renv.lock
 renv::snapshot()
