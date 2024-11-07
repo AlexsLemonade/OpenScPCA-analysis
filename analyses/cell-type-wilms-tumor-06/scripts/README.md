@@ -7,17 +7,15 @@ This directory contains all scripts used for cell typing Wilms tumor samples fro
 
 This script is used to create the fetal kidney reference (Stewart et al) and the full fetal reference (Cao et al).
 
-## `explore-cnv-methods.R`
+## `explore-cnv-methods.sh`
 
-This script is used to run 2 CNV inference methods `copykat` and `infercnv` for a selection of samples from SCPCP000006.
+This script is used to run and explores 2 CNV inference methods `copykat` and `infercnv` for a selection of samples from SCPCP000006:
 
-We selected previously 5 samples to test for different parameters of `copykat` and `infercnv`:
-
-- sample SCPCS000194 has > 85 % of cells predicted as kidney and 234 + 83 endothelium and immune cells.
-- sample SCPCS000179 has > 94 % of cells predicted as kidney and 25 + 111 endothelium and immune cells.
-- sample SCPCS000184 has > 96 % of cells predicted as kidney and 39 + 70 endothelium and immune cells.
-- sample SCPCS000205 has > 89 % of cells predicted as kidney and 92 + 76 endothelium and immune cells.
-- sample SCPCS000208 has > 95 % of cells predicted as kidney and 18 + 35 endothelium and immune cells.
+- SCPCS000194
+- SCPCS000179
+- SCPCS000184
+- SCPCS000205
+- SCPCS000208
 
 ### `06a_build-geneposition.R`
 
