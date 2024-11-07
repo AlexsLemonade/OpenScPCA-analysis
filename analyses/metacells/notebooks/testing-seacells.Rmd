@@ -7,6 +7,11 @@ params:
   library_id: "SCPCL000001"
 ---
 
+## Introduction
+
+After running SEACells on the data, we want to do some evaluation of how well it might have worked on various samples.
+This notebook is to pilot what some of the more and less useful visualizations might be, as well as to test running in a mixed R/Python environment.
+Will this result in the best of both worlds?
 
 ## Setup
 
@@ -27,7 +32,7 @@ import seaborn as sns
 import SEACells
 ```
 
-## Path definitions
+### Path definitions
 
 ```{r paths}
 root_dir <- rprojroot::find_root(rprojroot::is_git_root)
@@ -35,43 +40,69 @@ data_dir <- file.path(root_dir, "data", "current")
 base_dir <- file.path(root_dir, "analyses", "metacells")
 results_dir <- file.path(base_dir, "results", params$project_id, params$sample_id)
 
-ad_file <- file.path(data_dir, params$project_id, params$sample_id, paste0(params$library_id, "_processed_rna.h5ad"))
+# these files were created by the `scripts/run-seacells.py` script
 sc_anndata_file <- file.path(results_dir, paste0(params$library_id, "_seacells.h5ad"))
 sc_model_file <- file.path(results_dir, paste0(params$library_id, "_seacells_model.pkl"))
 
-
 ```
 
-## Load SEACells results
+### Load SEACells results
 
 ```{python load_data}
-ad = sc.read(r.ad_file)
+# the updated AnnData file
 sc_ad = sc.read(r.sc_anndata_file)
+# the SEACells model object
 with open(r.sc_model_file, "rb") as f:
   sc_model = pickle.load(f)
 ```
+
+
+## Visualizations
+
+### Kernel matrix
+
+The first visualization we will look at is the kernel matrix.
+This should show a strong block-diagonal structure.
 
 ```{python}
 _ = sns.clustermap(sc_model.kernel_matrix.toarray()[:500, :500])
 plt.show()
 ```
 
+### Model fitting
+
+We can look at where SEACells started with the metacells as plotted on the UMAP grid, and how the model converged.
+
+First, where it started:
+
 ```{python}
 SEACells.plot.plot_initialization(sc_ad, sc_model)
 ```
+
+Now, how the convergence went:
 
 ```{python}
 sc_model.plot_convergence()
 ```
 
+Finally, we can see where the metacells ended up on the UMAP grid:
 
 ```{python}
 SEACells.plot.plot_2D(sc_ad, key="X_umap", colour_metacells=True)
 ```
 
+We can also plot how many cells were assigned to each metacell:
+
 ```{python}
 SEACells.plot.plot_SEACell_sizes(sc_ad, bins=10)
 ```
+
+### Cell type purity
+
+The first real measure of how well SEACells worked may be to look at the cell type purity of the metacells.
+We will use the cell types as assigned by singleR to do this.
+
+If SEACells is working well, we should expect lots of high values here, indicating that most of the cells that contribute to a metacell were from the same initial cell type.
 
 ```{python}
 purity = SEACells.evaluate.compute_celltype_purity(
@@ -85,3 +116,8 @@ ggplot(py$purity, aes(y = singler_celltype_ontology_purity)) +
   labs(title = "Celltype purity",
        y = "Celltype purity (singler)")
 ```
+
+That looks pretty good, but if we wanted to evaluate whether it was better than chance, we would need to do some randomization, assigning cells to metacells randomly and seeing whether this method is outperfroming that.
+The main concern would be that if there are not many different cell types, we will expect to get very high purity scores.
+
+But that evaluation will be in a later revision of this notebook.
