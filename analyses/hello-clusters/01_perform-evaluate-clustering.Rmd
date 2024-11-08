@@ -1,15 +1,31 @@
 ---
 title: "Performing and evaluating graph-based clustering with rOpenScPCA"
 date: "`r Sys.Date()`"
-output:
-  html_document:
+author: Data Lab
+params:
+  seed: 2024
+output: 
+  html_notebook: 
+    toc: yes
+    toc_float: yes
     df_print: paged
 ---
 
 
 ## Introduction
 
+This notebook provides examples of how to use the `rOpenScPCA` package to:
 
+- Perform clustering on an SCE object or Seurat object
+- Add clustering results to the object
+- Evaluate clustering results using a variety of metrics, including:
+  - Average silhouette width
+  - Neighborhood purity
+  - Cluster stability, as measured with the adjusted Rand index
+
+
+This notebook will use the `SCPCS000001` sample for demonstration and assumes this sample is present in the `OpenScPCA-analysis/data/current` directory.
+Please [see this documentation](https://openscpca.readthedocs.io/en/latest/getting-started/accessing-resources/getting-access-to-data/) for more information about downloading OpenScPCA data.
 
 ## Setup
 
@@ -17,29 +33,23 @@ output:
 
 
 ```{r packages}
-# load required packages
 library(rOpenScPCA)
+
 suppressPackageStartupMessages({
   library(SingleCellExperiment)
   library(Seurat)
   library(dplyr)
   library(ggplot2)
 })
+
+# Set ggplot theme
+theme_set(theme_bw())
 ```
 
-
-### Paths
-
-Setting paths to directories and files for input and output at the start of a notebook can be helpful for organization and reproducibility.
-You may not know all of the paths you need when you start a notebook, but once you do, keeping them all in one place is helpful, both for yourself in the future and for other users of the notebook.
-
-
-#### Base directories
-
-In the chunk below, we include some common directories that you might need, finding their locations using the very useful [`rprojroot` package](https://rprojroot.r-lib.org/).
+#### Paths
 
 ```{r base paths}
-# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+# The base path for the OpenScPCA repository
 repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 
 # The current data directory, found within the repository base directory
@@ -54,27 +64,219 @@ module_base <- file.path(repository_base, "analyses", "hello-clusters")
 Set paths to input and output directories and files in the chunk below.
 
 ```{r paths}
-# Input files
+# Path to processed SCE file for sample SCPCS000001
+input_sce_file <- file.path(data_dir, "SCPCP000001", "SCPCS000001", "SCPCL000001_processed.rds")
 
-# Output files
+# Path to output file where clustering results will be saved
+cluster_tsv <- file.path(module_base, "results", "SCPCS000001-cluster-results.tsv")
 ```
 
-## Analysis content
 
-Organize the remainder of your content into sections and subsections as appropriate for your analysis.
 
-Add a new code chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I* on Windows or Linux, *Cmd+Option+I* on a Mac.
-Be sure to comment your code and explain your steps as you go.
+### Read in data
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it.
-To preview the HTML file, click the *Preview* button or press *Ctrl+Shift+K* on Windows or Linux, *Cmd+Shift+K* on a Mac.
+```{r}
+sce <- readRDS(input_sce_file)
 
-The preview shows you a rendered HTML copy of the contents of the editor.
-Consequently, *Preview* does not run any R code chunks.
-Instead, the output of the chunk when it was last run in the editor is displayed.
 
-It is usually a good idea to rerun the entire notebook before sharing any output, to ensure that the notebook and output files are fully up to date.
-You can do this by clicking on the *Run* menu in the toolbar and clicking on *Restart R and Run All Chunks*.
+# Convert to Seurat object for demonstration
+seurat_obj <- as.Seurat(
+  sce,
+  counts = "counts",
+  data = "logcounts"
+)
+```
+
+## Perform clustering
+
+This section will show how to perform clustering with the function `rOpenScPCA::calculate_clusters`. 
+
+By default, this function will use the following parameters:
+
+- Louvain algorithm
+- Jaccard weighting
+- 10 nearest neighbors
+- A resolution parameter of 1
+
+These parameters can be customized, as follows:
+
+- `algorithm` can be one of
+  - `"louvain"`, `"walktrap"`, or `"leiden"`
+- etc.
+
+
+This function will return a table with both cluster identities and specified parameter values.
+
+
+## Cluster on an SCE
+
+Make sure to provide the seed!
+
+The function assumes the PC name is `"PCA"`. If it's not, you can provide this ifnormation with the `pc_name` argument.
+
+```{r}
+cluster_results <- calculate_clusters(
+  sce,
+  seed = params$seed
+)
+cluster_results
+```
+
+If you want to include these in your SCE object colData, you can add columns as shown in the following chunk.
+
+_Caution_! There already exists a column `cluster` which represents an automated clustering which was _not evaluated_ or parameterized according to the dataset. 
+You may therefore want to create a new column, for example `openscpca_cluster`
+
+```{r}
+# First, extract the colData into a separate data frame for manipulation
+sce_coldata <- colData(sce) |>
+  as.data.frame()
+
+# Second, let's rename the cluster column in `cluster_results` to avoid conflict
+# But, we don't want to overwrite the results themselves
+cluster_results_renamed <- cluster_results |>
+  dplyr::rename(openscpca_cluster = cluster)
+
+# Third, add columns as desired using the barcodes and cell_id columns to join
+sce_coldata <- sce_coldata |>
+  dplyr::left_join(
+    cluster_results_renamed,
+    by = c("barcodes" = "cell_id")
+  )
+
+# Finally, add the modified colData back into the SCE, ensuring the rownames are retained
+colData(sce) <- DataFrame(
+  sce_coldata,
+  row.names = sce_coldata$barcodes
+)
+
+colData(sce)
+```
+
+## Cluster on a Seurat object
+
+```{r}
+cluster_results <- calculate_clusters(
+  seurat_obj,
+  seed = params$seed,
+  # Since we converted this from an SCE object, its PC name is `"PCA"`
+  pc_name = "PCA"
+)
+
+
+cluster_results
+```
+
+
+If you want to include these in your SCE object colData, you can add columns as shown in the following chunk.
+
+_Caution_! There already exists a column `cluster` which represents an automated clustering which was _not evaluated_ or parameterized according to the dataset. 
+You may therefore want to create a new column, for example `openscpca_cluster`
+
+
+```{r}
+# Let's rename the cluster column in `cluster_results` to avoid conflict and/or ambiguity
+cluster_results <- cluster_results |>
+  dplyr::rename(openscpca_cluster = cluster)
+
+seurat_obj <- AddMetaData(seurat_obj, cluster_results)
+```
+
+
+
+## Evaluate clustering results
+
+For this section, we'll just use the SCE object.
+
+### Silhouette width
+
+Silhouette width values range from -1 to 1, where a value close to 1 means a given cell is very closely matched to its own cluster, and lower values mean a cell is not well matched to its own cluster.
+
+
+We'll use the function `rOpenScPCA::calculate_silhouette` to calculate the silhouette width, and then visualize the results.
+This function assumes columns called `cell_id` and `cluster`.
+
+```{r}
+silhouette_results <- calculate_silhouette(
+  sce,
+  cluster_results
+)
+
+silhouette_results
+```
+
+
+
+```{r}
+ave_silhouette_width <- mean(silhouette_results$silhouette_width)
+ggplot(silhouette_results) +
+  aes(x = silhouette_width) +
+  geom_density(fill = "lightblue") +
+  geom_vline(xintercept = ave_silhouette_width, color = "red", size = 1)
+```
+
+
+For most clusters, it is below 0.25, and for cluster 5 it is actually negative.
+We also see it is higher for clusters 11 and 12, reaching up to about 0.5.
+
+Overall, these values suggest that clustering is not fantastic and many cells may not well matched. 
+We can explore this further by visualizing distributions for each cluster:
+
+```{r}
+ggplot(silhouette_results) +
+  aes(x = cluster, y = silhouette_width) +
+  geom_violin() +
+  geom_jitter(size = 0.75, alpha = 0.25) +
+  stat_summary(color = "red")
+```
+Cluster 5 looks particularly rough, but cluster 11 seems the most reliable.
+
+
+
+
+### Neighborhood purity
+
+
+We'll use the function `rOpenScPCA::calculate_purity` to calculate the neighborhood purity, and then visualize the results.
+This function assumes columns called `cell_id` and `cluster`.
+
+```{r}
+purity_results <- calculate_purity(
+  sce,
+  cluster_results
+)
+
+purity_results
+```
+
+```{r}
+ave_purity <- mean(purity_results$purity)
+
+ggplot(purity_results) +
+  aes(x = purity) +
+  geom_density(fill = "lightblue") +
+  geom_vline(xintercept = ave_purity, color = "red", size = 1)
+```
+Not bad! Let's look at individual clusters:
+
+```{r}
+ggplot(purity_results) +
+  aes(x = cluster, y = purity) +
+  geom_violin() +
+  geom_jitter(size = 0.75, alpha = 0.25) +
+  stat_summary(color = "red")
+```
+With this measure, clusters 1, 3, and 6 all have average values below 0.75, but the rest are high - in particular clusters 11, 12, and 13.
+
+
+
+
+
+### Cluster stability
+
+We'll use the function `rOpenScPCA::calculate_stability` to calculate the neighborhood purity, and then visualize the results.
+This function assumes columns called `cell_id` and `cluster`.
+
 
 
 ## Session Info
