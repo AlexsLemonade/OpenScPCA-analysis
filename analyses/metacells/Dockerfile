@@ -36,9 +36,9 @@ RUN conda install --channel=conda-forge --name=base conda-lock \
 
 # Install renv
 RUN Rscript -e 'install.packages("renv")' \
-  && rm -rf ~/.cache/R/renv \
   && rm -rf /tmp/downloaded_packages \
   && rm -rf /tmp/Rtmp*
+ENV RENV_CONFIG_CACHE_ENABLED=FALSE
 
 # restore from conda-lock.yml file and clean up to reduce image size
 COPY conda-lock.yml conda-lock.yml
