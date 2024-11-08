@@ -18,7 +18,7 @@ Will this result in the best of both worlds?
 ```{r setup}
 library(ggplot2)
 library(reticulate)
-reticulate::use_condaenv("openscpca-metacells")
+# reticulate::use_condaenv("openscpca-metacells")
 ```
 
 ```{python imports}
@@ -43,7 +43,6 @@ results_dir <- file.path(base_dir, "results", params$project_id, params$sample_i
 # these files were created by the `scripts/run-seacells.py` script
 sc_anndata_file <- file.path(results_dir, paste0(params$library_id, "_seacells.h5ad"))
 sc_model_file <- file.path(results_dir, paste0(params$library_id, "_seacells_model.pkl"))
-
 ```
 
 ### Load SEACells results
@@ -113,8 +112,10 @@ purity = SEACells.evaluate.compute_celltype_purity(
 ```{r purity_plot}
 ggplot(py$purity, aes(y = singler_celltype_ontology_purity)) +
   geom_boxplot() +
-  labs(title = "Celltype purity",
-       y = "Celltype purity (singler)")
+  labs(
+    title = "Celltype purity",
+    y = "Celltype purity (singler)"
+  )
 ```
 
 That looks pretty good, but if we wanted to evaluate whether it was better than chance, we would need to do some randomization, assigning cells to metacells randomly and seeing whether this method is outperfroming that.
