@@ -59,7 +59,6 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           miniforge-version: latest
-          activate-environment: "openscpca-metacells"
 
       - name: Install locked conda environment
         run: |
@@ -73,5 +72,6 @@ jobs:
       - name: Run analysis module
         run: |
           cd ${MODULE_PATH}
+          conda activate openscpca-metacells
           # run module script here
           bash run-metacells.sh
