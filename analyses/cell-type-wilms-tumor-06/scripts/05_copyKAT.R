@@ -7,7 +7,7 @@
 #   --sample_id SCPCS000194 \
 #   --use_reference <ref, noref> \
 #   --distance <spearman, euclidean> \
-#   --ncore 16
+#   --ncore 8
 #
 # Additional optional arguments include:
 # --score_threshold: Annotation prediction score threshold to use when identifying cells to use in reference
@@ -29,7 +29,7 @@ option_list <- list(
   make_option(
     opt_str = c("-c", "--n_core"),
     type = "integer",
-    default = 8,
+    default = 16,
     help = "number of cores used to run copyKAT"
   ),
   make_option(
