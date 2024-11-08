@@ -10,6 +10,9 @@
 #  steps that do not directly contribute to final cell type annotations
 #  should be run. Setting RUN_EXPLORATORY=1 will run those steps.
 #  This variable is 0 by default.
+# 3. The THREADS variable controls how many cores are used for inference
+#  with copyKAT, which is an exploratory step in the workflow.
+#  The variable is 32 by default.
 #
 # Default usage:
 # ./00_run_workflow.sh
@@ -24,6 +27,7 @@ set -euo pipefail
 
 IS_CI=${TESTING:-0}
 RUN_EXPLORATORY=${RUN_EXPLORATORY:-0}
+THREADS=${THREADS:-32}
 project_id="SCPCP000006"
 
 # Ensure script is being run from its directory
@@ -131,7 +135,7 @@ if [[ $RUN_EXPLORATORY -eq 1 ]]; then
   # Run infercnv and copykat for a selection of samples
   # This script calls scripts/05_copyKAT.R and scripts/06_infercnv.R
   # By default, copyKAT as called by this script uses 32 cores
-  TESTING=${IS_CI} ./scripts/explore-cnv-methods.sh
+  THREADS=${THREADS} TESTING=${IS_CI} ./scripts/explore-cnv-methods.sh
 
 fi
 
