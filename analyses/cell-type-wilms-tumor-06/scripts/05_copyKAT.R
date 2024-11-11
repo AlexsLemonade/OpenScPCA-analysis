@@ -7,11 +7,11 @@
 #   --sample_id SCPCS000194 \
 #   --use_reference <ref, noref> \
 #   --distance <spearman, euclidean> \
-#   --ncore 8
+#   --n_core 8
 #
 # Additional optional arguments include:
-# --score_threshold: Annotation prediction score threshold to use when identifying cells to use in reference
-# --seed: Integer to set the random seed
+# --score_threshold: Annotation prediction score threshold to use when identifying cells to use in reference. Default is 0.85
+# --seed: Integer to set the random seed. Default is 12345
 
 library(optparse)
 library(Seurat)
