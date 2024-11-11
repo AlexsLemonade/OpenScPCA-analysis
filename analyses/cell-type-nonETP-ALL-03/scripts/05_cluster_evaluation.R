@@ -19,7 +19,7 @@ run_eval <- function(ind.lib) {
     summarise(avgSil = mean(silhouette_width), avgPur = mean(purity)) %>%
     data.frame()
   stability_df <- rOpenScPCA::calculate_stability(
-    x = seu, clusters = clusID.df,
+    x = seu, cluster_df = clusID.df,
     pc_name = "Xpca_", algorithm = "leiden",
     resolution = 1.0, objective_function = "modularity",
     seed = 10
