@@ -39,6 +39,13 @@ data_dir="../../data/current"
 notebook_template_dir="notebook_template"
 notebook_output_dir="notebook"
 
+# Define test data string to use with 06_infercnv.R
+if [[ $TESTING -eq 1 ]]; then
+  test_string="--testing"
+else
+  test_string=""
+fi
+
 # Download files used for label transfer
 # We'll define file names with absolute paths for robustness
 
@@ -139,36 +146,31 @@ if [[ $RUN_EXPLORATORY -eq 1 ]]; then
 
 fi
 
+# Run infercnv for all samples with HMM i3 and using "both" as the reference, where possible
+for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
+    sample_id=$(basename $sample_dir)
 
-# Temporarily, this code is not run in CI
-if [[ $IS_CI -eq 0 ]]; then
+    # These samples do not have sufficient normal cells to run with a reference in infercnv
+    samples_no_reference=("SCPCS000177" "SCPCS000180" "SCPCS000181" "SCPCS000190" "SCPCS000197")
 
-  # Run infercnv for all samples with HMM i3 and using "both" as the reference
-  for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
-      sample_id=$(basename $sample_dir)
+    # Define inferCNV reference set
+    if [[ " ${samples_no_reference[*]} " =~ " ${sample_id} " ]]; then
+      reference="none"
+    else
+      reference="both"
+    fi
 
-      # These samples do not have sufficient normal cells to run with a reference in infercnv
-      samples_no_reference=("SCPCS000177" "SCPCS000180" "SCPCS000181" "SCPCS000190" "SCPCS000197")
+    # don't repeat inference on selection of samples since certain
+    #   output files will already exist if exploratory steps were run
+    output_file="${results_dir}/${sample_id}/06_infercnv_HMM-i3_${sample_id}_reference-${reference}.rds"
+    if [[ ! -f $output_file ]]; then
+      Rscript scripts/06_infercnv.R --sample_id $sample_id --reference $reference --HMM i3 ${test_string}
+    fi
+done
 
-      # Define inferCNV reference set
-      if [[ " ${samples_no_reference[*]} " =~ " ${sample_id} " ]]; then
-        reference="none"
-      else
-        reference="both"
-      fi
-
-      # don't repeat inference on selection of samples since certain
-      #   output files will already exist if exploratory steps were run
-      output_file="${results_dir}/${sample_id}/06_infercnv_HMM-i3_${sample_id}_reference-${reference}.rds"
-      if [[ ! -f $output_file ]]; then
-        Rscript scripts/06_infercnv.R --sample_id $sample_id --reference $reference --HMM i3
-      fi
-  done
-
-  # Render notebook to make draft annotations
-  Rscript -e "rmarkdown::render('${notebook_template_dir}/07_combined_annotation_across_samples_exploration.Rmd',
-                          params = list(predicted.celltype.threshold = 0.85, cnv_threshold = 0),
-                          output_format = 'html_document',
-                          output_file = '07_combined_annotation_across_samples_exploration.html',
-                          output_dir = '${notebook_template_dir}')"
-fi
+# Render notebook to make draft annotations
+Rscript -e "rmarkdown::render('${notebook_template_dir}/07_combined_annotation_across_samples_exploration.Rmd',
+                        params = list(predicted.celltype.threshold = 0.85, cnv_threshold = 0),
+                        output_format = 'html_document',
+                        output_file = '07_combined_annotation_across_samples_exploration.html',
+                        output_dir = '${notebook_template_dir}')"
