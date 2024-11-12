@@ -4,7 +4,7 @@ author: "Maud PLASCHKA"
 date: "`r Sys.Date()`"
 params:
   scpca_project_id: "SCPCP000006"
-  sample_id: "SCPCS000184"
+  sample_id: "SCPCS000179"
   seed: 12345
 output: 
   html_document: 
@@ -286,9 +286,10 @@ wrapper_explore_hmm <- function(infercnv_obj, cnv_threshold = 1) {
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
 
   #### CNV score
-  meta <- infercnv_obj@meta.data |>
-    mutate(has_cnv_score = rowSums(meta[, grepl("has_cnv_chr", colnames(meta))])) |>
-    mutate(has_cnv_score = case_when(
+  meta <- infercnv_obj@meta.data
+  meta <- meta |>
+    dplyr::mutate(has_cnv_score = rowSums(meta[, grepl("has_cnv_chr", colnames(meta))])) |>
+    dplyr::mutate(has_cnv_score = dplyr::case_when(
       has_cnv_score > cnv_threshold ~ "CNV",
       has_cnv_score <= cnv_threshold ~ "no CNV"
     ))
