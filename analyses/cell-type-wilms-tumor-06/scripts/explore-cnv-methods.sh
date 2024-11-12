@@ -11,10 +11,17 @@
 # This can be overridden with the THREADS variable:
 # THREADS=16 ./explore-cnv-methods.sh
 #
+# If running with test data, set the variable
+# TESTING=1 to ensure that inferCNV is run
+# without a reference, since test data will not
+# reliably have normal cells to use for the reference.
+# TESTING=1 ./explore-cnv-methods.sh
+#
 
 set -euo pipefail
 
 THREADS=${THREADS:-32}
+TESTING=${TESTING:-0}
 
 # Ensure script is being run from the _module directory_, which is one level up
 #  from this script's directory.
@@ -26,6 +33,13 @@ cd ..
 # Define directories
 notebook_template_dir="notebook_template"
 results_dir="results"
+
+# Define test data string to use with 06_infercnv.R
+if [[ $TESTING -eq 1 ]]; then
+  test_string="--testing"
+else
+  test_string=""
+fi
 
 for sample_id in SCPCS000179 SCPCS000184 SCPCS000194 SCPCS000205 SCPCS000208; do
 
@@ -63,25 +77,25 @@ for sample_id in SCPCS000179 SCPCS000184 SCPCS000194 SCPCS000205 SCPCS000208; do
   ##############################################################################
 
   # We run and explore infercnv using immune cells as reference and no HMM model
-  Rscript scripts/06_infercnv.R --sample_id ${sample_id} --reference "immune" --HMM "no"
+  Rscript scripts/06_infercnv.R --sample_id ${sample_id} --reference "immune" --HMM "no" ${test_string}
 
   # We run and explore infercnv using endothelial cells as reference and no HMM model
-  Rscript scripts/06_infercnv.R --sample_id ${sample_id} --reference "endothelium" --HMM "no"
+  Rscript scripts/06_infercnv.R --sample_id ${sample_id} --reference "endothelium" --HMM "no" ${test_string}
 
   # We run and explore infercnv using no normal reference and no HMM model
-  Rscript scripts/06_infercnv.R --sample_id ${sample_id} --reference "none" --HMM "no"
+  Rscript scripts/06_infercnv.R --sample_id ${sample_id} --reference "none" --HMM "no" ${test_string}
 
   # We run and explore infercnv using both endothelial and immune cells as reference and no HMM model
-  Rscript scripts/06_infercnv.R --sample_id ${sample_id} --reference "both" --HMM "no"
+  Rscript scripts/06_infercnv.R --sample_id ${sample_id} --reference "both" --HMM "no" ${test_string}
 
   # We run and explore infercnv using both endothelial and immune cells as reference and i3 HMM model
-  Rscript scripts/06_infercnv.R --sample_id ${sample_id} --reference "both" --HMM "i3"
+  Rscript scripts/06_infercnv.R --sample_id ${sample_id} --reference "both" --HMM "i3" ${test_string}
 
   # We run and explore infercnv using both endothelial and immune cells as reference and i6 HMM model
-  Rscript scripts/06_infercnv.R --sample_id ${sample_id} --reference "both" --HMM "i6"
+  Rscript scripts/06_infercnv.R --sample_id ${sample_id} --reference "both" --HMM "i6" ${test_string}
 
   # We run and explore infercnv using both endothelial and immune cells from all non-treated Wilms tumor patients as reference and i3 HMM model
-  Rscript scripts/06_infercnv.R --sample_id ${sample_id} --reference "pull" --HMM "i3"
+  Rscript scripts/06_infercnv.R --sample_id ${sample_id} --reference "pull" --HMM "i3" ${test_string}
 
 
   # We explore `inferCNV` results for this sample
