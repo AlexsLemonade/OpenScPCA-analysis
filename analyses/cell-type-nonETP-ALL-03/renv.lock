@@ -2621,7 +2621,7 @@
       "RemoteHost": "api.github.com",
       "RemoteUsername": "AlexsLemonade",
       "RemoteRepo": "rOpenScPCA",
-      "RemoteRef": "f71a8191130fa543e6506c73c7b62ffa55e8ba3f",
+      "RemoteRef": "main",
       "RemoteSha": "f71a8191130fa543e6506c73c7b62ffa55e8ba3f",
       "Requirements": [
         "BiocParallel",
