@@ -225,7 +225,7 @@ mean_silhouette_width <- mean(silhouette_results$silhouette_width)
 ggplot(silhouette_results) +
   aes(x = silhouette_width) +
   geom_density(fill = "lightblue") +
-  geom_vline(xintercept = mean_silhouette_width, color = "red", size = 1)
+  geom_vline(xintercept = mean_silhouette_width, color = "red", linewidth = 1)
 ```
 
 Looking at the full distribution of silhouette width values, we see most are positive which is encouraging, but the values are mostly below 0.5, and the mean is less than 0.25.
@@ -277,7 +277,7 @@ mean_purity <- mean(purity_results$purity)
 ggplot(purity_results) +
   aes(x = purity) +
   geom_density(fill = "lightblue") +
-  geom_vline(xintercept = mean_purity, color = "red", size = 1)
+  geom_vline(xintercept = mean_purity, color = "red", linewidth = 1)
 ```
 This metric shows a relatively high average neighborhood purity, suggesting that neighboring cells tend to belong to the same cluster.
 
@@ -320,7 +320,7 @@ Since this function uses random sampling when performing bootstrapping, it's als
 ```{r stability, warning=FALSE}
 stability_results <- calculate_stability(
   sce,
-  cluster_results$cluster, # TODO!!!!! Update once the rOpenScPCA hash is updated in this branch
+  cluster_results,
   seed = params$seed
 )
 
@@ -334,7 +334,7 @@ We can visualize these results, for example, with a density plot with a rug to e
 ggplot(stability_results) +
   aes(x = ari) +
   geom_density(fill = "lightblue") +
-  geom_rug(color = "red", size = 1)
+  geom_rug(color = "red", linewidth = 1)
 ```
 
 All bootstrap replicates produced values around 0.7, which is relatively high and close to 1, which suggests that the these clusters are stable and robust to starting conditions.
@@ -358,7 +358,7 @@ cluster_df_leiden <- calculate_clusters(
 # Now, pass in the same arguments customizing parameters here
 stability_results_leiden <- calculate_stability(
   sce,
-  cluster_df_leiden$cluster, # TODO!!!!! Update once the rOpenScPCA hash is updated in this branch
+  cluster_df_leiden,
   algorithm = "leiden",
   resolution = 0.5,
   nn = 15,
