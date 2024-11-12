@@ -1857,11 +1857,11 @@
       "Version": "0.1.0",
       "Source": "GitHub",
       "RemoteType": "github",
-      "RemoteHost": "api.github.com",
       "RemoteUsername": "AlexsLemonade",
       "RemoteRepo": "rOpenScPCA",
       "RemoteRef": "main",
-      "RemoteSha": "f71a8191130fa543e6506c73c7b62ffa55e8ba3f",
+      "RemoteSha": "fae22a62862f9e1d8bcb244e400ec4604c7e0905",
+      "RemoteHost": "api.github.com",
       "Requirements": [
         "BiocParallel",
         "SingleCellExperiment",
@@ -1873,7 +1873,7 @@
         "tibble",
         "tidyr"
       ],
-      "Hash": "80a604c3be8af1ae30bcda4f96c4e290"
+      "Hash": "9231556d802a3eebdc69de20a7624276"
     },
     "rappdirs": {
       "Package": "rappdirs",
