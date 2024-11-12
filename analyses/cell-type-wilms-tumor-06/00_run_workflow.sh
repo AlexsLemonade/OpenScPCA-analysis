@@ -169,8 +169,8 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
 done
 
 # Render notebook to make draft annotations
-Rscript -e "rmarkdown::render('${notebook_template_dir}/07_combined_annotation_across_samples_exploration.Rmd',
+Rscript -e "rmarkdown::render('${notebook_output_dir}/07_combined_annotation_across_samples_exploration.Rmd',
                         params = list(predicted.celltype.threshold = 0.85, cnv_threshold = 0),
                         output_format = 'html_document',
                         output_file = '07_combined_annotation_across_samples_exploration.html',
-                        output_dir = '${notebook_template_dir}')"
+                        output_dir = '${notebook_output_dir}')"
