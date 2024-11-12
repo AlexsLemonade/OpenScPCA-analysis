@@ -51,7 +51,7 @@ renv::snapshot()
 To update the package to its most recent version, you can use the following:
 
 ```
-renv::update("AlexsLemonade/rOpenScPCA")
+renv::update("rOpenScPCA")
 ```
 
 ## Example notebooks
