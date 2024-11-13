@@ -1,6 +1,6 @@
 ---
 title: "Performing and evaluating graph-based clustering with rOpenScPCA"
-date: `r Sys.Date()`
+date: "`r Sys.Date()`"
 author: Data Lab
 params:
   seed: 2024
@@ -10,7 +10,6 @@ output:
     toc_float: yes
     df_print: paged
 ---
-
 
 ## Introduction
 
@@ -43,6 +42,14 @@ suppressPackageStartupMessages({
 
 # Set ggplot theme
 theme_set(theme_bw())
+```
+
+### Set the random seed
+
+Because clustering involves random samples, it is important to set the random seed at the top of your analysis script or notebook to ensure reproducibilty.
+
+```{r set seed}
+set.seed(params$seed)
 ```
 
 ### Paths
@@ -123,14 +130,9 @@ When performing clustering on an SCE object, `rOpenScPCA::calculate_clusters()` 
 The function assumes the PC name is `PCA`. 
 If your SCE object has a different name for the principal components, you can provide the name with the argument `pc_name`.
 
-We also strongly recommend providing a random seed with the `seed` argument to ensure reproducibility.
-
 ```{r cluster sce}
 # Calculate clusters with default parameters
-cluster_results <- calculate_clusters(
-  sce,
-  seed = params$seed
-)
+cluster_results <- calculate_clusters(sce)
 
 # Print resulting table
 cluster_results
@@ -160,14 +162,11 @@ When performing clustering on a Seurat object, `rOpenScPCA::calculate_clusters()
 If your Seurat object has a different name for the principal components, you can provide the name with the argument `pc_name`.
 In this example, because we created the Seurat object from the SCE object, its principal components are named `PCA`, so we will provide that information.
 
-We also strongly recommend providing a random seed with the `seed` argument to ensure reproducibility.
-
 ```{r cluster seurat}
 cluster_results <- calculate_clusters(
   seurat_obj,
   # Since we converted this from an SCE object, its PC name is `PCA`
-  pc_name = "PCA",
-  seed = params$seed
+  pc_name = "PCA"
 )
 
 
