@@ -1861,7 +1861,7 @@
       "RemoteUsername": "AlexsLemonade",
       "RemoteRepo": "rOpenScPCA",
       "RemoteRef": "main",
-      "RemoteSha": "fc784446f8d86b072e6f7f67287adfff598f4911",
+      "RemoteSha": "f71a8191130fa543e6506c73c7b62ffa55e8ba3f",
       "Requirements": [
         "BiocParallel",
         "SingleCellExperiment",
@@ -1873,7 +1873,7 @@
         "tibble",
         "tidyr"
       ],
-      "Hash": "80a604c3be8af1ae30bcda4f96c4e290"
+      "Hash": "4b9dcd60f9ae2a2e1999acbd49d7b07a"
     },
     "rappdirs": {
       "Package": "rappdirs",
