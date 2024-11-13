@@ -4,6 +4,7 @@ author: "Maud PLASCHKA"
 date: "`r Sys.Date()`"
 params: 
   predicted.score_thr: 0.85
+  sample_ids: ""
 output: 
   html_document: 
     toc: yes
@@ -84,12 +85,24 @@ the following information per cell:
 
 ```{r path_to_query}
 sample_metadata_file <- file.path(repository_base, "data", "current", "SCPCP000006", "single_cell_metadata.tsv")
+metadata <- read_tsv(sample_metadata_file)
 
-metadata <- read.table(sample_metadata_file, sep = "\t", header = TRUE) |>
-  dplyr::filter(seq_unit != "spot")
+# Determine which sample ids to loop over, which differs if we are testing
+if (params$sample_ids == "") {
+  sample_ids <- metadata |>
+    dplyr::filter(seq_unit != "spot") |>
+    dplyr::pull(scpca_sample_id) |>
+    unique()
+} else {
+  sample_ids <- stringr::str_split_1(params$sample_ids, ",")
+  stopifnot(
+    "Could not determine the sample_ids from the provided param value." =
+      all(sample_ids %in% metadata$scpca_sample_id)
+  )
+}
 
 # Create a data frames of all annotations
-cell_type_df <- metadata$scpca_sample_id |>
+cell_type_df <- sample_ids |>
   purrr::map(
     # For each sample_id, do the following:
     \(sample_id) {
@@ -332,9 +345,7 @@ compartment_df <- cell_type_df |>
   # count how many per compartment
   dplyr::count(organ, compartment) |>
   # make the table wide and use a value of 0 if a count is missing
-  tidyr::pivot_wider(names_from = compartment, values_from = n, values_fill = 0) |>
-  # order the columns how we want to show them
-  dplyr::select(organ, fetal_nephron, stroma, endothelium, immune)
+  tidyr::pivot_wider(names_from = compartment, values_from = n, values_fill = 0)
 
 DT::datatable(compartment_df,
   caption = "counts of cells in each compartment",
@@ -353,9 +364,7 @@ compartment_df <- cell_type_df |>
   # count how many per compartment
   dplyr::count(sample_id, compartment) |>
   # make the table wide and use a value of 0 if a count is missing
-  tidyr::pivot_wider(names_from = compartment, values_from = n, values_fill = 0) |>
-  # order the columns how we want to show them
-  dplyr::select(sample_id, fetal_nephron, stroma, endothelium, immune)
+  tidyr::pivot_wider(names_from = compartment, values_from = n, values_fill = 0)
 
 DT::datatable(compartment_df,
   caption = "counts of cells in each compartment",
