@@ -5,6 +5,7 @@ date: "`r Sys.Date()`"
 params:
   predicted.celltype.threshold: 0.85
   cnv_threshold: 0
+  sample_ids: ""
 output: 
   html_document: 
     toc: yes
@@ -97,7 +98,7 @@ In this notebook, we are working with all of the samples in SCPCP000006.
 
 The sample metadata can be found in `sample_metadata_file` in the `data` folder.
 
-We extracted from the pre-processed and labeled `Seurat` object from `results/{sample_id}/06_infercnv_HMM-i3_SCPCS000169_reference-both.rds`.
+We extracted from the pre-processed and labeled `Seurat` object from `results/{sample_id}/06_infercnv_HMM-i3_{sample_id}_reference-{reference}.rds`.
 the following information per cell:
 
 - the predicted compartment in `fetal_kidney_predicted.compartment` and `fetal_kidney_predicted.compartment.score`
@@ -108,21 +109,31 @@ the following information per cell:
 - the sample identifier in `sample_id`
 
 
-- the proportion of estimated CNV per chromosome, {i} in 1 to 22 `proportion_cnv_chr{i}`
+- the proportion of estimated CNV per chromosome, `{i}` in 1 to 22 `proportion_cnv_chr{i}`
 
 
-- the `counts`of [markers genes](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/cell-type-wilms-tumor-06#the-table-celltype_metadatacsv-contains-the-following-column-and-information)
+- the `counts` of [markers genes](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/cell-type-wilms-tumor-06#the-table-celltype_metadatacsv-contains-the-following-column-and-information)
 
 
 
 ```{r path_to_query}
 sample_metadata_file <- file.path(repository_base, "data", "current", "SCPCP000006", "single_cell_metadata.tsv")
-
 metadata <- read.table(sample_metadata_file, sep = "\t", header = TRUE)
-sample_ids <- metadata |>
-  dplyr::filter(seq_unit != "spot") |>
-  dplyr::pull(scpca_sample_id) |>
-  unique()
+
+
+# Determine which sample ids to loop over, which differs if we are testing
+if (params$sample_ids == "") {
+  sample_ids <- metadata |>
+    dplyr::filter(seq_unit != "spot") |>
+    dplyr::pull(scpca_sample_id) |>
+    unique()
+} else {
+  sample_ids <- stringr::str_split_1(params$sample_ids, ",")
+  stopifnot(
+    "Could not determine the sample_ids from the provided param value." =
+      all(sample_ids %in% metadata$scpca_sample_id)
+  )
+}
 
 # Create a data frames of all annotations
 cell_type_df <- sample_ids |>
