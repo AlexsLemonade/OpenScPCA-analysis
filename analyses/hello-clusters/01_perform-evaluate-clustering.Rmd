@@ -1,6 +1,6 @@
 ---
 title: "Performing and evaluating graph-based clustering with rOpenScPCA"
-date: "`r Sys.Date()`"
+date: `r Sys.Date()`
 author: Data Lab
 params:
   seed: 2024
@@ -86,7 +86,7 @@ seurat_obj <- as.Seurat(
 
 ## Perform clustering
 
-This section will show how to perform clustering with the function `rOpenScPCA::calculate_clusters`. 
+This section will show how to perform clustering with the function `rOpenScPCA::calculate_clusters()`. 
 
 By default, this function will calculate clusters using the following parameters:
 
@@ -98,13 +98,13 @@ By default, this function will calculate clusters using the following parameters
 These parameters can be customized, as follows:
 
 * The `algorithm` can be one of:
-  * `"louvain"`, `"walktrap"`, or `"leiden"`
+  * `louvain`, `walktrap`, or `leiden`
 * The `weighting` can be one of:
-  * `"jaccard"`, `"rank"`, or `"number"`
+  * `jaccard`, `rank`, or `number`
 * The nearest neighbors parameter can be customized with the `nn` argument
 * The resolution parameter can be customized with the `resolution` argument
   * This parameter is only used by Louvain and Leiden algorithms
-* If the Leiden algorithm is used, its default objective function parameter will be `"CPM"`, but you can also set  `objective_function = "modularity"` instead.
+* If the Leiden algorithm is used, its default objective function parameter will be `CPM`, but you can also set  `objective_function = "modularity` instead.
 * You can provide additional parameters as a list to the `cluster_args` argument.
   * Please refer to the [`igraph` documentation](https://igraph.org/r/html/latest) to learn more about what additional parameters can be provided to each clustering algorithm.
   * Note that `cluster_args` only accepts single-length arguments (no vectors or lists).
@@ -119,10 +119,9 @@ This function will return a table with the following columns:
 
 ### Clustering on an SCE object
 
-When performing clustering on an SCE object, `rOpenScPCA::calculate_clusters` assumes that the principal components are stored in a reduced dimension slot named `"PCA"`.
-If your 
-The function assumes the PC name is `"PCA"`. 
-If your SCE has a different name for the principal components, you can provide the name with the argument `pc_name`.
+When performing clustering on an SCE object, `rOpenScPCA::calculate_clusters()` assumes that the principal components are stored in a reduced dimension slot named `PCA`.
+The function assumes the PC name is `PCA`. 
+If your SCE object has a different name for the principal components, you can provide the name with the argument `pc_name`.
 
 We also strongly recommend providing a random seed with the `seed` argument to ensure reproducibility.
 
@@ -157,16 +156,16 @@ cluster_results
 
 ### Clustering on a Seurat object
 
-When performing clustering on a Seurat object, `rOpenScPCA::calculate_clusters` assumes that the principal components are stored in a reduced dimension slot named `"pca"`.
-If your Seurat has a different name for the principal components, you can provide the name with the argument `pc_name`.
-In this example, because we created the Seurat object from the SCE object, its principal components are named `"PCA"`, so we will provide that information.
+When performing clustering on a Seurat object, `rOpenScPCA::calculate_clusters()` assumes that the principal components are stored in a reduced dimension slot named `pca`.
+If your Seurat object has a different name for the principal components, you can provide the name with the argument `pc_name`.
+In this example, because we created the Seurat object from the SCE object, its principal components are named `PCA`, so we will provide that information.
 
 We also strongly recommend providing a random seed with the `seed` argument to ensure reproducibility.
 
 ```{r cluster seurat}
 cluster_results <- calculate_clusters(
   seurat_obj,
-  # Since we converted this from an SCE object, its PC name is `"PCA"`
+  # Since we converted this from an SCE object, its PC name is `PCA`
   pc_name = "PCA",
   seed = params$seed
 )
@@ -184,9 +183,9 @@ All examples will use the SCE object for demonstration, but a Seurat object can 
 All functions presented in this section take the following required arguments:
 
 * An SCE or Seurat object that contains principal components
-  * If the PCA matrix name is not the default for the object type (`"PCA"` for SCE and `"pca"` for Seurat), you can use `pc_name` to specify its name.
+  * If the PCA matrix name is not the default for the object type (`PCA` for SCE and `pca` for Seurat), you can use `pc_name` to specify its name.
 * A data frame with, at least, columns representing unique cell ids and cluster assignments.
-  * By default, these columns should be named `cell_id` and `cluster`, respectively, matching the output of `rOpenScPCA::calculate_clusters`
+  * By default, these columns should be named `cell_id` and `cluster`, respectively, matching the output of `rOpenScPCA::calculate_clusters()`
   * You can override these defaults using the arguments `cell_id_col` and `cluster_col`
 
 
@@ -198,7 +197,7 @@ This value ranges from -1 to 1.
 Cells in well-separated clusters should have high silhouette values closer to 1.
 You can read more about silhouette width purity from the [_Orchestrating Single Cell Analysis with Bioconductor_ book](https://bioconductor.org/books/3.19/OSCA.advanced/clustering-redux.html#silhouette-width).
 
-We'll use the function `rOpenScPCA::calculate_silhouette` to calculate the silhouette width, and then we'll visualize the results.
+We'll use the function `rOpenScPCA::calculate_silhouette()` to calculate the silhouette width, and then we'll visualize the results.
 
 This function will return the inputted data frame with two additional columns:
 
@@ -253,7 +252,7 @@ This value ranges from 0 to 1.
 Cells in well-separated clusters should have high purity values closer to 1, since there should be minimal overlap between member and neighboring cells.
 You can read more about neighborhood purity from the [_Orchestrating Single Cell Analysis with Bioconductor_ book](https://bioconductor.org/books/3.19/OSCA.advanced/clustering-redux.html#cluster-purity).
 
-We'll use the function `rOpenScPCA::calculate_purity` to calculate the neighborhood purity, and then visualize the results.
+We'll use the function `rOpenScPCA::calculate_purity()` to calculate the neighborhood purity, and then visualize the results.
 
 This function will return the inputted data frame with two additional columns:
 
@@ -310,7 +309,7 @@ We expect that highly stable clusterings have ARI values closer to 1 across a se
 
 You can read more about the Adjusted Rand Index from the [_Orchestrating Single Cell Analysis with Bioconductor_ book](https://bioconductor.org/books/release/OSCA.advanced/clustering-redux.html#adjusted-rand-index).
 
-We'll use the function `rOpenScPCA::calculate_stability` to calculate the stability of clusters using a bootstrapping approach, and then visualize the results.
+We'll use the function `rOpenScPCA::calculate_stability()` to calculate the stability of clusters using a bootstrapping approach, and then visualize the results.
 By default, this function performs 20 bootstrap replicates, but this can be customized using the argument `replicates`.
 
 This function will return a data frame with columns `replicate`, `ari`, and additional columns for the clustering parameters used when calculating bootstrap clusters.
@@ -341,7 +340,7 @@ All bootstrap replicates produced values around 0.7, which is relatively high an
 
 #### Using non-default clustering parameters
 
-When calculating bootstrap clusters, `rOpenScPCA::calculate_stability` uses `rOpenScPCA::calculate_clusters` with default parameters. 
+When calculating bootstrap clusters, `rOpenScPCA::calculate_stability()` uses `rOpenScPCA::calculate_clusters()` with default parameters. 
 If your original clusters were not calculated with these defaults, you should pass those customized values into this function as well to ensure a fair comparison between your original clusters and the bootstrap clusters.
 
 
@@ -371,7 +370,7 @@ stability_results_leiden
 
 ## Saving clustering results 
 
-Results can either be directly exported as a TSV file (e.g., with `readr::write_tsv`), or you can add the results into your scRNA-seq object.
+Results can either be directly exported as a TSV file (e.g., with `readr::write_tsv()`), or you can add the results into your scRNA-seq object.
 The subsequent examples will show you, as an example, how to save the `cluster_results` data frame to a given object.
 
 
