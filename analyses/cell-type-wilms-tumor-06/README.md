@@ -49,7 +49,7 @@ This is saving the data in OpenScPCA-analysis/data/current/SCPCP000006
 
 4. Run the module:
 ```shell
-Rscript 00_run_workflow.R
+./00_run_workflow.sh
 ```
 
 ### sample metadata
@@ -261,7 +261,7 @@ This work has been developed on a system that uses podman instead of docker. The
 
 ## Computational resources
 
-This module may require up to 16 cores to run certain exploratory steps, but the main workflow can be run on a laptop.
+This module may require up to 32 cores to run certain exploratory steps, but the main workflow can be run on a laptop.
 
 ## References
 
