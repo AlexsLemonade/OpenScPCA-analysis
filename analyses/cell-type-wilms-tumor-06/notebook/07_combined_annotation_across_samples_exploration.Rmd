@@ -126,13 +126,14 @@ sample_ids <- metadata |>
   dplyr::pull(scpca_sample_id) |>
   unique()
 
+# These samples were run with "none" as the reference
+none_reference_samples <- c("SCPCS000177", "SCPCS000180", "SCPCS000181", "SCPCS000190", "SCPCS000197")
+
 # Create a data frames of all annotations
 cell_type_df <- sample_ids |>
   purrr::map(
     # For each sample_id, do the following:
     \(sample_id) {
-      # These samples were run with "none" as the reference
-      none_reference_samples <- c("SCPCS000177", "SCPCS000180", "SCPCS000181", "SCPCS000190", "SCPCS000197")
       if (sample_id %in% none_reference_samples) {
         reference <- "none"
       } else {
@@ -145,10 +146,16 @@ cell_type_df <- sample_ids |>
         glue::glue("06_infercnv_HMM-i3_{sample_id}_reference-{reference}.rds")
       )
 
-      # The file may not be present if this is being run in CI, so check first
+
+      # The file may not be present if this is being run in CI, which is ok.
+      # If we are not running in CI and the file doesn't exist, we should error out
       # We should error out if the file does not exist and we are NOT testing
-      if (!file.exists(input_file) & !params$testing) {
-        stop("input RDS file not found.")
+      if (!file.exists(input_file)) {
+        if (params$testing) {
+          return(NULL)
+        } else {
+          stop("Input RDS file does not exist.")
+        }
       }
 
       # Read in the Seurat object
