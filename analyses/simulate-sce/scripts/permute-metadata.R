@@ -46,9 +46,14 @@ library_fields <- c(
   "seq_unit",
   "technology",
   "filtered_cell_count",
+  "filtered_spots",
+  "unfiltered_spots",
+  "tissue_spots",
   "submitter",
   "pi_name",
-  "project_title"
+  "project_title",
+  "demux_samples",
+  "demux_cell_count_estimate"
 )
 
 # fields that apply at sample level
@@ -81,7 +86,9 @@ processing_fields <- c(
   "genome_assembly",
   "has_cellhash",
   "includes_anndata",
+  "is_cell_line",
   "is_multiplexed",
+  "is_xenograft",
   "has_citeseq",
   "adt_filtering_method",
   "adt_normalization_method",
@@ -92,23 +99,27 @@ processing_fields <- c(
   "prob_compromised_cutoff",
   "processed_cells",
   "salmon_version",
+  "spaceranger_version",
   "total_reads",
   "transcript_type",
   "unfiltered_cells",
+  "demux_method",
   "workflow",
   "workflow_commit",
   "workflow_version"
 )
 
-# Remove project-specific columns
-match_cols <- sort(match(c(library_fields, sample_fields, processing_fields), colnames(metadata)))
-metadata <- metadata[, match_cols]
+# get project-specific columns, which should also be sample-specific
+project_fields <- setdiff(colnames(metadata), c(library_fields, sample_fields, processing_fields))
 
 # get sample metadata only & reduce to one line per sample
-sample_metadata <- metadata[, sample_fields] |> dplyr::distinct()
+sample_metadata <- metadata[, c(sample_fields, project_fields)] |> dplyr::distinct()
 
 # check that sample data are not repeated
-stopifnot(length(unique(sample_metadata$scpca_sample_id)) == nrow(sample_metadata))
+stopifnot(
+  "Sample data seem to be repeated, metadata permutation failed" =
+    length(unique(sample_metadata$scpca_sample_id)) == nrow(sample_metadata)
+)
 
 # permute sample metadata -------------------------------------------------------------
 diagnosis_order <- sample(seq(1, nrow(sample_metadata)), nrow(sample_metadata))
@@ -129,6 +140,11 @@ sample_metadata <- sample_metadata |>
     participant_id = paste0("P", forcats::fct_anon(participant_id)), # anonymize participant_id
     submitter_id = "" # remove submitter_id,
   )
+
+# permute project-specific columns
+for (f in project_fields) {
+  sample_metadata[[f]] <- sample(sample_metadata[[f]])
+}
 
 metadata <- metadata |>
   dplyr::rows_update(sample_metadata, by = "scpca_sample_id")

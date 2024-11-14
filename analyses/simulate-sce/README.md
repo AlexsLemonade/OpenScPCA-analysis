@@ -11,6 +11,14 @@ Before running the scripts here, open R in this directory and run the following 
 renv::restore()
 ```
 
+The AnnData conversion requires the `anndata` and `pandas` packages, which are included in the `openscpca-simulate-sce` conda environment.
+To install and activate this environment, use the following commands:
+
+```bash
+conda-lock install -n openscpca-simulate-sce
+conda activate openscpca-simulate-sce
+```
+
 ### Data download
 
 Data from projects to be processed should be downloaded from the OpenScPCA release bucket using the `download-data.py` script in the repository root directory.
