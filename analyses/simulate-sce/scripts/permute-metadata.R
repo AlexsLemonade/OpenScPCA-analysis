@@ -51,7 +51,9 @@ library_fields <- c(
   "tissue_spots",
   "submitter",
   "pi_name",
-  "project_title"
+  "project_title",
+  "demux_samples",
+  "demux_cell_count_estimate"
 )
 
 # fields that apply at sample level
@@ -101,6 +103,7 @@ processing_fields <- c(
   "total_reads",
   "transcript_type",
   "unfiltered_cells",
+  "demux_method",
   "workflow",
   "workflow_commit",
   "workflow_version"
