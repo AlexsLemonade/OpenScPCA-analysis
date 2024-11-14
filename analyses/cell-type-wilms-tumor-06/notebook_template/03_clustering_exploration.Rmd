@@ -220,7 +220,7 @@ values in `c("H", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8")`
 - `name` is the name of the module
 
 - `nbins` is the number of bins for `AddModuleScore` to use. Its default value is 24, which matches Seurat's default value.
-```{r }
+```{r}
 MSigDB_score <- function(object, category, gs_name, name, nbin = 24) {
   set <- msigdbr(species = "human", category = category)
   set_list <- set %>%
@@ -340,19 +340,19 @@ d1 + d2 + (v1 + v2 + v3 + plot_layout(ncol = 1)) + plot_layout(ncol = 3, widths 
 ```
 
 ### Cell cycle information
-```{r cell_cycle}
+```{r cell_cycle, eval=!params$testing}
 s.genes <- srat@assays$RNA@meta.data$gene_ids[srat@assays$RNA@meta.data$gene_symbol %in% cc.genes$s.genes]
 g2m.genes <- srat@assays$RNA@meta.data$gene_ids[srat@assays$RNA@meta.data$gene_symbol %in% cc.genes$g2m.genes]
 srat <- CellCycleScoring(srat, s.features = s.genes, g2m.features = g2m.genes, set.ident = FALSE, nbin = seurat_nbins)
 ```
 
-```{r fig.width=20, fig.height=4, out.width='100%'}
+```{r fig.width=20, fig.height=4, out.width='100%', eval=!params$testing}
 visualize_metadata(srat, meta = "Phase", group.by = "seurat_clusters")
 ```
 
 
 
-```{r fig.width=20, fig.height=2.5, out.width='100%'}
+```{r fig.width=20, fig.height=2.5, out.width='100%', eval=!params$testing}
 visualize_metadata(srat, meta = "S.Score", group.by = "seurat_clusters")
 visualize_metadata(srat, meta = "G2M.Score", group.by = "seurat_clusters")
 ```
@@ -635,7 +635,7 @@ visualize_metadata(srat, meta = "fetal_kidney_predicted.cell_type", group.by = "
 
 Here we evaluate with marker genes the identification of endothelial, immune cells and other cancer and non-cancerous sub-populations.
 
-```{r fig.height=25, fig.width=20, message=FALSE, warning=FALSE, out.width='100%'}
+```{r fig.height=25, fig.width=20, message=FALSE, warning=FALSE, out.width='100%', eval=!params$testing}
 markers <- list(
   "malignant" = CellType_metadata$ENSEMBL_ID[which(CellType_metadata$cell_class == "malignant")],
   "immune" = CellType_metadata$ENSEMBL_ID[which(CellType_metadata$cell_class == "immune")],

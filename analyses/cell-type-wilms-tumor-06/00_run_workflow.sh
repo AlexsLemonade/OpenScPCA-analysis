@@ -133,7 +133,7 @@ if [[ $RUN_EXPLORATORY -eq 1 ]]; then
   # Run notebook template to explore label transfer and clustering for all samples at once
   for score_threshold in 0.5 0.75 0.85 0.95; do
     Rscript -e "rmarkdown::render('${notebook_output_dir}/04_annotation_Across_Samples_exploration.Rmd',
-                    params = list(predicted.score_thr = ${score_threshold}),
+                    params = list(predicted.score_thr = ${score_threshold}, testing = ${IS_CI}),
                     output_format = 'html_document',
                     output_file = '04_annotation_Across_Samples_exploration_predicted.score_threshold_${score_threshold}.html',
                     output_dir = '${notebook_output_dir}')"
@@ -149,6 +149,7 @@ fi
 # Run infercnv for all samples with HMM i3 and using "both" as the reference, where possible
 for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
     sample_id=$(basename $sample_dir)
+    results_dir=results/${sample_id}
 
     # These samples do not have sufficient normal cells to run with a reference in infercnv
     samples_no_reference=("SCPCS000177" "SCPCS000180" "SCPCS000181" "SCPCS000190" "SCPCS000197")
@@ -170,7 +171,7 @@ done
 
 # Render notebook to make draft annotations
 Rscript -e "rmarkdown::render('${notebook_output_dir}/07_combined_annotation_across_samples_exploration.Rmd',
-                        params = list(predicted.celltype.threshold = 0.85, cnv_threshold = 0),
+                        params = list(predicted.celltype.threshold = 0.85, cnv_threshold = 0, testing = ${IS_CI}),
                         output_format = 'html_document',
                         output_file = '07_combined_annotation_across_samples_exploration.html',
                         output_dir = '${notebook_output_dir}')"
