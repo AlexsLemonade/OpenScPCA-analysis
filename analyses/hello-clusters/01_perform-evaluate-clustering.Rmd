@@ -79,16 +79,29 @@ input_sce_file <- file.path(data_dir, "SCPCP000001", "SCPCS000001", "SCPCL000001
 ### Read in data
 
 To begin, we'll read in the `SingleCellExperiment` (SCE) object.
-We'll also extract its PCA matrix, which we'll use to demonstrate how to calculate and evaluate clusters.
-
 
 ```{r read data}
 # Read the SCE file
 sce <- readRDS(input_sce_file)
+```
 
+We'll also extract its PCA matrix, which we'll use to demonstrate how to calculate and evaluate clusters.
+
+
+```{r extract pca data}
 # Extract the PCA matrix
 pca_matrix <- reducedDim(sce, "PCA")
 ```
+
+If you are working with a Seurat object, you can extract the PCA matrix like this:
+
+```{r convert to seurat}
+# First, convert the SCE to a Seurat object for demonstration
+
+
+# Here, the PCA matrix has the same name as a
+```
+
 
 ## Perform clustering
 
@@ -158,11 +171,10 @@ It's important to note that a full evaluation of clustering results would compar
 
 All functions presented in this section take the following required arguments:
 
-* A PCA matrix with rownames representing unique cell ids (e.g., barcodes)
+* A PCA matrix with row names representing unique cell ids (e.g., barcodes)
 * A data frame with, at least, columns representing unique cell ids and cluster assignments
   * By default, these columns should be named `cell_id` and `cluster`, respectively, matching the output of `rOpenScPCA::calculate_clusters()`
   * You can override these defaults using the arguments `cell_id_col` and `cluster_col`
-
 
 ### Silhouette width
 
@@ -276,51 +288,176 @@ stability_results_leiden
 
 
 
+## Evaluating pre-calculated clusters
 
-## Working with objects directly
-
-The above examples present how to work with a pca matrix, but you can also pass in an SCE or Seurat object with PCs to use instead.
-When doing so, this package will assume a pc_name, and you will need to override this as needed.
-
-When performing clustering on an SCE object, `rOpenScPCA::calculate_clusters()` assumes that the principal components are stored in a reduced dimension slot named `PCA`.
-The function assumes the PC name is `PCA`. 
-If your SCE object has a different name for the principal components, you can provide the name with the argument `pc_name`.
+Even if you perform clustering with other tools, you can still use the `rOpenScPCA` functions to evaluate your clusters.
+For example, if you are analyzing your data with a Seurat pipeline, you might also calculate clusters with Seurat, and you can evaluate those with `rOpenScPCA`.
+In addition, ScPCA data already contains a column called `cluster` with results from an automated clustering.
 
 
-When performing clustering on a Seurat object, `rOpenScPCA::calculate_clusters()` assumes that the principal components are stored in a reduced dimension slot named `pca`.
-If your Seurat object has a different name for the principal components, you can provide the name with the argument `pc_name`.
-In this example, because we created the Seurat object from the SCE object, its principal components are named `PCA`, so we will provide that information.
+In this section, we'll present how you can calculate the silhouette width and neighborhood purity from existing cluster assignments.
+
+
+### Evaluating Seurat clusters
+
+First, we'll prepare a Seurat object and perform clustering for demonstration:
+
+```{r process seurat object}
+# Convert to a Seurat object
+seurat_obj <- CreateSeuratObject(counts = counts(sce), assay = "RNA")
+
+# Process the object with a Seurat pipeline to obtain clusters
+seurat_obj <- seurat_obj |>
+  SCTransform() |>
+  RunPCA() |>
+  FindNeighbors(dims = 1:30) |>
+  FindClusters()
+
+# Print resulting clusters
+head(seurat_obj$seurat_clusters)
+```
+
+
+Next, we'll prepare inputs for `rOpenScPCA` functions:
+
+- The PCA matrix
+- A data frame with columns `cell_id` and `cluster`
+
+```{r prepare seurat input}
+# Extract the PCA matrix
+seurat_pca_matrix <- Embeddings(seurat_obj, reduction = "pca")
+
+# Create a data frame
+seurat_cluster_df <- data.frame(
+  cell_id = names(seurat_obj$seurat_clusters),
+  cluster = seurat_obj$seurat_clusters
+)
+```
+
+Now, we can run `calculate_silhouette()` and `calculate_purity()`:
+
+```{r seurat silhouette}
+seurat_silhouette_df <- calculate_silhouette(
+  seurat_pca_matrix,
+  seurat_cluster_df
+)
+seurat_silhouette_df
+```
+
+```{r seurat purity}
+seurat_purity_df <- calculate_purity(
+  seurat_pca_matrix,
+  seurat_cluster_df
+)
+seurat_purity_df
+```
+
+
+
+
+### Evaluating SCE clusters
 
 ```{r}
-# Convert to a Seurat object for demonstration
-seurat_obj <- as.Seurat(
-  sce,
-  counts = "counts",
-  data = "logcounts"
+```
+
+* Louvain algorithm
+* Jaccard weighting
+* 20 nearest neighbors
+* Resolution of 1
+
+Seurat parameters:
+* louvain
+* resolution of 0.8
+* 
+
+
+There are a few common circumstances where you might encounter this:
+
+
+
+
+```{r}
+# Print the cluster column from the SCE object
+head(colData(sce)$cluster)
+```
+
+In this section, we'll demonstrate how you can run the `rOpenScPCA` cluster evaluation functions on these clusters.
+
+First, you should prepare a data frame two columns: `cell_id` containing cell barcodes, and `cluster` containing the cluster identities.
+
+```{r}
+scpca_cluster_df <- data.frame(
+  cell_id = colnames(sce),
+  cluster = colData(sce)$cluster
 )
+
+scpca_cluster_df
+```
+
+Then, you can proceed to run evaluation functions using this data frame, and the PCA matrix from the object.
+
+```{r}
+# Calculate silhouette width
+scpca_silhouette_df <- calculate_silhouette(pca_matrix, scpca_cluster_df)
+scpca_silhouette_df
+
+# Calculate neighborhood purity
+scpca_purity_df <- calculate_purity(pca_matrix, scpca_cluster_df)
+scpca_purity_df
+```
+
+When running `calculate_stability()`, it is important to specify the same parameters originally used to build the clusters:
+
+```{r}
+scpca_stability_df <- calculate_stability(
+  pca_matrix,
+  scpca_cluster_df,
+  # provide ScPCA clustering parameters
+  algorithm = "louvain",
+  weighting = "jaccard",
+  nn = 20,
+  resolution = 1
+)
+scpca_stability_df
 ```
 
 
-### Clustering on a Seurat object
+
+### Working with objects directly
+
+As presented above, `rOpenScPCA` clustering functions take a PCA matrix with row names representing unique cell ids as their first argument.
+
+Instead of a matrix, you can alternatively pass in an SCE or Seurat object that contains PCs.
+For example:
+
+```{r}
+# Calculate clusters from an SCE object using default parameters
+cluster_results_df <- calculate_clusters(sce)
+```
 
 
+`rOpenScPCA` assumes that the PCA matrix is named `PCA` in SCE objects, and `pca` in Seurat objects.
+If the PCA matrix you want to use in the object has a different name, you can provide the argument `pc_name`.
+For example:
 
-```{r cluster seurat}
+```{r}
+# First, we'll rename the PCA matrix for demonstration
+reducedDimNames(sce) <- c("PCA_matrix", "UMAP")
+
+# Calculate clusters from an SCE object using default parameters
 cluster_results_df <- calculate_clusters(
-  seurat_obj,
-  # Since we converted this from an SCE object, its PC name is `PCA`
-  pc_name = "PCA"
+  sce,
+  pc_name = "PCA_matrix"
 )
-
-
-cluster_results_df
 ```
+
+
 
 
 
 ## Saving clustering results 
 
-Results can either be directly exported as a TSV file (e.g., with `readr::write_tsv()`), or you can add the results into your scRNA-seq object.
+Results can either be directly exported as a TSV file (e.g., with `readr::write_tsv()`), or you can add the results into your SCE or Seurat object.
 The subsequent examples will show you, as an example, how to save the `cluster_results_df` data frame to a given object.
 
 
