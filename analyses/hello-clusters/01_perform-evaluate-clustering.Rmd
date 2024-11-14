@@ -352,36 +352,9 @@ seurat_purity_df <- calculate_purity(
 seurat_purity_df
 ```
 
+We do not recommend using `rOpenScPCA::calculate_stability()` on Seurat clusters due to differences in the underlying clustering approach between Seurat and the `bluster` package which `rOpenScPCA` uses.
 
-
-
-### Evaluating SCE clusters
-
-```{r}
-```
-
-* Louvain algorithm
-* Jaccard weighting
-* 20 nearest neighbors
-* Resolution of 1
-
-Seurat parameters:
-* louvain
-* resolution of 0.8
-* 
-
-
-There are a few common circumstances where you might encounter this:
-
-
-
-
-```{r}
-# Print the cluster column from the SCE object
-head(colData(sce)$cluster)
-```
-
-In this section, we'll demonstrate how you can run the `rOpenScPCA` cluster evaluation functions on these clusters.
+### Evaluating ScPCA clusters
 
 First, you should prepare a data frame two columns: `cell_id` containing cell barcodes, and `cluster` containing the cluster identities.
 
@@ -433,6 +406,9 @@ For example:
 ```{r}
 # Calculate clusters from an SCE object using default parameters
 cluster_results_df <- calculate_clusters(sce)
+
+# Calculate clusters from a Seurat object using default parameters
+cluster_results_df <- calculate_clusters(seurat_obj)
 ```
 
 
