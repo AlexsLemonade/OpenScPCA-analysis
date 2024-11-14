@@ -21,7 +21,8 @@ Fields that are not present in all projects (i.e. submitter-specific fields) are
 | `submitter_id`                             |          | removed                          |
 | `participant_id`                           |          | anonymized                       |
 | `submitter`                                |          | keep                             |
-| `age_at_diagnosis`                         |          | permuted                         |
+| `age`                                      |          | permuted                         |
+| `age_timing`                               |          | permuted                         |
 | `sex`                                      |          | permuted                         |
 | `diagnosis`                                |          | permuted                         |
 | `subdiagnosis`                             |          | permuted (match diagnosis)       |
