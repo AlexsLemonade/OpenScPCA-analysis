@@ -6,8 +6,8 @@ params:
   predicted.celltype.threshold: 0.85
   cnv_threshold: 0
   testing: 0
-output: 
-  html_document: 
+output:
+  html_document:
     toc: yes
     toc_float: yes
     code_folding: hide
@@ -37,7 +37,7 @@ The proposed annotation will be based on the combination of:
 
 
 
-In a second time, we will explore and validate the chosen annotation. 
+In a second time, we will explore and validate the chosen annotation.
 
 We will use some of the [markers genes](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/cell-type-wilms-tumor-06#the-table-celltype_metadatacsv-contains-the-following-column-and-information) to validate visually the annotations.
 
@@ -98,7 +98,7 @@ In this notebook, we are working with all of the samples in SCPCP000006.
 
 The sample metadata can be found in `sample_metadata_file` in the `data` folder.
 
-We extracted from the pre-processed and labeled `Seurat` object from `results/{sample_id}/06_infercnv_HMM-i3_SCPCS000169_reference-both.rds`.
+We extracted from the pre-processed and labeled `Seurat` object from `results/{sample_id}/06_infercnv_HMM-i3_{sample_id}_reference-{reference}.rds`.
 the following information per cell:
 
 - the predicted compartment in `fetal_kidney_predicted.compartment` and `fetal_kidney_predicted.compartment.score`
@@ -109,17 +109,18 @@ the following information per cell:
 - the sample identifier in `sample_id`
 
 
-- the proportion of estimated CNV per chromosome, {i} in 1 to 22 `proportion_cnv_chr{i}`
+- the proportion of estimated CNV per chromosome, `{i}` in 1 to 22 `proportion_cnv_chr{i}`
 
 
-- the `counts`of [markers genes](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/cell-type-wilms-tumor-06#the-table-celltype_metadatacsv-contains-the-following-column-and-information)
+- the `counts` of [markers genes](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/cell-type-wilms-tumor-06#the-table-celltype_metadatacsv-contains-the-following-column-and-information)
 
 
 
 ```{r path_to_query}
 sample_metadata_file <- file.path(repository_base, "data", "current", "SCPCP000006", "single_cell_metadata.tsv")
-
 metadata <- read.table(sample_metadata_file, sep = "\t", header = TRUE)
+
+
 sample_ids <- metadata |>
   dplyr::filter(seq_unit != "spot") |>
   dplyr::pull(scpca_sample_id) |>
@@ -149,7 +150,6 @@ cell_type_df <- sample_ids |>
       if (!file.exists(input_file) & !params$testing) {
         stop("input RDS file not found.")
       }
-
 
       # Read in the Seurat object
       srat <- readRDS(input_file)
@@ -242,14 +242,14 @@ cell_type_df <- sample_ids |>
 
 ### Output file
 
-The report will be saved in the `notebook` directory. 
+The report will be saved in the `notebook` directory.
 
 
 ## Functions
 
 #### do_Feature_mean
 
-`do_Feature_mean` shows heatmap of mean expression of a feature grouped by a metadata. 
+`do_Feature_mean` shows heatmap of mean expression of a feature grouped by a metadata.
 
 - `df` is the name of the table containing metadata and feature expression (counts) per cells
 - `group.by` is the name of the metadata to group the cells
@@ -281,7 +281,7 @@ do_Feature_mean <- function(df, group.by, feature) {
 
 As done in `06_cnv_infercnv_exploration.Rmd`, we calculate  single CNV score and assess its potential in identifying cells with CNV versus normal cells without CNV.
 
-We simply checked for each chromosome if the cell `has_cnv_chr`. 
+We simply checked for each chromosome if the cell `has_cnv_chr`.
 Would the cell have more than `cnv_threshold` chromosome with CNV, the global `has_cnv_score` will be TRUE.
 Else, the cell will have a `has_cnv_score` set to FALSE.
 
@@ -298,13 +298,13 @@ cell_type_df <- cell_type_df |>
 
 
 table(cell_type_df$has_cnv_score)
-```   
+```
 
 ### First level annotation
 
 At first, we like to indicate in the `first.level_annotation` if a cell is normal, cancer or unknown.
 
-- _normal_ cells can be observe in all four compartments (`endothelium`, `immune`, `stroma` or `fetal nephron`) and do not have cnv. 
+- _normal_ cells can be observe in all four compartments (`endothelium`, `immune`, `stroma` or `fetal nephron`) and do not have cnv.
 We only allow a bit of flexibility in terms of cnv profile for immune and endothelium cells that have a high predicted score.
 Indeed, we know that false positive cnv can be observed in a cell type specific manner.
 
@@ -326,10 +326,10 @@ cell_type_df <- cell_type_df |>
     compartment %in% c("fetal_nephron", "stroma") & has_cnv_score == "CNV" ~ "cancer",
     .default = "unknown"
   ))
-```   
+```
 
 Using this basic strategy, we identified `r table(cell_type_df$first.level_annotation)["cancer"]` _cancer_ cells, `r table(cell_type_df$first.level_annotation)["normal"]` _normal_ cells.
-Only `r table(cell_type_df$first.level_annotation)["unknown"]`cells remain _unknown_ 
+Only `r table(cell_type_df$first.level_annotation)["unknown"]`cells remain _unknown_
 
 
 
@@ -339,7 +339,7 @@ ggplot(cell_type_df, aes(x = umap.umap_1, y = umap.umap_2, color = first.level_a
   facet_wrap(facets = ~sample_id, ncol = 5) +
   theme_bw() +
   theme(text = element_text(size = 22))
-```   
+```
 
 
 ### Second level annotation
@@ -359,13 +359,13 @@ Wilms tumor cancer cells can be:
 - _cancer stroma_: We define as _cancer stroma_ all cancer cells from the stroma compartment.
 
 
-- _blastema_,: we defined as _bastema_ every cancer cell that has a `fetal_kidney_predicted.cell_type == mesenchymal cell`. 
-We know that these _mesenchymal_ cells are cells from the cap mesenchyme that are not expected to be in a mature kidney. 
+- _blastema_,: we defined as _bastema_ every cancer cell that has a `fetal_kidney_predicted.cell_type == mesenchymal cell`.
+We know that these _mesenchymal_ cells are cells from the cap mesenchyme that are not expected to be in a mature kidney.
 These blastema cells should express higher _CITED1_.
 
-- _cancer epithelium_: we defined as _cancer epithelium_ all cancer cells that are neither stroma nor blastemal cells. 
-We expect these cells to express epithelial markers. 
-Their predicted cell type should correspond to more mature kidney epithelial subunits. 
+- _cancer epithelium_: we defined as _cancer epithelium_ all cancer cells that are neither stroma nor blastemal cells.
+We expect these cells to express epithelial markers.
+Their predicted cell type should correspond to more mature kidney epithelial subunits.
 
 ```{r fig.width=10, fig.height=10, out.width='100%', results='asis'}
 cell_type_df <- cell_type_df |>
@@ -393,7 +393,7 @@ cell_type_df <- cell_type_df |>
       cell_type_df$cell_type != "mesenchymal cell" ~ "cancer epithelium",
     .default = "unknown"
   ))
-```   
+```
 
 
 ```{r fig.width=20, fig.height=20, out.width='100%', results='asis'}
@@ -402,10 +402,10 @@ ggplot(cell_type_df[cell_type_df$first.level_annotation == "normal", ], aes(x = 
   facet_wrap(facets = ~sample_id, ncol = 5) +
   theme_bw() +
   theme(text = element_text(size = 22))
-```   
+```
 
 
- 
+
 
 
 
@@ -415,7 +415,7 @@ ggplot(cell_type_df[cell_type_df$first.level_annotation == "cancer", ], aes(x = 
   facet_wrap(facets = ~sample_id, ncol = 5) +
   theme_bw() +
   theme(text = element_text(size = 22))
-```   
+```
 
 #### Cancer and normal cells
 
@@ -425,7 +425,7 @@ ggplot(cell_type_df, aes(x = umap.umap_1, y = umap.umap_2, color = second.level_
   facet_wrap(facets = ~sample_id, ncol = 5) +
   theme_bw() +
   theme(text = element_text(size = 22))
-```   
+```
 
 ### Validation cancer versus normal based on the cnv profile
 
@@ -433,7 +433,7 @@ ggplot(cell_type_df, aes(x = umap.umap_1, y = umap.umap_2, color = second.level_
 for (i in 1:22) {
   print(do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = glue::glue("proportion_cnv_chr", i)))
 }
-```   
+```
 
 ### Validation of second level annotation using marker genes
 
@@ -441,32 +441,32 @@ for (i in 1:22) {
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = "ENSG00000081237")
-```   
+```
 
 #### Endothelium, _VWF_ expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = "ENSG00000110799")
-```   
+```
 
 #### Stroma, _Vimentin_ expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = "ENSG00000026025")
-```   
+```
 
 #### Stroma, _COL6A3_ expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = "ENSG00000163359")
-```   
+```
 
 
 #### Stroma, _THY1_ expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = "ENSG00000154096")
-```   
+```
 
 #### Blastema, _CITED1_ expression
 
@@ -479,26 +479,26 @@ do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = "E
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = "ENSG00000149294")
-```   
+```
 
 #### stemness marker (blastema and primitive epithelium), _SIX2_ expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = "ENSG00000170577")
-```   
+```
 
 #### Epithelium, _CDH1_ expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = "ENSG00000039068")
-```   
+```
 
 
 #### Epithelium, _PODXL_ expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = "ENSG00000128567")
-```   
+```
 
 
 ## Create annotation table for export
@@ -539,17 +539,17 @@ length(unique(annotations_table$scpca_sample_id))
 - Combining label transfer and CNV inference we have produced draft annotations for all 40 Wilms tumor samples in SCPCP000006
 
 - The heatmaps of cnv proportion and marker genes support our annotations, but signals with some marker genes are very low.
-Also, there is no universal marker for each entity of Wilms tumor that cover all tumor cells from all patient. 
-This makes the validation of the annotations quite difficult. 
+Also, there is no universal marker for each entity of Wilms tumor that cover all tumor cells from all patient.
+This makes the validation of the annotations quite difficult.
 
-- However, we could try to take the problem from the other side, and used the current annotation to perform differential expression analysis and try to find marker genes that are consistent across patient and Wilms tumor histologies. 
+- However, we could try to take the problem from the other side, and used the current annotation to perform differential expression analysis and try to find marker genes that are consistent across patient and Wilms tumor histologies.
 
-- In each histology (i.e. epithelial and stroma), the distinction between cancer and non cancer cell is difficult (as expected). 
+- In each histology (i.e. epithelial and stroma), the distinction between cancer and non cancer cell is difficult (as expected).
 In this analysis, we suggested to rely on the cnv score to assess the normality of the cell.
-Here again, we could try to run differential expression analysis and compare epithelial (resp. stroma) cancer versus non-cancer cells across patient, aiming to find a share transcriptional program allowing the classification cancer versus normal. 
+Here again, we could try to run differential expression analysis and compare epithelial (resp. stroma) cancer versus non-cancer cells across patient, aiming to find a share transcriptional program allowing the classification cancer versus normal.
 
-- In our annotation, we haven't taken into account the favorable/anaplastic status of the sample. 
-However, as anaplasia can occur in every (but do not has to) wilms tumor histology, I am not sure how to integrate the information into the annotation. 
+- In our annotation, we haven't taken into account the favorable/anaplastic status of the sample.
+However, as anaplasia can occur in every (but do not has to) wilms tumor histology, I am not sure how to integrate the information into the annotation.
 
 - This notebook could be finally rendered using different parameters, i.e. threshold for the cnv score and predicted score to use.
 

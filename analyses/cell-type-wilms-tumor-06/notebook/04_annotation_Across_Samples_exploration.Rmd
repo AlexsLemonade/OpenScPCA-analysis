@@ -2,11 +2,11 @@
 title: "Annotation exploration for SCPCP000006, `predicted.score` threshold `r params$predicted.score_thr`"
 author: "Maud PLASCHKA"
 date: "`r Sys.Date()`"
-params: 
+params:
   predicted.score_thr: 0.85
   testing: 0
-output: 
-  html_document: 
+output:
+  html_document:
     toc: yes
     toc_float: yes
     code_folding: hide
@@ -72,7 +72,7 @@ The sample metadata can be found in `sample_metadata_file` in the `data` folder.
 We extracted from the pre-processed and labeled `Seurat` object (that is the output of `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd` saved in the `results` directory)
 the following information per cell:
 
-- the predicted compartment in `fetal_kidney_predicted.compartment` 
+- the predicted compartment in `fetal_kidney_predicted.compartment`
 
 - the predicted organ in `fetal_full_predicted.organ`
 
@@ -85,12 +85,15 @@ the following information per cell:
 
 ```{r path_to_query}
 sample_metadata_file <- file.path(repository_base, "data", "current", "SCPCP000006", "single_cell_metadata.tsv")
+metadata <- read_tsv(sample_metadata_file)
 
-metadata <- read.table(sample_metadata_file, sep = "\t", header = TRUE) |>
-  dplyr::filter(seq_unit != "spot")
+sample_ids <- metadata |>
+  dplyr::filter(seq_unit != "spot") |>
+  dplyr::pull(scpca_sample_id) |>
+  unique()
 
 # Create a data frames of all annotations
-cell_type_df <- metadata$scpca_sample_id |>
+cell_type_df <- sample_ids |>
   purrr::map(
     # For each sample_id, do the following:
     \(sample_id) {
@@ -142,7 +145,7 @@ cell_type_df_nopass <- cell_type_df |>
 
 ### Output file
 
-The report will be saved in the `notebook` directory. 
+The report will be saved in the `notebook` directory.
 
 
 ## Functions
@@ -152,7 +155,7 @@ The report will be saved in the `notebook` directory.
 
 #### do_Feature_mean
 
-`do_Feature_mean` shows a heatmap of mean expression of a feature grouped by a metadata. 
+`do_Feature_mean` shows a heatmap of mean expression of a feature grouped by a metadata.
 
 - `df` is the name of the table containing metadata and feature expression (counts) per cells
 - `group.by` is the name of the metadata to group the cells
@@ -180,7 +183,7 @@ do_Feature_mean <- function(df, group.by, feature) {
 
 #### do_Feature_boxplot
 
-`do_Feature_boxplot` shows boxplot of expression of a feature grouped by a metadata. 
+`do_Feature_boxplot` shows boxplot of expression of a feature grouped by a metadata.
 
 - `df` is the name of the table containing metadata and feature expression (counts) per cells
 - `feature` is the name of the gene to average the expression
@@ -211,7 +214,7 @@ do_Feature_boxplot <- function(df, group.by, feature, split.by) {
 
 #### do_Feature_densityplot
 
-`do_Feature_densityplot` shows boxplot of expression of a feature grouped by a metadata. 
+`do_Feature_densityplot` shows boxplot of expression of a feature grouped by a metadata.
 
 - `df` is the name of the table containing metadata and feature expression (counts) per cells
 - `group.by` is the name of the metadata to group the cells
@@ -238,12 +241,12 @@ do_Feature_densityplot <- function(df, group.by, feature) {
 
 ### Total number of cells per samples and predicted organ
 
-The predicted organ comes from label transfer from the human fetal atlas. 
+The predicted organ comes from label transfer from the human fetal atlas.
 This is the reference developed by [Cao et al.](https://www.science.org/doi/10.1126/science.aba7721) provided by `Azimuth` for label transfer.
 The reference contain cells from 15 organs including kidney from fetal samples.
 The label transfer have been performed in the notebook `02a_fetal_full_reference_Cao_{sample_id}.Rmd`
 
-This notebook looks at the `fetal_full_predicted.organ` annotation from this reference. 
+This notebook looks at the `fetal_full_predicted.organ` annotation from this reference.
 
 Here, we are summarizing per sample:
 
@@ -278,33 +281,33 @@ DT::datatable(kidney_count_df,
     buttons = c("csv", "excel")
   )
 )
-```    
+```
 
 
 ### Predicted compartment
 
-The predicted compartment is the result of the label transfer from the human fetal kidney atlas: 
-[Stewart et al.](https://www.science.org/doi/10.1126/science.aat5031) created a [human fetal kidney atlas](https://www.kidneycellatlas.org/). 
-This reference contains only fetal kidney cells and has been precisely annotated by kidney experts. 
+The predicted compartment is the result of the label transfer from the human fetal kidney atlas:
+[Stewart et al.](https://www.science.org/doi/10.1126/science.aat5031) created a [human fetal kidney atlas](https://www.kidneycellatlas.org/).
+This reference contains only fetal kidney cells and has been precisely annotated by kidney experts.
 The label transfer have been performed in the notebook `02b_fetal_kidney_reference_Stewart_{sample_id}.Rmd`
 
 The fetal kidney reference (Stewart et al.) provides two levels of annotations:
 
 - `fetal_kidney_predicted.compartment` is one of the 4 main compartments composing a fetal kidney.
-We expect immune and endothelial cells to be healthy (non-cancerous) cells identified easily with high confidence. 
+We expect immune and endothelial cells to be healthy (non-cancerous) cells identified easily with high confidence.
 We expect stroma and fetal nephron compartment to contain both normal and malignant cells.
 
-    
-    - `immune` cells
-    
-    - `stroma` cells
-    
-    - `fetal_nephron` cells
-    
-    - `endothelial` cells
-    
 
-For each compartment, we summarized the percentage of cells that do match kidney annotation or not. 
+    - `immune` cells
+
+    - `stroma` cells
+
+    - `fetal_nephron` cells
+
+    - `endothelial` cells
+
+
+For each compartment, we summarized the percentage of cells that do match kidney annotation or not.
 Please note that this table is _not_ sample-specific but contains all samples pooled into one.
 
 
@@ -333,7 +336,7 @@ DT::datatable(compartment_count_df,
     buttons = c("csv", "excel")
   )
 )
-```   
+```
 
 What is the predicted organ of cells that are not labeled as kidney cell?
 Please note that this table is <u>not</u> sample-specific but contains all samples pooled into one.
@@ -358,7 +361,7 @@ DT::datatable(compartment_df,
 )
 ```
 
-We also checked the number of cell in each compartment per sample, to assess the presence/absence of non-cancer cells (endothelia and immune) that could help the inference of copy number alterations. 
+We also checked the number of cell in each compartment per sample, to assess the presence/absence of non-cancer cells (endothelia and immune) that could help the inference of copy number alterations.
 
 ```{r fig.width=25, fig.height=3, results='asis'}
 compartment_df <- cell_type_df |>
@@ -393,7 +396,7 @@ p <- do_Feature_densityplot(
 p + geom_vline(xintercept = params$predicted.score_thr)
 ```
 
-Some cells have an excellent `predicted.score` (> `r params$predicted.score_thr`) while other performed worse. Let's have a look at the compartments per patient. 
+Some cells have an excellent `predicted.score` (> `r params$predicted.score_thr`) while other performed worse. Let's have a look at the compartments per patient.
 
 ```{r fig.height=15, fig.width=15, message=FALSE, warning=FALSE, out.width='100%'}
 p <- do_Feature_boxplot(
@@ -406,7 +409,7 @@ p <- do_Feature_boxplot(
 p + geom_hline(yintercept = params$predicted.score_thr) + coord_cartesian(ylim = c(0.25, 1))
 ```
 
-Regarding the endothelial cells, some patient have very high `predicted.score` while others perform poorly. 
+Regarding the endothelial cells, some patient have very high `predicted.score` while others perform poorly.
 Let's have a look if this can be linked to some metadata/clinical data.
 
 
@@ -452,7 +455,7 @@ p <- do_Feature_boxplot(
 p + geom_hline(yintercept = params$predicted.score_thr) + coord_cartesian(ylim = c(0.25, 1))
 ```
 
-We do not really see a pattern linking the label transfer score and some meta/clinical data. 
+We do not really see a pattern linking the label transfer score and some meta/clinical data.
 
 We finally look for each patient and compartment, the number of cells that have a `predicted.score` > `r params$predicted.score_thr` (TRUE).
 
@@ -478,7 +481,7 @@ DT::datatable(scores_df,
 ### Evaluate annotations with marker genes
 
 Here we evaluate with marker genes the identification of endothelial, immune cells sub-populations.
-We expect that cells labeled as endothelial and immune cells will have higher expression of these markers compared to other cell types. 
+We expect that cells labeled as endothelial and immune cells will have higher expression of these markers compared to other cell types.
 
 
 ##### Endothelial cells
@@ -570,7 +573,7 @@ do_Feature_boxplot(
 
 ### Umap reduction
 
-We look at the umap reduction per sample. 
+We look at the umap reduction per sample.
 
 #### All cells
 
@@ -595,7 +598,7 @@ ggplot(cell_type_df, aes(x = umap.umap_1, y = umap.umap_2, color = compartment),
 
 #### Cells passing the `predicted.score` threshold
 
-Point are colored per compartment. 
+Point are colored per compartment.
 Here we only plotted cells that do pass the `predicted.score` threshold.
 
 ```{r fig.height=25, fig.width=20, message=FALSE, warning=FALSE, out.width='100%'}
@@ -608,7 +611,7 @@ ggplot(cell_type_df_pass, aes(x = umap.umap_1, y = umap.umap_2, color = compartm
 
 ### Assessment of the quality of label transfer
 
-Looking at the `predicted.organ` label (from the human fetal atlas, [Cao et al.](https://www.science.org/doi/10.1126/science.aba7721)), we can be confident about the label transfer.  
+Looking at the `predicted.organ` label (from the human fetal atlas, [Cao et al.](https://www.science.org/doi/10.1126/science.aba7721)), we can be confident about the label transfer.
 
 The majority of fetal nephron cell (92%) has been predicted as kidney.
 The fact that the other `compartments` (i.e. stroma, endothelial and immune) do not really match to kidney cells (less than one third predicted as kidney) shouldn't be a concern and and shouldn't be interpreted as a poor label transfer or annotation.
@@ -624,20 +627,20 @@ For that reason, we are not surprised that immune cells can be resembling immune
 ### Next step
 
 The next step of the analysis is to test whether `copyKAT` can help us distinguishing cancer cells from non-malignant cell types.
-[`copyKAT`](https://github.com/navinlabcode/copykat) is a computational tool using integrative Bayesian approaches to identify genome-wide aneuploidy in single cells to separate tumor cells from normal cells, using high-throughput scRNAseq data. 
+[`copyKAT`](https://github.com/navinlabcode/copykat) is a computational tool using integrative Bayesian approaches to identify genome-wide aneuploidy in single cells to separate tumor cells from normal cells, using high-throughput scRNAseq data.
 The underlying logic for calculating DNA copy number events from RNAseq data is that gene expression levels of many adjacent genes can provide depth information to infer genomic copy number in that region.
 
-Of note, it is known that `CopyKAT` has difficulty in predicting tumor and normal cells in the cases of pediatric and liquid tumors that have a few CNAs, such as Wilms tumors. 
+Of note, it is known that `CopyKAT` has difficulty in predicting tumor and normal cells in the cases of pediatric and liquid tumors that have a few CNAs, such as Wilms tumors.
 `CopyKAT` provides two ways to bypass this:
 
-- by providing a vector of cell names of known normal cells from the same dataset 
+- by providing a vector of cell names of known normal cells from the same dataset
 
 - or by try to search for T cells.
 
 
 For that reason, we will first try to run `CopyKAT` on 2-5 samples that have a majority of cells mapping to kidney and a decent amount (>100 cells when possible) of normal cells (endothelial and immune cells) and for which we are quite confident with the label transfer:
 
-- sample `SCPCS000194` 
+- sample `SCPCS000194`
 
 - sample `SCPCS000179`
 
@@ -647,7 +650,7 @@ For that reason, we will first try to run `CopyKAT` on 2-5 samples that have a m
 
 - sample `SCPCS0000208`
 
-For the selected samples, we will run `copyKAT` with and without providing a list of normal cells. 
+For the selected samples, we will run `copyKAT` with and without providing a list of normal cells.
 That will be useful to us to see how consistent results are.
 Also it will inform us about how we might analyze samples that aren't predicted to have that many (or sometimes any at all!) endothelial or immune cells.
 
