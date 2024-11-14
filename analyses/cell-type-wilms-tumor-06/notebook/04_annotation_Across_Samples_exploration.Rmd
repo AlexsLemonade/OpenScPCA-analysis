@@ -89,7 +89,7 @@ metadata <- read_tsv(sample_metadata_file) |>
   dplyr::filter(seq_unit != "spot")
 
 # Create a data frames of all annotations
-cell_type_df <- metadata$scpca_sample_ids |>
+cell_type_df <- metadata$scpca_sample_id |>
   purrr::map(
     # For each sample_id, do the following:
     \(sample_id) {
