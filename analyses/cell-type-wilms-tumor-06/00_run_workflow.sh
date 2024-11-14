@@ -25,7 +25,7 @@
 
 set -euo pipefail
 
-IS_CI=${TESTING:-0}
+TESTING=${TESTING:-0}
 RUN_EXPLORATORY=${RUN_EXPLORATORY:-0}
 THREADS=${THREADS:-32}
 project_id="SCPCP000006"
@@ -98,14 +98,14 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
 
     # Label transfer from the Cao reference
     Rscript -e "rmarkdown::render('${notebook_template_dir}/02a_label-transfer_fetal_full_reference_Cao.Rmd',
-                    params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}', homologs_file = '${homologs_file}', testing = ${IS_CI}),
+                    params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}', homologs_file = '${homologs_file}', testing = ${TESTING}),
                     output_format = 'html_document',
                     output_file = '02a_fetal_all_reference_Cao_${sample_id}.html',
                     output_dir = '${sample_notebook_dir}')"
 
     # Label transfer from the Stewart reference
     Rscript -e "rmarkdown::render('${notebook_template_dir}/02b_label-transfer_fetal_kidney_reference_Stewart.Rmd',
-                    params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}', homologs_file = '${homologs_file}', testing = ${IS_CI}),
+                    params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}', homologs_file = '${homologs_file}', testing = ${TESTING}),
                     output_format = 'html_document',
                     output_file = '02b_fetal_kidney_reference_Stewart_${sample_id}.html',
                     output_dir = '${sample_notebook_dir}')"
@@ -114,7 +114,7 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
     # This step does not directly contribute to the final annotations
     if [[ $RUN_EXPLORATORY -eq 1 ]]; then
       Rscript -e "rmarkdown::render('${notebook_template_dir}/03_clustering_exploration.Rmd',
-                      params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}', testing = ${IS_CI}),
+                      params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}', testing = ${TESTING}),
                       output_format = 'html_document',
                       output_file = '03_clustering_exploration_${sample_id}.html',
                       output_dir = '${sample_notebook_dir}')"
@@ -133,7 +133,7 @@ if [[ $RUN_EXPLORATORY -eq 1 ]]; then
   # Run notebook template to explore label transfer and clustering for all samples at once
   for score_threshold in 0.5 0.75 0.85 0.95; do
     Rscript -e "rmarkdown::render('${notebook_output_dir}/04_annotation_Across_Samples_exploration.Rmd',
-                    params = list(predicted.score_thr = ${score_threshold}, testing = ${IS_CI}),
+                    params = list(predicted.score_thr = ${score_threshold}, testing = ${TESTING}),
                     output_format = 'html_document',
                     output_file = '04_annotation_Across_Samples_exploration_predicted.score_threshold_${score_threshold}.html',
                     output_dir = '${notebook_output_dir}')"
@@ -142,7 +142,7 @@ if [[ $RUN_EXPLORATORY -eq 1 ]]; then
   # Run infercnv and copykat for a selection of samples
   # This script calls scripts/05_copyKAT.R and scripts/06_infercnv.R
   # By default, copyKAT as called by this script uses 32 cores
-  THREADS=${THREADS} TESTING=${IS_CI} ./scripts/explore-cnv-methods.sh
+  THREADS=${THREADS} TESTING=${TESTING} ./scripts/explore-cnv-methods.sh
 
 fi
 
@@ -171,7 +171,7 @@ done
 
 # Render notebook to make draft annotations
 Rscript -e "rmarkdown::render('${notebook_output_dir}/07_combined_annotation_across_samples_exploration.Rmd',
-                        params = list(predicted.celltype.threshold = 0.85, cnv_threshold = 0, testing = ${IS_CI}),
+                        params = list(predicted.celltype.threshold = 0.85, cnv_threshold = 0, testing = ${TESTING}),
                         output_format = 'html_document',
                         output_file = '07_combined_annotation_across_samples_exploration.html',
                         output_dir = '${notebook_output_dir}')"
