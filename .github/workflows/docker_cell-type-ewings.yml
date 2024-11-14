@@ -40,7 +40,7 @@ jobs:
   test-build:
     name: Test Build Docker Image
     if: github.event_name == 'pull_request' || (contains(github.event_name, 'workflow_') && !inputs.push-ecr)
-    runs-on: ubuntu-latest
+    runs-on: openscpca-22.04-big-disk
 
     steps:
       - name: Set up Docker Buildx
