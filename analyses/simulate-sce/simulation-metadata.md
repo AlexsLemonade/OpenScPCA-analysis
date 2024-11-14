@@ -5,7 +5,7 @@ Most contents are preserved in original form, but some are recalculated from the
 
 ## Permutation of `single_cell_metadata.tsv`
 
-Fields that are not present in all projects (i.e. submitter-specific fields) are removed from the permuted metadata file.
+Fields that are not present in all projects (i.e. submitter-specific fields) are permuted.
 
 | Field                                      | Contents | Simulation plan                  |
 | ------------------------------------------ | -------- | -------------------------------- |
@@ -15,10 +15,14 @@ Fields that are not present in all projects (i.e. submitter-specific fields) are
 | `seq_unit`                                 |          | keep                             |
 | `technology`                               |          | keep                             |
 | `filtered_cell_count`                      |          | keep                             |
+| `filtered_spots`                           |          | keep                             |
+| `unfiltered_spots`                         |          | keep                             |
+| `tissue_spots`                             |          | keep                             |
 | `submitter_id`                             |          | removed                          |
 | `participant_id`                           |          | anonymized                       |
 | `submitter`                                |          | keep                             |
-| `age_at_diagnosis`                         |          | permuted                         |
+| `age`                                      |          | permuted                         |
+| `age_timing`                               |          | permuted                         |
 | `sex`                                      |          | permuted                         |
 | `diagnosis`                                |          | permuted                         |
 | `subdiagnosis`                             |          | permuted (match diagnosis)       |
@@ -41,7 +45,9 @@ Fields that are not present in all projects (i.e. submitter-specific fields) are
 | `genome_assembly`                          |          | keep                             |
 | `has_cellhash`                             |          | keep                             |
 | `includes_anndata`                         |          | keep                             |
+| `is_cell_line`                             |          | keep                             |
 | `is_multiplexed`                           |          | keep                             |
+| `is_xenograft`                             |          | keep                             |
 | `has_citeseq`                              |          | keep                             |
 | `adt_filtering_method`                     |          | keep                             |
 | `adt_normalization_method`                 |          | keep                             |
@@ -52,12 +58,14 @@ Fields that are not present in all projects (i.e. submitter-specific fields) are
 | `prob_compromised_cutoff`                  |          | keep                             |
 | `processed_cells`                          |          | keep                             |
 | `salmon_version`                           |          | keep                             |
+| `spaceranger_version`                      |          | keep                             |
 | `total_reads`                              |          | keep                             |
 | `transcript_type`                          |          | keep                             |
 | `unfiltered_cells`                         |          | keep                             |
 | `workflow`                                 |          | keep                             |
 | `workflow_commit`                          |          | keep                             |
 | `workflow_version`                         |          | keep                             |
+
 
 ## Data matrices
 
