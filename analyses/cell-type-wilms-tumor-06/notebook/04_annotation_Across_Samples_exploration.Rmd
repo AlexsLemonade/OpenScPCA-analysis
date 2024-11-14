@@ -85,15 +85,11 @@ the following information per cell:
 
 ```{r path_to_query}
 sample_metadata_file <- file.path(repository_base, "data", "current", "SCPCP000006", "single_cell_metadata.tsv")
-metadata <- read_tsv(sample_metadata_file)
-
-sample_ids <- metadata |>
-  dplyr::filter(seq_unit != "spot") |>
-  dplyr::pull(scpca_sample_id) |>
-  unique()
+metadata <- read_tsv(sample_metadata_file) |>
+  dplyr::filter(seq_unit != "spot")
 
 # Create a data frames of all annotations
-cell_type_df <- sample_ids |>
+cell_type_df <- metadata$scpca_sample_ids |>
   purrr::map(
     # For each sample_id, do the following:
     \(sample_id) {
