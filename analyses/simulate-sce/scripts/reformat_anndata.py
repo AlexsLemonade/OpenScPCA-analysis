@@ -65,7 +65,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-d",
         "--dir",
-        help="directory containing H5AD files and PCA metadaa",
+        help="directory containing H5AD files and PCA metadata",
         required=True,
     )
 
