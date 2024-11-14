@@ -49,7 +49,7 @@ jobs:
       - name: Build image
         uses: docker/build-push-action@v6
         with:
-          context: "{{defaultContext}}:analyses/simulate-sce"
+          context: "{{defaultContext}}:analyses/cell-type-ewings"
           push: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
