@@ -5,6 +5,7 @@ date: "`r Sys.Date()`"
 params:
   predicted.celltype.threshold: 0.85
   cnv_threshold: 0
+  testing: 0
 output: 
   html_document: 
     toc: yes
@@ -136,11 +137,19 @@ cell_type_df <- sample_ids |>
       } else {
         reference <- "both"
       }
+
       input_file <- file.path(
         result_dir,
         sample_id,
         glue::glue("06_infercnv_HMM-i3_{sample_id}_reference-{reference}.rds")
       )
+
+      # The file may not be present if this is being run in CI, so check first
+      # We should error out if the file does not exist and we are NOT testing
+      if (!file.exists(input_file) & !params$testing) {
+        stop("input RDS file not found.")
+      }
+
 
       # Read in the Seurat object
       srat <- readRDS(input_file)

@@ -4,6 +4,7 @@ author: "Maud PLASCHKA"
 date: "`r Sys.Date()`"
 params: 
   predicted.score_thr: 0.85
+  testing: 0
 output: 
   html_document: 
     toc: yes
@@ -93,10 +94,20 @@ cell_type_df <- metadata$scpca_sample_id |>
   purrr::map(
     # For each sample_id, do the following:
     \(sample_id) {
-      # Read in the Seurat object
-      srat <- readRDS(
-        file.path(result_dir, sample_id, paste0("02b-fetal_kidney_label-transfer_", sample_id, ".Rds"))
+      input_file <- file.path(
+        result_dir,
+        sample_id,
+        glue::glue("02b-fetal_kidney_label-transfer_{sample_id}.Rds")
       )
+
+      # The file may not be present if this is being run in CI, so check first
+      # We should error out if the file does not exist and we are NOT testing
+      if (!file.exists(input_file) & !params$testing) {
+        stop("input RDS file not found.")
+      }
+
+      # Read in the Seurat object
+      srat <- readRDS(input_file)
 
       # Create and return a data frame from the Seurat object with relevant annotations
       # this data frame will have six columns: barcode, compartment, organ, compartment_score, VWF and PTPRC
@@ -334,7 +345,8 @@ compartment_df <- cell_type_df |>
   # make the table wide and use a value of 0 if a count is missing
   tidyr::pivot_wider(names_from = compartment, values_from = n, values_fill = 0) |>
   # order the columns how we want to show them
-  dplyr::select(organ, fetal_nephron, stroma, endothelium, immune)
+  # use any_of in case columns are missing, which will be the case for test data
+  dplyr::select(dplyr::any_of(c("organ", "fetal_nephron", "stroma", "endothelium", "immune")))
 
 DT::datatable(compartment_df,
   caption = "counts of cells in each compartment",
@@ -355,7 +367,8 @@ compartment_df <- cell_type_df |>
   # make the table wide and use a value of 0 if a count is missing
   tidyr::pivot_wider(names_from = compartment, values_from = n, values_fill = 0) |>
   # order the columns how we want to show them
-  dplyr::select(sample_id, fetal_nephron, stroma, endothelium, immune)
+  # use any_of in case columns are missing, which will be the case for test data
+  dplyr::select(dplyr::any_of(c("organ", "fetal_nephron", "stroma", "endothelium", "immune")))
 
 DT::datatable(compartment_df,
   caption = "counts of cells in each compartment",
