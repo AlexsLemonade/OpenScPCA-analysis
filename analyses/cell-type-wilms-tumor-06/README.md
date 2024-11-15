@@ -9,20 +9,20 @@ Each of these groups is composed of the blastemal, epithelial, and stromal popul
 
 Here, we first aim to annotate the Wilms Tumor snRNA-seq samples in the SCPCP000006 (n=40) dataset. To do so we will:
 
-• Provide annotations of normal cells composing the kidney, including normal kidney epithelium, endothelium, stroma and immune cells
+- Provide annotations of normal cells composing the kidney, including normal kidney epithelium, endothelium, stroma and immune cells
 
-• Provide annotations of tumor cell populations that may be present in the WT samples, including blastemal, epithelial, and stromal populations of cancer cells
+- Provide annotations of tumor cell populations that may be present in the WT samples, including blastemal, epithelial, and stromal populations of cancer cells
 Based on the provided annotation, we would like to additionally provide a reference of marker genes for the three cancer cell populations, which is so far lacking for the WT community.
 
 The analysis is/will be divided as the following:
 
 - [x] Metadata file: compilation of a metadata file of marker genes for expected cell types that will be used for validation at a later step
 - [x] Script: clustering of cells across a set of parameters for few samples
-- [x] Script: label transfer from the fetal kidney atlas reference using runAzimuth
-- [x] Script: run copykat and inferCNV
+- [x] Script: label transfer from the fetal kidney atlas reference using an Azimuth-adapted approach
+- [x] Script: run `copyKat` and `inferCNV`
 - [x] Notebook: explore results from steps 2 to 4 for about 5 to 10 samples
-- [x] Script: Run inferCNV for all samples
-- [x] Notebook: explore results from step 6, integrate all samples together and annotate the dataset using (i) metadatafile, (ii) CNV information, (iii) label transfer information
+- [x] Script: Run `inferCNV` for all samples
+- [x] Notebook: explore results from step 6 and annotate the dataset using (i) metadata file, (ii) CNV information, (iii) label transfer information
 
 ## Usage
 
@@ -45,7 +45,7 @@ Of note, this requires AWS CLI setup to run as intended: https://openscpca.readt
 ```shell
 ../../download-data.py --projects SCPCP000006
 ```
-This is saving the data in OpenScPCA-analysis/data/current/SCPCP000006
+This is saving the data in `OpenScPCA-analysis/data/current/SCPCP000006`
 
 4. Run the module:
 ```shell
@@ -61,15 +61,15 @@ Some information can be helpful for annotation and validation:
 We expect few changes between the 2 conditions, including a higher immune infiltration and more DNA damages pathways in treated samples.
 
 - histology: the COG classifies Wilms tumor as either (i) Favorable or (ii) Anaplastic.
-Some differenices are expected, some marker genes or pathways are associated with anaplasia (see sets of marker gene).
+Some differences are expected, some marker genes or pathways are associated with anaplasia (see sets of marker gene).
 
 ## Output files
 
 for each of the steps, we have two types of `output`:
 
-- the `notebook` saved in the `notebook` directory, with a subfolder for each sample.
+- the `notebook` saved in the `notebook` directory, with a folder for each sample.
 
-- the created objects saved in `results` directory, with a subfolder for each sample.
+- the created objects saved in `results` directory, with a folder for each sample.
 
 
 # Analysis
@@ -77,9 +77,9 @@ for each of the steps, we have two types of `output`:
 ## Marker sets
 
 We first build a resource for later validation of the annotated cell types.
-We gather from the litterature marker genes and specific genomic alterations that could help us characterizing the Wilms tumor ecosystem, including cancer and non-cancer cells.
+We gather from the literature marker genes and specific genomic alterations that could help us characterizing the Wilms tumor ecosystem, including cancer and non-cancer cells.
 
-### The table CellType_metadata.csv contains the following column and information:
+### The table `CellType_metadata.csv` contains the following column and information:
 
 - "gene_symbol" contains the symbol of the described gene, using the HUGO Gene Nomenclature
 - ENSEMBL_ID contains the stable identifier from the ENSEMBL database
@@ -90,31 +90,31 @@ We gather from the litterature marker genes and specific genomic alterations tha
 
   |gene_symbol|ENSEMBL_ID|cell_class|cell_type|DOI|comment|
   |---|---|---|---|---|---|
-  |WT1|ENSG00000184937|malignant|cancer_cell|10.1242/dev.153163|Tumor_suppressor_WT1_is_lost_in_some_WT_cells|
-  |IGF2|ENSG00000167244|malignant|cancer_cell|10.1038/ng1293-408|NA|
-  |TP53|ENSG00000141510|malignant|anaplastic|10.1158/1078-0432.CCR-16-0985|Might_also_be_in_small_non_anaplastic_subset|
-  |MYCN|ENSG00000134323|malignant|anaplastic|10.18632/oncotarget.3377|Also_in_non_anaplastic_poor_outcome|
-  |MAX|ENSG00000125952|malignant|anaplastic|10.1016/j.ccell.2015.01.002|Also_in_non_anaplastic_poor_outcome|
-  |SIX1|ENSG00000126778|malignant|blastema|10.1016/j.ccell.2015.01.002|NA|
-  |SIX2|ENSG00000170577|malignant|blastema|10.1016/j.ccell.2015.01.002|NA|
-  |CITED1|ENSG00000125931|malignant|blastema|10.1593/neo.07358|Also_in_embryonic_kidney|
-  |PTPRC|ENSG00000081237|immune|NA|10.1101/gr.273300.120|NA|
-  |CD68|ENSG00000129226|immune|myeloid|10.1186/1746-1596-7-12|NA|
-  |CD163|ENSG00000177575|immune|macrophage|10.1186/1746-1596-7-12|NA|
-  |VWF|ENSG00000110799|endothelium|endothelium|10.1134/S1990747819030140|NA|
-  |CD3E|ENSG00000198851|immune|T_cell|10.1101/gr.273300.120|NA|
-  |MS4A1|ENSG00000156738|immune|B_cell|10.1101/gr.273300.120|NA|
-  |FOXP3|ENSG00000049768|immune|T_cell|10.1101/gr.273300.120|Treg|
-  |CD4|ENSG00000010610|immune|T_cell|10.1101/gr.273300.120|NA|
-  |CD8A|ENSG00000153563|immune|T_cell|10.1101/gr.273300.120|NA|
-  |EPCAM|ENSG00000119888|NA|epithelial|10.1016/j.stemcr.2014.05.013|epithelial_malignant_and_non_malignant|
-  |NCAM1|ENSG00000149294|malignant|blastema|10.1016/j.stemcr.2014.05.013|might_also_be_expressed_in_non_malignant|
-  |PODXL|ENSG00000128567|non-malignant|podocyte|10.1016/j.stem.2019.06.009|NA|
-  |COL6A3|ENSG00000163359|malignant|mesenchymal|10.2147/OTT.S256654|might_also_be_expressed_in_non_malignant_stroma|
-  |THY1|ENSG00000154096|malignant|mesenchymal|10.1093/hmg/ddq042|might_also_be_expressed_in_non_malignant_stroma|
+  |`WT1`|`ENSG00000184937`|malignant|cancer_cell|`10.1242/dev.153163`|Tumor_suppressor_WT1_is_lost_in_some_WT_cells|
+  |`IGF2`|`ENSG00000167244`|malignant|cancer_cell|`10.1038/ng1293-408`|NA|
+  |`TP53`|`ENSG00000141510`|malignant|anaplastic|`10.1158/1078-0432.CCR-16-0985`|Might_also_be_in_small_non_anaplastic_subset|
+  |`MYCN`|`ENSG00000134323`|malignant|anaplastic|`10.18632/oncotarget.3377`|Also_in_non_anaplastic_poor_outcome|
+  |`MAX`|`ENSG00000125952`|malignant|anaplastic|`10.1016/j.ccell.2015.01.002`|Also_in_non_anaplastic_poor_outcome|
+  |`SIX1`|`ENSG00000126778`|malignant|blastema|`10.1016/j.ccell.2015.01.002`|NA|
+  |`SIX2`|`ENSG00000170577`|malignant|blastema|`10.1016/j.ccell.2015.01.002`|NA|
+  |`CITED1`|`ENSG00000125931`|malignant|blastema|`10.1593/neo.07358`|Also_in_embryonic_kidney|
+  |`PTPRC`|`ENSG00000081237`|immune|NA|`10.1101/gr.273300.120`|NA|
+  |`CD68`|`ENSG00000129226`|immune|myeloid|`10.1186/1746-1596-7-12`|NA|
+  |`CD163`|`ENSG00000177575`|immune|macrophage|`10.1186/1746-1596-7-12`|NA|
+  |`VWF`|`ENSG00000110799`|endothelium|endothelium|`10.1134/S1990747819030140`|NA|
+  |`CD3E`|`ENSG00000198851`|immune|T_cell|`10.1101/gr.273300.120`|NA|
+  |`MS4A1`|`ENSG00000156738`|immune|B_cell|`10.1101/gr.273300.120`|NA|
+  |`FOXP3`|`ENSG00000049768`|immune|T_cell|`10.1101/gr.273300.120`|Treg|
+  |`CD4`|`ENSG00000010610`|immune|T_cell|`10.1101/gr.273300.120`|NA|
+  |`CD8A`|`ENSG00000153563`|immune|T_cell|`10.1101/gr.273300.120`|NA|
+  |`EPCAM`|`ENSG00000119888`|NA|epithelial|`10.1016/j.stemcr.2014.05.013`|epithelial_malignant_and_non_malignant|
+  |`NCAM1`|`ENSG00000149294`|malignant|blastema|`10.1016/j.stemcr.2014.05.013`|might_also_be_expressed_in_non_malignant|
+  |`PODXL`|`ENSG00000128567`|non-malignant|podocyte|`10.1016/j.stem.2019.06.009`|NA|
+  |`COL6A3`|`ENSG00000163359`|malignant|mesenchymal|`10.2147/OTT.S256654`|might_also_be_expressed_in_non_malignant_stroma|
+  |`THY1`|`ENSG00000154096`|malignant|mesenchymal|`10.1093/hmg/ddq042`|might_also_be_expressed_in_non_malignant_stroma|
 
 
-### The table GeneticAlterations_metadata.csv contains the following column and information:
+### The table `GeneticAlterations_metadata.csv` contains the following column and information:
 
 - alteration contains the number and portion of the affected chromosome
 - gain_loss contains the information regarding the gain or loss of the corresponding genetic alteration
@@ -125,11 +125,11 @@ We gather from the litterature marker genes and specific genomic alterations tha
 
 |alteration|gain_loss|cell_class|cell_type|DOI|PMID|comment
 |---|---|---|---|---|---|---|
-|11p13|loss|malignant|NA|10.1242/dev.153163|NA|NA|
-|11p15|loss|malignant|NA|10.1128/mcb.9.4.1799-1803.1989|NA|NA|
+|11p13|loss|malignant|NA|`10.1242/dev.153163`|NA|NA|
+|11p15|loss|malignant|NA|`10.1128/mcb.9.4.1799-1803.1989`|NA|NA|
 |16q|loss|malignant|NA|NA|1317258|Associated_with_relapse|
 |1p|loss|malignant|NA|NA|8162576|Associated_with_relapse|
-|1q|gain|malignant|NA|10.1016/S0002-9440(10)63982-X|NA|Associated_with_relapse|
+|1q|gain|malignant|NA|`10.1016/S0002-9440(10)63982-X`|NA|Associated_with_relapse|
 
 
 ## workflow description
@@ -152,22 +152,23 @@ The `00_run_workflow.sh` contains the following steps:
 
   - Exploration of clustering, label transfers, marker genes and pathways: `03_clustering_exploration.Rmd` in `notebook_template`
 
-  - CNV inference using [`infercnv`](https://github.com/broadinstitute/inferCNV/wiki) with endothelial and immune cells as reference from either the same patient or a pool of upfront resection Wilms tumor samples: `06_infercnv.R` in `script`
+  - CNV inference using [`inferCNV`](https://github.com/broadinstitute/inferCNV/wiki) with endothelial and immune cells as reference from either the same patient or a pool of upfront resection Wilms tumor samples: `06_inferCNV.R` in `script`
 
 
-While we only selected the `infercnv` method with endothelium and immune cells as normal reference for the main workflow across samples, our  analysis includes an exploration of cnv inference methods based on `copykat` and `infercnv` on a subselection of samples:
-the `script` `explore-cnv-methods.R` calls the independent scripts `05_copyKAT.R` and `06_infercnv.R` for the samples
-		    - "SCPCS000179",
-        - "SCPCS000184",
-        - "SCPCS000194",
-        - "SCPCS000205",
-        - "SCPCS000208".
+While we only selected the `inferCNV` method with endothelium and immune cells as normal reference for the main workflow across samples, our  analysis includes an exploration of CNV inference methods based on `copyKAT` and `inferCNV` on a subset of samples.
+The script `explore-cnv-methods.R` calls the independent scripts `05_copyKAT.R` and `06_inferCNV.R` for these samples:
+  
+  - `SCPCS000179`
+  - `SCPCS000184`
+  - `SCPCS000194`
+  - `SCPCS000205`
+  - `SCPCS000208`
 
 In addition, we explored the results for all samples in one notebook twice during the analysis:
 
 - the notebook `04_annotation_Across_Samples_exploration.Rmd` explored the annotations obtained by label transfer in all samples
 
-- the notebook `07_annotation_Across_Samples_exploration.Rmd` explored the potential of combining label transfer and cnv to finalize the annotation of the Wilms tumor dataset.
+- the notebook `07_annotation_Across_Samples_exploration.Rmd` explored the potential of combining label transfer and CNV to finalize the annotation of the Wilms tumor dataset.
 
 
 For each sample and each of the step, an html report is generated and accessible in the directory `notebook`.
@@ -200,20 +201,20 @@ Here we will use an `Azimuth`-adapted approach to transfer labels from the refer
 ### Input and outputs
 
 We start with the `_process.Rds` data to run `01_seurat-processing.Rmd`.
-The output of `01_seurat-processing.Rmd` is saved in `results` in a subfolder for each sample and is the input of the second step `02a_label-transfer_fetal_full_reference_Cao.Rmd`.
+The output of `01_seurat-processing.Rmd` is saved in `results` in a folder for each sample and is the input of the second step `02a_label-transfer_fetal_full_reference_Cao.Rmd`.
 The output of `02a_label-transfer_fetal_full_reference_Cao.Rmd` is then the input of `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd`.
-Following the same approach, the output of `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd` is the input of `03_clustering_exploration.Rmd` and `06_infercnv.R`.
-The outputs of `06_infercnv.R` `06_infercnv_HMM-i3_{sample_id}_{reference-type}.rds` is finally the input of `07_combined_annotation_across_samples_exploration.Rmd`, which produces a TSV with annotations in `results/SCPCP000006-annotations.tsv `.
+Following the same approach, the output of `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd` is the input of `03_clustering_exploration.Rmd` and `06_inferCNV.R`.
+The outputs of `06_inferCNV.R` `06_inferCNV_HMM-i3_{sample_id}_{reference-type}.rds` is finally the input of `07_combined_annotation_across_samples_exploration.Rmd`, which produces a TSV with annotations in `results/SCPCP000006-annotations.tsv `.
 
 
 All inputs/outputs generated and used in the main workflow are saved in the `results/{sample_id}` folder.
-Results in subfolders such as `results/{sample_id}/05_copyKAT` or `results/{sample_id}/06_infercnv` have been obtained for a subselection of samples in the exploratory analysis, and are thus kept separated from the results of the main workflow.
+Results in folders such as `results/{sample_id}/05_copyKAT` or `results/{sample_id}/06_inferCNV` have been obtained for a subset of samples in the exploratory analysis, and are thus kept separated from the results of the main workflow.
 
-At the end of the workflow, we have a `Seurat`object that contains:
+At the end of the workflow, we have a `Seurat` object that contains:
 - normalization and clustering, dimensional reductions
 - label transfer from the fetal full reference
 - label transfer from the fetal kidney reference
-- cnv predictions using `infercnv`
+- CNV predictions using `inferCNV`
 
 ## Software requirements
 
