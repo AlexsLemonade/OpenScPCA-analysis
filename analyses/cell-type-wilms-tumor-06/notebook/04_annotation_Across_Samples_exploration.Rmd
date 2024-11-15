@@ -155,7 +155,7 @@ The report will be saved in the `notebook` directory.
 
 
 
-#### do_Feature_mean
+#### `do_Feature_mean`
 
 `do_Feature_mean` shows a heatmap of mean expression of a feature grouped by a metadata.
 
@@ -183,7 +183,7 @@ do_Feature_mean <- function(df, group.by, feature) {
 ```
 
 
-#### do_Feature_boxplot
+#### `do_Feature_boxplot`
 
 `do_Feature_boxplot` shows boxplot of expression of a feature grouped by a metadata.
 
@@ -214,7 +214,7 @@ do_Feature_boxplot <- function(df, group.by, feature, split.by) {
 }
 ```
 
-#### do_Feature_densityplot
+#### `do_Feature_densityplot`
 
 `do_Feature_densityplot` shows boxplot of expression of a feature grouped by a metadata.
 
@@ -387,7 +387,7 @@ DT::datatable(compartment_df,
 
 ### Label transfer predicted.score for the four compartments
 
-The vertical line drawn correspods to the threshold explored in the notebook.
+The vertical line drawn corresponds to the threshold explored in the notebook.
 
 ```{r fig.height=5, fig.width=10, message=FALSE, warning=FALSE, out.width='100%'}
 p <- do_Feature_densityplot(
@@ -573,9 +573,9 @@ do_Feature_boxplot(
   ggtitle("boxplot of PTPRC expression for all cells")
 ```
 
-### Umap reduction
+### UMAP reduction
 
-We look at the umap reduction per sample.
+We look at the UMAP reduction per sample.
 
 #### All cells
 

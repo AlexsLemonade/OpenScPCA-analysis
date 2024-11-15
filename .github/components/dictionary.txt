@@ -193,6 +193,7 @@ SCE
 ScPCA
 SCPCP
 scRNA
+scRNAseq
 scrublet
 SEACells
 SemVar
