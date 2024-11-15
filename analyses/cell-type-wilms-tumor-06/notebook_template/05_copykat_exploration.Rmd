@@ -1,5 +1,5 @@
 ---
-title: "Copykat CNV results exploration for `r params$sample_id`"
+title: "CopyKAT CNV results exploration for `r params$sample_id`"
 author: "Maud PLASCHKA"
 date: "`r Sys.Date()`"
 params:
@@ -257,7 +257,7 @@ ggplot(cnv_df, aes(x = mean_cnv_detection, color = copykat.pred)) +
 
 From the heatmap of CNV and the mean CNV detection plots, there does not appear to be any pattern that drives the identification of aneuploid cells. 
 The assignment of the aneuploidy/diploidy value might relies on very few CNV and/or an arbitrary threshold. 
-This might be why the assignement of aneuploidy/diploidy values differs between condition (and between runs!!).
+This might be why the assignment of aneuploidy/diploidy values differs between condition (and between runs!!).
 
 
 ## Session Info

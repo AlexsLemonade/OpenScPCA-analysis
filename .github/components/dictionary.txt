@@ -51,6 +51,7 @@ demultiplexing
 dendogram
 derangements
 designee
+diploidy
 discoverable
 DM
 DNT
