@@ -82,7 +82,7 @@ Based on the above slots, it would be straightforward to extract info of interes
 
 In addition, for the condition `reference = "both"`, we ran `infercnv` with `HMM = TRUE`.
 [HMM CNV prediction methods](https://github.com/broadinstitute/infercnv/wiki/inferCNV-HMM-based-CNV-Prediction-Methods) will allow us to explore the CNV results better, with an easy [merge](https://github.com/broadinstitute/infercnv/wiki/Extracting-features) of `infercnv` result with the `Seurat` object.
-However, HMM CNV prediction methods uses a lot of resources, including time (~2h/sample/condition), and often casues the R session to crash.
+However, HMM CNV prediction methods uses a lot of resources, including time (~2h/sample/condition), and often causes the R session to crash.
 This is why we only ran the HMM model for one `reference` condition. After selection of the best reference to use, we will run it for all samples.
 
 

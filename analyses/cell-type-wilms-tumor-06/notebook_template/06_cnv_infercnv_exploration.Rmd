@@ -380,7 +380,7 @@ The risk is that the main cell population (in our case the fetal nephron compart
 
 ### Summary CNV score
 
-We want to calculate a single CNV score and asesss if/how it can be use to define cells with CNV versus stable/normal cells. 
+We want to calculate a single CNV score and assess if/how it can be used to define cells with CNV versus stable/normal cells. 
 We defined the score as described in the [biostar discussion](https://www.biostars.org/p/9573777/).
 
 We would expect:
