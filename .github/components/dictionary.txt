@@ -201,6 +201,7 @@ seq
 SingleR
 snRNA
 socio
+spearman
 SSO
 stroma
 stromal
