@@ -1,5 +1,5 @@
 ---
-title: "Performing and evaluating graph-based clustering with rOpenScPCA"
+title: "Performing graph-based clustering with rOpenScPCA"
 date: "`r Sys.Date()`"
 author: "Data Lab"
 params:
@@ -13,19 +13,19 @@ output:
 
 ## Introduction
 
-This notebook provides examples of how to use the `rOpenScPCA` package to:
+This notebook provides examples of how to use functions in `rOpenScPCA` that:
 
-- Perform clustering
-- Evaluate clustering results using several metrics, including:
-  - Silhouette width
-  - Neighborhood purity
-  - Cluster stability, as measured with the Adjusted Rand Index
-- Save clustering results
+* Perform clustering
+* Calculate QC metrics on clustering including:
+  * Silhouette width
+  * Neighborhood purity
+  * Cluster stability, as measured with the Adjusted Rand Index
+* Calculate QC metrics obtained with other tools, such as `Seurat`
+* Save clustering results to an SCE or `Seurat`
 
-While this notebook does demonstrate how to use individual functions that evaluate a single clustering result, a full clustering evaluation would entail comparison these metrics across different clusterings from different parameterizations.
+While this notebook demonstrates how to use individual functions that calculate helpful metrics for evaluating clustering results, a full evaluation would compare these metrics across different clusterings from different parameterizations.
 
-
-To demonstrate these tasks, this notebook will use the sample `SCPCS000001` from project `SCPCP000001`, which is assumed present in the `OpenScPCA-analysis/data/current/SCPCP000001` directory.
+This notebook will use the sample `SCPCS000001` from project `SCPCP000001`, which is assumed present in the `OpenScPCA-analysis/data/current/SCPCP000001` directory, for all examples.
 Please [see this documentation](https://openscpca.readthedocs.io/en/latest/getting-started/accessing-resources/getting-access-to-data/) for more information about obtaining ScPCA data.
 
 ## Setup
@@ -40,11 +40,7 @@ suppressPackageStartupMessages({
   library(SingleCellExperiment)
   library(Seurat)
   library(dplyr)
-  library(ggplot2)
 })
-
-# Set ggplot theme
-theme_set(theme_bw())
 ```
 
 ### Set the random seed
@@ -76,32 +72,42 @@ input_sce_file <- file.path(data_dir, "SCPCP000001", "SCPCS000001", "SCPCL000001
 ```
 
 
-### Read in data
+## Read in and prepare data
 
 To begin, we'll read in the `SingleCellExperiment` (SCE) object.
+We'll also establish a corresponding processed Seurat object from its raw counts that we'll use for some examples.
 
 ```{r read data}
 # Read the SCE file
 sce <- readRDS(input_sce_file)
 ```
 
+```{r create process seurat, message = FALSE}
+# Convert to a Seurat object
+seurat_obj <- CreateSeuratObject(counts = counts(sce), assay = "RNA")
+
+# Process the object with a Seurat pipeline to obtain clusters
+seurat_obj <- seurat_obj |>
+  SCTransform() |>
+  RunPCA() |>
+  FindNeighbors() |>
+  FindClusters()
+```
+
+
 We'll also extract its PCA matrix, which we'll use to demonstrate how to calculate and evaluate clusters.
+We'll show how to do this for both SCE and Seurat objects:
 
 
 ```{r extract pca data}
-# Extract the PCA matrix
+# Extract the PCA matrix from an SCE object
+# Moving forward, we'll use this version for most examples
 pca_matrix <- reducedDim(sce, "PCA")
+
+
+# Extract the PCA matrix from a Seurat object
+seurat_pca_matrix <- Embeddings(seurat_obj, reduction = "pca")
 ```
-
-If you are working with a Seurat object, you can extract the PCA matrix like this:
-
-```{r convert to seurat}
-# First, convert the SCE to a Seurat object for demonstration
-
-
-# Here, the PCA matrix has the same name as a
-```
-
 
 ## Perform clustering
 
@@ -143,7 +149,7 @@ Parameters used for clustering can be customized with these arguments:
 * The nearest neighbors parameter can be customized with the `nn` argument
 * The resolution parameter can be customized with the `resolution` argument
   * This parameter is only used by Louvain and Leiden algorithms
-* If the Leiden algorithm is used, its default objective function parameter will be `CPM`, but you can also set  `objective_function = "modularity` instead.
+* If the Leiden algorithm is used, its default objective function parameter will be `CPM`, but you can also set  `objective_function = "modularity"` instead.
 * You can provide additional parameters as a list to the `cluster_args` argument.
   * Please refer to the [`igraph` documentation](https://igraph.org/r/html/latest) to learn more about what additional parameters can be provided to each clustering algorithm.
   * Note that `cluster_args` only accepts single-length arguments (no vectors or lists).
@@ -164,7 +170,7 @@ cluster_results_df
 ```
 
 
-## Evaluate clustering results
+## Calculate QC metrics on clusters
 
 This section demonstrates how to use several functions for evaluating cluster quality and reliability. 
 It's important to note that a full evaluation of clustering results would compare these metrics across a set of clustering results, with the aim of identifying an optimal parameterization.
@@ -251,7 +257,7 @@ This function will return a data frame with columns `replicate`, `ari`, and addi
 ```{r stability, warning=FALSE}
 # calculate the stability of clusters
 stability_results <- calculate_stability(
-  sce,
+  pca_matrix,
   cluster_results_df
 )
 
@@ -268,7 +274,7 @@ If your original clusters were not calculated with these defaults, you should pa
 ```{r stability custom parameters}
 # Calculate clusters with non-default parameters
 cluster_df_leiden <- calculate_clusters(
-  sce,
+  pca_matrix,
   algorithm = "leiden",
   resolution = 0.5,
   nn = 15
@@ -276,7 +282,7 @@ cluster_df_leiden <- calculate_clusters(
 
 # Now, pass in the same arguments customizing parameters here
 stability_results_leiden <- calculate_stability(
-  sce,
+  pca_matrix,
   cluster_df_leiden,
   algorithm = "leiden",
   resolution = 0.5,
@@ -288,46 +294,34 @@ stability_results_leiden
 
 
 
-## Evaluating pre-calculated clusters
+##  Calculate QC metrics on existing clusters
 
 Even if you perform clustering with other tools, you can still use the `rOpenScPCA` functions to evaluate your clusters.
-For example, if you are analyzing your data with a Seurat pipeline, you might also calculate clusters with Seurat, and you can evaluate those with `rOpenScPCA`.
-In addition, ScPCA data already contains a column called `cluster` with results from an automated clustering.
 
-
-In this section, we'll present how you can calculate the silhouette width and neighborhood purity from existing cluster assignments.
-
+In this section, we'll present examples of how you can calculate the silhouette width, neighborhood purity, and cluster stability from existing cluster assignments.
 
 ### Evaluating Seurat clusters
 
-First, we'll prepare a Seurat object and perform clustering for demonstration:
+If you are analyzing your data with a Seurat pipeline that includes calculating clusters, you can use `rOpenScPCA` to evaluate them.
+We previously created a Seurat object called `seurat_obj` with clusters:
 
-```{r process seurat object}
-# Convert to a Seurat object
-seurat_obj <- CreateSeuratObject(counts = counts(sce), assay = "RNA")
 
-# Process the object with a Seurat pipeline to obtain clusters
-seurat_obj <- seurat_obj |>
-  SCTransform() |>
-  RunPCA() |>
-  FindNeighbors(dims = 1:30) |>
-  FindClusters()
-
-# Print resulting clusters
+```{r show seurat clusters}
 head(seurat_obj$seurat_clusters)
 ```
 
-
-Next, we'll prepare inputs for `rOpenScPCA` functions:
+To calculate QC metrics on these clusters, we'll need two pieces of information:
 
 - The PCA matrix
 - A data frame with columns `cell_id` and `cluster`
 
+We'll create those here:
+
 ```{r prepare seurat input}
-# Extract the PCA matrix
+# Extract the PCA matrix from the Seurat object
 seurat_pca_matrix <- Embeddings(seurat_obj, reduction = "pca")
 
-# Create a data frame
+# Create a data frame for input
 seurat_cluster_df <- data.frame(
   cell_id = names(seurat_obj$seurat_clusters),
   cluster = seurat_obj$seurat_clusters
@@ -356,9 +350,18 @@ We do not recommend using `rOpenScPCA::calculate_stability()` on Seurat clusters
 
 ### Evaluating ScPCA clusters
 
-First, you should prepare a data frame two columns: `cell_id` containing cell barcodes, and `cluster` containing the cluster identities.
+ScPCA cell metadata already contains a column called `cluster` with results from an automated clustering. 
+These clusters were calculated using `bluster`, the same tool that `rOpenScPCA` uses, with the following parameters:
 
-```{r}
+* The Louvain algorithm
+* Jaccard weighting
+* 20 nearest neighbors
+
+In this example, we'll show how to use the cluster evaluation functions on these clusters.
+
+To begin, we'll prepare a data frame with two columns: `cell_id` containing cell barcodes, and `cluster` containing the cluster identities.
+
+```{r prepare scpca data frame}
 scpca_cluster_df <- data.frame(
   cell_id = colnames(sce),
   cluster = colData(sce)$cluster
@@ -367,29 +370,31 @@ scpca_cluster_df <- data.frame(
 scpca_cluster_df
 ```
 
-Then, you can proceed to run evaluation functions using this data frame, and the PCA matrix from the object.
+We can run evaluation functions using this data frame and the PCA matrix from the object.
 
-```{r}
+```{r scpca silhouette}
 # Calculate silhouette width
 scpca_silhouette_df <- calculate_silhouette(pca_matrix, scpca_cluster_df)
 scpca_silhouette_df
+```
 
+```{r scpca purity}
 # Calculate neighborhood purity
 scpca_purity_df <- calculate_purity(pca_matrix, scpca_cluster_df)
 scpca_purity_df
 ```
 
-When running `calculate_stability()`, it is important to specify the same parameters originally used to build the clusters:
+When running `calculate_stability()`, we'll specify the same parameters originally used to build the clusters.
+We only recommend evaluating clusters with `calculate_stability()` if you know the original parameters used.
 
-```{r}
+```{r scpca stability}
 scpca_stability_df <- calculate_stability(
   pca_matrix,
   scpca_cluster_df,
   # provide ScPCA clustering parameters
   algorithm = "louvain",
   weighting = "jaccard",
-  nn = 20,
-  resolution = 1
+  nn = 20
 )
 scpca_stability_df
 ```
@@ -400,48 +405,53 @@ scpca_stability_df
 
 As presented above, `rOpenScPCA` clustering functions take a PCA matrix with row names representing unique cell ids as their first argument.
 
-Instead of a matrix, you can alternatively pass in an SCE or Seurat object that contains PCs.
-For example:
+Instead of a matrix, you can alternatively pass in an SCE or Seurat object that contains a matrix.
+We show examples of this below with `rOpenScPCA::calculate_clusters()`, but this will also work for any of the evaluation functions as well:
 
-```{r}
+```{r run on sce}
 # Calculate clusters from an SCE object using default parameters
 cluster_results_df <- calculate_clusters(sce)
-
-# Calculate clusters from a Seurat object using default parameters
-cluster_results_df <- calculate_clusters(seurat_obj)
+cluster_results_df
 ```
 
 
-`rOpenScPCA` assumes that the PCA matrix is named `PCA` in SCE objects, and `pca` in Seurat objects.
+```{r run on seurat}
+# Calculate clusters from a Seurat object using default parameters
+cluster_results_df <- calculate_clusters(seurat_obj)
+cluster_results_df
+```
+
+
+`rOpenScPCA` assumes that the PCA matrix is named `PCA` in SCE objects, and `pca` in Seurat objects (as they were in the above examples).
 If the PCA matrix you want to use in the object has a different name, you can provide the argument `pc_name`.
-For example:
+We can see this below with an SCE object, for example:
 
 ```{r}
 # First, we'll rename the PCA matrix for demonstration
 reducedDimNames(sce) <- c("PCA_matrix", "UMAP")
+reducedDimNames(sce)
 
 # Calculate clusters from an SCE object using default parameters
 cluster_results_df <- calculate_clusters(
   sce,
   pc_name = "PCA_matrix"
 )
+cluster_results_df
 ```
-
-
 
 
 
 ## Saving clustering results 
 
 Results can either be directly exported as a TSV file (e.g., with `readr::write_tsv()`), or you can add the results into your SCE or Seurat object.
-The subsequent examples will show you, as an example, how to save the `cluster_results_df` data frame to a given object.
-
+The subsequent examples will show you how to save the `cluster_results_df` data frame to an SCE and a Seurat object.
 
 _A word of caution!_
 Objects from the ScPCA Portal already contain a column called `cluster` with results from an automated clustering.
 These automatic clusters were not evaluated, and their parameters were not optimized for any given library.
 
 To avoid ambiguity between the existing and new clustering results, you may want to rename incoming columns.
+
 We'll therefore begin by adding the prefix `ropenscpca_` to all column names in the `cluster_results_df` data frame before adding them to a given object.
 
 ```{r rename columns}
@@ -463,21 +473,20 @@ Follow these steps to save the clustering results to an SCE object's `colData`:
 sce_coldata <- colData(sce) |>
   as.data.frame()
 
-# Third, add columns as desired using the barcodes and cell_id columns to join
+# Second, add columns as desired using the barcodes and cell_id columns to join
 sce_coldata <- sce_coldata |>
   dplyr::left_join(
     cluster_results_renamed_df,
     by = c("barcodes" = "ropenscpca_cell_id")
   )
 
-# Finally, add the modified colData back into the SCE
+# Third, add the modified colData back into the SCE
 # Use the row.names argument to ensure rownames (barcodes) are retained; don't forget this step!
 colData(sce) <- DataFrame(
   sce_coldata,
   row.names = sce_coldata$barcodes
 )
 
-# Print updated colData slot
 colData(sce)
 ```
 
