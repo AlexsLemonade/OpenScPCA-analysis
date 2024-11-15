@@ -16,11 +16,11 @@ output:
 This notebook provides examples of how to use functions in `rOpenScPCA` that:
 
 * Perform clustering
-* Calculate QC metrics on clustering including:
+* Calculate QC metrics on clusters, including:
   * Silhouette width
   * Neighborhood purity
   * Cluster stability, as measured with the Adjusted Rand Index
-* Calculate QC metrics obtained with other tools, such as `Seurat`
+* Calculate QC metrics on clusters obtained with other tools, such as `Seurat`
 * Save clustering results to an SCE or `Seurat`
 
 While this notebook demonstrates how to use individual functions that calculate helpful metrics for evaluating clustering results, a full evaluation would compare these metrics across different clusterings from different parameterizations.
