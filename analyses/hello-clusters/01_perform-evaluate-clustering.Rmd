@@ -401,7 +401,7 @@ scpca_stability_df
 
 
 
-### Working with objects directly
+## Working with objects directly
 
 As presented above, `rOpenScPCA` clustering functions take a PCA matrix with row names representing unique cell ids as their first argument.
 
