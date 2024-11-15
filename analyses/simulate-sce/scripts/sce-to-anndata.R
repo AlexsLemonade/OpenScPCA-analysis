@@ -6,7 +6,8 @@
 
 # The AnnData objects being exported by this script is formatted to fit CZI schema: 3.0.0
 
-# adapted from https://github.com/AlexsLemonade/scpca-nf/blob/8bef82d853d19e5aeddd75401aa54cf8bfbced13/bin/sce_to_anndata.R
+# adapted from https://github.com/AlexsLemonade/scpca-nf/blob/v0.8.5/bin/sce_to_anndata.R
+# changed to work on a directory of files instead of a single file
 
 
 library(optparse)
@@ -43,13 +44,19 @@ outfile_name <- function(sce_filename, feature) {
   return(feature_filename)
 }
 
+pca_metafile_name <- function(sce_filename) {
+  # create the pca table file name for each feature
+  pca_filename <- stringr::str_replace(sce_filename, ".rds$", "_pca.tsv")
+  return(pca_filename)
+}
+
 # Merged object function  ------------------------------------------------------
 
 
 format_merged_sce <- function(sce) {
   # this function updates merged object formatting for anndata export
   # paste X to any present reduced dim names
-  reducedDimNames(sce) <- glue::glue("X_{reducedDimNames(sce)}")
+  reducedDimNames(sce) <- glue::glue("X_{tolower(reducedDimNames(sce))}")
   return(sce)
 }
 
@@ -105,7 +112,7 @@ format_czi <- function(sce) {
   rowData(sce)$feature_is_filtered <- FALSE
 
   # paste X to any present reduced dim names
-  reducedDimNames(sce) <- glue::glue("X_{reducedDimNames(sce)}")
+  reducedDimNames(sce) <- glue::glue("X_{tolower(reducedDimNames(sce))}")
 
   return(sce)
 }
@@ -114,10 +121,6 @@ format_czi <- function(sce) {
 convert_sce_file <- function(sce_file) {
   # read in sce
   sce <- readr::read_rds(sce_file)
-
-  # grab sample metadata
-  # we need this if we have any feature data that we need to add it o
-  sample_metadata <- metadata(sce)$sample_metadata
 
   # make main sce czi compliant for single objects, or format merged objects
   sce <- format_czi(sce)
@@ -130,6 +133,18 @@ convert_sce_file <- function(sce_file) {
     anndata_file = outfile_name(sce_file, "rna"),
     compression = "gzip"
   ) |> suppressMessages() # suppress notes about metadata conversion
+
+  # Get PCA metadata for AnnData
+  if ("X_pca" %in% reducedDimNames(sce)) {
+    pca_meta_df <- data.frame(
+      PC = 1:ncol(reducedDims(sce)$X_pca),
+      variance = attr(reducedDims(sce)$X_pca, "varExplained"),
+      variance_ratio = attr(reducedDims(sce)$X_pca, "percentVar") / 100
+    )
+
+    # write pca to tsv
+    readr::write_tsv(pca_meta_df, pca_metafile_name(sce_file))
+  }
 
   # convert altExps to AnnData
   altExpNames(sce) |>
