@@ -45,18 +45,16 @@ The analysis can be summarized as the following:
 
 _Where `cnv.thr` and `pred.thr` need to be discussed_
 
-
-first   level annotation | second level   annotation | selection of   the cells | marker genes   for validation | cnv validation
--- | -- | -- | -- | --
-normal | endothelial | compartment == "endothelium"     & predicted.score > pred.thr     & cnv_score < cnv.thr | WVF | no   cnv
-normal | immune | compartment == "immune"     & predicted.score > pred.thr     & cnv_score < cnv.thr | PTPRC, CD163, CD68 | no cnv
-normal | kidney | cell_type %in% c("kidney cell",   "kidney epithelial", "podocyte")     & predicted.score > pred.thr     & cnv_score < cnv.thr | CDH1, PODXL, LTL | no cnv
-normal | stroma | compartment == "stroma"     & predicted.score > pred.thr     & cnv_score < cnv.thr | VIM | no cnv
-cancer | stroma | compartment == "stroma"     & cnv_score > cnv.thr | VIM | proportion_cnv_chr     -1     -4     -11     -16     -17     -18
-cancer | blastema | compartment ==   "fetal_nephron"     & cell_type == "mesenchymal cell"     & cnv_score > cnv.thr | CITED1 | proportion_cnv_chr     -1     -4     -11     -16     -17     -18
-cancer | epithelial | compartment ==   "fetal_nephron"     & cell_type != "mesenchymal cell"     & cnv_score > cnv.thr | CDH1 | proportion_cnv_chr     -1     -4     -11     -16     -17     -18
-unknown | - | the rest of the cells | - | proportion_cnv_chr     -1     -4     -11     -16     -17     -18
-
+| first level annotation | second level annotation | selection of the cells | marker genes for validation | CNV validation |
+| ---------------------- | ----------------------- | ---------------------- | --------------------------- | --------------- |
+| normal                 | endothelial             | `compartment == "endothelium" & predicted.score > pred.thr  & cnv_score < cnv.thr` | `VWF`| no CNV |
+| normal                 | immune                  | `compartment == "immune" & predicted.score > pred.thr & cnv_score < cnv.thr` | `PTPRC`, `CD163`, `CD68`| no CNV |
+| normal                 | kidney                  | `cell_type %in% c("kidney cell","kidney epithelial", "podocyte") & predicted.score > pred.thr & cnv_score < cnv.thr` | `CDH1`, `PODXL`, `LTL`| no CNV |
+| normal                 | stroma                  | `compartment == "stroma" & predicted.score > pred.thr & cnv_score < cnv.thr`| `VIM`| no CNV |
+| cancer                 | stroma                  | `compartment == "stroma" & cnv_score > cnv.thr` | `VIM`| `proportion_cnv_chr: 1, 4, 11, 16, 17, 18` |
+| cancer                 | blastema                | `compartment == "fetal_nephron" & cell_type == "mesenchymal cell" & cnv_score > cnv.thr`  | `CITED1`| `proportion_cnv_chr: 1, 4, 11, 16, 17, 18` |
+| cancer                 | epithelial              | `compartment == "fetal_nephron" & cell_type != "mesenchymal cell" & cnv_score > cnv.thr`  | `CDH1`| `proportion_cnv_chr: 1, 4, 11, 16, 17, 18` |
+| unknown                | -                       | the rest of the cells  | -  | -|
 
 
 ### Packages
@@ -284,7 +282,7 @@ do_Feature_mean <- function(df, group.by, feature) {
 
 ## Analysis
 
-### Global cnv score
+### Global CNV score
 
 As done in `06_cnv_infercnv_exploration.Rmd`, we calculate  single CNV score and assess its potential in identifying cells with CNV versus normal cells without CNV.
 
@@ -311,14 +309,14 @@ table(cell_type_df$has_cnv_score)
 
 At first, we like to indicate in the `first.level_annotation` if a cell is normal, cancer or unknown.
 
-- _normal_ cells can be observe in all four compartments (`endothelium`, `immune`, `stroma` or `fetal nephron`) and do not have cnv.
-We only allow a bit of flexibility in terms of cnv profile for immune and endothelium cells that have a high predicted score.
-Indeed, we know that false positive cnv can be observed in a cell type specific manner.
+- _normal_ cells can be observe in all four compartments (`endothelium`, `immune`, `stroma` or `fetal nephron`) and do not have CNV
+We only allow a bit of flexibility in terms of CNV profile for immune and endothelium cells that have a high predicted score.
+Indeed, we know that false positive CNV can be observed in a cell type specific manner.
 
 The threshold used for the `predicted.score` is defined as a parameter of this notebook as `r params$predicted.celltype.threshold`.
-The threshold used for the identification of cnv is also defined in the params of the notebook as `r params$cnv_threshold`.
+The threshold used for the identification of CNV is also defined as the notebook parameter `r params$cnv_threshold`.
 
-- _cancer_ cells are either from the `stroma` or `fetal nephron` compartments and must have at least few cnv.
+- _cancer_ cells are either from the `stroma` or `fetal nephron` compartments and must have at least few CNV
 
 
 
@@ -366,7 +364,7 @@ Wilms tumor cancer cells can be:
 - _cancer stroma_: We define as _cancer stroma_ all cancer cells from the stroma compartment.
 
 
-- _blastema_,: we defined as _bastema_ every cancer cell that has a `fetal_kidney_predicted.cell_type == mesenchymal cell`.
+- _blastema_,: we defined as _blastema_ every cancer cell that has a `fetal_kidney_predicted.cell_type == mesenchymal cell`.
 We know that these _mesenchymal_ cells are cells from the cap mesenchyme that are not expected to be in a mature kidney.
 These blastema cells should express higher _CITED1_.
 
@@ -434,7 +432,7 @@ ggplot(cell_type_df, aes(x = umap.umap_1, y = umap.umap_2, color = second.level_
   theme(text = element_text(size = 22))
 ```
 
-### Validation cancer versus normal based on the cnv profile
+### Validation cancer versus normal based on the CNV profile
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 for (i in 1:22) {
@@ -444,64 +442,64 @@ for (i in 1:22) {
 
 ### Validation of second level annotation using marker genes
 
-#### Immune, _PTPRC_ expression
+#### Immune, `PTPRC` expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = "ENSG00000081237")
 ```
 
-#### Endothelium, _VWF_ expression
+#### Endothelium, `VWF` expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = "ENSG00000110799")
 ```
 
-#### Stroma, _Vimentin_ expression
+#### Stroma, `Vimentin` expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = "ENSG00000026025")
 ```
 
-#### Stroma, _COL6A3_ expression
+#### Stroma, `COL6A3` expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = "ENSG00000163359")
 ```
 
 
-#### Stroma, _THY1_ expression
+#### Stroma, `THY1` expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = "ENSG00000154096")
 ```
 
-#### Blastema, _CITED1_ expression
+#### Blastema, `CITED1` expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = "ENSG00000125931")
 ```
 
 
-#### Blastema, _NCAM1_ expression
+#### Blastema, `NCAM1` expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = "ENSG00000149294")
 ```
 
-#### stemness marker (blastema and primitive epithelium), _SIX2_ expression
+#### stemness marker (blastema and primitive epithelium), `SIX2` expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = "ENSG00000170577")
 ```
 
-#### Epithelium, _CDH1_ expression
+#### Epithelium, `CDH1` expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = "ENSG00000039068")
 ```
 
 
-#### Epithelium, _PODXL_ expression
+#### Epithelium, `PODXL` expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = "ENSG00000128567")
@@ -545,20 +543,20 @@ length(unique(annotations_table$scpca_sample_id))
 
 - Combining label transfer and CNV inference we have produced draft annotations for all 40 Wilms tumor samples in SCPCP000006
 
-- The heatmaps of cnv proportion and marker genes support our annotations, but signals with some marker genes are very low.
+- The heatmaps of CNV proportion and marker genes support our annotations, but signals with some marker genes are very low.
 Also, there is no universal marker for each entity of Wilms tumor that cover all tumor cells from all patient.
 This makes the validation of the annotations quite difficult.
 
 - However, we could try to take the problem from the other side, and used the current annotation to perform differential expression analysis and try to find marker genes that are consistent across patient and Wilms tumor histologies.
 
 - In each histology (i.e. epithelial and stroma), the distinction between cancer and non cancer cell is difficult (as expected).
-In this analysis, we suggested to rely on the cnv score to assess the normality of the cell.
+In this analysis, we suggested to rely on the CNV score to assess the normality of the cell.
 Here again, we could try to run differential expression analysis and compare epithelial (resp. stroma) cancer versus non-cancer cells across patient, aiming to find a share transcriptional program allowing the classification cancer versus normal.
 
 - In our annotation, we haven't taken into account the favorable/anaplastic status of the sample.
-However, as anaplasia can occur in every (but do not has to) wilms tumor histology, I am not sure how to integrate the information into the annotation.
+However, as anaplasia can occur in every (but do not has to) Wilms tumor histology, I am not sure how to integrate the information into the annotation.
 
-- This notebook could be finally rendered using different parameters, i.e. threshold for the cnv score and predicted score to use.
+- This notebook could be finally rendered using different parameters, i.e. threshold for the CNV score and predicted score to use.
 
 ## Session Info
 
