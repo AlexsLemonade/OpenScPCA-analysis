@@ -426,7 +426,7 @@ cluster_results_df
 If the PCA matrix you want to use in the object has a different name, you can provide the argument `pc_name`.
 We can see this below with an SCE object, for example:
 
-```{r}
+```{r use pc_name}
 # First, we'll rename the PCA matrix for demonstration
 reducedDimNames(sce) <- c("PCA_matrix", "UMAP")
 reducedDimNames(sce)
