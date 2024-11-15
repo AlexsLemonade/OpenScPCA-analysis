@@ -29,6 +29,7 @@ Cao
 Carpentries
 CellAssign
 CELLxGENE
+chemotherapies
 chondrocytes
 chr
 CLI
@@ -164,6 +165,7 @@ PDX
 peritubular
 pluripotent
 PMID
+PNG
 podman
 podocyte
 Posit
@@ -178,6 +180,7 @@ README
 redistribution
 redistributions
 renv
+repartition
 repo
 reproducibility
 reproducibly
