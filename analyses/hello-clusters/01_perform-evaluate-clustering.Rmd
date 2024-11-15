@@ -2,8 +2,6 @@
 title: "Performing graph-based clustering with rOpenScPCA"
 date: "`r Sys.Date()`"
 author: "Data Lab"
-params:
-  seed: 2024
 output: 
   html_notebook: 
     toc: yes
@@ -48,7 +46,7 @@ suppressPackageStartupMessages({
 Because clustering involves random sampling, it is important to set the random seed at the top of your analysis script or notebook to ensure reproducibilty.
 
 ```{r set seed}
-set.seed(params$seed)
+set.seed(2024)
 ```
 
 ### Paths
