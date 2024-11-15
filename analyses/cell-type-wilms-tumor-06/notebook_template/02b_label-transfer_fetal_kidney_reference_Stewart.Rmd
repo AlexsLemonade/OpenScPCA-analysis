@@ -233,7 +233,7 @@ f2 <- SCpubr::do_BarPlot(
 
 Note:
 
-For some reason, the "cap-mesenchyme cells" has been renamed in cellxgene in "mesenchymal cells". 
+For some reason, the "cap-mesenchyme cells" has been renamed in CELLxGENE as "mesenchymal cells". 
 
 The cap mesenchyme is a cap of condensed metanephric mesenchyme, comprised of cells which epithelialize and sequentially form the pretubular aggregate (PA), renal vesicle (RV), C-, and S-shaped bodies, and finally the mature nephron. 
 The CM contains nephron progenitor cells.

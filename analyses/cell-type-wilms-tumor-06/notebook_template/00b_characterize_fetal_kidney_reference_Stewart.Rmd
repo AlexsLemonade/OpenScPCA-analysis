@@ -32,7 +32,7 @@ knitr::opts_chunk$set(
 
 The aim is to characterize the human fetal kidney from the kidney cell atlas.
 You can find more about the human kidney atlas here: https://www.kidneycellatlas.org/ [1]
-The rds data can be download using the download link https://datasets.cellxgene.cziscience.com/40ebb8e4-1a25-4a33-b8ff-02d1156e4e9b.rds
+The rds data can be download using the download link: <https://datasets.cellxgene.cziscience.com/40ebb8e4-1a25-4a33-b8ff-02d1156e4e9b.rds>.
 The reference was downloaded and created in the script `scripts/prepare-fetal-references.R`.
 
 ## Packages
@@ -61,13 +61,13 @@ module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06"
 
 ## Input files
 
-The input file `r params$fetal_kidney_path` is the output of the `R script` `prepare-fetal-references.R`.
+The input file `r params$fetal_kidney_path` is the output of the script `prepare-fetal-references.R`.
 
 
 ## Output file
 
-We will save the result of the differential expression analysis in results/references/00b_marker_genes_fetal_kidney_Stewart.csv
-Notebook is saved in the `notebook/00-reference` directory
+We will save the result of the differential expression analysis in `results/references/00b_marker_genes_fetal_kidney_Stewart.csv`.
+Notebook is saved in the `notebook/00-reference` directory.
 
 ```{r path_to_output}
 path_to_output <- file.path(module_base, "results", "references")
@@ -92,9 +92,9 @@ Here, we use an unbiased approach to find transcripts that characterized the dif
 
 This is just to get markers genes of the different population, in case some could be of interest for the Wilms tumor annotations. 
 
-We run DElegate::FindAllMarkers2 to find markers of the different clusters and manually check if they do make sense. 
-DElegate::FindAllMarkers2 is an improved version of Seurat::FindAllMarkers based on pseudobulk differential expression method. 
-Please check the preprint from Chistoph Hafemeister: https://www.biorxiv.org/content/10.1101/2023.03.28.534443v1
+We run `DElegate::FindAllMarkers2()` to find markers of the different clusters and manually check if they do make sense. 
+`DElegate::FindAllMarkers2()` is an improved version of `Seurat::FindAllMarkers()` based on pseudobulk differential expression method. 
+Please check the preprint from Hafemeister and Halbritter: https://www.biorxiv.org/content/10.1101/2023.03.28.534443v2
 and tool described here: https://github.com/cancerbits/DElegate 
 
 ### Find marker genes for each of the compartment
