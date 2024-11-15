@@ -235,15 +235,15 @@ Note:
 
 For some reason, the "cap-mesenchyme cells" has been renamed in CELLxGENE as "mesenchymal cells". 
 
-The cap mesenchyme is a cap of condensed metanephric mesenchyme, comprised of cells which epithelialize and sequentially form the pretubular aggregate (PA), renal vesicle (RV), C-, and S-shaped bodies, and finally the mature nephron. 
+The cap mesenchyme is a cap of condensed metanephric mesenchyme, comprised of cells which epithelialize and sequentially form the peritubular aggregate (PA), renal vesicle (RV), C-, and S-shaped bodies, and finally the mature nephron. 
 The CM contains nephron progenitor cells.
 
 This can be confusing and we just need to pay attention that :
 
 - the fetal nephron / mesenchymal cells are cap-mesenchyme cells. 
-In our case, cap-mesenchyme contains blastema and primitive epitheliul cancer cells. 
+In our case, cap-mesenchyme contains blastema and primitive epithelial cancer cells. 
 
-- the stroma / mesenchymal stem are likelly mesenchymal cancer or normal cells. 
+- the stroma / mesenchymal stem are likely mesenchymal cancer or normal cells. 
 
 ## Save the `Seurat`object
 
