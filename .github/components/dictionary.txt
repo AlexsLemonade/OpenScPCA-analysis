@@ -205,7 +205,7 @@ seq
 SingleR
 snRNA
 socio
-spearman
+Spearman
 SSO
 stemness
 stroma

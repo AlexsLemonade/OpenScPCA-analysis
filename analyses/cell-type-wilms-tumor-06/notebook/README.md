@@ -56,15 +56,15 @@ This notebook performs a draft annotation of samples using information from CNV 
 
 We selected in [`04_annotation_Across_Samples_exploration.Rmd`](../notebook/04_annotation_Across_Samples_exploration.Rmd) 5 samples to test for aneuploidy and CNV inference:
 
-- sample SCPCS000194 
-- sample SCPCS000179 
-- sample SCPCS000184 
-- sample SCPCS000205 
+- sample SCPCS000194
+- sample SCPCS000179
+- sample SCPCS000184
+- sample SCPCS000205
 - sample SCPCS000208
 
 - [x] `05_copykat_exploration_{sample_id}.html` is the output of the [`05_copykat_exploration.Rmd`](../notebook_template/05_copykat_exploration.Rmd) notebook template.
 
-In brief, we wanted to test `copykat` results obtained with or without normal cells as reference, using either an euclidean or statistical (spearman) method for CNV heatmap clustering.
+In brief, we wanted to test `copykat` results obtained with or without normal cells as reference, using either an euclidean or statistical (Spearman) method for CNV heatmap clustering.
 This impact the final decision made by `copykat` for each cell to be either aneuploid or diploid, and it is thus crucial to explore the results using the different methods.
 For each of the selected samples, we explore the results in the template `notebook` [`05_copykat_exploration.Rmd`](../notebook_template/05_copykat_exploration.Rmd), which creates a notebook `05_cnv_copykat_exploration_{sample_id}.html` for each sample.
 These `notebooks` are inspired by the plots written for the Ewing Sarcoma analysis in [`03-copykat.Rmd`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/cell-type-ewings/exploratory_analysis/03-copykat.Rmd).

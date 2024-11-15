@@ -5,8 +5,8 @@ date: "`r Sys.Date()`"
 params:
   sample_id: "SCPCS000179"
   seed: 12345
-output: 
-  html_document: 
+output:
+  html_document:
     toc: yes
     toc_float: yes
     code_folding: hide
@@ -36,19 +36,19 @@ subdiagnosis <- readr::read_tsv(
   dplyr::pull(subdiagnosis)
 ```
 
-This notebook explores using [`CopyKAT`](https://github.com/navinlabcode/copykat) to estimate tumor and normal cells in `r params$sample_id` from SCPCP000006. 
+This notebook explores using [`CopyKAT`](https://github.com/navinlabcode/copykat) to estimate tumor and normal cells in `r params$sample_id` from SCPCP000006.
 This sample has a(n) `r subdiagnosis` subdiagnosis.
 
 
-`CopyKAT` was run using the `05_copyKAT.R` script using either an euclidean or statistical (spearman) method to calculate distance in `copyKAT`. 
+`CopyKAT` was run using the `05_copyKAT.R` script using either an euclidean or statistical (Spearman) method to calculate distance in `copyKAT`.
 `CopyKAT` was run with and without a normal reference.
 Immune and endothelial cells as identified by label transfer were used as the references cells where applicable.
 
-These results are read into this notebook and used to: 
-  
-  - Visualize diploid and aneuploid cells on the UMAP. 
-  - Evaluate common copy number gains and losses in Wilms tumor. 
-  - Compare the annotations from `CopyKAT` to cell type annotations using label transfer and the fetal (kidney) references. 
+These results are read into this notebook and used to:
+
+  - Visualize diploid and aneuploid cells on the UMAP.
+  - Evaluate common copy number gains and losses in Wilms tumor.
+  - Compare the annotations from `CopyKAT` to cell type annotations using label transfer and the fetal (kidney) references.
 
 
 ### Packages
@@ -123,13 +123,13 @@ for (ref_value in c("ref", "noref")) {
 
 ### Output file
 
-Reports will be saved in the `notebook` directory. 
+Reports will be saved in the `notebook` directory.
 The pre-processed and annotated `Seurat` object per samples are saved in the `result` folder.
 
 
 ## Functions
 
-Here we defined function that will be used multiple time all along the notebook. 
+Here we defined function that will be used multiple time all along the notebook.
 
 
 ## Analysis
@@ -144,7 +144,7 @@ DefaultAssay(srat) <- "SCT"
 
 ### CopyKAT results
 
-Below we look at the heatmaps produced by `CopyKAT`. 
+Below we look at the heatmaps produced by `CopyKAT`.
 
 #### Heatmap without reference
 
@@ -169,8 +169,8 @@ Below we look at the heatmaps produced by `CopyKAT`.
 
 #### UMAP
 
-Below we prepare and plot a UMAP that shows which cells are classified as diploid, aneuploid, and not defined by `CopyKAT`. 
-We show a side by side UMAP with results from running `CopyKAT` both with and without a reference of normal cells. 
+Below we prepare and plot a UMAP that shows which cells are classified as diploid, aneuploid, and not defined by `CopyKAT`.
+We show a side by side UMAP with results from running `CopyKAT` both with and without a reference of normal cells.
 
 ```{r}
 # read in ck predictions from both reference types (no_normal and with_normal)
@@ -197,19 +197,19 @@ ggplot(cnv_df, aes(x = umap_1, y = umap_2, color = copykat.pred)) +
 
 ### Validate common CNAs found in Wilms tumor
 
-To validate some of these annotations, we can also look at some [commonly found copy number variations](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/cell-type-wilms-tumor-06#the-table-geneticalterations_metadatacsv-contains-the-following-column-and-information) in Wilms tumor patients: 
-                                                                                                        
+To validate some of these annotations, we can also look at some [commonly found copy number variations](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/cell-type-wilms-tumor-06#the-table-geneticalterations_metadatacsv-contains-the-following-column-and-information) in Wilms tumor patients:
+
  - Loss of Chr1p
  - Gain of Chr1q
  - Loss of Chr11p13
  - Loss of Chr11p15
  - Loss of Chr16q
-                                                                                                        
-Although these are the most frequent, there are patients who do not have any of these alterations and patients that only have some of these alterations. 
-See [Tirode et al.,](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4264969/) and [Crompton et al.](https://doi.org/10.1158/2159-8290.CD-13-1037). 
-                                                                                                        
-`CopyKAT` outputs a matrix that contains the estimated copy numbers for each gene in each cell. 
-We can read that in and look at the mean estimated copy numbers for each chromosome across each cell. 
+
+Although these are the most frequent, there are patients who do not have any of these alterations and patients that only have some of these alterations.
+See [Tirode et al.,](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4264969/) and [Crompton et al.](https://doi.org/10.1158/2159-8290.CD-13-1037).
+
+`CopyKAT` outputs a matrix that contains the estimated copy numbers for each gene in each cell.
+We can read that in and look at the mean estimated copy numbers for each chromosome across each cell.
 We might expect that tumor cells would show an increased estimated copy number in Chr1q, and/or a loss of Chr1p, Chr11p and Chr16q.
 
 ```{r}
@@ -236,8 +236,8 @@ cnv_df <- cnv_df |>
   dplyr::left_join(full_cnv_df, by = c("barcodes", "reference_used")) |>
   dplyr::filter(!is.na(chrom))
 ```
-                                                                                                        
-Let's look at the distribution of CNV estimation in cells that are called aneuploid and diploid by `CopyKAT`. 
+
+Let's look at the distribution of CNV estimation in cells that are called aneuploid and diploid by `CopyKAT`.
 
 ```{r, fig.height=15, fig.width=10}
 # create faceted density plots showing estimation of CNV detection across each chr of interest
@@ -255,8 +255,8 @@ ggplot(cnv_df, aes(x = mean_cnv_detection, color = copykat.pred)) +
 
 ## Conclusions
 
-From the heatmap of CNV and the mean CNV detection plots, there does not appear to be any pattern that drives the identification of aneuploid cells. 
-The assignment of the aneuploidy/diploidy value might relies on very few CNV and/or an arbitrary threshold. 
+From the heatmap of CNV and the mean CNV detection plots, there does not appear to be any pattern that drives the identification of aneuploid cells.
+The assignment of the aneuploidy/diploidy value might relies on very few CNV and/or an arbitrary threshold.
 This might be why the assignment of aneuploidy/diploidy values differs between condition (and between runs!!).
 
 
