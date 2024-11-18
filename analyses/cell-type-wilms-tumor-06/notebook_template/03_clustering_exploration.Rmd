@@ -122,7 +122,7 @@ The pre-processed and annotated `Seurat` object per samples are saved in the `re
 
 Here we defined function that will be used multiple time all along the notebook.
 
-#### Visualize seurat clusters and metadata
+#### Visualize Seurat clusters and metadata
 
 For a Seurat object `object`and a metadata `metadata`, the function `visualize_metadata` will plot `FeaturePlot` and `BarPlot`
 
@@ -168,7 +168,7 @@ visualize_metadata <- function(object, meta, group.by) {
 }
 ```
 
-#### Visualize seurat clusters and markers genes
+#### Visualize Seurat clusters and markers genes
 
 For a Seurat object `object`and a features `features`, the function `visualize_feature` will plot `FeaturePlot` and `ViolinPlot`
 
@@ -276,7 +276,7 @@ Enrichment_plot <- function(category, signatures, background) {
 
 `do_Table_Heatmap` shows heatmap of counts of cells for combinations of two metadata variables
 
-- `data` seurat object
+- `data` Seurat object
 - `first_group` is the name of the first metadata to group the cells
 - `last_group` is the name of the second metadata to group the cells
 
@@ -319,7 +319,7 @@ if (params$testing) {
 ```
 
 
-### Visualize seurat clusters
+### Visualize Seurat clusters
 
 We expect up to 5 set of clusters:
 
@@ -374,9 +374,9 @@ for (feature in CellType_metadata$ENSEMBL_ID[CellType_metadata$ENSEMBL_ID %in% r
 
 ### Look at specific pathways
 
-#### TP53 pathway
+#### `TP53` pathway
 
-here we will calculate a TP53 score using `AddModuleScore` and the genes of the HALLMARK_P53_PATHWAY gene set.
+here we will calculate a `TP53` score using `AddModuleScore` and the genes of the HALLMARK_P53_PATHWAY gene set.
 
 ```{r fig.height=4, fig.width=20, warning=FALSE, out.width='100%'}
 srat <- MSigDB_score(object = srat, category = "H", gs_name = "HALLMARK_P53_PATHWAY", name = "TP53_score", nbin = seurat_nbins)
@@ -413,7 +413,7 @@ visualize_metadata(srat, meta = "DICER1_score1", group.by = "seurat_clusters")
 ```
 
 
-### Find marker genes for each of the seurat clusters
+### Find marker genes for each of the Seurat clusters
 
 In addition to the list of known marker genes, we used an unbiased approach to find transcripts that characterized the different clusters.
 

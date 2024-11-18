@@ -1,7 +1,7 @@
 # Azimuth compatible fetal references
 
 To perform label transfer using code adapted from Azimuth, we prepare two references in [`scripts/prepare-fetal-references.R`](../scripts/prepare-fetal-references.R).
-- First, we use the fetal_full.Rds object downloaded from <https://datasets.cellxgene.cziscience.com/40ebb8e4-1a25-4a33-b8ff-02d1156e4e9b.rds>.
+- First, we use the fetal_full.Rds object downloaded from CELLxGENE.
 This is a fetal kidney reference from Stewart et al., and it is saved in `references/stewart_formatted_ref.rds`.
 - Second, we format the Azimuth "fetusref" reference.
 This is a fetal organ reference from Cao et al., and it is saved in `references/cao_formatted_ref.rds`.
@@ -58,31 +58,31 @@ For each sample and each condition (reference and distance), we saved in `result
 We also tried to infer large CNV in cancer cells using `infercnv` and tested the sensibility of the output in regard to the definition of the normal cells.
 
 We selected previously 5 samples to test for these parameters:
-- sample SCPCS000194 has > 85 % of cells predicted as kidney and 234 + 83 endothelium and immune cells.
-- sample SCPCS000179 has > 94 % of cells predicted as kidney and 25 + 111 endothelium and immune cells.
-- sample SCPCS000184 has > 96 % of cells predicted as kidney and 39 + 70 endothelium and immune cells.
-- sample SCPCS000205 has > 89 % of cells predicted as kidney and 92 + 76 endothelium and immune cells.
-- sample SCPCS0000208 has > 95 % of cells predicted as kidney and 18 + 35 endothelium and immune cells.
+- sample SCPCS000194
+- sample SCPCS000179 
+- sample SCPCS000184 
+- sample SCPCS000205 
+- sample SCPCS000208 
 
 `infercnv` requires a gene position file that we build in `06a_build-geneposition.R` and saved as `gencode_v19_gen_pos.complete.txt` in `results/references`.
 
 For each sample and each condition (reference), we saved in `results/{sample_id}/06_infercnv/reference-{selection}`:
-- the final `infercnv`rds object in `06_infercnv_{sample_id}_reference-{selection}.rds`
+- the final `infercnv` object in `06_infercnv_{sample_id}_reference-{selection}.rds`
 - the heatmap of CNV in `06_infercnv_{sample_id}_reference-{selection}_heatmap.png`
 
 Of note, the final `infercnv` rds object includes the following slots:
 
-- 'infercnv_obj@ expr.data' : contains the processed expression matrix as it exists at the end of that stage for which that inferCNV object represents.
+- `infercnv_obj@expr.data` : contains the processed expression matrix as it exists at the end of that stage for which that inferCNV object represents.
 
-- 'infercnv_obj@reference_grouped_cell_indices' : list containing the expression matrix column indices that correspond to each of the normal (reference) cell types.
+- `infercnv_obj@reference_grouped_cell_indices` : list containing the expression matrix column indices that correspond to each of the normal (reference) cell types.
 
-- 'infercnv_obj@observation_grouped_cell_indices' : similar list as above, but corresponds to the tumor cell types.
+- `infercnv_obj@observation_grouped_cell_indices` : similar list as above, but corresponds to the tumor cell types.
 
 Based on the above slots, it would be straightforward to extract info of interest and/or move data into other analysis frameworks.
 
-In addition, fot the condition `reference = "both"`, we ran `infercnv` with `HMM = TRUE`.
+In addition, for the condition `reference = "both"`, we ran `infercnv` with `HMM = TRUE`.
 [HMM CNV prediction methods](https://github.com/broadinstitute/infercnv/wiki/inferCNV-HMM-based-CNV-Prediction-Methods) will allow us to explore the CNV results better, with an easy [merge](https://github.com/broadinstitute/infercnv/wiki/Extracting-features) of `infercnv` result with the `Seurat` object.
-However, HMM CNV prediction methods uses a lot of resources, including time (~2h/sample/condition), and often lead to RSession end.
+However, HMM CNV prediction methods uses a lot of resources, including time (~2h/sample/condition), and often causes the R session to crash.
 This is why we only ran the HMM model for one `reference` condition. After selection of the best reference to use, we will run it for all samples.
 
 

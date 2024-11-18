@@ -29,6 +29,7 @@ Cao
 Carpentries
 CellAssign
 CELLxGENE
+chemotherapies
 chondrocytes
 chr
 CLI
@@ -50,6 +51,7 @@ demultiplexing
 dendogram
 derangements
 designee
+diploidy
 discoverable
 DM
 DNT
@@ -107,6 +109,7 @@ immunities
 impactful
 indicia
 InferCNV
+intra
 Jaccard
 Jitter
 JSON
@@ -160,7 +163,10 @@ overclustered
 Panglao
 PanglaoDB
 PDX
+peritubular
 pluripotent
+PMID
+PNG
 podman
 podocyte
 Posit
@@ -175,6 +181,7 @@ README
 redistribution
 redistributions
 renv
+repartition
 repo
 reproducibility
 reproducibly
@@ -190,6 +197,7 @@ SCE
 ScPCA
 SCPCP
 scRNA
+scRNAseq
 scrublet
 SEACells
 SemVar
@@ -197,19 +205,23 @@ seq
 SingleR
 snRNA
 socio
+Spearman
 SSO
+stemness
 stroma
 stromal
 Stumptown
 subdiagnosis
 sublicensable
 subtypes
+subunits
 symlink
 symlinked
 synched
 TBD
 Tirode
 trainings
+transcriptional
 transferrable
 transphobic
 Treg
