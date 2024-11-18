@@ -13,14 +13,14 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - "analyses/metacells/Dockerfile"
-  #     - "analyses/metacells/.dockerignore"
-  #     - "analyses/metacells/renv.lock"
-  #     - "analyses/metacells/conda-lock.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "analyses/metacells/Dockerfile"
+      - "analyses/metacells/.dockerignore"
+      - "analyses/metacells/renv.lock"
+      - "analyses/metacells/conda-lock.yml"
   workflow_dispatch:
     inputs:
       push-ecr:
