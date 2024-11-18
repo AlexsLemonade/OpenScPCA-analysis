@@ -18,6 +18,7 @@
 library(optparse)
 library(Seurat)
 library(Azimuth)
+library(zellkonverter)
 
 # Parse arguments --------------------------------------------------------------
 # set up arguments
