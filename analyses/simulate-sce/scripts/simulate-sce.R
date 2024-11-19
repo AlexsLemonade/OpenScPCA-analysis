@@ -178,11 +178,10 @@ simulate_sce <- function(sce, ncells, replacement_metadata, processed) {
 
 
   # Perform simulation ---------------------------------------------------------
+  # remove any all-zero droplets that might have slipped through
+  droplets <- colnames(sce)[which(colSums(counts(sce)) > 0)]
   # use a large subset for estimating parameters, but not all
-  est_cells <- sample(colnames(sce), min(1000, ncol(sce)))
-  est_matrix <- counts(sce)[, est_cells]
-  # remove any all-zero cells that might have slipped through
-  est_matrix <- est_matrix[, colSums(est_matrix) > 0]
+  est_matrix <- counts(sce)[, sample(droplets, min(1000, ncol(sce)))]
   sim_params <- splatter::simpleEstimate(as.matrix(est_matrix))
   sim_params@nCells <- ncells
   # get spliced ratio
