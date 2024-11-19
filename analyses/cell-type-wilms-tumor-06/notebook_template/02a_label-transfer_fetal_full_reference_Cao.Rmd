@@ -6,6 +6,8 @@ params:
   scpca_project_id: "SCPCP000006"
   sample_id: "SCPCS000176"
   seed: 12345
+  homologs_file: "../scratch/homologs.rds"
+  testing: 0
 output:
   html_document:
     toc: yes
@@ -16,9 +18,11 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,
-                      message=FALSE,
-                      warnings=FALSE)
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warnings = FALSE
+)
 ```
 
 
@@ -66,10 +70,9 @@ Load required packages in the following chunk, if needed.
 Do not install packages here; only load them with the `library()` function.
 
 ```{r packages, message=FALSE, warning=FALSE}
-library("Seurat")
+library(Seurat)
 library(SeuratData)
 library(sctransform)
-library(Azimuth)
 library(SCpubr)
 library(tidyverse)
 library(patchwork)
@@ -89,20 +92,41 @@ repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06")
 ```
 
+```{r}
+# load functions for label transfer
+source(
+  file.path(
+    module_base,
+    "notebook_template",
+    "utils",
+    "label-transfer-functions.R"
+  )
+)
+```
 
 ### Input files
 
 #### Reference
 
-We install and load the reference using `Azimuth`.
+Load the Azimuth reference which has been prepared for label transfer.
+
 ```{r path_to_reference}
-#Check the names of the Azimuth available data and reference
-AvailableData()
+path_to_ref <- file.path(
+  module_base,
+  "results",
+  "references",
+  "cao_formatted_ref.rds"
+)
+if (!file.exists(path_to_ref)) {
+  stop("Reference file could not be found. Make sure `scripts/prepare-fetal-references.R` has been run first.")
+}
+ref <- readRDS(path_to_ref)
 
-# Install the fetal reference
-# InstallData("fetusref")
-
-ref <- SeuratData::LoadData("fetusref", type = "azimuth")
+# Pull out information from the reference object we need for label transfer
+reference <- ref$reference
+refdata <- ref$refdata
+dims <- ref$dims
+annotation_levels <- ref$annotation_levels
 ```
 
 #### Query
@@ -129,65 +153,100 @@ output_dir <- file.path(module_base, "results", params$sample_id)
 
 ```{r load, message=FALSE, warning=FALSE}
 # open the processed rds object
-srat <- readRDS(file.path(data_dir, paste0("01-Seurat_", params$sample_id,".Rds")))
+srat <- readRDS(file.path(data_dir, paste0("01-Seurat_", params$sample_id, ".Rds")))
+srat_assay <- "RNA"
+
+# prepare the query for label transfer
+# we don't want to overwrite the srat object since `prepare_query`
+#  removes features that are not present in the reference
+DefaultAssay(srat) <- srat_assay
+query <- prepare_query(
+  srat,
+  rownames(reference),
+  srat_assay,
+  params$homologs_file
+)
 ```
 
 
 ### Label transfer from fetal kidney reference using Azimuth
 
 ```{r run_azimuth, message=FALSE, warnings=FALSE}
-DefaultAssay(srat) <- "RNA"
-options(future.globals.maxSize= 891289600000000)
-s <- Azimuth::RunAzimuth(srat, reference ="fetusref")
+options(future.globals.maxSize = 891289600000000)
 
-# We transfer the annotation to the pre-processed `Seurat` object as we don't want to keep changes done on the query by `RunAzimuth`
-metadata_vec <- c("predicted.annotation.l1.score", "predicted.annotation.l1", "predicted.annotation.l2.score", "predicted.annotation.l2", "predicted.organ.score", "predicted.organ")
+# determine k.weight based CI
+if (params$testing) {
+  k.weight <- 10 # only for test datasets
+} else {
+  k.weight <- 50 # Azimuth default
+}
+query_labeled <- transfer_labels(
+  query,
+  reference,
+  dims,
+  refdata,
+  query.assay = srat_assay,
+  k.weight = k.weight
+)
 
-metadata_to_transfer <- s@meta.data[, metadata_vec]
+# We transfer the annotation to the pre-processed `Seurat` object as we don't want to keep changes done on the query by Azimuth
+annotation_columns <- c(
+  glue::glue("predicted.{annotation_levels}"),
+  glue::glue("predicted.{annotation_levels}.score")
+)
+metadata_to_transfer <- query_labeled@meta.data[, annotation_columns]
 
-srat <- AddMetaData(srat, metadata_to_transfer, col.name = paste0("fetal_full_", metadata_vec))
+srat <- AddMetaData(srat, metadata_to_transfer, col.name = paste0("fetal_full_", annotation_columns))
+
+rm(query)
+rm(query_labeled)
 ```
 
 ```{r plot_azimuth, fig.height=15, fig.width=8, warnings=FALSE}
+d1 <- DimPlot(srat, reduction = "umap", dims = c(1, 2), group.by = "fetal_full_predicted.organ", label = TRUE, repel = TRUE) + NoLegend()
+d2 <- DimPlot(srat, reduction = "umap", dims = c(1, 2), group.by = "fetal_full_predicted.annotation.l1", label = TRUE, repel = TRUE) + NoLegend()
+d3 <- DimPlot(srat, reduction = "umap", dims = c(1, 2), group.by = "fetal_full_predicted.annotation.l2", label = TRUE, repel = TRUE) + NoLegend()
 
-d1 <- DimPlot(srat, reduction = "umap", dims = c(1,2), group.by = "fetal_full_predicted.organ", label = TRUE, repel = TRUE) + NoLegend()
-d2 <- DimPlot(srat, reduction = "umap", dims = c(1,2), group.by = "fetal_full_predicted.annotation.l1", label = TRUE, repel = TRUE) + NoLegend()
-d3 <- DimPlot(srat, reduction = "umap", dims = c(1,2), group.by = "fetal_full_predicted.annotation.l2", label = TRUE, repel = TRUE) + NoLegend()
+f1 <- SCpubr::do_BarPlot(
+  sample = srat,
+  group.by = "fetal_full_predicted.organ",
+  split.by = "seurat_clusters",
+  position = "fill",
+  font.size = 10,
+  legend.ncol = 4
+) +
+  ggtitle("% cells") +
+  xlab(params$sample_id)
 
-f1 <- SCpubr::do_BarPlot(sample = srat,
-                         group.by = "fetal_full_predicted.organ",
-                         split.by = "seurat_clusters",
-                         position = "fill",
-                         font.size = 10,
-                         legend.ncol = 4) +
-                         ggtitle("% cells")+
-                         xlab(params$sample_id)
+f2 <- SCpubr::do_BarPlot(
+  sample = srat,
+  group.by = "fetal_full_predicted.annotation.l1",
+  split.by = "seurat_clusters",
+  position = "fill",
+  font.size = 10,
+  legend.ncol = 2
+) +
+  ggtitle("% cells") +
+  xlab(params$sample_id)
 
-f2 <- SCpubr::do_BarPlot(sample = srat,
-                         group.by = "fetal_full_predicted.annotation.l1",
-                         split.by = "seurat_clusters",
-                         position = "fill",
-                         font.size = 10,
-                         legend.ncol = 2) +
-                         ggtitle("% cells")+
-                         xlab(params$sample_id)
+f3 <- SCpubr::do_BarPlot(
+  sample = srat,
+  group.by = "fetal_full_predicted.annotation.l2",
+  split.by = "seurat_clusters",
+  position = "fill",
+  font.size = 10,
+  legend.ncol = 2
+) +
+  ggtitle("% cells") +
+  xlab(params$sample_id)
 
-f3 <- SCpubr::do_BarPlot(sample = srat,
-                         group.by = "fetal_full_predicted.annotation.l2",
-                         split.by = "seurat_clusters",
-                         position = "fill",
-                         font.size = 10,
-                         legend.ncol = 2) +
-                         ggtitle("% cells")+
-                         xlab(params$sample_id)
-
-((d1/f1) | (d2/f2) )
+((d1 / f1) | (d2 / f2))
 ```
 
 ## Save the `Seurat`object
 
 ```{r save}
-saveRDS(object = srat, file = file.path(output_dir, paste0("02a-fetal_full_label-transfer_",params$sample_id,".Rds")))
+saveRDS(object = srat, file = file.path(output_dir, paste0("02a-fetal_full_label-transfer_", params$sample_id, ".Rds")))
 ```
 
 ## Session info
