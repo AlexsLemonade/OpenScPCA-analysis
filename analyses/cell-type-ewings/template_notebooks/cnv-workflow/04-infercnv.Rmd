@@ -157,7 +157,11 @@ coldata_df <- sce |>
   dplyr::left_join(cnv_metadata_df, by = c("barcodes"))
 
 # remove MT and GL chr, comments in docs recommend that these are not useful and can be inaccurate
-chr_columns_to_keep <- which(!stringr::str_detect(names(coldata_df), "chrMT|chrGL"))
+# only keep coldata columns and chr1-22 columns
+chr_columns <- paste0("chr", seq(1,22), collapse = "|")
+all_colnames_keep <- paste0(c(names(colData(sce)), "UMAP1", "UMAP2|"), collapse = "|") |> 
+  paste0(chr_columns, collapse = "|")
+chr_columns_to_keep <- which(stringr::str_detect(names(coldata_df), all_colnames_keep))
 all_cnv_df <- coldata_df[, chr_columns_to_keep]
 ```
 
