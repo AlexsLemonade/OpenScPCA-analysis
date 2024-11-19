@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.4.1",
+    "Version": "4.4.0",
     "Repositories": [
       {
         "Name": "BioCsoft",
@@ -1540,6 +1540,34 @@
       ],
       "Hash": "543776ae6848fde2f48ff3816d0628bc"
     },
+    "basilisk": {
+      "Package": "basilisk",
+      "Version": "1.16.0",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "basilisk.utils",
+        "dir.expiry",
+        "methods",
+        "parallel",
+        "reticulate",
+        "utils"
+      ],
+      "Hash": "0402cc833c4fa37a80b44deffce28fe6"
+    },
+    "basilisk.utils": {
+      "Package": "basilisk.utils",
+      "Version": "1.16.0",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "dir.expiry",
+        "methods",
+        "tools",
+        "utils"
+      ],
+      "Hash": "39d6ecdea862d961c3dfe4d4d7c57920"
+    },
     "beachmat": {
       "Package": "beachmat",
       "Version": "2.20.0",
@@ -1973,6 +2001,17 @@
       ],
       "Hash": "33698c4b3127fc9f506654607fb73676"
     },
+    "dir.expiry": {
+      "Package": "dir.expiry",
+      "Version": "1.12.0",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "filelock",
+        "utils"
+      ],
+      "Hash": "41bd784b988874bccef2d4df2a69fd1a"
+    },
     "distributional": {
       "Package": "distributional",
       "Version": "0.5.0",
@@ -2275,6 +2314,16 @@
         "utils"
       ],
       "Hash": "ead409e5a973cd285681c3bb0ade49a7"
+    },
+    "filelock": {
+      "Package": "filelock",
+      "Version": "1.0.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "192053c276525c8495ccfd523aa8f2d1"
     },
     "findpython": {
       "Package": "findpython",
@@ -3164,16 +3213,6 @@
         "utils"
       ],
       "Hash": "8954069286b4b2b0d023d1b288dce978"
-    },
-    "jpeg": {
-      "Package": "jpeg",
-      "Version": "0.1-10",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R"
-      ],
-      "Hash": "031a0b683d001a7519202f0628fc0358"
     },
     "jquerylib": {
       "Package": "jquerylib",
@@ -5193,6 +5232,25 @@
         "utils"
       ],
       "Hash": "367554cd9602e69616660580c820b3bf"
+    },
+    "zellkonverter": {
+      "Package": "zellkonverter",
+      "Version": "1.14.1",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "DelayedArray",
+        "Matrix",
+        "S4Vectors",
+        "SingleCellExperiment",
+        "SummarizedExperiment",
+        "basilisk",
+        "cli",
+        "methods",
+        "reticulate",
+        "utils"
+      ],
+      "Hash": "656ccd4d9874cf077f9a688b38d03a63"
     },
     "zlibbioc": {
       "Package": "zlibbioc",
