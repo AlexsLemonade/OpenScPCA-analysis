@@ -187,6 +187,7 @@ We thus decided to test and compare two fetal (kidney) references that could be 
 
 We first wanted to try the human fetal kidney atlas to transfer label into the Wilms tumor samples using azimuth.
 You can find more about the human kidney atlas here: https://www.kidneycellatlas.org/ [3]
+The reference was obtained from CELLxGENE: <https://cellxgene.cziscience.com/collections/120e86b4-1195-48c5-845b-b98054105eec>, specifically the download for `Fetal kidney dataset: full`. 
 
 ##### Human Azimuth fetal reference from Cao et al.
 
