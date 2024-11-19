@@ -73,8 +73,7 @@ get_cluster_stability <- function(sce,
                                       algorithm = unique(df$algorithm),
                                       nn = unique(df$nn),
                                       resolution = unique(df$resolution),
-                                      objective_function = objective_function,
-                                      replicates = 1)
+                                      objective_function = objective_function)
       
     }) |>
     dplyr::bind_rows(.id = "cluster_params")
