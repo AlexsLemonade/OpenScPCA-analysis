@@ -61,7 +61,7 @@ suppressPackageStartupMessages({
 #' Randomize labels
 #'
 #' A function to randomly select labels from a set,
-#' while ensuring each label is included at least once.
+#' while ensuring each label is included at least once, if possible.
 #'
 #' @param label_set a vector a labels
 #' @param n the number of labels to select
@@ -70,16 +70,14 @@ suppressPackageStartupMessages({
 #'
 #' @examples
 random_label <- function(label_set, n) {
-  # randomly select n labels from the label set, ensuring each label is included at least once
-
   # ensure labels are unique
   label_set <- unique(label_set)
   if (length(label_set) > n) {
-    stop("The number of labels must not be greater than the number requested.")
+    warning("The number of labels is greater than the number requested; not all labels will be used.")
   }
   r_labels <- sample(label_set, n, replace = TRUE)
   # add each label at least once
-  idx <- sample.int(n, length(label_set))
+  idx <- sample.int(n, min(n, length(label_set)))
   r_labels[idx] <- label_set
   return(r_labels)
 }
