@@ -52,6 +52,9 @@ RUN conda-lock install -n ${ENV_NAME} conda-lock.yml \
 # Copy the renv.lock file from the host environment to the image
 COPY renv.lock renv.lock
 
+# Temporarily install Rhtslib separately
+RUN Rscript -e 'BiocManager::install("Rhtslib")'
+
 # restore from renv.lock file and clean up to reduce image size
 RUN Rscript -e 'renv::restore()' \
   && rm -rf ~/.cache/R/renv \

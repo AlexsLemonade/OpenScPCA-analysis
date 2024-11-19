@@ -15,6 +15,7 @@ dependencies:
   - session-info>=1.0
   - anndata
   - cycler
+  - fastcluster
   - fcsparser
   - h5py
   - jax
