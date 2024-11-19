@@ -178,9 +178,14 @@ simulate_sce <- function(sce, ncells, replacement_metadata, processed) {
 
 
   # Perform simulation ---------------------------------------------------------
-  sim_params <- splatter::simpleEstimate(as.matrix(counts(sce_sim)))
+  # remove any all-zero droplets that might have slipped through
+  droplets <- colnames(sce)[which(colSums(counts(sce)) > 0)]
+  # use a large subset for estimating parameters, but not all
+  est_matrix <- counts(sce)[, sample(droplets, min(1000, ncol(sce)))]
+  sim_params <- splatter::simpleEstimate(as.matrix(est_matrix))
+  sim_params@nCells <- ncells
   # get spliced ratio
-  spliced_ratio <- sum(assay(sce_sim, "spliced")) / sum(counts(sce))
+  spliced_ratio <- sum(assay(sce, "spliced")) / sum(counts(sce))
   counts(sce_sim, withDimnames = FALSE) <- counts(
     splatter::simpleSimulate(sim_params, verbose = FALSE)
   )
