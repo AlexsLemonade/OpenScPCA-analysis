@@ -22,6 +22,7 @@
 #' @param query The Seurat object which will undergo label transfer
 #' @param reference_rownames The rownames (aka, features) in the reference object
 #' @param assay Name of assay in query to prepare
+#' @param convert_gene_names Whether ensembl IDs should be converted to gene symbols
 #' @param homolog_file Path to the homologs.rds file obtained from Seurat
 #'
 #' @return Seurat object prepared for label transfer
@@ -29,15 +30,18 @@ prepare_query <- function(
     query,
     reference_rownames,
     assay = NULL,
+    convert_gene_names = TRUE,
     homolog_file = homologs_file) {
-  # Convert the query (sample) row names from ensembl IDs to gene names to match what
+  # If specified, convert the query (sample) row names from ensembl IDs to gene names to match what
   # the Azimuth reference uses
   # Source: https://github.com/satijalab/azimuth/blob/243ee5db80fcbffa3452c944254a325a3da2ef9e/R/azimuth.R#L99-L104
-  query <- Azimuth::ConvertGeneNames(
-    object = query,
-    reference.names = reference_rownames,
-    homolog.table = homolog_file
-  )
+  if (convert_gene_names) {
+    query <- Azimuth::ConvertGeneNames(
+      object = query,
+      reference.names = reference_rownames,
+      homolog.table = homolog_file
+    )
+  }
 
   # Calculate nCount_RNA and nFeature_RNA if the query does not
   # contain them already
