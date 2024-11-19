@@ -3843,6 +3843,29 @@
       ],
       "Hash": "16f095487215acf101cdc3ed3da237cf"
     },
+    "rOpenScPCA": {
+      "Package": "rOpenScPCA",
+      "Version": "0.1.0",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "AlexsLemonade",
+      "RemoteRepo": "rOpenScPCA",
+      "RemoteRef": "main",
+      "RemoteSha": "fe1cf9f9ad016a1e9724a6274e88a5b841455bf5",
+      "Requirements": [
+        "BiocParallel",
+        "SingleCellExperiment",
+        "bluster",
+        "dplyr",
+        "methods",
+        "pdfCluster",
+        "purrr",
+        "tibble",
+        "tidyr"
+      ],
+      "Hash": "b6805f308a847b08322572b63da51a4d"
+    },
     "rappdirs": {
       "Package": "rappdirs",
       "Version": "0.3.3",
@@ -4173,8 +4196,8 @@
       "Package": "scpcaTools",
       "Version": "0.3.2",
       "Source": "GitHub",
-      "Remotes": "AlexsLemonade/scpcaData, immunogenomics/lisi@v1.0",
       "RemoteType": "github",
+      "Remotes": "AlexsLemonade/scpcaData, immunogenomics/lisi@v1.0",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "scpcaTools",
       "RemoteUsername": "AlexsLemonade",

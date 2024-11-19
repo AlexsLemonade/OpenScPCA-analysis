@@ -1,0 +1,152 @@
+ensembl_gene_id	cell_type	source
+ENSG00000002586	Blast	doi:10.1038/s41598-023-39152-z
+ENSG00000005961	Early Eryth	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000007062	Cancer	https://sctype.app/database.php
+ENSG00000011465	Stromal	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000012124	B	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000014914	Mono	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000026508	Cancer	https://sctype.app/database.php
+ENSG00000041982	Stromal	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000047457	Stromal	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000048462	Plasma	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000069667	Other T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000070031	DC	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000072274	Pre Eryth	https://sctype.app/database.php
+ENSG00000073754	Macrophage	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000075340	Late Eryth	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000075618	Early Eryth	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000081059	CD4 T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000081237	Pre Eryth	https://sctype.app/database.php
+ENSG00000086205	Cancer	https://sctype.app/database.php
+ENSG00000088726	Platelet	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000091513	Stromal	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000100385	NK	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000100450	CD8 T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000101200	HSPC	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000102145	Early Eryth	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000104660	CD4 T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000104894	B	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000104974	Mono	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000105251	DC	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000105369	B	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000105610	Early Eryth	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000106327	Early Eryth	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000107742	Other T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000110195	Pre Eryth	https://sctype.app/database.php
+ENSG00000110203	Mono	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000111057	Cancer	https://sctype.app/database.php
+ENSG00000111796	Other T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000112077	HSPC, Late Eryth	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000112175	Stromal	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000112212	Late Eryth	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000113088	Other T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000113140	Platelet	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000115232	Pre Eryth	https://sctype.app/database.php
+ENSG00000115461	Stromal	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000115607	NK	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000115718	DC	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000115884	Plasma	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000116191	B	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000117281	NK	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000117632	Blast	doi:10.1038/s41598-023-39152-z
+ENSG00000119865	Early Eryth	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000119888	HSPC, Late Eryth, Cancer	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow, https://sctype.app/database.php
+ENSG00000121769	Macrophage	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000123416	Blast	doi:10.1038/s41598-023-39152-z
+ENSG00000124491	Platelet	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000124766	Blast	doi:10.1038/s41598-023-39152-z
+ENSG00000125810	Mono	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000130203	Macrophage	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000130208	Early Eryth	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000131016	HSPC	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000132514	DC	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000132704	B	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000133742	Pre Eryth	https://sctype.app/database.php
+ENSG00000133789	B	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000134545	NK	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000135218	Pre Eryth	https://sctype.app/database.php
+ENSG00000135525	Early Eryth	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000138639	B	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000138795	CD4 T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000139193	CD4 T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000139329	Stromal	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000141736	Cancer	https://sctype.app/database.php
+ENSG00000143184	NK	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000143297	Plasma	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000144290	Other T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000145220	Other T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000147571	Stromal	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000150045	NK	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000150681	Platelet	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000150687	NK	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000152518	Other T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000152583	Stromal	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000153064	B	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000153071	Platelet	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000153563	CD8 T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000155367	DC	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000156738	B	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000156966	NK	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000158825	Mono	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000159189	Macrophage	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000160307	CD8 T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000160654	CD4 T, CD8 T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000162444	Mono	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000163534	B	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000163554	HSPC, Late Eryth	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000163687	DC	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000163736	Platelet	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000163737	Platelet	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000164692	Stromal	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000166211	Macrophage	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000166523	Mono	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000167286	CD4 T, CD8 T, Blast	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow, doi:10.1038/s41598-023-39152-z
+ENSG00000167476	Plasma	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000168685	CD4 T, Other T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000168913	DC	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000169432	DC	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000169704	Platelet	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000170180	Pre Eryth	https://sctype.app/database.php
+ENSG00000170323	Macrophage	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000170891	HSPC, Early Eryth	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000171051	Mono	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000172005	CD4 T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000172116	CD8 T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000172247	HSPC	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000172995	HSPC	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000173369	Macrophage	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000173372	Macrophage	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000173762	Blast	doi:10.1038/s41598-023-39152-z
+ENSG00000175792	Pre Eryth	https://sctype.app/database.php
+ENSG00000176783	Platelet	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000177606	Blast	doi:10.1038/s41598-023-39152-z
+ENSG00000178573	Other T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000179348	Early Eryth	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000184613	CD8 T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000186074	Mono	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000186710	HSPC	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000187699	Platelet	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000188672	HSPC, Late Eryth	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000189430	NK	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000196188	Late Eryth	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000197353	Mono	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000198178	DC	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000198574	NK	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000198851	CD4 T, CD8 T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000204010	Late Eryth	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000211640	Plasma	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000211673	Plasma	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000211685	Plasma	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000213934	Late Eryth	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000215788	Other T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000222037	Plasma	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000223609	Pre Eryth	https://sctype.app/database.php
+ENSG00000227191	CD8 T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000227507	CD4 T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000239961	DC	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000240505	Plasma	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000243466	Plasma	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000244734	Pre Eryth	https://sctype.app/database.php
+ENSG00000250722	Macrophage	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000271503	CD8 T	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
+ENSG00000275385	Macrophage	https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow
