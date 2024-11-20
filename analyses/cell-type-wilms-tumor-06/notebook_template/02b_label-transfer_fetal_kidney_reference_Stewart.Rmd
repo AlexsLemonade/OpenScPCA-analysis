@@ -6,7 +6,6 @@ params:
   scpca_project_id: "SCPCP000006"
   sample_id: "SCPCS000176"
   seed: 12345
-  homologs_file: "../scratch/homologs.rds"
   testing: 0
 output: 
   html_document: 
@@ -166,7 +165,7 @@ query <- prepare_query(
   srat,
   rownames(reference),
   srat_assay,
-  params$homologs_file
+  convert_gene_names = FALSE
 )
 ```
 

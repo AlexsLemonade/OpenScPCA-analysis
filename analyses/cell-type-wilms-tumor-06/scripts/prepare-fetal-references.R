@@ -18,6 +18,8 @@
 library(optparse)
 library(Seurat)
 library(Azimuth)
+library(zellkonverter)
+library(SingleCellExperiment)
 
 # Parse arguments --------------------------------------------------------------
 # set up arguments
@@ -25,8 +27,14 @@ option_list <- list(
   make_option(
     opt_str = c("--kidney_ref_file"),
     type = "character",
-    default = "scratch/fetal_kidney.rds",
-    help = "The relative path from the current directory to the fetal kidney atlas downloaded from CELLxGENE"
+    default = "scratch/fetal_kidney.h5ad",
+    help = "The relative path from the current directory to the H5AD (AnnData) fetal kidney atlas downloaded from CELLxGENE"
+  ),
+  make_option(
+    opt_str = c("--kidney_ref_file_seurat"),
+    type = "character",
+    default = "scratch/fetal_kidney_seurat.rds",
+    help = "The relative path from the current directory to file to export with the Seurat-formatted kidney reference"
   ),
   make_option(
     opt_str = c("-d", "--output_dir"),
@@ -124,9 +132,21 @@ cao_annotation_levels <- c("annotation.l1", "annotation.l2", "organ")
 
 # Read in data
 if (!file.exists(opts$kidney_ref_file)) {
-  stop("The kidney reference file could not be found.")
+  stop("The H5AD kidney reference file could not be found.")
 }
-seurat <- readRDS(opts$kidney_ref_file)
+# Use raw=TRUE to get the raw counts as an alternative experiment
+sce_kidney <- zellkonverter::readH5AD(opts$kidney_ref_file, raw = TRUE)
+
+raw_sce_counts <- assay(altExp(sce_kidney), "X")
+rownames(raw_sce_counts) <- rownames(sce_kidney)
+
+seurat <- SeuratObject::CreateSeuratObject(
+  counts = raw_sce_counts,
+  assay = "RNA",
+  project = "kidneyatlas"
+) |>
+  AddMetaData(sce_kidney$compartment, "compartment") |>
+  AddMetaData(sce_kidney$cell_type, "cell_type")
 
 # Transform and dimension reduction
 set.seed(opts$seed)
@@ -150,13 +170,7 @@ fetal_kidney <- AzimuthReference(
   dims = 1:50,
   k.param = 31,
   plotref = "umap",
-  plot.metadata = NULL,
-  ori.index = NULL,
-  colormap = NULL,
-  assays = NULL,
   metadata = stewart_annotation_levels,
-  reference.version = "0.0.0",
-  verbose = FALSE
 )
 
 # format for label transfer
@@ -165,6 +179,8 @@ stewart_ref_list <- prepare_azimuth_reference(fetal_kidney, stewart_annotation_l
 # export formatted reference
 saveRDS(stewart_ref_list, stewart_ref_file)
 
+# export Seurat object for analysis in ../notebook/00b_characterize_fetal_kidney_reference_Stewart.Rmd
+saveRDS(s, opts$kidney_ref_file_seurat)
 
 # Prepare Cao (full fetal organ) reference ------------------------------
 
