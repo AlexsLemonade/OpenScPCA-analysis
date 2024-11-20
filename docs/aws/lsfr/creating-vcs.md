@@ -66,7 +66,6 @@ Creating an instance via LSfR is _not supported_.
         - If you are planning to develop in R, we recommend choosing `Rstudio`, which includes RStudio.
         - If you are planning to develop in Python, we recommend choosing `VSCodium`, which includes VSCodium, a distribution of Microsoft's editor VS Code.
         - For information on all application options, see [the LSfR documentation on Applications](https://docs.aws.amazon.com/lightsail-for-research/latest/ug/blueprints-plans.html).
-    - Choose the `us-east-2a` availability zone.
     - Name your instance.
     It might be helpful to use the same name as the provisioned product.
     - Pick the size for your instance.
