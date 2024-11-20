@@ -108,6 +108,7 @@ ies
 immunities
 impactful
 indicia
+inferCNV
 InferCNV
 intra
 Jaccard
@@ -133,11 +134,12 @@ macOS
 macrophage
 md
 merchantability
+Mesangial
 mesenchymal
 mesenchyme
 metacell
 metacells
-metanephric
+Metanephric
 microenvironment
 microRNA
 Miniconda

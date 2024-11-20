@@ -1,11 +1,11 @@
 # Azimuth compatible fetal references
 
 To perform label transfer using code adapted from Azimuth, we prepare two references in [`scripts/prepare-fetal-references.R`](../scripts/prepare-fetal-references.R).
-- First, we use the fetal_full.Rds object downloaded from CELLxGENE.
+- First, we use the `fetal_full` object downloaded from CELLxGENE.
 This is a fetal kidney reference from Stewart et al., and it is saved in `references/stewart_formatted_ref.rds`.
-- Second, we format the Azimuth "fetusref" reference.
+- Second, we format the Azimuth `fetusref` reference.
 This is a fetal organ reference from Cao et al., and it is saved in `references/cao_formatted_ref.rds`.
-- This script also downloads a file `references/homologs.rds` which the label transfer will use for converting ensembl ids to gene names.
+- This script also downloads a file `references/homologs.rds` which the label transfer will use for converting Ensembl ids to gene names.
 
 As part of the `00b_characterize_fetal_kidney_reference_Stewart.Rmd` notebook template, we characterized the fetal kidney reference and generated lists of marker genes for the compartment and cell types composing the reference.
 The tables of marker genes can be found in the S3 bucket name `researcher-008971640512-us-east-2`:
@@ -38,17 +38,17 @@ We tried to infer aneuploidy in cancer cells using `copykat` and tested differen
 Mostly, we tested to run `copykat` with and without normal cells as reference and defined the clustering distance to be either `euclidean` or `spearman`.
 
 We selected previously 5 samples to test for these parameters:
-- sample SCPCS000194 has > 85 % of cells predicted as kidney and 234 + 83 endothelium and immune cells.
-- sample SCPCS000179 has > 94 % of cells predicted as kidney and 25 + 111 endothelium and immune cells.
-- sample SCPCS000184 has > 96 % of cells predicted as kidney and 39 + 70 endothelium and immune cells.
-- sample SCPCS000205 has > 89 % of cells predicted as kidney and 92 + 76 endothelium and immune cells.
-- sample SCPCS0000208 has > 95 % of cells predicted as kidney and 18 + 35 endothelium and immune cells.
+- sample `SCPCS000194`
+- sample `SCPCS000179`
+- sample `SCPCS000184`
+- sample `SCPCS000205`
+- sample `SCPCS000208`
 
 For each of the samples, we ran `05_copyKAT.R` script, defining the `distance` parameters.
 
 For each sample and each condition (reference and distance), we saved in `results/{sample_id}/05_copykat/{reference}/{distance}/`:
 
-- the final `copykat` rds object in `05_copykat_{sample_id}_{reference}_distance-{selection}.rds`
+- the final `copykat` object in `05_copykat_{sample_id}_{reference}_distance-{selection}.rds`
 - the heatmap of CNV in `05_copykat_{sample_id}_{reference}_distance-{selection}_copykat_heatmap.png`
 - the prediction (aneuploid or diploid value per cell) in `05_copykat_{sample_id}_{reference}_distance-{selection}_copykat_prediction.txt`
 - the CNA matrix `05_copykat_{sample_id}_{reference}_distance-{selection}_copykat_CNA_results.txt`
@@ -58,11 +58,11 @@ For each sample and each condition (reference and distance), we saved in `result
 We also tried to infer large CNV in cancer cells using `infercnv` and tested the sensibility of the output in regard to the definition of the normal cells.
 
 We selected previously 5 samples to test for these parameters:
-- sample SCPCS000194
-- sample SCPCS000179 
-- sample SCPCS000184 
-- sample SCPCS000205 
-- sample SCPCS000208 
+- sample `SCPCS000194`
+- sample `SCPCS000179`
+- sample `SCPCS000184`
+- sample `SCPCS000205`
+- sample `SCPCS000208`
 
 `infercnv` requires a gene position file that we build in `06a_build-geneposition.R` and saved as `gencode_v19_gen_pos.complete.txt` in `results/references`.
 
@@ -70,9 +70,9 @@ For each sample and each condition (reference), we saved in `results/{sample_id}
 - the final `infercnv` object in `06_infercnv_{sample_id}_reference-{selection}.rds`
 - the heatmap of CNV in `06_infercnv_{sample_id}_reference-{selection}_heatmap.png`
 
-Of note, the final `infercnv` rds object includes the following slots:
+Of note, the final `infercnv` object includes the following slots:
 
-- `infercnv_obj@expr.data` : contains the processed expression matrix as it exists at the end of that stage for which that inferCNV object represents.
+- `infercnv_obj@expr.data` : contains the processed expression matrix as it exists at the end of that stage for which that `inferCNV` object represents.
 
 - `infercnv_obj@reference_grouped_cell_indices` : list containing the expression matrix column indices that correspond to each of the normal (reference) cell types.
 

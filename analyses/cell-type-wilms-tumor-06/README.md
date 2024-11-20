@@ -33,7 +33,8 @@ conda activate openscpca
 ```
 
 2. log into AWS CLI:
-```shell
+
+```sh
 # replace `openscpca` with your AWS CLI profile name if it differs
 export AWS_PROFILE=openscpca
 aws sso login
@@ -42,25 +43,27 @@ Of note, this requires AWS CLI setup to run as intended: https://openscpca.readt
 
 
 3. use download-data.py to download the data as the following:
-```shell
+
+```sh
 ../../download-data.py --projects SCPCP000006
 ```
 This is saving the data in `OpenScPCA-analysis/data/current/SCPCP000006`
 
 4. Run the module:
-```shell
+
+```sh
 ./00_run_workflow.sh
 ```
 
 ### sample metadata
 
-The OpenScPCA-analysis/data/current/SCPCP000006/single_cell_metadata.tsv file contains clinical information related to the samples in the dataset.
+The `data/current/SCPCP000006/single_cell_metadata.tsv` file contains clinical information related to the samples in the dataset.
 Some information can be helpful for annotation and validation:
 
-- treatment: Some of the samples have been pre-treated with chemotherapy and some are upfront resection.
+- `treatment`: Some of the samples have been pre-treated with chemotherapy and some are upfront resection.
 We expect few changes between the 2 conditions, including a higher immune infiltration and more DNA damages pathways in treated samples.
 
-- histology: the COG classifies Wilms tumor as either (i) Favorable or (ii) Anaplastic.
+- `subdiagnosis`: the COG classifies Wilms tumor as either (i) Favorable or (ii) Anaplastic.
 Some differences are expected, some marker genes or pathways are associated with anaplasia (see sets of marker gene).
 
 ## Output files
@@ -157,7 +160,7 @@ The `00_run_workflow.sh` contains the following steps:
 
 While we only selected the `inferCNV` method with endothelium and immune cells as normal reference for the main workflow across samples, our  analysis includes an exploration of CNV inference methods based on `copyKAT` and `inferCNV` on a subset of samples.
 The script `explore-cnv-methods.R` calls the independent scripts `05_copyKAT.R` and `06_inferCNV.R` for these samples:
-  
+
   - `SCPCS000179`
   - `SCPCS000184`
   - `SCPCS000194`
@@ -187,7 +190,7 @@ We thus decided to test and compare two fetal (kidney) references that could be 
 
 We first wanted to try the human fetal kidney atlas to transfer label into the Wilms tumor samples using azimuth.
 You can find more about the human kidney atlas here: https://www.kidneycellatlas.org/ [3]
-The reference was obtained from CELLxGENE: <https://cellxgene.cziscience.com/collections/120e86b4-1195-48c5-845b-b98054105eec>, specifically the download for `Fetal kidney dataset: full`. 
+The reference was obtained from CELLxGENE: <https://cellxgene.cziscience.com/collections/120e86b4-1195-48c5-845b-b98054105eec>, specifically the download for `Fetal kidney dataset: full`.
 
 ##### Human Azimuth fetal reference from Cao et al.
 
@@ -230,7 +233,7 @@ The `renv` lockfile is used to install R packages in the Docker image.
 
 To build the Docker image, run the following from this directory:
 
-```shell
+```sh
 docker buildx build . -t openscpca/cell-type-wilms-tumor-06
 ```
 
@@ -238,7 +241,7 @@ The image will also be available from ECR: <https://gallery.ecr.aws/openscpca/ce
 
 To run the container and develop in RStudio Server, run the following **from the root of the repository**, Replacing `{PASSWORD}`, including the curly braces, with a password of your choosing:
 
-```shell
+```sh
 docker run \
   --mount type=bind,target=/home/rstudio/OpenScPCA-analysis,source=$PWD \
   -e PASSWORD={PASSWORD} \
