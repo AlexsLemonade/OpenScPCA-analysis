@@ -9,7 +9,7 @@ output:
     code_folding: "hide"
 params:
   library_id: "SCPCL000822"
-  sce_file: "../../../../data/2024-07-08/SCPCP000015/SCPCS000490/SCPCL000822_processed.rds"
+  sce_file: "../../../../data/current/SCPCP000015/SCPCS000490/SCPCL000822_processed.rds"
   cluster_results_file: "SCPCL000822_clusters.tsv"
   nn_range: !r seq(5, 40, 5)
   louvain_res_range: !r c(0.5, 1, 1.5)
