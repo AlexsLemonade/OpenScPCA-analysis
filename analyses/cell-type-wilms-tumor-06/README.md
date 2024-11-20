@@ -42,7 +42,7 @@ aws sso login
 Of note, this requires AWS CLI setup to run as intended: https://openscpca.readthedocs.io/en/latest/technical-setup/environment-setup/configure-aws-cli/
 
 
-3. use download-data.py to download the data as the following:
+3. Use `download-data.py` to download the data as the following:
 
 ```sh
 ../../download-data.py --projects SCPCP000006
