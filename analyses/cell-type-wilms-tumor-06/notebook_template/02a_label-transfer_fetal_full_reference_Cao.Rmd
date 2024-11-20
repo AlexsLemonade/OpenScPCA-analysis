@@ -161,10 +161,10 @@ srat_assay <- "RNA"
 #  removes features that are not present in the reference
 DefaultAssay(srat) <- srat_assay
 query <- prepare_query(
-  srat,
-  rownames(reference),
-  srat_assay,
-  params$homologs_file
+  query = srat,
+  reference_rownames = rownames(reference),
+  assay = srat_assay,
+  homolog_file = params$homologs_file
 )
 ```
 

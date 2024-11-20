@@ -50,12 +50,13 @@ fi
 # We'll define file names with absolute paths for robustness
 
 # First, download the fetal kidney reference (Stewart et al)
-kidney_ref_url="https://datasets.cellxgene.cziscience.com/40ebb8e4-1a25-4a33-b8ff-02d1156e4e9b.rds"
-kidney_ref_file="${PWD}/scratch/fetal_kidney.rds"
+kidney_ref_url="https://datasets.cellxgene.cziscience.com/fcb6225a-b329-4ac9-8a3f-559ca9bac50e.h5ad"
+kidney_ref_file="${PWD}/scratch/fetal_kidney.h5ad"
+kidney_ref_file_seurat="${PWD}/scratch/fetal_kidney_seurat.rds" # will be used by 00b
 if [[ ! -f $kidney_ref_file ]]; then
   curl -o $kidney_ref_file $kidney_ref_url
 fi
-# Second, download the homologs file for gene ID conversion
+# Second, download the Seurat/Azimuth homologs file for gene ID conversion
 homologs_url="https://seurat.nygenome.org/azimuth/references/homologs.rds"
 homologs_file="${PWD}/scratch/homologs.rds"
 if [[ ! -f $homologs_file ]]; then
@@ -63,7 +64,7 @@ if [[ ! -f $homologs_file ]]; then
 fi
 
 # Create the fetal references for label transfer (Stewart et al and Cao et al)
-Rscript scripts/prepare-fetal-references.R --kidney_ref_file "${kidney_ref_file}"
+Rscript scripts/prepare-fetal-references.R --kidney_ref_file "${kidney_ref_file}" --kidney_ref_file_seurat ${kidney_ref_file_seurat}
 
 # Characterize the fetal kidney reference (Stewart et al.)
 # This step does not directly contribute to the final annotations
@@ -72,7 +73,7 @@ if [[ $RUN_EXPLORATORY -eq 1 ]]; then
       output_format = 'html_document',
       output_file = '00b_characterization_fetal_kidney_reference_Stewart.html',
       output_dir = '${notebook_output_dir}/00-reference',
-      params = list(fetal_kidney_path = '${kidney_ref_file}'))"
+      params = list(fetal_kidney_path = '${kidney_ref_file_seurat}'))"
 fi
 
 
@@ -104,8 +105,9 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
                     output_dir = '${sample_notebook_dir}')"
 
     # Label transfer from the Stewart reference
+    # Note that this reference has ensembl IDs
     Rscript -e "rmarkdown::render('${notebook_template_dir}/02b_label-transfer_fetal_kidney_reference_Stewart.Rmd',
-                    params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}', homologs_file = '${homologs_file}', testing = ${TESTING}),
+                    params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}', testing = ${TESTING}),
                     output_format = 'html_document',
                     output_file = '02b_fetal_kidney_reference_Stewart_${sample_id}.html',
                     output_dir = '${sample_notebook_dir}')"
