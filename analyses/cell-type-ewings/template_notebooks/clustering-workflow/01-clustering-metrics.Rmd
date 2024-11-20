@@ -89,13 +89,23 @@ louvain_results <- rOpenScPCA::sweep_clusters(
   # add in objective function so we can combine with leiden results
   dplyr::mutate(objective_function = NA_character_)
 
-# leiden clustering
-leiden_results <- rOpenScPCA::sweep_clusters(
+# leiden cpm clustering
+leiden_cpm_results <- rOpenScPCA::sweep_clusters(
+  sce,
+  algorithm = "leiden",
+  nn = seq(5, 40, 5),
+  resolution = c(0.001, .005, .01),
+  objective_function = "CPM"
+) |> 
+  dplyr::bind_rows()
+
+# leiden modularity clustering
+leiden_mod_results <- rOpenScPCA::sweep_clusters(
   sce,
   algorithm = "leiden",
   nn = seq(5, 40, 5),
   resolution = c(0.5, 1, 1.5),
-  objective_function = c("CPM", "modularity")
+  objective_function = "modularity"
 ) |> 
   dplyr::bind_rows()
 ```
@@ -103,7 +113,7 @@ leiden_results <- rOpenScPCA::sweep_clusters(
 
 ```{r}
 # join all clustering results 
-all_cluster_results <- dplyr::bind_rows(list(louvain_results, leiden_results)) |> 
+all_cluster_results <- dplyr::bind_rows(list(louvain_results, leiden_cpm_results, leiden_mod_results)) |> 
   # add column for method + objective function 
   # use this for splitting plots throughout report
   dplyr::mutate(cluster_method = glue::glue(
