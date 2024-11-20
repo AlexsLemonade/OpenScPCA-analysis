@@ -147,7 +147,8 @@ split_umap_df |>
                                      resolution = ~ glue::glue("{.}-res"))) +
       theme(
         aspect.ratio = 1,
-        legend.position = "none"
+        legend.position = "none", 
+        panel.border = element_rect(color = "black", fill = NA)
       ) +
       labs(title = method)
     
@@ -160,12 +161,13 @@ split_umap_df |>
 Below we calculate a series of statistics: 
 
 - Average silhouette width: This metric evaluates cluster separation. 
+Values range from -1 to 1.
 Cells with large positive silhouette widths are closer to other cells in the same cluster than to cells in different clusters. 
 Higher values indicate tighter clusters.
 - Average cluster purity: This metric also evaluates cluster separation and tells us the proportion of neighboring cells that are assigned to the same cluster. 
 Purity values range from 0-1 with higher purity values indicating clusters that are well separated. 
 - Cluster stability: This evaluates how stable the clustering is to input data. 
-Stability values range from 01- with higher values of cluster stability indicating more reproducible clusters. 
+Stability values range from 0-1 with higher values of cluster stability indicating more reproducible clusters. 
 
 ```{r, warning=FALSE}
 # get a combined stats dataframe with purity and width for all clusters
