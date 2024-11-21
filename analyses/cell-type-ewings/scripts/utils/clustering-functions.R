@@ -27,10 +27,24 @@ get_cluster_stats <- function(sce,
   # for each nn_param get cluster width and purity
   all_stats_df <- split_clusters |>
     purrr::map(\(df){
-      sil_df <- bluster::approxSilhouette(pcs, df$cluster) |>
-        as.data.frame() |>
-        tibble::rownames_to_column("cell_id")
-
+      
+      # make sure there are multiple clusters present, otherwise width can't be computed
+      cluster_num <- length(unique(df$cluster))
+      
+      if(cluster_num == 1){
+        sil_df <- data.frame(
+          cell_id = df$cell_id,
+          cluster = df$cluster,
+          other = NA,
+          width = NA
+        )
+      } else {
+        sil_df <- bluster::approxSilhouette(pcs, df$cluster) |>
+          as.data.frame() |>
+          tibble::rownames_to_column("cell_id") 
+      }
+      
+      # purity can all be from one cluster 
       purity_df <- bluster::neighborPurity(pcs, df$cluster) |>
         as.data.frame() |>
         tibble::rownames_to_column("cell_id")
