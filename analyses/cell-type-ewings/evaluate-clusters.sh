@@ -70,7 +70,7 @@ for sample_id in $sample_ids; do
         Rscript -e "rmarkdown::render('$notebook_dir/01-clustering-metrics.Rmd', \
           clean = TRUE, \
           output_dir = '$sample_results_dir', \
-          output_file = '${library_id}_cluster-summary-report.tsv', \
+          output_file = '${library_id}_cluster-summary-report.html', \
           params = list(library_id = '$library_id', \
                         sce_file = '$sce_file', \
                         cluster_results_file = '$cluster_results'), \
