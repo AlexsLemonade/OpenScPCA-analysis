@@ -134,11 +134,17 @@ simulate_sce <- function(sce, ncells, replacement_metadata, processed) {
   # reduce the cell type data matrices, if present
   if (!is.null(metadata(sce_sim)$singler_results)) {
     sim_cells <- cell_subset[cell_subset %in% rownames(metadata(sce_sim)$singler_results)]
-    metadata(sce_sim)$singler_results <- metadata(sce_sim)$singler_results[sim_cells, ]
+    singler_results <- metadata(sce_sim)$singler_results[sim_cells, ]
+    # remove any gene data present to save space
+    metadata(singler_results)$de.genes <- NULL
+    metadata(singler_results)$common.genes <- NULL
+    metadata(sce_sim)$singler_results <- singler_results
+
   }
   if (!is.null(metadata(sce_sim)$cellassign_predictions)) {
-    sim_cells <- cell_subset[cell_subset %in% rownames(metadata(sce_sim)$cellassign_predictions)]
-    metadata(sce_sim)$cellassign_predictions <- metadata(sce_sim)$cellassign_predictions[sim_cells, ]
+    cellassign_subset <- metadata(sce_sim)$cellassign_predictions |>
+      dplyr::filter(barcode %in% cell_subset)
+    metadata(sce_sim)$cellassign_predictions <- cellassign_subset
   }
 
   # Adjust cluster/cell type labels --------------------------------------------
