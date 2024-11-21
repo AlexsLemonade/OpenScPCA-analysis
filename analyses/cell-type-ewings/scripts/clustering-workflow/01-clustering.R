@@ -40,30 +40,29 @@ option_list <- list(
   ), 
   make_option(
     opt_str = c("--nn_range"),
-    default = seq(5, 40, 5),
-    type = "numeric", 
-    help = "Range of values to use for nearest neighbors parameter. 
-      Should be a vector of numbers (e.g., c(5, 10, 15))."
+    default = "5,10,15,20,25,30,35,40",
+    type = "character", 
+    help = "Comma separated list with a range of values to use for nearest neighbors parameter."
   ), 
   make_option(
     opt_str = c("--louvain_res_range"),
-    default = c(0.5, 1, 1.5),
-    help = "Range of values to use for resolution with the Louvain clustering algorithm.
-      Should be a vector of numbers (e.g., c(.5, 1, 1.5)).
+    default = ".5,1,1.5",
+    type = "character",
+    help = "Comma separated list with a range of values to use for resolution with the Louvain clustering algorithm.
       Only used with the `--louvain` flag."
   ),
   make_option(
     opt_str = c("--mod_res_range"),
-    default = c(0.5, 1, 1.5),
-    help = "Range of values to use for resolution with the Leiden clustering algorithm and modularity objective function.
-      Should be a vector of numbers (e.g., c(.5, 1, 1.5)).
+    default = ".5,1,1.5",
+    type = "character",
+    help = "Comma separated list with a range of values to use for resolution with the Leiden clustering algorithm and modularity objective function.
       Only used with the `--leiden_mod` flag."
   ),
   make_option(
     opt_str = c("--cpm_res_range"),
-    default = c(0.001, 0.005, 0.01),
+    default = "0.001,0.005,0.01",
+    type = "character",
     help = "Range of values to use for resolution with the Leiden clustering algorithm and CPM objective function.
-      Should be a vector of numbers (e.g., c(.5, 1, 1.5)).
       Only used with the `--louvain` flag."
   ),
   make_option(
@@ -102,6 +101,19 @@ fs::dir_create(output_dir)
 # read in input sce files
 sce <- readr::read_rds(opt$sce_file)
 
+# get nn and resolution as numbers
+nn_range <- unlist(stringr::str_split(opt$nn_range, ",")) |> 
+  as.numeric()
+
+louvain_res_range <- unlist(stringr::str_split(opt$louvain_res_range, ",")) |> 
+  as.numeric()
+
+mod_res_range <- unlist(stringr::str_split(opt$mod_res_range, ",")) |> 
+  as.numeric()
+
+cpm_res_range <- unlist(stringr::str_split(opt$cpm_res_range, ",")) |> 
+  as.numeric()
+
 # Clustering -------------------------------------------------------------------
 
 # make a list of clustering options
@@ -110,8 +122,8 @@ if(opt$louvain){
   cluster_opt_list$louvain <- list(
     algorithm = "louvain", 
     # objective_function = "CPM", # we don't want this to be null 
-    nn_range = opt$nn_range, 
-    res_range = opt$louvain_res_range
+    nn_range = nn_range, 
+    res_range = louvain_res_range
   )
 }
 
@@ -119,8 +131,8 @@ if(opt$leiden_mod){
   cluster_opt_list$leiden_mod <- list(
     algorithm = "leiden",
     objective_function = "modularity", 
-    nn_range = opt$nn_range, 
-    res_range = opt$mod_res_range
+    nn_range = nn_range, 
+    res_range = mod_res_range
   )
 } 
 
@@ -128,8 +140,8 @@ if(opt$leiden_cpm){
   cluster_opt_list$leiden_cpm <- list(
     algorithm = "leiden",
     objective_function = "CPM", 
-    nn_range = opt$nn_range, 
-    res_range = opt$cpm_res_range
+    nn_range = nn_range, 
+    res_range = cpm_res_range
   )
 }
 
