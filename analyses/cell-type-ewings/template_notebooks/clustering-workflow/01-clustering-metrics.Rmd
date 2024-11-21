@@ -10,33 +10,12 @@ output:
 params:
   library_id: "SCPCL000822"
   sce_file: "../../../../data/current/SCPCP000015/SCPCS000490/SCPCL000822_processed.rds"
-  cluster_results_file: "SCPCL000822_clusters.tsv"
-  nn_range: !r seq(5, 40, 5)
-  louvain_res_range: !r c(0.5, 1, 1.5)
-  mod_res_range: !r c(0.5, 1, 1.5)
-  cpm_res_range: !r c(0.001, 0.005, 0.01)
+  cluster_results_file: "../../results/clustering/SCPCS000490/SCPCL000822_cluster-results.tsv"
 ---
 
 This notebook summarizes clustering metrics for `r params$library_id`.
 
-Louvain clusters are calculated using the following range of parameters: 
-
-- Nearest neighbors: `r paste0(params$nn_range, collapse = ", ")`
-- Resolution:`r paste0(params$louvain_res_range, collapse = ", ")`
-
-Leiden clusters are calculated using modularity as the objective function with the following range of parameters: 
-
-- Objective function: modularity 
-- Nearest neighbors: `r paste0(params$nn_range, collapse = ", ")`
-- Resolution: `r paste0(params$mod_res_range, collapse = ", ")`
-
-Leiden clusters are calculated using CPM as the objective function with the following range of parameters: 
-
-- Objective function: CPM 
-- Nearest neighbors: `r paste0(params$nn_range, collapse = ", ")`
-- Resolution: `r paste0(params$cpm_res_range, collapse = ", ")`
-
-- Metrics are then calculated to evaluate clustering results across all parameters: 
+The following metrics are calculated and shown across all parameters: 
   - Silhouette width 
   - Cluster purity 
   - Cluster stability 
@@ -81,56 +60,28 @@ source(clustering_functions)
 ```{r}
 # read in input sce files
 sce <- readr::read_rds(params$sce_file)
+
+# read in results file 
+cluster_results_df <- readr::read_tsv(params$cluster_results_file)
 ```
 
+## Clustering summary 
 
-## Calculate clusters
-
-
-```{r}
-# louvain clustering across all parameters 
-louvain_results <- rOpenScPCA::sweep_clusters(
-  sce,
-  algorithm = "louvain",
-  nn = params$nn_range,
-  resolution = params$louvain_res_range
-) |> 
-  dplyr::bind_rows() |> 
-  # add in objective function so we can combine with leiden results
-  dplyr::mutate(objective_function = NA_character_)
-
-# leiden cpm clustering
-leiden_cpm_results <- rOpenScPCA::sweep_clusters(
-  sce,
-  algorithm = "leiden",
-  nn = params$nn_range,
-  resolution = params$cpm_res_range,
-  objective_function = "CPM"
-) |> 
-  dplyr::bind_rows()
-
-# leiden modularity clustering
-leiden_mod_results <- rOpenScPCA::sweep_clusters(
-  sce,
-  algorithm = "leiden",
-  nn = params$nn_range,
-  resolution = params$mod_res_range,
-  objective_function = "modularity"
-) |> 
-  dplyr::bind_rows()
-```
-
-
-```{r}
-# join all clustering results 
-all_cluster_results <- dplyr::bind_rows(list(louvain_results, leiden_cpm_results, leiden_mod_results)) |> 
-  # add column for method + objective function 
-  # use this for splitting plots throughout report
-  dplyr::mutate(cluster_method = glue::glue(
-    "{algorithm}-{objective_function}"
-  ) |> 
-    stringr::str_remove("-NA")
-  )
+```{r, results='asis'}
+cluster_results_df |> 
+  split(cluster_results_df$cluster_method) |> 
+  purrr::imap(\(df, method){
+    res_print <- unique(df$resolution) |> 
+      paste0(collapse = ", ")
+    nn_print <- unique(df$nn) |> 
+      paste0(collapse = ", ")
+    glue::glue("
+               {method} clustering was performed with the following parameters:
+    
+                - Nearest neighbors: {nn_print}
+                - Resolution: {res_print}"
+               )
+  })
 ```
 
 
@@ -142,7 +93,7 @@ umap_df <- sce |>
   scuttle::makePerCellDF(use.dimred = "UMAP") |>
   # replace UMAP.1 with UMAP1 and get rid of excess columns
   dplyr::select("cell_id" = barcodes, UMAP1 = UMAP.1, UMAP2 = UMAP.2) |>
-  dplyr::left_join(all_cluster_results, by = "cell_id")
+  dplyr::left_join(cluster_results_df, by = "cell_id")
 
 split_umap_df <- umap_df |> 
   # add a column that shows the combination of nn/res so we get stats for each unique combo of params 
@@ -247,13 +198,6 @@ stability_stats |>
     
     
   })
-```
-
-## Export clusters 
-
-```{r}
-# export all clustering results
-readr::write_tsv(all_cluster_results, params$cluster_results_file)
 ```
 
 
