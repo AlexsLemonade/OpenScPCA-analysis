@@ -105,7 +105,7 @@ sce <- readr::read_rds(opt$sce_file)
 # define a helper function to read in comma separated lists
 split_numbers <- function(param) {
   param |>
-    string::str_split_1(param, ",") |>
+    stringr::str_split_1(param, ",") |>
     as.numeric()
  }
 
