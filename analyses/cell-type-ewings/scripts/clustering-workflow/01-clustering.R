@@ -104,9 +104,10 @@ sce <- readr::read_rds(opt$sce_file)
 # get nn and resolution as numbers
 # define a helper function to read in comma separated lists
 split_numbers <- function(param) {
-  param |>
-    stringr::str_split_1(param, ",") |>
+  range_vector <- param |>
+    stringr::str_split_1(",") |>
     as.numeric()
+  return(range_vector)
  }
 
 nn_range <- split_numbers(opt$nn_range)
