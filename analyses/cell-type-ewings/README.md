@@ -142,7 +142,7 @@ The workflow can be run using the following command:
 
 ### Input files 
 
-The `evaluate-clusters.sh` workflow requires the processed `SingleCellExperiment` objects (`_processed.rds`) from SCPCP0000015.
+The `evaluate-clusters.sh` workflow requires the processed `SingleCellExperiment` objects (`_processed.rds`) from SCPCP000015.
 These files were obtained using the `download-data.py` script:
 
 ```sh

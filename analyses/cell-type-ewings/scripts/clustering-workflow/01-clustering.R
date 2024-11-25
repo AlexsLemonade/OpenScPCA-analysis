@@ -102,6 +102,11 @@ fs::dir_create(output_dir)
 sce <- readr::read_rds(opt$sce_file)
 
 # get nn and resolution as numbers
+split_numbers <- function(param) {
+  param |>
+    string::str_split_1(param, ",") |>
+    as.numeric()
+ }
 nn_range <- unlist(stringr::str_split(opt$nn_range, ",")) |> 
   as.numeric()
 
