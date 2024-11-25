@@ -75,6 +75,18 @@ for each of the steps, we have two types of `output`:
 - the created objects saved in `results` directory, with a folder for each sample.
 
 
+## Directory contents
+
+- `scripts` contain analysis scripts used in the module workflow.
+See `scripts/README.md` for more information
+- `notebooks` contains R Markdown notebooks and their HTML output used in the module workflow
+- `cnv-exploratory-notebooks` contains R Markdown notebooks and their HTML outputs specifically from exploratory steps during CNV analysis in the module workflow
+- `supplemental-notebooks` contains exploratory notebooks comparing Azimuth label transfer to an Azimuth-adapated approach which is used in this module.
+Notebooks in this directory are not used by the module workflow
+- `results` contains result files from analyses.
+See `results/README.md` for more information
+- `marker-sets` contains CSV file with marker genes sets, as described below in this README
+
 # Analysis
 
 ## Marker sets
@@ -149,9 +161,9 @@ The `00_run_workflow.sh` contains the following steps:
 
   - `Seurat workflow`, normalization and clustering: `01_seurat-processing.Rmd` in `notebook_template`
 
-  - `Azimuth` label transfer from the fetal full reference (Cao et al.): `02a_label-transfer_fetal_full_reference_Cao.Rmd` in `notebook_template`
+  - `Azimuth`-adapted label transfer from the fetal full reference (Cao et al.): `02a_label-transfer_fetal_full_reference_Cao.Rmd` in `notebook_template`
 
-  - `Azimuth` label transfer from the fetal kidney reference (Stewart et al.): `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd` in `notebook_template`
+  - `Azimuth`-adapted label transfer from the fetal kidney reference (Stewart et al.): `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd` in `notebook_template`
 
   - Exploration of clustering, label transfers, marker genes and pathways: `03_clustering_exploration.Rmd` in `notebook_template`
 
