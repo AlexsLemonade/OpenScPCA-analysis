@@ -36,7 +36,7 @@ cd ${module_dir}
 
 # Define directories
 data_dir="../../data/current"
-notebook_dir="notebook"
+notebook_dir="notebooks"
 
 # Define test data string to use with 06_infercnv.R
 if [[ $TESTING -eq 1 ]]; then
