@@ -19,8 +19,8 @@ This would include:
 * Alternative clustering algorithms
 
 #### 03. Exploring copy number variation
-* inferCNV
-* CopyKat
+* `inferCNV`
+* `CopyKat`
 
 ## Usage
 
@@ -45,11 +45,11 @@ cd /path/to/OpenScPCA-analysis
 
 All results are sync under S3 bucket `researcher-009160072044-us-east-2`.
 
-#### 00. Pre-processing the provided SCE objects 
+#### 00. Pre-processing the provided SCE objects
 - Results for this section contains 10 `.rdsSeurat` objects for further analysis, stored in `scratch/` folder.
 
 #### 01. Anchor transfer using Seurat
-- Path on S3 `s3://researcher-009160072044-us-east-2/cell-type-wilms-tumor-14/results/01_anchor_transfer_seurat`. 
+- Path on S3 `s3://researcher-009160072044-us-east-2/cell-type-wilms-tumor-14/results/01_anchor_transfer_seurat`.
 - For more description, see `./results/README.md`.
 - Summary table for cell type annotation is available on S3 at `s3://researcher-009160072044-us-east-2/cell-type-wilms-tumor-14/results/01_anchor_transfer_seurat/summary_results.csv`.
 

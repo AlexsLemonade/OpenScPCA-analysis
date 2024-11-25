@@ -4,7 +4,7 @@
 
 ## Description
 
-This analysis aims to annotate the DSRCT samples in the SCPCP000013 (n=7) dataset.
+This analysis aims to annotate the DSRCT (Desmoplastic small round cell tumor) samples in the SCPCP000013 (n=7) dataset.
 
 To do so, we will:
 
@@ -24,7 +24,7 @@ The code for the module will be in the form of a notebook.
 ## Input files
 
 
-The input is dependent on the output fles run from `download-data.py`. 
+The input is dependent on the output files run from `download-data.py`.
 
 ```
 ./download-data.py --projects SCPCP000013

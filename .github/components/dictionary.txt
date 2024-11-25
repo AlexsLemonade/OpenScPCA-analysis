@@ -19,9 +19,11 @@ barcode
 barcodes
 Beligs
 benchmarking
+Bhasin
 Bioconda
 Bioconductor
 bioinformatics
+Biostars
 blastema
 blastemal
 Bleijs
@@ -51,6 +53,7 @@ demultiplexing
 dendogram
 derangements
 designee
+Desmoplastic
 diploidy
 discoverable
 DM
@@ -63,6 +66,7 @@ DOI
 dotplots
 doxxing
 dropdown
+DSRCT
 ECM
 ECR
 endothelia
@@ -76,6 +80,7 @@ epithelialize
 erythematosus
 erythroid
 et
+ETP
 ewings
 EWS-FLI1
 fibroblast
@@ -108,6 +113,7 @@ ies
 immunities
 impactful
 indicia
+inferCNV
 InferCNV
 intra
 Jaccard
@@ -133,6 +139,7 @@ macOS
 macrophage
 md
 merchantability
+Mesangial
 mesenchymal
 mesenchyme
 metacell
@@ -152,6 +159,7 @@ natively
 Nextflow
 nephroblastoma
 nephron
+NK
 nonconsensual
 octicons
 onboarded
@@ -164,6 +172,7 @@ Panglao
 PanglaoDB
 PDX
 peritubular
+ploidy
 pluripotent
 PMID
 PNG
@@ -195,10 +204,13 @@ SaaS
 scDblFinder
 SCE
 ScPCA
+SCPCL
 SCPCP
+SCPCS
 scRNA
 scRNAseq
 scrublet
+ScType
 SEACells
 SemVar
 seq
@@ -212,6 +224,8 @@ stroma
 stromal
 Stumptown
 subdiagnosis
+subfolder
+subfolders
 sublicensable
 subtypes
 subunits
@@ -226,6 +240,7 @@ transferrable
 transphobic
 Treg
 triaged
+triphasic
 TSV
 UCell
 UMAP
@@ -241,6 +256,7 @@ WIPO
 WisCon
 WSL
 Xcode
+xenograft
 YAML
 Zappia
 Zenodo

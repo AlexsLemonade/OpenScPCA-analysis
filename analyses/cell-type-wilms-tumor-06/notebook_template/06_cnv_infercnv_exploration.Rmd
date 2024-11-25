@@ -1,13 +1,13 @@
 ---
-title: "`infercnv` results exploration for `r params$sample_id`"
+title: "`inferCNV` results exploration for `r params$sample_id`"
 author: "Maud PLASCHKA"
 date: "`r Sys.Date()`"
 params:
   scpca_project_id: "SCPCP000006"
   sample_id: "SCPCS000179"
   seed: 12345
-output: 
-  html_document: 
+output:
+  html_document:
     toc: yes
     toc_float: yes
     code_folding: hide
@@ -36,15 +36,15 @@ subdiagnosis <- readr::read_tsv(
   dplyr::pull(subdiagnosis)
 ```
 
-This notebook explores using [`infercnv`](https://github.com/broadinstitute/inferCNV/wiki) to estimate tumor and normal cells in `r params$sample_id` from SCPCP000006. 
+This notebook explores using [`inferCNV`](https://github.com/broadinstitute/inferCNV/wiki) to estimate tumor and normal cells in `r params$sample_id` from SCPCP000006.
 This sample has a(n) `r subdiagnosis` subdiagnosis.
 
-`infercnv` was run using the `06_inferCNV.R` script with and without a normal reference, from the same patient or from an inter-patient pull of normal cells. We tested the impact of the sub-selection of normal cells using either immune, and/or endothelial cells as healthy reference.
+`inferCNV` was run using the `06_inferCNV.R` script with and without a normal reference, from the same patient or from an inter-patient pull of normal cells. We tested the impact of the sub-selection of normal cells using either immune, and/or endothelial cells as healthy reference.
 In addition, we are exploring the use of the [HMM based CNV Prediction Methods](https://github.com/broadinstitute/infercnv/wiki/inferCNV-HMM-based-CNV-Prediction-Methods).
 
-`infercnv` currently support two models for HMM-based CNV prediction, what we refer to as the i3 and i6 models. These are set in the `infercnv::run()` as HMM_type='i3' or HMM_type='i6' (i6 is default). Each method operates on the preliminary `infercnv` object which has been processed through the standard inferCNV processing routines, involving subtraction of signal corresponding to "normal (reference)" cells and smoothing operations.
+`inferCNV` currently support two models for HMM-based CNV prediction, what we refer to as the i3 and i6 models. These are set in the `infercnv::run()` as HMM_type='i3' or HMM_type='i6' (i6 is default). Each method operates on the preliminary `inferCNV` object which has been processed through the standard `inferCNV` processing routines, involving subtraction of signal corresponding to "normal (reference)" cells and smoothing operations.
 
-- i3 HMM is a three-state CNV model representing deletion, neutral, and amplification states. 
+- i3 HMM is a three-state CNV model representing deletion, neutral, and amplification states.
 - i6 HMM: a six-state CNV model that predicts the following CNV levels:
 
    - state 1 : 0x = complete loss
@@ -53,11 +53,11 @@ In addition, we are exploring the use of the [HMM based CNV Prediction Methods](
    - state 4 : 1.5x = addition of one copy
    - state 5 : 2x = addition of two copies
    - state 6 : 3x = essentially a placeholder for >2x copies but modeled as 3x.
-   
-   
-Of note, running `infercnv` with a i6 HMM model is very long, ~2hours of running time per sample, while i3 HMM model only requires ~10min per sample.
 
-In this notebook, we want to compare the heatmaps of CNV profiles, and evaluate how comparable are the methods and how sensible they are to key parameters such as selection of healthy reference. 
+
+Of note, running `inferCNV` with a i6 HMM model is very long, ~2hours of running time per sample, while i3 HMM model only requires ~10min per sample.
+
+In this notebook, we want to compare the heatmaps of CNV profiles, and evaluate how comparable are the methods and how sensible they are to key parameters such as selection of healthy reference.
 
 
 ### Libraries
@@ -74,19 +74,19 @@ library(Seurat)
 
 ### Functions
 
-Here we defined function that will be used multiple time all along the notebook. 
+Here we defined function that will be used multiple time all along the notebook.
 
 #### Visualize CNV grouped by clusters or other metadata
 
-For a Seurat object `object`, the function `Do_CNV_heatmap` load the `infercnv` object created with the script `06_infercnv.R` using `reference_value` as a reference and call the function `SCpubr::do_CopyNumberVariantPlot` to plot the mean CNV score in each group defined in `group.by`.
+For a Seurat object `object`, the function `Do_CNV_heatmap` load the `inferCNV` object created with the script `06_infercnv.R` using `reference_value` as a reference and call the function `SCpubr::do_CopyNumberVariantPlot` to plot the mean CNV score in each group defined in `group.by`.
 
-- `object` is the Seurat object 
+- `object` is the Seurat object
 
-- `infercnv_obj` is the `infercnv` object
+- `infercnv_obj` is the `inferCNV` object
 
 - `group.by` is the metadata used for grouping the violin plots
 
-- `reference_value` indicates the reference used for `infercnv`, either endothelial, immune, both or pool.
+- `reference_value` indicates the reference used for `inferCNV`, either endothelial, immune, both or pool.
 
 ```{r}
 Do_CNV_heatmap <- function(object, infercnv_obj, group.by, reference_value) {
@@ -108,12 +108,12 @@ Do_CNV_heatmap <- function(object, infercnv_obj, group.by, reference_value) {
 
 #### Calculate a global CNV score per cell to check the general distribution
 
-For a `Seurat` object an `infercnv` object created with the script `06_infercnv.R` using `reference_value` as a reference, the function `Do_CNV_score` calculate a CNV score per cell.
+For a `Seurat` object an `inferCNV` object created with the script `06_infercnv.R` using `reference_value` as a reference, the function `Do_CNV_score` calculate a CNV score per cell.
 The score is calculated based on the [this discussion](https://www.biostars.org/p/9573777/).
 The function `Do_CNV_score` returns the `Seurat` object with an additional metadata named `CNV-score_{reference_value}.`
 
-- `reference_value` is the selection of normal cells used for `infercnv`
-- `seurat_object` and `infercnv_obj` are the `Seurat`and `infercnv` object created with the script `06_infercnv.R`
+- `reference_value` is the selection of normal cells used for `inferCNV`
+- `seurat_object` and `infercnv_obj` are the `Seurat`and `inferCNV` object created with the script `06_infercnv.R`
 
 
 ```{r}
@@ -132,11 +132,11 @@ Do_CNV_score <- function(seurat_oject, infercnv_obj, reference_value) {
 
 For a Seurat object `object` and a metadata `metadata`, the function `visualize_metadata` will plot `FeaturePlot` and `BarPlot`
 
-- `object` is the Seurat object 
+- `object` is the Seurat object
 
 - `meta` the gene or quantitative value to be plotted
 
-- `group.by` is the metadata used for grouping the violin plots 
+- `group.by` is the metadata used for grouping the violin plots
 
 ```{r }
 visualize_metadata <- function(object, meta, group.by) {
@@ -176,15 +176,15 @@ visualize_metadata <- function(object, meta, group.by) {
 
 
 
-#### Visualize seurat clusters and markers genes
+#### Visualize Seurat clusters and markers genes
 
-For a Seurat object `object`and a features `features`, the function `visualize_feature` will plot `FeaturePlot` and `ViolinPlot`
+For a Seurat object `object` and a features `features`, the function `visualize_feature` will plot `FeaturePlot` and `ViolinPlot`
 
-- `object` is the Seurat object 
+- `object` is the Seurat object
 
 - `feature` the gene or quantitative value to be plotted
 
-- `group.by` is the metadata used for grouping the violin plots 
+- `group.by` is the metadata used for grouping the violin plots
 
 ```{r }
 visualize_feature <- function(object, feature, group.by) {
@@ -212,11 +212,11 @@ visualize_feature <- function(object, feature, group.by) {
 
 For a Seurat object `object`and a features `features`, the function `visualize_feature` will plot `FeaturePlot` and `ViolinPlot`
 
-- `object` is the Seurat object 
+- `object` is the Seurat object
 
 - `features` the gene or quantitative value to be plotted
 
-- `group.by` is the metadata used for grouping the violin plots 
+- `group.by` is the metadata used for grouping the violin plots
 
 ```{r }
 visualize_density <- function(object, features, group.by) {
@@ -231,38 +231,38 @@ visualize_density <- function(object, features, group.by) {
 }
 ```
 
-#### Wrapper function to explore `infercnv` HMM CNV prediction
+#### Wrapper function to explore `inferCNV` HMM CNV prediction
 
-The `wrapper_explore_hmm` take as input the `infercnv_obj` generated with `infercnv` HMM CNV predictions.
+The `wrapper_explore_hmm` take as input the `infercnv_obj` generated with `inferCNV` HMM CNV predictions.
 The wrapper allows the following steps and plots:
 
 
 ##### Feature plot and repartition of the CNV per chromosome
 
 For each chromosome, we look at the repartition of the `proportion_cnv_` in cells labeled as immune, endothelial, stroma and fetal nephron.
-`proportion_cnv_` is the proportion in number of genes that are part of any cnv/loss/duplication in the given chr.
+`proportion_cnv_` is the proportion in number of genes that are part of any CNV/loss/duplication in the given chr.
 
 #####  Distribution of CNV estimation in the Wilms tumor compartments
 
 For each chromosome, we look at the distribution of the `proportion_cnv_` in cells labeled as immune, endothelial, stroma and fetal nephron.
-`proportion_cnv_` is the proportion in number of genes that are part of any cnv/loss/duplication in the given chr.
+`proportion_cnv_` is the proportion in number of genes that are part of any CNV/loss/duplication in the given chr.
 
-We are quite confident that immune and endothelial cells are well identified by label transfer done in `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd`. 
+We are quite confident that immune and endothelial cells are well identified by label transfer done in `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd`.
 The distribution of CNV for endothelial and immune cells should thus be a single peak center on 0.
 
-We do not know if fetal nephron and stroma cells are a mix of normal and cancer cells. 
-Would they be a group of normal cells, we should expect a single peak center on 0 for every chromosome. 
-As we expect to have a large number of cancer with heterogeneous CNV, we should see multiple peaks. 
+We do not know if fetal nephron and stroma cells are a mix of normal and cancer cells.
+Would they be a group of normal cells, we should expect a single peak center on 0 for every chromosome.
+As we expect to have a large number of cancer with heterogeneous CNV, we should see multiple peaks.
 
 ##### Dot Plot
 
-The `Dotplot` representation summarizes the percentage of cells in each compartment with CNV in each of the 22 chromosomes. 
+The `Dotplot` representation summarizes the percentage of cells in each compartment with CNV in each of the 22 chromosomes.
 
 ##### CNV score
 
 Finally, we try to calculate  single CNV score and assess its potential in identifying cells with CNV versus normal cells without CNV.
 
-We simply checked for each chromosome if the cell `has_cnv_chr`. 
+We simply checked for each chromosome if the cell `has_cnv_chr`.
 Would the cell have more than `cnv_threshold` chromosome with CNV, the global `has_cnv_score` will be TRUE.
 Else, the cell will have a `has_cnv_score` set to FALSE.
 
@@ -334,11 +334,11 @@ srat <- readRDS(file.path(module_base, "results", params$sample_id, glue::glue("
 
 ## Analysis
 
-### Heatmap of `infercnv` results
+### Heatmap of `inferCNV` results
 
-Here we plot the output of `infercnv` as heatmaps of CNV.
-We first look at the PNG file generated by the `infercnv` function.
-We then used the `infercnv object` to look at mean CNV value across compartments (immune, endothelial, stroma and fetal nephron). 
+Here we plot the output of `inferCNV` as heatmaps of CNV.
+We first look at the PNG file generated by the `inferCNV` function.
+We then used the `infercnv object` to look at mean CNV value across compartments (immune, endothelial, stroma and fetal nephron).
 
 #### Without reference
 
@@ -372,22 +372,22 @@ for (reference_value in c("reference-none", "reference-immune", "reference-endot
 ```
 These heatmaps emphasize the importance of the selection of normal cells prior the inference of CNV.
 The normal reference should contain as much cell types as possible, in order to minimize false positive CNV.
-In our case, we should take immune and endothelial cells when possible. 
+In our case, we should take immune and endothelial cells when possible.
 
-Of note: By default if no reference is provided, `infercnv` take the mean of expression as normal reference. 
-The risk is that the main cell population (in our case the fetal nephron compartment) might be mistaken as the normal baseline. 
+Of note: By default if no reference is provided, `inferCNV` take the mean of expression as normal reference.
+The risk is that the main cell population (in our case the fetal nephron compartment) might be mistaken as the normal baseline.
 
 
 ### Summary CNV score
 
-We want to calculate a single CNV score and assess if/how it can be used to define cells with CNV versus stable/normal cells. 
-We defined the score as described in the [biostar discussion](https://www.biostars.org/p/9573777/).
+We want to calculate a single CNV score and assess if/how it can be used to define cells with CNV versus stable/normal cells.
+We defined the score as described in the [discussion](https://www.biostars.org/p/9573777/).
 
 We would expect:
 
 - immune and endothelial cells to have a low CNV score
 
-- fetal nephron and stroma cells to have low to high CNV score. 
+- fetal nephron and stroma cells to have low to high CNV score.
 
 Ideally, the CNV score distribution should show two peaks, one for the normal cells with no CNV, one for cancer cells with more genomic rearrangements.
 
@@ -400,8 +400,8 @@ for (reference_value in c("reference-none", "reference-immune", "reference-endot
 }
 ```
 
-This unique CNV score does not look promising. 
-We will not use this score in future notebooks. 
+This unique CNV score does not look promising.
+We will not use this score in future notebooks.
 
 We might have to select chromosomes we would like to look at, i.e. the one relevant for Wilms tumor (1p, 1q, chr17).
 
@@ -409,7 +409,7 @@ We might have to select chromosomes we would like to look at, i.e. the one relev
 
 ### HMM-i3 inference prediction with both immune and endothelium cells as reference
 
-We then explore `infercnv` results generated with immune and endothelial cells as reference, using a [HMM-i3 prediction models](https://github.com/broadinstitute/infercnv/wiki/infercnv-i3-HMM-type).
+We then explore `inferCNV` results generated with immune and endothelial cells as reference, using a [HMM-i3 prediction models](https://github.com/broadinstitute/infercnv/wiki/infercnv-i3-HMM-type).
 
 We load the `Seurat` object generated in `06_infercnv.R`
 
@@ -429,7 +429,7 @@ p
 
 ### HMM-i6 prediction of CNV with intra-patient normal reference (immune and endothelial)
 
-We then explore `infercnv` results generated with immune and endothelial cells as reference, using a [HMM-i6 model](https://github.com/broadinstitute/infercnv/wiki/infercnv-i6-HMM-type).
+We then explore `inferCNV` results generated with immune and endothelial cells as reference, using a [HMM-i6 model](https://github.com/broadinstitute/infercnv/wiki/infercnv-i6-HMM-type).
 
 
 We load the `Seurat` object generated in `06_infercnv.R`
@@ -450,17 +450,17 @@ q
 
 ### HMM-i3 CNV prediction model with an inter-patient reference of immune cells (endothelial and immune)
 
-We lastly explore `infercnv` results generated with a pull of immune and endothelial cells from different Wilms tumor samples as reference, using a HMM-i3 prediction model.
+We lastly explore `inferCNV` results generated with a pull of immune and endothelial cells from different Wilms tumor samples as reference, using a HMM-i3 prediction model.
 
-The selection of normal cells to be spiked-in as a normal reference prior running `infercnv` has been performed in `06b_build-normal-cell_reference.R.
+The selection of normal cells to be spiked-in as a normal reference prior running `inferCNV` has been performed in `06b_build-normal-cell_reference.R.
 We selected samples that haven't been pre-treated with chemotherapies. Indeed, even if normal cells shouldn't be affected by chemotherapy in terms of CNV, we are not sure how chemotherapies can affect the CNV profile of normal cells.
 We thus decided to only take endothelial and immune cells from non-treated samples whose label transfer scores are greater than 0.85 to build the reference of normal cells.
 
 #### Load the `Seurat` object
 
-We load the `Seurat` object generated in `06_infercnv.R` and transfer the `infercnv` metadata to the main `Seurat` object of sample `r params$sample_id` saved in `r glue::glue("02b-fetal_kidney_label-transfer_", params$sample_id, ".Rds")`. 
+We load the `Seurat` object generated in `06_infercnv.R` and transfer the `inferCNV` metadata to the main `Seurat` object of sample `r params$sample_id` saved in `r glue::glue("02b-fetal_kidney_label-transfer_", params$sample_id, ".Rds")`.
 
-Such a transfer is required as the merged `Seurat` object + spike-in cells does not contained the `umap` reduction. 
+Such a transfer is required as the merged `Seurat` object + spike-in cells does not contained the `umap` reduction.
 
 ```{r}
 seurat_full <- readRDS(file.path(module_base, "results", params$sample_id, glue::glue("06_infercnv_HMM-i3_", params$sample_id, "_reference-pull.rds")))
@@ -508,11 +508,11 @@ p1 + p2 + p3 + plot_layout(ncol = 3)
 
 ## Conclusions
 
-- We should run `infercnv` with the most diverse normal reference as possible, including different cell types.
-Providing no reference is not a good option, as we think that most of the cells are cancer cells with few CNV. 
+- We should run `inferCNV` with the most diverse normal reference as possible, including different cell types.
+Providing no reference is not a good option, as we think that most of the cells are cancer cells with few CNV.
 In our case, we advise taking at least immune and endothelial cells as normal reference.
 
-- The HMM prediction models help exploring the `infercnv` results. 
+- The HMM prediction models help exploring the `inferCNV` results.
 In this notebook, we have compared three HMM prediction models:
 
    + HMM-i3 with inter-patient endothelial and immune cells as reference
@@ -523,17 +523,17 @@ In this notebook, we have compared three HMM prediction models:
 
 - Globally, the three scores seems to drive similar conclusions, with the majority of fetal nephron and stroma cells being cancer cells, at least in the sample selected.
 
-   + The HMM-i3 model with inter-patient endothelial and immune cells as reference has the advantage to be usable for all Wilms tumor samples, including the ones with a very low number of immune and/or endothelial cells. 
+   + The HMM-i3 model with inter-patient endothelial and immune cells as reference has the advantage to be usable for all Wilms tumor samples, including the ones with a very low number of immune and/or endothelial cells.
 
-   + The HMM-i3 model with intra-patient endothelial and immune cells as reference seems to be the cleaner, ~fast to run (10 minutes per samples) and is more precise than the HMM-i3 with the inter-patient reference. 
+   + The HMM-i3 model with intra-patient endothelial and immune cells as reference seems to be the cleaner, ~fast to run (10 minutes per samples) and is more precise than the HMM-i3 with the inter-patient reference.
 
    + The HMM-i6 model with intra-patient endothelial and immune cells as reference is very slow (~2 hours per sample) and couldn't be used for the entire cohort.
-It is more noisy than the i3 version. However, it could have the potential to detect cancer cells with very low CNV profile. 
+It is more noisy than the i3 version. However, it could have the potential to detect cancer cells with very low CNV profile.
 
 
-- Surprisingly, running `infercnv` with endothelial and immune cells from (i) the same patient or (ii) a set of Wilms tumor patients do not seem to affect drastically the results. 
-Some false positive CNV might occur in every patient due to the inter-patient variability. 
-By comparing the results in conditions (i) and (ii), we should be able to understand which false positive are recurrent and do not take them into account. 
+- Surprisingly, running `inferCNV` with endothelial and immune cells from (i) the same patient or (ii) a set of Wilms tumor patients do not seem to affect drastically the results.
+Some false positive CNV might occur in every patient due to the inter-patient variability.
+By comparing the results in conditions (i) and (ii), we should be able to understand which false positive are recurrent and do not take them into account.
 
 
 
