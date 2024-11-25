@@ -50,7 +50,7 @@ for sample_id in $sample_ids; do
 
     for sce_file in $data_dir/$sample_id/*_processed.rds; do
 
-    # define library ID
+        # define library ID
         library_id=$(basename $sce_file | sed 's/_processed.rds$//')
 
         # define output files

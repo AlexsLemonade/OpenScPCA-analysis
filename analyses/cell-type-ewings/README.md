@@ -123,7 +123,7 @@ Note that `SingleR` does take up to 1 hour to run with 4 CPUs for some samples i
 The clustering workflow (`evaluate-clusters.sh`) can be used to perform and evaluate clusters across a range of parameters. 
 For all processed `SingleCellExperiment` objects that are part of `SCPCP000015`, clustering is performed using the following options: 
 
-- Algorithms: Louvain, Leiden with CPM, and Leiden with modularity
+- Algorithms: Louvain, Leiden with CPM, and Leiden with modularity, all using Jaccard for the weighting scheme
 - Nearest neighbors: 5, 10, 15, 20, 25, 30, 35, 40
 - Resolution (Louvain and Leiden with modularity): 0.5, 1, 1.5 
 - Resolution (Leiden with CPM): 0.001, 0.005, 0.01
