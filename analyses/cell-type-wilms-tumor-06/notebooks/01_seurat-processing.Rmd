@@ -16,9 +16,11 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,
-                      message=FALSE,
-                      warnings=FALSE)
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warnings = FALSE
+)
 ```
 
 
@@ -76,7 +78,6 @@ filelist <- list.files(data_dir, full.names = TRUE)
 
 # select the 40 Wilms tumor single nucleus folders only
 filedir <- filelist[grepl(params$sample_id, filelist)]
-
 ```
 
 ### Output file
@@ -93,42 +94,41 @@ output_dir <- file.path(module_base, "results", params$sample_id)
 #### Convert `SingleCellExperiment` object to `Seurat`
 
 ```{r sce_to_seurat}
-convert_sce_to_seurat <- function(sce, 
+convert_sce_to_seurat <- function(sce,
                                   sample_id) {
   # Convert a SingleCellExperiment from the ScPCA Portal to a Seurat object
-  # 
+  #
   # Arguments:
-  #	  sce: A SingleCellExperiment from the ScPCA Portal
-  #   sample_id: The sample identifier supplied as the project to 
+  # 	  sce: A SingleCellExperiment from the ScPCA Portal
+  #   sample_id: The sample identifier supplied as the project to
   #              CreateSeuratObject() (character)
   #
   # Returns: A Seurat Object
   # Check class of input
   stopifnot(class(sce) == "SingleCellExperiment")
-  
-  srat <- CreateSeuratObject(counts = counts(sce),
-                             assay = "RNA",
-                             project = sample_id
+
+  srat <- CreateSeuratObject(
+    counts = counts(sce),
+    assay = "RNA",
+    project = sample_id
   )
-  
+
   # convert colData and rowData to data.frame for use in the Seurat object
   cell_metadata <- as.data.frame(colData(sce))
   row_metadata <- as.data.frame(rowData(sce))
-  
+
   # add cell metadata (colData) from SingleCellExperiment to Seurat
   srat@meta.data <- cell_metadata
-  
+
   # add row metadata (rowData) from SingleCellExperiment to Seurat
   srat[["RNA"]]@meta.data <- row_metadata
-  
+
   # add metadata from SingleCellExperiment to Seurat
   srat@misc <- metadata(sce)
-  
+
   # return Seurat object
   return(srat)
-  
 }
-
 ```
 
 #### Perform `Seurat` workflow
@@ -139,11 +139,10 @@ convert_sce_to_seurat <- function(sce,
 perform_norm_dimred_cluster <- function(srat,
                                         transform_method = "glmGamPoi",
                                         conserve_memory = TRUE,
-                                        umap_dims = 1:50, 
-                                        neighbors_dims = 1:50, 
+                                        umap_dims = 1:50,
+                                        neighbors_dims = 1:50,
                                         verbose = FALSE) {
-  
-  # Perform normalization, dimensionality reduction, and clustering on a 
+  # Perform normalization, dimensionality reduction, and clustering on a
   # Seurat object
   #
   # Arguments:
@@ -151,40 +150,39 @@ perform_norm_dimred_cluster <- function(srat,
   #   transform_method: The method passed to SCTransform(); glmGamPoi by default
   #   conserve_memory: Logical specifying whether or not SCTransform() should
   #                    conserve memory
-  #   umap_dims: A vector of integers passed to RunUMAP() to specify the number 
+  #   umap_dims: A vector of integers passed to RunUMAP() to specify the number
   #              of dimensions; 1:50 by default
   #   neighbors_dims: A vector of integers passed to FindNeighbors() to specify
   #                   the dimensions of reduction to use as input
   #   verbose: Logical specifying whether or not functions should be verbose
   #
-  # Returns: 
-  #   A Seurat object containing all the contents of the normalization, PCA, 
+  # Returns:
+  #   A Seurat object containing all the contents of the normalization, PCA,
   #   UMAP, neighbors, and clustering steps
-  # 
-  
+  #
+
   # Check class
   stopifnot(class(srat) == "Seurat")
-  
+
   # Normalization
-  options(future.globals.maxSize= 8912896000000)
-  srat <- SCTransform(srat, 
-                      method = transform_method,
-                      verbose = verbose, 
-                      conserve.memory = conserve_memory)
-  
+  options(future.globals.maxSize = 8912896000000)
+  srat <- SCTransform(srat,
+    method = transform_method,
+    verbose = verbose,
+    conserve.memory = conserve_memory
+  )
+
   # dimensionality reduction
   srat <- RunPCA(srat, verbose = verbose)
   srat <- RunUMAP(srat, dims = umap_dims, verbose = verbose)
-  
+
   # clustering
-  srat    <- FindNeighbors(srat, dims = neighbors_dims, verbose = verbose)
-  srat    <- FindClusters(srat, verbose = verbose)
-  
+  srat <- FindNeighbors(srat, dims = neighbors_dims, verbose = verbose)
+  srat <- FindClusters(srat, verbose = verbose)
+
   # Return
   return(srat)
-
 }
-  
 ```
 
 ## Analysis 
@@ -199,23 +197,24 @@ sce <- readRDS(paste0(filedir, "/", file))
 ```
 
 ```{r run_seurat_wf, fig.height=4, fig.width=8, warning=FALSE, out.width='100%'}
-
-srat <- convert_sce_to_seurat(sce, 
-                                  sample_id = params$sample_id)
+srat <- convert_sce_to_seurat(sce,
+  sample_id = params$sample_id
+)
 
 
 srat <- perform_norm_dimred_cluster(srat,
-                                        transform_method = "glmGamPoi",
-                                        conserve_memory = TRUE,
-                                        umap_dims = 1:50, 
-                                        neighbors_dims = 1:50, 
-                                        verbose = FALSE)
+  transform_method = "glmGamPoi",
+  conserve_memory = TRUE,
+  umap_dims = 1:50,
+  neighbors_dims = 1:50,
+  verbose = FALSE
+)
 ```
 
 ## Save the `Seurat`object
 
 ```{r save}
-saveRDS(object = srat, file = file.path(output_dir, paste0("01-Seurat_", params$sample_id,".Rds")))
+saveRDS(object = srat, file = file.path(output_dir, paste0("01-Seurat_", params$sample_id, ".Rds")))
 ```
 
 ## Session info
