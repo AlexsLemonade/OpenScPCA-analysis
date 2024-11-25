@@ -25,7 +25,8 @@ The following metrics are calculated and shown across all parameters:
 ```{r}
 # check that sce file exists
 stopifnot(
-  "sce file does not exist" = file.exists(params$sce_file)
+  "sce file does not exist" = file.exists(params$sce_file), 
+  "clustering results file does not exist" = file.exists(params$cluster_results_file)
 )
 ```
 
