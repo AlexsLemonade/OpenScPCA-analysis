@@ -101,6 +101,9 @@ get_cluster_stability <- function(sce,
 plot_cluster_stats <- function(all_stats_df,
                                stat_column,
                                plot_title) {
+  
+  nn_range <- unique(all_stats_df$nn)
+  
   ggplot(all_stats_df, aes(x = nn, y = {{ stat_column }})) +
     # ggforce::geom_sina(size = .2) +
     ggbeeswarm::geom_quasirandom(method = "smiley", size = 0.1) +
@@ -120,12 +123,15 @@ plot_cluster_stats <- function(all_stats_df,
     ) +
     labs(
       title = plot_title
-    )
+    ) +
+    scale_x_continuous(breaks = nn_range)
 }
 
 # plot cluster stability 
 plot_cluster_stability <- function(stat_df,
                                    plot_title){
+  
+  nn_range <- unique(all_stats_df$nn)
   
   ggplot(stability_df, aes(x = nn, y = ari)) +
     geom_jitter(width = 0.1) +
@@ -146,7 +152,8 @@ plot_cluster_stability <- function(stat_df,
     ) +
     labs(
       title = plot_title
-    )
+    ) +
+    scale_x_continuous(breaks = nn_range)
   
 }
 
