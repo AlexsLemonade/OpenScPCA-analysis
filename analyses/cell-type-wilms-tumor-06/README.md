@@ -81,7 +81,7 @@ for each of the steps, we have two types of `output`:
 See `scripts/README.md` for more information
 - `notebooks` contains R Markdown notebooks and their HTML output used in the module workflow
 - `cnv-exploratory-notebooks` contains R Markdown notebooks and their HTML outputs specifically from exploratory steps during CNV analysis in the module workflow
-- `supplemental-notebooks` contains exploratory notebooks comparing Azimuth label transfer to an Azimuth-adapated approach which is used in this module.
+- `supplemental-notebooks` contains exploratory notebooks comparing Azimuth label transfer to an Azimuth-adapted approach which is used in this module.
 Notebooks in this directory are not used by the module workflow
 - `results` contains result files from analyses.
 See `results/README.md` for more information
