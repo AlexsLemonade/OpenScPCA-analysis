@@ -8,7 +8,7 @@ We first aim to annotate the cell types in ETP T-ALL, and use the annotated B ce
 
 -   We use the cell type marker (`Azimuth_BM_level1.csv`) from [Azimuth Human Bone Marrow reference](https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow). In total, there are 14 cell types: B, CD4T, CD8T, Other T, DC, Monocytes, Macrophages, NK, Early Erythrocytes, Late Erythrocytes, Plasma, Platelet, Stromal, and Hematopoietic Stem and Progenitor Cells (`HSPC`). Based on the exploratory analysis, we believe that most of the cells in these samples do not express adequate markers to be distinguished at finer cell type level (e.g. naive vs memory, CD14 vs CD16 etc.), and majority of the cells should belong to T-cells. In addition, we include the marker genes for blast cell [[Bhasin et al. (2023)](https://www.nature.com/articles/s41598-023-39152-z)] as well as erythroid precursor and cancer cell in immune system [[`ScType`](https://sctype.app/database.php) database].
 
-    `\*\*Azimuth_BM_level1.csv` is converted to `submission_markerGenes.tsv`, in the final submission format.
+    \*\*`Azimuth_BM_level1.csv` is converted to `submission_markerGenes.tsv`, in the final submission format.
 
 -   Since `ScType` annotates cell types at cluster level using marker genes provided by user or from the built-in database, we employ [self-assembling manifold](https://github.com/atarashansky/self-assembling-manifold/tree/master) (SAM) algorithm, a soft feature selection strategy for better separation of homogeneous cell types.
 
