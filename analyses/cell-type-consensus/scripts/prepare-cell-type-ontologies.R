@@ -2,6 +2,7 @@
 
 # This script is used to match cell types present in PanglaoDB to cell ontology IDs
 # The output is a TSV file that contains `ontology_id`, `human_readable_value`, and `panglao_cell_type`
+# running this script requires running the `download-panglao-ref.sh` script first 
 
 # If the output file already exists any cell types with assigned ontology IDs will not be modified 
 # Only cell types without ontology IDs will be used when matching to avoid any NA replacements 
