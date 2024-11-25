@@ -1,8 +1,8 @@
 ---
 title: "Compare label transfer results between Azimuth and Azimuth-adapted strategy"
 author: Stephanie Spielman, Data Lab
-output: 
-  html_notebook: 
+output:
+  html_notebook:
     toc: yes
     toc_float: yes
 params:
@@ -13,7 +13,8 @@ params:
 The goal of this notebook is to compare label transfer results between:
 
 - Label transfer code with Azimuth currently in `main` at commit `6af112d`. These results are referred to as `"azimuth"`.
-- Label transfer code adapted from Azimuth. These results are referred to as `"adapted_azimuth"`.
+- Label transfer code adapted from Azimuth at commit `3e2f90`. These results are referred to as `"adapted_azimuth"`.
+- All code was run performed with the `2024-08-22` OpenScPCA data release.
 
 
 ## Setup
@@ -354,11 +355,11 @@ fetal_kidney |>
 
 ## Conclusions
 
-The vast majority of the time, labels agree. 
+The vast majority of the time, labels agree.
 Generally speaking, when labels do not agree, their annotation scores are much lower, which is as expected.
- 
+
 Additional notable differences are shown in tables below:
-    
+
 ### Fetal full reference:
 
 - The Azimuth-adapted approach occasionally calls kidney or kidney-related cells as intestine or intestine epithelial
@@ -366,30 +367,30 @@ Additional notable differences are shown in tables below:
 
 | Sample | Reference | Count | Azimuth | Azimuth-adapted |
 |--------|-----------|-------|---------|-----------------|
-| SCPSC000179 | L1 | 70 | Metanephritic cells | Intestinal epithelial cells | 
-| SCPSC000179 | Organ | 64 | Kidney | Intestine | 
-| SCPSC000179 | Organ | 20 | Lung | Kidney | 
-| SCPSC000194 | L1 | 60 | Stromal cells | Mesangial cells | 
-| SCPSC000194 | Organ | 35 | Kidney | Intestine | 
-| SCPSC000194 | Organ | 36 | Lung | Kidney | 
-| SCPSC000205 | Organ | 56 | Kidney | Intestine |
-| SCPSC000208 | L1 | 101 | Mesangial cells | Metanephritic cells |  
-| SCPSC000208 | L1 | 75 | Intestinal epithelial cells | Metanephritic cells |  
-| SCPSC000208 | Organ | 149 | Kidney | Intestine | 
+| `SCPCS000179` | L1 | 70 | Metanephric cells | Intestinal epithelial cells |
+| `SCPCS000179` | Organ | 64 | Kidney | Intestine |
+| `SCPCS000179` | Organ | 20 | Lung | Kidney |
+| `SCPCS000194` | L1 | 60 | Stromal cells | Mesangial cells |
+| `SCPCS000194` | Organ | 35 | Kidney | Intestine |
+| `SCPCS000194` | Organ | 36 | Lung | Kidney |
+| `SCPCS000205` | Organ | 56 | Kidney | Intestine |
+| `SCPCS000208` | L1 | 101 | Mesangial cells | Metanephric cells |
+| `SCPCS000208` | L1 | 75 | Intestinal epithelial cells | Metanephric cells |
+| `SCPCS000208` | Organ | 149 | Kidney | Intestine |
 
 
 ### Fetal kidney reference:
 
 - Most of the cell type differences are not in the table below because they are not necessarily biologically meaningful for our purposes:
    - `kidney cell` vs `podocyte`
-   - `kidney epithelial cell` vs `kidney cell` 
-   - `mesenchymal cell` vs `mesenchymal stem cell` 
+   - `kidney epithelial cell` vs `kidney cell`
+   - `mesenchymal cell` vs `mesenchymal stem cell`
 
 
 | Sample | Reference | Count | Azimuth | Azimuth-adapted |
 |--------|-----------|-------|---------|-----------------|
-| SCPSC000179 | cell type | 94 | mesenchymal cell | kidney epithelial cell | 
-| SCPSC000205 | compartment  | 52 | fetal nephron |  stroma | 
+| `SCPCS000179` | cell type | 94 | mesenchymal cell | kidney epithelial cell |
+| `SCPCS000205` | compartment  | 52 | fetal nephron |  stroma |
 
 
 ## Session Info
