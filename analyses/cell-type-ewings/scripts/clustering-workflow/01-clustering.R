@@ -63,7 +63,7 @@ option_list <- list(
     default = "0.001,0.005,0.01",
     type = "character",
     help = "Range of values to use for resolution with the Leiden clustering algorithm and CPM objective function.
-      Only used with the `--louvain` flag."
+      Only used with the `--leiden_cpm` flag."
   ),
   make_option(
     opt_str = c("-t", "--threads"),
@@ -102,22 +102,17 @@ fs::dir_create(output_dir)
 sce <- readr::read_rds(opt$sce_file)
 
 # get nn and resolution as numbers
+# define a helper function to read in comma separated lists
 split_numbers <- function(param) {
   param |>
     string::str_split_1(param, ",") |>
     as.numeric()
  }
-nn_range <- unlist(stringr::str_split(opt$nn_range, ",")) |> 
-  as.numeric()
 
-louvain_res_range <- unlist(stringr::str_split(opt$louvain_res_range, ",")) |> 
-  as.numeric()
-
-mod_res_range <- unlist(stringr::str_split(opt$mod_res_range, ",")) |> 
-  as.numeric()
-
-cpm_res_range <- unlist(stringr::str_split(opt$cpm_res_range, ",")) |> 
-  as.numeric()
+nn_range <- split_numbers(opt$nn_range)
+louvain_res_range <- split_numbers(opt$louvain_res_range)
+mod_res_range <- split_numbers(opt$mod_res_range)
+cpm_res_range <- split_numbers(opt$cpm_res_range)
 
 # Clustering -------------------------------------------------------------------
 
@@ -125,8 +120,7 @@ cpm_res_range <- unlist(stringr::str_split(opt$cpm_res_range, ",")) |>
 cluster_opt_list <- list()
 if(opt$louvain){
   cluster_opt_list$louvain <- list(
-    algorithm = "louvain", 
-    # objective_function = "CPM", # we don't want this to be null 
+    algorithm = "louvain",
     nn_range = nn_range, 
     res_range = louvain_res_range
   )
