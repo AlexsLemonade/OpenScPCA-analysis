@@ -19,6 +19,7 @@ barcode
 barcodes
 Beligs
 benchmarking
+Bhasin
 Bioconda
 Bioconductor
 bioinformatics
@@ -79,6 +80,7 @@ epithelialize
 erythematosus
 erythroid
 et
+ETP
 ewings
 EWS-FLI1
 fibroblast
@@ -157,6 +159,7 @@ natively
 Nextflow
 nephroblastoma
 nephron
+NK
 nonconsensual
 octicons
 onboarded
@@ -207,6 +210,7 @@ SCPCS
 scRNA
 scRNAseq
 scrublet
+ScType
 SEACells
 SemVar
 seq
