@@ -51,6 +51,7 @@ demultiplexing
 dendogram
 derangements
 designee
+Desmoplastic
 diploidy
 discoverable
 DM
@@ -63,6 +64,7 @@ DOI
 dotplots
 doxxing
 dropdown
+DSRCT
 ECM
 ECR
 endothelia
@@ -139,7 +141,7 @@ mesenchymal
 mesenchyme
 metacell
 metacells
-Metanephric
+metanephric
 microenvironment
 microRNA
 Miniconda
@@ -198,6 +200,7 @@ scDblFinder
 SCE
 ScPCA
 SCPCP
+SCPCS
 scRNA
 scRNAseq
 scrublet
@@ -243,6 +246,7 @@ WIPO
 WisCon
 WSL
 Xcode
+xenograft
 YAML
 Zappia
 Zenodo

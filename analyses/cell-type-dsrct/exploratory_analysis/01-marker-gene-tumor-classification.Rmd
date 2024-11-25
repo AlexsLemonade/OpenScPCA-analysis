@@ -1,5 +1,5 @@
 ---
-title: "EDA of DSRCT Samples"
+title: "Exploratory data analysis of DSRCT Samples"
 author: Danh Truong
 date: "`r Sys.Date()`"
 output:
@@ -41,7 +41,7 @@ repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 
 # The current data directory, found within the repository base directory
 data_dir <- file.path(repository_base, "data", "current")
-#sample_dir <- file.path(data_dir, "SCPCP000013", params$sample_id)
+# sample_dir <- file.path(data_dir, "SCPCP000013", params$sample_id)
 
 # The path to this module
 module_base <- file.path(repository_base, "analyses", "cell-type-DSRCT")
@@ -50,16 +50,15 @@ module_base <- file.path(repository_base, "analyses", "cell-type-DSRCT")
 
 ```{r}
 metadata_file <- file.path(data_dir, "SCPCP000013", "single_cell_metadata.tsv")
-metadata <- read.csv(metadata_file,  sep = '\t')
-metadata_DSRCT <- dplyr::filter(metadata, diagnosis == 'Desmoplastic small round cell tumor')
-
+metadata <- read.csv(metadata_file, sep = "\t")
+metadata_DSRCT <- dplyr::filter(metadata, diagnosis == "Desmoplastic small round cell tumor")
 ```
 
 
 ```{r paths}
 sce_file_list <- file.path(
-  data_dir, "SCPCP000013",  
-  metadata_DSRCT$scpca_sample_id, 
+  data_dir, "SCPCP000013",
+  metadata_DSRCT$scpca_sample_id,
   paste0(metadata_DSRCT$scpca_library_id, "_processed.rds")
 )
 
@@ -69,27 +68,27 @@ marker_genes <- file.path(module_base, "references", "tumor-marker-genes.tsv")
 results_dir <- file.path(module_base, "results", "marker_gene_analysis")
 fs::dir_create(results_dir)
 
-#classifications_filename <- glue::glue("{params$library_id}_tumor_normal_classifications.tsv")
-#output_classifications_file <- file.path(results_dir, classifications_filename)
+# classifications_filename <- glue::glue("{params$library_id}_tumor_normal_classifications.tsv")
+# output_classifications_file <- file.path(results_dir, classifications_filename)
 ```
 
 Read in each data as a separate object `SingleCellExperiment` in the list. 
 ```{r}
 sce_list <- lapply(sce_file_list, readr::read_rds)
 
-#adding the sample id to the name of each SingleCellExperiment
+# adding the sample id to the name of each SingleCellExperiment
 names(sce_list) <- metadata_DSRCT$scpca_library_id
 
-# read in marker genes table 
-marker_genes_df <- readr::read_tsv(marker_genes) |> 
+# read in marker genes table
+marker_genes_df <- readr::read_tsv(marker_genes) |>
   # account for genes being from multiple sources
-  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |> 
+  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |>
   dplyr::distinct()
 
 marker_genes_df
 
-marker_genes <- marker_genes_df |> 
-  dplyr::filter(cell_type == "tumor") |> 
+marker_genes <- marker_genes_df |>
+  dplyr::filter(cell_type == "tumor") |>
   dplyr::pull(ensembl_gene_id)
 ```
 
@@ -102,31 +101,34 @@ The first thing we do here is just create a faceted UMAP showing the expression 
 
 ```{r}
 umap_df_list <- lapply(sce_list, function(x) {
-# pull out the UMAP coordinates and genes and make a data frame to use for plotting
+  # pull out the UMAP coordinates and genes and make a data frame to use for plotting
   umap_df <- x |>
     scuttle::makePerCellDF(features = marker_genes, use.dimred = "UMAP") |>
     # replace UMAP.1 with UMAP1
     dplyr::rename_with(\(x) stringr::str_replace(x, "^UMAP\\.", "UMAP")) |>
     # combine all genes into a single column for easy faceting
-    tidyr::pivot_longer(cols = starts_with("ENSG"),
-                        names_to = "ensembl_gene_id",
-                        values_to = "gene_expression") |>
+    tidyr::pivot_longer(
+      cols = starts_with("ENSG"),
+      names_to = "ensembl_gene_id",
+      values_to = "gene_expression"
+    ) |>
     # join with marker gene df to get gene symbols for plotting
     dplyr::left_join(marker_genes_df, by = c("ensembl_gene_id")) |>
-    dplyr::select(barcodes,
-                  UMAP1,
-                  UMAP2,
-                  gene_symbol,
-                  ensembl_gene_id,
-                  gene_expression,
-                  cluster)
+    dplyr::select(
+      barcodes,
+      UMAP1,
+      UMAP2,
+      gene_symbol,
+      ensembl_gene_id,
+      gene_expression,
+      cluster
+    )
 })
-
 ```
 
 
 ```{r, fig.width=8}
-for(i in 1:length(umap_df_list)){
+for (i in 1:length(umap_df_list)) {
   # faceted umap showing a umap panel for each marker gene
   p <- ggplot(umap_df_list[[i]], aes(x = UMAP1, y = UMAP2, color = gene_expression)) +
     geom_point(alpha = 0.8, size = 0.1) +
@@ -146,59 +148,59 @@ for(i in 1:length(umap_df_list)){
     ) +
     guides(colour = guide_colorbar(title.position = "bottom", title.hjust = 0.5)) +
     ggtitle(names(umap_df_list)[i])
-  
-  #save plots
+
+  # save plots
   ggsave(
     filename = paste0(
       module_base,
-      '/plots/marker_expression_',
+      "/plots/marker_expression_",
       names(umap_df_list)[i],
-      '.png'
+      ".png"
     ),
     plot = p,
     width = 6,
     height = 6,
-    units = 'in',
+    units = "in",
     dpi = 150
   )
 }
-  
-
 ```
 
 
-In my experience, ST6GALNAC5 is a strong marker for DSRCT in single-cell data. As can be seen, several of the samples have expression of ST6GALNAC5, but some do not, such as SCPCS000731 and SCPCS000729. In fact, these SCPCS000729 contains  low number of cells. These  samples in particular are the PDX samples and I will be excluding SCPCS000729 from further analyses. 
+In my experience, `ST6GALNAC5` is a strong marker for DSRCT in single-cell data. As can be seen, several of the samples have expression of `ST6GALNAC5`, but some do not, such as SCPCS000731 and SCPCS000729. In fact, these SCPCS000729 contains  low number of cells. These samples in particular are the PDX samples and I will be excluding SCPCS000729 from further analyses. 
 
 ```{r}
-umap_df_list_excluded <- umap_df_list[!(names(umap_df_list) %in% c('SCPCS000731'))]
+umap_df_list_excluded <- umap_df_list[!(names(umap_df_list) %in% c("SCPCS000731"))]
 ```
 
 
 We can also look at the distributions for each marker gene. 
-I would expect to see some sort of bimodal distribution separating cells that do and do not have expression of the marker gene. What is clear from these plots that ST6GALNAC5, CACNA2D2, PTPRQ, IQCJ-SCHIP1,  show a bi modal distribution among the cells. To some extent, we do see expression of the other markers. 
+I would expect to see some sort of bimodal distribution separating cells that do and do not have expression of the marker gene. What is clear from these plots that `ST6GALNAC5`, `CACNA2D2`, `PTPRQ`, `IQCJ-SCHIP1`,  show a bi modal distribution among the cells. To some extent, we do see expression of the other markers. 
 
 ```{r}
-for(i in 1:length(umap_df_list_excluded)) {
-  p <- ggplot(umap_df_list_excluded[[i]],
-              aes(x = gene_expression, fill = gene_symbol)) +
+for (i in 1:length(umap_df_list_excluded)) {
+  p <- ggplot(
+    umap_df_list_excluded[[i]],
+    aes(x = gene_expression, fill = gene_symbol)
+  ) +
     geom_density() +
-    facet_wrap(vars(gene_symbol), scales = 'free_y') +
-    theme(legend.position = "none") + 
+    facet_wrap(vars(gene_symbol), scales = "free_y") +
+    theme(legend.position = "none") +
     ggtitle(names(umap_df_list_excluded)[i])
   print(p)
-  
-  #save plots
+
+  # save plots
   ggsave(
     filename = paste0(
       module_base,
-      '/plots/marker_distribution_',
+      "/plots/marker_distribution_",
       names(umap_df_list)[i],
-      '.png'
+      ".png"
     ),
     plot = p,
     width = 6,
     height = 6,
-    units = 'in',
+    units = "in",
     dpi = 150
   )
 }
@@ -211,46 +213,45 @@ Now we will transform each of the gene expression vectors by generating z-scores
 Then we might be able to find a cut off we can use across samples for if marker genes are present in a cell or not. 
 
 ```{r}
-umap_df_list_excluded_scaled <- lapply(umap_df_list_excluded, function(x){
-  x   |>
-  dplyr::group_by(gene_symbol) |>
-  # get z-scores for each gene
-  dplyr::mutate(transformed_gene_expression = scale(gene_expression)[, 1]) |>
-  dplyr::ungroup()
+umap_df_list_excluded_scaled <- lapply(umap_df_list_excluded, function(x) {
+  x |>
+    dplyr::group_by(gene_symbol) |>
+    # get z-scores for each gene
+    dplyr::mutate(transformed_gene_expression = scale(gene_expression)[, 1]) |>
+    dplyr::ungroup()
 })
-
 ```
 
 
-Now we can create the same density plot but looking at z-scores. Interestingly, in some samples, like SPCS000489, we see that ST6GALNAC5 has negative values. Presumably, these are tumor cells but there may be a skew due to the number of tumor cells compared to normal. 
+Now we can create the same density plot but looking at z-scores. Interestingly, in some samples, like SCPCS000489, we see that `ST6GALNAC5` has negative values. Presumably, these are tumor cells but there may be a skew due to the number of tumor cells compared to normal. 
 
 ```{r}
-
-for(i in 1:length(umap_df_list_excluded_scaled)) {
-  p <- ggplot(umap_df_list_excluded_scaled[[i]],
-              aes(x = transformed_gene_expression, fill = gene_symbol)) +
+for (i in 1:length(umap_df_list_excluded_scaled)) {
+  p <- ggplot(
+    umap_df_list_excluded_scaled[[i]],
+    aes(x = transformed_gene_expression, fill = gene_symbol)
+  ) +
     geom_density() +
-    facet_wrap(vars(gene_symbol), scales = 'free_y') +
-    theme(legend.position = "none") + 
+    facet_wrap(vars(gene_symbol), scales = "free_y") +
+    theme(legend.position = "none") +
     ggtitle(names(umap_df_list_excluded_scaled)[i])
-  
+
   print(p)
-  
-  #save plots
+
+  # save plots
   ggsave(
     filename = paste0(
       module_base,
-      '/plots/marker_distribution_zscaled_',
+      "/plots/marker_distribution_zscaled_",
       names(umap_df_list)[i],
-      '.png'
+      ".png"
     ),
     plot = p,
     width = 6,
     height = 6,
-    units = 'in',
+    units = "in",
     dpi = 150
   )
-  
 }
 ```
 
@@ -267,41 +268,40 @@ Let's start with classifying tumor cells as tumor if any marker gene is present 
 Below, we can get the sum of the transformed gene expression of all marker genes and plot in a single UMAP. 
 
 ```{r}
-# calculate sum gene expression across all marker genes in list 
-marker_sum_exp <- lapply(umap_df_list_excluded_scaled, function(x){
+# calculate sum gene expression across all marker genes in list
+marker_sum_exp <- lapply(umap_df_list_excluded_scaled, function(x) {
   x |>
-  dplyr::group_by(barcodes) |> 
-  dplyr::mutate(sum_exp = sum(transformed_gene_expression, na.rm = T)) |> 
-  dplyr::select(barcodes, UMAP1, UMAP2, sum_exp, cluster) |> 
-  dplyr::distinct()
+    dplyr::group_by(barcodes) |>
+    dplyr::mutate(sum_exp = sum(transformed_gene_expression, na.rm = T)) |>
+    dplyr::select(barcodes, UMAP1, UMAP2, sum_exp, cluster) |>
+    dplyr::distinct()
 })
 
 
-# plot mean gene expression 
+# plot mean gene expression
 
-for(i in 1:length(marker_sum_exp)) {
+for (i in 1:length(marker_sum_exp)) {
   p <- ggplot(marker_sum_exp[[i]], aes(x = UMAP1, y = UMAP2, color = sum_exp)) +
-  geom_point(size = 0.5, alpha = 0.5) +
-  scale_color_viridis_c() +
+    geom_point(size = 0.5, alpha = 0.5) +
+    scale_color_viridis_c() +
     ggtitle(names(umap_df_list_excluded_scaled)[i])
   print(p)
-  
-  #save plots
+
+  # save plots
   ggsave(
     filename = paste0(
       module_base,
-      '/plots/UMAP_marker_expression_',
+      "/plots/UMAP_marker_expression_",
       names(umap_df_list)[i],
-      '.png'
+      ".png"
     ),
     plot = p,
     width = 6,
     height = 6,
-    units = 'in',
+    units = "in",
     dpi = 150
   )
 }
-
 ```
 Similar to the individual plots, it looks like there is one group of cells on the bottom right that has the highest marker gene expression. 
 We would anticipate that these are most likely to be the tumor cells. 
@@ -309,69 +309,68 @@ We would anticipate that these are most likely to be the tumor cells.
 Now let's classify any cell that has a sum of marker genes > 0 (after z-transformation) as tumor cells. 
 
 ```{r}
-# classify tumor cells based on presence of any marker genes 
-marker_sum_exp <- lapply(marker_sum_exp, function(x){
-  x |> 
-  dplyr::mutate(sum_classification = dplyr::if_else(sum_exp > 0, "Tumor", "Normal"))})
+# classify tumor cells based on presence of any marker genes
+marker_sum_exp <- lapply(marker_sum_exp, function(x) {
+  x |>
+    dplyr::mutate(sum_classification = dplyr::if_else(sum_exp > 0, "Tumor", "Normal"))
+})
 
 
-for(i in 1:length(marker_sum_exp)) {
+for (i in 1:length(marker_sum_exp)) {
   p <- ggplot(marker_sum_exp[[i]], aes(x = UMAP1, y = UMAP2, color = sum_classification)) +
-  geom_point(size = 0.5, alpha = 1) +
-  ggtitle(names(umap_df_list_excluded_scaled)[i])
+    geom_point(size = 0.5, alpha = 1) +
+    ggtitle(names(umap_df_list_excluded_scaled)[i])
   print(p)
-  
-  #save plots
+
+  # save plots
   ggsave(
     filename = paste0(
       module_base,
-      '/plots/UMAP_classification_',
+      "/plots/UMAP_classification_",
       names(umap_df_list)[i],
-      '.png'
+      ".png"
     ),
     plot = p,
     width = 6,
     height = 6,
-    units = 'in',
+    units = "in",
     dpi = 150
   )
 }
-
 ```
 
 This gives us a rough idea of cells that may be classified as tumor cells. However, I believe re-doing this analysis using the cluster level data may give us better results. This is highly dependent on whether the clusters were generated with enough granularity.
 
 ```{r}
-# calculate sum gene expression across all marker genes in list 
-marker_sum_exp <- lapply(umap_df_list_excluded_scaled, function(x){
-  x |> 
-  dplyr::group_by(cluster) |> #change to cluster
-  dplyr::mutate(sum_exp = sum(transformed_gene_expression, na.rm = T)) |> 
-  dplyr::select(barcodes, UMAP1, UMAP2, sum_exp, cluster) |> 
-  dplyr::distinct()
+# calculate sum gene expression across all marker genes in list
+marker_sum_exp <- lapply(umap_df_list_excluded_scaled, function(x) {
+  x |>
+    dplyr::group_by(cluster) |> # change to cluster
+    dplyr::mutate(sum_exp = sum(transformed_gene_expression, na.rm = T)) |>
+    dplyr::select(barcodes, UMAP1, UMAP2, sum_exp, cluster) |>
+    dplyr::distinct()
 })
 
 
-# plot mean gene expression 
+# plot mean gene expression
 
-for(i in 1:length(marker_sum_exp)) {
+for (i in 1:length(marker_sum_exp)) {
   p <- ggplot(marker_sum_exp[[i]], aes(x = UMAP1, y = UMAP2, color = sum_exp)) +
-  geom_point(size = 0.5, alpha = 0.5) +
-  scale_color_viridis_c() +
+    geom_point(size = 0.5, alpha = 0.5) +
+    scale_color_viridis_c() +
     ggtitle(names(umap_df_list_excluded_scaled)[i])
   print(p)
-  
-  #save plots
+
+  # save plots
   ggsave(
-    filename = paste0(module_base, '/plots/UMAP_marker_expression_cluster_', names(umap_df_list)[i], '.png'),
+    filename = paste0(module_base, "/plots/UMAP_marker_expression_cluster_", names(umap_df_list)[i], ".png"),
     plot = p,
     width = 6,
     height = 6,
-    units = 'in',
+    units = "in",
     dpi = 150
   )
 }
-
 ```
 It looks like there are group of cells with high marker gene expression. We  anticipate that these are most likely to be the tumor cells. The groups with low or negative values are likely normal cells. 
 
@@ -379,37 +378,36 @@ Now let's classify clusters that has a sum of marker genes > 0 (after z-transfor
 
 
 ```{r}
-# classify tumor cells based on presence of any marker genes 
-marker_sum_exp <- lapply(marker_sum_exp, function(x){
+# classify tumor cells based on presence of any marker genes
+marker_sum_exp <- lapply(marker_sum_exp, function(x) {
   d <- density(x$sum_exp)
-  
-  x |> 
-  dplyr::mutate(sum_classification = dplyr::if_else(sum_exp > 0, "Tumor", "Normal"))})
+
+  x |>
+    dplyr::mutate(sum_classification = dplyr::if_else(sum_exp > 0, "Tumor", "Normal"))
+})
 
 
-for(i in 1:length(marker_sum_exp)) {
+for (i in 1:length(marker_sum_exp)) {
   p <- ggplot(marker_sum_exp[[i]], aes(x = UMAP1, y = UMAP2, color = sum_classification)) +
-  geom_point(size = 0.5, alpha = 1) +
-  ggtitle(names(umap_df_list_excluded_scaled)[i])
+    geom_point(size = 0.5, alpha = 1) +
+    ggtitle(names(umap_df_list_excluded_scaled)[i])
   print(p)
 
-  #save plots
+  # save plots
   ggsave(
     filename = paste0(
       module_base,
-      '/plots/UMAP_classification_cluster_',
+      "/plots/UMAP_classification_cluster_",
       names(umap_df_list)[i],
-      '.png'
+      ".png"
     ),
     plot = p,
     width = 6,
     height = 6,
-    units = 'in',
+    units = "in",
     dpi = 150
   )
-
 }
-
 ```
 
 Based on my experiences, the above plots show that we are unable to adequately determine the tumor cells from the normal cells. This can be seen in SCPCS000729, which is most likely all tumor cells, since it is collected from a patient-derived xenograft.
@@ -423,9 +421,9 @@ Based on my experiences, the above plots show that we are unable to adequately d
 ## Save outputs 
 ```{r}
 # get an RDS of the processed data
-saveRDS(sce_file_list, '../results/SCPCP000013_sce_file_list.rds')
+saveRDS(sce_file_list, "../results/SCPCP000013_sce_file_list.rds")
 # get an RDS of the UMAP data with marker genes
-saveRDS(umap_df_list, file.path(module_base, 'results/SCPCP000013_umap_df_list.rds'))
+saveRDS(umap_df_list, file.path(module_base, "results/SCPCP000013_umap_df_list.rds"))
 ```
 
 
