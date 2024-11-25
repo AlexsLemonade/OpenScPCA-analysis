@@ -36,8 +36,7 @@ cd ${module_dir}
 
 # Define directories
 data_dir="../../data/current"
-notebook_template_dir="notebook_template"
-notebook_output_dir="notebook"
+notebook_dir="notebook"
 
 # Define test data string to use with 06_infercnv.R
 if [[ $TESTING -eq 1 ]]; then
@@ -69,10 +68,10 @@ Rscript scripts/prepare-fetal-references.R --kidney_ref_file "${kidney_ref_file}
 # Characterize the fetal kidney reference (Stewart et al.)
 # This step does not directly contribute to the final annotations
 if [[ $RUN_EXPLORATORY -eq 1 ]]; then
-  Rscript -e "rmarkdown::render('${notebook_template_dir}/00b_characterize_fetal_kidney_reference_Stewart.Rmd',
+  Rscript -e "rmarkdown::render('${notebook_dir}/00b_characterize_fetal_kidney_reference_Stewart.Rmd',
       output_format = 'html_document',
       output_file = '00b_characterization_fetal_kidney_reference_Stewart.html',
-      output_dir = '${notebook_output_dir}/00-reference',
+      output_dir = '${notebook_dir}/00-reference',
       params = list(fetal_kidney_path = '${kidney_ref_file_seurat}'))"
 fi
 
@@ -85,20 +84,20 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
     # directory for the pre-processed and labeled `Seurat` objects
     results_dir=results/${sample_id}
     # directory for sample-specific notebooks
-    sample_notebook_dir=notebook/${sample_id}
+    sample_notebook_dir=${notebook_dir}/${sample_id}
 
     mkdir -p $results_dir
     mkdir -p $sample_notebook_dir
 
     # Pre-process the data - `Seurat` workflow
-    Rscript -e "rmarkdown::render('${notebook_template_dir}/01_seurat-processing.Rmd',
+    Rscript -e "rmarkdown::render('${notebook_dir}/01_seurat-processing.Rmd',
                     params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}'),
                     output_format = 'html_document',
                     output_file = '01_seurat_processing_${sample_id}.html',
                     output_dir = '${sample_notebook_dir}')"
 
     # Label transfer from the Cao reference
-    Rscript -e "rmarkdown::render('${notebook_template_dir}/02a_label-transfer_fetal_full_reference_Cao.Rmd',
+    Rscript -e "rmarkdown::render('${notebook_dir}/02a_label-transfer_fetal_full_reference_Cao.Rmd',
                     params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}', homologs_file = '${homologs_file}', testing = ${TESTING}),
                     output_format = 'html_document',
                     output_file = '02a_fetal_all_reference_Cao_${sample_id}.html',
@@ -106,7 +105,7 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
 
     # Label transfer from the Stewart reference
     # Note that this reference has ensembl IDs
-    Rscript -e "rmarkdown::render('${notebook_template_dir}/02b_label-transfer_fetal_kidney_reference_Stewart.Rmd',
+    Rscript -e "rmarkdown::render('${notebook_dir}/02b_label-transfer_fetal_kidney_reference_Stewart.Rmd',
                     params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}', testing = ${TESTING}),
                     output_format = 'html_document',
                     output_file = '02b_fetal_kidney_reference_Stewart_${sample_id}.html',
@@ -115,7 +114,7 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
     # Cluster exploration
     # This step does not directly contribute to the final annotations
     if [[ $RUN_EXPLORATORY -eq 1 ]]; then
-      Rscript -e "rmarkdown::render('${notebook_template_dir}/03_clustering_exploration.Rmd',
+      Rscript -e "rmarkdown::render('${notebook_dir}/03_clustering_exploration.Rmd',
                       params = list(scpca_project_id = '${project_id}', sample_id = '${sample_id}', testing = ${TESTING}),
                       output_format = 'html_document',
                       output_file = '03_clustering_exploration_${sample_id}.html',
@@ -134,17 +133,17 @@ if [[ $RUN_EXPLORATORY -eq 1 ]]; then
 
   # Run notebook template to explore label transfer and clustering for all samples at once
   for score_threshold in 0.5 0.75 0.85 0.95; do
-    Rscript -e "rmarkdown::render('${notebook_output_dir}/04_annotation_Across_Samples_exploration.Rmd',
+    Rscript -e "rmarkdown::render('${notebook_dir}/04_annotation_Across_Samples_exploration.Rmd',
                     params = list(predicted.score_thr = ${score_threshold}, testing = ${TESTING}),
                     output_format = 'html_document',
                     output_file = '04_annotation_Across_Samples_exploration_predicted.score_threshold_${score_threshold}.html',
-                    output_dir = '${notebook_output_dir}')"
+                    output_dir = '${notebook_dir}')"
   done
 
   # Run infercnv and copykat for a selection of samples
   # This script calls scripts/05_copyKAT.R and scripts/06_infercnv.R and associated exploratory CNV notebooks in `cnv-exploratory-notebooks/`
   # By default, copyKAT as called by this script uses 32 cores
-  THREADS=${THREADS} TESTING=${TESTING} ./scripts/explore-cnv-methods.sh
+  #THREADS=${THREADS} TESTING=${TESTING} ./scripts/explore-cnv-methods.sh
 
 fi
 
@@ -172,8 +171,8 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
 done
 
 # Render notebook to make draft annotations
-Rscript -e "rmarkdown::render('${notebook_output_dir}/07_combined_annotation_across_samples_exploration.Rmd',
+Rscript -e "rmarkdown::render('${notebook_dir}/07_combined_annotation_across_samples_exploration.Rmd',
                         params = list(predicted.celltype.threshold = 0.85, cnv_threshold = 0, testing = ${TESTING}),
                         output_format = 'html_document',
                         output_file = '07_combined_annotation_across_samples_exploration.html',
-                        output_dir = '${notebook_output_dir}')"
+                        output_dir = '${notebook_dir}')"
