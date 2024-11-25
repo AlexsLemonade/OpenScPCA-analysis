@@ -495,7 +495,7 @@ We used three gene sets from `MSigDB`:
 - the C3 : regulatory target gene sets  based on gene target predictions for microRNA seed sequences and predicted transcription factor binding sites.
 - the C8 : cell type signature gene sets  curated from cluster markers identified in single-cell sequencing studies of human tissue.
 
-We used enricher function from `clusterProfiler` to perform enrichment analysis.
+We used `clusterProfiler::enricher()` to perform enrichment analysis.
 
 ```{r enrichment, eval=!params$testing}
 # define background genes = universe for enrichment

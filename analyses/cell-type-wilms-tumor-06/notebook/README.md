@@ -4,7 +4,7 @@ The notebook directory holds a directory for each of the sample in the Wilms tum
 
 ## Fetal kidney reference
 
-To perform label transfer using an Azimuth-adapted appraoch and the fetal kidney atlas, a reference is built via [`scripts/prepare-fetal-references.R`](../scripts/scripts/prepare-fetal-references.R).
+To perform label transfer using an Azimuth-adapted approach and the fetal kidney atlas, a reference is built via [`scripts/prepare-fetal-references.R`](../scripts/scripts/prepare-fetal-references.R).
 
 As part of the `00b_characterize_fetal_kidney_reference_Stewart.Rmd` notebook template, we characterized the fetal kidney reference and generated lists of marker genes for the compartment and cell types composing the reference.
 
@@ -56,11 +56,11 @@ This notebook performs a draft annotation of samples using information from CNV 
 
 We selected in [`04_annotation_Across_Samples_exploration.Rmd`](../notebook/04_annotation_Across_Samples_exploration.Rmd) 5 samples to test for aneuploidy and CNV inference:
 
-- sample SCPCS000194
-- sample SCPCS000179
-- sample SCPCS000184
-- sample SCPCS000205
-- sample SCPCS000208
+- sample `SCPCS000194`
+- sample `SCPCS000179`
+- sample `SCPCS000184`
+- sample `SCPCS000205`
+- sample `SCPCS000208`
 
 - [x] `05_copykat_exploration_{sample_id}.html` is the output of the [`05_copykat_exploration.Rmd`](../notebook_template/05_copykat_exploration.Rmd) notebook template.
 
