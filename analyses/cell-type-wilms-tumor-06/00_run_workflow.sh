@@ -143,7 +143,7 @@ if [[ $RUN_EXPLORATORY -eq 1 ]]; then
   # Run infercnv and copykat for a selection of samples
   # This script calls scripts/05_copyKAT.R and scripts/06_infercnv.R and associated exploratory CNV notebooks in `cnv-exploratory-notebooks/`
   # By default, copyKAT as called by this script uses 32 cores
-  #THREADS=${THREADS} TESTING=${TESTING} ./scripts/explore-cnv-methods.sh
+  THREADS=${THREADS} TESTING=${TESTING} ./scripts/explore-cnv-methods.sh
 
 fi
 
