@@ -1,0 +1,179 @@
+ontology_id	human_readable_value	panglao_cell_type
+CL:0000236	B cell	B cells
+CL:0000084	T cell	T cells
+CL:0002038	T follicular helper cell	T follicular helper cells
+CL:0000622	acinar cell	Acinar cells
+CL:0000136	adipocyte	Adipocytes
+CL:0000109	adrenergic neuron	Adrenergic neurons
+CL:0000583	alveolar macrophage	Alveolar macrophages
+CL:0000127	astrocyte	Astrocytes
+CL:0000646	basal cell	Basal cells
+CL:0000767	basophil	Basophils
+CL:1000488	cholangiocyte	Cholangiocytes
+CL:0000108	cholinergic neuron	Cholinergic neurons
+CL:0000138	chondrocyte	Chondrocytes
+CL:0000166	chromaffin cell	Chromaffin cells
+CL:0000064	ciliated cell	Ciliated cells
+CL:2000002	decidual cell	Decidual cells
+CL:0000451	dendritic cell	Dendritic cells
+CL:0000700	dopaminergic neuron	Dopaminergic neurons
+CL:0002322	embryonic stem cell	Embryonic stem cells
+CL:0000115	endothelial cell	Endothelial cells
+CL:0007011	enteric neuron	Enteric neurons
+CL:0000584	enterocyte	Enterocytes
+CL:0000164	enteroendocrine cell	Enteroendocrine cells
+CL:0000771	eosinophil	Eosinophils
+CL:0000065	ependymal cell	Ependymal cells
+CL:0000352	epiblast cell	Epiblast cells
+CL:0000066	epithelial cell	Epithelial cells
+CL:0000765	erythroblast	Erythroblasts
+CL:0000057	fibroblast	Fibroblasts
+CL:0000586	germ cell	Germ cells
+CL:1001509	glycinergic neuron	Glycinergic neurons
+CL:0000160	goblet cell	Goblet cells
+CL:0000501	granulosa cell	Granulosa cells
+CL:0002418	hemangioblast	Hemangioblasts
+CL:0000037	hematopoietic stem cell	Hematopoietic stem cells
+CL:0000632	hepatic stellate cell	Hepatic stellate cells
+CL:0005026	hepatoblast	Hepatoblasts
+CL:0000182	hepatocyte	Hepatocytes
+CL:0000099	interneuron	Interneurons
+CL:0005006	ionocyte	Ionocytes
+CL:0000312	keratinocyte	Keratinocytes
+CL:0000175	luteal cell	Luteal cells
+CL:0000235	macrophage	Macrophages
+CL:0000097	mast cell	Mast cells
+CL:0000556	megakaryocyte	Megakaryocytes
+CL:0000148	melanocyte	Melanocytes
+CL:0000650	mesangial cell	Mesangial cells
+CL:0000077	mesothelial cell	Mesothelial cells
+CL:0000576	monocyte	Monocytes
+CL:0000100	motor neuron	Motor neurons
+CL:0000056	myoblast	Myoblasts
+CL:0000185	myoepithelial cell	Myoepithelial cells
+CL:0000165	neuroendocrine cell	Neuroendocrine cells
+CL:0000540	neuron	Neurons
+CL:0000775	neutrophil	Neutrophils
+CL:0008025	noradrenergic neuron	Noradrenergic neurons
+CL:0002167	olfactory epithelial cell	Olfactory epithelial cells
+CL:0000128	oligodendrocyte	Oligodendrocytes
+CL:0000062	osteoblast	Osteoblasts
+CL:0000092	osteoclast	Osteoclasts
+CL:0000137	osteocyte	Osteocytes
+CL:0002410	pancreatic stellate cell	Pancreatic stellate cells
+CL:0000510	paneth cell	Paneth cells
+CL:0000162	parietal cell	Parietal cells
+CL:0000669	pericyte	Pericytes
+CL:0002481	peritubular myoid cell	Peritubular myoid cells
+CL:0000210	photoreceptor cell	Photoreceptor cells
+CL:0000652	pinealocyte	Pinealocytes
+CL:0000786	plasma cell	Plasma cells
+CL:0000784	plasmacytoid dendritic cell	Plasmacytoid dendritic cells
+CL:0000233	platelet	Platelets
+CL:0002248	pluripotent stem cell	Pluripotent stem cells
+CL:0000653	podocyte	Podocytes
+CL:0000558	reticulocyte	Reticulocytes
+CL:0000740	retinal ganglion cell	Retinal ganglion cells
+CL:0002672	retinal progenitor cell	Retinal progenitor cells
+CL:0000850	serotonergic neuron	Serotonergic neurons
+CL:0000192	smooth muscle cell	Smooth muscle cells
+CL:0000017	spermatocyte	Spermatocytes
+CL:0000499	stromal cell	Stromal cells
+CL:0002085	tanycyte	Tanycytes
+CL:0000209	taste receptor cell	Taste receptor cells
+CL:0000893	thymocyte	Thymocytes
+CL:4023169	trigeminal neuron	Trigeminal neurons
+CL:0000351	trophoblast cell	Trophoblast cells
+CL:0000731	urothelial cell	Urothelial cells
+NA	NA	Adipocyte progenitor cells
+NA	NA	Airway epithelial cells
+NA	NA	Airway goblet cells
+NA	NA	Airway smooth muscle cells
+NA	NA	Alpha cells
+NA	NA	Anterior pituitary gland cells
+NA	NA	B cells memory
+NA	NA	B cells naive
+NA	NA	Bergmann glia
+NA	NA	Beta cells
+NA	NA	Cajal-Retzius cells
+NA	NA	Cardiac stem and precursor cells
+NA	NA	Cardiomyocytes
+NA	NA	Choroid plexus cells
+NA	NA	Clara cells
+NA	NA	Crypt cells
+NA	NA	Delta cells
+NA	NA	Distal tubule cells
+NA	NA	Ductal cells
+NA	NA	Endothelial cells (aorta)
+NA	NA	Endothelial cells (blood brain barrier)
+NA	NA	Enteric glia cells
+NA	NA	Enterochromaffin cells
+NA	NA	Epsilon cells
+NA	NA	Erythroid-like and erythroid precursor cells
+NA	NA	Follicular cells
+NA	NA	Foveolar cells
+NA	NA	GABAergic neurons
+NA	NA	Gamma (PP) cells
+NA	NA	Gamma delta T cells
+NA	NA	Gastric chief cells
+NA	NA	Glomus cells
+NA	NA	Glutaminergic neurons
+NA	NA	His bundle cells
+NA	NA	Immature neurons
+NA	NA	Intercalated cells
+NA	NA	Juxtaglomerular cells
+NA	NA	Kidney progenitor cells
+NA	NA	Kupffer cells
+NA	NA	Langerhans cells
+NA	NA	Leydig cells
+NA	NA	Loop of Henle cells
+NA	NA	Luminal epithelial cells
+NA	NA	Mammary epithelial cells
+NA	NA	Meningeal cells
+NA	NA	Merkel cells
+NA	NA	Microfold cells
+NA	NA	Microglia
+NA	NA	Müller cells
+NA	NA	Myeloid-derived suppressor cells
+NA	NA	Myocytes
+NA	NA	Myofibroblasts
+NA	NA	Natural killer T cells
+NA	NA	Neural stem/precursor cells
+NA	NA	Neuroblasts
+NA	NA	NK cells
+NA	NA	Nuocytes
+NA	NA	Oligodendrocyte progenitor cells
+NA	NA	Osteoclast precursor cells
+NA	NA	Oxyphil cells
+NA	NA	Pancreatic progenitor cells
+NA	NA	Parathyroid chief cells
+NA	NA	Peri-islet Schwann cells
+NA	NA	Principal cells
+NA	NA	Proximal tubule cells
+NA	NA	Pulmonary alveolar type I cells
+NA	NA	Pulmonary alveolar type II cells
+NA	NA	Pulmonary vascular smooth muscle cells
+NA	NA	Purkinje fiber cells
+NA	NA	Purkinje neurons
+NA	NA	Pyramidal cells
+NA	NA	Radial glia cells
+NA	NA	Red pulp macrophages
+NA	NA	Salivary mucous cells
+NA	NA	Satellite cells
+NA	NA	Satellite glial cells
+NA	NA	Schwann cells
+NA	NA	Sebocytes
+NA	NA	Sertoli cells
+NA	NA	Spermatozoa
+NA	NA	T cells naive
+NA	NA	T cytotoxic cells
+NA	NA	T helper cells
+NA	NA	T memory cells
+NA	NA	T regulatory cells
+NA	NA	Transient cells
+NA	NA	Trichocytes
+NA	NA	Trophoblast progenitor cells
+NA	NA	Trophoblast stem cells
+NA	NA	Tuft cells
+NA	NA	Undefined placental cells
+NA	NA	Vascular smooth muscle cells

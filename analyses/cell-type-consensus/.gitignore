@@ -5,3 +5,6 @@
 # Ignore the scratch directory (but keep it present)
 /scratch/*
 !/scratch/.gitkeep
+
+# Ignore the panglao ref file 
+/references/PanglaoDB_markers_2020-03-27.tsv
