@@ -97,7 +97,7 @@ module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06"
 source(
   file.path(
     module_base,
-    "notebook_template",
+    "notebooks",
     "utils",
     "label-transfer-functions.R"
   )

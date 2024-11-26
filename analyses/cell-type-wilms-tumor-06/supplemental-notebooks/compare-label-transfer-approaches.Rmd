@@ -36,7 +36,7 @@ result_dir <- file.path(module_base, "results")
 
 # functions to perform label transfer with azimuth-adapted approach
 source(
-  file.path(module_base, "notebook_template", "utils", "label-transfer-functions.R")
+  file.path(module_base, "notebooks", "utils", "label-transfer-functions.R")
 )
 
 # Output files

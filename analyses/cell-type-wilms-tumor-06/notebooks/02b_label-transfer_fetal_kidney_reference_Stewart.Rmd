@@ -7,8 +7,8 @@ params:
   sample_id: "SCPCS000176"
   seed: 12345
   testing: 0
-output: 
-  html_document: 
+output:
+  html_document:
     toc: yes
     toc_float: yes
     code_folding: hide
@@ -27,13 +27,13 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-The aim is to perform label transfer as a step of the annotation of the Wilms tumor dataset for the sample `param$sample_id` = 
+The aim is to perform label transfer as a step of the annotation of the Wilms tumor dataset for the sample `param$sample_id` =
 
 ```{r}
 params$sample_id
 ```
 
-The use of the right reference is crucial. 
+The use of the right reference is crucial.
 It is recommended that the cell types in the reference is representative to the cell types to be annotated in the query.
 
 Wilms tumors can contain up to three histologies that resemble fetal kidney: blastema, stroma, and epithelia [1-2].
@@ -46,21 +46,21 @@ You can find below the two references that we plan to use
 ### Human fetal kidney atlas Stewart et al.
 
 Stewart et al. created and a human fetal kidney atlas.
-We will use `Azimuth` to transfer label into the Wilms tumor samples. 
+We will use `Azimuth` to transfer label into the Wilms tumor samples.
 You can find more about the human kidney atlas here: https://www.kidneycellatlas.org/ [3]
 
 ### Azimuth Human fetal atlas Cao et al.
 
-Azimuth also provide a human fetal atlas as a reference [4]. 
+Azimuth also provide a human fetal atlas as a reference [4].
 
-The data can be found on Zenodo: 
+The data can be found on Zenodo:
 https://zenodo.org/records/4738021#.YJIW4C2ZNQI
 
-The reference contain cells from 15 organs including kidney from fetal samples. 
+The reference contain cells from 15 organs including kidney from fetal samples.
 Here we will use `Azimuth` to transfer labels from the reference.
 
 
-In this notebook, we perform label transfer from the human fetal kidney atlas from Stewart et al. 
+In this notebook, we perform label transfer from the human fetal kidney atlas from Stewart et al.
 
 
 ### Packages
@@ -98,7 +98,7 @@ module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06"
 source(
   file.path(
     module_base,
-    "notebook_template",
+    "notebooks",
     "utils",
     "label-transfer-functions.R"
   )
@@ -132,7 +132,7 @@ annotation_levels <- ref$annotation_levels
 
 #### Query
 
-In this notebook, we test the label transfer from the fetal kidney atlas (reference) to the Wilms tumor sample defined in `params$sample_id` from the Wilms tumor dataset `param$scpca_project_id` 
+In this notebook, we test the label transfer from the fetal kidney atlas (reference) to the Wilms tumor sample defined in `params$sample_id` from the Wilms tumor dataset `param$scpca_project_id`
 We work with the pre-processed `Seurat`object and labeled with the fetal kidney reference saved in the `results` directory.
 
 ```{r path_to_query}
@@ -142,7 +142,7 @@ data_dir <- file.path(module_base, "results", params$sample_id)
 
 ### Output file
 
-Reports will be saved in the `notebook/02-reference` directory. 
+Reports will be saved in the `notebook/02-reference` directory.
 The pre-processed and annotated `Seurat` object per samples are saved in the `result` folder.
 
 ```{r path_to_output}
@@ -232,17 +232,17 @@ f2 <- SCpubr::do_BarPlot(
 
 Note:
 
-For some reason, the "cap-mesenchyme cells" has been renamed in CELLxGENE as "mesenchymal cells". 
+For some reason, the "cap-mesenchyme cells" has been renamed in CELLxGENE as "mesenchymal cells".
 
-The cap mesenchyme is a cap of condensed metanephric mesenchyme, comprised of cells which epithelialize and sequentially form the peritubular aggregate (PA), renal vesicle (RV), C-, and S-shaped bodies, and finally the mature nephron. 
+The cap mesenchyme is a cap of condensed metanephric mesenchyme, comprised of cells which epithelialize and sequentially form the peritubular aggregate (PA), renal vesicle (RV), C-, and S-shaped bodies, and finally the mature nephron.
 The CM contains nephron progenitor cells.
 
 This can be confusing and we just need to pay attention that :
 
-- the fetal nephron / mesenchymal cells are cap-mesenchyme cells. 
-In our case, cap-mesenchyme contains blastema and primitive epithelial cancer cells. 
+- the fetal nephron / mesenchymal cells are cap-mesenchyme cells.
+In our case, cap-mesenchyme contains blastema and primitive epithelial cancer cells.
 
-- the stroma / mesenchymal stem are likely mesenchymal cancer or normal cells. 
+- the stroma / mesenchymal stem are likely mesenchymal cancer or normal cells.
 
 ## Save the `Seurat`object
 
@@ -256,12 +256,12 @@ saveRDS(object = srat, file = file.path(output_dir, paste0("02b-fetal_kidney_lab
 sessionInfo()
 ```
 
-## References 
+## References
 
-- [1] https://www.ncbi.nlm.nih.gov/books/NBK373356/ 
+- [1] https://www.ncbi.nlm.nih.gov/books/NBK373356/
 
-- [2] https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9915828/ 
+- [2] https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9915828/
 
-- [3] https://www.science.org/doi/10.1126/science.aat5031 
+- [3] https://www.science.org/doi/10.1126/science.aat5031
 
 - [4] https://www.science.org/doi/10.1126/science.aba7721
