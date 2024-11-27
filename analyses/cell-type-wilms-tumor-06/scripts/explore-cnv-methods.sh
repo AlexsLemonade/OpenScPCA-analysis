@@ -31,7 +31,7 @@ cd ${module_dir}
 cd ..
 
 # Define directories
-notebook_template_dir="cnv_notebook_dir"
+notebook_template_dir="cnv-exploratory-notebooks"
 
 # Define test data string to use with 06_infercnv.R
 if [[ $TESTING -eq 1 ]]; then
