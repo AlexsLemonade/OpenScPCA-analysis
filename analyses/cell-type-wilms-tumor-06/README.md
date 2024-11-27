@@ -24,6 +24,19 @@ The analysis is/will be divided as the following:
 - [x] Script: Run `inferCNV` for all samples
 - [x] Notebook: explore results from step 6 and annotate the dataset using (i) metadata file, (ii) CNV information, (iii) label transfer information
 
+## Directory contents
+
+- `scripts` contain analysis scripts used in the module workflow.
+See `scripts/README.md` for more information
+- `notebook_template` contains R Markdown notebooks meant to be run as a template across module samples
+- `notebook` contains non-template R Markdown notebooks, and HTML output from notebooks more generally, used in the module workflow
+- `cnv-exploratory-notebooks` contains R Markdown notebooks and their HTML outputs specifically from exploratory steps during CNV analysis in the module workflow
+- `supplemental-notebooks` contains exploratory notebooks comparing Azimuth label transfer to an Azimuth-adapated approach which is used in this module.
+Notebooks in this directory are not used by the module workflow
+- `results` contains result files from analyses.
+See `results/README.md` for more information
+- `marker-sets` contains CSV file with marker genes sets, as described below in this README
+
 ## Usage
 
 1. Ensure the conda environment is activated.
