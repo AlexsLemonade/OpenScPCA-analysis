@@ -45,7 +45,7 @@ cd ${module_dir}
 # Define directories
 data_dir="../../data/current"
 notebook_template_dir="notebook_template"
-notebook_output_dir="notebook"
+notebook_dir="notebook"
 
 # Define test data string to use with 06_infercnv.R
 if [[ $TESTING -eq 1 ]]; then
@@ -77,10 +77,10 @@ Rscript scripts/prepare-fetal-references.R --kidney_ref_file "${kidney_ref_file}
 # Characterize the fetal kidney reference (Stewart et al.)
 # This step does not directly contribute to the final annotations
 if [[ $RUN_EXPLORATORY -eq 1 ]]; then
-  Rscript -e "rmarkdown::render('${notebook_template_dir}/00b_characterize_fetal_kidney_reference_Stewart.Rmd',
+  Rscript -e "rmarkdown::render('${notebook_dir}/00b_characterize_fetal_kidney_reference_Stewart.Rmd',
       output_format = 'html_document',
       output_file = '00b_characterization_fetal_kidney_reference_Stewart.html',
-      output_dir = '${notebook_output_dir}/00-reference',
+      output_dir = '${notebook_dir}/00-reference',
       params = list(fetal_kidney_path = '${kidney_ref_file_seurat}'))"
 fi
 
@@ -142,11 +142,11 @@ if [[ $RUN_EXPLORATORY -eq 1 ]]; then
 
   # Run notebook template to explore label transfer and clustering for all samples at once
   for score_threshold in 0.5 0.75 0.85 0.95; do
-    Rscript -e "rmarkdown::render('${notebook_output_dir}/04_annotation_Across_Samples_exploration.Rmd',
+    Rscript -e "rmarkdown::render('${notebook_dir}/04_annotation_Across_Samples_exploration.Rmd',
                     params = list(predicted.score_thr = ${score_threshold}, testing = ${TESTING}),
                     output_format = 'html_document',
                     output_file = '04_annotation_Across_Samples_exploration_predicted.score_threshold_${score_threshold}.html',
-                    output_dir = '${notebook_output_dir}')"
+                    output_dir = '${notebook_dir}')"
   done
 
   # These steps are only run if RUN_CNV_EXPLORATORY is true
@@ -186,8 +186,8 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
 done
 
 # Render notebook to make draft annotations
-Rscript -e "rmarkdown::render('${notebook_output_dir}/07_combined_annotation_across_samples_exploration.Rmd',
+Rscript -e "rmarkdown::render('${notebook_dir}/07_combined_annotation_across_samples_exploration.Rmd',
                         params = list(predicted.celltype.threshold = 0.85, cnv_threshold = 0, testing = ${TESTING}),
                         output_format = 'html_document',
                         output_file = '07_combined_annotation_across_samples_exploration.html',
-                        output_dir = '${notebook_output_dir}')"
+                        output_dir = '${notebook_dir}')"
