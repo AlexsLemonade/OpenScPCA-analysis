@@ -60,7 +60,7 @@ module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06"
 
 ## Input files
 
-The input file `r params$fetal_kidney_path` is the output of the script `prepare-fetal-references.R`.
+The input file `params$fetal_kidney_path` is the output of the script `prepare-fetal-references.R`.
 
 
 ## Output file
