@@ -7,13 +7,9 @@
 #  Setting TESTING=1 will turn on these settings for test data.
 #  This variable is 0 by default.
 # 2. The RUN_EXPLORATORY variable controls whether optional exploratory
-#  steps that do not directly contribute to final cell type annotations
-#  should be run. Setting RUN_EXPLORATORY=1 will run those steps.
-#  This variable is 0 by default.
-# 3. The RUN_CNV_EXPLORATORY variable controls whether the optional CNV exploration
-#  step should be run. This is an exploratory step, but it uses extensive compute requirements
-#  so it may not be run as frequently as other exploratory steps.
-#  Setting RUN_CNV_EXPLORATORY=1 will run those steps, if RUN_EXPLORATORY is also 1.
+#  steps that generate notebooks stored in the repository but do not
+#  directly contribute to final cell type annotations should be run.
+#  Setting RUN_EXPLORATORY=1 will run those steps.
 #  This variable is 0 by default.
 # 3. The THREADS variable controls how many cores are used for inference
 #  with copyKAT, which is an exploratory step in the workflow controlled by RUN_CNV_EXPLORATORY=1.
@@ -26,10 +22,8 @@
 # TESTING=1 ./00_run_workflow.sh
 #
 # Usage when running exploratory steps:
+# This mode should be used to regenerate all notebooks in the repository.
 # RUN_EXPLORATORY=1 ./00_run_workflow.sh
-#
-# Usage to run all exploratory steps, including computationally-intensive CNV:
-# RUN_EXPLORATORY=1 RUN_CNV_EXPLORATORY=1 ./00_run_workflow.sh
 
 set -euo pipefail
 
@@ -73,17 +67,6 @@ fi
 
 # Create the fetal references for label transfer (Stewart et al and Cao et al)
 Rscript scripts/prepare-fetal-references.R --kidney_ref_file "${kidney_ref_file}" --kidney_ref_file_seurat ${kidney_ref_file_seurat}
-
-# Characterize the fetal kidney reference (Stewart et al.)
-# This step does not directly contribute to the final annotations
-if [[ $RUN_EXPLORATORY -eq 1 ]]; then
-  Rscript -e "rmarkdown::render('${notebook_dir}/00b_characterize_fetal_kidney_reference_Stewart.Rmd',
-      output_format = 'html_document',
-      output_file = '00b_characterization_fetal_kidney_reference_Stewart.html',
-      output_dir = '${notebook_dir}/00-reference',
-      params = list(fetal_kidney_path = '${kidney_ref_file_seurat}'))"
-fi
-
 
 # Run the label transfer and cluster exploration for all samples in the project
 for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
@@ -131,12 +114,6 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
     fi
 done
 
-
-# This step is run here because it must be run both for:
-# - scripts/explore-cnv-methods.R (exploratory; calls 06_infercnv.R)
-# - 06_infercnv.R (not exploratory)
-Rscript scripts/06a_build-geneposition.R
-
 # These steps do not directly contribute to the final annotations
 if [[ $RUN_EXPLORATORY -eq 1 ]]; then
 
@@ -149,18 +126,10 @@ if [[ $RUN_EXPLORATORY -eq 1 ]]; then
                     output_dir = '${notebook_dir}')"
   done
 
-  # These steps are only run if RUN_CNV_EXPLORATORY is true
-  if [[ $RUN_CNV_EXPLORATORY -eq 1 ]]; then
-    # Create the pooled normal reference for inferCNV
-    Rscript scripts/06b_build-normal_reference.R
-
-    # Run infercnv and copykat for a selection of samples
-    # This script calls scripts/05_copyKAT.R and scripts/06_infercnv.R and associated exploratory CNV notebooks in `cnv-exploratory-notebooks/`
-    # By default, copyKAT as called by this script uses 32 cores
-    THREADS=${THREADS} TESTING=${TESTING} ./scripts/explore-cnv-methods.sh
-  fi
-
 fi
+
+# Prepare gene file for inferCNV
+Rscript scripts/06a_build-geneposition.R
 
 # Run infercnv for all samples with HMM i3 and using "both" as the reference, where possible
 for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
@@ -177,12 +146,8 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
       reference="both"
     fi
 
-    # don't repeat inference on selection of samples since certain
-    #   output files will already exist if exploratory steps were run
-    output_file="${results_dir}/${sample_id}/06_infercnv_HMM-i3_${sample_id}_reference-${reference}.rds"
-    if [[ ! -f $output_file ]]; then
-      Rscript scripts/06_infercnv.R --sample_id $sample_id --reference $reference --HMM i3 ${test_string}
-    fi
+    # Run inferCNV
+    Rscript scripts/06_infercnv.R --sample_id $sample_id --reference $reference --HMM i3 ${test_string}
 done
 
 # Render notebook to make draft annotations
