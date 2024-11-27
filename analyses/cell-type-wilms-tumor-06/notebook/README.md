@@ -2,12 +2,6 @@
 
 The notebook directory holds a directory for each of the sample in the Wilms tumor dataset `SCPCP000006` and the fetal kidney reference that we used for label transfer.
 
-## Fetal kidney reference
-
-To perform label transfer using an Azimuth-adapted approach and the fetal kidney atlas, a reference is built via [`scripts/prepare-fetal-references.R`](../scripts/scripts/prepare-fetal-references.R).
-
-As part of the `00b_characterize_fetal_kidney_reference_Stewart.Rmd` notebook, we characterized the fetal kidney reference and generated lists of marker genes for the compartment and cell types composing the reference.
-
 
 ## Analysis per sample
 
