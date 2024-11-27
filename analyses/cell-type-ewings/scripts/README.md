@@ -232,6 +232,46 @@ Rscript run-singler.R \
   --threads 4
 ```
 
+## Scripts used in the clustering workflow 
+
+1. `01-clustering.R`: This script is used to calculate clusters for a given library across a set of clustering parameters. 
+The script supports both Louvain and Leiden clustering (either CPM or modularity objective function). 
+The nearest neighbors and resolution parameters can be tested over a range of values, specified at the command line.
+
+When running the script, you must specify which clustering algorithm(s) to consider by using the `--louvain`, `--leiden_mod`, and/or `--leiden_cpm` flags at the command line. 
+
+By default the script is run with the following default parameters: 
+- Nearest neighbors: 5, 10, 15, 20, 25, 30, 35, 40
+- Resolution (Louvain): 0.5, 1, 1.5
+- Resolution (Leiden modularity): 0.5, 1, 1.5
+- Resolution (Leiden CPM): 0.001, 0.005, 0.01
+
+To run this script using the default parameter ranges use the following command: 
+
+```sh
+Rscript 01-clustering.R \
+  --sce_file <path to processed SCE file> \
+  --output_file <path to TSV file to save clustering results> \
+  --louvain --leiden_mod --leiden_cpm \ #flags to indicate using all three algorithms
+  --threads 4 \
+  --seed 2024
+```
+
+To modify the range of values for any parameters use the following command (note that resolution ranges are specified separately for louvain, leiden modularity, and leiden CPM): 
+
+```sh
+Rscript 01-clustering.R \
+  --sce_file <path to processed SCE file> \
+  --output_file <path to TSV file to save clustering results> \
+  --louvain --leiden_mod --leiden_cpm \ #flags to indicate using all three algorithms
+  --nn_range "5,10,15" \
+  --louvain_res_range "1,1.5" \ # resolution to test for louvain
+  --mod_res_range "1,1.5" \ # resolution to test for leiden modularity
+  --cpm_res_range ".01,.001" \ # resolution to test for leiden cpm 
+  --threads 4 \
+  --seed 2024
+```
+
 ## Utils
 
 The `utils` folder contains scripts with any helper functions that are used in `scripts` and notebooks for this module.
