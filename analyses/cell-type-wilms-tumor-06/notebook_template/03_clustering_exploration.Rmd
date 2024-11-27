@@ -229,7 +229,14 @@ MSigDB_score <- function(object, category, gs_name, name, nbin = 24) {
     as.data.frame()
   set_list <- list(set_list$human_ensembl_gene)
   suppressWarnings({
-    object <- AddModuleScore(object, features = set_list, name = name, nbin = nbin)
+    # AddModuleScore is known to throw an error when there are too few cells, e.g.:
+    # https://github.com/satijalab/seurat/issues/5814 (the source of this error is the call to AddModuleScore)
+    # When we have fewer than ~500 cells, this error will occur. To avoid this, we override the `ctrl` (default 100) parameter to a lower value (15)
+    if (ncol(object) <= 500) {
+      object <- AddModuleScore(object, features = set_list, name = name, nbin = nbin, ctrl = 15)
+    } else {
+      object <- AddModuleScore(object, features = set_list, name = name, nbin = nbin)
+    }
   })
   return(object)
 }
@@ -343,7 +350,14 @@ d1 + d2 + (v1 + v2 + v3 + plot_layout(ncol = 1)) + plot_layout(ncol = 3, widths 
 ```{r cell_cycle, eval=!params$testing}
 s.genes <- srat@assays$RNA@meta.data$gene_ids[srat@assays$RNA@meta.data$gene_symbol %in% cc.genes$s.genes]
 g2m.genes <- srat@assays$RNA@meta.data$gene_ids[srat@assays$RNA@meta.data$gene_symbol %in% cc.genes$g2m.genes]
-srat <- CellCycleScoring(srat, s.features = s.genes, g2m.features = g2m.genes, set.ident = FALSE, nbin = seurat_nbins)
+# CellCycleSorting is known to throw an error when there are too few cells, e.g.:
+# https://github.com/satijalab/seurat/issues/5814
+# When we have fewer than ~500 cells, this error will occur. To avoid this, we override the `ctrl` (default 100) parameter to a lower value (15)
+if (ncol(srat) <= 500) {
+  srat <- CellCycleScoring(srat, s.features = s.genes, g2m.features = g2m.genes, set.ident = FALSE, nbin = seurat_nbins, ctrl = 15)
+} else {
+  srat <- CellCycleScoring(srat, s.features = s.genes, g2m.features = g2m.genes, set.ident = FALSE, nbin = seurat_nbins)
+}
 ```
 
 ```{r fig.width=20, fig.height=4, out.width='100%', eval=!params$testing}
