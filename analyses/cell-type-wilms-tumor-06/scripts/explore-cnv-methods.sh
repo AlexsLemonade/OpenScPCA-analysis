@@ -98,7 +98,7 @@ for sample_id in SCPCS000179 SCPCS000184 SCPCS000194 SCPCS000205 SCPCS000208; do
 
 
   # We explore `inferCNV` results for this sample
-  Rscript -e "rmarkdown::render(input = '${notebook_template_dir}/06_cnv_infercnv_exploration.Rmd',
+  Rscript -e "rmarkdown::render(input = '${notebook_template_dir}/06_infercnv_exploration.Rmd',
                     params = list(sample_id = '${sample_id}', seed = 12345),
                     output_format = 'html_document',
                     output_file = '06_infercnv_exploration_${sample_id}.html',

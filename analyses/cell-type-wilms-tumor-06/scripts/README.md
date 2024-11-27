@@ -17,12 +17,13 @@ This script is used to run and explores 2 CNV inference methods `copykat` and `i
 - `SCPCS000205`
 - `SCPCS000208`
 
-### `06a_build-geneposition.R`
+It calls the following:
 
-This script build the gene position file that will be used in `06_infercnv.R` for each of the samples.
-We build the position file once via downloading the `gencode_v19_gen_pos.complete.txt` from the [Trinity/`CTAT`](https://data.broadinstitute.org/Trinity/CTAT/cnv/gencode_v19_gen_pos.complete.txt).
+- `05_copyKAT.R`
+- `06_inferCNV.R`
+- `../cnv-exploratory-notebooks/05_copykat_exploration.Rmd`
+- `../cnv-exploratory-notebooks/06_infercnv_exploration.Rmd`
 
-The `gencode_v19_gen_pos.complete.txt` is then saved in `results/references`.
 
 ### `05_copyKAT.R`
 
@@ -36,6 +37,22 @@ For each sample and each condition (reference and distance), we saved in `result
 - the heatmap of CNV in `05_copykat_{sample_id}_{reference}_distance-{selection}_copykat_heatmap.jpeg`
 - the prediction (aneuploid or diploid value per cell) in `05_copykat_{sample_id}_{reference}_distance-{selection}_copykat_prediction.txt`
 - the CNA matrix `05_copykat_{sample_id}_{reference}_distance-{selection}_copykat_CNA_results.txt`
+
+
+### `06a_build-geneposition.R`
+
+This script builds the gene position file that will be used in `06_infercnv.R` for each of the samples.
+We build the position file once via downloading the `gencode_v19_gen_pos.complete.txt` from the [Trinity/`CTAT`](https://data.broadinstitute.org/Trinity/CTAT/cnv/gencode_v19_gen_pos.complete.txt).
+
+The `gencode_v19_gen_pos.complete.txt` is then saved in `results/references`.
+
+
+
+### `06b_build-normal_reference.R`
+
+This script builds a Seurat object with normal cells passing a score threshold for use by inferCNV.
+
+The output is saved to `results/references/06b_normal-cell-reference.rds`.
 
 ### `06_infercnv.R`
 

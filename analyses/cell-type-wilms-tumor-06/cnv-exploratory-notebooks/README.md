@@ -2,7 +2,7 @@ This directory contains exploratory notebooks that are only run on a subset of s
 
 ```sh
 cd /path/to/module
-RUN_EXPLORATORY=1 ./00_run_workflow.sh
+RUN_EXPLORATORY=1 CNV_RUN_EXPLORATORY=1 ./00_run_workflow.sh
 ```
 
 - `05_copykat_exploration.Rmd`
