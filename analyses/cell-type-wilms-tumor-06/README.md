@@ -30,12 +30,11 @@ The analysis is/will be divided as the following:
 See `scripts/README.md` for more information
 - `notebook_template` contains R Markdown notebooks meant to be run as a template across module samples
 - `notebook` contains non-template R Markdown notebooks, and HTML output from notebooks more generally, used in the module workflow
-- `cnv-exploratory-notebooks` contains R Markdown notebooks and their HTML outputs specifically from exploratory steps during CNV analysis in the module workflow
-- `supplemental-notebooks` contains exploratory notebooks comparing Azimuth label transfer to an Azimuth-adapted approach which is used in this module.
-Notebooks in this directory are not used by the module workflow
+- `supplemental_notebooks` contains exploratory notebooks that are not used by the module workflow.
+  See `supplemental_notebooks/README.md` for more details.
 - `results` contains result files from analyses.
 See `results/README.md` for more information
-- `marker-sets` contains CSV file with marker genes sets, as described below in this README
+- `marker_sets` contains CSV file with marker genes sets, as described below in this README
 
 ## Usage
 
@@ -94,6 +93,7 @@ for each of the steps, we have two types of `output`:
 
 We first build a resource for later validation of the annotated cell types.
 We gather from the literature marker genes and specific genomic alterations that could help us characterizing the Wilms tumor ecosystem, including cancer and non-cancer cells.
+Files are stored in `marker_sets`.
 
 ### The table `CellType_metadata.csv` contains the following column and information:
 
@@ -150,44 +150,20 @@ We gather from the literature marker genes and specific genomic alterations that
 
 ## workflow description
 
-The `00_run_workflow.sh` contains the following steps:
-
-- define paths
-
-- download and create the references: `prepare-fetal-references.R` in `scripts`
-
-- characterize the fetal kidney reference: `00b_characterize_fetal_kidney_reference_Stewart.Rmd` in `notebook_template`
-
-- loop for each samples:
-
-  - `Seurat workflow`, normalization and clustering: `01_seurat-processing.Rmd` in `notebook_template`
-
-  - `Azimuth` label transfer from the fetal full reference (Cao et al.): `02a_label-transfer_fetal_full_reference_Cao.Rmd` in `notebook_template`
-
-  - `Azimuth` label transfer from the fetal kidney reference (Stewart et al.): `02b_label-transfer_fetal_kidney_reference_Stewart.Rmd` in `notebook_template`
-
-  - Exploration of clustering, label transfers, marker genes and pathways: `03_clustering_exploration.Rmd` in `notebook_template`
-
-  - CNV inference using [`inferCNV`](https://github.com/broadinstitute/inferCNV/wiki) with endothelial and immune cells as reference from either the same patient or a pool of upfront resection Wilms tumor samples: `06_inferCNV.R` in `script`
+The `00_run_workflow.sh` contains the following steps.
+Steps denoted `[Exploratory]` below are only run when `RUN_EXPLORATORY=1` is set prior to calling the script.
 
 
-While we only selected the `inferCNV` method with endothelium and immune cells as normal reference for the main workflow across samples, our  analysis includes an exploration of CNV inference methods based on `copyKAT` and `inferCNV` on a subset of samples.
-The script `explore-cnv-methods.R` calls the independent scripts `05_copyKAT.R` and `06_inferCNV.R` for these samples:
+- Download and create the references: `prepare-fetal-references.R` in `scripts`
+- For each sample:
+  - `Seurat workflow`, normalization and clustering: `notebook_template/01_seurat-processing.Rmd`
+  - `Azimuth`-adapted label transfer from the fetal full reference (Cao et al.): `notebook_template/02a_label-transfer_fetal_full_reference_Cao.Rmd`
+  - `Azimuth`-adapted label transfer from the fetal kidney reference (Stewart et al.): `notebook_template/02b_label-transfer_fetal_kidney_reference_Stewart.Rmd`
+  - `[Exploratory]` Exploration of clustering, label transfers, marker genes and pathways: `notebook_template/03_clustering_exploration.Rmd` in `notebook_template`
+- `[Exploratory]` Compare results of label transfer for all samples: `notebook/04_annotation_Across_Samples_exploration.Rmd`
+- CNV inference using [`inferCNV`](https://github.com/broadinstitute/inferCNV/wiki) with endothelial and immune cells as reference from either the same patient or a pool of upfront resection Wilms tumor samples: `scripts/06_inferCNV.R`
+- Combine label transfer and CNV to finalize the annotation of the Wilms tumor dataset: `notebook/07_annotation_Across_Samples_exploration.Rmd`
 
-  - `SCPCS000179`
-  - `SCPCS000184`
-  - `SCPCS000194`
-  - `SCPCS000205`
-  - `SCPCS000208`
-
-In addition, we explored the results for all samples in one notebook twice during the analysis:
-
-- the notebook `04_annotation_Across_Samples_exploration.Rmd` explored the annotations obtained by label transfer in all samples
-
-- the notebook `07_annotation_Across_Samples_exploration.Rmd` explored the potential of combining label transfer and CNV to finalize the annotation of the Wilms tumor dataset.
-
-
-For each sample and each of the step, an html report is generated and accessible in the directory `notebook`.
 
 ### Justification
 
