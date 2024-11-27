@@ -140,6 +140,9 @@ if [[ $RUN_EXPLORATORY -eq 1 ]]; then
                     output_dir = '${notebook_dir}')"
   done
 
+  # Create the pooled normal reference for inferCNV
+  Rscript scripts/06b_build-normal_reference.R
+
   # Run infercnv and copykat for a selection of samples
   # This script calls scripts/05_copyKAT.R and scripts/06_infercnv.R and associated exploratory CNV notebooks in `cnv-exploratory-notebooks/`
   # By default, copyKAT as called by this script uses 32 cores
