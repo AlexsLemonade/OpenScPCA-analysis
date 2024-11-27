@@ -162,7 +162,7 @@ Steps denoted `[Exploratory]` below are only run when `RUN_EXPLORATORY=1` is set
   - `[Exploratory]` Exploration of clustering, label transfers, marker genes and pathways: `notebook_template/03_clustering_exploration.Rmd` in `notebook_template`
 - `[Exploratory]` Compare results of label transfer for all samples: `notebook/04_annotation_Across_Samples_exploration.Rmd`
 - CNV inference using [`inferCNV`](https://github.com/broadinstitute/inferCNV/wiki) with endothelial and immune cells as reference from either the same patient or a pool of upfront resection Wilms tumor samples: `scripts/06_inferCNV.R`
-- Combine label transfer and CNV to finalize the annotation of the Wilms tumor dataset: `notebook/07_annotation_Across_Samples_exploration.Rmd`
+- Combine label transfer and CNV to finalize the annotation of the Wilms tumor dataset: `notebook/07_combined_annotation_across_samples_exploration.Rmd`
 
 
 ### Justification
