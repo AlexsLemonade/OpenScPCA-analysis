@@ -119,7 +119,7 @@ CL:0000155	peptic cell	Gastric chief cells
 CL:0002292	type I cell of carotid body	Glomus cells
 CL:0000679	glutamatergic neuron	Glutaminergic neurons
 CL:0010007	His-Purkinje system cell	His bundle cells
-CL:0000540	neuron	Immature neurons
+CL:4042021	neuronal-restricted precursor	Immature neurons
 CL:0005010	renal intercalated cell	Intercalated cells
 CL:1000618	juxtaglomerular complex cell	Juxtaglomerular cells
 CL:0000383	nephrogenic mesenchyme stem cell	Kidney progenitor cells
