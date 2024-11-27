@@ -10,8 +10,13 @@
 #  steps that do not directly contribute to final cell type annotations
 #  should be run. Setting RUN_EXPLORATORY=1 will run those steps.
 #  This variable is 0 by default.
+# 3. The RUN_CNV_EXPLORATORY variable controls whether the optional CNV exploration
+#  step should be run. This is an exploratory step, but it uses extensive compute requirements
+#  so it may not be run as frequently as other exploratory steps.
+#  Setting RUN_CNV_EXPLORATORY=1 will run those steps, if RUN_EXPLORATORY is also 1.
+#  This variable is 0 by default.
 # 3. The THREADS variable controls how many cores are used for inference
-#  with copyKAT, which is an exploratory step in the workflow.
+#  with copyKAT, which is an exploratory step in the workflow controlled by RUN_CNV_EXPLORATORY=1.
 #  The variable is 32 by default.
 #
 # Default usage:
@@ -22,6 +27,9 @@
 #
 # Usage when running exploratory steps:
 # RUN_EXPLORATORY=1 ./00_run_workflow.sh
+#
+# Usage to run all exploratory steps, including computationally-intensive CNV:
+# RUN_EXPLORATORY=1 RUN_CNV_EXPLORATORY=1 ./00_run_workflow.sh
 
 set -euo pipefail
 
@@ -141,13 +149,16 @@ if [[ $RUN_EXPLORATORY -eq 1 ]]; then
                     output_dir = '${notebook_output_dir}')"
   done
 
-  # Create the pooled normal reference for inferCNV
-  Rscript scripts/06b_build-normal_reference.R
+  # These steps are only run if RUN_CNV_EXPLORATORY is true
+  if [[ $RUN_CNV_EXPLORATORY -eq 1 ]]; then
+    # Create the pooled normal reference for inferCNV
+    Rscript scripts/06b_build-normal_reference.R
 
-  # Run infercnv and copykat for a selection of samples
-  # This script calls scripts/05_copyKAT.R and scripts/06_infercnv.R and associated exploratory CNV notebooks in `cnv-exploratory-notebooks/`
-  # By default, copyKAT as called by this script uses 32 cores
-  THREADS=${THREADS} TESTING=${TESTING} ./scripts/explore-cnv-methods.sh
+    # Run infercnv and copykat for a selection of samples
+    # This script calls scripts/05_copyKAT.R and scripts/06_infercnv.R and associated exploratory CNV notebooks in `cnv-exploratory-notebooks/`
+    # By default, copyKAT as called by this script uses 32 cores
+    THREADS=${THREADS} TESTING=${TESTING} ./scripts/explore-cnv-methods.sh
+  fi
 
 fi
 
