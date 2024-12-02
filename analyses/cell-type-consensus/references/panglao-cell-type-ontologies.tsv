@@ -85,27 +85,27 @@ CL:0000893	thymocyte	Thymocytes
 CL:4023169	trigeminal neuron	Trigeminal neurons
 CL:0000351	trophoblast cell	Trophoblast cells
 CL:0000731	urothelial cell	Urothelial cells
-NA	NA	Adipocyte progenitor cells
-NA	NA	Airway epithelial cells
-NA	NA	Airway goblet cells
-NA	NA	Airway smooth muscle cells
-NA	NA	Alpha cells
-NA	NA	Anterior pituitary gland cells
-NA	NA	B cells memory
-NA	NA	B cells naive
-NA	NA	Bergmann glia
-NA	NA	Beta cells
-NA	NA	Cajal-Retzius cells
-NA	NA	Cardiac stem and precursor cells
-NA	NA	Cardiomyocytes
-NA	NA	Choroid plexus cells
-NA	NA	Clara cells
-NA	NA	Crypt cells
-NA	NA	Delta cells
-NA	NA	Distal tubule cells
-NA	NA	Ductal cells
-NA	NA	Endothelial cells (aorta)
-NA	NA	Endothelial cells (blood brain barrier)
+CL:0002334	preadipocyte	Adipocyte progenitor cells
+CL:0002368	respiratory epithelial cell	Airway epithelial cells
+CL:0002370	respiratory goblet cell	Airway goblet cells
+CL:0019019	tracheobronchial smooth muscle cell	Airway smooth muscle cells
+CL:0000171	pancreatic A cell	Alpha cells
+CL:2000004	pituitary gland cell	Anterior pituitary gland cells
+CL:0000787	memory B cell	B cells memory
+CL:0000788	naive B cell	B cells naive
+CL:0000644	Bergmann glial cell	Bergmann glia
+CL:0000169	type B pancreatic cell	Beta cells
+CL:0000695	Cajal-Retzius cell	Cajal-Retzius cells
+CL:0002664	cardioblast	Cardiac stem and precursor cells
+CL:0000746	cardiac muscle cell	Cardiomyocytes
+CL:0000706	choroid plexus epithelial cell	Choroid plexus cells
+CL:0000158	club cell	Clara cells
+CL:0002250	intestinal crypt stem cell	Crypt cells
+CL:0000173	pancreatic D cell	Delta cells
+CL:0002305	epithelial cell of distal tubule	Distal tubule cells
+CL:0002079	pancreatic ductal cell	Ductal cells
+CL:0002544	aortic endothelial cell	Endothelial cells (aorta)
+CL:2000044	brain microvascular endothelial cell	Endothelial cells (blood brain barrier)
 CL:4040002	enteroglial cell	Enteric glia cells
 CL:0000504	enterochromaffin-like cell	Enterochromaffin cells
 CL:0005019	pancreatic epsilon cell	Epsilon cells
