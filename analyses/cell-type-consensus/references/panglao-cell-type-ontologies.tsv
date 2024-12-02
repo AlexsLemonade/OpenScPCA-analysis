@@ -106,29 +106,29 @@ NA	NA	Distal tubule cells
 NA	NA	Ductal cells
 NA	NA	Endothelial cells (aorta)
 NA	NA	Endothelial cells (blood brain barrier)
-NA	NA	Enteric glia cells
-NA	NA	Enterochromaffin cells
-NA	NA	Epsilon cells
-NA	NA	Erythroid-like and erythroid precursor cells
-NA	NA	Follicular cells
-NA	NA	Foveolar cells
-NA	NA	GABAergic neurons
-NA	NA	Gamma (PP) cells
-NA	NA	Gamma delta T cells
-NA	NA	Gastric chief cells
-NA	NA	Glomus cells
-NA	NA	Glutaminergic neurons
-NA	NA	His bundle cells
-NA	NA	Immature neurons
-NA	NA	Intercalated cells
-NA	NA	Juxtaglomerular cells
-NA	NA	Kidney progenitor cells
-NA	NA	Kupffer cells
-NA	NA	Langerhans cells
-NA	NA	Leydig cells
-NA	NA	Loop of Henle cells
-NA	NA	Luminal epithelial cells
-NA	NA	Mammary epithelial cells
+CL:4040002	enteroglial cell	Enteric glia cells
+CL:0000504	enterochromaffin-like cell	Enterochromaffin cells
+CL:0005019	pancreatic epsilon cell	Epsilon cells
+CL:0000038	erythroid progenitor cell	Erythroid-like and erythroid precursor cells
+CL:0002258	thyroid follicular cell	Follicular cells
+CL:0002179	foveolar cell of stomach	Foveolar cells
+CL:0000617	GABAergic neuron	GABAergic neurons
+CL:0000696	PP cell	Gamma (PP) cells
+CL:0000798	gamma-delta T cell	Gamma delta T cells
+CL:0000155	peptic cell	Gastric chief cells
+CL:0002292	type I cell of carotid body	Glomus cells
+CL:0000679	glutamatergic neuron	Glutaminergic neurons
+CL:0010007	His-Purkinje system cell	His bundle cells
+CL:4042021	neuronal-restricted precursor	Immature neurons
+CL:0005010	renal intercalated cell	Intercalated cells
+CL:1000618	juxtaglomerular complex cell	Juxtaglomerular cells
+CL:0000324	metanephric mesenchyme stem cell	Kidney progenitor cells
+CL:0000091	Kupffer cell	Kupffer cells
+CL:0000453	Langerhans cell	Langerhans cells
+CL:0000178	Leydig cell	Leydig cells
+CL:1000909	kidney loop of Henle epithelial cell	Loop of Henle cells
+CL:0002326	luminal epithelial cell of mammary gland	Luminal epithelial cells
+CL:0002327	mammary gland epithelial cell	Mammary epithelial cells
 NA	NA	Meningeal cells
 NA	NA	Merkel cells
 NA	NA	Microfold cells
