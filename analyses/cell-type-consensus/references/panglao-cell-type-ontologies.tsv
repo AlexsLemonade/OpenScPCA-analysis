@@ -90,7 +90,7 @@ CL:0002368	respiratory epithelial cell	Airway epithelial cells
 CL:0002370	respiratory goblet cell	Airway goblet cells
 CL:0019019	tracheobronchial smooth muscle cell	Airway smooth muscle cells
 CL:0000171	pancreatic A cell	Alpha cells
-CL:0000637	chromophil cell of anterior pituitary gland	Anterior pituitary gland cells
+CL:2000004	pituitary gland cell	Anterior pituitary gland cells
 CL:0000787	memory B cell	B cells memory
 CL:0000788	naive B cell	B cells naive
 CL:0000644	Bergmann glial cell	Bergmann glia
