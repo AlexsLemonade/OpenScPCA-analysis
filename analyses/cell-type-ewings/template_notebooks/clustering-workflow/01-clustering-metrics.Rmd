@@ -11,6 +11,7 @@ params:
   library_id: "SCPCL000822"
   sce_file: "../../../../data/current/SCPCP000015/SCPCS000490/SCPCL000822_processed.rds"
   cluster_results_file: "../../results/clustering/SCPCS000490/SCPCL000822_cluster-results.tsv"
+  threads: 1
 ---
 
 This notebook summarizes clustering metrics for `r params$library_id`.
@@ -169,7 +170,7 @@ all_stats |>
 ```{r, warning=FALSE, message=FALSE}
 # calculate cluster stability
 stability_stats <- split_umap_df |> 
-  purrr::map(\(df){ get_cluster_stability(sce, df)})
+  purrr::map(\(df){ get_cluster_stability(sce, df, params$threads)})
 ```
 
 

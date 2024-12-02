@@ -64,7 +64,8 @@ get_cluster_stats <- function(sce,
 # get cluster stability for each unique combination of params used for clustering
 # must have `cluster_params` column
 get_cluster_stability <- function(sce,
-                                  all_cluster_results) {
+                                  all_cluster_results,
+                                  threads) {
   pcs <- reducedDim(sce, "PCA")
   
   # split clustering results by param used
@@ -87,7 +88,8 @@ get_cluster_stability <- function(sce,
                                       algorithm = unique(df$algorithm),
                                       nn = unique(df$nn),
                                       resolution = unique(df$resolution),
-                                      objective_function = objective_function)
+                                      objective_function = objective_function,
+                                      threads = threads)
       
     }) |>
     dplyr::bind_rows(.id = "cluster_params")
