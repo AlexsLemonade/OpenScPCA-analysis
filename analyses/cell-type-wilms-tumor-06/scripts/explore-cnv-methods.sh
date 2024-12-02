@@ -31,8 +31,7 @@ cd ${module_dir}
 cd ..
 
 # Define directories
-notebook_template_dir="notebook_template"
-results_dir="results"
+notebook_template_dir="${module_dir}/supplemental_notebooks/cnv_exploration"
 
 # Define test data string to use with 06_infercnv.R
 if [[ $TESTING -eq 1 ]]; then
@@ -44,7 +43,7 @@ fi
 for sample_id in SCPCS000179 SCPCS000184 SCPCS000194 SCPCS000205 SCPCS000208; do
 
   # define notebook output directory
-  output_dir="${results_dir}/${sample_id}"
+  output_dir="${notebook_template_dir}/${sample_id}"
   mkdir -p ${output_dir}
 
   ##############################################################################
@@ -99,7 +98,7 @@ for sample_id in SCPCS000179 SCPCS000184 SCPCS000194 SCPCS000205 SCPCS000208; do
 
 
   # We explore `inferCNV` results for this sample
-  Rscript -e "rmarkdown::render(input = '${notebook_template_dir}/06_cnv_infercnv_exploration.Rmd',
+  Rscript -e "rmarkdown::render(input = '${notebook_template_dir}/06_infercnv_exploration.Rmd',
                     params = list(sample_id = '${sample_id}', seed = 12345),
                     output_format = 'html_document',
                     output_file = '06_infercnv_exploration_${sample_id}.html',

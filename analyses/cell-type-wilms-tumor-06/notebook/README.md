@@ -2,12 +2,6 @@
 
 The notebook directory holds a directory for each of the sample in the Wilms tumor dataset `SCPCP000006` and the fetal kidney reference that we used for label transfer.
 
-## Fetal kidney reference
-
-To perform label transfer using an Azimuth-adapted approach and the fetal kidney atlas, a reference is built via [`scripts/prepare-fetal-references.R`](../scripts/scripts/prepare-fetal-references.R).
-
-As part of the `00b_characterize_fetal_kidney_reference_Stewart.Rmd` notebook template, we characterized the fetal kidney reference and generated lists of marker genes for the compartment and cell types composing the reference.
-
 
 ## Analysis per sample
 
@@ -51,25 +45,3 @@ Of important notes:
 
 - [x] `07_combined_annotation_across_samples_exploration.html` is the output of the [`07_combined_annotation_across_samples_exploration.Rmd`](../notebook/07_combined_annotation_across_samples_exploration.Rmd) notebook.
 This notebook performs a draft annotation of samples using information from CNV inference and label transfer.
-
-## Exploratory analysis
-
-We selected in [`04_annotation_Across_Samples_exploration.Rmd`](../notebook/04_annotation_Across_Samples_exploration.Rmd) 5 samples to test for aneuploidy and CNV inference:
-
-- sample `SCPCS000194`
-- sample `SCPCS000179`
-- sample `SCPCS000184`
-- sample `SCPCS000205`
-- sample `SCPCS000208`
-
-- [x] `05_copykat_exploration_{sample_id}.html` is the output of the [`05_copykat_exploration.Rmd`](../notebook_template/05_copykat_exploration.Rmd) notebook template.
-
-In brief, we wanted to test `copykat` results obtained with or without normal cells as reference, using either an euclidean or statistical (Spearman) method for CNV heatmap clustering.
-This impact the final decision made by `copykat` for each cell to be either aneuploid or diploid, and it is thus crucial to explore the results using the different methods.
-For each of the selected samples, we explore the results in the template `notebook` [`05_copykat_exploration.Rmd`](../notebook_template/05_copykat_exploration.Rmd), which creates a notebook `05_cnv_copykat_exploration_{sample_id}.html` for each sample.
-These `notebooks` are inspired by the plots written for the Ewing Sarcoma analysis in [`03-copykat.Rmd`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/cell-type-ewings/exploratory_analysis/03-copykat.Rmd).
-
-- [x] `06_infercnv_exploration_{sample_id}.html` is the output of the [`06_infercnv_exploration.Rmd`](../notebook_template/06_infercnv_exploration.Rmd) notebook template.
-
-In brief, we wanted to test `infercnv` results obtained with or without endothelium and/or immune cells as reference.
-We also explore the potential of using a HMM model to assign CNV scores for each cells and discriminate normal from cancer cells.
