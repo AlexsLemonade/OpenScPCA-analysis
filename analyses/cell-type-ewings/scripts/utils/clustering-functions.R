@@ -65,7 +65,7 @@ get_cluster_stats <- function(sce,
 # must have `cluster_params` column
 get_cluster_stability <- function(sce,
                                   all_cluster_results,
-                                  threads) {
+                                  threads = 1) {
   pcs <- reducedDim(sce, "PCA")
   
   # split clustering results by param used
