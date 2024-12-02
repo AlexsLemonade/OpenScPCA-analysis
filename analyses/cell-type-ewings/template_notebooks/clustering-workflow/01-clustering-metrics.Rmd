@@ -63,7 +63,8 @@ source(clustering_functions)
 sce <- readr::read_rds(params$sce_file)
 
 # read in results file 
-cluster_results_df <- readr::read_tsv(params$cluster_results_file)
+cluster_results_df <- readr::read_tsv(params$cluster_results_file) |> 
+  dplyr::mutate(cluster = as.factor(cluster))
 ```
 
 ## Clustering summary 
