@@ -73,7 +73,8 @@ for sample_id in $sample_ids; do
           output_file = '${library_id}_cluster-summary-report.html', \
           params = list(library_id = '$library_id', \
                         sce_file = '$sce_file', \
-                        cluster_results_file = '$cluster_results'), \
+                        cluster_results_file = '$cluster_results',
+                        threads = $threads), \
           envir = new.env()) \
         "
     done
