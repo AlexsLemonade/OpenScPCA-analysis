@@ -153,27 +153,27 @@ CL:0002306	epithelial cell of proximal tubule	Proximal tubule cells
 CL:0002062	pulmonary alveolar type 1 cell	Pulmonary alveolar type I cells
 CL:0002063	pulmonary alveolar type 2 cell	Pulmonary alveolar type II cells
 CL:0000359	vascular associated smooth muscle cell	Pulmonary vascular smooth muscle cells
-NA	NA	Purkinje fiber cells
-NA	NA	Purkinje neurons
-NA	NA	Pyramidal cells
-NA	NA	Radial glia cells
-NA	NA	Red pulp macrophages
-NA	NA	Salivary mucous cells
-NA	NA	Satellite cells
-NA	NA	Satellite glial cells
-NA	NA	Schwann cells
-NA	NA	Sebocytes
-NA	NA	Sertoli cells
-NA	NA	Spermatozoa
-NA	NA	T cells naive
-NA	NA	T cytotoxic cells
-NA	NA	T helper cells
-NA	NA	T memory cells
-NA	NA	T regulatory cells
+CL:0002068	Purkinje myocyte	Purkinje fiber cells
+CL:0000121	Purkinje cell	Purkinje neurons
+CL:0000598	pyramidal neuron	Pyramidal cells
+CL:0000681	radial glial cell	Radial glia cells
+CL:0000874	splenic red pulp macrophage	Red pulp macrophages
+CL:1001596	salivary gland glandular cell	Salivary mucous cells
+CL:0000594	skeletal muscle satellite cell	Satellite cells
+CL:0000516	perineural satellite cell	Satellite glial cells
+CL:0002573	Schwann cell	Schwann cells
+CL:0002140	acinar cell of sebaceous gland	Sebocytes
+CL:0000216	Sertoli cell	Sertoli cells
+CL:0000019	sperm	Spermatozoa
+CL:0000898	naive T cell	T cells naive
+CL:0000910	cytotoxic T cell	T cytotoxic cells
+CL:0000912	helper T cell	T helper cells
+CL:0000813	memory T cell	T memory cells
+CL:0000815	regulatory T cell	T regulatory cells
 NA	NA	Transient cells
-NA	NA	Trichocytes
-NA	NA	Trophoblast progenitor cells
-NA	NA	Trophoblast stem cells
-NA	NA	Tuft cells
+CL:0002562	hair germinal matrix cell	Trichocytes
+CL:0000351	trophoblast cell	Trophoblast progenitor cells
+CL:0000351	trophoblast cell	Trophoblast stem cells
+CL:0002204	brush cell	Tuft cells
 NA	NA	Undefined placental cells
-NA	NA	Vascular smooth muscle cells
+CL:0000359	vascular associated smooth muscle cell	Vascular smooth muscle cells
