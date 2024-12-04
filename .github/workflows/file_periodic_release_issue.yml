@@ -1,4 +1,4 @@
-# This files an issue for creating a release every month on the 6th
+# This files an issue for creating a release every month on the 5th
 name: File create a release issue
 on:
   schedule: # run monthly on the 5th (intended to run after all modules are run)
