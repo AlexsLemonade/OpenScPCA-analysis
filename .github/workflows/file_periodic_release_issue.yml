@@ -1,8 +1,8 @@
-# This files an issue for creating a release every month on the 1st
+# This files an issue for creating a release every month on the 6th
 name: File create a release issue
 on:
-  schedule: # run monthly on the 1st
-    - cron: 0 0 1 * *
+  schedule: # run monthly on the 6th (intended to run after all modules are run)
+    - cron: 0 0 6 * *
 
 jobs:
   post_issue:
