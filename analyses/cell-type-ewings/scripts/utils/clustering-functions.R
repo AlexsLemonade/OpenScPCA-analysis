@@ -176,7 +176,7 @@ cluster_celltype_heatmap <- function(cluster_classification_df) {
     })
   
   # turn into heatmap list
-  make_heatmap_list(jaccard_df_list, column_title = "clusters", legend_match = "nn-5", cluster_rows = TRUE)
+  make_heatmap_list(jaccard_df_list, column_title = "clusters", legend_match = "nn-5", cluster_rows = FALSE)
 }
 
 
