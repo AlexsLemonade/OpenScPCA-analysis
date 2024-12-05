@@ -162,19 +162,21 @@ plot_cluster_stability <- function(stat_df,
 
 # heatmap comparing cluster assignments to SingleR labels
 cluster_celltype_heatmap <- function(cluster_classification_df) {
+  
   # get a jaccard mtx for each cluster param
   jaccard_df_list <- cluster_classification_df |>
-    split(cluster_classification_df$nn_param) |>
+    split(cluster_classification_df$nn_char) |>
     purrr::map(\(df) {
       make_jaccard_matrix(
         df,
         "cluster",
         "singler_lumped"
-      )
+      ) |>
+        t() # not every value of k has the same number of clusters and we need columns to match
     })
-
+  
   # turn into heatmap list
-  make_heatmap_list(jaccard_df_list, column_title = "clusters", legend_match = "k_5", cluster_rows = FALSE)
+  make_heatmap_list(jaccard_df_list, column_title = "clusters", legend_match = "nn-5", cluster_rows = TRUE)
 }
 
 
@@ -185,7 +187,7 @@ plot_marker_genes <- function(cluster_exp_df,
                               k_value) {
   # pick clustering to use and select those columns
   final_clusters_df <- cluster_exp_df |>
-    dplyr::filter(nn_param == k_value)
+    dplyr::filter(nn == k_value)
 
   # grab columns that contain marker gene sums
   marker_gene_columns <- colnames(final_clusters_df)[which(endsWith(colnames(final_clusters_df), "_sum"))]
@@ -200,5 +202,5 @@ plot_marker_genes <- function(cluster_exp_df,
       ) +
         labs(y = "Cluster")
     }) |>
-    patchwork::wrap_plots(ncol = 2) + patchwork::plot_annotation(glue::glue("{k_value}-clusters"))
+    patchwork::wrap_plots(ncol = 2) + patchwork::plot_annotation(glue::glue("nn-{k_value}"))
 }
