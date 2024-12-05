@@ -11,14 +11,23 @@ params:
   library_id: "SCPCL000822"
   sce_file: "../../../../data/current/SCPCP000015/SCPCS000490/SCPCL000822_processed.rds"
   singler_results_file: "../../results/aucell_singler_annotation/SCPCS000490/SCPCL000822_singler-classifications.tsv"
-  cluster_results_file: "../../results/cluster_exploration/SCPCS000490/SCPCL000822_clusters.tsv"
+  cluster_results_file: "../../results/clustering/SCPCS000490/SCPCL000822_cluster-results.tsv"
   marker_genes_file: "../../references/visser-all-marker-genes.tsv"
+  algorithm: "leiden"
+  objective_function: "modularity"
+  resolution: 1
 ---
 
-TODO: Update this notebook to take as input a clustering algorithm, nn (range of nn?), resolution, and optional objective function to display in SingleR and marker gene plots
+This notebook will compare cluster assignments to cell type assignments and look at expression of tumor and normal marker genes. 
+We expect that "good" clusters will be compromised of cells belonging to the same cell type and express marker genes for a single cell type (e.g., only tumor or only immune markers). 
 
-- The clusters are then compared to the results from running `SingleR` in the `aucell-singler-annotation.sh` workflow.
-- We then look at marker gene expression across the clusters and assign each cluster to a cell type. 
+Clustering was calculated using the following parameters: 
+
+- Algorithm: `r params$algorithm` 
+- Objective function: `r params$objective_function`
+- Resolution: `r params$resolution`
+
+Results will be shown for all values of nearest neighbors used to perform clustering found in the cluster results file. 
 
 ## Setup
 
@@ -27,6 +36,7 @@ TODO: Update this notebook to take as input a clustering algorithm, nn (range of
 stopifnot(
   "sce file does not exist" = file.exists(params$sce_file),
   "SingleR results file does not exist" = file.exists(params$singler_results_file),
+  "Clustering results file does not exist" = file.exists(params$cluster_results_file),
   "Marker genes file does not exist" = file.exists(params$marker_genes_file)
 )
 ```
@@ -57,7 +67,7 @@ set.seed(2024)
 # The path to this module
 module_base <- rprojroot::find_root(rprojroot::is_renv_project)
 
-# source in helper functions: calculate_sum_markers()
+# source in helper functions: calculate_sum_markers() and plot_faceted_umap()
 validation_functions <- file.path(module_base, "scripts", "utils", "tumor-validation-helpers.R")
 source(validation_functions)
 
@@ -72,23 +82,57 @@ source(clustering_functions)
 sce <- readr::read_rds(params$sce_file)
 
 # read in singler results
-singler_classification_df <- readr::read_tsv(params$singler_results_file) |>
-  dplyr::rename("cell_id" = "barcodes")
+singler_classification_df <- readr::read_tsv(params$singler_results_file)
+
+# read in clustering results 
+clusters_df <- readr::read_tsv(params$cluster_results_file) |> 
+  # filter to specified parameters 
+  dplyr::filter(algorithm == params$algorithm,
+                objective_function == params$objective_function,
+                resolution == params$resolution) |> 
+  # modify the nn column to be a character for easy plot labels
+  dplyr::mutate(cluster = as.factor(cluster),
+                nn_char = glue::glue("nn-{nn}") |> 
+                  # make sure 5 comes first 
+                  forcats::fct_relevel("nn-5", after = 0)) |> 
+  # rename barcode column for joining
+  dplyr::rename(barcodes = "cell_id")
 ```
 
-
-## Clusters vs. `SingleR` {.tabset}
-
-Now we will compare the clustering results to the cell type assignments obtained from `SingleR` in the `aucell-singler-annotation.sh` workflow. 
-To compare results we will calculate the Jaccard similarity index between clusters and cell types. 
-We expect that good clustering will line up with the cell type assignments so that there is ~ 1 cell type per cluster. 
-
-For the plots, we will only display the top 7 cell types identified by `SingleR` and all other cells will be lumped together into `All remaining cell types`. 
+## UMAP of cluster assignments
 
 ```{r}
-cluster_classification_df <- all_cluster_results |>
+# get umap embeddings and combine into a data frame with cluster assignments
+umap_df <- sce |>
+  scuttle::makePerCellDF(use.dimred = "UMAP") |>
+  # replace UMAP.1 with UMAP1 and get rid of excess columns
+  dplyr::select(barcodes, UMAP1 = UMAP.1, UMAP2 = UMAP.2) |>
+  dplyr::left_join(clusters_df, by = "barcodes")
+```
+
+```{r fig.height=10, fig.width=10}
+ggplot(umap_df, aes(x = UMAP1, y = UMAP2, color = cluster)) +
+  geom_point(alpha = 0.5, size = 0.1) +
+  facet_wrap(vars(nn),
+             labeller = labeller(nn = ~ glue::glue("{.}-nn"))) +
+  theme(
+    aspect.ratio = 1,
+    legend.position = "none", 
+    panel.border = element_rect(color = "black", fill = NA)
+  )
+```
+
+## Clusters vs. `SingleR`
+
+Now we will compare the clustering results to the cell type assignments obtained from `SingleR` in the `aucell-singler-annotation.sh` workflow. 
+For the plots, we will only display the top 7 cell types identified by `SingleR` and all other cells will be lumped together into `All remaining cell types`. 
+
+
+```{r}
+# prep classifications and clusters for plots 
+cluster_classification_df <- umap_df |>
   # add in classifications from singler
-  dplyr::left_join(singler_classification_df, by = "cell_id") |>
+  dplyr::left_join(singler_classification_df, by = "barcodes") |>
   dplyr::mutate(
     # first grab anything that is tumor and label it tumor
     # NA should be unknown
@@ -104,20 +148,28 @@ cluster_classification_df <- all_cluster_results |>
       forcats::fct_infreq() |>
       forcats::fct_relevel("All remaining cell types", after = Inf)
   )
-
-cluster_classification_df |> 
-  split(cluster_classification_df$resolution) |> 
-  purrr::map(\(df){cluster_celltype_heatmap(df)}) 
-
 ```
 
-```{r, fig.height=10, fig.width=7}
+
+First, we just look at the cell type assignments on the UMAP. 
+
+```{r fig.height=10, fig.width=10}
+celltype_plot_df <- cluster_classification_df |> 
+  dplyr::select(barcodes, UMAP1, UMAP2, singler_lumped)
+
+plot_faceted_umap(celltype_plot_df, singler_lumped)
+```
+
+To compare results we will calculate the Jaccard similarity index between clusters and cell types. 
+We expect that good clustering will line up with the cell type assignments so that there is ~ 1 cell type per cluster. 
+
+```{r, fig.height=15, fig.width=7}
 # get heatmap for showing cluster assignments vs. singler assignments
 cluster_celltype_heatmap(cluster_classification_df)
 ```
 
 
-## Marker gene expression {.tabset} 
+## Marker gene expression
 
 Finally, we will look at the expression of marker genes across each cluster for each value of `k`. 
 In these plots, each row shows the distribution of the specified marker genes in that cluster. 
@@ -141,19 +193,20 @@ gene_exp_df <- cell_types |>
   purrr::reduce(dplyr::inner_join, by = "barcodes")
 
 # join sum expression columns with clustering results
-cluster_exp_df <- all_cluster_results |>
+cluster_exp_df <- clusters_df |>
   dplyr::left_join(gene_exp_df, by = "barcodes")
 ```
 
 ```{r, fig.height=7, fig.width=7}
 # plot to look at marker gene expression for all cell types across all clusters and all params
-k_params <- unique(cluster_exp_df$nn_param) |>
-  as.character()
+k_params <- unique(cluster_exp_df$nn_char)
 
 k_params |>
   purrr::map(\(k) {
+    k_num <- stringr::str_remove(k, "nn-")
+    
     plot_marker_genes(cluster_exp_df,
-      k_value = k
+      k_value = k_num
     )
   })
 ```
