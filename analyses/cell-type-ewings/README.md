@@ -150,7 +150,7 @@ The workflow can be run using the following command:
 ./evaluate-clusters.sh
 ```
 
-Calculating the clusters and the metrics can be time consuming and takes ~ 24 hours for all samples in the project. 
+Calculating the clusters and the metrics can be time consuming and takes ~ 24 hours on a laptop for all samples in the project. 
 To skip this step and only render the second report to look at cell types and marker gene expression, use the `skip_metrics=1` option: 
 
 ```sh
