@@ -99,6 +99,18 @@ clusters_df <- readr::read_tsv(params$cluster_results_file) |>
   dplyr::rename(barcodes = "cell_id")
 ```
 
+## Number of clusters
+
+Below is a table showing the number of clusters found for each value of `nn`.
+
+```{r}
+clusters_df |> 
+  dplyr::select(nn, cluster) |> 
+  dplyr::group_by(nn) |> 
+  dplyr::summarise(num_of_clusters = length(unique(cluster)))
+``` 
+
+
 ## UMAP of cluster assignments
 
 ```{r}
