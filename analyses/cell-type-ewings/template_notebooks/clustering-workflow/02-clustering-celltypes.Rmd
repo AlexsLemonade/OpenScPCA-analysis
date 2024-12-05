@@ -171,7 +171,7 @@ cluster_celltype_heatmap(cluster_classification_df)
 
 ## Marker gene expression
 
-Finally, we will look at the expression of marker genes across each cluster for each value of `k`. 
+Finally, we will look at the expression of marker genes across each cluster for each value of `nn`. 
 In these plots, each row shows the distribution of the specified marker genes in that cluster. 
 Each panel is labeled with the marker gene expression being plotted. 
 
