@@ -24,7 +24,7 @@ We expect that "good" clusters will be compromised of cells belonging to the sam
 Clustering was calculated using the following parameters: 
 
 - Algorithm: `r params$algorithm` 
-- Objective function: `r params$objective_function`
+- Objective function (if Leiden): `r params$objective_function`
 - Resolution: `r params$resolution`
 
 Results will be shown for all values of nearest neighbors used to perform clustering found in the cluster results file. 
@@ -92,9 +92,9 @@ clusters_df <- readr::read_tsv(params$cluster_results_file) |>
                 resolution == params$resolution) |> 
   # modify the nn column to be a character for easy plot labels
   dplyr::mutate(cluster = as.factor(cluster),
-                nn_char = glue::glue("nn-{nn}") |> 
-                  # make sure 5 comes first 
-                  forcats::fct_relevel("nn-5", after = 0)) |> 
+                # make sure 5 comes first 
+                nn_char = forcats::fct_relevel(glue::glue("nn-{nn}"), "nn-5", after = 0)
+         ) |>
   # rename barcode column for joining
   dplyr::rename(barcodes = "cell_id")
 ```
