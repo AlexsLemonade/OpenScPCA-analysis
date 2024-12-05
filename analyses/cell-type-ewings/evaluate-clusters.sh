@@ -19,9 +19,8 @@
 
 # Usage: ./evaluate-clusters.sh
 
-# to run clustering and calculate metrics again: 
-# this is how the workflow is run in CI, but otherwise this section will be skipped 
-# run_metrics=1 ./evaluate-clusters.sh
+# to skip clustering and calculating metrics again: 
+# skip_metrics=1 ./evaluate-clusters.sh
 
 set -euo pipefail
 
@@ -34,7 +33,7 @@ threads=${threads:-4}
 seed=${seed:-2024}
 
 # parameter to repeat clustering metrics 
-run_metrics=${run_metrics:-0}
+skip_metrics=${skip_metrics:-0}
 
 # set up input and output file paths
 # make sure full paths are provided for notebook rendering
@@ -71,7 +70,7 @@ for sample_id in $sample_ids; do
         sample_aucell_results="${aucell_results_dir}/${sample_id}/${library_id}_singler-classifications.tsv"
 
         # only perform clustering and metrics if specified 
-        if [[ $run_metrics -eq 1 ]]; then
+        if [[ $skip_metrics -ne 1 ]]; then
 
             # generate clusters 
             # use all three clustering methods

@@ -49,4 +49,4 @@ jobs:
           cd $MODULE_PATH
           bash cnv-annotation.sh
           bash aucell-singler-annotation.sh
-          run_metrics=1 bash evaluate-clusters.sh
+          bash evaluate-clusters.sh
