@@ -32,7 +32,7 @@ module_dir=$(pwd)
 threads=${threads:-4}
 seed=${seed:-2024}
 
-# parameter to repeat clustering metrics 
+# parameter to skip clustering metrics 
 skip_metrics=${skip_metrics:-0}
 
 # set up input and output file paths
