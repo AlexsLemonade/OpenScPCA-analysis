@@ -359,6 +359,7 @@ plot_faceted_umap <- function(classification_df,
       )
     ) +
     theme(
-      aspect.ratio = 1
+      aspect.ratio = 1,
+      panel.border = element_rect(color = "black", fill = NA)
     )
 }
