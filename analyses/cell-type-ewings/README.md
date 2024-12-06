@@ -5,20 +5,23 @@ This module will include code to annotate cell types in the Ewing sarcoma sample
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-**Table of Contents**
-
-- [`AUCell` and `SingleR` annotation workflow](#aucell-annotation-workflow)
+- [`AUCell` and `SingleR` annotation workflow](#aucell-and-singler-annotation-workflow)
   - [Usage](#usage)
   - [Input files](#input-files)
   - [Output files](#output-files)
   - [Computational resources](#computational-resources)
-- [CNV annotation workflow](#cnv-annotation-workflow)
+- [Clustering workflow](#clustering-workflow)
   - [Usage](#usage-1)
-  - [Sample metadata](#sample-metadata)
   - [Input files](#input-files-1)
   - [Output files](#output-files-1)
-  - [Annotation files](#annotation-files)
   - [Computational resources](#computational-resources-1)
+- [CNV annotation workflow](#cnv-annotation-workflow)
+  - [Usage](#usage-2)
+  - [Sample metadata](#sample-metadata)
+  - [Input files](#input-files-2)
+  - [Output files](#output-files-2)
+  - [Annotation files](#annotation-files)
+  - [Computational resources](#computational-resources-2)
 - [Exploratory analyses](#exploratory-analyses)
 - [Software requirements](#software-requirements)
 
@@ -128,8 +131,15 @@ For all processed `SingleCellExperiment` objects that are part of `SCPCP000015`,
 - Resolution (Louvain and Leiden with modularity): 0.5, 1, 1.5 
 - Resolution (Leiden with CPM): 0.001, 0.005, 0.01
 
-After clusters are calculated, a report summarizing clustering metrics is generated for each object. 
-The report includes summary plots showing silhouette width, cluster purity, and cluster stability for each set of parameters used to calculate clusters. 
+After clusters are calculated, a report with summary plots showing silhouette width, cluster purity, and cluster stability for each set of parameters used to calculate clusters is created. 
+
+Clusters identified using the Leiden algorithm with the modularity objective function are then explored in a secondary report. 
+A report is generated for resolution 0.5 and resolution 1.
+This report includes: 
+
+- A comparison of cluster assignments to cell type assignments (output from the `aucell-singler-annotation.sh` workflow) for all values of nearest neighbors used. 
+- Marker gene set expression in each cluster for all marker gene sets in `references/visser-all-marker-genes.tsv`
+
 
 ### Usage
 
@@ -138,6 +148,13 @@ The workflow can be run using the following command:
 
 ```sh
 ./evaluate-clusters.sh
+```
+
+Calculating the clusters and the metrics can be time consuming and takes ~ 24 hours on a laptop for all samples in the project. 
+To skip this step and only render the second report to look at cell types and marker gene expression, use the `skip_metrics=1` option: 
+
+```sh
+skip_metrics=1 ./evaluate-clusters.sh
 ```
 
 ### Input files 

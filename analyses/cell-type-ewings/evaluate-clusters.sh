@@ -19,6 +19,9 @@
 
 # Usage: ./evaluate-clusters.sh
 
+# to skip clustering and calculating metrics again: 
+# skip_metrics=1 ./evaluate-clusters.sh
+
 set -euo pipefail
 
 # navigate to where script lives
@@ -26,8 +29,11 @@ cd $(dirname "$0")
 module_dir=$(pwd)
 
 # use 4 CPUs and define seed
-threads=4
-seed=2024
+threads=${threads:-4}
+seed=${seed:-2024}
+
+# parameter to skip clustering metrics 
+skip_metrics=${skip_metrics:-0}
 
 # set up input and output file paths
 # make sure full paths are provided for notebook rendering
@@ -36,8 +42,12 @@ results_dir="${module_dir}/results/clustering"
 mkdir -p ${results_dir}
 
 # define scripts and notebook directories
-scripts_dir="scripts/clustering-workflow"
-notebook_dir="template_notebooks/clustering-workflow"
+scripts_dir="${module_dir}/scripts/clustering-workflow"
+notebook_dir="${module_dir}/template_notebooks/clustering-workflow"
+
+# define other files 
+marker_genes_file="${module_dir}/references/visser-all-marker-genes.tsv"
+aucell_results_dir="${module_dir}/results/aucell_singler_annotation"
 
 # define all sample IDs 
 sample_ids=$(basename -a ${data_dir}/SCPCS*)
@@ -56,26 +66,53 @@ for sample_id in $sample_ids; do
         # define output files
         cluster_results="${sample_results_dir}/${library_id}_cluster-results.tsv"
 
-        # generate clusters 
-        # use all three clustering methods
-        echo "Generating clusters for sample: $sample_id and library: $library_id"
-        Rscript $scripts_dir/01-clustering.R \
-            --sce_file $sce_file \
-            --output_file $cluster_results \
-            --louvain --leiden_mod --leiden_cpm \
-            --threads $threads \
-            --seed $seed
+        # define singler results file 
+        sample_aucell_results="${aucell_results_dir}/${sample_id}/${library_id}_singler-classifications.tsv"
 
-        # render notebook
-        Rscript -e "rmarkdown::render('$notebook_dir/01-clustering-metrics.Rmd', \
-          clean = TRUE, \
-          output_dir = '$sample_results_dir', \
-          output_file = '${library_id}_cluster-summary-report.html', \
-          params = list(library_id = '$library_id', \
-                        sce_file = '$sce_file', \
-                        cluster_results_file = '$cluster_results',
-                        threads = $threads), \
-          envir = new.env()) \
-        "
+        # only perform clustering and metrics if specified 
+        if [[ $skip_metrics -ne 1 ]]; then
+
+            # generate clusters 
+            # use all three clustering methods
+            echo "Generating clusters for sample: $sample_id and library: $library_id"
+            Rscript $scripts_dir/01-clustering.R \
+                --sce_file $sce_file \
+                --output_file $cluster_results \
+                --louvain --leiden_mod --leiden_cpm \
+                --threads $threads \
+                --seed $seed
+
+            # render clustering metrics notebook
+            Rscript -e "rmarkdown::render('$notebook_dir/01-clustering-metrics.Rmd', \
+              clean = TRUE, \
+              output_dir = '$sample_results_dir', \
+              output_file = '${library_id}_cluster-summary-report.html', \
+              params = list(library_id = '$library_id', \
+                            sce_file = '$sce_file', \
+                            cluster_results_file = '$cluster_results',
+                            threads = $threads), \
+              envir = new.env()) \
+            "
+        
+        fi 
+
+        # render cell type and gene set notebook 
+        # use default leiden, modularity clustering 
+        # one notebook for each resolutions .5 and 1
+        resolution_array=(0.5 1)
+        for resolution in ${resolution_array[@]}; do 
+            Rscript -e "rmarkdown::render('$notebook_dir/02-clustering-celltypes.Rmd', \
+                clean = TRUE, \
+                output_dir = '$sample_results_dir', \
+                output_file = '${library_id}_${resolution}_cluster-celltype-report.html', \
+                params = list(library_id = '$library_id', \
+                              sce_file = '$sce_file', \
+                              cluster_results_file = '$cluster_results', \
+                              singler_results_file = '$sample_aucell_results', \
+                              marker_genes_file = '$marker_genes_file', \
+                              resolution = $resolution)
+            )"
+
+        done 
     done
 done
