@@ -9,3 +9,6 @@ set -euo pipefail
 # Ensure script is being run from its directory
 MODULE_DIR=$(dirname "${BASH_SOURCE[0]}")
 cd ${MODULE_DIR}
+
+# Render first notebook
+Rscript -e "rmarkdown::render('01_perform-evaluate-clustering.Rmd', clean = TRUE)"

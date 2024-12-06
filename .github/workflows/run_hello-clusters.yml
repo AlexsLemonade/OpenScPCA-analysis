@@ -19,15 +19,15 @@ concurrency:
 
 on:
   workflow_dispatch:
-  # workflow_call:
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - analyses/hello-clusters/**
-  #     - "!analyses/hello-clusters/Dockerfile"
-  #     - "!analyses/hello-clusters/.dockerignore"
-  #     - .github/workflows/run_hello-clusters.yml
+  workflow_call:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - analyses/hello-clusters/**
+      - "!analyses/hello-clusters/Dockerfile"
+      - "!analyses/hello-clusters/.dockerignore"
+      - .github/workflows/run_hello-clusters.yml
 
 jobs:
   run-module:
@@ -47,16 +47,20 @@ jobs:
       - name: Set up pandoc
         uses: r-lib/actions/setup-pandoc@v2
 
+      - name: Install additional system dependencies
+        run: |
+          sudo apt-get install -y libcurl4-openssl-dev libglpk40
+
       - name: Set up renv
         uses: r-lib/actions/setup-renv@v2
         with:
           working-directory: ${{ env.MODULE_PATH }}
 
-      # Update this step as needed to download the desired data
       - name: Download test data
-        run: ./download-data.py --test-data --format SCE
+        run: ./download-data.py --test-data --format SCE --samples SCPCS000001
 
       - name: Run analysis module
         run: |
           cd ${MODULE_PATH}
-          # run module script(s) here
+          ./run_hello-clusters.sh
+
