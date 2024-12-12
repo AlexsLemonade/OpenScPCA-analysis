@@ -121,6 +121,7 @@ Jitter
 JSON
 Jupyter
 karyotyping
+LCA
 leiden
 LGBTQ
 licensor
