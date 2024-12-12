@@ -351,9 +351,11 @@ One could also argue to remove `stromal cell` or `extracellular matrix secreting
 
 Below are tables that look specifically at the combinations of cell type annotations that resulted in some of the terms that I might consider removing. 
 
+#### Blood cell
+
 ```{r}
 print_df <- lca_df |> 
-  dplyr::select(blueprint_annotation_main, blueprint_annotation_fine, panglao_annotation, total_lca, cl_annotation)
+  dplyr::select(blueprint_ontology, blueprint_annotation_main, blueprint_annotation_fine, panglao_ontology, panglao_annotation, total_lca, lca, cl_annotation)
 
 # blood cell
 print_df |> 
@@ -363,6 +365,8 @@ print_df |>
 I think I'm in favor of not having a "blood cell" label, since I'm not sure that it's helpful. 
 Also, if two different methods label something a platelet and a neutrophil, then perhaps that label is inaccurate and it's really a tumor cell. 
 
+#### Bone cell
+
 ```{r}
 # bone cell
 print_df |> 
@@ -371,6 +375,8 @@ print_df |>
 
 I think I would also remove bone cell, since hematopoietic stem cells and osteoclasts seem pretty different to me. 
 
+#### Myeloid leukocyte
+
 ```{r}
 # myeloid leukocyte cell
 print_df |> 
@@ -378,6 +384,8 @@ print_df |>
 ```
 
 I'm torn on this one, because I do think it's helpful to know if something is of the myeloid lineage, but if we aren't keeping lymphocyte then I would argue we shouldn't keep myeloid leukocyte. 
+
+#### Progenitor cell
 
 ```{r}
 # progenitor cell
@@ -390,12 +398,15 @@ Same with `progenitor cell`, I do think it could be helpful to know that somethi
 
 Along those same lines, I think the below terms, `lining cell` and `supporting cell`, are too broad even though they have few descendants. 
 
+#### Lining cell
+
 ```{r}
 # lining cell 
 print_df |> 
   dplyr::filter(cl_annotation == "lining cell")
 ```
 
+#### Supporting cell
 
 ```{r}
 # supporting cell 
@@ -404,6 +415,7 @@ print_df |>
 ```
 
 
+### Discarded cell types
 
 We can also look at what cell type labels we are excluding when using this cut off to see if there are any terms we might actually want to keep instead. 
 
@@ -416,6 +428,8 @@ lca_df |>
 
 The only term in this list that I would be concerned about losing is "neuron". 
 Let's look at those combinations. 
+
+#### Neuron
 
 ```{r}
 # blood cell
@@ -436,7 +450,8 @@ Here I'm looking at the total number of descendants for all terms that show up b
 lca_df |> 
   dplyr::filter(total_lca > 1) |> 
   dplyr::select(cl_annotation, total_descendants) |> 
-  unique()
+  unique() |>
+  dplyr::arrange(total_descendants)
 ```
 
 It looks like most of these terms are pretty broad and are either much higher than the cutoff or right around the cutoff with a few exceptions.
@@ -462,6 +477,8 @@ setdiff(celltypes_to_keep, updated_celltypes)
 
 It looks like I am losing a few terms I already said were not specific and then a few other terms, like "hematopoietic precursor cell" and "perivascular cell". I'll look at both of those to confirm we would not want them. 
 
+#### Hematopoietic precursor cell
+
 ```{r}
 print_df |> 
   dplyr::filter(cl_annotation == "hematopoietic precursor cell")
@@ -481,6 +498,7 @@ lca_df |>
 It looks like these terms have both `hematopoietic precursor cell` and `progenitor cell` as LCAs. 
 Personally, I would keep the term for `hematopoietic precursor cell` because I think it's more informative and specific to the type of progenitor cell. 
 
+#### Perivascular cell
 
 ```{r}
 print_df |> 
