@@ -1950,11 +1950,14 @@
       "RemoteUsername": "AlexsLemonade",
       "RemoteRepo": "rOpenScPCA",
       "RemoteRef": "main",
-      "RemoteSha": "fae22a62862f9e1d8bcb244e400ec4604c7e0905",
+      "RemoteSha": "042410600a0a0ea90f5461091b7a60216a995dab",
       "RemoteHost": "api.github.com",
       "Requirements": [
         "BiocParallel",
+        "R",
+        "S4Vectors",
         "SingleCellExperiment",
+        "SummarizedExperiment",
         "bluster",
         "dplyr",
         "methods",
@@ -1963,7 +1966,7 @@
         "tibble",
         "tidyr"
       ],
-      "Hash": "9231556d802a3eebdc69de20a7624276"
+      "Hash": "349a17666ebbe75d89cfd1c8275d6c91"
     },
     "rappdirs": {
       "Package": "rappdirs",
