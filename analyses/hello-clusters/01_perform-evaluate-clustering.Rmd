@@ -63,7 +63,7 @@ input_sce_file <- file.path(data_dir, "SCPCP000001", "SCPCS000001", "SCPCL000001
 
 ### Set the random seed
 
-Because clustering involves random sampling, it is important to set the random seed at the top of your analysis script or notebook to ensure reproducibilty.
+Because clustering involves random sampling, it is important to set the random seed at the top of your analysis script or notebook to ensure reproducibility.
 
 ```{r set seed}
 set.seed(2024)
@@ -455,7 +455,7 @@ colData(sce) <- DataFrame(
   row.names = sce_coldata$barcodes
 )
 
-colData(sce)
+head(colData(sce))
 ```
 
 ### Saving results to a Seurat object 
@@ -468,7 +468,7 @@ Note that the Seurat function `AddMetaData()`, used below, assumes that the row 
 seurat_obj <- AddMetaData(seurat_obj, cluster_results_renamed_df)
 
 # Print the cell metadata
-seurat_obj@meta.data
+head(seurat_obj@meta.data)
 ```
 
 
