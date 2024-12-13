@@ -9,8 +9,9 @@ params:
   padj_thershold: 0.05  # Threshold for adjusted p-value
   lfc_threshold: 1      # Threshold for log fold change
   rate1_threshold: 0.5  # Threshold for rate (percentage) of cells expressing the marker genes in group1
-output: 
-  html_document: 
+  testing: 0            # When testing, certain parameter values have to be changed, and certain chunks are skipped
+output:
+  html_document:
     toc: yes
     toc_float: yes
     code_folding: hide
@@ -19,12 +20,11 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-
-knitr::opts_chunk$set(echo = TRUE,
-                      message=FALSE,
-                      warnings=FALSE
-                      )
-
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warnings = FALSE
+)
 ```
 
 
@@ -32,14 +32,13 @@ knitr::opts_chunk$set(echo = TRUE,
 
 
 ```{r}
-
 subdiagnosis <- readr::read_tsv(
   file.path("..", "..", "..", "data", "current", params$scpca_project_id, "single_cell_metadata.tsv"),
   show_col_types = FALSE
-  ) |>
+) |>
   dplyr::filter(scpca_sample_id == params$sample_id) |>
-  dplyr::pull(subdiagnosis)
-
+  dplyr::pull(subdiagnosis) |>
+  unique()
 ```
 
 The aim is to explore the clustering and label transfers for the sample `r params$sample_id`.
@@ -51,7 +50,7 @@ In order to explore the clustering results, we look into some marker genes, path
 This approach would provide us a rapid idea of the quality of the clustering:
 
 - in the case each cluster do have a set of specific marker genes, we could expect each of the cluster to have at least a different phenotype,
-- if marker genes are mostly shared between clusters, we might have overclustered,
+- if marker genes are mostly shared between clusters, we might have over-clustered,
 - if no marker genes are found, the quality of cells in the clusters might be impaired (high mitochondrial content? ribosomal content?)
 
 ### Packages
@@ -60,7 +59,7 @@ This approach would provide us a rapid idea of the quality of the clustering:
 ```{r packages, message=FALSE, warning=FALSE}
 library(Seurat)
 library(sctransform)
-library(SCpubr)             # for plotting 
+library(SCpubr) # for plotting
 library(tidyverse)
 library(patchwork)
 library(msigdbr)
@@ -69,6 +68,7 @@ library(clusterProfiler)
 library(org.Hs.eg.db)
 library(ggalluvial)
 
+options(future.globals.maxSize = 8912896000000)
 set.seed(params$seed)
 ```
 
@@ -101,136 +101,144 @@ To explore the clustering results, we look into some marker genes reported here:
 ```{r marker_genes, fig.width=12, fig.height=6, out.width='100%'}
 CellType_metadata <- read_csv(file.path(module_base, "marker-sets", "CellType_metadata.csv"))
 
-DT::datatable(CellType_metadata, caption = ("CellType_metadata"), 
-              extensions = 'Buttons', 
-              options = list(  dom = 'Bfrtip',
-                               buttons = c( 'csv', 'excel')))
+DT::datatable(CellType_metadata,
+  caption = ("CellType_metadata"),
+  extensions = "Buttons",
+  options = list(
+    dom = "Bfrtip",
+    buttons = c("csv", "excel")
+  )
+)
 ```
 
 
 ### Output file
 
-Reports will be saved in the `notebook` directory. 
+Reports will be saved in the `notebook` directory.
 The pre-processed and annotated `Seurat` object per samples are saved in the `result` folder.
 
 
 ## Functions
 
-Here we defined function that will be used multiple time all along the notebook. 
+Here we defined function that will be used multiple time all along the notebook.
 
-#### Visualize seurat clusters and metadata
+#### Visualize Seurat clusters and metadata
 
 For a Seurat object `object`and a metadata `metadata`, the function `visualize_metadata` will plot `FeaturePlot` and `BarPlot`
 
-- `object` is the Seurat object 
+- `object` is the Seurat object
 
 - `metadata` the gene or quantitative value to be plotted
 
-- `group.by` is the metadata used for grouping the violin plots 
+- `group.by` is the metadata used for grouping the violin plots
 
 ```{r }
-visualize_metadata <- function(object, meta, group.by){
-  
-  if(is.numeric(object@meta.data[,meta])){
-     d <- SCpubr::do_FeaturePlot(object, 
-                                              features = meta, 
-                                              pt.size = 0.2, 
-                                              legend.width = 0.5, 
-                                              legend.length = 5, 
-                                              legend.position = "right") + ggtitle(meta)
-    b <- SCpubr::do_ViolinPlot(srat, 
-                                             features = meta, 
-                                             ncol = 1, 
-                                             group.by = group.by, 
-                                             legend.position = "none")
-                   
-   return(d + b + plot_layout(ncol = 2, widths = c(2,4))) 
+visualize_metadata <- function(object, meta, group.by) {
+  if (is.numeric(object@meta.data[, meta])) {
+    d <- SCpubr::do_FeaturePlot(object,
+      features = meta,
+      pt.size = 0.2,
+      legend.width = 0.5,
+      legend.length = 5,
+      legend.position = "right"
+    ) + ggtitle(meta)
+    b <- SCpubr::do_ViolinPlot(srat,
+      features = meta,
+      ncol = 1,
+      group.by = group.by,
+      legend.position = "none"
+    )
+
+    return(d + b + plot_layout(ncol = 2, widths = c(2, 4)))
+  } else {
+    d <- SCpubr::do_DimPlot(object, reduction = "umap", group.by = group.by, label = TRUE, repel = TRUE) + ggtitle(paste0(meta, " - umap")) + theme(text = element_text(size = 18))
+    b <- SCpubr::do_BarPlot(
+      sample = object,
+      group.by = meta,
+      split.by = group.by,
+      position = "fill",
+      font.size = 10,
+      legend.ncol = 3
+    ) +
+      ggtitle("% cells") +
+      xlab(print(group.by)) +
+      theme(text = element_text(size = 18))
+    return(d + b + plot_layout(ncol = 2, widths = c(2, 4)))
   }
-  
-  
-  else{
-    
-  
-  d <- SCpubr::do_DimPlot(object, reduction="umap", group.by = group.by, label = TRUE, repel = TRUE) + ggtitle(paste0(meta," - umap")) + theme(text=element_text(size=18))
-  b <- SCpubr::do_BarPlot(sample = object,
-                         group.by = meta,
-                         split.by = group.by,
-                         position = "fill",
-                         font.size = 10,
-                         legend.ncol = 3) +
-                         ggtitle("% cells")+
-                         xlab(print(group.by)) +
-                         theme(text=element_text(size=18))
-  return(d + b + plot_layout(ncol = 2, widths = c(2,4)))
-  }
-  
 }
 ```
 
-#### Visualize seurat clusters and markers genes
+#### Visualize Seurat clusters and markers genes
 
 For a Seurat object `object`and a features `features`, the function `visualize_feature` will plot `FeaturePlot` and `ViolinPlot`
 
-- `object` is the Seurat object 
+- `object` is the Seurat object
 
 - `features` the gene or quantitative value to be plotted
 
-- `group.by` is the metadata used for grouping the violin plots 
+- `group.by` is the metadata used for grouping the violin plots
 
 ```{r }
-visualize_feature <- function(object, features, group.by = "seurat_clusters"){
- 
-                  feature_symbol <- AnnotationDbi::select(org.Hs.eg.db, 
-                                keys=features, 
-                                columns="SYMBOL", 
-                                keytype="ENSEMBL")
- 
-                  d <- SCpubr::do_FeaturePlot(object, 
-                                              features = feature_symbol$ENSEMBL, 
-                                              pt.size = 0.2, 
-                                              legend.width = 0.5, 
-                                              legend.length = 5, 
-                                              legend.position = "right") + ggtitle(feature_symbol$SYMBOL)
-                  b <- SCpubr::do_ViolinPlot(srat, 
-                                             features = feature_symbol$ENSEMBL, 
-                                             ncol = 1, 
-                                             group.by = group.by, 
-                                             legend.position = "none",
-                                             assay = "SCT") + ylab(feature_symbol$SYMBOL)
-                   
-                  return(d + b + plot_layout(ncol = 2, widths = c(2,4))) 
+visualize_feature <- function(object, features, group.by = "seurat_clusters") {
+  feature_symbol <- AnnotationDbi::select(org.Hs.eg.db,
+    keys = features,
+    columns = "SYMBOL",
+    keytype = "ENSEMBL"
+  )
+
+  d <- SCpubr::do_FeaturePlot(object,
+    features = feature_symbol$ENSEMBL,
+    pt.size = 0.2,
+    legend.width = 0.5,
+    legend.length = 5,
+    legend.position = "right"
+  ) + ggtitle(feature_symbol$SYMBOL)
+  b <- SCpubr::do_ViolinPlot(srat,
+    features = feature_symbol$ENSEMBL,
+    ncol = 1,
+    group.by = group.by,
+    legend.position = "none",
+    assay = "SCT"
+  ) + ylab(feature_symbol$SYMBOL)
+
+  return(d + b + plot_layout(ncol = 2, widths = c(2, 4)))
 }
-          
- 
 ```
 
 #### Calculate `ModuleScore` from a `MSigDB` dataset
 
-For a Seurat object `object`, the function `MSigDB_score` will calculate a score using `AddModuleScore()` function for a MSigDB gene set `gs_name` in the category `category`
+For a Seurat object `object`, the function `MSigDB_score` will calculate a score using `AddModuleScore()` function for a `MSigDB` gene set `gs_name` in the category `category`
 
-- `object` is the Seurat object to calculate the score. 
+- `object` is the Seurat object to calculate the score.
 Score will be added in the metadata of this object.
 
-- `category` is a MSigDB collection (https://www.gsea-msigdb.org/gsea/msigdb/collections.jsp).
+- `category` is a `MSigDB` collection (https://www.gsea-msigdb.org/gsea/msigdb/collections.jsp).
 values in `c("H", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8")`
 
-- `gs_name` is the name of a MSigDB gene set, e.g. `"HALLMARK_P53_PATHWAY"`
+- `gs_name` is the name of a `MSigDB` gene set, e.g. `"HALLMARK_P53_PATHWAY"`
 
 - `name` is the name of the module
 
 - `nbins` is the number of bins for `AddModuleScore` to use. Its default value is 24, which matches Seurat's default value.
-```{r }
-MSigDB_score <- function(object, category, gs_name, name, nbin = 24){
-  
-        set <- msigdbr(species = "human", category = category)
-        set_list <- set %>% 
-                    dplyr::filter(gs_name == gs_name) %>%
-                    dplyr::distinct(gs_name, gene_symbol, human_ensembl_gene) %>% as.data.frame()
-        set_list <- list(set_list$human_ensembl_gene)
-       suppressWarnings({
-            object <- AddModuleScore(object, features = set_list, name = name, nbin = nbin)
-       })
-return(object)
+```{r}
+MSigDB_score <- function(object, category, gs_name, name, nbin = 24) {
+  set <- msigdbr(species = "human", category = category)
+  set_list <- set %>%
+    dplyr::filter(gs_name == gs_name) %>%
+    dplyr::distinct(gs_name, gene_symbol, human_ensembl_gene) %>%
+    as.data.frame()
+  set_list <- list(set_list$human_ensembl_gene)
+  suppressWarnings({
+    # AddModuleScore is known to throw an error when there are too few cells, e.g.:
+    # https://github.com/satijalab/seurat/issues/5814 (the source of this error is the call to AddModuleScore)
+    # When we have fewer than ~500 cells, this error will occur. To avoid this, we override the `ctrl` (default 100) parameter to a lower value (15)
+    if (ncol(object) <= 500) {
+      object <- AddModuleScore(object, features = set_list, name = name, nbin = nbin, ctrl = 15)
+    } else {
+      object <- AddModuleScore(object, features = set_list, name = name, nbin = nbin)
+    }
+  })
+  return(object)
 }
 ```
 
@@ -238,7 +246,7 @@ return(object)
 
 `Enrichment_plot`aim to perform enrichment of the marker genes for each of the Seurat clusters and summarize the results in a `dotplot`.
 
-- `category` is the MSigDB category or collection to be used
+- `category` is the `MSigDB` category or collection to be used
 values in `c("H", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8")`
 
 - `signatures` is a list of marker genes per cluster
@@ -246,22 +254,28 @@ values in `c("H", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8")`
 - `background`is the universe used for enrichment
 
 ```{r }
-Enrichment_plot <- function(category, signatures, background){
-    ## define genesets
-   tryCatch( expr =  {
-               gene_set <- msigdbr(species = "human", category = category)
-               msigdbr_set <-  gene_set %>% dplyr::distinct(gs_name, ensembl_gene) %>% as.data.frame()
-               cclust<-compareCluster(geneCluster = signatures, 
-               fun = enricher,
-               TERM2GENE = msigdbr_set,
-               universe=background)
-               d <- dotplot(cclust,showCategory=15) + scale_y_discrete(labels=function(x) str_wrap(x, width=40))
-               return(d)  
-   },
-   error = function(e) { print("No enrichment") } )
-   
+Enrichment_plot <- function(category, signatures, background) {
+  ## define genesets
+  tryCatch(
+    expr = {
+      gene_set <- msigdbr(species = "human", category = category)
+      msigdbr_set <- gene_set %>%
+        dplyr::distinct(gs_name, ensembl_gene) %>%
+        as.data.frame()
+      cclust <- compareCluster(
+        geneCluster = signatures,
+        fun = enricher,
+        TERM2GENE = msigdbr_set,
+        universe = background
+      )
+      d <- dotplot(cclust, showCategory = 15) + scale_y_discrete(labels = function(x) str_wrap(x, width = 40))
+      return(d)
+    },
+    error = function(e) {
+      print("No enrichment")
+    }
+  )
 }
-
 ```
 
 
@@ -269,27 +283,26 @@ Enrichment_plot <- function(category, signatures, background){
 
 `do_Table_Heatmap` shows heatmap of counts of cells for combinations of two metadata variables
 
-- `data` seurat object 
+- `data` Seurat object
 - `first_group` is the name of the first metadata to group the cells
 - `last_group` is the name of the second metadata to group the cells
 
 ```{r fig.width=10, fig.height=4, out.width='100%'}
-do_Table_Heatmap <- function(data, first_group, last_group ){
-  
+do_Table_Heatmap <- function(data, first_group, last_group) {
   df <- data@meta.data %>%
-  mutate_if(sapply(data@meta.data, is.character), as.factor)  %>% 
-  group_by( !!sym(first_group), !!sym(last_group))%>% 
-  summarise(Nb = log(n())) 
+    mutate_if(sapply(data@meta.data, is.character), as.factor) %>%
+    group_by(!!sym(first_group), !!sym(last_group)) %>%
+    summarise(Nb = log(n()))
 
-p <- ggplot(df, aes(x= !!sym(first_group), y = !!sym(last_group), fill = Nb)) +
-   geom_tile() +
-   scale_fill_viridis_c()  +
-   theme_bw() +
-   theme(text = element_text(size = 20)) +
-   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-   guides(fill=guide_legend(title=" Number of \n cells (log)"))
+  p <- ggplot(df, aes(x = !!sym(first_group), y = !!sym(last_group), fill = Nb)) +
+    geom_tile() +
+    scale_fill_viridis_c() +
+    theme_bw() +
+    theme(text = element_text(size = 20)) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+    guides(fill = guide_legend(title = " Number of \n cells (log)"))
 
-return(p)
+  return(p)
 }
 ```
 
@@ -298,12 +311,14 @@ return(p)
 ### Load the pre-processed `Seurat` object
 ```{r load, message=FALSE, warning=FALSE}
 # open the processed rds object
-srat <- readRDS(file.path(result_dir, paste0("02b-fetal_kidney_label-transfer_",params$sample_id,".Rds")))
+srat <- readRDS(file.path(result_dir, paste0("02b-fetal_kidney_label-transfer_", params$sample_id, ".Rds")))
 DefaultAssay(srat) <- "SCT"
 
 # Add number of bins to use with Seurat::AddModuleScore().
 # One sample in this project fails with the default number of bins, so we need to override it
-if (params$sample_id == "SCPCS000197") {
+if (params$testing) {
+  seurat_nbins <- 5
+} else if (params$sample_id == "SCPCS000197") {
   seurat_nbins <- 23 # default is 24, so this is very close
 } else {
   seurat_nbins <- 24
@@ -311,7 +326,7 @@ if (params$sample_id == "SCPCS000197") {
 ```
 
 
-### Visualize seurat clusters
+### Visualize Seurat clusters
 
 We expect up to 5 set of clusters:
 
@@ -322,43 +337,50 @@ We expect up to 5 set of clusters:
 - endothelial cells
 
 ```{r fig.width=20, fig.height=10, out.width='100%'}
-d1 <- SCpubr::do_DimPlot(srat, reduction="pca", group.by = "seurat_clusters", label = TRUE) + ggtitle("Seurat Cluster - pca")
-d2 <- SCpubr::do_DimPlot(srat, reduction="umap", group.by = "seurat_clusters", label = TRUE) + ggtitle("Seurat Cluster - umap")
-v1 <- SCpubr::do_ViolinPlot(srat, features = c( "subsets_mito_percent"), ncol = 1, group.by = "seurat_clusters", legend.position = "none") 
-v2 <- SCpubr::do_ViolinPlot(srat, features = c( "detected"), ncol = 1, group.by = "seurat_clusters", legend.position = "none") 
-v3 <- SCpubr::do_ViolinPlot(srat, features = c( "sum"), ncol = 1, group.by = "seurat_clusters", legend.position = "none") 
+d1 <- SCpubr::do_DimPlot(srat, reduction = "pca", group.by = "seurat_clusters", label = TRUE) + ggtitle("Seurat Cluster - pca")
+d2 <- SCpubr::do_DimPlot(srat, reduction = "umap", group.by = "seurat_clusters", label = TRUE) + ggtitle("Seurat Cluster - umap")
+v1 <- SCpubr::do_ViolinPlot(srat, features = c("subsets_mito_percent"), ncol = 1, group.by = "seurat_clusters", legend.position = "none")
+v2 <- SCpubr::do_ViolinPlot(srat, features = c("detected"), ncol = 1, group.by = "seurat_clusters", legend.position = "none")
+v3 <- SCpubr::do_ViolinPlot(srat, features = c("sum"), ncol = 1, group.by = "seurat_clusters", legend.position = "none")
 
-d1 + d2 + (v1 + v2 +v3 + plot_layout(ncol=1) ) + plot_layout(ncol = 3, widths = c(2,2,4))
+d1 + d2 + (v1 + v2 + v3 + plot_layout(ncol = 1)) + plot_layout(ncol = 3, widths = c(2, 2, 4))
 ```
 
 ### Cell cycle information
-```{r cell_cycle}
+```{r cell_cycle, eval=!params$testing}
 s.genes <- srat@assays$RNA@meta.data$gene_ids[srat@assays$RNA@meta.data$gene_symbol %in% cc.genes$s.genes]
 g2m.genes <- srat@assays$RNA@meta.data$gene_ids[srat@assays$RNA@meta.data$gene_symbol %in% cc.genes$g2m.genes]
-srat <- CellCycleScoring(srat, s.features = s.genes, g2m.features = g2m.genes, set.ident = FALSE, nbin = seurat_nbins)
+# CellCycleSorting is known to throw an error when there are too few cells, e.g.:
+# https://github.com/satijalab/seurat/issues/5814
+# When we have fewer than ~500 cells, this error will occur. To avoid this, we override the `ctrl` (default 100) parameter to a lower value (15)
+if (ncol(srat) <= 500) {
+  srat <- CellCycleScoring(srat, s.features = s.genes, g2m.features = g2m.genes, set.ident = FALSE, nbin = seurat_nbins, ctrl = 15)
+} else {
+  srat <- CellCycleScoring(srat, s.features = s.genes, g2m.features = g2m.genes, set.ident = FALSE, nbin = seurat_nbins)
+}
 ```
 
-```{r fig.width=20, fig.height=4, out.width='100%'}
+```{r fig.width=20, fig.height=4, out.width='100%', eval=!params$testing}
 visualize_metadata(srat, meta = "Phase", group.by = "seurat_clusters")
 ```
 
 
 
-```{r fig.width=20, fig.height=2.5, out.width='100%'}
-visualize_metadata(srat, meta  = "S.Score", group.by = "seurat_clusters")
+```{r fig.width=20, fig.height=2.5, out.width='100%', eval=!params$testing}
+visualize_metadata(srat, meta = "S.Score", group.by = "seurat_clusters")
 visualize_metadata(srat, meta = "G2M.Score", group.by = "seurat_clusters")
 ```
 
 ### Look at specific genes
 
-Here, we open the table of marker genes marker-sets/CellType_metadata.csv. 
-Note: we do not expect to have a clear and nice pattern of expression for all of the following markers in every tumor. 
+Here, we open the table of marker genes `marker-sets/CellType_metadata.csv`.
+Note: we do not expect to have a clear and nice pattern of expression for all of the following markers in every tumor.
 This is just ti get a few idea.
 
 
 ```{r fig.width=20, fig.height=4, out.width='100%'}
-for(feature in CellType_metadata$ENSEMBL_ID[CellType_metadata$ENSEMBL_ID %in% rownames(srat@assays$SCT)]){
-   print(visualize_feature(srat, features = feature, group.by = "seurat_clusters"))
+for (feature in CellType_metadata$ENSEMBL_ID[CellType_metadata$ENSEMBL_ID %in% rownames(srat@assays$SCT)]) {
+  print(visualize_feature(srat, features = feature, group.by = "seurat_clusters"))
 }
 ```
 
@@ -366,13 +388,13 @@ for(feature in CellType_metadata$ENSEMBL_ID[CellType_metadata$ENSEMBL_ID %in% ro
 
 ### Look at specific pathways
 
-#### TP53 pathway
+#### `TP53` pathway
 
-here we will calculate a TP53 score using `AddModuleScore` and the genes of the HALLMARK_P53_PATHWAY gene set.
+here we will calculate a `TP53` score using `AddModuleScore` and the genes of the HALLMARK_P53_PATHWAY gene set.
 
 ```{r fig.height=4, fig.width=20, warning=FALSE, out.width='100%'}
-srat <- MSigDB_score(object = srat , category = "H", gs_name = "HALLMARK_P53_PATHWAY", name = "TP53_score", nbin = seurat_nbins)
-visualize_metadata(srat, meta = "TP53_score1", group.by = "seurat_clusters" )
+srat <- MSigDB_score(object = srat, category = "H", gs_name = "HALLMARK_P53_PATHWAY", name = "TP53_score", nbin = seurat_nbins)
+visualize_metadata(srat, meta = "TP53_score1", group.by = "seurat_clusters")
 ```
 
 
@@ -381,90 +403,96 @@ visualize_metadata(srat, meta = "TP53_score1", group.by = "seurat_clusters" )
 here we will calculate a DNA_repair score using `AddModuleScore` and the genes of the HALLMARK_DNA_REPAIR gene set.
 
 ```{r fig.height=4, fig.width=20, warning=FALSE, out.width='100%'}
-srat <- MSigDB_score(object = srat , category = "H", gs_name = "HALLMARK_DNA_REPAIR", name = "DNA_repair_score", nbin = seurat_nbins)
-visualize_metadata(srat, meta = "DNA_repair_score1", group.by = "seurat_clusters" )
+srat <- MSigDB_score(object = srat, category = "H", gs_name = "HALLMARK_DNA_REPAIR", name = "DNA_repair_score", nbin = seurat_nbins)
+visualize_metadata(srat, meta = "DNA_repair_score1", group.by = "seurat_clusters")
 ```
 
 Note: Chemo-treated samples should have higher DNA-damage scores.
 
 
-#### DROSHA target genes
+#### `DROSHA` target genes
 
 ```{r fig.height=4, fig.width=20, warning=FALSE, out.width='100%'}
-srat <- MSigDB_score(object = srat , category = "C3", gs_name = "DROSHA_TARGET_GENES", name = "DROSHA_score", nbin = seurat_nbins)
-visualize_metadata(srat, meta = "DROSHA_score1", group.by = "seurat_clusters" )
+srat <- MSigDB_score(object = srat, category = "C3", gs_name = "DROSHA_TARGET_GENES", name = "DROSHA_score", nbin = seurat_nbins)
+visualize_metadata(srat, meta = "DROSHA_score1", group.by = "seurat_clusters")
 ```
 
 
-#### DICER1 target genes
+#### `DICER1` target genes
 
 
 ```{r fig.height=4, fig.width=20, warning=FALSE, out.width='100%'}
-srat <- MSigDB_score(object = srat , category = "C3", gs_name = "DICER1_TARGET_GENES", name = "DICER1_score", nbin = seurat_nbins)
-visualize_metadata(srat, meta = "DICER1_score1", group.by = "seurat_clusters" )
+srat <- MSigDB_score(object = srat, category = "C3", gs_name = "DICER1_TARGET_GENES", name = "DICER1_score", nbin = seurat_nbins)
+visualize_metadata(srat, meta = "DICER1_score1", group.by = "seurat_clusters")
 ```
 
 
-### Find marker genes for each of the seurat clusters
+### Find marker genes for each of the Seurat clusters
 
 In addition to the list of known marker genes, we used an unbiased approach to find transcripts that characterized the different clusters.
 
-We run DElegate::FindAllMarkers2 to find markers of the different clusters and manually check if they do make sense. 
-DElegate::FindAllMarkers2 is an improved version of Seurat::FindAllMarkers based on pseudobulk differential expression method. 
-Please check the preprint from Chistoph Hafemeister: https://www.biorxiv.org/content/10.1101/2023.03.28.534443v1
-and tool described here: https://github.com/cancerbits/DElegate 
+We run `DElegate::FindAllMarkers2` to find markers of the different clusters and manually check if they do make sense.
+`DElegate::FindAllMarkers2` is an improved version of `Seurat::FindAllMarkers` based on pseudobulk differential expression method.
+Please check the preprint from Hafemeister: https://www.biorxiv.org/content/10.1101/2023.03.28.534443v1
+and tool described here: https://github.com/cancerbits/DElegate
 
 Of note, we won't use it for annotation, this is just here to get an idea!
 
-```{r fig.width=10, fig.height=10, out.width='100%'}
+```{r fig.width=10, fig.height=10, out.width='100%', eval=!params$testing}
+# this chunk is not run in testing (CI) since there are generally too few clusters for the method to work
 feature_conversion <- srat@assays$RNA@meta.data
-de_results   <- DElegate::FindAllMarkers2(srat, group_column = "seurat_clusters")
-#filter the most relevant markers
-s.markers <- de_results[de_results$padj < params$padj_thershold & de_results$log_fc > params$lfc_threshold & de_results$rate1 > params$rate1_threshold,]
+de_results <- DElegate::FindAllMarkers2(srat, group_column = "seurat_clusters")
+# filter the most relevant markers
+s.markers <- de_results[de_results$padj < params$padj_thershold & de_results$log_fc > params$lfc_threshold & de_results$rate1 > params$rate1_threshold, ]
 # add gene symbol for easiest interpretation of the result
 s.markers$gene_ids <- s.markers$feature
-s.markers <- left_join(s.markers,feature_conversion, by = c( "gene_ids") )
+s.markers <- left_join(s.markers, feature_conversion, by = c("gene_ids"))
 stopifnot(
-  "Error joining gene ids and feature names" = identical(s.markers$feature, s.markers$gene_ids)   
+  "Error joining gene ids and feature names" = identical(s.markers$feature, s.markers$gene_ids)
 )
 ```
 
 
-```{r fig.width=10, fig.height=10, out.width='100%'}
-
-DT::datatable(s.markers, caption = ("marker genes"), 
-              extensions = 'Buttons', 
-              options = list(  dom = 'Bfrtip',
-                               buttons = c( 'csv', 'excel')))
-
+```{r fig.width=10, fig.height=10, out.width='100%', eval=!params$testing}
+DT::datatable(s.markers,
+  caption = ("marker genes"),
+  extensions = "Buttons",
+  options = list(
+    dom = "Bfrtip",
+    buttons = c("csv", "excel")
+  )
+)
 ```
 
-```{r fig.width=10, fig.height=10, out.width='100%'}
-
+```{r fig.width=10, fig.height=10, out.width='100%', eval=!params$testing}
 # Select top 5 genes for heatmap plotting
 s.markers <- na.omit(s.markers)
 s.markers %>%
-    group_by(group1) %>%
-    top_n(n =  5, wt = log_fc) -> top5
+  group_by(group1) %>%
+  top_n(n = 5, wt = log_fc) -> top5
 # subset for plotting
 cells <- WhichCells(srat, downsample = 100)
 ss <- subset(srat, cells = cells)
 ss <- ScaleData(ss, features = top5$feature)
-p1 <- SCpubr::do_DimPlot(srat, reduction="umap", group.by = "seurat_clusters", label = TRUE, repel = TRUE) + ggtitle("Seurat Cluster - umap")
-p2 <- DoHeatmap(ss, features = top5$feature,  cells = cells, group.by = "seurat_clusters") + NoLegend() + 
-  scale_fill_gradientn(colors =  c("#01665e","#35978f",'darkslategray3', "#f7f7f7", "#fee391","#fec44f","#F9AD03")) 
-p3 <- ggplot(srat@meta.data, aes(seurat_clusters, fill = seurat_clusters)) + geom_bar() + NoLegend()
+p1 <- SCpubr::do_DimPlot(srat, reduction = "umap", group.by = "seurat_clusters", label = TRUE, repel = TRUE) + ggtitle("Seurat Cluster - umap")
+p2 <- DoHeatmap(ss, features = top5$feature, cells = cells, group.by = "seurat_clusters") + NoLegend() +
+  scale_fill_gradientn(colors = c("#01665e", "#35978f", "darkslategray3", "#f7f7f7", "#fee391", "#fec44f", "#F9AD03"))
+p3 <- ggplot(srat@meta.data, aes(seurat_clusters, fill = seurat_clusters)) +
+  geom_bar() +
+  NoLegend()
 common_title <- sprintf("Unsupervised clustering %s, %d cells", srat@meta.data$orig.ident[1], ncol(srat))
-show((((p1 / p3) + plot_layout(heights = c(3,2)) | p2) ) + plot_layout(widths = c(1, 2)) + plot_layout(heights = c(3,1)) + plot_annotation(title = common_title))
-
+show((((p1 / p3) + plot_layout(heights = c(3, 2)) | p2)) + plot_layout(widths = c(1, 2)) + plot_layout(heights = c(3, 1)) + plot_annotation(title = common_title))
 ```
 
-```{r fig.width=10, fig.height=10, out.width='100%'}
-DT::datatable(top5[, c(1, 9, 11, 12)], caption = ("top 5 marker genes"), 
-              extensions = 'Buttons', 
-              options = list(  dom = 'Bfrtip',
-                               buttons = c( 'csv', 'excel')))
-
+```{r fig.width=10, fig.height=10, out.width='100%', eval=!params$testing}
+DT::datatable(top5[, c(1, 9, 11, 12)],
+  caption = ("top 5 marker genes"),
+  extensions = "Buttons",
+  options = list(
+    dom = "Bfrtip",
+    buttons = c("csv", "excel")
+  )
+)
 ```
 
 
@@ -475,89 +503,87 @@ Here we perform enrichment analysis of the marker genes found in the previous se
 
 We defined as universe/background all the genes expressed in the dataset, meaning the rownames of the Seurat object.
 
-We used three gene sets from MSiGDB:
+We used three gene sets from `MSigDB`:
 
-- the hallmark gene sets  are coherently expressed signatures derived by aggregating many MSigDB gene sets to represent well-defined biological states or processes.
+- the hallmark gene sets  are coherently expressed signatures derived by aggregating many `MSigDB` gene sets to represent well-defined biological states or processes.
 - the C3 : regulatory target gene sets  based on gene target predictions for microRNA seed sequences and predicted transcription factor binding sites.
 - the C8 : cell type signature gene sets  curated from cluster markers identified in single-cell sequencing studies of human tissue.
 
-We used enricher function from clusterProfiler to perform enrichment analysis.
+We used `clusterProfiler::enricher()` to perform enrichment analysis.
 
-```{r enrichment}
+```{r enrichment, eval=!params$testing}
 # define background genes = universe for enrichment
-background <-  rownames(srat)
+background <- rownames(srat)
 # Define gene signature per cluster
 signatures <- list()
-for( i in unique(s.markers$group1)){
-  signatures[[paste0("cluster ",i)]] <- s.markers$feature[s.markers$group1 == i]
+for (i in unique(s.markers$group1)) {
+  signatures[[paste0("cluster ", i)]] <- s.markers$feature[s.markers$group1 == i]
 }
 ```
 
-#### Hallmarks MSiGDB gene sets
+#### Hallmarks `MSigDB` gene sets
 
-```{r fig.width=20, fig.height=8, out.width='100%'}
-
+```{r fig.width=20, fig.height=8, out.width='100%', eval=!params$testing}
 Enrichment_plot(category = "H", signatures = signatures, background = background)
- 
 ```
 
 
-EMT signature should be enriched in stroma cluster.
-E2F/proliferation should be enriched in blastema cluster.
-MYC(N), TP53 must be enriched in blastema cluster.
+`EMT` signature should be enriched in stroma cluster.
+`E2F`/proliferation should be enriched in blastema cluster.
+`MYC(N)`, `TP53` must be enriched in blastema cluster.
 
 
 
-#### C8 MSiGDB cell type signature gene sets
+#### C8 `MSigDB` cell type signature gene sets
 
-```{r fig.width=20, fig.height=25, out.width='100%'}
+```{r fig.width=20, fig.height=25, out.width='100%', eval=!params$testing}
 Enrichment_plot(category = "C8", signatures = signatures, background = background)
 ```
 
-The MSigDB C8 gene set is quite relevant for kidney and nephroblastoma annotations. 
-Epithelial (cancer and normal) cells should be enriched in mature/adulte kidney pathways while blastema cancer cells will show enrichment of fetal kidney development pathway / cap mesenchyme. 
+The `MSigDB` C8 gene set is quite relevant for kidney and nephroblastoma annotations.
+Epithelial (cancer and normal) cells should be enriched in mature/adult kidney pathways while blastema cancer cells will show enrichment of fetal kidney development pathway / cap mesenchyme.
 
 ### Cell annotation
 
 #### Introduction to the four annotation strategies
 
-The use of the right reference is crucial for label transfer and annotation. 
+The use of the right reference is crucial for label transfer and annotation.
 It is recommended that the cell types in the reference is representative to the cell types to be annotated in the query.
 
-Wilms tumors can contain up to three histologies that resemble fetal kidney: blastema, stroma, and epithelia [[1](https://www.ncbi.nlm.nih.gov/books/NBK373356/), [2](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9915828/)]. 
+Wilms tumors can contain up to three histologies that resemble fetal kidney: blastema, stroma, and epithelia. [[1](https://www.ncbi.nlm.nih.gov/books/NBK373356/), [2](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9915828/)].
 Because of their histological similarity to fetal kidneys, Wilms tumors are thought to arise from developmental derangements in embryonic renal progenitors.
 
-For these reasons, we expect Wilms tumor cells to map to fetal cells, especially fetal kidney cells. 
+For these reasons, we expect Wilms tumor cells to map to fetal cells, especially fetal kidney cells.
 
 Here, we investigate annotations resulting from 4 different strategies:
 
 * the `_processed.rds` objects already contain automated annotations computed by the [Data Lab](https://scpca.readthedocs.io/en/latest/getting_started.html):
 
-    + Annotations determined by SingleR, an automated reference-based method [Looney et al. 2019](https://www.nature.com/articles/s41590-018-0276-y).
+    + Annotations determined by `SingleR`, an automated reference-based method [Looney et al. 2019](https://www.nature.com/articles/s41590-018-0276-y).
 
-    + Annotations determined by CellAssign, an automated marker-gene based method [Zhang et al. 2019](https://www.nature.com/articles/s41592-019-0529-1).
-    
-* the label transfers from two fetal references using `Azimuth`, that have been performed in the previous analysis 
+    + Annotations determined by `CellAssign`, an automated marker-gene based method [Zhang et al. 2019](https://www.nature.com/articles/s41592-019-0529-1).
 
-    + Using the human fetal atlas as a reference: 
+* the label transfers from two fetal references using `Azimuth`, that have been performed in the previous analysis
+
+    + Using the human fetal atlas as a reference:
     This is the reference developed by [Cao et al.](https://www.science.org/doi/10.1126/science.aba7721) provided by `Azimuth` for label transfer.
     The reference contain cells from 15 organs including kidney from fetal samples.
     The label transfer have been performed in the notebook `02a_fetal_full_reference_Cao_{sample_id}.Rmd`
-    
-    + Using the human fetal kidney atlas: 
-    [Stewart et al.](https://www.science.org/doi/10.1126/science.aat5031) created a [human fetal kidney atlas](https://www.kidneycellatlas.org/). 
-    This reference contains only fetal kidney cells and has been precisely annotated by kidney experts. 
+
+    + Using the human fetal kidney atlas:
+    [Stewart et al.](https://www.science.org/doi/10.1126/science.aat5031) created a [human fetal kidney atlas](https://www.kidneycellatlas.org/).
+    This reference contains only fetal kidney cells and has been precisely annotated by kidney experts.
     The label transfer have been performed in the notebook `02b_fetal_kidney_reference_Stewart_{sample_id}.Rmd`
 
 
-#### Annotation from SingleR (no cancer or kidney specific dataset)
+#### Annotation from `SingleR` (no cancer or kidney specific dataset)
 
 ```{r fig.width=20, fig.height=10, out.width='100%'}
 visualize_metadata(srat, meta = "singler_celltype_annotation", group.by = "seurat_clusters")
 ```
 
 
-#### Annotation from cellassign (no cancer or kidney specific dataset)
+#### Annotation from `CellAssign` (no cancer or kidney specific dataset)
 
 
 ```{r fig.width=20, fig.height=10, out.width='100%'}
@@ -569,8 +595,8 @@ visualize_metadata(srat, meta = "cellassign_celltype_annotation", group.by = "se
 
 The fetal full reference (Cao et al.) provides three levels of annotations:
 
-- `fetal_full_predicted.organ` is one of the 15 organs used for building the reference. 
-We were nicely surprised that, for many of the samples, most of the cells from the Wilms tumor cohort mapped to fetal kidney cells. 
+- `fetal_full_predicted.organ` is one of the 15 organs used for building the reference.
+We were nicely surprised that, for many of the samples, most of the cells from the Wilms tumor cohort mapped to fetal kidney cells.
 
 - `fetal_full_predicted.annotation.l1` holds predicted cell type annotation
 
@@ -588,28 +614,28 @@ visualize_metadata(srat, meta = "fetal_full_predicted.annotation.l2", group.by =
 The fetal kidney reference (Stewart et al.) provides two levels of annotations:
 
 - `fetal_kidney_predicted.compartment` is one of the 4 main compartments composing a fetal kidney.
-We expect immune and endothelial cells to be healthy (non-canerous) cells identified easily with high confidency. 
+We expect immune and endothelial cells to be healthy (non-cancerous) cells identified easily with high confidence.
 We expect stroma and fetal nephron compartment to contain both normal and malignant cells.
 
-    
+
     - `immune` cells
-    
+
     - `stroma` cells
-    
+
     - `fetal_nephron` cells
-    
+
     - `endothelial` cells
-    
+
 
 
 - `fetal_kidney_predicted.cell_type` holds predicted cell type annotations that details further the four compartments, as for example:
 
     - `immune` subtypes: myeloid cells, lymphocytes, ...
-    
+
     - `stroma` subtypes: mesenchymal stem cells, fibroblasts, ...
-    
+
     - `fetal_nephron` subtypes: podocytes, uteric bud, mesenchymal cells (that appear to be cap mesenchyme cells) ...
-    
+
     - `endothelial` cells
 
 
@@ -623,66 +649,72 @@ visualize_metadata(srat, meta = "fetal_kidney_predicted.cell_type", group.by = "
 
 Here we evaluate with marker genes the identification of endothelial, immune cells and other cancer and non-cancerous sub-populations.
 
-```{r fig.height=25, fig.width=20, message=FALSE, warning=FALSE, out.width='100%'}
+```{r fig.height=25, fig.width=20, message=FALSE, warning=FALSE, out.width='100%', eval=!params$testing}
+markers <- list(
+  "malignant" = CellType_metadata$ENSEMBL_ID[which(CellType_metadata$cell_class == "malignant")],
+  "immune" = CellType_metadata$ENSEMBL_ID[which(CellType_metadata$cell_class == "immune")],
+  "endothelium" = CellType_metadata$ENSEMBL_ID[which(CellType_metadata$cell_class == "endothelium")],
+  "non-malignant" = CellType_metadata$ENSEMBL_ID[which(CellType_metadata$cell_class == "non-malignant")]
+)
 
-markers = list("malignant" = CellType_metadata$ENSEMBL_ID[which(CellType_metadata$cell_class == "malignant")],
-            "immune"= CellType_metadata$ENSEMBL_ID[which(CellType_metadata$cell_class == "immune")],
-            "endothelium"= CellType_metadata$ENSEMBL_ID[which(CellType_metadata$cell_class == "endothelium")],
-            "non-malignant"= CellType_metadata$ENSEMBL_ID[which(CellType_metadata$cell_class == "non-malignant")])
+p1 <- SCpubr::do_DotPlot(
+  sample = srat,
+  group.by = "fetal_kidney_predicted.compartment",
+  features = markers,
+  axis.text.x.angle = 90,
+  flip = TRUE,
+  plot.title = "fetal_kidney_predicted.compartment"
+)
 
-p1 <- SCpubr::do_DotPlot(sample = srat,
-                         group.by =  "fetal_kidney_predicted.compartment",
-                         features = markers, 
-                         axis.text.x.angle = 90, 
-                         flip = TRUE, 
-                         plot.title = "fetal_kidney_predicted.compartment"
-                         ) 
-
-p2 <- SCpubr::do_DotPlot(sample = srat,
-                         group.by =  "fetal_kidney_predicted.cell_type",
-                         features = markers, 
-                         axis.text.x.angle = 90, 
-                         flip = TRUE,
-                         plot.title = "fetal_kidney_predicted.cell_type"
-                          )
-
-
-p3 <- SCpubr::do_DotPlot(sample = srat,
-                         group.by =   "fetal_full_predicted.annotation.l1",
-                         features = markers, 
-                         axis.text.x.angle = 90, 
-                         flip = TRUE,
-                         plot.title =  "fetal_full_predicted.annotation.l1"
-                          )
+p2 <- SCpubr::do_DotPlot(
+  sample = srat,
+  group.by = "fetal_kidney_predicted.cell_type",
+  features = markers,
+  axis.text.x.angle = 90,
+  flip = TRUE,
+  plot.title = "fetal_kidney_predicted.cell_type"
+)
 
 
-p4 <- SCpubr::do_DotPlot(sample = srat,
-                         group.by =  "fetal_full_predicted.annotation.l2",
-                         features = markers, 
-                         axis.text.x.angle = 90, 
-                         flip = TRUE,
-                         plot.title = "fetal_full_predicted.annotation.l2"
-                          )                         
-
-p5 <- SCpubr::do_DotPlot(sample = srat,
-                         group.by =   "seurat_clusters",
-                         features = markers, 
-                         axis.text.x.angle = 90, 
-                         flip = TRUE,
-                         plot.title =  "seurat_clusters"
-                          )
+p3 <- SCpubr::do_DotPlot(
+  sample = srat,
+  group.by = "fetal_full_predicted.annotation.l1",
+  features = markers,
+  axis.text.x.angle = 90,
+  flip = TRUE,
+  plot.title = "fetal_full_predicted.annotation.l1"
+)
 
 
-p6 <- SCpubr::do_DotPlot(sample = srat,
-                         group.by =  "cellassign_celltype_annotation",
-                         features = markers, 
-                         axis.text.x.angle = 90, 
-                         flip = TRUE,
-                         plot.title = "cellassign_celltype_annotation"
-                          )                         
+p4 <- SCpubr::do_DotPlot(
+  sample = srat,
+  group.by = "fetal_full_predicted.annotation.l2",
+  features = markers,
+  axis.text.x.angle = 90,
+  flip = TRUE,
+  plot.title = "fetal_full_predicted.annotation.l2"
+)
 
-(p1|p2)/(p3|p4) /(p5|p6)
+p5 <- SCpubr::do_DotPlot(
+  sample = srat,
+  group.by = "seurat_clusters",
+  features = markers,
+  axis.text.x.angle = 90,
+  flip = TRUE,
+  plot.title = "seurat_clusters"
+)
 
+
+p6 <- SCpubr::do_DotPlot(
+  sample = srat,
+  group.by = "cellassign_celltype_annotation",
+  features = markers,
+  axis.text.x.angle = 90,
+  flip = TRUE,
+  plot.title = "cellassign_celltype_annotation"
+)
+
+(p1 | p2) / (p3 | p4) / (p5 | p6)
 ```
 
 ### Compare annotations between them
@@ -690,36 +722,35 @@ p6 <- SCpubr::do_DotPlot(sample = srat,
 
 #### Annotation versus `Seurat` clusters
 
-Here we check wether one (or more) `Seurat` cluster do correspond to one label. 
+Here we check whether one (or more) `Seurat` cluster do correspond to one label.
 This would allow us to be more confident in the annotation of immune or endothelial cells for example.
 
 
 ```{r fig.width=20, fig.height=15, out.width='100%'}
-p1 <- do_Table_Heatmap( srat,
-                            last_group = "fetal_kidney_predicted.compartment",
-                            first_group = "seurat_clusters"
-                             
-                            )
+p1 <- do_Table_Heatmap(srat,
+  last_group = "fetal_kidney_predicted.compartment",
+  first_group = "seurat_clusters"
+)
 
 
-p2 <- do_Table_Heatmap( srat,
-                            last_group = "fetal_full_predicted.annotation.l1",
-                            first_group = "seurat_clusters"
-                            )
+p2 <- do_Table_Heatmap(srat,
+  last_group = "fetal_full_predicted.annotation.l1",
+  first_group = "seurat_clusters"
+)
 
 
-p3 <- do_Table_Heatmap( srat,
-                            last_group = "singler_celltype_annotation",
-                            first_group = "seurat_clusters"
-                            )
+p3 <- do_Table_Heatmap(srat,
+  last_group = "singler_celltype_annotation",
+  first_group = "seurat_clusters"
+)
 
 
-p4 <- do_Table_Heatmap( srat,
-                            last_group = "cellassign_celltype_annotation",
-                            first_group = "seurat_clusters"
-                            )
+p4 <- do_Table_Heatmap(srat,
+  last_group = "cellassign_celltype_annotation",
+  first_group = "seurat_clusters"
+)
 
-(p1|p2)/(p3|p4)
+(p1 | p2) / (p3 | p4)
 ```
 
 #### Comparison of the labels from the two fetal references
@@ -728,66 +759,59 @@ p4 <- do_Table_Heatmap( srat,
 ##### first level annotation
 
 ```{r fig.width=20, fig.height=15, out.width='100%'}
-p1 <- do_Table_Heatmap( srat,
-                            last_group = "fetal_kidney_predicted.compartment",
-                            first_group = "fetal_full_predicted.annotation.l1"
-                             
-                            )
-p2 <- do_Table_Heatmap( srat,
-                            last_group = "fetal_kidney_predicted.cell_type",
-                            first_group = "fetal_full_predicted.annotation.l1"
-                          
-                            )
-p1|p2
+p1 <- do_Table_Heatmap(srat,
+  last_group = "fetal_kidney_predicted.compartment",
+  first_group = "fetal_full_predicted.annotation.l1"
+)
+p2 <- do_Table_Heatmap(srat,
+  last_group = "fetal_kidney_predicted.cell_type",
+  first_group = "fetal_full_predicted.annotation.l1"
+)
+p1 | p2
 ```
 
 ##### second level annotation
 
 ```{r fig.width=20, fig.height=15, out.width='100%'}
-p2 <- do_Table_Heatmap( srat,
-                            last_group = "fetal_kidney_predicted.cell_type",
-                            first_group = "fetal_full_predicted.annotation.l2"
-                             
-                            )
+p2 <- do_Table_Heatmap(srat,
+  last_group = "fetal_kidney_predicted.cell_type",
+  first_group = "fetal_full_predicted.annotation.l2"
+)
 p2
 ```
 
 
-#### Comparison of the  fetal reference with `singleR` and `cellassign`
+#### Comparison of the  fetal reference with `SingleR` and `CellAssign`
 
 
 ##### first level annotation
 
 ```{r fig.width=20, fig.height=10, out.width='100%'}
-p1 <- do_Table_Heatmap( srat,
-                            last_group = "fetal_kidney_predicted.compartment",
-                            first_group = "cellassign_celltype_annotation"
-                             
-                            )
-p2 <- do_Table_Heatmap( srat,
-                            last_group = "fetal_kidney_predicted.compartment",
-                            first_group = "singler_celltype_annotation"
-                          
-                            )
-p1|p2
+p1 <- do_Table_Heatmap(srat,
+  last_group = "fetal_kidney_predicted.compartment",
+  first_group = "cellassign_celltype_annotation"
+)
+p2 <- do_Table_Heatmap(srat,
+  last_group = "fetal_kidney_predicted.compartment",
+  first_group = "singler_celltype_annotation"
+)
+p1 | p2
 ```
 
 ##### second level annotation
 
 ```{r fig.width=20, fig.height=30, out.width='100%'}
-p1 <- do_Table_Heatmap( srat,
-                            last_group = "fetal_kidney_predicted.cell_type",
-                            first_group = "cellassign_celltype_annotation"
-                      
-                            )
+p1 <- do_Table_Heatmap(srat,
+  last_group = "fetal_kidney_predicted.cell_type",
+  first_group = "cellassign_celltype_annotation"
+)
 
-p2 <- do_Table_Heatmap( srat,
-                            last_group = "fetal_kidney_predicted.cell_type",
-                            first_group = "singler_celltype_annotation"
-                      
-                            )
+p2 <- do_Table_Heatmap(srat,
+  last_group = "fetal_kidney_predicted.cell_type",
+  first_group = "singler_celltype_annotation"
+)
 
-p1/p2
+p1 / p2
 ```
 
 

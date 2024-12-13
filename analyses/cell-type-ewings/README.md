@@ -5,20 +5,23 @@ This module will include code to annotate cell types in the Ewing sarcoma sample
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-**Table of Contents**
-
-- [`AUCell` and `SingleR` annotation workflow](#aucell-annotation-workflow)
+- [`AUCell` and `SingleR` annotation workflow](#aucell-and-singler-annotation-workflow)
   - [Usage](#usage)
   - [Input files](#input-files)
   - [Output files](#output-files)
   - [Computational resources](#computational-resources)
-- [CNV annotation workflow](#cnv-annotation-workflow)
+- [Clustering workflow](#clustering-workflow)
   - [Usage](#usage-1)
-  - [Sample metadata](#sample-metadata)
   - [Input files](#input-files-1)
   - [Output files](#output-files-1)
-  - [Annotation files](#annotation-files)
   - [Computational resources](#computational-resources-1)
+- [CNV annotation workflow](#cnv-annotation-workflow)
+  - [Usage](#usage-2)
+  - [Sample metadata](#sample-metadata)
+  - [Input files](#input-files-2)
+  - [Output files](#output-files-2)
+  - [Annotation files](#annotation-files)
+  - [Computational resources](#computational-resources-2)
 - [Exploratory analyses](#exploratory-analyses)
 - [Software requirements](#software-requirements)
 
@@ -117,6 +120,83 @@ The `gene-set-scores.tsv` file contains the scores (mean and sum) for all genes 
 
 The `aucell-singler-annotation.sh` uses 4 CPUs and can be run locally on a laptop or on a virtual computer on Lightsail for Research.
 Note that `SingleR` does take up to 1 hour to run with 4 CPUs for some samples in this project.
+
+## Clustering workflow 
+
+The clustering workflow (`evaluate-clusters.sh`) can be used to perform and evaluate clusters across a range of parameters. 
+For all processed `SingleCellExperiment` objects that are part of `SCPCP000015`, clustering is performed using the following options: 
+
+- Algorithms: Louvain, Leiden with CPM, and Leiden with modularity, all using Jaccard for the weighting scheme
+- Nearest neighbors: 5, 10, 15, 20, 25, 30, 35, 40
+- Resolution (Louvain and Leiden with modularity): 0.5, 1, 1.5 
+- Resolution (Leiden with CPM): 0.001, 0.005, 0.01
+
+After clusters are calculated, a report with summary plots showing silhouette width, cluster purity, and cluster stability for each set of parameters used to calculate clusters is created. 
+
+Clusters identified using the Leiden algorithm with the modularity objective function are then explored in a secondary report. 
+A report is generated for resolution 0.5 and resolution 1.
+This report includes: 
+
+- A comparison of cluster assignments to cell type assignments (output from the `aucell-singler-annotation.sh` workflow) for all values of nearest neighbors used. 
+- Marker gene set expression in each cluster for all marker gene sets in `references/visser-all-marker-genes.tsv`
+
+
+### Usage
+
+The `evaluate-clusters.sh` workflow can be used to perform clustering of all Ewing sarcoma samples from SCPCP000015.
+The workflow can be run using the following command:
+
+```sh
+./evaluate-clusters.sh
+```
+
+Calculating the clusters and the metrics can be time consuming and takes ~ 24 hours on a laptop for all samples in the project. 
+To skip this step and only render the second report to look at cell types and marker gene expression, use the `skip_metrics=1` option: 
+
+```sh
+skip_metrics=1 ./evaluate-clusters.sh
+```
+
+### Input files 
+
+The `evaluate-clusters.sh` workflow requires the processed `SingleCellExperiment` objects (`_processed.rds`) from SCPCP000015.
+These files were obtained using the `download-data.py` script:
+
+```sh
+# download SCE objects
+./download-data.py --projects SCPCP000015
+```
+
+### Output files 
+
+Running the `evaluate-clusters.sh` workflow will generate the following output files in `results/clustering` for each sample/library combination.
+
+```
+clustering
+├── <sample_id>
+    ├── <library_id>_cluster-results.tsv
+    ├── <library_id>_cluster-summary-report.html
+```
+
+The `cluster-summary-report.html` file is a rendered report that compares clustering results from all clustering parameters tested. 
+In particular, plots showing silhouette width, cluster purity, and cluster stability are shown.
+
+The `cluster-results.tsv` file contains the following columns:
+
+|                      |                                                                                                                                                      |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cell_id`           | Unique cell barcode                                                                                                                                  |
+| `cluster_method`                | Algorithm/objective function combination used for clustering, one of `louvain`, `leiden_cpm` or `leiden_mod`                                                                                                            |
+| `cluster` | Assigned cluster |
+| `algorithm` | Algorithm used for clustering, one of `louvain` or `leiden` |
+| `weighting` | Weighting scheme used for clustering |
+| `nn` | Number of nearest neighbors used for clustering |
+| `resolution` | Resolution used for clustering |
+| `objective_function` | Objective function used for clustering, only applicable for leiden clustering |
+
+### Computational resources 
+
+The `evaluate-clusters.sh` uses 4 CPUs and can be run locally on a laptop or on a virtual computer on Lightsail for Research.
 
 ## CNV annotation workflow
 

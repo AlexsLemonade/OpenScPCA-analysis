@@ -1,0 +1,214 @@
+---
+title: "Clustering exploration for `r params$library_id`"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    code_folding: "hide"
+params:
+  library_id: "SCPCL000822"
+  sce_file: "../../../../data/current/SCPCP000015/SCPCS000490/SCPCL000822_processed.rds"
+  cluster_results_file: "../../results/clustering/SCPCS000490/SCPCL000822_cluster-results.tsv"
+  threads: 1
+---
+
+This notebook summarizes clustering metrics for `r params$library_id`.
+
+The following metrics are calculated and shown across all parameters: 
+  - Silhouette width 
+  - Cluster purity 
+  - Cluster stability 
+
+## Setup
+
+```{r}
+# check that sce file exists
+stopifnot(
+  "sce file does not exist" = file.exists(params$sce_file), 
+  "clustering results file does not exist" = file.exists(params$cluster_results_file)
+)
+```
+
+
+```{r packages}
+suppressPackageStartupMessages({
+  # load required packages
+  library(SingleCellExperiment)
+  library(ggplot2)
+})
+
+# Set default ggplot theme
+theme_set(
+  theme_classic()
+)
+
+# set seed
+set.seed(2024)
+```
+
+
+```{r base paths}
+# The path to this module
+module_base <- rprojroot::find_root(rprojroot::is_renv_project)
+
+# source in clustering functions
+clustering_functions <- file.path(module_base, "scripts", "utils", "clustering-functions.R")
+source(clustering_functions)
+```
+
+
+```{r}
+# read in input sce files
+sce <- readr::read_rds(params$sce_file)
+
+# read in results file 
+cluster_results_df <- readr::read_tsv(params$cluster_results_file) |> 
+  dplyr::mutate(cluster = as.factor(cluster))
+```
+
+## Clustering summary 
+
+```{r, results='asis'}
+cluster_results_df |> 
+  split(cluster_results_df$cluster_method) |> 
+  purrr::imap(\(df, method){
+    res_print <- unique(df$resolution) |> 
+      paste0(collapse = ", ")
+    nn_print <- unique(df$nn) |> 
+      paste0(collapse = ", ")
+    glue::glue("
+               {method} clustering was performed with the following parameters:
+    
+                - Nearest neighbors: {nn_print}
+                - Resolution: {res_print}"
+               )
+  })
+```
+
+
+## Visualize clusters with UMAP
+
+```{r}
+# get umap embeddings and combine into a data frame with cluster assignments
+umap_df <- sce |>
+  scuttle::makePerCellDF(use.dimred = "UMAP") |>
+  # replace UMAP.1 with UMAP1 and get rid of excess columns
+  dplyr::select("cell_id" = barcodes, UMAP1 = UMAP.1, UMAP2 = UMAP.2) |>
+  dplyr::left_join(cluster_results_df, by = "cell_id")
+
+split_umap_df <- umap_df |> 
+  # add a column that shows the combination of nn/res so we get stats for each unique combo of params 
+  dplyr::mutate(cluster_params = glue::glue("{nn}nn-{resolution}res")) |> 
+  split(umap_df$cluster_method)
+```
+
+
+Below we visualize the cluster assignments using each parameter on a UMAP. 
+This can be helpful to see if any parameters lead to any obvious over or under clustering. 
+
+```{r, fig.height=15, fig.width=10}
+# look at clustering results for each library across all params
+split_umap_df |> 
+  purrr::imap(\(df, method){
+    
+    ggplot(df, aes(x = UMAP1, y = UMAP2, color = cluster)) +
+      geom_point(alpha = 0.5, size = 0.1) +
+      facet_grid(rows = vars(nn),
+                 cols = vars(resolution),
+                 labeller = labeller(nn = ~ glue::glue("{.}-nn"),
+                                     resolution = ~ glue::glue("{.}-res"))) +
+      theme(
+        aspect.ratio = 1,
+        legend.position = "none", 
+        panel.border = element_rect(color = "black", fill = NA)
+      ) +
+      labs(title = method)
+    
+  })
+```
+
+
+## Clustering statistics 
+
+Below we calculate a series of statistics: 
+
+- Average silhouette width: This metric evaluates cluster separation. 
+Values range from -1 to 1.
+Cells with large positive silhouette widths are closer to other cells in the same cluster than to cells in different clusters. 
+Higher values indicate tighter clusters.
+- Average cluster purity: This metric also evaluates cluster separation and tells us the proportion of neighboring cells that are assigned to the same cluster. 
+Purity values range from 0-1 with higher purity values indicating clusters that are well separated. 
+- Cluster stability: This evaluates how stable the clustering is to input data. 
+Stability values range from 0-1 with higher values of cluster stability indicating more reproducible clusters. 
+
+```{r, warning=FALSE}
+# get a combined stats dataframe with purity and width for all clusters
+all_stats <- split_umap_df |> 
+  purrr::map(\(df) {get_cluster_stats(sce,df)})
+```
+
+### Silhouette width
+
+```{r}
+# silhouette width for different params
+all_stats |> 
+  purrr::imap(\(df, cluster_method){plot_cluster_stats(df, width, cluster_method)})
+```
+
+### Cluster purity 
+
+```{r}
+# cluster purity for different params
+all_stats |> 
+  purrr::imap(\(df, cluster_method){plot_cluster_stats(df, purity, cluster_method)})
+```
+
+### Cluster stability 
+
+```{r, warning=FALSE, message=FALSE}
+# calculate cluster stability
+stability_stats <- split_umap_df |> 
+  purrr::map(\(df){ get_cluster_stability(sce, df, params$threads)})
+```
+
+
+```{r, warning=FALSE, message=FALSE}
+# plot stability across all parameters
+stability_stats |> 
+  purrr::imap(\(df, cluster_method){
+    
+    
+    # plot stability across all values of k
+    ggplot(df, aes(x = nn, y = ari)) +
+      geom_jitter(width = 0.1) +
+      facet_wrap(vars(resolution),
+                 labeller = labeller(resolution = ~ glue::glue("{.}-res"))) +
+      labs(title = "Cluster stability") +
+      stat_summary(
+        aes(group = nn),
+        color = "red",
+        # median and quartiles for point range
+        fun = "median",
+        fun.min = function(x) {
+          quantile(x, 0.25)
+        },
+        fun.max = function(x) {
+          quantile(x, 0.75)
+        }
+      )
+    
+    
+  })
+```
+
+
+## Session info 
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
+
+

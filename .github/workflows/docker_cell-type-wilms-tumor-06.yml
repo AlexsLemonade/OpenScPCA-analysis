@@ -16,6 +16,7 @@ on:
   pull_request:
     branches:
       - main
+      - feature/*
     paths:
       - "analyses/cell-type-wilms-tumor-06/Dockerfile"
       - "analyses/cell-type-wilms-tumor-06/.dockerignore"
@@ -24,6 +25,7 @@ on:
   push:
     branches:
       - main
+      - feature/*
     paths:
       - "analyses/cell-type-wilms-tumor-06/Dockerfile"
       - "analyses/cell-type-wilms-tumor-06/.dockerignore"

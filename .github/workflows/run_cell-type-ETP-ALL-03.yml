@@ -59,7 +59,8 @@ jobs:
             libfontconfig1-dev \
             libharfbuzz-dev \
             libfribidi-dev \
-            libtiff5-dev
+            libtiff5-dev \
+            jags
 
       - name: Set up renv
         uses: r-lib/actions/setup-renv@v2

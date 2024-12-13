@@ -61,7 +61,7 @@ suppressPackageStartupMessages({
 #' Randomize labels
 #'
 #' A function to randomly select labels from a set,
-#' while ensuring each label is included at least once.
+#' while ensuring each label is included at least once, if possible.
 #'
 #' @param label_set a vector a labels
 #' @param n the number of labels to select
@@ -70,16 +70,14 @@ suppressPackageStartupMessages({
 #'
 #' @examples
 random_label <- function(label_set, n) {
-  # randomly select n labels from the label set, ensuring each label is included at least once
-
   # ensure labels are unique
   label_set <- unique(label_set)
   if (length(label_set) > n) {
-    stop("The number of labels must not be greater than the number requested.")
+    warning("The number of labels is greater than the number requested; not all labels will be used.")
   }
   r_labels <- sample(label_set, n, replace = TRUE)
   # add each label at least once
-  idx <- sample.int(n, length(label_set))
+  idx <- sample.int(n, min(n, length(label_set)))
   r_labels[idx] <- label_set
   return(r_labels)
 }
@@ -136,11 +134,17 @@ simulate_sce <- function(sce, ncells, replacement_metadata, processed) {
   # reduce the cell type data matrices, if present
   if (!is.null(metadata(sce_sim)$singler_results)) {
     sim_cells <- cell_subset[cell_subset %in% rownames(metadata(sce_sim)$singler_results)]
-    metadata(sce_sim)$singler_results <- metadata(sce_sim)$singler_results[sim_cells, ]
+    singler_results <- metadata(sce_sim)$singler_results[sim_cells, ]
+    # remove any gene data present to save space
+    metadata(singler_results)$de.genes <- NULL
+    metadata(singler_results)$common.genes <- NULL
+    metadata(sce_sim)$singler_results <- singler_results
+
   }
   if (!is.null(metadata(sce_sim)$cellassign_predictions)) {
-    sim_cells <- cell_subset[cell_subset %in% rownames(metadata(sce_sim)$cellassign_predictions)]
-    metadata(sce_sim)$cellassign_predictions <- metadata(sce_sim)$cellassign_predictions[sim_cells, ]
+    cellassign_subset <- metadata(sce_sim)$cellassign_predictions |>
+      dplyr::filter(barcode %in% cell_subset)
+    metadata(sce_sim)$cellassign_predictions <- cellassign_subset
   }
 
   # Adjust cluster/cell type labels --------------------------------------------
@@ -178,9 +182,14 @@ simulate_sce <- function(sce, ncells, replacement_metadata, processed) {
 
 
   # Perform simulation ---------------------------------------------------------
-  sim_params <- splatter::simpleEstimate(as.matrix(counts(sce_sim)))
+  # remove any all-zero droplets that might have slipped through
+  droplets <- colnames(sce)[which(colSums(counts(sce)) > 0)]
+  # use a large subset for estimating parameters, but not all
+  est_matrix <- counts(sce)[, sample(droplets, min(1000, ncol(sce)))]
+  sim_params <- splatter::simpleEstimate(as.matrix(est_matrix))
+  sim_params@nCells <- ncells
   # get spliced ratio
-  spliced_ratio <- sum(assay(sce_sim, "spliced")) / sum(counts(sce))
+  spliced_ratio <- sum(assay(sce, "spliced")) / sum(counts(sce))
   counts(sce_sim, withDimnames = FALSE) <- counts(
     splatter::simpleSimulate(sim_params, verbose = FALSE)
   )

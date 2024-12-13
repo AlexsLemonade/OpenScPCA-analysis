@@ -209,6 +209,30 @@ The annotations are shown below the heatmap.
 - Density plot showing gene expression or gene set scores across all cells. 
 Each row is a cell type and the expression or score is plotted on the x-axis. 
 
+```{r}
+# check that marker genes are expressed, otherwise turn off those plots
+total_exp <- sum(classification_df[marker_gene_columns])
+if(total_exp > 0){
+  show_marker_gene_plots <- TRUE
+} else {
+  show_marker_gene_plots <- FALSE
+  message("No expression of marker genes in this library. No plots will be displayed in sections labeled 'Marker gene expression'.")
+}
+
+```
+
+```{r}
+# check that gene set scores aren't all 0, otherwise turn off those plots
+total_score <- sum(classification_df[geneset_columns])
+if(total_score > 0){
+  show_gene_set_plots <- TRUE
+} else {
+  show_gene_set_plots <- FALSE
+  message("Genes present in provided gene sets are not expressed in this library. No plots will be displayed in sections labeled 'Gene set scores'.")
+}
+
+```
+
 
 ### Tumor vs. Normal 
 
@@ -216,12 +240,13 @@ In this section we show just the cells that are considered tumor and normal, lum
 
 **Marker gene expression**
 
-```{r}
-full_celltype_heatmap(classification_df, marker_gene_columns, "singler_tumor_normal")
+
+```{r, eval=show_marker_gene_plots}
+full_celltype_heatmap(classification_df, marker_gene_columns, "singler_tumor_normal") 
 ```
 
 
-```{r}
+```{r, eval=show_marker_gene_plots}
 plot_density(
   classification_df,
   "tumor_sum",
@@ -231,11 +256,11 @@ plot_density(
 
 **Gene set scores**
 
-```{r}
+```{r, eval=show_gene_set_plots}
 full_celltype_heatmap(classification_df, geneset_columns, "singler_tumor_normal")
 ```
 
-```{r, fig.height=10}
+```{r, fig.height=10, eval=show_gene_set_plots}
 geneset_columns |>
   purrr::map(\(column){
     plot_density(
@@ -254,11 +279,11 @@ In this section we show all tumor cells and the top 5 most represented normal ce
 
 **Marker gene expression** 
 
-```{r}
+```{r, eval=show_marker_gene_plots}
 full_celltype_heatmap(classification_df, marker_gene_columns, "singler_lumped")
 ```
 
-```{r, fig.height=10}
+```{r, fig.height=10, eval=show_marker_gene_plots}
 marker_gene_columns |>
   purrr::map(\(column){
     plot_density(
@@ -273,11 +298,11 @@ marker_gene_columns |>
 
 **Gene set scores**
 
-```{r}
+```{r, eval=show_gene_set_plots}
 full_celltype_heatmap(classification_df, geneset_columns, "singler_lumped")
 ```
 
-```{r, fig.height=10}
+```{r, fig.height=10, eval=show_gene_set_plots}
 geneset_columns |>
   purrr::map(\(column){
     plot_density(
@@ -295,12 +320,12 @@ Here we compare the marker gene expression and gene set scores for cells annotat
 
 **Marker gene expression**
 
-```{r}
+```{r, eval=show_marker_gene_plots}
 full_celltype_heatmap(classification_df, marker_gene_columns, "consensus")
 ```
 
 
-```{r}
+```{r, eval=show_marker_gene_plots}
 plot_density(
   classification_df,
   "tumor_sum",
@@ -311,11 +336,11 @@ plot_density(
 
 **Gene set scores**
 
-```{r}
+```{r, eval=show_gene_set_plots}
 full_celltype_heatmap(classification_df, geneset_columns, "consensus")
 ```
 
-```{r, fig.height=10}
+```{r, fig.height=10, eval=show_gene_set_plots}
 geneset_columns |>
   purrr::map(\(column){
     plot_density(
