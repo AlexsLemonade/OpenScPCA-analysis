@@ -38,7 +38,11 @@ suppressPackageStartupMessages({
   library(SingleCellExperiment)
   library(Seurat)
   library(dplyr)
+  library(ggplot2)
 })
+
+# Set ggplot theme for plots
+theme_set(theme_bw())
 ```
 
 
@@ -185,6 +189,15 @@ head(silhouette_results)
 ```
 
 
+We can visualize these results by plotting silhouette width across clusters as violin plots, for example:
+
+```{r violin silhouette}
+ggplot(silhouette_results) +
+  aes(x = cluster, y = silhouette_width) +
+  geom_violin(fill = "darkolivegreen3") +
+  labs(x = "Cluster", y = "Silhouette width")
+```
+
 ### Neighborhood purity
 
 Neighborhood purity is defined, for each cell, as the proportion of neighboring cells that are assigned to the same cluster.
@@ -209,6 +222,16 @@ purity_results <- rOpenScPCA::calculate_purity(
 
 # Print the first rows of the resulting table
 head(purity_results)
+```
+
+
+We can visualize these results by plotting purity clusters as violin plots, for example:
+
+```{r violin purity}
+ggplot(purity_results) +
+  aes(x = cluster, y = purity) +
+  geom_violin(fill = "darkolivegreen3") +
+  labs(x = "Cluster", y = "Neighborhood purity")
 ```
 
 ### Cluster stability
@@ -240,6 +263,16 @@ stability_results <- rOpenScPCA::calculate_stability(
 # print the result
 stability_results
 ```
+
+We can visualize these results by plotting stability as a density plot, for example:
+
+```{r ari density}
+ggplot(stability_results) +
+  aes(x = ari) +
+  geom_density(color = "grey30", fill = "darkolivegreen3") +
+  labs(x = "Adjusted rand index across bootstrap replicates")
+```
+
 
 #### Using non-default clustering parameters
 
@@ -297,12 +330,12 @@ In this section, we'll present examples of how you can calculate the silhouette 
 If you are analyzing your data with a Seurat pipeline that includes calculating clusters, you can use `rOpenScPCA` to evaluate them.
 
 To demonstrate this, we'll convert our SCE object to a Seurat using the function `rOpenScPCA::sce_to_seurat()`.
-We'll set `use_symbols = FALSE` to preserve Ensembl ids as the feature names rather than converting to gene symbols.
 Then, we'll use a simple Seurat pipeline to obtain clusters.
+<!-- TODO: We will want to reference this module for further documentation on this function: https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/945 -->
 
 ```{r sce to seurat, message = FALSE}
-# Convert the SCE to a Seurat object using rOpenScPCA, preserving Ensembl ids as feature names
-seurat_obj <- rOpenScPCA::sce_to_seurat(sce, use_symbols = FALSE)
+# Convert the SCE to a Seurat object using rOpenScPCA
+seurat_obj <- rOpenScPCA::sce_to_seurat(sce)
 
 # Calculate clusters with Seurat
 seurat_obj <- seurat_obj |>
