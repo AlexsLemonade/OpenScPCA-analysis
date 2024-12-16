@@ -17,7 +17,7 @@ The repository at this stage should be generally complete with respect to infras
 
 With respect to infrastructure, the repository contains the following components:
 
-- detailed documentation in the `docs` directory explaining how to interact with the OpenScPCA project and how to set up and run analyses (published at https://openscpca.readthedocs.io/)
+- detailed documentation in the `docs` directory explaining how to interact with the OpenScPCA project and how to set up and run analyses (published at https://openscpca.readthedocs.io) 
 - a `create-analysis-module.py` script for setting up new analysis modules
 - `download-data.py` and `download-results.py` scripts to download data and results from the OpenScPCA project
 - template notebooks, scripts, environment files, and Docker images for analysis modules
