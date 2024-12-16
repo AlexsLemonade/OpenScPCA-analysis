@@ -337,7 +337,7 @@ Then, we'll use a simple Seurat pipeline to obtain clusters.
 # Convert the SCE to a Seurat object using rOpenScPCA
 seurat_obj <- rOpenScPCA::sce_to_seurat(sce)
 
-# Calculate clusters with Seurat
+# Calculate clusters with Seurat using a standard Seurat pipeline, for example
 seurat_obj <- seurat_obj |>
   SCTransform() |>
   RunPCA() |>
@@ -445,63 +445,47 @@ scpca_stability_df <- rOpenScPCA::calculate_stability(
 ## Saving clustering results 
 
 Results can either be directly exported as a TSV file (e.g., with `readr::write_tsv()`), or you can add the results into your SCE or Seurat object.
-The subsequent examples will show you how to save the `cluster_results_df` data frame to an SCE and a Seurat object.
+The subsequent examples will demonstrate saving the cluster assignments stored in `cluster_results_df$cluster` to an SCE and a Seurat object.
 
 _A word of caution!_
 Objects from the ScPCA Portal already contain a column called `cluster` with results from an automated clustering.
 These automatic clusters were not evaluated, and their parameters were not optimized for any given library.
-
-To avoid ambiguity between the existing and new clustering results, you may want to rename incoming columns.
-
-We'll therefore begin by adding the prefix `ropenscpca_` to all column names in the `cluster_results_df` data frame before adding them to a given object.
-
-```{r rename columns}
-# First, rename columns in `cluster_results_df` to avoid ambiguity
-cluster_results_renamed_df <- cluster_results_df |>
-  # add the prefix "ropenscpca_" to all columns
-  dplyr::rename_with(\(x) paste0("ropenscpca_", x))
-
-cluster_results_renamed_df
-```
-
+To avoid ambiguity between the existing and new clustering results, we'll name the new column `ropenscpca_cluster`.
 
 ### Saving results to an SCE object 
 
-Follow these steps to save the clustering results to an SCE object's `colData`:
+We can add columns to an SCE object's `colData` table by directly creating a column in the object with `$`.
+Before we do so, we'll confirm that the clusters are in the same order as the SCE object by comparing cell ids:
+
+```{r check sce order}
+all.equal(
+  colnames(sce),
+  cluster_results_df$cell_id
+)
+```
 
 ```{r add to sce}
-# First, extract the colData into a separate data frame for manipulation
-sce_coldata <- colData(sce) |>
-  as.data.frame()
-
-# Second, add columns as desired using the barcodes and cell_id columns to join
-sce_coldata <- sce_coldata |>
-  dplyr::left_join(
-    cluster_results_renamed_df,
-    by = c("barcodes" = "ropenscpca_cell_id")
-  )
-
-# Third, add the modified colData back into the SCE
-# Use the row.names argument to ensure rownames (barcodes) are retained; don't forget this step!
-colData(sce) <- DataFrame(
-  sce_coldata,
-  row.names = sce_coldata$barcodes
-)
-
-head(colData(sce))
+# Add cluster results to the colData
+sce$ropenscpca_cluster <- cluster_results_df$cluster
 ```
 
 ### Saving results to a Seurat object 
 
-Follow these steps save the clustering results to a Seurat object's cell metadata.
-Note that the Seurat function `AddMetaData()`, used below, assumes that the row order in the provided data frame matches the order of cells in the Seurat object you're adding metadata to.
+
+We can add columns to an Seurat object's cell metadata table by directly creating a column in the object with `$` (note that you can also use the Seurat function `AddMetaData()`).
+Before we do so, we'll confirm that the clusters are in the same order as the Seurat object by comparing cell ids:
+
+
+```{r check seurat order}
+all.equal(
+  colnames(seurat_obj),
+  cluster_results_df$cell_id
+)
+```
 
 ```{r add to seurat}
-# Add the cluster result data frame to the Seurat object metadata
-seurat_obj <- AddMetaData(seurat_obj, cluster_results_renamed_df)
-
-# Print the cell metadata
-head(seurat_obj@meta.data)
+# Add cluster results to the cell metadata
+seurat_obj$ropenscpca_cluster <- cluster_results_df$cluster
 ```
 
 
