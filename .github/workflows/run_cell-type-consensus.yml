@@ -19,15 +19,15 @@ concurrency:
 
 on:
   workflow_dispatch:
-  # workflow_call:
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - analyses/cell-type-consensus/**
-  #     - "!analyses/cell-type-consensus/Dockerfile"
-  #     - "!analyses/cell-type-consensus/.dockerignore"
-  #     - .github/workflows/run_cell-type-consensus.yml
+  workflow_call:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - analyses/cell-type-consensus/**
+      - "!analyses/cell-type-consensus/Dockerfile"
+      - "!analyses/cell-type-consensus/.dockerignore"
+      - .github/workflows/run_cell-type-consensus.yml
 
 jobs:
   run-module:
