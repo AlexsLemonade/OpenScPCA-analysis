@@ -13,22 +13,22 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - "analyses/cell-type-consensus/Dockerfile"
-  #     - "analyses/cell-type-consensus/.dockerignore"
-  #     - "analyses/cell-type-consensus/renv.lock"
-  #     - "analyses/cell-type-consensus/conda-lock.yml"
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - "analyses/cell-type-consensus/Dockerfile"
-  #     - "analyses/cell-type-consensus/.dockerignore"
-  #     - "analyses/cell-type-consensus/renv.lock"
-  #     - "analyses/cell-type-consensus/conda-lock.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "analyses/cell-type-consensus/Dockerfile"
+      - "analyses/cell-type-consensus/.dockerignore"
+      - "analyses/cell-type-consensus/renv.lock"
+      - "analyses/cell-type-consensus/conda-lock.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "analyses/cell-type-consensus/Dockerfile"
+      - "analyses/cell-type-consensus/.dockerignore"
+      - "analyses/cell-type-consensus/renv.lock"
+      - "analyses/cell-type-consensus/conda-lock.yml"
   workflow_dispatch:
     inputs:
       push-ecr:
