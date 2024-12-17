@@ -84,7 +84,7 @@ cl_df <- data.frame(
     # list all ancestors and descendants calculate total
     ancestors = list(ontologyIndex::get_ancestors(cl_ont, cl_ontology)),
     total_ancestors = length(ancestors),
-    descendants = list(ontologyIndex::get_descendants(cl_ont, cl_ontology)),
+    descendants = list(ontologyIndex::get_descendants(cl_ont, cl_ontology, exclude_roots = TRUE)),
     total_descendants = length(descendants)
   )
 ```
@@ -187,7 +187,7 @@ Ultimately, I would like to see if we can use that cutoff to decide if we should
 
 ```{r}
 # first set up the graph from cl ont
-parent_terms <- cl$parents
+parent_terms <- cl_ont$parents
 cl_graph <- igraph::make_graph(rbind(unlist(parent_terms), rep(names(parent_terms), lengths(parent_terms))))
 ```
 
@@ -384,6 +384,7 @@ print_df |>
 ```
 
 I'm torn on this one, because I do think it's helpful to know if something is of the myeloid lineage, but if we aren't keeping lymphocyte then I would argue we shouldn't keep myeloid leukocyte. 
+Noting that after discussion we have decided to keep this one since T and B cells are much easier to differentiate based on gene expression alone than cells that are party of the myeloid lineage. 
 
 #### Progenitor cell
 
@@ -395,6 +396,7 @@ print_df |>
 ```
 
 Same with `progenitor cell`, I do think it could be helpful to know that something may be a progenitor cell, but when you have a cell with the label for HSC and the label for cells like monocytes or osteoblasts, then maybe we are talking about a tumor cell instead. 
+After discussion, we are going to remove progenitor cells.
 
 Along those same lines, I think the below terms, `lining cell` and `supporting cell`, are too broad even though they have few descendants. 
 
@@ -426,19 +428,30 @@ lca_df |>
   unique()
 ```
 
-The only term in this list that I would be concerned about losing is "neuron". 
+The only terms in this list that I would be concerned about losing are "neuron" and epithelial cells. 
 Let's look at those combinations. 
 
 #### Neuron
 
 ```{r}
-# blood cell
+# neuron
 print_df |> 
   dplyr::filter(cl_annotation == "neuron")
 ```
 
 It looks like there are a lot of types of neurons in the PanglaoDB reference and only "neuron" as a term in Blueprint. 
 Even though neuron has ~ 500 descendants, I think we should keep these labels. 
+
+#### Epithelial cell
+
+```{r}
+# epithelial cell
+print_df |> 
+  dplyr::filter(cl_annotation == "epithelial cell")
+```
+
+The PanglaoDB cell types seem to be more specific than the ones present in Blueprint Encode, similar to the observation with neurons.
+We should keep epithelial cell. 
 
 ### Removing anything with more than 1 LCA
 
@@ -592,8 +605,9 @@ I would use the following criteria to come up with my whitelist:
 
 - Pairs should not have more than 1 LCA, with the exception of the matches that have the label hematopoietic precursor cell. 
 - The LCA should have equal to or less than 170 total descendants. 
-- We whould include the term for `neuron` even though it has 500 descendants. 
-- Terms that are too broad (like `supporting cell`, `blood cell`, `bone cell`, `lining cell`) should be removed. 
+- We whould include the term for `neuron` and `epithelial cell` even though they do not pass the threshold for number of descendants. 
+- Terms that are too broad should be removed. 
+This includes: `lining cell`, `blood cell`, `progenitor cell`, `bone cell`, and `supporting cell`
 
 Alternatively, rather than eliminate terms that are too broad we could look at the similarity index for individual matches and decide on a case by case basis if those should be allowed. 
 Although I still think having a term that is too broad, even if it's a good match, is not super informative. 
