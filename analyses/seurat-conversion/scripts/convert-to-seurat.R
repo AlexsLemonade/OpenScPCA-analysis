@@ -1,8 +1,9 @@
 #!/usr/bin/env Rscript
 
 # This script takes a directory containing ScPCA-formatted SingleCellExperiment
-# objects as `.rds` files and converts each object to a Seurat object. The
-# Seurat object is then saved as an `rds` file in the specified output directory.
+# objects (filtered or processed only) as `.rds` files and converts each object
+# to a Seurat object. The Seurat object is then saved as an `rds` file in the
+# specified output directory.
 
 
 library(optparse)
@@ -46,7 +47,7 @@ stopifnot(
 # get input file list with relative paths
 sce_paths <- list.files(
   opts$input_dir,
-  pattern = "_(processed|filtered|unfiltered).rds$",
+  pattern = "_(processed|filtered).rds$",
   recursive = TRUE
 )
 
