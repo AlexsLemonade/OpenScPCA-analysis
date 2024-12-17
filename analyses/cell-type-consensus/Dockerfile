@@ -21,6 +21,11 @@ RUN apt-get -y update &&  \
   pandoc \
   && rm -rf /var/lib/apt/lists/*
 
+# Install aws cli 
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+RUN unzip awscliv2.zip
+RUN ./aws/install
+
 # Install renv to enable later package installation
 RUN Rscript -e "install.packages('renv')"
 
