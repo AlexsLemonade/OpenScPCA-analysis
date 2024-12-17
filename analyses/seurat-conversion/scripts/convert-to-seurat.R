@@ -64,6 +64,7 @@ suppressPackageStartupMessages({
 
 # convert each file
 sce_paths |> purrr::walk(\(path){
+  message("Converting ", path, " to Seurat format")
   sce_file <- file.path(opts$input_dir, path)
 
   # generate output file name and create path if it doesn't exist
