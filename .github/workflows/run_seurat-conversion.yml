@@ -61,9 +61,4 @@ jobs:
       - name: Run analysis module
         run: |
           cd ${MODULE_PATH}
-          # run module script(s) here
-          for project in ../../data/current/SCPCP*; do
-            project_id=$(basename $project)
-            echo "Running Seurat conversion for project $project_id"
-            bash run_seurat-conversion.sh $project
-          done
+          bash run_seurat-conversion.sh
