@@ -149,6 +149,21 @@ all_stats <- split_umap_df |>
   purrr::map(\(df) {get_cluster_stats(sce,df)})
 ```
 
+Before we show any statistics, we will first show the number of clusters for each set of parameters. 
+For any cases where we only see 1 cluster, no distributions will be shown in the plots. 
+
+```{r}
+all_stats |> 
+  purrr::imap(\(df, method){
+    df |> 
+      dplyr::select(resolution, nn, cluster) |> 
+      dplyr::group_by(resolution, nn) |> 
+      dplyr::summarise(num_of_clusters = length(unique(cluster))) |>
+      knitr::kable()
+  })
+```
+
+
 ### Silhouette width
 
 ```{r}
@@ -169,17 +184,17 @@ all_stats |>
 
 ```{r, warning=FALSE, message=FALSE}
 # calculate cluster stability
-stability_stats <- split_umap_df |> 
+stability_stats <- split_umap_df |>
   purrr::map(\(df){ get_cluster_stability(sce, df, params$threads)})
 ```
 
 
 ```{r, warning=FALSE, message=FALSE}
 # plot stability across all parameters
-stability_stats |> 
+stability_stats |>
   purrr::imap(\(df, cluster_method){
-    
-    
+
+
     # plot stability across all values of k
     ggplot(df, aes(x = nn, y = ari)) +
       geom_jitter(width = 0.1) +
@@ -198,8 +213,8 @@ stability_stats |>
           quantile(x, 0.75)
         }
       )
-    
-    
+
+
   })
 ```
 

@@ -56,7 +56,7 @@ get_cluster_stats <- function(sce,
       return(stats_df)
     }) |>
     dplyr::bind_rows(.id = "cluster_params") |> 
-    dplyr::left_join(all_cluster_results, by = c("cell_id", "cluster_params"))
+    dplyr::left_join(all_cluster_results, by = c("cell_id", "cluster_params", "cluster"))
 
   return(all_stats_df)
 }
