@@ -194,7 +194,7 @@ We can visualize these results by plotting silhouette width across clusters as v
 ```{r violin silhouette}
 ggplot(silhouette_results) +
   aes(x = cluster, y = silhouette_width) +
-  geom_violin(fill = "darkolivegreen3") +
+  geom_violin(fill = "darkmagenta") +
   labs(x = "Cluster", y = "Silhouette width")
 ```
 
@@ -269,7 +269,7 @@ We can visualize these results by plotting stability as a density plot, for exam
 ```{r ari density}
 ggplot(stability_results) +
   aes(x = ari) +
-  geom_density(color = "grey30", fill = "darkolivegreen3") +
+  geom_density(color = "grey30", fill = "lightslateblue") +
   labs(x = "Adjusted rand index across bootstrap replicates")
 ```
 
