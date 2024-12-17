@@ -2,7 +2,7 @@
 
 ## Description
 
-This module provides examples of how to use clustering functionality in the [`rOpenScPCA` package](https://github.com/AlexsLemonade/rOpenScPCA/). 
+This module provides examples of how to use clustering functionality in the [`rOpenScPCA` package](https://github.com/AlexsLemonade/rOpenScPCA/).
 
 When clustering scRNA-seq data, in particular when those clusters are used in downstream analyses, it is important to evaluate the quality of the clusters.
 The `rOpenScPCA` package provides several functions that leverage the [`bluster` package](https://bioconductor.org/packages/release/bioc/html/bluster.html) to facilitate performing and evaluating graph-based clustering in a reproducible manner.
@@ -11,6 +11,7 @@ The `rOpenScPCA` package provides several functions that leverage the [`bluster`
 
 The function `calculate_clusters()` can be used to perform graph-based clustering.
 By default, this function uses the Louvain algorithm with Jaccard weighting.
+
 
 ### Evaluate clustering
 
@@ -25,12 +26,12 @@ By default, this function uses the Louvain algorithm with Jaccard weighting.
 - `calculate_stability()`
   - This function calculates [cluster stability](https://bioconductor.org/books/3.19/OSCA.advanced/clustering-redux.html#cluster-bootstrapping) with Adjusted Rand Index (ARI) and a bootstrapping procedure
   - Higher stability values indicate that clusters are more robust
-  
+
 ### Identify optimal clustering parameters
 
 It is often helpful to explore and evaluate results from different clustering algorithms and/or parameters to choose an optimal clustering scheme.
 The function `sweep_clusters()` allows you to generate clustering results from a provided set of algorithms and/or parameters, whose quality can then be assessed to select a set of clusters to proceed with.
-  
+
 
 
 ## Installing rOpenScPCA
@@ -47,6 +48,14 @@ renv::install("AlexsLemonade/rOpenScPCA")
 renv::snapshot()
 ```
 
+To update the package to its most recent version, you can use the following:
+
+```
+renv::update("rOpenScPCA")
+```
+
 ## Example notebooks
 
-_Content forthcoming._
+1. The `01_perform-evaluate-clustering.Rmd` notebook shows examples of:
+  - Performing clustering with `calculate_clusters`
+  - Evaluating clustering with `calculate_silhouette`, `calculate_purity`, and `calculate_stability`
