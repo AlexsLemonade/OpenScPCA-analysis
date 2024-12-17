@@ -141,6 +141,22 @@
       ],
       "Hash": "395472c65cd9d606a1a345687102f299"
     },
+    "DelayedMatrixStats": {
+      "Package": "DelayedMatrixStats",
+      "Version": "1.26.0",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "DelayedArray",
+        "IRanges",
+        "Matrix",
+        "MatrixGenerics",
+        "S4Vectors",
+        "methods",
+        "sparseMatrixStats"
+      ],
+      "Hash": "5d9536664ccddb0eaa68a90afe4ee76e"
+    },
     "FNN": {
       "Package": "FNN",
       "Version": "1.1.4.1",
@@ -197,6 +213,29 @@
         "utils"
       ],
       "Hash": "a3c822ef3c124828e25e7a9611beeb50"
+    },
+    "HDF5Array": {
+      "Package": "HDF5Array",
+      "Version": "1.32.1",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "BiocGenerics",
+        "DelayedArray",
+        "IRanges",
+        "Matrix",
+        "R",
+        "Rhdf5lib",
+        "S4Arrays",
+        "S4Vectors",
+        "methods",
+        "rhdf5",
+        "rhdf5filters",
+        "stats",
+        "tools",
+        "utils"
+      ],
+      "Hash": "420012f82591a2a20156ef65d4aa210a"
     },
     "IRanges": {
       "Package": "IRanges",
@@ -401,6 +440,16 @@
         "Rcpp"
       ],
       "Hash": "c232938949fcd8126034419cc529333a"
+    },
+    "Rhdf5lib": {
+      "Package": "Rhdf5lib",
+      "Version": "1.26.0",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "c92ba8b9a2c5c9ff600a1062a3b7b727"
     },
     "Rtsne": {
       "Package": "Rtsne",
@@ -664,6 +713,21 @@
         "R"
       ],
       "Hash": "543776ae6848fde2f48ff3816d0628bc"
+    },
+    "beachmat": {
+      "Package": "beachmat",
+      "Version": "2.20.0",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "BiocGenerics",
+        "DelayedArray",
+        "Matrix",
+        "Rcpp",
+        "SparseArray",
+        "methods"
+      ],
+      "Hash": "10e94b1bce9070632a40c6b873f8b2d4"
     },
     "bitops": {
       "Package": "bitops",
@@ -1163,6 +1227,32 @@
         "withr"
       ],
       "Hash": "66488692cb8621bc78df1b9b819497a6"
+    },
+    "glmGamPoi": {
+      "Package": "glmGamPoi",
+      "Version": "1.16.0",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "BiocGenerics",
+        "DelayedArray",
+        "DelayedMatrixStats",
+        "HDF5Array",
+        "MatrixGenerics",
+        "Rcpp",
+        "RcppArmadillo",
+        "SingleCellExperiment",
+        "SummarizedExperiment",
+        "beachmat",
+        "matrixStats",
+        "methods",
+        "rlang",
+        "splines",
+        "stats",
+        "utils",
+        "vctrs"
+      ],
+      "Hash": "21e305cf5faebb13bee698a5a1c4bced"
     },
     "globals": {
       "Package": "globals",
@@ -1857,14 +1947,17 @@
       "Version": "0.1.0",
       "Source": "GitHub",
       "RemoteType": "github",
-      "RemoteHost": "api.github.com",
       "RemoteUsername": "AlexsLemonade",
       "RemoteRepo": "rOpenScPCA",
       "RemoteRef": "main",
-      "RemoteSha": "f71a8191130fa543e6506c73c7b62ffa55e8ba3f",
+      "RemoteSha": "042410600a0a0ea90f5461091b7a60216a995dab",
+      "RemoteHost": "api.github.com",
       "Requirements": [
         "BiocParallel",
+        "R",
+        "S4Vectors",
         "SingleCellExperiment",
+        "SummarizedExperiment",
         "bluster",
         "dplyr",
         "methods",
@@ -1873,7 +1966,7 @@
         "tibble",
         "tidyr"
       ],
-      "Hash": "4b9dcd60f9ae2a2e1999acbd49d7b07a"
+      "Hash": "349a17666ebbe75d89cfd1c8275d6c91"
     },
     "rappdirs": {
       "Package": "rappdirs",
@@ -1929,6 +2022,29 @@
         "withr"
       ],
       "Hash": "e1a5d04397edc1580c5e0ed1dbdccf76"
+    },
+    "rhdf5": {
+      "Package": "rhdf5",
+      "Version": "2.48.0",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "R",
+        "Rhdf5lib",
+        "methods",
+        "rhdf5filters"
+      ],
+      "Hash": "74d8c5aeb96d090ce8efc9ffd16afa2b"
+    },
+    "rhdf5filters": {
+      "Package": "rhdf5filters",
+      "Version": "1.16.0",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "Rhdf5lib"
+      ],
+      "Hash": "99e15369f8fb17dc188377234de13fc6"
     },
     "rlang": {
       "Package": "rlang",
@@ -2141,6 +2257,20 @@
         "methods"
       ],
       "Hash": "6581c0a0bb8594b85c8de869644174ac"
+    },
+    "sparseMatrixStats": {
+      "Package": "sparseMatrixStats",
+      "Version": "1.16.0",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "Matrix",
+        "MatrixGenerics",
+        "Rcpp",
+        "matrixStats",
+        "methods"
+      ],
+      "Hash": "7e500a5a527460ca0406473bdcade286"
     },
     "spatstat.data": {
       "Package": "spatstat.data",
