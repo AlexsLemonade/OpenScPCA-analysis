@@ -13,7 +13,7 @@ option_list <- list(
   make_option(
     opt_str = c("-i", "--input_dir"),
     type = "character",
-    help = "Path where SCE rds files are located. Will search recursively for files ending in `_processed.rds`, `_filtered.rds`, or `_unfiltered.rds.`",
+    help = "Path where SCE rds files are located. Will search recursively for files ending in `_processed.rds` or  `_filtered.rds`.",
   ),
   make_option(
     opt_str = c("-o", "--output_dir"),
