@@ -176,7 +176,7 @@ The next section we will look at this distribution specifically for cell types p
 ## Latest common ancestor (LCA) between PanglaoDB and Blueprint encode
 
 This section will look at identifying the latest common ancestor (LCA) between all possible combinations of terms from PanglaoDB (used for assigning cell types with `CellAssign`) and the `BlueprintEncodeData` reference from `celldex` (used for assigning cell types with `SingleR`). 
-The LCA refers to the latest term in the cell ontology heirarchy that is common between two terms. 
+The LCA refers to the latest term in the cell ontology hierarchy that is common between two terms. 
 I will use the [`ontoProc::findCommonAncestors()` function](https://rdrr.io/bioc/ontoProc/man/findCommonAncestors.html) to get the LCA for each combination. 
 
 Note that it is possible to have more than one LCA for a set of terms. 
@@ -208,7 +208,7 @@ all_ref_df <- expand.grid(panglao_df$panglao_ontology,
   dplyr::rowwise() |> 
   dplyr::mutate(
     # least common shared ancestor
-    lca = list(rownames(ontoProc::findCommonAncestors(blueprint_ontology, panglao_ontology, g = g)))
+    lca = list(rownames(ontoProc::findCommonAncestors(blueprint_ontology, panglao_ontology, g = cl_graph)))
   )
 
 lca_df <- all_ref_df |> 
@@ -596,7 +596,7 @@ I would use the following criteria to come up with my whitelist:
 - Terms that are too broad (like `supporting cell`, `blood cell`, `bone cell`, `lining cell`) should be removed. 
 
 Alternatively, rather than eliminate terms that are too broad we could look at the similarity index for individual matches and decide on a case by case basis if those should be allowed. 
-Although I still think having a term that is too braod, even if it's a good match, is not super informative. 
+Although I still think having a term that is too broad, even if it's a good match, is not super informative. 
 
 ## Session info   
 
