@@ -22,10 +22,11 @@ option_list <- list(
   ),
   make_option(
     opt_str = c("--use_ensembl"),
+    dest = "use_symbols",
     type = "logical",
-    default = FALSE,
-    action = "store_true",
-    help = "Use gene symbols for Seurat object. Default is to use Ensembl IDs."
+    default = TRUE,
+    action = "store_false",
+    help = "Use Ensembl ids for Seurat object. Default is to use gene symbols."
   ),
   make_option(
     opt_str = c("--dedup_method"),
@@ -55,8 +56,8 @@ if (length(sce_paths) == 0) {
   warning("No SCE files found in input directory: ", opts$input_dir)
 }
 
-# There are some annoying warning when the SCE package loads (even implicitly)
-# let's suppress them
+# There are several warnings when the SCE package loads (even implicitly)
+# Let's suppress them
 suppressPackageStartupMessages({
   suppressWarnings(
     library(SingleCellExperiment)
@@ -78,7 +79,7 @@ sce_paths |> purrr::walk(\(path){
   sce <- readRDS(sce_file)
   seurat_obj <- rOpenScPCA::sce_to_seurat(
     sce,
-    use_symbols = !opts$use_ensembl,
+    use_symbols = opts$use_symbols,
     dedup_method = opts$dedup_method
   )
   saveRDS(seurat_obj, seurat_file)
