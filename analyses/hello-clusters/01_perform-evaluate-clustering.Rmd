@@ -1,15 +1,30 @@
 ---
-title: "Performing and evaluating graph-based clustering with rOpenScPCA"
+title: "Performing graph-based clustering with rOpenScPCA"
 date: "`r Sys.Date()`"
-output:
-  html_document:
+author: "Data Lab"
+output: 
+  html_notebook: 
+    toc: yes
+    toc_float: yes
     df_print: paged
 ---
 
-
 ## Introduction
 
+This notebook provides examples of how to use functions in `rOpenScPCA` that:
 
+* Perform clustering
+* Calculate QC metrics on clusters, including:
+  * Silhouette width
+  * Neighborhood purity
+  * Cluster stability, as measured with the Adjusted Rand Index
+* Calculate QC metrics on clusters obtained with other tools, such as `Seurat`
+* Save clustering results to an SCE or `Seurat`
+
+While this notebook demonstrates how to use individual functions that calculate helpful metrics for evaluating clustering results, a full evaluation would compare these metrics across different clusterings from different parameterizations.
+
+This notebook will use the sample `SCPCS000001` from project `SCPCP000001`, which is assumed present in the `OpenScPCA-analysis/data/current/SCPCP000001` directory, for all examples.
+Please [see this documentation](https://openscpca.readthedocs.io/en/latest/getting-started/accessing-resources/getting-access-to-data/) for more information about obtaining ScPCA data.
 
 ## Setup
 
@@ -17,29 +32,24 @@ output:
 
 
 ```{r packages}
-# load required packages
 library(rOpenScPCA)
+
 suppressPackageStartupMessages({
   library(SingleCellExperiment)
   library(Seurat)
   library(dplyr)
   library(ggplot2)
 })
+
+# Set ggplot theme for plots
+theme_set(theme_bw())
 ```
 
 
 ### Paths
 
-Setting paths to directories and files for input and output at the start of a notebook can be helpful for organization and reproducibility.
-You may not know all of the paths you need when you start a notebook, but once you do, keeping them all in one place is helpful, both for yourself in the future and for other users of the notebook.
-
-
-#### Base directories
-
-In the chunk below, we include some common directories that you might need, finding their locations using the very useful [`rprojroot` package](https://rprojroot.r-lib.org/).
-
 ```{r base paths}
-# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+# The base path for the OpenScPCA repository
 repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 
 # The current data directory, found within the repository base directory
@@ -49,32 +59,438 @@ data_dir <- file.path(repository_base, "data", "current")
 module_base <- file.path(repository_base, "analyses", "hello-clusters")
 ```
 
-#### Input and output files
-
-Set paths to input and output directories and files in the chunk below.
-
-```{r paths}
-# Input files
-
-# Output files
+```{r input file path}
+# Path to processed SCE file for sample SCPCS000001
+input_sce_file <- file.path(data_dir, "SCPCP000001", "SCPCS000001", "SCPCL000001_processed.rds")
 ```
 
-## Analysis content
 
-Organize the remainder of your content into sections and subsections as appropriate for your analysis.
+### Set the random seed
 
-Add a new code chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I* on Windows or Linux, *Cmd+Option+I* on a Mac.
-Be sure to comment your code and explain your steps as you go.
+Because clustering involves random sampling, it is important to set the random seed at the top of your analysis script or notebook to ensure reproducibility.
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it.
-To preview the HTML file, click the *Preview* button or press *Ctrl+Shift+K* on Windows or Linux, *Cmd+Shift+K* on a Mac.
+```{r set seed}
+set.seed(2024)
+```
 
-The preview shows you a rendered HTML copy of the contents of the editor.
-Consequently, *Preview* does not run any R code chunks.
-Instead, the output of the chunk when it was last run in the editor is displayed.
+## Read in and prepare data
 
-It is usually a good idea to rerun the entire notebook before sharing any output, to ensure that the notebook and output files are fully up to date.
-You can do this by clicking on the *Run* menu in the toolbar and clicking on *Restart R and Run All Chunks*.
+To begin, we'll read in the `SingleCellExperiment` (SCE) object.
+We'll also establish a corresponding processed Seurat object from its raw counts that we'll use for some examples.
+
+```{r read data}
+# Read the SCE file
+sce <- readRDS(input_sce_file)
+```
+
+For the initial cluster calculations and evaluations, we will use the PCA matrix extracted from the SCE object.
+It's also possible to use an SCE object or a Seurat object directly, which we will demonstrate later.
+
+
+```{r extract pca data}
+# Extract the PCA matrix from an SCE object
+pca_matrix <- reducedDim(sce, "PCA")
+```
+
+## Perform clustering
+
+This section will show how to perform clustering with the function `rOpenScPCA::calculate_clusters()`. 
+
+This function takes a PCA matrix with rownames representing unique cell ids (e.g., barcodes) as its primary argument.
+By default it will calculate clusters using the following parameters:
+
+* Louvain algorithm
+* Jaccard weighting
+* 10 nearest neighbors
+* A resolution parameter of 1
+
+This function will return a table with the following columns:
+
+* `cell_id`: Unique cell identifiers, obtained from the PCA matrix's row names
+* `cluster`: A factor column with the cluster identities
+* There will be one column for each clustering parameter used
+
+
+### Clustering with default parameters
+
+```{r cluster sce}
+# Calculate clusters with default parameters
+cluster_results_df <- rOpenScPCA::calculate_clusters(pca_matrix)
+
+# Print the first rows of the resulting table
+head(cluster_results_df)
+```
+
+### Clustering with non-default parameters
+
+Parameters used for clustering can be customized with these arguments:
+
+* The `algorithm` can be one of:
+  * `louvain`, `walktrap`, or `leiden`
+* The `weighting` can be one of:
+  * `jaccard`, `rank`, or `number`
+* The nearest neighbors parameter can be customized with the `nn` argument
+* The resolution parameter can be customized with the `resolution` argument
+  * This parameter is only used by Louvain and Leiden algorithms
+* If the Leiden algorithm is used, its default objective function parameter will be `CPM`, but you can also set  `objective_function = "modularity"` instead.
+* You can provide additional parameters as a list to the `cluster_args` argument.
+  * Please refer to the [`igraph` documentation](https://igraph.org/r/html/latest) to learn more about what additional parameters can be provided to each clustering algorithm.
+  * Note that `cluster_args` only accepts single-length arguments (no vectors or lists).
+
+For example:
+
+```{r cluster sce nondefault}
+# Calculate clusters with non-default parameters
+cluster_results_df <- rOpenScPCA::calculate_clusters(
+  pca_matrix,
+  algorithm = "leiden",
+  nn = 15,
+  objective_function = "modularity"
+)
+```
+
+
+## Calculate QC metrics on clusters
+
+This section demonstrates how to use several functions for evaluating cluster quality and reliability. 
+It's important to note that a full evaluation of clustering results would compare these metrics across a set of clustering results, with the aim of identifying an optimal parameterization.
+
+All functions presented in this section take the following required arguments:
+
+* A PCA matrix with row names representing unique cell ids (e.g., barcodes)
+* A data frame with, at least, columns representing unique cell ids and cluster assignments
+  * By default, these columns should be named `cell_id` and `cluster`, respectively, matching the output of `rOpenScPCA::calculate_clusters()`
+  * You can override these defaults using the arguments `cell_id_col` and `cluster_col`
+
+### Silhouette width
+
+Silhouette width is a common metric that measures how well separated clusters are by, for each cell, comparing the average distance to all cells in the same cluster, and all cells in other clusters.
+This value ranges from -1 to 1.
+Cells in well-separated clusters should have high silhouette values closer to 1.
+You can read more about silhouette width purity from the [_Orchestrating Single Cell Analysis with Bioconductor_ book](https://bioconductor.org/books/3.19/OSCA.advanced/clustering-redux.html#silhouette-width).
+
+We'll use the function `rOpenScPCA::calculate_silhouette()` to calculate the silhouette width.
+
+This function will return the inputted data frame with two additional columns:
+
+* `silhouette_width`: The calculated silhouette width for the cell
+* `silhouette_other`: The closet cluster to the cell besides the cluster to which it belongs, as used in the silhouette width calculation
+
+
+```{r silhouette}
+# calculate the silhouette width for each cell
+silhouette_results <- rOpenScPCA::calculate_silhouette(
+  pca_matrix,
+  cluster_results_df
+)
+
+# Print the first rows of the resulting table
+head(silhouette_results)
+```
+
+
+We can visualize these results by plotting silhouette width across clusters as violin plots, for example:
+
+```{r violin silhouette}
+ggplot(silhouette_results) +
+  aes(x = cluster, y = silhouette_width) +
+  geom_violin(fill = "darkmagenta") +
+  labs(x = "Cluster", y = "Silhouette width")
+```
+
+### Neighborhood purity
+
+Neighborhood purity is defined, for each cell, as the proportion of neighboring cells that are assigned to the same cluster.
+This value ranges from 0 to 1.
+Cells in well-separated clusters should have high purity values closer to 1, since there should be minimal overlap between member and neighboring cells.
+You can read more about neighborhood purity from the [_Orchestrating Single Cell Analysis with Bioconductor_ book](https://bioconductor.org/books/3.19/OSCA.advanced/clustering-redux.html#cluster-purity).
+
+We'll use the function `rOpenScPCA::calculate_purity()` to calculate the neighborhood purity.
+
+This function will return the inputted data frame with two additional columns:
+
+* `purity`: The neighborhood purity for the cell
+* `maximum_neighbor`: The cluster with the highest proportion of observations neighboring the cell
+
+
+```{r purity}
+# calculate the neighborhood purity for each cell
+purity_results <- rOpenScPCA::calculate_purity(
+  pca_matrix,
+  cluster_results_df
+)
+
+# Print the first rows of the resulting table
+head(purity_results)
+```
+
+
+We can visualize these results by plotting purity clusters as violin plots, for example:
+
+```{r violin purity}
+ggplot(purity_results) +
+  aes(x = cluster, y = purity) +
+  geom_violin(fill = "darkolivegreen3") +
+  labs(x = "Cluster", y = "Neighborhood purity")
+```
+
+### Cluster stability
+
+Another approach to exploring cluster quality is how stable the clusters themselves are using bootstrapping. 
+Given a set of original clusters, we can compare the bootstrapped cluster identities to original ones using the Adjusted Rand Index (ARI), which measures the similarity of two data clusterings.
+ARI ranges from -1 to 1, where:
+
+* A value of 1 indicates they are completely overlapping
+* A value of -1 indicates they are completely distinct
+* A value of 0 indicates a random relationship
+
+We expect that highly stable clusterings have ARI values closer to 1 across a set of bootstrap replicates.
+
+You can read more about the Adjusted Rand Index from the [_Orchestrating Single Cell Analysis with Bioconductor_ book](https://bioconductor.org/books/release/OSCA.advanced/clustering-redux.html#adjusted-rand-index).
+
+We'll use the function `rOpenScPCA::calculate_stability()` to calculate the cluster stability.
+By default, this function performs 20 bootstrap replicates, but this can be customized using the argument `replicates`.
+
+This function will return a data frame with columns `replicate`, `ari`, and additional columns for the clustering parameters used when calculating bootstrap clusters.
+
+```{r stability, warning=FALSE}
+# calculate the stability of clusters
+stability_results <- rOpenScPCA::calculate_stability(
+  pca_matrix,
+  cluster_results_df
+)
+
+# print the result
+stability_results
+```
+
+We can visualize these results by plotting stability as a density plot, for example:
+
+```{r ari density}
+ggplot(stability_results) +
+  aes(x = ari) +
+  geom_density(color = "grey30", fill = "lightslateblue") +
+  labs(x = "Adjusted rand index across bootstrap replicates")
+```
+
+
+#### Using non-default clustering parameters
+
+When calculating bootstrap clusters, `rOpenScPCA::calculate_stability()` uses `rOpenScPCA::calculate_clusters()` with default parameters. 
+If your original clusters were not calculated with these defaults, you should pass those customized values into this function as well to ensure a fair comparison between your original clusters and the bootstrap clusters.
+
+
+```{r stability custom parameters}
+# Calculate clusters with non-default parameters
+cluster_df_leiden <- rOpenScPCA::calculate_clusters(
+  pca_matrix,
+  algorithm = "leiden",
+  resolution = 0.5,
+  nn = 15
+)
+
+# Now, pass in the same arguments customizing parameters here
+stability_results_leiden <- rOpenScPCA::calculate_stability(
+  pca_matrix,
+  cluster_df_leiden,
+  algorithm = "leiden",
+  resolution = 0.5,
+  nn = 15
+)
+```
+
+
+## Working with objects directly
+
+As presented above, `rOpenScPCA` clustering functions take a PCA matrix with row names representing unique cell ids as their first argument.
+
+Instead of a matrix, you can alternatively pass in an SCE or Seurat object that contains a matrix.
+
+We show an example of this below with and SCE object and `rOpenScPCA::calculate_clusters()`, but this will also work for any of the evaluation functions as well and has the same syntax for Seurat objects.
+
+```{r run on sce}
+# Calculate clusters from an SCE object using default parameters
+cluster_results_df <- rOpenScPCA::calculate_clusters(sce)
+cluster_results_df
+```
+
+
+`rOpenScPCA` assumes that the PCA matrix is named `PCA` in SCE objects, and `pca` in Seurat objects.
+If the PCA matrix you want to use in the object has a different name, you can provide the argument `pc_name`.
+
+
+## Calculating QC metrics on existing clusters
+
+If you already have clustering results calculated with other tools, you can still use the `rOpenScPCA` functions to evaluate your clusters.
+
+In this section, we'll present examples of how you can calculate the silhouette width, neighborhood purity, and cluster stability from existing cluster assignments within objects.
+
+### Evaluating Seurat clusters
+
+If you are analyzing your data with a Seurat pipeline that includes calculating clusters, you can use `rOpenScPCA` to evaluate them.
+
+To demonstrate this, we'll convert our SCE object to a Seurat using the function `rOpenScPCA::sce_to_seurat()`.
+Then, we'll use a simple Seurat pipeline to obtain clusters.
+<!-- TODO: We will want to reference this module for further documentation on this function: https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/945 -->
+
+```{r sce to seurat, message = FALSE}
+# Convert the SCE to a Seurat object using rOpenScPCA
+seurat_obj <- rOpenScPCA::sce_to_seurat(sce)
+
+# Calculate clusters with Seurat using a standard Seurat pipeline, for example
+seurat_obj <- seurat_obj |>
+  SCTransform() |>
+  RunPCA() |>
+  FindNeighbors() |>
+  FindClusters()
+
+seurat_obj
+```
+
+
+To calculate QC metrics on these clusters, we'll need to create a data frame with columns `cell_id` and `cluster`:
+
+```{r prepare seurat input}
+# Create a data frame for input
+seurat_cluster_df <- data.frame(
+  cell_id = colnames(seurat_obj),
+  cluster = seurat_obj$seurat_clusters
+)
+
+head(seurat_cluster_df)
+```
+
+Now, we can run `rOpenScPCA::calculate_silhouette()` and `rOpenScPCA::calculate_purity()` using this data frame and the Seurat object:
+
+```{r seurat silhouette}
+seurat_silhouette_df <- rOpenScPCA::calculate_silhouette(
+  seurat_obj,
+  seurat_cluster_df
+)
+```
+
+```{r seurat purity}
+seurat_purity_df <- rOpenScPCA::calculate_purity(
+  seurat_obj,
+  seurat_cluster_df
+)
+```
+
+We do not recommend using `rOpenScPCA::calculate_stability()` on Seurat clusters due to differences in the underlying clustering approach between Seurat and the `bluster` package which `rOpenScPCA` uses.
+
+### Evaluating ScPCA clusters
+
+ScPCA cell metadata already contains a column called `cluster` with results from an automated clustering. 
+These clusters were calculated using `bluster`, the same tool that `rOpenScPCA` uses. 
+The specifications used for this clustering are stored in the SCE object's metadata, as follows; note that all other clustering parameters were left at their default values.
+
+* `metadata(sce)$cluster_algorithm`: The clustering algorithm used
+* `metadata(sce)$cluster_weighting`: The weighting scheme used
+* `metadata(sce)$cluster_nn`: The number of nearest neighbors used
+
+You can see all their values here:
+
+
+```{r extract cluster params}
+# Print clustering specifications
+metadata(sce)[c("cluster_algorithm", "cluster_weighting", "cluster_nn")]
+```
+
+
+In this example, we'll show how to use the cluster evaluation functions on these clusters.
+
+To begin, we'll prepare a data frame with two columns: `cell_id` containing cell barcodes, and `cluster` containing the cluster identities.
+
+```{r prepare scpca data frame}
+scpca_cluster_df <- data.frame(
+  cell_id = colnames(sce),
+  cluster = sce$cluster
+)
+
+head(scpca_cluster_df)
+```
+
+We can run evaluation functions using this data frame and the SCE object.
+
+```{r scpca silhouette}
+# Calculate silhouette width
+scpca_silhouette_df <- rOpenScPCA::calculate_silhouette(
+  sce,
+  scpca_cluster_df
+)
+```
+
+```{r scpca purity}
+# Calculate neighborhood purity
+scpca_purity_df <- rOpenScPCA::calculate_purity(
+  sce,
+  scpca_cluster_df
+)
+```
+
+When running `rOpenScPCA::calculate_stability()`, we'll specify the same parameters originally used to build the clusters by extracting them from the metadata.
+We'll need to ensure the provided arguments are lowercase, as well.
+
+Generally speaking, we only recommend evaluating clusters with `rOpenScPCA::calculate_stability()` if you know the original parameters used.
+
+
+```{r scpca stability}
+scpca_stability_df <- rOpenScPCA::calculate_stability(
+  sce,
+  scpca_cluster_df,
+  # provide ScPCA clustering parameters by extracting from the SCE metadata
+  algorithm = tolower(metadata(sce)$cluster_algorithm),
+  weighting = tolower(metadata(sce)$cluster_weighting),
+  nn = metadata(sce)$cluster_nn
+)
+```
+
+
+## Saving clustering results 
+
+Results can either be directly exported as a TSV file (e.g., with `readr::write_tsv()`), or you can add the results into your SCE or Seurat object.
+The subsequent examples will demonstrate saving the cluster assignments stored in `cluster_results_df$cluster` to an SCE and a Seurat object.
+
+_A word of caution!_
+Objects from the ScPCA Portal already contain a column called `cluster` with results from an automated clustering.
+These automatic clusters were not evaluated, and their parameters were not optimized for any given library.
+To avoid ambiguity between the existing and new clustering results, we'll name the new column `ropenscpca_cluster`.
+
+### Saving results to an SCE object 
+
+We can add columns to an SCE object's `colData` table by directly creating a column in the object with `$`.
+Before we do so, we'll confirm that the clusters are in the same order as the SCE object by comparing cell ids:
+
+```{r check sce order}
+all.equal(
+  colnames(sce),
+  cluster_results_df$cell_id
+)
+```
+
+```{r add to sce}
+# Add cluster results to the colData
+sce$ropenscpca_cluster <- cluster_results_df$cluster
+```
+
+### Saving results to a Seurat object 
+
+
+We can add columns to an Seurat object's cell metadata table by directly creating a column in the object with `$` (note that you can also use the Seurat function `AddMetaData()`).
+Before we do so, we'll confirm that the clusters are in the same order as the Seurat object by comparing cell ids:
+
+
+```{r check seurat order}
+all.equal(
+  colnames(seurat_obj),
+  cluster_results_df$cell_id
+)
+```
+
+```{r add to seurat}
+# Add cluster results to the cell metadata
+seurat_obj$ropenscpca_cluster <- cluster_results_df$cluster
+```
 
 
 ## Session Info

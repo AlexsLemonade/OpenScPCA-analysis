@@ -50,7 +50,7 @@ We have comprehensive documentation to help you with various aspects of particip
 
 Please refer to it as you work on the project.
 
-|[OpenScPCA Documentation](https://openscpca.readthedocs.io/)|
+|[OpenScPCA Documentation](https://openscpca.readthedocs.io/en/latest/)|
 |---|
 
 ## Setting up and running analyses
