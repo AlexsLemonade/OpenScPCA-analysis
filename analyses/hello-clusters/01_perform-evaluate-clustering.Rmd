@@ -382,17 +382,18 @@ We do not recommend using `rOpenScPCA::calculate_stability()` on Seurat clusters
 
 ScPCA cell metadata already contains a column called `cluster` with results from an automated clustering. 
 These clusters were calculated using `bluster`, the same tool that `rOpenScPCA` uses. 
-We can see the parameters it used from the SCE object's metadata; all other parameters were left at their default values.
+The specifications used for this clustering are stored in the SCE object's metadata, as follows; note that all other clustering parameters were left at their default values.
+
+* `metadata(sce)$cluster_algorithm`: The clustering algorithm used
+* `metadata(sce)$cluster_weighting`: The weighting scheme used
+* `metadata(sce)$cluster_nn`: The number of nearest neighbors used
+
+You can see all their values here:
+
 
 ```{r extract cluster params}
-# Print the clustering algorithm used
-metadata(sce)$cluster_algorithm
-
-# Print the weighting scheme
-metadata(sce)$cluster_weighting
-
-# Print the number of nearest neighbors
-metadata(sce)$cluster_nn
+# Print clustering specifications
+metadata(sce)[c("cluster_algorithm", "cluster_weighting", "cluster_nn")]
 ```
 
 
@@ -427,17 +428,20 @@ scpca_purity_df <- rOpenScPCA::calculate_purity(
 )
 ```
 
-When running `rOpenScPCA::calculate_stability()`, we'll specify the same parameters originally used to build the clusters.
+When running `rOpenScPCA::calculate_stability()`, we'll specify the same parameters originally used to build the clusters by extracting them from the metadata.
+We'll need to ensure the provided arguments are lowercase, as well.
+
 Generally speaking, we only recommend evaluating clusters with `rOpenScPCA::calculate_stability()` if you know the original parameters used.
+
 
 ```{r scpca stability}
 scpca_stability_df <- rOpenScPCA::calculate_stability(
   sce,
   scpca_cluster_df,
-  # provide ScPCA clustering parameters
-  algorithm = "louvain",
-  weighting = "jaccard",
-  nn = 20
+  # provide ScPCA clustering parameters by extracting from the SCE metadata
+  algorithm = tolower(metadata(sce)$cluster_algorithm),
+  weighting = tolower(metadata(sce)$cluster_weighting),
+  nn = metadata(sce)$cluster_nn
 )
 ```
 
