@@ -44,6 +44,12 @@ jobs:
           r-version: 4.4.0
           use-public-rspm: true
 
+      - name: Install additional dependencies
+        run: |
+          sudo apt-get install -y \
+            libhdf5-dev \
+            libglpk40
+
       - name: Set up renv
         uses: r-lib/actions/setup-renv@v2
         with:
