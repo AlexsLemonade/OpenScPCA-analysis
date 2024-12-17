@@ -13,22 +13,22 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - "analyses/seurat-conversion/Dockerfile"
-  #     - "analyses/seurat-conversion/.dockerignore"
-  #     - "analyses/seurat-conversion/renv.lock"
-  #     - "analyses/seurat-conversion/conda-lock.yml"
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - "analyses/seurat-conversion/Dockerfile"
-  #     - "analyses/seurat-conversion/.dockerignore"
-  #     - "analyses/seurat-conversion/renv.lock"
-  #     - "analyses/seurat-conversion/conda-lock.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "analyses/seurat-conversion/Dockerfile"
+      - "analyses/seurat-conversion/.dockerignore"
+      - "analyses/seurat-conversion/renv.lock"
+      - "analyses/seurat-conversion/conda-lock.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "analyses/seurat-conversion/Dockerfile"
+      - "analyses/seurat-conversion/.dockerignore"
+      - "analyses/seurat-conversion/renv.lock"
+      - "analyses/seurat-conversion/conda-lock.yml"
   workflow_dispatch:
     inputs:
       push-ecr:
