@@ -451,7 +451,7 @@ print_df |>
 ```
 
 The PanglaoDB cell types seem to be more specific than the ones present in Blueprint Encode, similar to the observation with neurons.
-We should keep epithelial cell. 
+We should keep epithelial cell in the cases where the Blueprint Encode annotation is `Epithelial cells` but not when it is `Keratinocytes`. 
 
 ### Removing anything with more than 1 LCA
 
@@ -605,7 +605,8 @@ I would use the following criteria to come up with my whitelist:
 
 - Pairs should not have more than 1 LCA, with the exception of the matches that have the label hematopoietic precursor cell. 
 - The LCA should have equal to or less than 170 total descendants. 
-- We whould include the term for `neuron` and `epithelial cell` even though they do not pass the threshold for number of descendants. 
+- We should include the term for `neuron` and `epithelial cell` even though they do not pass the threshold for number of descendants. 
+However, `epithelial cell` should only be included if the Blueprint Encode name is `Epithelial cells` and _not_ `Keratinocytes`.
 - Terms that are too broad should be removed. 
 This includes: `lining cell`, `blood cell`, `progenitor cell`, `bone cell`, and `supporting cell`
 

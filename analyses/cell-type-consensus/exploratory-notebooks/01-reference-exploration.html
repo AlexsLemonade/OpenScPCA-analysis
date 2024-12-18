@@ -11,7 +11,7 @@
 
 <meta name="author" content="Ally Hawkins" />
 
-<meta name="date" content="2024-12-17" />
+<meta name="date" content="2024-12-18" />
 
 <title>Summary of cell type ontologies in reference files</title>
 
@@ -441,7 +441,7 @@ display: none;
 <h1 class="title toc-ignore">Summary of cell type ontologies in
 reference files</h1>
 <h4 class="author">Ally Hawkins</h4>
-<h4 class="date">2024-12-17</h4>
+<h4 class="date">2024-12-18</h4>
 
 </div>
 
@@ -512,7 +512,7 @@ panglao_df &lt;- readr::read_tsv(panglao_file) |&gt;
     panglao_annotation = &quot;human_readable_value&quot;
   )</code></pre>
 <pre><code>## Rows: 178 Columns: 3
-## ── Column specification ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Column specification ──────────────────────────────────────────────────────────────────────────────────────────────────────
 ## Delimiter: &quot;\t&quot;
 ## chr (3): ontology_id, human_readable_value, panglao_cell_type
 ## 
@@ -693,8 +693,8 @@ all_ref_df &lt;- expand.grid(panglao_df$panglao_ontology,
   dplyr::mutate(lca = dplyr::if_else(blueprint_ontology == panglao_ontology, blueprint_ontology, lca)) |&gt; 
   # join in information for each of the lca terms including name, number of ancestors and descendants 
   dplyr::left_join(cl_df, by = c(&quot;lca&quot; = &quot;cl_ontology&quot;)) </code></pre>
-<pre><code>## Warning: Expected 3 pieces. Missing pieces filled with `NA` in 7967 rows [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-## 20, ...].</code></pre>
+<pre><code>## Warning: Expected 3 pieces. Missing pieces filled with `NA` in 7967 rows [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
+## 18, 19, 20, ...].</code></pre>
 <div id="distribution-of-ancestors-and-descendants" class="section level3">
 <h3>Distribution of ancestors and descendants</h3>
 <pre class="r"><code>ggplot(lca_df, aes(x = total_ancestors)) +
@@ -1733,7 +1733,7 @@ something is of the myeloid lineage, but if we aren’t keeping lymphocyte
 then I would argue we shouldn’t keep myeloid leukocyte. Noting that
 after discussion we have decided to keep this one since T and B cells
 are much easier to differentiate based on gene expression alone than
-cells that are party of the myeloid lineage.</p>
+cells that are part of the myeloid lineage.</p>
 </div>
 <div id="progenitor-cell" class="section level4">
 <h4>Progenitor cell</h4>
@@ -3347,7 +3347,9 @@ print_df |&gt;
 </div>
 <p>The PanglaoDB cell types seem to be more specific than the ones
 present in Blueprint Encode, similar to the observation with neurons. We
-should keep epithelial cell.</p>
+should keep epithelial cell in the cases where the Blueprint Encode
+annotation is <code>Epithelial cells</code> but not when it is
+<code>Keratinocytes</code>.</p>
 </div>
 </div>
 <div id="removing-anything-with-more-than-1-lca" class="section level3">
@@ -3492,8 +3494,8 @@ updated_celltypes &lt;- filtered_lca_df |&gt;
 
 # which cell types are now missing from the list to keep
 setdiff(celltypes_to_keep, updated_celltypes)</code></pre>
-<pre><code>## [1] &quot;blood cell&quot;                   &quot;hematopoietic precursor cell&quot; &quot;lining cell&quot;                  &quot;perivascular cell&quot;           
-## [5] &quot;supporting cell&quot;</code></pre>
+<pre><code>## [1] &quot;blood cell&quot;                   &quot;hematopoietic precursor cell&quot; &quot;lining cell&quot;                 
+## [4] &quot;perivascular cell&quot;            &quot;supporting cell&quot;</code></pre>
 <p>It looks like I am losing a few terms I already said were not
 specific and then a few other terms, like “hematopoietic precursor cell”
 and “perivascular cell”. I’ll look at both of those to confirm we would
@@ -3909,9 +3911,12 @@ would use the following criteria to come up with my whitelist:</p>
 matches that have the label hematopoietic precursor cell.</li>
 <li>The LCA should have equal to or less than 170 total
 descendants.</li>
-<li>We whould include the term for <code>neuron</code> and
+<li>We should include the term for <code>neuron</code> and
 <code>epithelial cell</code> even though they do not pass the threshold
-for number of descendants.</li>
+for number of descendants. However, <code>epithelial cell</code> should
+only be included if the Blueprint Encode name is
+<code>Epithelial cells</code> and <em>not</em>
+<code>Keratinocytes</code>.</li>
 <li>Terms that are too broad should be removed. This includes:
 <code>lining cell</code>, <code>blood cell</code>,
 <code>progenitor cell</code>, <code>bone cell</code>, and
