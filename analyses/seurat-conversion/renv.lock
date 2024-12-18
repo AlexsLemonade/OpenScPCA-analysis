@@ -2089,7 +2089,7 @@
       "RemoteUsername": "AlexsLemonade",
       "RemoteRepo": "rOpenScPCA",
       "RemoteRef": "main",
-      "RemoteSha": "b4aeb0c59c9305def39073bf8f44af0950aecb0c",
+      "RemoteSha": "2deaa2010f54f6263a93dca1e1f00e21184ff499",
       "RemoteHost": "api.github.com",
       "Requirements": [
         "BiocParallel",
@@ -2106,7 +2106,7 @@
         "tibble",
         "tidyr"
       ],
-      "Hash": "362174c5a6a1e95df358b0bf5a5d6bff"
+      "Hash": "53dbe9a9a12b5076213ec26ba8c109e1"
     },
     "ragg": {
       "Package": "ragg",
