@@ -43,8 +43,6 @@ stopifnot(
   "--dedup_method must be one of 'sum' or 'unique'" = opts$dedup_method %in% c("sum", "unique")
 )
 
-# Load libraries ---------------------------------------------------------------
-
 # get input file list with relative paths
 sce_paths <- list.files(
   opts$input_dir,
@@ -69,13 +67,15 @@ sce_paths |> purrr::walk(\(path){
   message("Converting ", path, " to Seurat format")
   sce_file <- file.path(opts$input_dir, path)
 
-  # generate output file name and create path if it doesn't exist
+  # generate output file name
   seurat_file <- file.path(
     opts$output_dir,
     stringr::str_replace(path, ".rds$", "_seurat.rds")
   )
+  # create output subdirectory if it doesn't exist
   fs::dir_create(dirname(seurat_file))
 
+  # perform processing
   sce <- readRDS(sce_file)
   seurat_obj <- rOpenScPCA::sce_to_seurat(
     sce,
