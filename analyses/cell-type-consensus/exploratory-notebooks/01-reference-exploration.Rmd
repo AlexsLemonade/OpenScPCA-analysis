@@ -384,7 +384,7 @@ print_df |>
 ```
 
 I'm torn on this one, because I do think it's helpful to know if something is of the myeloid lineage, but if we aren't keeping lymphocyte then I would argue we shouldn't keep myeloid leukocyte. 
-Noting that after discussion we have decided to keep this one since T and B cells are much easier to differentiate based on gene expression alone than cells that are party of the myeloid lineage. 
+Noting that after discussion we have decided to keep this one since T and B cells are much easier to differentiate based on gene expression alone than cells that are part of the myeloid lineage. 
 
 #### Progenitor cell
 
