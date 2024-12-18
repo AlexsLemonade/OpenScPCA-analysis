@@ -40,6 +40,9 @@ jobs:
   cell-type-nonETP-ALL-03:
       uses: ./.github/workflows/run_cell-type-nonETP-ALL-03.yml
 
+  cell-type-consensus:
+      uses: ./.github/workflows/run_cell-type-consensus.yml
+
       ## Add additional modules above this comment, and to the needs list below
   check-jobs:
     if: ${{ always() }}
@@ -52,6 +55,7 @@ jobs:
       - cell-type-wilms-14
       - cell-type-ETP-ALL-03
       - cell-type-nonETP-ALL-03
+      - cell-type-consensus
     runs-on: ubuntu-latest
     steps:
       - name: Checkout template file
