@@ -43,6 +43,9 @@ jobs:
   cell-type-consensus:
       uses: ./.github/workflows/run_cell-type-consensus.yml
 
+  seurat-conversion:
+      uses: ./.github/workflows/run_seurat-conversion.yml
+
       ## Add additional modules above this comment, and to the needs list below
   check-jobs:
     if: ${{ always() }}
@@ -56,6 +59,7 @@ jobs:
       - cell-type-ETP-ALL-03
       - cell-type-nonETP-ALL-03
       - cell-type-consensus
+      - seurat-conversion
     runs-on: ubuntu-latest
     steps:
       - name: Checkout template file

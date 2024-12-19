@@ -43,6 +43,7 @@ jobs:
           - cell-type-nonETP-ALL-03
           - cell-type-ETP-ALL-03
           - cell-type-consensus
+          - seurat-conversion
     uses: ./.github/workflows/build-push-docker-module.yml
     if: github.repository_owner == 'AlexsLemonade'
     with:
