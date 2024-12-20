@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# celltype-glioblastoma Analysis Script
+# cell-type-glioblastoma Analysis Script
 # Author Name
 # Date
 #
@@ -55,7 +55,7 @@ def find_git_root():
 repo_root = find_git_root()
 
 # set module path (using pathlib)
-module_root = repo_root / "analyses" / "celltype-glioblastoma"
+module_root = repo_root / "analyses" / "cell-type-glioblastoma"
 
 # set current data directory
 data_dir = repo_root / "data" / "current"

@@ -20,7 +20,7 @@ permissions:
 jobs:
   build-push:
     name: Build and Push Docker Image
-    if: inputs.push-ecr && github.repository_owner == 'AlexsLemonade'
+    if: github.repository_owner == 'AlexsLemonade'
     environment: prod
     runs-on: openscpca-22.04-big-disk
 
@@ -80,7 +80,7 @@ jobs:
         env:
           DOCKER_BUILD_SUMMARY: false
         with:
-          push: true
+          push: ${{ inputs.push-ecr }}
           context: "{{defaultContext}}:analyses/${{ inputs.module }}"
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
