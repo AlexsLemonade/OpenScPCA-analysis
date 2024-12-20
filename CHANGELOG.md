@@ -13,14 +13,14 @@ You may want to add temporary notes here for tracking as features are added, bef
 
 This release adds the first set of community-contributed analyses to the repository.
 These modules are focused on cell type identification and annotation for specific ScPCA datasets.
-Note that many of these modules are still in development at this stage, and may not yet be fully functional.
+Note that many of these modules are still in development at this stage, and may not be fully functional.
 
 - `cell-type-dsrct`
-- `cell-type-ETO-ALL-03`
+- `cell-type-ETP-ALL-03`
 - `cell-type-glioblastoma`
 - `cell-type-nonETP-ALL-03`
 - `cell-type-wilms-tumor-06`
-- `cell-type-wilms0tumor-14`
+- `cell-type-wilms-tumor-14`
 
 
 This release also adds the following new modules developed by the Data Lab:
@@ -35,7 +35,7 @@ Other updates in this release include:
 - changes from miniconda to miniforge for conda usage throughout the project
 
 While not part of this repository, we do want to also note that we have created the [`rOpenScPCA` package](https://github.com/AlexsLemonade/rOpenScPCA), which will house utility functions commonly used by analysis modules here.
-The goal is to centralize common functions used across analyses to make it easier to share code across modules and to maintain consistency in the analyses.
+The goal is to centralize common functions used across analysis modules to make it easier to share code and maintain consistency across modules.
 
 
 ## v0.1.0
