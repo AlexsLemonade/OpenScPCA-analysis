@@ -7,8 +7,8 @@ Each module contains a `README.md` file with information on its scientific goals
 
 Several modules are provided as examples for how to use certain frameworks in OpenScPCA:
 
-| Module name | Purpose
-|-------------|---------
+| Module name                | Purpose
+|----------------------------|---------
 | [`hello-R`](hello-R/) | Demonstrates an example structure of an R-based module
 | [`hello-python`](hello-python/) | Demonstrates an example structure of a Python-based module
 | [`hello-cluster`](hello-cluster/) | Provides notebooks demonstrating the use of clustering and cluster evaluations functions in the [`rOpenScPCA` package](https://github.com/AlexsLemonade/rOpenScPCA/)
