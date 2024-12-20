@@ -11,4 +11,4 @@ Several modules are provided as examples for how to use certain frameworks in Op
 |-------------|---------
 | [`hello-R`](hello-R/) | Demonstrates an example structure of an R-based module
 | [`hello-python`](hello-python/) | Demonstrates an example structure of a Python-based module
-| [`hello-cluster`](hello-cluster/) | Provides notebooks demonstrating the use of clustering and cluster evaluations functions in the [`rOpenScPCA` package](https://github.com/AlexsLemonade/rOpenScPCA/)
+| [`hello-clusters`](hello-clusters/) | Provides notebooks demonstrating the use of clustering and cluster evaluations functions in the [`rOpenScPCA` package](https://github.com/AlexsLemonade/rOpenScPCA/)
