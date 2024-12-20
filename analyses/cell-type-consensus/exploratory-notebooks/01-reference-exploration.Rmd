@@ -40,31 +40,31 @@ repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 # The path to this module
 ref_dir <- file.path(repository_base, "analyses", "cell-type-consensus", "references")
 
-# path to ref file for panglao 
+# path to ref file for panglao
 panglao_file <- file.path(ref_dir, "panglao-cell-type-ontologies.tsv")
 ```
 
 
 ```{r}
-# grab obo file 
+# grab obo file
 cl_ont <- ontologyIndex::get_ontology("http://purl.obolibrary.org/obo/cl-basic.obo")
 
-# read in panglao file 
+# read in panglao file
 panglao_df <- readr::read_tsv(panglao_file) |>
-  # rename columns to have panglao in them for easy joining later 
+  # rename columns to have panglao in them for easy joining later
   dplyr::select(
     panglao_ontology = "ontology_id",
     panglao_annotation = "human_readable_value"
   )
 
 # grab singler ref from celldex
-blueprint_ref <- celldex::BlueprintEncodeData() 
+blueprint_ref <- celldex::BlueprintEncodeData()
 # get ontologies and human readable name into data frame
 blueprint_df <- data.frame(
   blueprint_ontology = blueprint_ref$label.ont,
   blueprint_annotation_main = blueprint_ref$label.main,
   blueprint_annotation_fine = blueprint_ref$label.fine
-) |> 
+) |>
   unique()
 ```
 
@@ -74,12 +74,12 @@ Below I will calculate the total number of ancestors and the total number of des
 This will give us an idea of the range of values we expect to see when looking at the PanglaoDB and Blueprint Encode references. 
 
 ```{r}
-# turn cl_ont into data frame with one row per term 
+# turn cl_ont into data frame with one row per term
 cl_df <- data.frame(
   cl_ontology = cl_ont$id,
   cl_annotation = cl_ont$name
-) |> 
-  dplyr::rowwise() |> 
+) |>
+  dplyr::rowwise() |>
   dplyr::mutate(
     # list all ancestors and descendants calculate total
     ancestors = list(ontologyIndex::get_ancestors(cl_ont, cl_ontology)),
@@ -93,29 +93,31 @@ The vertical lines in the below plot indicate the value for cell types of varyin
 
 ```{r}
 celltypes_of_interest <- c("eukaryotic cell", "lymphocyte", "leukocyte", "hematopoietic cell", "T cell", "endothelial cell", "smooth muscle cell", "memory T cell")
-line_df <- cl_df |> 
-  dplyr::filter(cl_annotation %in% celltypes_of_interest) |> 
-  dplyr::select(cl_annotation, total_descendants, total_ancestors) |> 
+line_df <- cl_df |>
+  dplyr::filter(cl_annotation %in% celltypes_of_interest) |>
+  dplyr::select(cl_annotation, total_descendants, total_ancestors) |>
   unique()
 
-# group any labels that have the same number of ancestors 
-ancestor_labels_df <- line_df |> 
-  dplyr::group_by(total_ancestors) |> 
+# group any labels that have the same number of ancestors
+ancestor_labels_df <- line_df |>
+  dplyr::group_by(total_ancestors) |>
   dplyr::summarise(cl_annotation = paste(cl_annotation, collapse = ","))
 ```
 
 
 ```{r}
-# make density plots showing distribution of ancestors and descendants 
+# make density plots showing distribution of ancestors and descendants
 ggplot(cl_df, aes(x = total_ancestors)) +
   geom_density(fill = "#00274C", alpha = 0.5) +
-  geom_vline(data = ancestor_labels_df,
-             mapping = aes(xintercept = total_ancestors), 
-             lty = 2) +
+  geom_vline(
+    data = ancestor_labels_df,
+    mapping = aes(xintercept = total_ancestors),
+    lty = 2
+  ) +
   geom_text(
     data = ancestor_labels_df,
     mapping = aes(x = total_ancestors, y = 0.04, label = cl_annotation),
-    angle = 90, 
+    angle = 90,
     vjust = -0.5
   ) +
   labs(
@@ -132,13 +134,15 @@ Below we will look at total number of descendants.
 ```{r}
 ggplot(cl_df, aes(x = total_descendants)) +
   geom_density(fill = "#FFCB05", alpha = 0.5) +
-  geom_vline(data = line_df,
-             mapping = aes(xintercept = total_descendants), 
-             lty = 2) +
+  geom_vline(
+    data = line_df,
+    mapping = aes(xintercept = total_descendants),
+    lty = 2
+  ) +
   geom_text(
     data = line_df,
     mapping = aes(x = total_descendants, y = 0.6, label = cl_annotation),
-    angle = 90, 
+    angle = 90,
     vjust = -0.5
   ) +
   labs(
@@ -152,20 +156,22 @@ It looks like most cell types have very few descendants, so let's zoom into the 
 ```{r}
 ggplot(cl_df, aes(x = total_descendants)) +
   geom_density(fill = "#FFCB05", alpha = 0.5) +
-  geom_vline(data = line_df,
-             mapping = aes(xintercept = total_descendants), 
-             lty = 2) +
+  geom_vline(
+    data = line_df,
+    mapping = aes(xintercept = total_descendants),
+    lty = 2
+  ) +
   geom_text(
     data = line_df,
     mapping = aes(x = total_descendants, y = 0.6, label = cl_annotation),
-    angle = 90, 
+    angle = 90,
     vjust = -0.5
   ) +
   labs(
     x = "Number of descendants",
     y = "Density"
   ) +
-  xlim(c(0,500))
+  xlim(c(0, 500))
 ```
 
 Here we see a much larger range of values and that cell types become more general as the number of descendants goes up. 
@@ -194,42 +200,44 @@ cl_graph <- igraph::make_graph(rbind(unlist(parent_terms), rep(names(parent_term
 
 ```{r}
 # get a data frame with all combinations of panglao and blueprint terms
-# one row for each combination 
-all_ref_df <- expand.grid(panglao_df$panglao_ontology,
-                          blueprint_df$blueprint_ontology) |> 
+# one row for each combination
+all_ref_df <- expand.grid(
+  panglao_df$panglao_ontology,
+  blueprint_df$blueprint_ontology
+) |>
   dplyr::rename(
     panglao_ontology = "Var1",
     blueprint_ontology = "Var2"
-  ) |> 
+  ) |>
   # add in the human readable values for each ontology term
-  dplyr::left_join(blueprint_df, by = "blueprint_ontology") |> 
-  dplyr::left_join(panglao_df, by = "panglao_ontology") |> 
-  tidyr::drop_na() |> 
-  dplyr::rowwise() |> 
+  dplyr::left_join(blueprint_df, by = "blueprint_ontology") |>
+  dplyr::left_join(panglao_df, by = "panglao_ontology") |>
+  tidyr::drop_na() |>
+  dplyr::rowwise() |>
   dplyr::mutate(
     # least common shared ancestor
     lca = list(rownames(ontoProc::findCommonAncestors(blueprint_ontology, panglao_ontology, g = cl_graph)))
   )
 
-lca_df <- all_ref_df |> 
+lca_df <- all_ref_df |>
   dplyr::mutate(
-    total_lca = length(lca), # max is three terms 
-    lca = paste0(lca, collapse = ",") # make it easier to split the df 
+    total_lca = length(lca), # max is three terms
+    lca = paste0(lca, collapse = ",") # make it easier to split the df
   ) |>
-  # split each lca term into its own column 
-  tidyr::separate(lca, into = c("lca_1", "lca_2", "lca_3"), sep = ",") |> 
+  # split each lca term into its own column
+  tidyr::separate(lca, into = c("lca_1", "lca_2", "lca_3"), sep = ",") |>
   tidyr::pivot_longer(
     cols = dplyr::starts_with("lca"),
     names_to = "lca_number",
     values_to = "lca"
-  ) |> 
-  tidyr::drop_na() |> 
-  dplyr::select(-lca_number) |> 
-  # account for any cases where the ontology IDs are exact matches 
+  ) |>
+  tidyr::drop_na() |>
+  dplyr::select(-lca_number) |>
+  # account for any cases where the ontology IDs are exact matches
   # r complains about doing this earlier since the lca column holds lists until now
-  dplyr::mutate(lca = dplyr::if_else(blueprint_ontology == panglao_ontology, blueprint_ontology, lca)) |> 
-  # join in information for each of the lca terms including name, number of ancestors and descendants 
-  dplyr::left_join(cl_df, by = c("lca" = "cl_ontology")) 
+  dplyr::mutate(lca = dplyr::if_else(blueprint_ontology == panglao_ontology, blueprint_ontology, lca)) |>
+  # join in information for each of the lca terms including name, number of ancestors and descendants
+  dplyr::left_join(cl_df, by = c("lca" = "cl_ontology"))
 ```
 
 
@@ -238,13 +246,15 @@ lca_df <- all_ref_df |>
 ```{r}
 ggplot(lca_df, aes(x = total_ancestors)) +
   geom_density() +
-  geom_vline(data = ancestor_labels_df,
-             mapping = aes(xintercept = total_ancestors), 
-             lty = 2) +
+  geom_vline(
+    data = ancestor_labels_df,
+    mapping = aes(xintercept = total_ancestors),
+    lty = 2
+  ) +
   geom_text(
     data = ancestor_labels_df,
     mapping = aes(x = total_ancestors, y = 0.6, label = cl_annotation),
-    angle = 90, 
+    angle = 90,
     vjust = -0.5
   ) +
   labs(
@@ -256,13 +266,15 @@ ggplot(lca_df, aes(x = total_ancestors)) +
 ```{r}
 ggplot(lca_df, aes(x = total_descendants)) +
   geom_density() +
-  geom_vline(data = line_df,
-             mapping = aes(xintercept = total_descendants), 
-             lty = 2) +
+  geom_vline(
+    data = line_df,
+    mapping = aes(xintercept = total_descendants),
+    lty = 2
+  ) +
   geom_text(
     data = line_df,
     mapping = aes(x = total_descendants, y = 0.002, label = cl_annotation),
-    angle = 90, 
+    angle = 90,
     vjust = -0.5
   ) +
   labs(
@@ -271,18 +283,20 @@ ggplot(lca_df, aes(x = total_descendants)) +
   )
 ```
 
-Let's zoom into the area below 1000, since we already know we would want to exlude anything above that based on this plot. 
+Let's zoom into the area below 1000, since we already know we would want to exclude anything above that based on this plot. 
 
 ```{r}
 ggplot(lca_df, aes(x = total_descendants)) +
   geom_density() +
-  geom_vline(data = line_df,
-             mapping = aes(xintercept = total_descendants), 
-             lty = 2) +
+  geom_vline(
+    data = line_df,
+    mapping = aes(xintercept = total_descendants),
+    lty = 2
+  ) +
   geom_text(
     data = line_df,
     mapping = aes(x = total_descendants, y = 0.002, label = cl_annotation),
-    angle = 90, 
+    angle = 90,
     vjust = -0.5
   ) +
   xlim(c(0, 1000)) +
@@ -304,30 +318,30 @@ This is likely to be a good cutoff for deciding which LCA labels to keep.
 
 ```{r}
 peak_idx <- splus2R::peaks(lca_df$total_descendants)
-cutoff <- lca_df$total_descendants[peak_idx] |> 
-  min() # find the smallest peak and use that as the cutoff for number of descendants 
+cutoff <- lca_df$total_descendants[peak_idx] |>
+  min() # find the smallest peak and use that as the cutoff for number of descendants
 ```
 
 
 Below is the list of all consensus cell type labels that we will be keeping if we were to just use this cutoff. 
 
 ```{r}
-celltypes_to_keep <- lca_df |> 
-  dplyr::filter(total_descendants <= cutoff) |> 
-  dplyr::pull(cl_annotation) |> 
+celltypes_to_keep <- lca_df |>
+  dplyr::filter(total_descendants <= cutoff) |>
+  dplyr::pull(cl_annotation) |>
   unique()
 
 celltypes_to_keep
 ```
 
 
-We can also look at all the cell types we are keeping and the total number of descendants to see if there are any that may be we don't want to include because the term is too braod. 
+We can also look at all the cell types we are keeping and the total number of descendants to see if there are any that may be we don't want to include because the term is too broad. 
 
 ```{r}
 # pull out the cell types and total descendants for cell types to keep
 plot_celltype_df <- lca_df |>
   dplyr::filter(cl_annotation %in% celltypes_to_keep) |>
-  dplyr::select(cl_annotation, total_descendants) |> 
+  dplyr::select(cl_annotation, total_descendants) |>
   unique()
 
 # bar chart showing total number of descendants for each cell type
@@ -354,12 +368,12 @@ Below are tables that look specifically at the combinations of cell type annotat
 #### Blood cell
 
 ```{r}
-print_df <- lca_df |> 
+print_df <- lca_df |>
   dplyr::select(blueprint_ontology, blueprint_annotation_main, blueprint_annotation_fine, panglao_ontology, panglao_annotation, total_lca, lca, cl_annotation)
 
 # blood cell
-print_df |> 
-  dplyr::filter(cl_annotation == "blood cell") 
+print_df |>
+  dplyr::filter(cl_annotation == "blood cell")
 ```
 
 I think I'm in favor of not having a "blood cell" label, since I'm not sure that it's helpful. 
@@ -369,7 +383,7 @@ Also, if two different methods label something a platelet and a neutrophil, then
 
 ```{r}
 # bone cell
-print_df |> 
+print_df |>
   dplyr::filter(cl_annotation == "bone cell")
 ```
 
@@ -379,7 +393,7 @@ I think I would also remove bone cell, since hematopoietic stem cells and osteoc
 
 ```{r}
 # myeloid leukocyte cell
-print_df |> 
+print_df |>
   dplyr::filter(cl_annotation == "myeloid leukocyte")
 ```
 
@@ -390,9 +404,9 @@ Noting that after discussion we have decided to keep this one since T and B cell
 
 ```{r}
 # progenitor cell
-print_df |> 
-  dplyr::filter(cl_annotation == "progenitor cell") |> 
-  head(n=15) # there's a lot of these so let's only print out some 
+print_df |>
+  dplyr::filter(cl_annotation == "progenitor cell") |>
+  head(n = 15) # there's a lot of these so let's only print out some
 ```
 
 Same with `progenitor cell`, I do think it could be helpful to know that something may be a progenitor cell, but when you have a cell with the label for HSC and the label for cells like monocytes or osteoblasts, then maybe we are talking about a tumor cell instead. 
@@ -403,16 +417,16 @@ Along those same lines, I think the below terms, `lining cell` and `supporting c
 #### Lining cell
 
 ```{r}
-# lining cell 
-print_df |> 
+# lining cell
+print_df |>
   dplyr::filter(cl_annotation == "lining cell")
 ```
 
 #### Supporting cell
 
 ```{r}
-# supporting cell 
-print_df |> 
+# supporting cell
+print_df |>
   dplyr::filter(cl_annotation == "supporting cell")
 ```
 
@@ -422,9 +436,9 @@ print_df |>
 We can also look at what cell type labels we are excluding when using this cut off to see if there are any terms we might actually want to keep instead. 
 
 ```{r}
-lca_df |> 
-  dplyr::filter(total_descendants > cutoff) |> 
-  dplyr::pull(cl_annotation) |> 
+lca_df |>
+  dplyr::filter(total_descendants > cutoff) |>
+  dplyr::pull(cl_annotation) |>
   unique()
 ```
 
@@ -435,7 +449,7 @@ Let's look at those combinations.
 
 ```{r}
 # neuron
-print_df |> 
+print_df |>
   dplyr::filter(cl_annotation == "neuron")
 ```
 
@@ -446,7 +460,7 @@ Even though neuron has ~ 500 descendants, I think we should keep these labels.
 
 ```{r}
 # epithelial cell
-print_df |> 
+print_df |>
   dplyr::filter(cl_annotation == "epithelial cell")
 ```
 
@@ -460,9 +474,9 @@ Maybe in the case where we have multiple LCAs we are already too broad and we sh
 Here I'm looking at the total number of descendants for all terms that show up because a term has multiple LCAs. 
 
 ```{r}
-lca_df |> 
-  dplyr::filter(total_lca > 1) |> 
-  dplyr::select(cl_annotation, total_descendants) |> 
+lca_df |>
+  dplyr::filter(total_lca > 1) |>
+  dplyr::select(cl_annotation, total_descendants) |>
   unique() |>
   dplyr::arrange(total_descendants)
 ```
@@ -475,13 +489,13 @@ I'll also look to see what cell types we lose when we add this extra filtering s
 
 ```{r}
 # remove any combinations with more than one lca
-filtered_lca_df <- lca_df |> 
+filtered_lca_df <- lca_df |>
   dplyr::filter(total_lca < 2)
 
-# get a list of cell types to keep based on cutoff 
-updated_celltypes <- filtered_lca_df |> 
-  dplyr::filter(total_descendants <= cutoff) |> 
-  dplyr::pull(cl_annotation) |> 
+# get a list of cell types to keep based on cutoff
+updated_celltypes <- filtered_lca_df |>
+  dplyr::filter(total_descendants <= cutoff) |>
+  dplyr::pull(cl_annotation) |>
   unique()
 
 # which cell types are now missing from the list to keep
@@ -493,7 +507,7 @@ It looks like I am losing a few terms I already said were not specific and then 
 #### Hematopoietic precursor cell
 
 ```{r}
-print_df |> 
+print_df |>
   dplyr::filter(cl_annotation == "hematopoietic precursor cell")
 ```
 
@@ -503,8 +517,8 @@ I think in the context of pediatric cancer having this label would be helpful, s
 Let's look at what the other LCA is for an example set. 
 
 ```{r}
-lca_df |> 
-  dplyr::filter(panglao_ontology == "CL:0000037" & blueprint_ontology == "CL:0000050") |> 
+lca_df |>
+  dplyr::filter(panglao_ontology == "CL:0000037" & blueprint_ontology == "CL:0000050") |>
   dplyr::select(blueprint_annotation_main, blueprint_annotation_fine, panglao_annotation, cl_annotation)
 ```
 
@@ -514,7 +528,7 @@ Personally, I would keep the term for `hematopoietic precursor cell` because I t
 #### Perivascular cell
 
 ```{r}
-print_df |> 
+print_df |>
   dplyr::filter(cl_annotation == "perivascular cell")
 ```
 
@@ -537,18 +551,20 @@ Then we will look at the values for pairs that have an LCA that pass the total d
 ```{r}
 information_content <- ontologySimilarity::descendants_IC(cl_ont)
 
-# get similarity index for each set of terms 
-si_df <- lca_df |> 
-  dplyr::rowwise() |> 
+# get similarity index for each set of terms
+si_df <- lca_df |>
+  dplyr::rowwise() |>
   dplyr::mutate(
-    similarity_index = ontologySimilarity::get_sim_grid(ontology = cl_ont,
-                                                        term_sets = list(panglao_ontology, blueprint_ontology)) |> 
+    similarity_index = ontologySimilarity::get_sim_grid(
+      ontology = cl_ont,
+      term_sets = list(panglao_ontology, blueprint_ontology)
+    ) |>
       ontologySimilarity::get_sim()
   )
 ```
 
 ```{r}
-si_df <- si_df |> 
+si_df <- si_df |>
   dplyr::mutate(
     lca_threshold = dplyr::if_else(total_descendants < cutoff, "PASS", "FAIL")
   )
@@ -570,24 +586,25 @@ Here each LCA term is its own plot and the vertical lines are the similarity ind
 ```{r}
 celltypes_to_plot <- c("myeloid leukocyte", "T cell", "cell", "supporting cell", "B cell")
 
-celltypes_to_plot |> 
+celltypes_to_plot |>
   purrr::map(\(celltype){
-    line_df <- si_df |> 
-      dplyr::filter(cl_annotation == celltype) |> 
-      dplyr::select(cl_annotation, similarity_index) |> 
+    line_df <- si_df |>
+      dplyr::filter(cl_annotation == celltype) |>
+      dplyr::select(cl_annotation, similarity_index) |>
       unique()
-    
+
     ggplot(si_df, aes(x = similarity_index)) +
       geom_density() +
-      geom_vline(data = line_df,
-                 mapping = aes(xintercept = similarity_index), 
-                 lty = 2) +
+      geom_vline(
+        data = line_df,
+        mapping = aes(xintercept = similarity_index),
+        lty = 2
+      ) +
       labs(
         x = "Similarity index",
         y = "Density",
         title = celltype
       )
-    
   })
 ```
 
