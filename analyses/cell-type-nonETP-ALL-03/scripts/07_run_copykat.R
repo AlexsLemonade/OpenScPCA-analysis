@@ -7,7 +7,7 @@ run_copykat <- function(ind.lib){
   seu <- readRDS(file.path(out_loc,"results/rds",paste0(ind.lib,".rds")))
   annot.file <- file.path(out_loc,"results",paste0(ind.lib,"_newB-normal-annotation.txt"))
   if (file.exists(annot.file)){  #the sample has new B cells annotated
-    annot.df <- read.table(annot.file, header=F, row.names=1, sep="\t", stringsAsFactors=FALSE, 
+    annot.df <- read.table(annot.file, header=F, row.names=1, sep="\t", stringsAsFactors=FALSE,
                            colClasses = c('character', 'character'))
     norm.cells <- rownames(annot.df)[which(annot.df$V2=="new B")]
     n_cores <- parallel::detectCores() - 1
@@ -30,6 +30,15 @@ setwd(file.path(out_loc,"results/copykat_output"))
 metadata <- read.table(file.path(data_loc,"single_cell_metadata.tsv"), sep = "\t", header = T)
 metadata <- metadata[which(metadata$scpca_project_id == projectID &
                              metadata$diagnosis == "Non-early T-cell precursor T-cell acute lymphoblastic leukemia"), ]
-libraryID <- metadata$scpca_library_id
 
-purrr::walk(libraryID, run_copykat)
+metadata$scpca_library_id |> purrr::walk(\(library_id){
+  # copyKAT can fail stochastically in testing, so we catch a specific error and continue
+  tryCatch(
+    run_copykat(library_id),
+    error = \(e) if (e$message == "NA/NaN/Inf in foreign function call (arg 10)"){
+      print(paste0("Error in ", library_id, ": ", e$message))
+    } else {
+      stop(e)
+    }
+  )
+})
