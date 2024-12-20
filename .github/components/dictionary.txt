@@ -45,6 +45,7 @@ conda
 config
 containerd
 CopyKAT
+CPM
 CRediT
 Crompton
 Ctrl
@@ -83,6 +84,7 @@ et
 ETP
 ewings
 EWS-FLI1
+exocrine
 fibroblast
 fibroblasts
 formatters
@@ -123,6 +125,7 @@ Jupyter
 karyotyping
 LCA
 leiden
+leptomeningeal
 LGBTQ
 licensor
 licensor's
@@ -134,7 +137,7 @@ linter's
 linters
 lockfile
 Looney
-Louvain
+louvain
 LSfR
 macOS
 macrophage
@@ -151,10 +154,13 @@ microRNA
 Miniconda
 Miniforge
 misidentification
+modularity
 monocyte
 monocytes
+mononuclear
 MSC
 multifactor
+multinucleated
 myeloid
 natively
 Nextflow
@@ -165,9 +171,12 @@ nonconsensual
 octicons
 onboarded
 oncotarget
+ontologies
 openscpca
 OpenScPCA
 OpenScPCA's
+osteoclast
+osteoclasts
 overclustered
 Panglao
 PanglaoDB
@@ -175,6 +184,7 @@ PDX
 peritubular
 ploidy
 pluripotent
+programmatically
 PMID
 PNG
 podman
@@ -247,6 +257,7 @@ UCell
 UMAP
 uncomment
 unhide
+ureteric
 uteric
 vCPU
 vCPUs
