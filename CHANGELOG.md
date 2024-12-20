@@ -32,7 +32,7 @@ This release also adds the following new modules developed by the Data Lab:
 Other updates in this release include:
 
 - a new `sync-results.py` script to simplify uploading (and downloading) analysis results from an analysis module to a user's S3 bucket
-- changes from miniconda to miniforge for conda usage throughout the project
+- changes from `miniconda` to `miniforge` for conda usage throughout the project
 
 While not part of this repository, we do want to also note that we have created the [`rOpenScPCA` package](https://github.com/AlexsLemonade/rOpenScPCA), which will house utility functions commonly used by analysis modules here.
 The goal is to centralize common functions used across analysis modules to make it easier to share code and maintain consistency across modules.
