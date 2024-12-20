@@ -1,0 +1,166 @@
+---
+title: "Comparing clustering parameters with rOpenScPCA"
+date: "`r Sys.Date()`"
+author: "Data Lab"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+    df_print: paged
+---
+
+## Introduction
+
+Clustering algorithms have several parameters which can be varied, leading to different clustering results.
+A key question when clustering, therefore, is how to identify a set of parameters that lead to robust and reliable clusters that can be used in downstream analysis. 
+
+This notebook provides examples of how to use the `rOpenScPCA` package to:
+
+* Calculate clusters across several different parameterizations
+* Calculate QC metrics on across parameterizations
+
+Please refer to the [`01_perform-evaluate-clustering.Rmd`](01_perform-evaluate-clustering.Rmd) notebook for a tutorial on using `rOpenScPCA` functions to:
+
+* Calculate clusters from a single parameterization
+* Calculate QC metrics on a single set of clusters
+
+This notebook will use the sample `SCPCS000001` from project `SCPCP000001`, which is assumed present in the `OpenScPCA-analysis/data/current/SCPCP000001` directory, for all examples.
+Please [see this documentation](https://openscpca.readthedocs.io/en/latest/getting-started/accessing-resources/getting-access-to-data/) for more information about obtaining ScPCA data.
+
+## Setup
+
+### Packages
+
+
+```{r packages}
+library(rOpenScPCA)
+
+suppressPackageStartupMessages({
+  library(SingleCellExperiment)
+  library(Seurat)
+  library(dplyr)
+  library(ggplot2)
+})
+
+# Set ggplot theme for plots
+theme_set(theme_bw())
+```
+
+
+### Paths
+
+```{r base paths}
+# The base path for the OpenScPCA repository
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The current data directory, found within the repository base directory
+data_dir <- file.path(repository_base, "data", "current")
+
+# The path to this module
+module_base <- file.path(repository_base, "analyses", "hello-clusters")
+```
+
+```{r input file path}
+# Path to processed SCE file for sample SCPCS000001
+input_sce_file <- file.path(data_dir, "SCPCP000001", "SCPCS000001", "SCPCL000001_processed.rds")
+```
+
+
+### Set the random seed
+
+Because clustering involves random sampling, it is important to set the random seed at the top of your analysis script or notebook to ensure reproducibility.
+
+```{r set seed}
+set.seed(2024)
+```
+
+## Read in and prepare data
+
+To begin, we'll read in the `SingleCellExperiment` (SCE) object.
+
+```{r read data}
+# Read the SCE file
+sce <- readRDS(input_sce_file)
+```
+
+For the initial cluster calculations and evaluations, we will use the PCA matrix extracted from the SCE object.
+As shown in [`01_perform-evaluate-clustering.Rmd`](01_perform-evaluate-clustering.Rmd), it is also possible to use an SCE object or a Seurat object directly.
+
+
+```{r extract pca data}
+# Extract the PCA matrix from an SCE object
+pca_matrix <- reducedDim(sce, "PCA")
+```
+
+## Perform clustering across a set of parameters
+
+This section will show how to perform clustering across a set of parameters (aka, "sweep" a set of parameters) with `rOpenScPCA::sweep_clusters()`. 
+
+This function takes a PCA matrix with rownames representing unique cell ids (e.g., barcodes) as its primary argument, with additional arguments for cluster parameters. 
+This function wraps the `rOpenScPCA::calculate_clusters()` function but allows you to provide a vector of parameter values to perform clustering across, as listed below.
+Clusters will be calculated for all combinations of parameters values (where applicable); default values that the function will use for any unspecified parameter values are shown in parentheses
+
+* `algorithm`: Which clustering algorithm to use (Louvain)
+* `weighting`: Which weighting scheme to use (Jaccard)
+* `nn`: The number of nearest neighbors (10)
+* `resolution`: The resolution parameter (1; used only with Louvain and Leiden clustering)
+* `objective_function`: The objective function to optimize clusters (CPM; used only with Leiden clustering)
+
+`rOpenScPCA::sweep_clusters()` does allow you to specify values for any other parameters. 
+
+
+This function will return a list of data frames of clustering results. 
+Each data frame will have the following columns:
+
+* `cell_id`: Unique cell identifiers, obtained from the PCA matrix's row names
+* `cluster`: A factor column with the cluster identities
+* There will be one column for each clustering parameter used
+
+
+To demonstrate this function, we'll calculate clusters using the Louvain algorithm while varying the `nn` parameter:
+
+```{r sweep clusters}
+# Define nn parameter values of interest
+nn <- seq(10, 30, 10)
+
+# Calculate clusters varying nn, but leaving other parameters at their default values
+cluster_results_list <- rOpenScPCA::sweep_clusters(
+  pca_matrix,
+  nn = nn
+)
+```
+
+The resulting list has a length of three, one data frame for each `nn` parameter tested:
+
+```{r length cluster_results_list}
+length(cluster_results_list)
+```
+
+We can look at the first few rows of each data frame using [`purrr::map()`](https://purrr.tidyverse.org/reference/map.html) to iterate over the list:
+
+
+```{r map cluster_results_list}
+cluster_results_list |>
+  purrr::map(head)
+```
+
+Generally speaking, `purrr::map()` can be used to iterate over this list to analyze or visualize each clustering result on its own.
+Complementary to this, we can also combine this list into a single data frame to jointly analyze or visualize all clustering results together:
+
+
+```{r bind cluster_results_list rows}
+cluster_results_df <- dplyr::bind_rows(cluster_results_list)
+head(cluster_results_df)
+```
+
+## Evaluating clustering results
+
+This section will use `purrr::map()` to iterate over each df to calculate silhouette, purity, and stability. 
+We'll also plot results.
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
