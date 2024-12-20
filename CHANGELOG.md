@@ -9,6 +9,33 @@ Add new release notes in reverse numerical order (newest first) below this comme
 You may want to add temporary notes here for tracking as features are added, before a new release is ready.
 -->
 
+## v0.2.0
+
+This release adds the first set of community-contribyted analyses to the repository.
+These modules are focused on cell type identification and annotation for specific ScPCA datasets:
+
+- `cell-type-dsrct`
+- `cell-type-ETO-ALL-03`
+- `cell-type-nonETP-ALL-03`
+- `cell-type-wilms-tumor-06`
+- `cell-type-wilms0tumor-14`
+- `cell-type-glioblastoma`
+
+
+This release also adds the following new modules developed by the Data Lab team:
+
+- `hello-clusters`: a demonstration module for clustering analysis using the [`rOpenScPCA` package](https://github.com/AlexsLemonade/rOpenScPCA)
+- `seurat-conversion`: a module for converting `SingleCellExperiment` objects to Seurat objects, also using the `rOpenScPCA` package
+- `metacells`: a module that begins to explore the utility of metacell analysis within the ScPCA project
+
+Other updates in this release include:
+
+- a new `sync-results.py` script for simplifying uploading analysis results from an analysis module to an S3 bucket
+
+
+
+
+
 
 ## v0.1.0
 
@@ -17,7 +44,7 @@ The repository at this stage should be generally complete with respect to infras
 
 With respect to infrastructure, the repository contains the following components:
 
-- detailed documentation in the `docs` directory explaining how to interact with the OpenScPCA project and how to set up and run analyses (published at https://openscpca.readthedocs.io) 
+- detailed documentation in the `docs` directory explaining how to interact with the OpenScPCA project and how to set up and run analyses (published at https://openscpca.readthedocs.io)
 - a `create-analysis-module.py` script for setting up new analysis modules
 - `download-data.py` and `download-results.py` scripts to download data and results from the OpenScPCA project
 - template notebooks, scripts, environment files, and Docker images for analysis modules

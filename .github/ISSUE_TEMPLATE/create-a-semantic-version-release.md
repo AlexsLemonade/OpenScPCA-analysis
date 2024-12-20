@@ -23,5 +23,5 @@ If issues must be resolved before creating a release, mark them as blockers in Z
   - Are there any _major_ shifts in project dependencies?
     For example, is there a package that was used throughout Docker environments that has been replaced?
   - Have there been any changes in repo file organization?
-- [ Create a release on GitHub ](https://github.com/AlexsLemonade/OpenScPCA-analysis/releases/new)
+- [ ] [Create a release on GitHub](https://github.com/AlexsLemonade/OpenScPCA-analysis/releases/new)
   - populate the contents with the release notes added to the changelog.
