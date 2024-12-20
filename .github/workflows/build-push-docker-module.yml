@@ -80,7 +80,7 @@ jobs:
         env:
           DOCKER_BUILD_SUMMARY: false
         with:
-          push: inputs.push-ecr
+          push: ${{ inputs.push-ecr }}
           context: "{{defaultContext}}:analyses/${{ inputs.module }}"
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
