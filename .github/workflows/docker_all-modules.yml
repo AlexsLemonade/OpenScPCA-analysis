@@ -69,7 +69,7 @@ jobs:
         if: contains(needs.*.result, 'failure')
         uses: peter-evans/create-issue-from-file@v5
         with:
-          title: Analysis module failing in CI
+          title: Docker image build failing in CI
           content-filepath: |
             .github/cron-issue-templates/all-docker-issue-template.md
           labels: |
