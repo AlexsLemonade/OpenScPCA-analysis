@@ -1,4 +1,4 @@
-name: "openscpca-celltype-glioblastoma"
+name: "openscpca-cell-type-glioblastoma"
 channels:
   - conda-forge
   - bioconda

@@ -17,10 +17,10 @@ Note that many of these modules are still in development at this stage, and may 
 
 - `cell-type-dsrct`
 - `cell-type-ETO-ALL-03`
+- `cell-type-glioblastoma`
 - `cell-type-nonETP-ALL-03`
 - `cell-type-wilms-tumor-06`
 - `cell-type-wilms0tumor-14`
-- `celltype-glioblastoma`
 
 
 This release also adds the following new modules developed by the Data Lab:

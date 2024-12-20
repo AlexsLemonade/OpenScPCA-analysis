@@ -1,4 +1,4 @@
-# This is a workflow to run the celltype-glioblastoma module
+# This is a workflow to run the cell-type-glioblastoma module
 #
 # Analysis modules are run based on three triggers:
 # - Manual trigger
@@ -7,9 +7,9 @@
 #
 # At initialization, only the manual trigger is active
 
-name: Run celltype-glioblastoma analysis module
+name: Run cell-type-glioblastoma analysis module
 env:
-  MODULE_PATH: analyses/celltype-glioblastoma
+  MODULE_PATH: analyses/cell-type-glioblastoma
   AWS_DEFAULT_REGION: us-east-2
 
 concurrency:
@@ -24,9 +24,9 @@ on:
   #   branches:
   #     - main
   #   paths:
-  #     - analyses/celltype-glioblastoma/**
-  #     - "!analyses/celltype-glioblastoma/Dockerfile"
-  #     - "!analyses/celltype-glioblastoma/.dockerignore"
+  #     - analyses/cell-type-glioblastoma/**
+  #     - "!analyses/cell-type-glioblastoma/Dockerfile"
+  #     - "!analyses/cell-type-glioblastoma/.dockerignore"
   #     - .github/workflows/run_celltype-glioblastoma.yml
 
 jobs:
