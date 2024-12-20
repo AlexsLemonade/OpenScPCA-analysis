@@ -25,6 +25,7 @@ Note that many of these modules are still in development at this stage, and may 
 
 This release also adds the following new modules developed by the Data Lab:
 
+- `cell-type-consensus`: a module for exploring consensus cell types across multiple annotation methods
 - `hello-clusters`: a demonstration module for clustering analysis using the [`rOpenScPCA` package](https://github.com/AlexsLemonade/rOpenScPCA)
 - `seurat-conversion`: a module for converting `SingleCellExperiment` objects to Seurat objects, also using the `rOpenScPCA` package
 
