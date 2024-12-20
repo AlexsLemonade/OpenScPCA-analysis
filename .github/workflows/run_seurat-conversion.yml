@@ -19,44 +19,45 @@ concurrency:
 
 on:
   workflow_dispatch:
-  # workflow_call:
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - analyses/seurat-conversion/**
-  #     - "!analyses/seurat-conversion/Dockerfile"
-  #     - "!analyses/seurat-conversion/.dockerignore"
-  #     - .github/workflows/run_seurat-conversion.yml
+  workflow_call:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - analyses/seurat-conversion/**
+      - "!analyses/seurat-conversion/Dockerfile"
+      - "!analyses/seurat-conversion/.dockerignore"
+      - .github/workflows/run_seurat-conversion.yml
 
 jobs:
   run-module:
     if: github.repository_owner == 'AlexsLemonade'
     runs-on: ubuntu-latest
+    container: public.ecr.aws/openscpca/seurat-conversion:latest
+    defaults:
+      run:
+        shell: bash -el {0}
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up R
-        uses: r-lib/actions/setup-r@v2
-        with:
-          r-version: 4.4.0
-          use-public-rspm: true
+      - name: Install aws-cli
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          ./aws/install
 
-      - name: Set up pandoc
-        uses: r-lib/actions/setup-pandoc@v2
-
-      - name: Set up renv
-        uses: r-lib/actions/setup-renv@v2
-        with:
-          working-directory: ${{ env.MODULE_PATH }}
-
-      # Update this step as needed to download the desired data
       - name: Download test data
-        run: ./download-data.py --test-data --format SCE
+        env:
+          #  Unless otherwise stated, the first sample ID in the given project
+          #  For the multiplexed project SCPCP000009, set of samples `SCPCS000133,SCPCS000134,SCPCS000135,SCPCS000136` (this group of samples has 2 associated libraries). Only `SCPCS000133` is specified in the SAMPLES string here.
+          #   For the project SCPCP000011, the sample SCPCS000435 was specifically selected as an edge case sample with <10 cells
+          SAMPLES: "SCPCS000001,SCPCS000024,SCPCS000050,SCPCS000101,SCPCS000124,SCPCS000133,SCPCS000168,SCPCS000216,SCPCS000246,SCPCS000250,SCPCS000298,SCPCS000435,SCPCS000481,SCPCS000484,SCPCS000490,SCPCS000502,SCPCS000514,SCPCS000616,SCPCS000632,SCPCS000758"
+        run: |
+          ./download-data.py --test-data --format SCE --samples ${SAMPLES}
 
       - name: Run analysis module
         run: |
           cd ${MODULE_PATH}
-          # run module script(s) here
+          bash run_seurat-conversion.sh
