@@ -12,4 +12,3 @@ Several modules are provided as examples for how to use certain frameworks in Op
 | `hello-R` | Demonstrates an example structure of an R-based module
 | `hello-python` | Demonstrates an example structure of a Python-based module
 | `hello-cluster` | Provides notebooks demonstrating the use of clustering and cluster evaluations functions in the [`rOpenScPCA` package](https://github.com/AlexsLemonade/rOpenScPCA/)
-| `seurat-conversion`| Provides notebooks demonstrating the use of functions related to converting SCE to Seurat objects in the [`rOpenScPCA` package](https://github.com/AlexsLemonade/rOpenScPCA/), which also includes functions to convert Ensembl ids to gene symbols
