@@ -13,7 +13,7 @@ You may want to add temporary notes here for tracking as features are added, bef
 
 This release adds the first set of community-contributed analyses to the repository.
 These modules are focused on cell type identification and annotation for specific ScPCA datasets.
-Note that many of these modules are still in development at this stage, and may not be fully functional.
+Note that many of these modules are still in development at this stage and may not be fully functional.
 
 - `cell-type-dsrct`
 - `cell-type-ETP-ALL-03`
