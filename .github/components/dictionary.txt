@@ -83,10 +83,12 @@ erythroid
 et
 ETP
 ewings
+EWS
 EWS-FLI1
 exocrine
 fibroblast
 fibroblasts
+FLI
 formatters
 Generis
 GFM
@@ -108,6 +110,7 @@ histological
 histologies
 homotypic
 HPC
+HSC
 IAM
 ICJME
 ie
@@ -166,6 +169,7 @@ natively
 Nextflow
 nephroblastoma
 nephron
+neutrophil
 NK
 nonconsensual
 octicons
@@ -175,6 +179,7 @@ ontologies
 openscpca
 OpenScPCA
 OpenScPCA's
+osteoblasts
 osteoclast
 osteoclasts
 overclustered
@@ -182,6 +187,7 @@ Panglao
 PanglaoDB
 PDX
 peritubular
+perivascular
 ploidy
 pluripotent
 programmatically
@@ -225,6 +231,7 @@ ScType
 SEACells
 SemVar
 seq
+SingleCellExperiment
 SingleR
 snRNA
 socio
