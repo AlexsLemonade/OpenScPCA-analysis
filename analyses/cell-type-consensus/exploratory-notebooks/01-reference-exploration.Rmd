@@ -1,0 +1,640 @@
+---
+title: "Summary of cell type ontologies in reference files"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    code_folding: "hide"
+    df_print: "kable"
+---
+
+This notebook aims to identify a set of consensus labels between cell types in the PanglaoDB and Blueprint Encode references. 
+
+- First I look at the entire cell type ontology and summarize the total ancestors and descendants. 
+- Then we find all possible combinations of cell type labels between PanglaoDB and Blueprint Encode and find the latest common ancestor (LCA) for all combinations.
+- The total descendants for each LCA is used to define a cutoff for consensus terms we may want to use.
+- I also explored the pairs for some terms in depth to look at borderline LCA terms. 
+- Finally, I calculated the similarity index for all pairs. 
+
+## Setup
+
+```{r packages}
+suppressPackageStartupMessages({
+  # load required packages
+  library(ggplot2)
+})
+
+# Set default ggplot theme
+theme_set(
+  theme_bw()
+)
+```
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The path to this module
+ref_dir <- file.path(repository_base, "analyses", "cell-type-consensus", "references")
+
+# path to ref file for panglao
+panglao_file <- file.path(ref_dir, "panglao-cell-type-ontologies.tsv")
+```
+
+
+```{r}
+# grab obo file
+cl_ont <- ontologyIndex::get_ontology("http://purl.obolibrary.org/obo/cl-basic.obo")
+
+# read in panglao file
+panglao_df <- readr::read_tsv(panglao_file) |>
+  # rename columns to have panglao in them for easy joining later
+  dplyr::select(
+    panglao_ontology = "ontology_id",
+    panglao_annotation = "human_readable_value"
+  )
+
+# grab singler ref from celldex
+blueprint_ref <- celldex::BlueprintEncodeData()
+# get ontologies and human readable name into data frame
+blueprint_df <- data.frame(
+  blueprint_ontology = blueprint_ref$label.ont,
+  blueprint_annotation_main = blueprint_ref$label.main,
+  blueprint_annotation_fine = blueprint_ref$label.fine
+) |>
+  unique()
+```
+
+## Full cell ontology
+
+Below I will calculate the total number of ancestors and the total number of descendants for each term in the full cell type ontology and then show the distributions for those statistics.
+This will give us an idea of the range of values we expect to see when looking at the PanglaoDB and Blueprint Encode references. 
+
+```{r}
+# turn cl_ont into data frame with one row per term
+cl_df <- data.frame(
+  cl_ontology = cl_ont$id,
+  cl_annotation = cl_ont$name
+) |>
+  dplyr::rowwise() |>
+  dplyr::mutate(
+    # list all ancestors and descendants calculate total
+    ancestors = list(ontologyIndex::get_ancestors(cl_ont, cl_ontology)),
+    total_ancestors = length(ancestors),
+    descendants = list(ontologyIndex::get_descendants(cl_ont, cl_ontology, exclude_roots = TRUE)),
+    total_descendants = length(descendants)
+  )
+```
+
+The vertical lines in the below plot indicate the value for cell types of varying granularity.
+
+```{r}
+celltypes_of_interest <- c("eukaryotic cell", "lymphocyte", "leukocyte", "hematopoietic cell", "T cell", "endothelial cell", "smooth muscle cell", "memory T cell")
+line_df <- cl_df |>
+  dplyr::filter(cl_annotation %in% celltypes_of_interest) |>
+  dplyr::select(cl_annotation, total_descendants, total_ancestors) |>
+  unique()
+
+# group any labels that have the same number of ancestors
+ancestor_labels_df <- line_df |>
+  dplyr::group_by(total_ancestors) |>
+  dplyr::summarise(cl_annotation = paste(cl_annotation, collapse = ","))
+```
+
+
+```{r}
+# make density plots showing distribution of ancestors and descendants
+ggplot(cl_df, aes(x = total_ancestors)) +
+  geom_density(fill = "#00274C", alpha = 0.5) +
+  geom_vline(
+    data = ancestor_labels_df,
+    mapping = aes(xintercept = total_ancestors),
+    lty = 2
+  ) +
+  geom_text(
+    data = ancestor_labels_df,
+    mapping = aes(x = total_ancestors, y = 0.04, label = cl_annotation),
+    angle = 90,
+    vjust = -0.5
+  ) +
+  labs(
+    x = "Number of ancestors",
+    y = "Density"
+  )
+```
+
+Generally it looks like as the cell types get more specific we see a greater number of ancestors.
+However, the range of values is small and we see some cell types have the same value and probably not the same level of granularity. 
+
+Below we will look at total number of descendants. 
+
+```{r}
+ggplot(cl_df, aes(x = total_descendants)) +
+  geom_density(fill = "#FFCB05", alpha = 0.5) +
+  geom_vline(
+    data = line_df,
+    mapping = aes(xintercept = total_descendants),
+    lty = 2
+  ) +
+  geom_text(
+    data = line_df,
+    mapping = aes(x = total_descendants, y = 0.6, label = cl_annotation),
+    angle = 90,
+    vjust = -0.5
+  ) +
+  labs(
+    x = "Number of descendants",
+    y = "Density"
+  )
+```
+
+It looks like most cell types have very few descendants, so let's zoom into the area below 500 to get a better look. 
+
+```{r}
+ggplot(cl_df, aes(x = total_descendants)) +
+  geom_density(fill = "#FFCB05", alpha = 0.5) +
+  geom_vline(
+    data = line_df,
+    mapping = aes(xintercept = total_descendants),
+    lty = 2
+  ) +
+  geom_text(
+    data = line_df,
+    mapping = aes(x = total_descendants, y = 0.6, label = cl_annotation),
+    angle = 90,
+    vjust = -0.5
+  ) +
+  labs(
+    x = "Number of descendants",
+    y = "Density"
+  ) +
+  xlim(c(0, 500))
+```
+
+Here we see a much larger range of values and that cell types become more general as the number of descendants goes up. 
+However, this distribution alone is probably not helpful in determining a cutoff. 
+The next section we will look at this distribution specifically for cell types present in our references, PanglaoDB and Blueprint encode. 
+
+
+## Latest common ancestor (LCA) between PanglaoDB and Blueprint encode
+
+This section will look at identifying the latest common ancestor (LCA) between all possible combinations of terms from PanglaoDB (used for assigning cell types with `CellAssign`) and the `BlueprintEncodeData` reference from `celldex` (used for assigning cell types with `SingleR`). 
+The LCA refers to the latest term in the cell ontology hierarchy that is common between two terms. 
+I will use the [`ontoProc::findCommonAncestors()` function](https://rdrr.io/bioc/ontoProc/man/findCommonAncestors.html) to get the LCA for each combination. 
+
+Note that it is possible to have more than one LCA for a set of terms. 
+To start, I will keep all LCA terms found. 
+
+For each LCA, I will again look at the total number of ancestors and descendants and see if I can identify an appropriate cutoff. 
+Ultimately, I would like to see if we can use that cutoff to decide if we should keep the LCA term as the consensus label or use "Unknown". 
+
+```{r}
+# first set up the graph from cl ont
+parent_terms <- cl_ont$parents
+cl_graph <- igraph::make_graph(rbind(unlist(parent_terms), rep(names(parent_terms), lengths(parent_terms))))
+```
+
+
+```{r}
+# get a data frame with all combinations of panglao and blueprint terms
+# one row for each combination
+all_ref_df <- expand.grid(
+  panglao_df$panglao_ontology,
+  blueprint_df$blueprint_ontology
+) |>
+  dplyr::rename(
+    panglao_ontology = "Var1",
+    blueprint_ontology = "Var2"
+  ) |>
+  # add in the human readable values for each ontology term
+  dplyr::left_join(blueprint_df, by = "blueprint_ontology") |>
+  dplyr::left_join(panglao_df, by = "panglao_ontology") |>
+  tidyr::drop_na() |>
+  dplyr::rowwise() |>
+  dplyr::mutate(
+    # least common shared ancestor
+    lca = list(rownames(ontoProc::findCommonAncestors(blueprint_ontology, panglao_ontology, g = cl_graph)))
+  )
+
+lca_df <- all_ref_df |>
+  dplyr::mutate(
+    total_lca = length(lca), # max is three terms
+    lca = paste0(lca, collapse = ",") # make it easier to split the df
+  ) |>
+  # split each lca term into its own column
+  tidyr::separate(lca, into = c("lca_1", "lca_2", "lca_3"), sep = ",") |>
+  tidyr::pivot_longer(
+    cols = dplyr::starts_with("lca"),
+    names_to = "lca_number",
+    values_to = "lca"
+  ) |>
+  tidyr::drop_na() |>
+  dplyr::select(-lca_number) |>
+  # account for any cases where the ontology IDs are exact matches
+  # r complains about doing this earlier since the lca column holds lists until now
+  dplyr::mutate(lca = dplyr::if_else(blueprint_ontology == panglao_ontology, blueprint_ontology, lca)) |>
+  # join in information for each of the lca terms including name, number of ancestors and descendants
+  dplyr::left_join(cl_df, by = c("lca" = "cl_ontology"))
+```
+
+
+### Distribution of ancestors and descendants
+
+```{r}
+ggplot(lca_df, aes(x = total_ancestors)) +
+  geom_density() +
+  geom_vline(
+    data = ancestor_labels_df,
+    mapping = aes(xintercept = total_ancestors),
+    lty = 2
+  ) +
+  geom_text(
+    data = ancestor_labels_df,
+    mapping = aes(x = total_ancestors, y = 0.6, label = cl_annotation),
+    angle = 90,
+    vjust = -0.5
+  ) +
+  labs(
+    x = "Total number of ancestors",
+    y = "Density"
+  )
+```
+
+```{r}
+ggplot(lca_df, aes(x = total_descendants)) +
+  geom_density() +
+  geom_vline(
+    data = line_df,
+    mapping = aes(xintercept = total_descendants),
+    lty = 2
+  ) +
+  geom_text(
+    data = line_df,
+    mapping = aes(x = total_descendants, y = 0.002, label = cl_annotation),
+    angle = 90,
+    vjust = -0.5
+  ) +
+  labs(
+    x = "Total number of descendants",
+    y = "Density"
+  )
+```
+
+Let's zoom into the area below 1000, since we already know we would want to exclude anything above that based on this plot. 
+
+```{r}
+ggplot(lca_df, aes(x = total_descendants)) +
+  geom_density() +
+  geom_vline(
+    data = line_df,
+    mapping = aes(xintercept = total_descendants),
+    lty = 2
+  ) +
+  geom_text(
+    data = line_df,
+    mapping = aes(x = total_descendants, y = 0.002, label = cl_annotation),
+    angle = 90,
+    vjust = -0.5
+  ) +
+  xlim(c(0, 1000)) +
+  labs(
+    x = "Total number of descendants",
+    y = "Density"
+  )
+```
+
+We can use the vertical lines for cells of interest to help us define a potential cutoff based on the granularity we would like to see in our consensus label. 
+We want to be able to label things like T cell, but we don't want to label anything as lymphocyte as that's probably not helpful. 
+I don't see any obvious cutoffs that may be present in the total number of ancestors, but the number of descendants is likely to be informative. 
+I think it might be a good idea to start by drawing a line at the local maxima between the T cell and lymphocyte lines on the number of descendants graph. 
+
+### Defining a cutoff for number of descendants 
+
+First we will find the value for the first peak shown in the distribution. 
+This is likely to be a good cutoff for deciding which LCA labels to keep. 
+
+```{r}
+peak_idx <- splus2R::peaks(lca_df$total_descendants)
+cutoff <- lca_df$total_descendants[peak_idx] |>
+  min() # find the smallest peak and use that as the cutoff for number of descendants
+```
+
+
+Below is the list of all consensus cell type labels that we will be keeping if we were to just use this cutoff. 
+
+```{r}
+celltypes_to_keep <- lca_df |>
+  dplyr::filter(total_descendants <= cutoff) |>
+  dplyr::pull(cl_annotation) |>
+  unique()
+
+celltypes_to_keep
+```
+
+
+We can also look at all the cell types we are keeping and the total number of descendants to see if there are any that may be we don't want to include because the term is too broad. 
+
+```{r}
+# pull out the cell types and total descendants for cell types to keep
+plot_celltype_df <- lca_df |>
+  dplyr::filter(cl_annotation %in% celltypes_to_keep) |>
+  dplyr::select(cl_annotation, total_descendants) |>
+  unique()
+
+# bar chart showing total number of descendants for each cell type
+ggplot(plot_celltype_df, aes(x = reorder(cl_annotation, total_descendants), y = total_descendants)) +
+  geom_bar(stat = "identity") +
+  theme(
+    axis.text.x = element_text(angle = 90)
+  ) +
+  labs(
+    x = "cell type",
+    y = "Total descendants"
+  )
+```
+
+
+There are a few terms that I think might be more broad than we want like `blood cell`, `bone cell`, `supporting cell`, and `lining cell`. 
+I'm on the fence about keeping `myeloid leukocyte` and `progenitor cell`. 
+I think if we wanted to remove those terms we could move our cutoff to be the same number of descendants as `T cell`, since we do want to keep that. 
+
+One could also argue to remove `stromal cell` or `extracellular matrix secreting cell`. 
+
+Below are tables that look specifically at the combinations of cell type annotations that resulted in some of the terms that I might consider removing. 
+
+#### Blood cell
+
+```{r}
+print_df <- lca_df |>
+  dplyr::select(blueprint_ontology, blueprint_annotation_main, blueprint_annotation_fine, panglao_ontology, panglao_annotation, total_lca, lca, cl_annotation)
+
+# blood cell
+print_df |>
+  dplyr::filter(cl_annotation == "blood cell")
+```
+
+I think I'm in favor of not having a "blood cell" label, since I'm not sure that it's helpful. 
+Also, if two different methods label something a platelet and a neutrophil, then perhaps that label is inaccurate and it's really a tumor cell. 
+
+#### Bone cell
+
+```{r}
+# bone cell
+print_df |>
+  dplyr::filter(cl_annotation == "bone cell")
+```
+
+I think I would also remove bone cell, since hematopoietic stem cells and osteoclasts seem pretty different to me. 
+
+#### Myeloid leukocyte
+
+```{r}
+# myeloid leukocyte cell
+print_df |>
+  dplyr::filter(cl_annotation == "myeloid leukocyte")
+```
+
+I'm torn on this one, because I do think it's helpful to know if something is of the myeloid lineage, but if we aren't keeping lymphocyte then I would argue we shouldn't keep myeloid leukocyte. 
+Noting that after discussion we have decided to keep this one since T and B cells are much easier to differentiate based on gene expression alone than cells that are part of the myeloid lineage. 
+
+#### Progenitor cell
+
+```{r}
+# progenitor cell
+print_df |>
+  dplyr::filter(cl_annotation == "progenitor cell") |>
+  head(n = 15) # there's a lot of these so let's only print out some
+```
+
+Same with `progenitor cell`, I do think it could be helpful to know that something may be a progenitor cell, but when you have a cell with the label for HSC and the label for cells like monocytes or osteoblasts, then maybe we are talking about a tumor cell instead. 
+After discussion, we are going to remove progenitor cells.
+
+Along those same lines, I think the below terms, `lining cell` and `supporting cell`, are too broad even though they have few descendants. 
+
+#### Lining cell
+
+```{r}
+# lining cell
+print_df |>
+  dplyr::filter(cl_annotation == "lining cell")
+```
+
+#### Supporting cell
+
+```{r}
+# supporting cell
+print_df |>
+  dplyr::filter(cl_annotation == "supporting cell")
+```
+
+
+### Discarded cell types
+
+We can also look at what cell type labels we are excluding when using this cut off to see if there are any terms we might actually want to keep instead. 
+
+```{r}
+lca_df |>
+  dplyr::filter(total_descendants > cutoff) |>
+  dplyr::pull(cl_annotation) |>
+  unique()
+```
+
+The only terms in this list that I would be concerned about losing are "neuron" and epithelial cells. 
+Let's look at those combinations. 
+
+#### Neuron
+
+```{r}
+# neuron
+print_df |>
+  dplyr::filter(cl_annotation == "neuron")
+```
+
+It looks like there are a lot of types of neurons in the PanglaoDB reference and only "neuron" as a term in Blueprint. 
+Even though neuron has ~ 500 descendants, I think we should keep these labels. 
+
+#### Epithelial cell
+
+```{r}
+# epithelial cell
+print_df |>
+  dplyr::filter(cl_annotation == "epithelial cell")
+```
+
+The PanglaoDB cell types seem to be more specific than the ones present in Blueprint Encode, similar to the observation with neurons.
+We should keep epithelial cell in the cases where the Blueprint Encode annotation is `Epithelial cells` but not when it is `Keratinocytes`. 
+
+### Removing anything with more than 1 LCA
+
+One thing I noticed when looking at the labels that have less than the cutoff is that most of them are from scenarios where we have multiple LCAs. 
+Maybe in the case where we have multiple LCAs we are already too broad and we should just eliminate those matches from the beginning. 
+Here I'm looking at the total number of descendants for all terms that show up because a term has multiple LCAs. 
+
+```{r}
+lca_df |>
+  dplyr::filter(total_lca > 1) |>
+  dplyr::select(cl_annotation, total_descendants) |>
+  unique() |>
+  dplyr::arrange(total_descendants)
+```
+
+It looks like most of these terms are pretty broad and are either much higher than the cutoff or right around the cutoff with a few exceptions.
+Things like "bone cell" and "supporting cell" have few descendants, but I would still argue these are very broad terms and not useful. 
+
+I'm going to filter out any matches that show two LCA terms first and then use the cutoff to define labels we would keep. 
+I'll also look to see what cell types we lose when we add this extra filtering step to be sure they are ones that we want to lose. 
+
+```{r}
+# remove any combinations with more than one lca
+filtered_lca_df <- lca_df |>
+  dplyr::filter(total_lca < 2)
+
+# get a list of cell types to keep based on cutoff
+updated_celltypes <- filtered_lca_df |>
+  dplyr::filter(total_descendants <= cutoff) |>
+  dplyr::pull(cl_annotation) |>
+  unique()
+
+# which cell types are now missing from the list to keep
+setdiff(celltypes_to_keep, updated_celltypes)
+```
+
+It looks like I am losing a few terms I already said were not specific and then a few other terms, like "hematopoietic precursor cell" and "perivascular cell". I'll look at both of those to confirm we would not want them. 
+
+#### Hematopoietic precursor cell
+
+```{r}
+print_df |>
+  dplyr::filter(cl_annotation == "hematopoietic precursor cell")
+```
+
+It looks like here we should be keeping these matches because both references have these labels as hematopoietic stem and progenitor cells. 
+I think in the context of pediatric cancer having this label would be helpful, so maybe we shouldn't remove all terms that have 2 LCAs. 
+
+Let's look at what the other LCA is for an example set. 
+
+```{r}
+lca_df |>
+  dplyr::filter(panglao_ontology == "CL:0000037" & blueprint_ontology == "CL:0000050") |>
+  dplyr::select(blueprint_annotation_main, blueprint_annotation_fine, panglao_annotation, cl_annotation)
+```
+
+It looks like these terms have both `hematopoietic precursor cell` and `progenitor cell` as LCAs. 
+Personally, I would keep the term for `hematopoietic precursor cell` because I think it's more informative and specific to the type of progenitor cell. 
+
+#### Perivascular cell
+
+```{r}
+print_df |>
+  dplyr::filter(cl_annotation == "perivascular cell")
+```
+
+I would remove `perivascular cell`, since the cell type labels from PanglaoDB and Blueprint are pretty different from each other. 
+
+## Similarity index 
+
+An alternative approach would be to calculate the [similarity index](https://cran.r-project.org/web/packages/ontologySimilarity/vignettes/ontologySimilarity-introduction.html) between each set of terms and define a cutoff for which set of terms are similar. 
+This is a value on a 0-1 scale where 0 indicates no similarity and 1 indicates the terms are equal. 
+
+Although this could provide a metric that we could use to define similar cell types, we would still have to identify the label to use which would most likely be the LCA. 
+Even if the similarity index is close to 1, if the LCA term is not informative then I don't know that we would want to use that. 
+
+However, we could use this to finalize the actual pairs of terms that we trust. 
+For example, if the LCA for a pair is `T cell` we can look at the similarity index to confirm that specific pair of terms has high similarity. 
+
+Below I'll calculate the similarity index for each set of terms and plot the distribution. 
+Then we will look at the values for pairs that have an LCA that pass the total descendants threshold we set to see if those pairs have a higher similarity index. 
+
+```{r}
+information_content <- ontologySimilarity::descendants_IC(cl_ont)
+
+# get similarity index for each set of terms
+si_df <- lca_df |>
+  dplyr::rowwise() |>
+  dplyr::mutate(
+    similarity_index = ontologySimilarity::get_sim_grid(
+      ontology = cl_ont,
+      term_sets = list(panglao_ontology, blueprint_ontology)
+    ) |>
+      ontologySimilarity::get_sim()
+  )
+```
+
+```{r}
+si_df <- si_df |>
+  dplyr::mutate(
+    lca_threshold = dplyr::if_else(total_descendants < cutoff, "PASS", "FAIL")
+  )
+
+ggplot(si_df, aes(x = similarity_index, fill = lca_threshold)) +
+  geom_density(bw = 0.05, alpha = 0.5) +
+  labs(
+    x = "Similarity index",
+    y = "Density"
+  )
+```  
+  
+This looks as I expected with most of the pairs that pass the total descendants cutoff having a higher similarity index than those that do not pass. 
+There is still some overlap though so perhaps even if a set of terms shares an LCA that passes the threshold, the actual terms being compared may be further apart than we would like. 
+
+Now let's look at the similarity index for various LCA terms. 
+Here each LCA term is its own plot and the vertical lines are the similarity index for each pair of terms that results in that LCA.
+
+```{r}
+celltypes_to_plot <- c("myeloid leukocyte", "T cell", "cell", "supporting cell", "B cell")
+
+celltypes_to_plot |>
+  purrr::map(\(celltype){
+    line_df <- si_df |>
+      dplyr::filter(cl_annotation == celltype) |>
+      dplyr::select(cl_annotation, similarity_index) |>
+      unique()
+
+    ggplot(si_df, aes(x = similarity_index)) +
+      geom_density() +
+      geom_vline(
+        data = line_df,
+        mapping = aes(xintercept = similarity_index),
+        lty = 2
+      ) +
+      labs(
+        x = "Similarity index",
+        y = "Density",
+        title = celltype
+      )
+  })
+```
+
+
+It looks like terms that are more granular like T and B cell have higher similarity index values than terms that are less granular which is what we would expect. 
+However, within terms like myeloid leukocyte and even T cell we do see a range of values. 
+We could dig deeper into which pairs are resulting in which similarity index values if we wanted to, but I think that might be a future direction if we feel like the similarity index is something that could be useful. 
+
+  
+## Conclusions 
+
+Based on these findings, I think it might be best to create a reference that has all possible pairs of labels between PanglaoDB and Blueprint Encode and the resulting consensus label for those pairs. 
+To do this we could come up with a whitelist of LCA terms that we would be comfortable including and all other cell types would be unknowns. 
+I would use the following criteria to come up with my whitelist: 
+
+- Pairs should not have more than 1 LCA, with the exception of the matches that have the label hematopoietic precursor cell. 
+- The LCA should have equal to or less than 170 total descendants. 
+- We should include the term for `neuron` and `epithelial cell` even though they do not pass the threshold for number of descendants. 
+However, `epithelial cell` should only be included if the Blueprint Encode name is `Epithelial cells` and _not_ `Keratinocytes`.
+- Terms that are too broad should be removed. 
+This includes: `lining cell`, `blood cell`, `progenitor cell`, `bone cell`, and `supporting cell`
+
+Alternatively, rather than eliminate terms that are too broad we could look at the similarity index for individual matches and decide on a case by case basis if those should be allowed. 
+Although I still think having a term that is too broad, even if it's a good match, is not super informative. 
+
+## Session info   
+
+
+```{r}
+sessionInfo()
+```
+
+

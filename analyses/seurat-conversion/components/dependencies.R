@@ -1,2 +1,4 @@
 # R dependencies not captured by `renv`
-# library("missing_package")
+library("Seurat")
+library("scater")
+library("scran")
