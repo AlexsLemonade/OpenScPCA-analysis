@@ -11,18 +11,19 @@ You may want to add temporary notes here for tracking as features are added, bef
 
 ## v0.2.0
 
-This release adds the first set of community-contribyted analyses to the repository.
-These modules are focused on cell type identification and annotation for specific ScPCA datasets:
+This release adds the first set of community-contributed analyses to the repository.
+These modules are focused on cell type identification and annotation for specific ScPCA datasets.
+Note that many of these modules are still in development at this stage, and may not yet be fully functional.
 
 - `cell-type-dsrct`
 - `cell-type-ETO-ALL-03`
 - `cell-type-nonETP-ALL-03`
 - `cell-type-wilms-tumor-06`
 - `cell-type-wilms0tumor-14`
-- `cell-type-glioblastoma`
+- `celltype-glioblastoma`
 
 
-This release also adds the following new modules developed by the Data Lab team:
+This release also adds the following new modules developed by the Data Lab:
 
 - `hello-clusters`: a demonstration module for clustering analysis using the [`rOpenScPCA` package](https://github.com/AlexsLemonade/rOpenScPCA)
 - `seurat-conversion`: a module for converting `SingleCellExperiment` objects to Seurat objects, also using the `rOpenScPCA` package
@@ -30,11 +31,11 @@ This release also adds the following new modules developed by the Data Lab team:
 
 Other updates in this release include:
 
-- a new `sync-results.py` script for simplifying uploading analysis results from an analysis module to an S3 bucket
+- a new `sync-results.py` script to simplify uploading (and downloading) analysis results from an analysis module to a user's S3 bucket
+- changes from miniconda to miniforge for conda usage throughout the project
 
-
-
-
+While not part of this repository, we do want to also note that we have created the [`rOpenScPCA` package](https://github.com/AlexsLemonade/rOpenScPCA), which will house utility functions commonly used by analysis modules here.
+The goal is to centralize common functions used across analyses to make it easier to share code across modules and to maintain consistency in the analyses.
 
 
 ## v0.1.0
