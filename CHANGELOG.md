@@ -27,7 +27,6 @@ This release also adds the following new modules developed by the Data Lab:
 
 - `hello-clusters`: a demonstration module for clustering analysis using the [`rOpenScPCA` package](https://github.com/AlexsLemonade/rOpenScPCA)
 - `seurat-conversion`: a module for converting `SingleCellExperiment` objects to Seurat objects, also using the `rOpenScPCA` package
-- `metacells`: a module that begins to explore the utility of metacell analysis within the ScPCA project
 
 Other updates in this release include:
 
