@@ -8,7 +8,8 @@ Specifically, the cell type annotations obtained from both `SingleR` and `CellAs
 The goal of this module is to create a reference that can be used to define an ontology aware consensus cell type label for all cells across all ScPCA samples. 
 This module performs a series of steps to accomplish that goal: 
 
-1. The cell type annotations present in the `PanglaoDB` reference file were assigned to an ontology term identifier, when possible. 
+1. The cell type annotations present in the `PanglaoDB` reference file were assigned to an ontology term identifier, when possible.
+See [`references/README.md`](./references/README.md) for a full description on how we completed assignments.  
 2. We looked at all possible combinations of cell type labels between the `PanglaoDB` reference (used with `CellAssign`) and the `BlueprintEncodeData` reference (used with `SingleR`). 
 We then explored using a set of rules used to define consensus cell types in [`exploratory-notebooks/01-reference-exploration.Rmd`](./exploratory-notebooks/01-reference-exploration.Rmd). 
 3. We created a [reference table](./references/consensus-cell-type-reference.tsv) containing all combinations for which we were able to identify a consensus cell type label.  
