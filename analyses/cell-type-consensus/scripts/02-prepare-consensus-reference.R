@@ -113,7 +113,15 @@ consensus_labels_df <- lca_df |>
   dplyr::filter(total_descendants <= 170 | cl_annotation %in% c("neuron", "epithelial cell") & blueprint_annotation_main == "Epithelial cells") |> 
   # get rid of terms that have low number of descendants but are still too broad 
   dplyr::filter(!(cl_annotation %in% c("bone cell", "lining cell", "blood cell", "progenitor cell", "supporting cell"))) |> 
-  dplyr::select(panglao_ontology, blueprint_ontology, consensus_ontology = lca, consensus_annotation = cl_annotation) 
+  dplyr::select(
+    panglao_ontology, 
+    panglao_annotation, 
+    blueprint_ontology, 
+    blueprint_annotation_main, 
+    blueprint_annotation_fine, 
+    consensus_ontology = lca, 
+    consensus_annotation = cl_annotation
+    ) 
 
 # export table
 readr::write_tsv(consensus_labels_df, consensus_ref_file)
