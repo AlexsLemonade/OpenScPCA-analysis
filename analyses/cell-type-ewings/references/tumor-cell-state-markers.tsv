@@ -1,5 +1,5 @@
 cell_state	gene_symbol	ensembl_gene_id	source
-proliferative	MKI67	ENSG00000148773	https://doi.org/10.1101/2024.01.18.576251;https://doi.org/10.1016/j.celrep.2020.01.049
+proliferative	MKI67	ENSG00000148773	https://doi.org/10.1101/2024.01.18.576251;https://doi.org/10.1158/1078-0432.CCR-23-1111
 proliferative	PCNA	ENSG00000132646	https://doi.org/10.1101/2024.01.18.576251
 EWS-low	NT5E	ENSG00000135318	https://doi.org/10.1158/1078-0432.CCR-23-1111
 EWS-low	IGFBP3	ENSG00000146674	https://doi.org/10.1016/j.celrep.2020.01.049
