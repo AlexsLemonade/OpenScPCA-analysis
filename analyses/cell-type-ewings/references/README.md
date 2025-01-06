@@ -66,7 +66,7 @@ Figure 4 shows that expression of these targets is correlated with EWS-FLI1 leve
 2. `wrenn-nt5e-genes.tsv`: A list of 28 genes from [Wrenn _et al._](https://doi.org/10.1158/1078-0432.CCR-23-1111) that represent the overlap between the top 217 genes correlated with _NT5E_ expression in patient tumors and the top 200 markers of _NT5E+_ Ewing sarcoma cells _in vitro_. 
 These genes are shown in Figure 5D and 5E. 
 
-The following gene sets from MsigDb were also used to define EWS-FLI1 targets and may be helpful in defining cell states:  
+The following gene sets from MSigDB were also used to define EWS-FLI1 targets and may be helpful in defining cell states:  
 
 - [STAEGE_EWING_FAMILY_TUMOR](https://www.gsea-msigdb.org/gsea/msigdb/human/geneset/STAEGE_EWING_FAMILY_TUMOR.html)
 - [MIYAGAWA_TARGETS_OF_EWSR1_ETS_FUSIONS_UP](https://www.gsea-msigdb.org/gsea/msigdb/human/geneset/MIYAGAWA_TARGETS_OF_EWSR1_ETS_FUSIONS_UP.html)
