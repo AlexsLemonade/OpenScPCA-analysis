@@ -62,9 +62,11 @@ The `gene_signatures` folder contains any custom gene lists obtained from public
 
 1. `anyaud-ews-targets.tsv`: A list of the 78 marker genes defined by [Aynaud _et al._](https://doi.org/10.1016/j.celrep.2020.01.049) to be EWS-FLI1 targets. 
 Figure 4 shows that expression of these targets is correlated with EWS-FLI1 levels at a single-cell level. 
+We expect these targets to have increased expression in cells with high EWS-FLI1 activity. 
 
 2. `wrenn-nt5e-genes.tsv`: A list of 28 genes from [Wrenn _et al._](https://doi.org/10.1158/1078-0432.CCR-23-1111) that represent the overlap between the top 217 genes correlated with _NT5E_ expression in patient tumors and the top 200 markers of _NT5E+_ Ewing sarcoma cells _in vitro_. 
-These genes are shown in Figure 5D and 5E. 
+These genes are shown in Figure 5D and 5E.
+We expect these targets to have increased expression in cells with low EWS-FLI1 activity. 
 
 The following gene sets from MSigDB were also used to define EWS-FLI1 targets and may be helpful in defining cell states:  
 
