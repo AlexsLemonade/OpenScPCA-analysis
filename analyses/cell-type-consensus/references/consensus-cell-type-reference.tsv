@@ -26,7 +26,7 @@ CL:0000084	T cell	CL:0000624	CD4+ T-cells	CD4+ T-cells	CL:0000084	T cell
 CL:0002038	T follicular helper cell	CL:0000624	CD4+ T-cells	CD4+ T-cells	CL:0000624	CD4-positive, alpha-beta T cell
 CL:0000893	thymocyte	CL:0000624	CD4+ T-cells	CD4+ T-cells	CL:0000084	T cell
 CL:0000798	gamma-delta T cell	CL:0000624	CD4+ T-cells	CD4+ T-cells	CL:0000084	T cell
-CL:0000814	NK lymphocyte	CL:0000624	CD4+ T-cells	CD4+ T-cells	CL:0000791	mature alpha-beta T cell
+CL:0000814	mature NK T cell	CL:0000624	CD4+ T-cells	CD4+ T-cells	CL:0000791	mature alpha-beta T cell
 CL:0000898	naive T cell	CL:0000624	CD4+ T-cells	CD4+ T-cells	CL:0002419	mature T cell
 CL:0000910	cytotoxic T cell	CL:0000624	CD4+ T-cells	CD4+ T-cells	CL:0002419	mature T cell
 CL:0000912	helper T cell	CL:0000624	CD4+ T-cells	CD4+ T-cells	CL:0002419	mature T cell
@@ -36,7 +36,7 @@ CL:0000084	T cell	CL:0000815	CD4+ T-cells	Tregs	CL:0000084	T cell
 CL:0002038	T follicular helper cell	CL:0000815	CD4+ T-cells	Tregs	CL:0002419	mature T cell
 CL:0000893	thymocyte	CL:0000815	CD4+ T-cells	Tregs	CL:0000084	T cell
 CL:0000798	gamma-delta T cell	CL:0000815	CD4+ T-cells	Tregs	CL:0000084	T cell
-CL:0000814	NK lymphocyte	CL:0000815	CD4+ T-cells	Tregs	CL:0002419	mature T cell
+CL:0000814	mature NK T cell	CL:0000815	CD4+ T-cells	Tregs	CL:0002419	mature T cell
 CL:0000898	naive T cell	CL:0000815	CD4+ T-cells	Tregs	CL:0002419	mature T cell
 CL:0000910	cytotoxic T cell	CL:0000815	CD4+ T-cells	Tregs	CL:0002419	mature T cell
 CL:0000912	helper T cell	CL:0000815	CD4+ T-cells	Tregs	CL:0002419	mature T cell
@@ -46,7 +46,7 @@ CL:0000084	T cell	CL:0000904	CD4+ T-cells	CD4+ Tcm	CL:0000084	T cell
 CL:0002038	T follicular helper cell	CL:0000904	CD4+ T-cells	CD4+ Tcm	CL:0000624	CD4-positive, alpha-beta T cell
 CL:0000893	thymocyte	CL:0000904	CD4+ T-cells	CD4+ Tcm	CL:0000084	T cell
 CL:0000798	gamma-delta T cell	CL:0000904	CD4+ T-cells	CD4+ Tcm	CL:0000084	T cell
-CL:0000814	NK lymphocyte	CL:0000904	CD4+ T-cells	CD4+ Tcm	CL:0000791	mature alpha-beta T cell
+CL:0000814	mature NK T cell	CL:0000904	CD4+ T-cells	CD4+ Tcm	CL:0000791	mature alpha-beta T cell
 CL:0000898	naive T cell	CL:0000904	CD4+ T-cells	CD4+ Tcm	CL:0002419	mature T cell
 CL:0000910	cytotoxic T cell	CL:0000904	CD4+ T-cells	CD4+ Tcm	CL:0002419	mature T cell
 CL:0000912	helper T cell	CL:0000904	CD4+ T-cells	CD4+ Tcm	CL:0002419	mature T cell
@@ -56,7 +56,7 @@ CL:0000084	T cell	CL:0000905	CD4+ T-cells	CD4+ Tem	CL:0000084	T cell
 CL:0002038	T follicular helper cell	CL:0000905	CD4+ T-cells	CD4+ Tem	CL:0000624	CD4-positive, alpha-beta T cell
 CL:0000893	thymocyte	CL:0000905	CD4+ T-cells	CD4+ Tem	CL:0000084	T cell
 CL:0000798	gamma-delta T cell	CL:0000905	CD4+ T-cells	CD4+ Tem	CL:0000084	T cell
-CL:0000814	NK lymphocyte	CL:0000905	CD4+ T-cells	CD4+ Tem	CL:0000791	mature alpha-beta T cell
+CL:0000814	mature NK T cell	CL:0000905	CD4+ T-cells	CD4+ Tem	CL:0000791	mature alpha-beta T cell
 CL:0000898	naive T cell	CL:0000905	CD4+ T-cells	CD4+ Tem	CL:0002419	mature T cell
 CL:0000910	cytotoxic T cell	CL:0000905	CD4+ T-cells	CD4+ Tem	CL:0002419	mature T cell
 CL:0000912	helper T cell	CL:0000905	CD4+ T-cells	CD4+ Tem	CL:0002419	mature T cell
@@ -66,7 +66,7 @@ CL:0000084	T cell	CL:0000907	CD8+ T-cells	CD8+ Tcm	CL:0000084	T cell
 CL:0002038	T follicular helper cell	CL:0000907	CD8+ T-cells	CD8+ Tcm	CL:0000791	mature alpha-beta T cell
 CL:0000893	thymocyte	CL:0000907	CD8+ T-cells	CD8+ Tcm	CL:0000084	T cell
 CL:0000798	gamma-delta T cell	CL:0000907	CD8+ T-cells	CD8+ Tcm	CL:0000084	T cell
-CL:0000814	NK lymphocyte	CL:0000907	CD8+ T-cells	CD8+ Tcm	CL:0000791	mature alpha-beta T cell
+CL:0000814	mature NK T cell	CL:0000907	CD8+ T-cells	CD8+ Tcm	CL:0000791	mature alpha-beta T cell
 CL:0000898	naive T cell	CL:0000907	CD8+ T-cells	CD8+ Tcm	CL:0002419	mature T cell
 CL:0000910	cytotoxic T cell	CL:0000907	CD8+ T-cells	CD8+ Tcm	CL:0002419	mature T cell
 CL:0000912	helper T cell	CL:0000907	CD8+ T-cells	CD8+ Tcm	CL:0002419	mature T cell
@@ -76,7 +76,7 @@ CL:0000084	T cell	CL:0000913	CD8+ T-cells	CD8+ Tem	CL:0000084	T cell
 CL:0002038	T follicular helper cell	CL:0000913	CD8+ T-cells	CD8+ Tem	CL:0000791	mature alpha-beta T cell
 CL:0000893	thymocyte	CL:0000913	CD8+ T-cells	CD8+ Tem	CL:0000084	T cell
 CL:0000798	gamma-delta T cell	CL:0000913	CD8+ T-cells	CD8+ Tem	CL:0000084	T cell
-CL:0000814	NK lymphocyte	CL:0000913	CD8+ T-cells	CD8+ Tem	CL:0000791	mature alpha-beta T cell
+CL:0000814	mature NK T cell	CL:0000913	CD8+ T-cells	CD8+ Tem	CL:0000791	mature alpha-beta T cell
 CL:0000898	naive T cell	CL:0000913	CD8+ T-cells	CD8+ Tem	CL:0002419	mature T cell
 CL:0000910	cytotoxic T cell	CL:0000913	CD8+ T-cells	CD8+ Tem	CL:0002419	mature T cell
 CL:0000912	helper T cell	CL:0000913	CD8+ T-cells	CD8+ Tem	CL:0002419	mature T cell
@@ -127,7 +127,7 @@ CL:0000084	T cell	CL:0000625	CD8+ T-cells	CD8+ T-cells	CL:0000084	T cell
 CL:0002038	T follicular helper cell	CL:0000625	CD8+ T-cells	CD8+ T-cells	CL:0000791	mature alpha-beta T cell
 CL:0000893	thymocyte	CL:0000625	CD8+ T-cells	CD8+ T-cells	CL:0000084	T cell
 CL:0000798	gamma-delta T cell	CL:0000625	CD8+ T-cells	CD8+ T-cells	CL:0000084	T cell
-CL:0000814	NK lymphocyte	CL:0000625	CD8+ T-cells	CD8+ T-cells	CL:0000791	mature alpha-beta T cell
+CL:0000814	mature NK T cell	CL:0000625	CD8+ T-cells	CD8+ T-cells	CL:0000791	mature alpha-beta T cell
 CL:0000898	naive T cell	CL:0000625	CD8+ T-cells	CD8+ T-cells	CL:0002419	mature T cell
 CL:0000910	cytotoxic T cell	CL:0000625	CD8+ T-cells	CD8+ T-cells	CL:0002419	mature T cell
 CL:0000912	helper T cell	CL:0000625	CD8+ T-cells	CD8+ T-cells	CL:0002419	mature T cell
