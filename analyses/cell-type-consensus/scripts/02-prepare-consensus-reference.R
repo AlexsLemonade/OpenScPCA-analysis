@@ -16,7 +16,7 @@ consensus_ref_file <- file.path(module_base, "references", "consensus-cell-type-
 # Prep references --------------------------------------------------
 
 # grab obo file
-cl_ont <- ontologyIndex::get_ontology("http://purl.obolibrary.org/obo/cl-basic.obo") 
+cl_ont <- ontologyIndex::get_ontology("http://purl.obolibrary.org/obo/cl/releases/2024-09-26/cl-basic.obo") 
 
 # set up the graph to use for assigning LCA terms 
 parent_terms <- cl_ont$parents
