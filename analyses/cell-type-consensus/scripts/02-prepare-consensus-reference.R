@@ -27,10 +27,11 @@ panglao_df <- readr::read_tsv(panglao_ref_file) |>
   # rename columns to have panglao in them for easy joining later
   dplyr::select(
     panglao_ontology = "ontology_id",
-    panglao_annotation = "human_readable_value"
+    panglao_annotation = "human_readable_value",
+    original_panglao_name = "panglao_cell_type" # keep original name since some map to the same ontology ID
   ) |> 
   # remove any cell types that don't have ontologies 
-  tidyr::drop_na()
+  tidyr::drop_na() 
 
 # grab singler ref from celldex
 blueprint_ref <- celldex::BlueprintEncodeData()
@@ -116,6 +117,7 @@ consensus_labels_df <- lca_df |>
   dplyr::select(
     panglao_ontology, 
     panglao_annotation, 
+    original_panglao_name,
     blueprint_ontology, 
     blueprint_annotation_main, 
     blueprint_annotation_fine, 
