@@ -4,10 +4,8 @@
 # The existing cell type annotations from SingleR and CellAssign are saved to a TSV file for each sample 
 # Then all TSV files are combined into a single file and consensus cell types are assigned 
 
-# Usage: ./evaluate-clusters.sh
+# Usage: ./assign-consensus-celltypes.sh 
 
-# to skip clustering and calculating metrics again: 
-# skip_metrics=1 ./evaluate-clusters.sh
 
 set -euo pipefail
 
