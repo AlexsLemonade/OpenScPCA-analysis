@@ -44,21 +44,28 @@ library_id <- metadata(sce)$library_id
 sample_id <- metadata(sce)$sample_id
 project_id <- metadata(sce)$project_id
 
-# get df with ids, barcodes, and cell type assignments
-celltype_df <- colData(sce) |> 
-  as.data.frame() |> 
-  dplyr::mutate(
-    project_id = project_id,
-    sample_id = sample_id,
-    library_id = library_id
-  ) |> 
-  dplyr::select(
-    ends_with("id"), 
-    "barcodes", 
-    contains("celltype") # get both singler and cellassign with ontology 
-  )
+# check if cell line since cell lines don't have any cell type assignments 
+is_cell_line <- metadata(sce)$sample_type == "cell line"
 
-# save tsv 
-readr::write_tsv(celltype_df, opt$output_file)
-
+# only create and write table for non-cell line samples
+if(!is_cell_line){
+  
+  # get df with ids, barcodes, and cell type assignments
+  celltype_df <- colData(sce) |> 
+    as.data.frame() |> 
+    dplyr::mutate(
+      project_id = project_id,
+      sample_id = sample_id,
+      library_id = library_id
+    ) |> 
+    dplyr::select(
+      ends_with("id"), 
+      "barcodes", 
+      contains("celltype") # get both singler and cellassign with ontology 
+    )
+  
+  # save tsv 
+  readr::write_tsv(celltype_df, opt$output_file)
+  
+}
 
