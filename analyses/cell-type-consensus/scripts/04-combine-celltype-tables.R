@@ -8,7 +8,7 @@
 # consensus_annotation: human readable name associated with the consensus label 
 # consensus_ontology: CL ontology term for the consensus cell type 
 
-project_root <- here::here()
+project_root <- rprojroot::find_root(rprojroot::is_git_root)
 
 library(optparse)
 

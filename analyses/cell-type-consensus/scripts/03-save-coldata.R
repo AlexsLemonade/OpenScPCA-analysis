@@ -2,8 +2,6 @@
 
 # This script is used to grab the colData from a SCE object and save it as a TSV file
 
-project_root <- here::here()
-
 library(optparse)
 
 option_list <- list(
