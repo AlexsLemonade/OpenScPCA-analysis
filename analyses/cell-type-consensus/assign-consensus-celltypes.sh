@@ -25,7 +25,7 @@ panglao_ref_file="references/panglao-cell-type-ontologies.tsv"
 consensus_ref_file="references/consensus-cell-type-reference.tsv"
 
 # run script to export tsv file on all processed objects
-for sce_file in $data_dir/*/SCPCS*/*_processed.rds; do
+for sce_file in $data_dir/SCPCP*/SCPCS*/*_processed.rds; do
 
     # define library ID
     library_id=$(basename $sce_file | sed 's/_processed.rds$//')
