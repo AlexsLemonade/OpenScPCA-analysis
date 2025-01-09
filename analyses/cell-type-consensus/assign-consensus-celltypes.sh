@@ -15,7 +15,7 @@ cd $(dirname "$0")
 
 data_dir="../../data/current"
 # path to save consensus results 
-scpca_consensus_assignments_file="results/scpca-consensus-celltype-assignments.tsv"
+scpca_consensus_assignments_file="results/scpca-consensus-celltype-assignments.tsv.gz"
 # directory to store all individual tsv files 
 celltype_tsv_dir="results/original-celltype-assignments" 
 mkdir -p ${celltype_tsv_dir}

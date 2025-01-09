@@ -34,7 +34,8 @@ option_list <- list(
   make_option(
     opt_str = c("--output_file"),
     type = "character",
-    help = "Path to file where combined TSV file will be saved, must end in `.tsv`"
+    help = "Path to file where combined TSV file will be saved. 
+      File name must end in either `.tsv` or `.tsv.gz` to save a compressed TSV file"
   )
 )
 
@@ -46,7 +47,8 @@ opt <- parse_args(OptionParser(option_list = option_list))
 # make sure reference files exist 
 stopifnot(
   "panglao reference file does not exist" = file.exists(opt$panglao_ref_file),
-  "cell type consensus reference file does not exist" = file.exists(opt$consensus_ref_file)
+  "cell type consensus reference file does not exist" = file.exists(opt$consensus_ref_file),
+  "output file must end in `.tsv` or `.tsv.gz`" = stringr::str_detect(opt$output_file, ".tsv|.tsv.gz")
 )
 
 # read in ref files 
