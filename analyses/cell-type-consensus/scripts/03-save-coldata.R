@@ -39,11 +39,16 @@ sce <- readr::read_rds(opt$sce_file)
 
 # extract ids 
 library_id <- metadata(sce)$library_id
-sample_id <- metadata(sce)$sample_id
+# account for multiplexed libraries that have multiple samples 
+# for now just combine sample ids into a single string and don't worry about demultiplexing 
+sample_id <- metadata(sce)$sample_id |> 
+  paste0(collapse = ";")
 project_id <- metadata(sce)$project_id
 
 # check if cell line since cell lines don't have any cell type assignments 
-is_cell_line <- metadata(sce)$sample_type == "cell line"
+# account for having more than one sample and a list of sample types
+# all sample types should be the same theoretically 
+is_cell_line <- all(metadata(sce)$sample_type == "cell line")
 
 # only create and write table for non-cell line samples
 if(!is_cell_line){
@@ -57,8 +62,10 @@ if(!is_cell_line){
       library_id = library_id
     ) |> 
     dplyr::select(
-      ends_with("id"), 
-      "barcodes", 
+      project_id,
+      sample_id,
+      library_id,
+      barcodes, 
       contains("celltype") # get both singler and cellassign with ontology 
     )
   
