@@ -29,11 +29,11 @@ See the [`scripts/README.md`](./scripts/README.md) for instructions on running t
 
 ## Assigning consensus cell types for ScPCA samples
 
-The `assign-consensus-celltypes.sh` workflow can be used to assign a consensus cell type for all samples in ScPCA. 
-This workflow outputs a single TSV file with cell type annotations for all cells in ScPCA (excluding cell line samples). 
+The `assign-consensus-celltypes.sh` script can be used to assign a consensus cell type for all samples in ScPCA. 
+This script outputs a single TSV file with cell type annotations for all cells in ScPCA (excluding cell line samples). 
 Cell type annotations assigned using `SingleR` with the `BlueprintEncodeData` reference and `CellAssign` using the `PanglaoDB` reference are included along side the assigned consensus cell type annotation and ontology identifier. 
 
-To run this workflow use the following command: 
+To run this script use the following command: 
 
 ```sh
 ./assign-consensus-celltypes.sh
@@ -42,7 +42,7 @@ To run this workflow use the following command:
 ### Input files
 
 
-The `assign-consensus-celltypes.sh` workflow requires the processed `SingleCellExperiment` objects (`_processed.rds`) for all ScPCA samples.
+The `assign-consensus-celltypes.sh` script requires the processed `SingleCellExperiment` objects (`_processed.rds`) for all ScPCA samples.
 These files were obtained using the `download-data.py` script:
 
 ```sh
@@ -50,12 +50,12 @@ These files were obtained using the `download-data.py` script:
 ./download-data.py
 ```
 
-This workflow also requires two reference files, `panglao-cell-type-ontologies.tsv` and `consensus-cell-type-reference.tsv`. 
+This script also requires two reference files, `panglao-cell-type-ontologies.tsv` and `consensus-cell-type-reference.tsv`. 
 See [Creating a reference for consensus cell types](#creating-a-reference-for-consensus-cell-types) and the [README.md in the references directory](./references/README.md) to learn more about the content of these files. 
 
 ### Output files
 
-Running the `assign-consensus-celltypes.sh` workflow will generate the following output files in `results`. 
+Running the `assign-consensus-celltypes.sh` script will generate the following output files in `results`. 
 
 ```
 results
