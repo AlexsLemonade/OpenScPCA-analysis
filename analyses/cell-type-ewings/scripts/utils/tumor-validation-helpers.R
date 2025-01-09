@@ -123,10 +123,11 @@ create_marker_gene_df <- function(
 # output is a data frame with barcodes and `{cell_type}_sum`
 calculate_sum_markers <- function(marker_genes_df,
                                   sce,
-                                  type) {
+                                  type, 
+                                  cell_type_column = cell_type) {
   # get list of marker genes to use
   marker_genes <- marker_genes_df |>
-    dplyr::filter(cell_type == type) |>
+    dplyr::filter({{cell_type_column}} == type) |>
     dplyr::pull(ensembl_gene_id)
 
   # get the gene expression counts for all marker genes
