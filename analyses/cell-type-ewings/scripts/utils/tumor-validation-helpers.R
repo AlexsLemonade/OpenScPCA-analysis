@@ -154,6 +154,42 @@ calculate_sum_markers <- function(marker_genes_df,
 }
 
 
+# calculate the mean of expression for all markers in a given cell type
+# takes as input the marker gene df with `cell_type` and `ensembl_gene_id` as columns
+# For any genes that are in the specified `cell_type`, sum of the logcounts is calculated
+# output is a data frame with barcodes and `{cell_type}_sum`
+calculate_mean_markers <- function(marker_genes_df,
+                                   sce,
+                                   type, 
+                                   cell_type_column = cell_type) {
+  # get list of marker genes to use
+  marker_genes <- marker_genes_df |>
+    dplyr::filter({{cell_type_column}} == type) |>
+    dplyr::pull(ensembl_gene_id)
+  
+  # get the gene expression counts for all marker genes
+  mean_exp <- logcounts(sce[marker_genes, ]) |>
+    as.matrix() |>
+    t() |>
+    rowMeans()
+  
+  df <- data.frame(
+    barcodes = names(mean_exp),
+    sum_exp = mean_exp
+  )
+  
+  # get rid of extra " cells" at end of some of the names
+  type <- stringr::str_remove(type, " cells")
+  
+  colnames(df) <- c(
+    "barcodes",
+    # add ref name to colnames for easier joining
+    glue::glue("{type}_mean")
+  )
+  
+  return(df)
+}
+
 
 
 # Heatmaps ---------------------------------------------------------------------
@@ -264,7 +300,7 @@ full_celltype_heatmap <- function(classification_df,
     tibble::column_to_rownames("barcodes") |>
     as.matrix() |>
     t()
-  rownames(heatmap_mtx) <- stringr::str_remove(rownames(heatmap_mtx), "_sum|mean-")
+  rownames(heatmap_mtx) <- stringr::str_remove(rownames(heatmap_mtx), "_sum|mean-|_mean")
 
   # plot heatmap of marker genes
   plot_gene_heatmap(heatmap_mtx,

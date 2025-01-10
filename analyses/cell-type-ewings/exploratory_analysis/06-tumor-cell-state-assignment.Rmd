@@ -94,7 +94,7 @@ Below we set up the data for plotting throughout this notebook.
 
 1. The output from `aucell-singler-annotation.sh` is read in and annotations are lumped so that we can easily plot the top cell types. 
 2. Clustering results from `evaluate-clusters.sh` is read in and subset to the desired parameters we would like to use for assigning clusters (leiden, modularity, resolution 0.5, nearest neighbors 20). 
-3. The marker genes for tumor cell states and custom gene signatures are used to calculate the sum of all marker genes in each gene set for each library. 
+3. The marker genes for tumor cell states and custom gene signatures are used to calculate the mean of all marker genes in each gene set for each library. 
 4. UMAP embeddings for each library are pulled out into a data frame and combined with `SingleR` annotations, cluster assignments, and marker gene expression for all marker gene sets.
 
 ```{r, message=FALSE}
@@ -159,12 +159,12 @@ all_markers_df <- dplyr::bind_rows(list(marker_genes_df, aynaud_genes, wrenn_gen
 # get list of all cell states/ gene lists 
 cell_states <- unique(all_markers_df$cell_state)
 
-# get the sum of expression of all genes for each cell state
+# get the mean expression of all genes for each cell state
 gene_exp_df <- sce_list |>
   purrr::map(\(sce) {
     cell_states |>
       purrr::map(\(state){
-        calculate_sum_markers(all_markers_df, sce, state, cell_state)
+        calculate_mean_markers(all_markers_df, sce, state, cell_state)
       }) |>
       purrr::reduce(dplyr::inner_join, by = "barcodes")
   }) |>
@@ -284,8 +284,7 @@ So we can label any cells from clusters that have high tumor marker gene express
 Below we look at the expression of genes for the tumor cell states across all cells. 
 This will show us how the expression of these gene sets varies across cells in each library and help ensure we have the correct population of tumor cells.
 
-The value for each of the marker gene sets corresponds to the sum of the expression of all genes in the given gene list. 
-(Note that I also looked at mean and it had similar output)
+The value for each of the marker gene sets corresponds to the mean of the expression of all genes in the given gene list. 
 
 The gene sets that we use are: 
 
@@ -298,7 +297,7 @@ Note that a lot of the Ewing sarcoma literature argues that `EWS-FLI1` high cell
 
 ```{r}
 # pull out columns that have sum of marker gene expression 
-marker_gene_cols <- colnames(cluster_classification_df)[stringr::str_detect(colnames(cluster_classification_df), "_sum$")]
+marker_gene_cols <- colnames(cluster_classification_df)[stringr::str_detect(colnames(cluster_classification_df), "_mean$")]
 
 # look at the expression of all gene sets across both libraries 
 marker_gene_cols |>
@@ -544,9 +543,10 @@ library_ids |>
   purrr::map(\(id){
     
     filtered_df <- tumor_cells_df |> 
-      dplyr::filter(library_id == id)
+      dplyr::filter(library_id == id)|> 
+      dplyr::arrange(cell_state)
     
-    full_celltype_heatmap(filtered_df, marker_gene_cols, "cell_state")
+    full_celltype_heatmap(filtered_df, marker_gene_cols, "cell_state", cluster_columns = FALSE)
     
   })
 ```
