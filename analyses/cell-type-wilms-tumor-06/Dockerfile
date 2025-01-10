@@ -30,8 +30,13 @@ RUN Rscript -e 'renv::restore()' && \
   rm -rf /tmp/downloaded_packages && \
   rm -rf /tmp/Rtmp*
 
-# Complete installation of zellkonverter conda env
-ENV BASILISK_EXTERNAL_DIR /usr/local/renv/basilisk
-RUN Rscript -e "proc <- basilisk::basiliskStart(env = zellkonverter::zellkonverterAnnDataEnv(), testload = 'anndata'); \
+# Set basilisk directory and set for rstudio user
+ENV BASILISK_EXTERNAL_DIR=/usr/share/basilisk
+RUN mkdir -p ${BASILISK_EXTERNAL_DIR} && \
+  chown rstudio:rstudio ${BASILISK_EXTERNAL_DIR}
+# install zellkonverter environment as rstudio user
+RUN sudo -u rstudio \
+  Rscript -e "Sys.setenv(BASILISK_EXTERNAL_DIR = '${BASILISK_EXTERNAL_DIR}'); \
+  proc <- basilisk::basiliskStart(env = zellkonverter::zellkonverterAnnDataEnv(), testload = 'anndata'); \
   basilisk::basiliskStop(proc); \
   basilisk.utils::cleanConda()"
