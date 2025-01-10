@@ -204,7 +204,7 @@ We can use this information to help identify tumor cells to classify.
 library_ids |>
   purrr::map(\(id){
     
-    p1 <- cluster_classification_df |>
+    p1 <- umap_df |>
       dplyr::filter(library_id == id) |>
       ggplot(aes(x = UMAP1, y = UMAP2, color = singler_lumped)) +
       geom_point(alpha = 0.5, size = 0.1) +
@@ -215,7 +215,7 @@ library_ids |>
       labs(title = id) +
       guides(color = guide_legend(override.aes = list(alpha = 1, size = 1.5)))
     
-    p2 <- cluster_classification_df |>
+    p2 <- umap_df |>
       dplyr::filter(library_id == id) |>
       ggplot(aes(x = UMAP1, y = UMAP2, color = as.factor(cluster))) +
       geom_point(alpha = 0.5, size = 0.1) +
@@ -296,7 +296,7 @@ Note that a lot of the Ewing sarcoma literature argues that `EWS-FLI1` high cell
 - `aynaud-ews-high`: Marker genes from `gene_signatures/aynaud-ews-targets.tsv` that correspond to genes activated by `EWS-FLI1`. 
 - `wrenn-ews-low`: Marker genes from `gene_signatures/wrenn-nt5e-genes.tsv` that correspond to genes repressed by `EWS-FLI1`. 
 
-```{r, fig.height=7, fig.width=10}
+```{r}
 # pull out columns that have sum of marker gene expression 
 marker_gene_cols <- colnames(cluster_classification_df)[stringr::str_detect(colnames(cluster_classification_df), "_sum$")]
 
@@ -311,8 +311,7 @@ marker_gene_cols |>
       theme(
         aspect.ratio = 1
       )
-  }) |> 
-  patchwork::wrap_plots(ncol = 2)
+  })
 ```
 
 It looks like there's a cluster of cells in both libraries that have expression of the `EWS-low` and `wrenn-ews-low` signatures. 
@@ -371,7 +370,8 @@ library_ids |>
 
 A few notes from this: 
 
-- It doesn't look like very many cells express proliferative markers, so perhaps that gene set will not be helpful for these libraries? 
+- It doesn't look like very many cells express proliferative markers in `SCPCL000822`, but cluster 2 has high expression in `SCPCL000824`. 
+It looks like that might coincide with high `EWS-FLI` seen in that same cluster, but we have to dive deeper to know for sure. 
 - There are some very obvious `EWS-FLI1` low groups of cells. 
 - The `EWS-high` and `aynaud-EWS-high` show clusters that have high expression of `EWS-FLI1` targets, but the `aynaud-EWS-high` appears to have some more separation across clusters. 
 That tells me that gene signature might be more helpful in classifying cells across the `EWS-FLI1` continuum. 
@@ -444,7 +444,7 @@ library_ids |>
   })
 ```
 
-Now we will look at the marker gene expression across all clusters for each sample, first using a density plot and then a heatmap. 
+Now we will look at the marker gene expression across all clusters for each sample, first using a density plot and then heatmaps. 
 
 ```{r, fig.height=10}
 library_ids |> 
@@ -467,6 +467,7 @@ library_ids |>
   })
 ```
 
+In all of the heatmaps below, the `annotation` column is the `sub_cluster`. 
 
 ```{r}
 library_ids |> 
@@ -475,10 +476,25 @@ library_ids |>
     filtered_df <- tumor_cells_df |> 
       dplyr::filter(library_id == id)
     
-    full_celltype_heatmap(filtered_df, marker_gene_cols, "sub_cluster", plot_name = id)
+    full_celltype_heatmap(filtered_df, marker_gene_cols, "sub_cluster")
     
   })
 
+```
+
+Let's make the same heatmap, but remove the column clustering.  
+
+```{r}
+library_ids |> 
+  purrr::map(\(id){
+    
+    filtered_df <- tumor_cells_df |> 
+      dplyr::filter(library_id == id) |> 
+      dplyr::arrange(sub_cluster)
+    
+    full_celltype_heatmap(filtered_df, marker_gene_cols, "sub_cluster", cluster_columns = FALSE)
+    
+  })
 ```
 
 It looks like for both samples we have some clear division between EWS high and EWS low cells. 
@@ -486,7 +502,10 @@ Additionally, there are some cells with really strong expression of the EWS high
 This fits with the findings from the literature that `EWS-FLI1` expression lies on a continuum. 
 
 Between these two plots I think we can try and group cells into EWS low, EWS middle, and EWS high cells. 
-I don't think the proliferative markers are very informative, so I don't think we can use that to categorize any cells. 
+
+The last thing we'll do is look at any cells that could be marked as "proliferative". 
+`SCPCL000822` doesn't appear to have very much expression of the proliferative markers, but `SCPCL000824` does seem to have one cluster, cluster 2, that has expression of the proliferative cells. 
+Perhaps we should label those cells separately as `EWS-high-proliferative`. 
 
 Based on this I would make the following assignments: 
 
@@ -498,7 +517,8 @@ Based on this I would make the following assignments:
 `SCPCL000824` : 
 `EWS-FLI1` low - 1
 `EWS-FLI1` middle - 6 
-`EWS-FLI1` high - 2, 3, 4, 5, 7
+`EWS-FLI1` high - 3, 4, 5, 7
+`EWS-FLI1` high proliferative - 2
 
 ```{r}
 # categorize tumor cells based on EWS expression 
@@ -509,13 +529,15 @@ tumor_cells_df <- tumor_cells_df |>
       library_id == "SCPCL000822" & sub_cluster %in% c(1, 4) ~ "EWS-mid",
       library_id == "SCPCL000822" & sub_cluster == 3 ~ "EWS-high",
       library_id == "SCPCL000824" & sub_cluster == 1 ~ "EWS-low",
-      library_id == "SCPCL000824" & sub_cluster %in% c(6, 8) ~ "EWS-mid",
-      library_id == "SCPCL000824" & sub_cluster %in% c(2, 3, 4, 5, 7) ~ "EWS-high",
+      library_id == "SCPCL000824" & sub_cluster == 6 ~ "EWS-mid",
+      library_id == "SCPCL000824" & sub_cluster == 2 ~ "EWS-high-proliferative",
+      library_id == "SCPCL000824" & sub_cluster %in% c(3, 4, 5, 7) ~ "EWS-high",
     )
   )
 ```
 
 Let's re-plot the heatmap but label by tumor cell state rather than cluster. 
+In this heatmap the annotation column is `cell_state`. 
 
 ```{r}
 library_ids |> 
@@ -524,7 +546,7 @@ library_ids |>
     filtered_df <- tumor_cells_df |> 
       dplyr::filter(library_id == id)
     
-    full_celltype_heatmap(filtered_df, marker_gene_cols, "cell_state", plot_name = id)
+    full_celltype_heatmap(filtered_df, marker_gene_cols, "cell_state")
     
   })
 ```
