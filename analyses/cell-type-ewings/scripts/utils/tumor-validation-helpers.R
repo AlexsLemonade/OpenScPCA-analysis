@@ -250,9 +250,9 @@ full_celltype_heatmap <- function(classification_df,
 
   # create annotation for heatmap
   annotation <- ComplexHeatmap::columnAnnotation(
-    singler = classification_df[[annotation_column]],
+    annotation = classification_df[[annotation_column]],
     col = list(
-      singler = colors
+      annotation = colors
     )
   )
 
@@ -294,7 +294,7 @@ plot_density <- function(classification_df,
     ) +
     labs(
       x = "Gene set expression",
-      y = "Cell type annotation",
+      y = annotation_column,
       title = geneset_name
     ) +
     scale_alpha_identity() +
