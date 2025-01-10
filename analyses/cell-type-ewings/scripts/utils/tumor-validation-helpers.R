@@ -164,7 +164,8 @@ plot_gene_heatmap <- function(
     df,
     row_title = "",
     legend_title = "",
-    annotation = NULL) {
+    annotation = NULL,
+    cluster_columns = TRUE) {
   # plot heatmap of marker genes
   heatmap <- ComplexHeatmap::Heatmap(
     df,
@@ -180,7 +181,7 @@ plot_gene_heatmap <- function(
     row_dend_side = "right",
     row_names_gp = grid::gpar(fontsize = 10),
     ## Column parameters
-    cluster_columns = TRUE,
+    cluster_columns = cluster_columns,
     show_column_names = FALSE,
     bottom_annotation = annotation,
     heatmap_legend_param = list(
@@ -240,7 +241,8 @@ plot_cnv_heatmap <- function(
 # colors are automatically determined using the `Dark2` palette and assigning to cell types listed in the `annotation_column`
 full_celltype_heatmap <- function(classification_df,
                                   gene_exp_columns,
-                                  annotation_column) {
+                                  annotation_column,
+                                  cluster_columns = TRUE) {
   # get list of all cell types being plotted and assign colors from Dark2 palette
   cell_types <- unique(classification_df[[annotation_column]])
   num_cell_types <- length(cell_types)
@@ -258,7 +260,7 @@ full_celltype_heatmap <- function(classification_df,
 
   # build matrix for heatmap cells x gene set sum or mean
   heatmap_mtx <- classification_df |>
-    dplyr::select(barcodes, gene_exp_columns) |>
+    dplyr::select(barcodes, all_of(gene_exp_columns)) |>
     tibble::column_to_rownames("barcodes") |>
     as.matrix() |>
     t()
@@ -268,7 +270,8 @@ full_celltype_heatmap <- function(classification_df,
   plot_gene_heatmap(heatmap_mtx,
     row_title = "",
     legend_title = "Marker gene \nexpression",
-    annotation = annotation
+    annotation = annotation,
+    cluster_columns = cluster_columns
   )
 }
 
