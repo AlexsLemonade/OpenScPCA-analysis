@@ -21,7 +21,7 @@ This includes comparing annotations to those obtained from marker gene annotatio
 Additionally, we look at expression of marker genes from `references/visser-all-marker-genes.tsv` across all clusters and use that to refine tumor cell annotations obtained from running `aucell-singler-annotation.sh`. 
 
 6. `06-tumor-cell-state-assignments.Rmd`: This notebook looks at assigning tumor cell states in `SCPCL000822` and `SCPCL000824`. 
-Tumor cells are gruoped into `EWS-FLI` high, `EWS-FLI` low, and `EWS-FLI` middle based on expression of marker genes. 
+Tumor cells are grouped into `EWS-FLI` high, `EWS-FLI` low, and `EWS-FLI` middle based on expression of marker genes. 
 
 ## Annotation notebooks
 

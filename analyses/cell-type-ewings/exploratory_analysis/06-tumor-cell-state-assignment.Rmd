@@ -95,7 +95,7 @@ Below we set up the data for plotting throughout this notebook.
 1. The output from `aucell-singler-annotation.sh` is read in and annotations are lumped so that we can easily plot the top cell types. 
 2. Clustering results from `evaluate-clusters.sh` is read in and subset to the desired parameters we would like to use for assigning clusters (leiden, modularity, resolution 0.5, nearest neighbors 20). 
 3. The marker genes for tumor cell states and custom gene signatures are used to calculate the sum of all marker genes in each gene set for each library. 
-4. UMAP embeddings for each library is pulled out into a data frame and combined with `SingleR` annotations, cluster assignments, and marker gene expression for all marker gene sets.
+4. UMAP embeddings for each library are pulled out into a data frame and combined with `SingleR` annotations, cluster assignments, and marker gene expression for all marker gene sets.
 
 ```{r, message=FALSE}
 # read in both SCEs
@@ -238,6 +238,7 @@ Based on the UMAPs and the density plots we see that tumor cells are in cluster 
 cluster_classification_df <- umap_df |> 
   dplyr::mutate(
     cluster_classification = dplyr::case_when(
+      ############## Library SCPCL000822 ###############
       library_id == "SCPCL000822" & cluster %in% c(1, 3, 4) ~ "tumor",
       library_id == "SCPCL000822" & cluster == 6 ~ "endothelial cell",
       # cluster 2 has predominantly chondrocytes and has MSC marker gene expression
@@ -246,6 +247,7 @@ cluster_classification_df <- umap_df |>
       library_id == "SCPCL000822" & cluster == 5 ~ "macrophage",
       # cluster 8 has high MSC marker gene expression and a mix of MSC like cell types
       library_id == "SCPCL000822" & cluster == 7 ~ "mesenchymal-like cell",
+      ############## Library SCPCL000824 ###############
       library_id == "SCPCL000824" & cluster %in% c(2, 3, 4, 5, 6, 7) ~ "tumor", 
       library_id == "SCPCL000824" & cluster == 8 ~ "endothelial cell",
       # cluster 9 has high immune markers and is mostly macrohpages
@@ -393,10 +395,10 @@ subcluster_df <- sce_list |>
       dplyr::pull(barcodes)
     
     # filter the sce to only those barcodes
-    filtered_sce <- sce[ , tumor_cells]
+    tumor_sce <- sce[ , tumor_cells]
     
     # grab pcs for clustering
-    pcs <- reducedDim(filtered_sce)
+    pcs <- reducedDim(tumor_sce)
     
     # get the clusters 
     clusters <- bluster::clusterRows(
@@ -442,8 +444,7 @@ library_ids |>
   })
 ```
 
-Now we will look at the marker gene expression across all clusters for each sample. 
-First using a density plot and then a heatmap. 
+Now we will look at the marker gene expression across all clusters for each sample, first using a density plot and then a heatmap. 
 
 ```{r, fig.height=10}
 library_ids |> 
