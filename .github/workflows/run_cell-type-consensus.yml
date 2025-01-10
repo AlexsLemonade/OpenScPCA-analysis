@@ -53,3 +53,4 @@ jobs:
         run: |
           cd ${MODULE_PATH}
           # run module script(s) here
+          ./assign-consensus-celltypes.sh

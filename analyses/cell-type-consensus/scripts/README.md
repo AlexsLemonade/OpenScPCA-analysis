@@ -13,3 +13,8 @@ Ontology terms and labels along with the `cell type` label from the reference fi
 3. `02-prepare-consensus-reference.R`: This script is used to create a table with all consensus cell types. 
 The output table will contain one row for each combination of cell types in `PanglaoDB` and `BlueprintEncodeData` from `celldex` where a consensus cell type was identified.  
 If the combination is not included in the reference file, then no consensus cell type is assigned and can be set to "Unknown". 
+
+4. `03-save-coldata.R`: This script is used to grab the cell type annotations from the `colData` of an individual processed SCE object and save the output to a TSV file. 
+
+5. `04-combine-celltype-tables.R`: This script is used to combine individual TSV files with cell type annotations (output by `03-save-coldata.R`) into a single TSV file. 
+The consensus cell type reference is used to assign consensus cell types to all cells in the combined data frame and saved in the output TSV file. 
