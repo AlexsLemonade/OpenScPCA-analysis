@@ -20,6 +20,9 @@ This includes comparing annotations to those obtained from marker gene annotatio
 5. `05-cluster-exploration.Rmd`: This notebook looks at clustering across different parameters to choose the most optimal clusters for `SCPCL000822` and `SCPCL000824`. 
 Additionally, we look at expression of marker genes from `references/visser-all-marker-genes.tsv` across all clusters and use that to refine tumor cell annotations obtained from running `aucell-singler-annotation.sh`. 
 
+6. `06-tumor-cell-state-assignments.Rmd`: This notebook looks at assigning tumor cell states in `SCPCL000822` and `SCPCL000824`. 
+Tumor cells are grouped into `EWS-FLI` high, `EWS-FLI` low, and `EWS-FLI` middle based on expression of marker genes. 
+
 ## Annotation notebooks
 
 The `annotation_notebooks` folder contains exploratory notebooks used to explore and validate annotations in individual samples. 
