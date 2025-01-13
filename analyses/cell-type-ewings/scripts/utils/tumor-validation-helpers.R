@@ -155,9 +155,9 @@ calculate_sum_markers <- function(marker_genes_df,
 
 
 # calculate the mean of expression for all markers in a given cell type
-# takes as input the marker gene df with `cell_type` and `ensembl_gene_id` as columns
-# For any genes that are in the specified `cell_type`, sum of the logcounts is calculated
-# output is a data frame with barcodes and `{cell_type}_sum`
+# takes as input the marker gene df with `type` and `ensembl_gene_id` as columns
+# For any genes that are in the specified `type`, sum of the logcounts is calculated
+# output is a data frame with barcodes and `{type}_sum`
 calculate_mean_markers <- function(marker_genes_df,
                                    sce,
                                    type, 
