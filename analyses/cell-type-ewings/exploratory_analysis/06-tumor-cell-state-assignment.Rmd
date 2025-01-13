@@ -10,7 +10,7 @@ output:
 ---
 
 In this notebook we look at expression of potential markers for tumor cell states in two libraries from `SCPCP000015`: `SCPCL000822` and `SCPCL000824`. 
-The expression of specific marker genes are then used to classify tumor cells into three different tumor cell states: `EWS-low`, `EWS-mid`, and `EWS-high`. 
+The expression of specific marker genes are then used to classify tumor cells into three different tumor cell states: `EWS-low`, `EWS-mid`, `EWS-high`, and `EWS-high-proliferative`. 
 
 We did this by: 
 
@@ -509,11 +509,13 @@ Perhaps we should label those cells separately as `EWS-high-proliferative`.
 Based on this I would make the following assignments: 
 
 `SCPCL000822`: 
+
 `EWS-FLI1` low  - 2
 `EWS-FLI1` middle - 1 & 4
 `EWS-FLI1` high - 3 
 
 `SCPCL000824` : 
+
 `EWS-FLI1` low - 1
 `EWS-FLI1` middle - 6 
 `EWS-FLI1` high - 3, 4, 5, 7
@@ -617,6 +619,7 @@ final_classification_df |>
 ## Conclusions 
 
 - There is a clear division between cells that are `EWS-FLI` high and `EWS-FLI1` low. 
+  - We also see a set of cells that are both "proliferative" and `EWS-FLI` high. 
 - Most tumor cells in both samples are `EWS-FLI` high, which is consistent with the literature. 
 - There may be a class of cells that live in between high and low, but if we want to define those we probably need to be more stringent with our approach and identify a mechanism to bin cells based on expression of both `EWS-FLI1` activated and repressed genes, which is outside the scope of this notebook. 
 

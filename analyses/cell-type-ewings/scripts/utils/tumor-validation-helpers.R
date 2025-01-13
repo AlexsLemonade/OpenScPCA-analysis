@@ -175,7 +175,7 @@ calculate_mean_markers <- function(marker_genes_df,
   
   df <- data.frame(
     barcodes = names(mean_exp),
-    sum_exp = mean_exp
+    mean_exp = mean_exp
   )
   
   # get rid of extra " cells" at end of some of the names
