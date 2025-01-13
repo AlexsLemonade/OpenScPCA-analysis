@@ -50,7 +50,7 @@ theme_set(theme_bw())
 
 ```{r base paths}
 # The base path for the OpenScPCA repository
-repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+repository_base <- rprojroot::find_root(rprojroot::has_dir(".github"))
 
 # The current data directory, found within the repository base directory
 data_dir <- file.path(repository_base, "data", "current")
