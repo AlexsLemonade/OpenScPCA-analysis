@@ -42,6 +42,9 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Set up pandoc
+        uses: r-lib/actions/setup-pandoc@v2
+
       - name: Install aws-cli
         run: |
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
