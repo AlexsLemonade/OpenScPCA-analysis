@@ -12,3 +12,6 @@ cd ${MODULE_DIR}
 
 # Render first notebook
 Rscript -e "rmarkdown::render('01_perform-evaluate-clustering.Rmd', clean = TRUE)"
+
+# Render second notebook
+Rscript -e "rmarkdown::render('02_compare-clustering-parameters.Rmd', clean = TRUE)"
