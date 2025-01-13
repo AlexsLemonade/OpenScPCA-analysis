@@ -510,16 +510,16 @@ Based on this I would make the following assignments:
 
 `SCPCL000822`: 
 
-`EWS-FLI1` low  - 2
-`EWS-FLI1` middle - 1 & 4
-`EWS-FLI1` high - 3 
+- `EWS-FLI1` low  - 2
+- `EWS-FLI1` middle - 1 & 4
+- `EWS-FLI1` high - 3 
 
 `SCPCL000824` : 
 
-`EWS-FLI1` low - 1
-`EWS-FLI1` middle - 6 
-`EWS-FLI1` high - 3, 4, 5, 7
-`EWS-FLI1` high proliferative - 2
+- `EWS-FLI1` low - 1
+- `EWS-FLI1` middle - 6 
+- `EWS-FLI1` high - 3, 4, 5, 7
+- `EWS-FLI1` high proliferative - 2
 
 ```{r}
 # categorize tumor cells based on EWS expression 
