@@ -81,7 +81,7 @@ The `scpca-consensus-celltype-assignments.tsv` file contains cell type annotatio
 | `cellassign_celltype_annotation` | Cell type assigned by `CellAssign`; this term is the original term found in the `PanglaoDB` reference file | 
 | `panglao_ontology` | Cell type ontology term associated with the term found in `cellassign_celltype_annotation` column | 
 | `panglao_annotation` | Name associated with the cell type ontology term in `panglao_ontology` | 
-| `blueprint_annotation_fine` | Fine grained cell type annotation (`label.fine`) from `BlueprintEncodeData` associated with the `singler_celltype_ontology` term |
+| `blueprint_annotation_cl` | Name associated with the cell type ontology term in `singler_celltype_ontology` |
 | `consensus_ontology` | Cell type ontology term assigned as the consensus cell type | 
 | `consensus_annotation` | Name associated with the assigned consensus cell type in `consensus_ontology` | 
 
