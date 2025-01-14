@@ -233,7 +233,7 @@ purrr::map(cell_metric_list, head)
 To visualize these results, we can combine all data frames in this list into a single overall data frame, where the existing `nn` column will distinguish among conditions.
 
 ```{r combine cell metrics list}
-cell_metrics_df <- dplyr::bind_rows(cell_metric_list)
+cell_metrics_df <- purrr::list_rbind(cell_metric_list)
 ```
 
 We can visualize silhouette width and neighborhood purity each with boxplots, for example, and use the [`patchwork`](https://patchwork.data-imaginist.com/) package to print them together:
