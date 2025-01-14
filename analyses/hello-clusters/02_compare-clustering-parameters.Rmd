@@ -1,0 +1,456 @@
+---
+title: "Comparing clustering parameters with rOpenScPCA"
+date: "`r Sys.Date()`"
+author: "Data Lab"
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+    df_print: paged
+---
+
+## Introduction
+
+Clustering algorithms have several parameters which can be varied, leading to different clustering results.
+A key question when clustering, therefore, is how to identify a set of parameters that lead to robust and reliable clusters that can be used in downstream analysis. 
+
+This notebook provides examples of how to use the `rOpenScPCA` package to:
+
+* Calculate several versions of clustering results across several different parameterizations
+* Calculate QC metrics on across clustering results
+
+Please refer to the [`01_perform-evaluate-clustering.Rmd`](01_perform-evaluate-clustering.Rmd) notebook for a tutorial on using `rOpenScPCA` functions to:
+
+* Calculate clusters from a single parameterization
+* Calculate QC metrics on a single set of clusters, as well as explanations of the metrics themselves
+
+This notebook will use the sample `SCPCS000001` from project `SCPCP000001`, which is assumed present in the `OpenScPCA-analysis/data/current/SCPCP000001` directory, for all examples.
+Please [see this documentation](https://openscpca.readthedocs.io/en/latest/getting-started/accessing-resources/getting-access-to-data/) for more information about obtaining ScPCA data.
+
+## Setup
+
+### Packages
+
+
+```{r packages}
+library(rOpenScPCA)
+
+suppressPackageStartupMessages({
+  library(SingleCellExperiment)
+  library(ggplot2)
+  library(patchwork)
+})
+
+# Set ggplot theme for plots
+theme_set(theme_bw())
+```
+
+
+### Paths
+
+```{r base paths}
+# The base path for the OpenScPCA repository
+repository_base <- rprojroot::find_root(rprojroot::has_dir(".github"))
+
+# The current data directory, found within the repository base directory
+data_dir <- file.path(repository_base, "data", "current")
+
+# The path to this module
+module_base <- file.path(repository_base, "analyses", "hello-clusters")
+```
+
+```{r input file path}
+# Path to processed SCE file for sample SCPCS000001
+input_sce_file <- file.path(data_dir, "SCPCP000001", "SCPCS000001", "SCPCL000001_processed.rds")
+```
+
+
+### Set the random seed
+
+Because clustering involves random sampling, it is important to set the random seed at the top of your analysis script or notebook to ensure reproducibility.
+
+```{r set seed}
+set.seed(2024)
+```
+
+## Read in and prepare data
+
+To begin, we'll read in the `SingleCellExperiment` (SCE) object.
+
+```{r read data}
+# Read the SCE file
+sce <- readRDS(input_sce_file)
+```
+
+For the initial cluster calculations and evaluations, we will use the PCA matrix extracted from the SCE object.
+As shown in [`01_perform-evaluate-clustering.Rmd`](01_perform-evaluate-clustering.Rmd), it is also possible to use an SCE object or a Seurat object directly.
+
+
+```{r extract pca data}
+# Extract the PCA matrix from an SCE object
+pca_matrix <- reducedDim(sce, "PCA")
+```
+
+## Varying a single clustering parameter
+
+This section will show how to perform clustering across a set of parameters (aka, "sweep" a set of parameters) with `rOpenScPCA::sweep_clusters()`. 
+
+This function takes a PCA matrix with row names representing unique cell ids (e.g., barcodes) as its primary argument, with additional arguments for cluster parameters. 
+This function wraps the `rOpenScPCA::calculate_clusters()` function but allows you to provide a vector of parameter values to perform clustering across, as listed below.
+Clusters will be calculated for all combinations of parameters values (where applicable); default values that the function will use for any unspecified parameter values are shown in parentheses.
+
+* `algorithm`: Which clustering algorithm to use (Louvain)
+* `weighting`: Which weighting scheme to use (Jaccard)
+* `nn`: The number of nearest neighbors (10)
+* `resolution`: The resolution parameter (1; used only with Louvain and Leiden clustering)
+* `objective_function`: The objective function to optimize clusters (CPM; used only with Leiden clustering)
+
+`rOpenScPCA::sweep_clusters()` does not allow you to specify values for any other parameters. 
+
+
+This function will return a list of data frames of clustering results. 
+Each data frame will have the following columns:
+
+* `cell_id`: Unique cell identifiers, obtained from the PCA matrix's row names
+* `cluster`: A factor column with the cluster identities
+* There will be one column for each clustering parameter used
+
+To demonstrate this function, we'll calculate clusters using the Louvain algorithm while varying the `nn` parameter:
+
+```{r sweep clusters}
+# Define nn parameter values of interest
+nn_values <- c(10, 20, 30)
+
+# Calculate clusters varying nn, but leaving other parameters at their default values
+cluster_results_list <- rOpenScPCA::sweep_clusters(
+  pca_matrix,
+  nn = nn_values
+)
+```
+
+The resulting list has a length of three, one data frame for each `nn` parameter tested:
+
+```{r length cluster_results_list}
+length(cluster_results_list)
+```
+
+It can be helpful (although it is not strictly necessary to keep track) to name this list by the varied `nn` parameter.
+In this case, we'll use these names to label plots.
+
+```{r set list names}
+names(cluster_results_list) <- glue::glue("nn_{nn_values}")
+```
+
+
+We can look at the first few rows of each data frame using [`purrr::map()`](https://purrr.tidyverse.org/reference/map.html) to iterate over the list:
+
+
+```{r map cluster_results_list}
+cluster_results_list |>
+  purrr::map(head)
+```
+
+Generally speaking, `purrr::map()` can be used to iterate over this list to visualize or analyze each clustering result on its own; we'll use this approach in the following sections. 
+
+### Visualizing clustering results
+
+When comparing clustering results, it's important to first visualize the different clusterings to build context for interpreting QC metrics.
+
+As one example of why this is important, we generally expect that more robust clusters will have higher values for metrics like silhouette width and neighborhood purity.
+However, we also expect that having fewer clusters in the first place will also lead to higher metrics, regardless of cluster quality: When there are fewer clusters, it is more likely that clusters overlap less with one another just because there aren't many clusters in the first place.
+This means that, when interpreting cluster quality metrics, you should be careful to take more context about the data into consideration and not only rely on the metric values.
+
+We'll therefore visualize these results as UMAPs by iterating over `cluster_results_list` and combining plots with [`patchwork::wrap_plots()`](https://patchwork.data-imaginist.com/reference/wrap_plots.html).
+We'll specifically use [`purrr::imap()`](https://purrr.tidyverse.org/reference/imap.html) to iterate so that we can assign this list's names as plot titles.
+
+For this, we'll begin by extracting a table of UMAP coordinates from our SCE object.
+
+```{r create umap_df}
+umap_df <- reducedDim(sce, "UMAP") |>
+  as.data.frame()
+```
+
+Next, we'll iterate over `cluster_results_list` to plot the UMAPs.
+
+```{r plot nn umaps, fig.width = 12}
+umap_plots <- cluster_results_list |>
+  purrr::imap(
+    \(cluster_df, clustering_name) {
+      # Add a column with cluster assignments to umap_df
+      umap_df_plot <- umap_df |>
+        dplyr::mutate(cluster = cluster_df$cluster)
+
+      # Plot the UMAP, colored by the new cluster variable
+      ggplot(umap_df_plot, aes(x = UMAP1, y = UMAP2, color = cluster)) +
+        geom_point(alpha = 0.6) +
+        labs(title = glue::glue("nearest neighbors: {clustering_name}")) +
+        # We'll add a couple UMAP plot settings here, including equal axes and
+        # turning off the axis ticks and text since UMAP coordinates are not meaningful
+        coord_equal() +
+        theme(
+          axis.ticks = element_blank(),
+          axis.text = element_blank()
+        )
+    }
+  )
+
+# Print the plots with patchwork::wrap_plots()
+patchwork::wrap_plots(umap_plots, ncol = 3)
+```
+
+These plots show that the number of clusters decreases as the nearest neighbors parameter increases, with between 9-13 clusters.
+
+
+
+
+### Evaluating clustering results
+
+This section will use `purrr::map()` to iterate over each clustering result data frame to calculate silhouette width, neighborhood purity, and stability, and then visualize results.
+The goal of this code is to identify whether one clustering parameterization produces more reliable clusters. 
+
+
+#### Silhouette width and neighborhood purity
+
+Both silhouette width and neighborhood purity are cell-level quantities, so we can calculate them together in the same call to `purrr::map()`.
+Below, we'll iterate over each data frame in `cluster_results_list` to calculate these quantities.
+
+```{r calculate cell level metrics}
+cell_metric_list <- cluster_results_list |>
+  purrr::map(
+    \(cluster_df) {
+      # calculate silhouette width
+      silhouette_df <- rOpenScPCA::calculate_silhouette(pca_matrix, cluster_df)
+
+      # calculate neighbhorhood purity, starting from silhouette_df
+      rOpenScPCA::calculate_purity(pca_matrix, silhouette_df)
+    }
+  )
+
+# View the first six rows of each clustering result's cell-level QC metrics
+purrr::map(cell_metric_list, head)
+```
+
+
+To visualize these results, we can combine all data frames in this list into a single overall data frame, where the existing `nn` column will distinguish among conditions.
+
+```{r combine cell metrics list}
+cell_metrics_df <- purrr::list_rbind(cell_metric_list)
+```
+
+We can visualize silhouette width and neighborhood purity each with boxplots, for example, and use the [`patchwork`](https://patchwork.data-imaginist.com/) package to print them together:
+
+
+```{r}
+# Plot silhouette width
+silhouette_plot <- ggplot(cell_metrics_df) +
+  aes(x = as.factor(nn), y = silhouette_width, fill = as.factor(nn)) +
+  geom_boxplot() +
+  scale_fill_brewer(palette = "Pastel2") +
+  labs(
+    x = "Number of nearest neighbors",
+    y = "Silhouette width"
+  )
+
+
+# Plot neighborhood purity width
+purity_plot <- ggplot(cell_metrics_df) +
+  aes(x = as.factor(nn), y = purity, fill = as.factor(nn)) +
+  geom_boxplot() +
+  scale_fill_brewer(palette = "Pastel2") +
+  labs(
+    x = "Number of nearest neighbors",
+    y = "Neighborhood purity"
+  )
+
+
+# Add together using the patchwork library, without a legend
+silhouette_plot + purity_plot & theme(legend.position = "none")
+```
+
+While there does not appear to be a salient difference among silhouette width distributions, it does appear that purity is higher with a higher nearest neighbors parameter.
+It's worth noting that this trend in purity values is expected: Higher nearest neighbor parameter values lead to fewer clusters, and neighborhood purity tends to be higher when there are fewer clusters. 
+
+
+#### Stability
+
+Next, we'll calculate stability on the clusters using `rOpenScPCA::calculate_stability()`, specifying the same parameter used for the original cluster calculation at each iteration. 
+
+```{r calculate stability}
+stability_list <- cluster_results_list |>
+  purrr::map(
+    \(cluster_df) {
+      nn <- cluster_df$nn[1] # all rows have the same `nn` parameter, so we'll take the first
+
+      # calculate stability, passing in the parameter value used for this iteration
+      rOpenScPCA::calculate_stability(pca_matrix, cluster_df, nn = nn)
+    }
+  )
+```
+
+We'll again combine the output of `stability_list` into a single data frame and plot `ari` values across `nn` parameterizations.
+
+
+```{r combine plot stability}
+stability_df <- purrr::list_rbind(stability_list)
+
+ggplot(stability_df) +
+  aes(x = as.factor(nn), y = ari, fill = as.factor(nn)) +
+  geom_boxplot() +
+  scale_fill_brewer(palette = "Pastel2") +
+  labs(
+    x = "Number of nearest neighbors",
+    y = "Adjusted Rand Index"
+  ) +
+  theme(legend.position = "none")
+```
+
+Here, we see that a nearest neighbors value of 20 or 30 leads to more stable clustering results compared to 10. 
+
+
+## Varying multiple clustering parameters
+
+The previous section demonstrated how to calculate clusters and QC metrics when varying one parameter, but it is possible to vary multiple parameters at once with `rOpenScPCA::sweep_clusters()`.
+In this section, we'll show an overview of how you might write code to vary two parameters at once (here, nearest neighbors and resolution as examples) and visualize results.
+
+
+```{r sweep two parameters}
+# Define vectors of parameters to vary
+nn_values <- c(10, 20, 30)
+res_values <- c(0.5, 1.0, 1.5)
+
+
+cluster_results_list <- rOpenScPCA::sweep_clusters(
+  pca_matrix,
+  nn = nn_values,
+  resolution = res_values
+)
+```
+
+This resulting list now has 9 different clustering results, for each combination of `nn_values` and `res_values`:
+
+
+```{r length cluster_results_list two parameters}
+length(cluster_results_list)
+```
+
+
+### Visualize clusters
+
+Next, we'll iterate over `cluster_results_list` to plot the UMAPs.
+This time, we'll use `purrr::map()` and pull out parameters from each iteration's `cluster_df` to form the UMAP panel title.
+
+```{r plot nn res umaps, fig.height = 14}
+umap_plots <- cluster_results_list |>
+  purrr::map(
+    \(cluster_df) {
+      # Add a column with cluster assignments to umap_df
+      umap_df_plot <- umap_df |>
+        dplyr::mutate(cluster = cluster_df$cluster)
+
+      # Create a title for the UMAP with both parameters
+      umap_title <- glue::glue(
+        "nn: {cluster_df$nn[1]}; res: {cluster_df$resolution[1]}"
+      )
+
+      # Plot the UMAP, colored by the new cluster variable
+      ggplot(umap_df_plot, aes(x = UMAP1, y = UMAP2, color = cluster)) +
+        geom_point(alpha = 0.6) +
+        labs(title = umap_title) +
+        # We'll add a couple UMAP-specific plot settings
+        coord_equal() +
+        theme(
+          axis.ticks = element_blank(),
+          axis.text = element_blank(),
+          # Ensure legends fit in the figure
+          legend.position = "bottom",
+          legend.key.size = unit(0.2, "cm")
+        )
+    }
+  )
+
+# Print the plots with patchwork::wrap_plots()
+patchwork::wrap_plots(umap_plots, ncol = 3)
+```
+
+
+
+### Calculate and visualize QC metrics
+
+This section presents one coding strategy to calculate and visualize results when varying two clustering parameters.
+In particular, we use faceting to help display all information in one plot, by placing nearest neighbor values on the X-axis and faceting by resolution values.
+Since silhouette width and neighhorbood purity calculations using generally similar code, we'll just show neighborhood purity here.
+
+#### Neighborhood purity
+
+First, we'll calculate neighborhood purity and combine results into a single data frame.
+
+```{r calculate purity two parameters}
+purity_df <- cluster_results_list |>
+  purrr::map(
+    \(cluster_df) {
+      rOpenScPCA::calculate_purity(pca_matrix, cluster_df)
+    }
+  ) |>
+  purrr::list_rbind()
+```
+
+
+```{r visualize purity two parameters}
+ggplot(purity_df) +
+  aes(x = as.factor(nn), y = purity, fill = as.factor(nn)) +
+  geom_boxplot() +
+  scale_fill_brewer(palette = "Pastel2") +
+  # facet by resolution, labeling panels with both the resolution column name and value
+  facet_wrap(vars(resolution), labeller = label_both) +
+  labs(
+    x = "Number of nearest neighbors",
+    y = "Neighborhood purity"
+  ) +
+  theme(legend.position = "none")
+```
+
+### Stability
+
+Similar to above, we'll calculate stability, combine results into a single data frame, add a `resolution_label` column to support plot interpretation, and finally make our plot.
+
+```{r calculate stability two parameters}
+stability_df <- cluster_results_list |>
+  purrr::map(
+    \(cluster_df) {
+      # Extract parameters for this clustering result
+      nn <- unique(cluster_df$nn)
+      resolution <- unique(cluster_df$resolution)
+
+      rOpenScPCA::calculate_stability(
+        pca_matrix,
+        cluster_df,
+        nn = nn,
+        resolution = resolution
+      )
+    }
+  ) |>
+  purrr::list_rbind()
+```
+
+
+```{r visualize stability two parameters}
+ggplot(stability_df) +
+  aes(x = as.factor(nn), y = ari, fill = as.factor(nn)) +
+  geom_boxplot() +
+  scale_fill_brewer(palette = "Pastel2") +
+  facet_wrap(vars(resolution), labeller = label_both) +
+  labs(
+    x = "Number of nearest neighbors",
+    y = "Adjusted Rand Index"
+  ) +
+  theme(legend.position = "none")
+```
+
+
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```

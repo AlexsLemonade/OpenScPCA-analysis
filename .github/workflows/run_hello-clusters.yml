@@ -33,28 +33,23 @@ jobs:
   run-module:
     if: github.repository_owner == 'AlexsLemonade'
     runs-on: ubuntu-latest
+    container: public.ecr.aws/openscpca/hello-clusters:latest
+    defaults:
+      run:
+        shell: bash -el {0}
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up R
-        uses: r-lib/actions/setup-r@v2
-        with:
-          r-version: 4.4.0
-          use-public-rspm: true
-
       - name: Set up pandoc
         uses: r-lib/actions/setup-pandoc@v2
 
-      - name: Install additional system dependencies
+      - name: Install aws-cli
         run: |
-          sudo apt-get install -y libcurl4-openssl-dev libglpk40
-
-      - name: Set up renv
-        uses: r-lib/actions/setup-renv@v2
-        with:
-          working-directory: ${{ env.MODULE_PATH }}
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          ./aws/install
 
       - name: Download test data
         run: ./download-data.py --test-data --format SCE --samples SCPCS000001
