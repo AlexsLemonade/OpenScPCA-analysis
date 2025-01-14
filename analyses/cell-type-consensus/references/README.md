@@ -42,6 +42,7 @@ The table includes the following columns:
 | `blueprint_ontology` | Cell type ontology term for `BlueprintEncodeData` cell type |
 | `blueprint_annotation_main` | Original name for the cell type as set by `BlueprintEncodeData` (main term) |
 | `blueprint_annotation_fine` | Original name for the cell type as set by `BlueprintEncodeData` (fine term) |
+| `blueprint_annotation_cl` | Name for the cell type defined by [Cell Ontology](https://www.ebi.ac.uk/ols4/ontologies/cl) |
 | `consensus_ontology` | Cell type ontology term for consensus cell type |
 | `consensus_annotation` | Human readable name for the consensus cell type |
 

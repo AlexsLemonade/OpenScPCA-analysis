@@ -43,7 +43,11 @@ blueprint_df <- data.frame(
   blueprint_annotation_fine = blueprint_ref$label.fine
 ) |>
   unique() |> 
-  tidyr::drop_na()
+  tidyr::drop_na() |> 
+  # add in the actual name for the ontology from CL
+  dplyr::mutate(
+    blueprint_annotation_cl = cl_ont$name[blueprint_ontology]
+  )
 
 # Get LCA and descendants ------------------------------------------------------
 
@@ -121,6 +125,7 @@ consensus_labels_df <- lca_df |>
     blueprint_ontology, 
     blueprint_annotation_main, 
     blueprint_annotation_fine, 
+    blueprint_annotation_cl,
     consensus_ontology = lca, 
     consensus_annotation = cl_annotation
     ) 

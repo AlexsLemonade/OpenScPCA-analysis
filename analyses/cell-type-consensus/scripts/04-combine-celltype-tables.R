@@ -21,13 +21,13 @@ option_list <- list(
   ),
   make_option(
     opt_str = c("--panglao_ref_file"),
-    default = file.path(project_root, "references", "panglao-cell-type-ontologies.tsv"),
+    default = file.path(project_root, "analyses", "cell-type-consensus", "references", "panglao-cell-type-ontologies.tsv"),
     type = "character", 
     help = "Path to file with panglao assignments and associated cell ontology ids"
   ),
   make_option(
     opt_str = c("--consensus_ref_file"),
-    default = file.path(project_root, "references", "consensus-cell-type-reference.tsv"),
+    default = file.path(project_root, "analyses", "cell-type-consensus", "references", "consensus-cell-type-reference.tsv"),
     type = "character",
     help = "Path to file containing the reference for assigning consensus cell type labels"
   ), 
@@ -73,11 +73,15 @@ consensus_ref_df <- readr::read_tsv(opt$consensus_ref_file) |>
 # grab singler ref from celldex
 blueprint_ref <- celldex::BlueprintEncodeData()
 
+# grab obo file, we need this to map the ontologies from blueprint
+cl_ont <- ontologyIndex::get_ontology("http://purl.obolibrary.org/obo/cl/releases/2024-09-26/cl-basic.obo") 
+
+
 # get ontologies and human readable name into data frame for blueprint
-# in scpca-nf we don't include the fine label so this lets us add it in 
+# in scpca-nf we don't include the cl name so this lets us add it in 
 blueprint_df <- data.frame(
   blueprint_ontology = blueprint_ref$label.ont,
-  blueprint_annotation_fine = blueprint_ref$label.fine
+  blueprint_annotation_cl = cl_ont$name[blueprint_ref$label.ont]
 ) |>
   unique() |> 
   tidyr::drop_na()
