@@ -97,7 +97,7 @@ This section will show how to perform clustering across a set of parameters (aka
 
 This function takes a PCA matrix with row names representing unique cell ids (e.g., barcodes) as its primary argument, with additional arguments for cluster parameters. 
 This function wraps the `rOpenScPCA::calculate_clusters()` function but allows you to provide a vector of parameter values to perform clustering across, as listed below.
-Clusters will be calculated for all combinations of parameters values (where applicable); default values that the function will use for any unspecified parameter values are shown in parentheses
+Clusters will be calculated for all combinations of parameters values (where applicable); default values that the function will use for any unspecified parameter values are shown in parentheses.
 
 * `algorithm`: Which clustering algorithm to use (Louvain)
 * `weighting`: Which weighting scheme to use (Jaccard)
@@ -119,7 +119,7 @@ To demonstrate this function, we'll calculate clusters using the Louvain algorit
 
 ```{r sweep clusters}
 # Define nn parameter values of interest
-nn_values <- seq(10, 30, 10)
+nn_values <- c(10, 20, 30)
 
 # Calculate clusters varying nn, but leaving other parameters at their default values
 cluster_results_list <- rOpenScPCA::sweep_clusters(
@@ -221,10 +221,7 @@ cell_metric_list <- cluster_results_list |>
       silhouette_df <- rOpenScPCA::calculate_silhouette(pca_matrix, cluster_df)
 
       # calculate neighbhorhood purity
-      purity_df <- rOpenScPCA::calculate_purity(pca_matrix, cluster_df)
-
-      # Combine into a single data frame
-      dplyr::left_join(silhouette_df, purity_df)
+      purity_df <- rOpenScPCA::calculate_purity(pca_matrix, silhouette_df)
     }
   )
 
@@ -280,7 +277,7 @@ Next, we'll calculate stability on the clusters using `rOpenScPCA::calculate_sta
 stability_list <- cluster_results_list |>
   purrr::map(
     \(cluster_df) {
-      nn <- unique(cluster_df$nn)
+      nn <- cluster_df$nn[1] # all rows have the same `nn` parameter, so we'll take the first
 
       # calculate stability, passing in the parameter value used for this iteration
       rOpenScPCA::calculate_stability(pca_matrix, cluster_df, nn = nn)
@@ -316,8 +313,8 @@ In this section, we'll show an overview of how you might write code to vary two 
 
 ```{r sweep two parameters}
 # Define vectors of parameters to vary
-nn_values <- seq(10, 30, 10)
-res_values <- seq(5, 15, 5) / 10
+nn_values <- c(10, 20, 30)
+res_values <-c(0.5, 1.0, 1.5)
 
 
 cluster_results_list <- rOpenScPCA::sweep_clusters(
@@ -368,7 +365,7 @@ umap_plots <- cluster_results_list |>
   )
 
 # Print the plots with patchwork::wrap_plots()
-patchwork::wrap_plots(umap_plots)
+patchwork::wrap_plots(umap_plots, ncol = 3)
 ```
 
 
@@ -407,7 +404,7 @@ ggplot(purity_df) +
   geom_boxplot() +
   scale_fill_brewer(palette = "Pastel2") +
   # facet by resolution
-  facet_wrap(vars(resolution_label)) +
+  facet_wrap(vars(resolution_label), labeller = label_both) +
   labs(
     x = "Number of nearest neighbors",
     y = "Neighborhood purity"
