@@ -123,10 +123,11 @@ create_marker_gene_df <- function(
 # output is a data frame with barcodes and `{cell_type}_sum`
 calculate_sum_markers <- function(marker_genes_df,
                                   sce,
-                                  type) {
+                                  type, 
+                                  cell_type_column = cell_type) {
   # get list of marker genes to use
   marker_genes <- marker_genes_df |>
-    dplyr::filter(cell_type == type) |>
+    dplyr::filter({{cell_type_column}} == type) |>
     dplyr::pull(ensembl_gene_id)
 
   # get the gene expression counts for all marker genes
@@ -153,6 +154,42 @@ calculate_sum_markers <- function(marker_genes_df,
 }
 
 
+# calculate the mean of expression for all markers in a given cell type
+# takes as input the marker gene df with `type` and `ensembl_gene_id` as columns
+# For any genes that are in the specified `type`, sum of the logcounts is calculated
+# output is a data frame with barcodes and `{type}_sum`
+calculate_mean_markers <- function(marker_genes_df,
+                                   sce,
+                                   type, 
+                                   cell_type_column = cell_type) {
+  # get list of marker genes to use
+  marker_genes <- marker_genes_df |>
+    dplyr::filter({{cell_type_column}} == type) |>
+    dplyr::pull(ensembl_gene_id)
+  
+  # get the gene expression counts for all marker genes
+  mean_exp <- logcounts(sce[marker_genes, ]) |>
+    as.matrix() |>
+    t() |>
+    rowMeans()
+  
+  df <- data.frame(
+    barcodes = names(mean_exp),
+    mean_exp = mean_exp
+  )
+  
+  # get rid of extra " cells" at end of some of the names
+  type <- stringr::str_remove(type, " cells")
+  
+  colnames(df) <- c(
+    "barcodes",
+    # add ref name to colnames for easier joining
+    glue::glue("{type}_mean")
+  )
+  
+  return(df)
+}
+
 
 
 # Heatmaps ---------------------------------------------------------------------
@@ -163,7 +200,8 @@ plot_gene_heatmap <- function(
     df,
     row_title = "",
     legend_title = "",
-    annotation = NULL) {
+    annotation = NULL,
+    cluster_columns = TRUE) {
   # plot heatmap of marker genes
   heatmap <- ComplexHeatmap::Heatmap(
     df,
@@ -179,7 +217,7 @@ plot_gene_heatmap <- function(
     row_dend_side = "right",
     row_names_gp = grid::gpar(fontsize = 10),
     ## Column parameters
-    cluster_columns = TRUE,
+    cluster_columns = cluster_columns,
     show_column_names = FALSE,
     bottom_annotation = annotation,
     heatmap_legend_param = list(
@@ -239,7 +277,8 @@ plot_cnv_heatmap <- function(
 # colors are automatically determined using the `Dark2` palette and assigning to cell types listed in the `annotation_column`
 full_celltype_heatmap <- function(classification_df,
                                   gene_exp_columns,
-                                  annotation_column) {
+                                  annotation_column,
+                                  cluster_columns = TRUE) {
   # get list of all cell types being plotted and assign colors from Dark2 palette
   cell_types <- unique(classification_df[[annotation_column]])
   num_cell_types <- length(cell_types)
@@ -249,25 +288,26 @@ full_celltype_heatmap <- function(classification_df,
 
   # create annotation for heatmap
   annotation <- ComplexHeatmap::columnAnnotation(
-    singler = classification_df[[annotation_column]],
+    annotation = classification_df[[annotation_column]],
     col = list(
-      singler = colors
+      annotation = colors
     )
   )
 
   # build matrix for heatmap cells x gene set sum or mean
   heatmap_mtx <- classification_df |>
-    dplyr::select(barcodes, gene_exp_columns) |>
+    dplyr::select(barcodes, all_of(gene_exp_columns)) |>
     tibble::column_to_rownames("barcodes") |>
     as.matrix() |>
     t()
-  rownames(heatmap_mtx) <- stringr::str_remove(rownames(heatmap_mtx), "_sum|mean-")
+  rownames(heatmap_mtx) <- stringr::str_remove(rownames(heatmap_mtx), "_sum|mean-|_mean")
 
   # plot heatmap of marker genes
   plot_gene_heatmap(heatmap_mtx,
     row_title = "",
     legend_title = "Marker gene \nexpression",
-    annotation = annotation
+    annotation = annotation,
+    cluster_columns = cluster_columns
   )
 }
 
@@ -293,7 +333,7 @@ plot_density <- function(classification_df,
     ) +
     labs(
       x = "Gene set expression",
-      y = "Cell type annotation",
+      y = annotation_column,
       title = geneset_name
     ) +
     scale_alpha_identity() +
