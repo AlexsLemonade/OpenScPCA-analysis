@@ -105,7 +105,7 @@ Clusters will be calculated for all combinations of parameters values (where app
 * `resolution`: The resolution parameter (1; used only with Louvain and Leiden clustering)
 * `objective_function`: The objective function to optimize clusters (CPM; used only with Leiden clustering)
 
-`rOpenScPCA::sweep_clusters()` does allow you to specify values for any other parameters. 
+`rOpenScPCA::sweep_clusters()` does not allow you to specify values for any other parameters. 
 
 
 This function will return a list of data frames of clustering results. 
@@ -134,7 +134,8 @@ The resulting list has a length of three, one data frame for each `nn` parameter
 length(cluster_results_list)
 ```
 
-It can be helpful (although it is not strictly necessary to keep track) to name this list by the varied `nn` parameter:
+It can be helpful (although it is not strictly necessary to keep track) to name this list by the varied `nn` parameter.
+In this case, we'll use these names to label plots.
 
 ```{r set list names}
 names(cluster_results_list) <- glue::glue("nn_{nn_values}")
@@ -194,7 +195,7 @@ umap_plots <- cluster_results_list |>
   )
 
 # Print the plots with patchwork::wrap_plots()
-patchwork::wrap_plots(umap_plots)
+patchwork::wrap_plots(umap_plots, ncol = 3)
 ```
 
 These plots show that the number of clusters decreases as the nearest neighbors parameter increases, with between 9-13 clusters.
@@ -267,6 +268,7 @@ silhouette_plot + purity_plot & theme(legend.position = "none")
 ```
 
 While there does not appear to be a salient difference among silhouette width distributions, it does appear that purity is higher with a higher nearest neighbors parameter.
+It's worth noting that this trend in purity values is expected: Higher nearest neighbor parameter values lead to fewer clusters, and neighborhood purity tends to be higher when there are fewer clusters. 
 
 
 #### Stability
@@ -289,7 +291,7 @@ We'll again combine the output of `stability_list` into a single data frame and 
 
 
 ```{r combine plot stability}
-stability_df <- dplyr::bind_rows(stability_list)
+stability_df <- purrr::list_rbind(stability_list)
 
 ggplot(stability_df) +
   aes(x = as.factor(nn), y = ari, fill = as.factor(nn)) +
@@ -314,7 +316,7 @@ In this section, we'll show an overview of how you might write code to vary two 
 ```{r sweep two parameters}
 # Define vectors of parameters to vary
 nn_values <- c(10, 20, 30)
-res_values <-c(0.5, 1.0, 1.5)
+res_values <- c(0.5, 1.0, 1.5)
 
 
 cluster_results_list <- rOpenScPCA::sweep_clusters(
@@ -347,7 +349,7 @@ umap_plots <- cluster_results_list |>
 
       # Create a title for the UMAP with both parameters
       umap_title <- glue::glue(
-        "nn: {unique(cluster_df$nn)}; res: {unique(cluster_df$resolution)}"
+        "nn: {cluster_df$nn[1]}; res: {cluster_df$resolution[1]}"
       )
 
       # Plot the UMAP, colored by the new cluster variable
@@ -387,24 +389,17 @@ purity_df <- cluster_results_list |>
       rOpenScPCA::calculate_purity(pca_matrix, cluster_df)
     }
   ) |>
-  dplyr::bind_rows()
+  purrr::list_rbind()
 ```
 
-
-We'll add a column `resolution_label` which we'll use to have informative panel titles in the faceted ggplot we make next.
-
-```{r add resolution_label column}
-purity_df <- purity_df |>
-  dplyr::mutate(resolution_label = glue::glue("Resolution: {resolution}"))
-```
 
 ```{r visualize purity two parameters}
 ggplot(purity_df) +
   aes(x = as.factor(nn), y = purity, fill = as.factor(nn)) +
   geom_boxplot() +
   scale_fill_brewer(palette = "Pastel2") +
-  # facet by resolution
-  facet_wrap(vars(resolution_label), labeller = label_both) +
+  # facet by resolution, labeling panels with both the resolution column name and value
+  facet_wrap(vars(resolution), labeller = label_both) +
   labs(
     x = "Number of nearest neighbors",
     y = "Neighborhood purity"
@@ -432,10 +427,7 @@ stability_df <- cluster_results_list |>
       )
     }
   ) |>
-  dplyr::bind_rows()
-
-stability_df <- stability_df |>
-  dplyr::mutate(resolution_label = glue::glue("Resolution: {resolution}"))
+  purrr::list_rbind()
 ```
 
 
@@ -444,8 +436,7 @@ ggplot(stability_df) +
   aes(x = as.factor(nn), y = ari, fill = as.factor(nn)) +
   geom_boxplot() +
   scale_fill_brewer(palette = "Pastel2") +
-  # facet by resolution
-  facet_wrap(vars(resolution_label)) +
+  facet_wrap(vars(resolution), labeller = label_both) +
   labs(
     x = "Number of nearest neighbors",
     y = "Adjusted Rand Index"
