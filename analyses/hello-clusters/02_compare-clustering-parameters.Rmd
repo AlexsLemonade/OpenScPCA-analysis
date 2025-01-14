@@ -361,7 +361,9 @@ umap_plots <- cluster_results_list |>
         theme(
           axis.ticks = element_blank(),
           axis.text = element_blank(),
-          legend.position = "bottom"
+          # Ensure legends fit in the figure
+          legend.position = "bottom",
+          legend.key.size = unit(0.2, "cm")
         )
     }
   )
