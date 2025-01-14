@@ -54,7 +54,13 @@ Each library contains a folder with any annotations file used to run `InferCNV` 
 
 The `tumor-cell-state-markers.tsv` file contains a list of marker genes that can be used to classify tumor cell states in Ewing samples. 
 The marker genes included here are specific to EWS-FLI1 high, EWS-FLI1 low, and proliferative tumor cells. 
-This list was obtained based on key genes mentioned in [Goodspeed _et al._](https://doi.org/10.1101/2024.01.18.576251), [Aynaud _et al._](https://doi.org/10.1016/j.celrep.2020.01.049), and [Wrenn _et al._](https://doi.org/10.1158/1078-0432.CCR-23-1111). 
+This list was obtained based on key genes mentioned in the following publications: 
+
+- [Goodspeed _et al._](https://doi.org/10.1101/2024.01.18.576251)
+- [Aynaud _et al._](https://doi.org/10.1016/j.celrep.2020.01.049)
+- [Wrenn _et al._](https://doi.org/10.1158/1078-0432.CCR-23-1111)
+- [Franzetti _et al._](https://doi.org/10.1038/onc.2016.498)
+- [Riggi _et al._](https://doi.org/10.1016/j.ccell.2014.10.004)
 
 ### Gene signatures 
 
