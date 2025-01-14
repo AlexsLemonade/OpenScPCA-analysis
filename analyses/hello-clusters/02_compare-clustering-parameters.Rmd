@@ -221,8 +221,8 @@ cell_metric_list <- cluster_results_list |>
       # calculate silhouette width
       silhouette_df <- rOpenScPCA::calculate_silhouette(pca_matrix, cluster_df)
 
-      # calculate neighbhorhood purity
-      purity_df <- rOpenScPCA::calculate_purity(pca_matrix, silhouette_df)
+      # calculate neighbhorhood purity, starting from silhouette_df
+      OpenScPCA::calculate_purity(pca_matrix, silhouette_df)
     }
   )
 
