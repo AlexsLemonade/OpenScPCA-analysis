@@ -1,0 +1,123 @@
+---
+title: "Identify max rank for AUCell"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+---
+
+This notebook is used to find the appropriate `aucMaxRank` to use with `AUCell` for all samples in `SCPCP00015`. 
+
+From the  [`AUCell` vignette]():
+
+> It is important to check that most cells have at least the number of expressed/detected genes that are going to be used to calculate the AUC (aucMaxRank in calcAUC()). The histogram provided by AUCell_buildRankings() allows to quickly check this distribution. 
+
+Here we will build the rankings and look at the histogram showing the number of genes detected per cell for each sample and use that information to pick a threshold (percentage of genes) to use across all samples. 
+
+## Setup
+
+```{r packages}
+suppressPackageStartupMessages({
+  # load required packages
+  library(SingleCellExperiment)
+  library(ggplot2)
+})
+
+# Set default ggplot theme
+theme_set(
+  theme_classic()
+)
+
+# set seed
+set.seed(2025)
+```
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The current data directory, found within the repository base directory
+data_dir <- file.path(repository_base, "data", "current", "SCPCP000015")
+
+# paths to all processed sce files
+sce_files <- list.files(data_dir, pattern = "*processed.rds", full.names = TRUE, recursive = TRUE)
+```
+
+```{r}
+# read in SCE files 
+sce_list <- sce_files |> 
+  purrr::map(readr::read_rds)
+```
+
+
+## Filter `SingleCellExperiment` objects
+
+The default `aucMaxRank` is calculated as `ceiling(0.05*nrow(exprMat))` where the `exprMat` is the counts matrix. 
+For the processed `SingleCellExperiment` objects in ScPCA we include all genes in the index, regardless of if they are detected in our sample. 
+This means the rankings might include a bunch of genes that aren't actually present and the `aucMaxRank` would be calculated based on a set of genes that aren't even there, setting the threshold higher than it should be. 
+Because of this, we probably want to filter the `SingleCellExperiment` objects to remove any genes that are not detected in any cells prior to calculating ranks or running `AUCell`. 
+
+```{r}
+# get a list of filtered sce
+# remove any genes that are not detected in any cells 
+sce_list <- sce_list |> 
+  purrr::map(\(sce){
+    
+    genes_to_remove <- rowData(sce)$detected > 0 
+    filtered_sce <- sce[rowData(sce)$detected > 0 , ]
+    
+  })
+```
+
+## `AUCell` build rankings 
+
+Below we will look at the distribution of the number of genes detected per cell for each sample using the `AUCell_buildRankings()` function. 
+
+
+```{r}
+cell_rankings_list <- sce_list |> 
+  purrr::map(\(sce){AUCell::AUCell_buildRankings(counts(sce))})
+```
+
+Now we will look at the potential thresholds for `aucMaxRank` using 5% and 1% of genes. 
+The numbers printed here represent the total number of genes that would be used as the `aucMaxRank` for a given dataset using the threshold. 
+We can then use the histograms to see how many cells have at least that number of genes detected. 
+Remember, we want to pick a number of genes that are detected in most cells.
+If we picked a max rank higher than the number of genes detected in most cells, the non-detected genes that are randomly ordered would play an outsized role in our AUC values.
+
+### 5%  
+
+```{r}
+sce_list |> 
+  purrr::map_dbl(\(sce){ceiling(nrow(counts(sce))*0.05)})
+```
+
+This looks too high based on our histograms. 
+We would have a lot of cells where the number of genes detected is lower than the max rank, which is not ideal. 
+
+### 1% 
+
+```{r}
+sce_list |> 
+  purrr::map_dbl(\(sce){ceiling(nrow(counts(sce))*0.01)})
+```
+
+This looks better to me. 
+I also think there's enough variation in some of the samples that we don't want to just pick one max rank for all samples, but instead use a percentage of the total genes detected. 
+
+## Conclusions
+
+- Prior to running `AUCell` we should remove any genes that are not detected in any cells.
+- Using a cutoff of 1% of the total genes detected seems like a reasonable choice for the `aucMaxRank`. 
+
+## Session info 
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
+
+
