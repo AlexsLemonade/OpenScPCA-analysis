@@ -15,6 +15,7 @@ ARI
 astrocytes
 AUCell
 authenticator
+Aynaud
 barcode
 barcodes
 Beligs
@@ -32,6 +33,7 @@ Carpentries
 CellAssign
 CELLxGENE
 chemotherapies
+chondrocyte
 chondrocytes
 chr
 CLI
@@ -70,6 +72,7 @@ dropdown
 DSRCT
 ECM
 ECR
+embeddings
 endothelia
 endothelial
 endothelium
@@ -90,6 +93,7 @@ fibroblast
 fibroblasts
 FLI
 formatters
+Franzetti
 Generis
 GFM
 GHA
@@ -162,6 +166,7 @@ monocyte
 monocytes
 mononuclear
 MSC
+MSigDB
 multifactor
 multinucleated
 myeloid
@@ -191,6 +196,7 @@ perivascular
 ploidy
 pluripotent
 programmatically
+proliferative
 PMID
 PNG
 podman
@@ -212,6 +218,7 @@ repo
 reproducibility
 reproducibly
 ribosomal
+Riggi
 RNAseq
 rOpenScPCA
 RStudio
@@ -269,10 +276,12 @@ uteric
 vCPU
 vCPUs
 Visser
+vitro
 VSCodium
 Wilms
 WIPO
 WisCon
+Wrenn
 WSL
 Xcode
 xenograft
