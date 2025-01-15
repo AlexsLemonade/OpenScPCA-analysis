@@ -12,7 +12,7 @@ output:
 ## Introduction
 
 Clustering algorithms have several parameters which can be varied, leading to different clustering results.
-A key question when clustering, therefore, is how to identify a set of parameters that lead to robust and reliable clusters that can be used in downstream analysis. 
+A key question when clustering, therefore, is how to identify a set of parameters that lead to robust and reliable clusters that can be used in downstream analysis.
 
 This notebook provides examples of how to use the `rOpenScPCA` package to:
 
@@ -93,9 +93,9 @@ pca_matrix <- reducedDim(sce, "PCA")
 
 ## Varying a single clustering parameter
 
-This section will show how to perform clustering across a set of parameters (aka, "sweep" a set of parameters) with `rOpenScPCA::sweep_clusters()`. 
+This section will show how to perform clustering across a set of parameters (aka, "sweep" a set of parameters) with `rOpenScPCA::sweep_clusters()`.
 
-This function takes a PCA matrix with row names representing unique cell ids (e.g., barcodes) as its primary argument, with additional arguments for cluster parameters. 
+This function takes a PCA matrix with row names representing unique cell ids (e.g., barcodes) as its primary argument, with additional arguments for cluster parameters.
 This function wraps the `rOpenScPCA::calculate_clusters()` function but allows you to provide a vector of parameter values to perform clustering across, as listed below.
 Clusters will be calculated for all combinations of parameters values (where applicable); default values that the function will use for any unspecified parameter values are shown in parentheses.
 
@@ -105,10 +105,10 @@ Clusters will be calculated for all combinations of parameters values (where app
 * `resolution`: The resolution parameter (1; used only with Louvain and Leiden clustering)
 * `objective_function`: The objective function to optimize clusters (CPM; used only with Leiden clustering)
 
-`rOpenScPCA::sweep_clusters()` does not allow you to specify values for any other parameters. 
+`rOpenScPCA::sweep_clusters()` does not allow you to specify values for any other parameters.
 
 
-This function will return a list of data frames of clustering results. 
+This function will return a list of data frames of clustering results.
 Each data frame will have the following columns:
 
 * `cell_id`: Unique cell identifiers, obtained from the PCA matrix's row names
@@ -150,7 +150,7 @@ cluster_results_list |>
   purrr::map(head)
 ```
 
-Generally speaking, `purrr::map()` can be used to iterate over this list to visualize or analyze each clustering result on its own; we'll use this approach in the following sections. 
+Generally speaking, `purrr::map()` can be used to iterate over this list to visualize or analyze each clustering result on its own; we'll use this approach in the following sections.
 
 ### Visualizing clustering results
 
@@ -206,7 +206,7 @@ These plots show that the number of clusters decreases as the nearest neighbors 
 ### Evaluating clustering results
 
 This section will use `purrr::map()` to iterate over each clustering result data frame to calculate silhouette width, neighborhood purity, and stability, and then visualize results.
-The goal of this code is to identify whether one clustering parameterization produces more reliable clusters. 
+The goal of this code is to identify whether one clustering parameterization produces more reliable clusters.
 
 
 #### Silhouette width and neighborhood purity
@@ -268,12 +268,12 @@ silhouette_plot + purity_plot & theme(legend.position = "none")
 ```
 
 While there does not appear to be a salient difference among silhouette width distributions, it does appear that purity is higher with a higher nearest neighbors parameter.
-It's worth noting that this trend in purity values is expected: Higher nearest neighbor parameter values lead to fewer clusters, and neighborhood purity tends to be higher when there are fewer clusters. 
+It's worth noting that this trend in purity values is expected: Higher nearest neighbor parameter values lead to fewer clusters, and neighborhood purity tends to be higher when there are fewer clusters.
 
 
 #### Stability
 
-Next, we'll calculate stability on the clusters using `rOpenScPCA::calculate_stability()`, specifying the same parameter used for the original cluster calculation at each iteration. 
+Next, we'll calculate stability on the clusters using `rOpenScPCA::calculate_stability()`, specifying the same parameter used for the original cluster calculation at each iteration.
 
 ```{r calculate stability}
 stability_list <- cluster_results_list |>
@@ -304,7 +304,7 @@ ggplot(stability_df) +
   theme(legend.position = "none")
 ```
 
-Here, we see that a nearest neighbors value of 20 or 30 leads to more stable clustering results compared to 10. 
+Here, we see that a nearest neighbors value of 20 or 30 leads to more stable clustering results compared to 10.
 
 
 ## Varying multiple clustering parameters
@@ -378,7 +378,7 @@ patchwork::wrap_plots(umap_plots, ncol = 3)
 
 This section presents one coding strategy to calculate and visualize results when varying two clustering parameters.
 In particular, we use faceting to help display all information in one plot, by placing nearest neighbor values on the X-axis and faceting by resolution values.
-Since silhouette width and neighhorbood purity calculations using generally similar code, we'll just show neighborhood purity here.
+Since silhouette width and neighborhood purity calculations using generally similar code, we'll just show neighborhood purity here.
 
 #### Neighborhood purity
 
