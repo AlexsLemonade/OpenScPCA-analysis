@@ -23,6 +23,8 @@ Additionally, we look at expression of marker genes from `references/visser-all-
 6. `06-tumor-cell-state-assignments.Rmd`: This notebook looks at assigning tumor cell states in `SCPCL000822` and `SCPCL000824`. 
 Tumor cells are grouped into `EWS-FLI` high, `EWS-FLI` low, and `EWS-FLI` middle based on expression of marker genes. 
 
+7. `07-identify-max-rank-aucell.Rmd`: This notebook identifies an appropriate threshold for `aucMaxRank` to use with `AUCell`. 
+
 ## Annotation notebooks
 
 The `annotation_notebooks` folder contains exploratory notebooks used to explore and validate annotations in individual samples. 
