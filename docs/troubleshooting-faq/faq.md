@@ -146,3 +146,17 @@ This package has two particular functions to support this task:
   * This function converts a vector of Ensembl ids to a vector of gene symbols
 
 Please refer to these functions' help menus (e.g., `?rOpenScPCA::sce_to_symbols`) for additional information on how to use them.
+
+### I noticed there are cluster assignments in the processed data files. Should I use those or re-cluster the data?
+
+All ScPCA data objects contain cluster assignments which were [calculated using an automated pipeline](https://scpca.readthedocs.io/en/stable/processing_information.html#processed-gene-expression-data).
+Because the clustering parameters used in this automated pipeline were not tailored to any given dataset, we do not recommend relying on these clusters for downstream analysis.
+Instead, we strongly recommend re-clustering the data _and_ evaluating your cluster assignments before using them.
+
+To support clustering analysis and evaluation, we provide several functions in an R package we maintain called [`rOpenScPCA`](https://github.com/AlexsLemonade/rOpenScPCA/) to accomplish the following tasks:
+
+* Perform graph-based clustering
+* Evaluate clustering results with quality control metrics
+* Calculate several sets of clustering results across parameter space
+
+We also provide an OpenScPCA analysis module [`hello-clusters`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/hello-clusters) with example notebooks demonstrating how to use clustering functionality in `rOpenScPCA`.
