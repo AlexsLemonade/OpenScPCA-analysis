@@ -14,7 +14,7 @@ From the  [`AUCell` vignette](https://bioconductor.org/packages/release/bioc/vig
 
 > It is important to check that most cells have at least the number of expressed/detected genes that are going to be used to calculate the AUC (aucMaxRank in calcAUC()). The histogram provided by AUCell_buildRankings() allows to quickly check this distribution. 
 
-Here we will build the rankings and look at the histogram showing the number of genes detected per cell for each sample and use that information to pick a threshold (percentage of genes) to use across all samples. 
+Here we will look at a histogram showing the number of genes detected per cell for each sample and use that information to pick a threshold (percentage of genes) to use across all samples. 
 
 ## Setup
 
@@ -72,15 +72,57 @@ sce_list <- sce_list |>
   })
 ```
 
-## `AUCell` build rankings 
+## Number of genes detected
 
-Below we will look at the distribution of the number of genes detected per cell for each sample using the `AUCell_buildRankings()` function. 
+Below we will look at the distribution of the number of genes detected per cell for each sample.  
 
 
-```{r}
-cell_rankings_list <- sce_list |> 
-  purrr::map(\(sce){AUCell::AUCell_buildRankings(counts(sce))})
+```{r, fig.height = 10, fig.width=10, warning=FALSE}
+# make a list of the `countByCell` as AUCell does
+names(sce_list) <- stringr::str_extract(sce_files, "SCPCS\\d+")
+count_df_list <- sce_list |>
+  purrr::map(counts) |>
+  purrr::map(
+    \(counts) {
+      countByCell <- Matrix::colSums(counts > 0, na.rm = TRUE)
+      data.frame(count_by_cell = countByCell)
+    })
+
+# first, make the plots
+count_df_list |>
+  purrr::imap(
+    \(count_df, sample_id) {
+        count_hist <- ggplot(count_df) + 
+          aes(x = count_by_cell) + 
+          geom_histogram(color = "grey20", fill = "skyblue", bins = 30) + 
+          xlim(0, max(count_df$count_by_cell)) +
+          xlab("Number of genes detected per cell")
+  
+        count_box <- ggplot(count_df) + 
+          aes(x = count_by_cell, y = "") + 
+          geom_boxplot(color = "grey20", fill = "skyblue", outlier.size = 0.5) + 
+          theme_void() + 
+          xlim(0, max(count_df$count_by_cell)) + 
+          ggtitle(sample_id)
+      
+      count_box / count_hist + patchwork::plot_layout(heights = c(0.2, 1))
+    }
+  ) |>
+  patchwork::wrap_plots(nrow = 5)
+
+
+# second, print a table of the stats
+count_df_list |>
+  purrr::map(
+     \(count_df) {
+         c(
+          min=min(count_df$count_by_cell), 
+          quantile(count_df$count_by_cell, c(.01,.05, .10, .50, 1))
+        )
+     }) |>
+  dplyr::bind_rows(.id = "sample_id")
 ```
+
 
 Now we will look at the potential thresholds for `aucMaxRank` using 5% and 1% of genes. 
 The numbers printed here represent the total number of genes that would be used as the `aucMaxRank` for a given dataset using the threshold. 
@@ -91,8 +133,14 @@ If we picked a max rank higher than the number of genes detected in most cells, 
 ### 5%  
 
 ```{r}
-sce_list |> 
-  purrr::map_dbl(\(sce){ceiling(nrow(counts(sce))*0.05)})
+# get max rank using 1% threshold
+threshold_list <- sce_list |> 
+  purrr::map_dbl(\(sce){ceiling(nrow(counts(sce))*0.05)}) 
+
+# make it legible
+data.frame(
+  max_rank = threshold_list
+)
 ```
 
 This looks too high based on our histograms. 
@@ -101,8 +149,14 @@ We would have a lot of cells where the number of genes detected is lower than th
 ### 1% 
 
 ```{r}
-sce_list |> 
-  purrr::map_dbl(\(sce){ceiling(nrow(counts(sce))*0.01)})
+# get max rank using 1% threshold
+threshold_list <- sce_list |> 
+  purrr::map_dbl(\(sce){ceiling(nrow(counts(sce))*0.01)}) 
+
+# make it legible
+data.frame(
+  max_rank = threshold_list
+)
 ```
 
 This looks better to me. 
