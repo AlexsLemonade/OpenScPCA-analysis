@@ -396,10 +396,7 @@ per cell for each sample and use that information to pick a threshold
 # Set default ggplot theme
 theme_set(
   theme_classic()
-)
-
-# set seed
-set.seed(2025)</code></pre>
+)</code></pre>
 <pre class="r"><code># The base path for the OpenScPCA repository, found by its (hidden) .git directory
 repository_base &lt;- rprojroot::find_root(rprojroot::is_git_root)
 
@@ -570,7 +567,10 @@ samples, but instead use a percentage of the total genes detected.</p>
 <li>Prior to running <code>AUCell</code> we should remove any genes that
 are not detected in any cells.</li>
 <li>Using a cutoff of 1% of the total genes detected seems like a
-reasonable choice for the <code>aucMaxRank</code>.</li>
+reasonable choice for the <code>aucMaxRank</code>. This allows us to
+account for the variation in genes detected per sample, but we should be
+sure to be careful when interpreting results as using different cutoffs
+for each sample could impact the AUC values.</li>
 </ul>
 </div>
 <div id="session-info" class="section level2">
@@ -599,25 +599,15 @@ sessionInfo()</code></pre>
 ##  [7] IRanges_2.38.1              S4Vectors_0.42.1            BiocGenerics_0.50.0         MatrixGenerics_1.16.0       matrixStats_1.3.0          
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] DBI_1.2.3                 GSEABase_1.66.0           rlang_1.1.4               magrittr_2.0.3            clue_0.3-65               GetoptLong_1.0.5         
-##   [7] AUCell_1.26.0             RSQLite_2.3.7             compiler_4.4.2            DelayedMatrixStats_1.26.0 png_0.1-8                 vctrs_0.6.5              
-##  [13] stringr_1.5.1             pkgconfig_2.0.3           shape_1.4.6.1             crayon_1.5.3              fastmap_1.2.0             XVector_0.44.0           
-##  [19] scuttle_1.14.0            labeling_0.4.3            utf8_1.2.4                rmarkdown_2.27            tzdb_0.4.0                graph_1.82.0             
-##  [25] UCSC.utils_1.0.0          purrr_1.0.2               bit_4.0.5                 xfun_0.46                 bluster_1.14.0            zlibbioc_1.50.0          
-##  [31] cachem_1.1.0              beachmat_2.20.0           jsonlite_1.8.8            blob_1.2.4                highr_0.11                DelayedArray_0.30.1      
-##  [37] BiocParallel_1.38.0       parallel_4.4.2            cluster_2.1.6             R6_2.5.1                  bslib_0.8.0               stringi_1.8.4            
-##  [43] RColorBrewer_1.1-3        jquerylib_0.1.4           Rcpp_1.0.13               iterators_1.0.14          knitr_1.48                R.utils_2.12.3           
-##  [49] readr_2.1.5               Matrix_1.7-0              igraph_2.0.3              tidyselect_1.2.1          abind_1.4-5               yaml_2.3.10              
-##  [55] doParallel_1.0.17         codetools_0.2-20          lattice_0.22-6            tibble_3.2.1              KEGGREST_1.44.1           withr_3.0.0              
-##  [61] evaluate_0.24.0           Biostrings_2.72.1         circlize_0.4.16           pillar_1.9.0              BiocManager_1.30.23       renv_1.0.7               
-##  [67] foreach_1.5.2             generics_0.1.3            vroom_1.6.5               rprojroot_2.0.4           hms_1.1.3                 sparseMatrixStats_1.16.0 
-##  [73] munsell_0.5.1             scales_1.3.0              xtable_1.8-4              glue_1.7.0                tools_4.4.2               data.table_1.15.4        
-##  [79] BiocNeighbors_1.22.0      annotate_1.82.0           forcats_1.0.0             XML_3.99-0.17             fs_1.6.4                  grid_4.4.2               
-##  [85] tidyr_1.3.1               AnnotationDbi_1.66.0      colorspace_2.1-1          GenomeInfoDbData_1.2.12   patchwork_1.2.0           cli_3.6.3                
-##  [91] fansi_1.0.6               S4Arrays_1.4.1            viridisLite_0.4.2         ComplexHeatmap_2.20.0     dplyr_1.1.4               gtable_0.3.5             
-##  [97] R.methodsS3_1.8.2         sass_0.4.9                digest_0.6.36             SparseArray_1.4.8         rjson_0.2.21              farver_2.1.2             
-## [103] R.oo_1.26.0               memoise_2.0.1             htmltools_0.5.8.1         lifecycle_1.0.4           httr_1.4.7                GlobalOptions_0.1.2      
-## [109] bit64_4.0.5</code></pre>
+##  [1] gtable_0.3.5            xfun_0.46               bslib_0.8.0             lattice_0.22-6          tzdb_0.4.0              vctrs_0.6.5             tools_4.4.2            
+##  [8] generics_0.1.3          tibble_3.2.1            fansi_1.0.6             highr_0.11              pkgconfig_2.0.3         Matrix_1.7-0            lifecycle_1.0.4        
+## [15] GenomeInfoDbData_1.2.12 farver_2.1.2            compiler_4.4.2          stringr_1.5.1           munsell_0.5.1           htmltools_0.5.8.1       sass_0.4.9             
+## [22] yaml_2.3.10             pillar_1.9.0            crayon_1.5.3            jquerylib_0.1.4         DelayedArray_0.30.1     cachem_1.1.0            abind_1.4-5            
+## [29] tidyselect_1.2.1        digest_0.6.36           stringi_1.8.4           dplyr_1.1.4             purrr_1.0.2             labeling_0.4.3          rprojroot_2.0.4        
+## [36] fastmap_1.2.0           grid_4.4.2              colorspace_2.1-1        cli_3.6.3               SparseArray_1.4.8       magrittr_2.0.3          patchwork_1.2.0        
+## [43] S4Arrays_1.4.1          utf8_1.2.4              readr_2.1.5             withr_3.0.0             scales_1.3.0            UCSC.utils_1.0.0        rmarkdown_2.27         
+## [50] XVector_0.44.0          httr_1.4.7              hms_1.1.3               evaluate_0.24.0         knitr_1.48              rlang_1.1.4             glue_1.7.0             
+## [57] BiocManager_1.30.23     renv_1.0.7              jsonlite_1.8.8          R6_2.5.1                zlibbioc_1.50.0</code></pre>
 </div>
 
 
