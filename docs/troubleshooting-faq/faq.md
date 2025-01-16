@@ -130,6 +130,19 @@ When working with these `Seurat` objects, please bear in mind the following:
 
 * They were _not_ processed with a `Seurat` pipeline.
 They were processed using the same pipeline as all OpenScPCA objects (e.g., with `Bioconductor`), and then converted to a `Seurat` format
-    * Notably, they do contain the raw data counts, allowing you to perform normalization, dimension reduction, etc. with `Seurat` directly if you so choose
+  * Notably, they do contain the raw data counts, allowing you to perform normalization, dimension reduction, etc. with `Seurat` directly if you so choose
 * To be more consistent with `Seurat` analysis pipelines, gene names in these objects use gene symbols rather than Ensembl ids
 
+
+### The ScPCA data objects contain Ensembl ids, but I need gene symbols for my analysis. How should I perform this conversion?
+
+In an effort to keep this consistent across the OpenScPCA project, we provide functions to convert Ensembl ids to gene symbols in an R package we maintain called [`rOpenScPCA`](https://github.com/AlexsLemonade/rOpenScPCA/).
+
+This package has two particular functions to support this task:
+
+* `rOpenScPCA::sce_to_symbols()`
+  * This function converts row names in a `SingleCellExperiment` object from Ensembl ids to gene symbols
+* `rOpenScPCA::ensembl_to_symbol()`
+  * This function converts a vector of Ensembl ids to a vector of gene symbols
+
+Please refer to these functions' help menus (e.g., `?rOpenScPCA::sce_to_symbols`) for additional information on how to use them.
