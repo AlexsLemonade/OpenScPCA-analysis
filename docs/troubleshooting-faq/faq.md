@@ -20,7 +20,7 @@ Data files in each release are organized on S3 as:
 {Release}
     ├── {Project ID}
     │   └── {Sample ID}
-    │       └── {Library files}
+    │       └── {Library files}
     ├── bulk_metadata.tsv (if applicable)
     ├── bulk_quant.tsv (if applicable)
     └── single_cell_metadata.tsv
@@ -129,17 +129,16 @@ For more information on obtaining result files, please refer to the documentatio
 When working with these `Seurat` objects, please bear in mind the following:
 
 * These `Seurat` objects include the same content as the `SingleCellExperiment` objects that they are derived from.
-This includes raw and normalized counts, annotations of highly variable genes, PCA and UMAP transformations, as well as cell and feature metadata.  
+This includes raw and normalized counts, annotations of highly variable genes, PCA and UMAP transformations, as well as cell and feature metadata.
   * Note that all calculations were performed using `Bioconductor` packages, so values will differ from the results obtained using `Seurat` functions from the same raw data.
-  * If `Seurat`-derived values are required, processing steps may need to be repeated.
+  * If your analysis requires fields created from `Seurat` processing pipelines, you will need to repeat those processing steps.
 * To be more consistent with `Seurat` analysis pipelines, these objects use gene symbols rather than Ensembl ids as the row names and primary feature id.
 
 
 ### The ScPCA data objects contain Ensembl ids, but I need gene symbols for my analysis. How should I perform this conversion?
 
-In an effort to keep this consistent across the OpenScPCA project, we provide functions to convert Ensembl ids to gene symbols in an R package we maintain called [`rOpenScPCA`](https://github.com/AlexsLemonade/rOpenScPCA/).
-Installation instructions are provided in the `rOpenScPCA` GitHub repository.
-
+In an effort to keep this consistent across the OpenScPCA project, we provide functions to convert Ensembl ids to gene symbols in an R package we maintain called `rOpenScPCA`.
+Installation instructions are provided in the [`rOpenScPCA` GitHub repository](https://github.com/AlexsLemonade/rOpenScPCA/?tab=readme-ov-file#installation).
 This package has two particular functions to support this task:
 
 * `rOpenScPCA::ensembl_to_symbol()`
@@ -147,7 +146,7 @@ This package has two particular functions to support this task:
 * `rOpenScPCA::sce_to_symbols()`
   * This function converts row names in a `SingleCellExperiment` object from Ensembl ids to gene symbols
 
-Please refer to these functions' help pages (e.g., `?rOpenScPCA::sce_to_symbols`) for additional information on their use, including options for handling duplicate gene symbols.
+Please refer to these functions' help pages (e.g., `?rOpenScPCA::sce_to_symbols`) for additional information on their use, including options for handling duplicate and/or missing gene symbols.
 
 ### I noticed there are cluster assignments in the processed data files. Should I use those or re-cluster the data?
 
