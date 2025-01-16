@@ -129,7 +129,7 @@ For more information on obtaining result files, please refer to the documentatio
 When working with these `Seurat` objects, please bear in mind the following:
 
 * They were _not_ processed with a `Seurat` pipeline.
-They were processed using the same pipeline as all OpenScPCA objects (e.g., with `Bioconductor`), and then converted to a `Seurat` format
+They were processed using the same pipeline as all OpenScPCA objects were (e.g., with `Bioconductor`), and then converted to `Seurat` format
   * Notably, they do contain the raw data counts, allowing you to perform normalization, dimension reduction, etc. with `Seurat` directly if you so choose
 * To be more consistent with `Seurat` analysis pipelines, gene names in these objects use gene symbols rather than Ensembl ids
 
@@ -137,6 +137,7 @@ They were processed using the same pipeline as all OpenScPCA objects (e.g., with
 ### The ScPCA data objects contain Ensembl ids, but I need gene symbols for my analysis. How should I perform this conversion?
 
 In an effort to keep this consistent across the OpenScPCA project, we provide functions to convert Ensembl ids to gene symbols in an R package we maintain called [`rOpenScPCA`](https://github.com/AlexsLemonade/rOpenScPCA/).
+Installation instructions are provided in the `rOpenScPCA` GitHub repository.
 
 This package has two particular functions to support this task:
 
@@ -145,7 +146,7 @@ This package has two particular functions to support this task:
 * `rOpenScPCA::ensembl_to_symbol()`
   * This function converts a vector of Ensembl ids to a vector of gene symbols
 
-Please refer to these functions' help menus (e.g., `?rOpenScPCA::sce_to_symbols`) for additional information on how to use them.
+Please refer to these functions' help menus (e.g., `?rOpenScPCA::sce_to_symbols`) for additional information on their use.
 
 ### I noticed there are cluster assignments in the processed data files. Should I use those or re-cluster the data?
 
@@ -156,7 +157,8 @@ Instead, we strongly recommend re-clustering the data _and_ evaluating your clus
 To support clustering analysis and evaluation, we provide several functions in an R package we maintain called [`rOpenScPCA`](https://github.com/AlexsLemonade/rOpenScPCA/) to accomplish the following tasks:
 
 * Perform graph-based clustering
-* Evaluate clustering results with quality control metrics
-* Calculate several sets of clustering results across parameter space
+* Evaluate clustering results with several quality control metrics
+* Calculate different sets of clustering results across parameter space in order to identify an optimal clustering scheme
 
 We also provide an OpenScPCA analysis module [`hello-clusters`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/hello-clusters) with example notebooks demonstrating how to use clustering functionality in `rOpenScPCA`.
+This module also provides instructions on how to install `rOpenScPCA`.
