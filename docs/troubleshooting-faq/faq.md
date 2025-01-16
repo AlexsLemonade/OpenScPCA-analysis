@@ -2,7 +2,7 @@
 
 ### Why didn't the sample/project I specified when running the data download script download?
 
-First, we recommend using the `--dryrun` flag when running the [data download script](../getting-started/accessing-resources/getting-access-to-data.md#using-the-download-data-script) to check which files _would_ be downloaded.
+First, we recommend using the `--dryrun` flag when running the [`download-data.py` script](../getting-started/accessing-resources/getting-access-to-data.md#using-the-download-data-script) to check which files _would_ be downloaded.
 This will confirm that there is nothing wrong with your internet connection and that you are properly [logged into your AWS profile](../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
 
 If running the script with `--dryrun` states that _only_ the `DATA_USAGE.md` file is being downloaded, this means the data files you are attempting to download do not exist.
