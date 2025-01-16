@@ -121,17 +121,18 @@ After running the module, results will generally be stored in `analysis/{module 
 
 ### What if I want to use Seurat?
 
-While [data downloads](../getting-started/accessing-resources/getting-access-to-data.md) are only available in `SingleCellExperiment` and `AnnData` format, `Seurat` versions of all objects (in [v5 assay format](https://satijalab.org/seurat/articles/seurat5_essential_commands)) are also available for use.
+While [data downloads](../getting-started/accessing-resources/getting-access-to-data.md) are only available in `SingleCellExperiment` and `AnnData` format, `Seurat` versions of processed objects (in [v5 assay format](https://satijalab.org/seurat/articles/seurat5_essential_commands)) are also available for use.
 
 These files are part of the OpenScPCA results, associated with the module [`seurat-conversion`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/seurat-conversion) which we wrote to convert the processed `SingleCellExperiment` objects to `Seurat` format.
 For more information on obtaining result files, please refer to the documentation for [the `download-results.py` script](../getting-started/accessing-resources/getting-access-to-data.md#accessing-scpca-module-results).
 
 When working with these `Seurat` objects, please bear in mind the following:
 
-* They were _not_ processed with a `Seurat` pipeline.
-They were processed using the same pipeline as all OpenScPCA objects were (e.g., with `Bioconductor`), and then converted to `Seurat` format
-  * Notably, they do contain the raw data counts, allowing you to perform normalization, dimension reduction, etc. with `Seurat` directly if you so choose
-* To be more consistent with `Seurat` analysis pipelines, gene names in these objects use gene symbols rather than Ensembl ids
+* These `Seurat` objects include the same content as the `SingleCellExperiment` objects that they are derived from.
+This includes raw and normalized counts, annotations of highly variable genes, PCA and UMAP transformations, as well as cell and feature metadata.  
+  * Note that all calculations were performed using `Bioconductor` packages, so values will differ from the results obtained using `Seurat` functions from the same raw data.
+  * If `Seurat`-derived values are required, processing steps may need to be repeated.
+* To be more consistent with `Seurat` analysis pipelines, these objects use gene symbols rather than Ensembl ids as the row names and primary feature id.
 
 
 ### The ScPCA data objects contain Ensembl ids, but I need gene symbols for my analysis. How should I perform this conversion?
@@ -141,12 +142,12 @@ Installation instructions are provided in the `rOpenScPCA` GitHub repository.
 
 This package has two particular functions to support this task:
 
-* `rOpenScPCA::sce_to_symbols()`
-  * This function converts row names in a `SingleCellExperiment` object from Ensembl ids to gene symbols
 * `rOpenScPCA::ensembl_to_symbol()`
   * This function converts a vector of Ensembl ids to a vector of gene symbols
+* `rOpenScPCA::sce_to_symbols()`
+  * This function converts row names in a `SingleCellExperiment` object from Ensembl ids to gene symbols
 
-Please refer to these functions' help menus (e.g., `?rOpenScPCA::sce_to_symbols`) for additional information on their use.
+Please refer to these functions' help pages (e.g., `?rOpenScPCA::sce_to_symbols`) for additional information on their use, including options for handling duplicate gene symbols.
 
 ### I noticed there are cluster assignments in the processed data files. Should I use those or re-cluster the data?
 
@@ -160,5 +161,5 @@ To support clustering analysis and evaluation, we provide several functions in a
 * Evaluate clustering results with several quality control metrics
 * Calculate different sets of clustering results across parameter space in order to identify an optimal clustering scheme
 
-We also provide an OpenScPCA analysis module [`hello-clusters`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/hello-clusters) with example notebooks demonstrating how to use clustering functionality in `rOpenScPCA`.
+We also provide an OpenScPCA analysis module [`hello-clusters`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/hello-clusters) with example notebooks demonstrating how to use the clustering functionality in `rOpenScPCA`.
 This module also provides instructions on how to install `rOpenScPCA`.
