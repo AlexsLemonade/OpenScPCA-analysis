@@ -1,8 +1,8 @@
 # Frequently asked questions
 
-### Why didn't the sample/project I specified when running the [data download script](../getting-started/accessing-resources/getting-access-to-data.md#using-the-download-data-script) download?
+### Why didn't the sample/project I specified when running the data download script download?
 
-First, we recommend using the `--dryrun` flag when running the `download-data.py` script to check which files _would_ be downloaded.
+First, we recommend using the `--dryrun` flag when running the [data download script](../getting-started/accessing-resources/getting-access-to-data.md#using-the-download-data-script) to check which files _would_ be downloaded.
 This will confirm that there is nothing wrong with your internet connection and that you are properly [logged into your AWS profile](../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
 
 If running the script with `--dryrun` states that _only_ the `DATA_USAGE.md` file is being downloaded, this means the data files you are attempting to download do not exist.
@@ -117,3 +117,19 @@ However, there may be circumstances when you want to use results from a module w
 In such cases, you will need to run the module yourself to generate the results.
 Instructions for [running the module](../contributing-to-analyses/analysis-modules/running-a-module.md), including its software and compute requirements, should be available in the module's main `README.md` file.
 After running the module, results will generally be stored in `analysis/{module name}/results`, and the module's documentation should describe the contents of result files.
+
+
+### What if I want to use Seurat?
+
+While [data downloads](../getting-started/accessing-resources/getting-access-to-data.md) are only available in `SingleCellExperiment` and `AnnData` format, `Seurat` versions of all objects (in [v5 assay format](https://satijalab.org/seurat/articles/seurat5_essential_commands)) are also available for use.
+
+These files are part of the OpenScPCA results, associated with the module [`seurat-conversion`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/seurat-conversion) which we wrote to convert the processed `SingleCellExperiment` objects to `Seurat` format.
+For more information on obtaining result files, please refer to the documentation for [the `download-results.py` script](../getting-started/accessing-resources/getting-access-to-data.md#accessing-scpca-module-results).
+
+When working with these `Seurat` objects, please bear in mind the following:
+
+* They were _not_ processed with a `Seurat` pipeline.
+They were processed using the same pipeline as all OpenScPCA objects (e.g., with `Bioconductor`), and then converted to a `Seurat` format
+    * Notably, they do contain the raw data counts, allowing you to perform normalization, dimension reduction, etc. with `Seurat` directly if you so choose
+* To be more consistent with `Seurat` analysis pipelines, gene names in these objects use gene symbols rather than Ensembl ids
+
