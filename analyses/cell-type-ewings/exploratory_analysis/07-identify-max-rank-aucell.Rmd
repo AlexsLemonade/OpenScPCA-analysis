@@ -67,7 +67,7 @@ sce_list <- sce_list |>
   purrr::map(\(sce){
     
     genes_to_remove <- rowData(sce)$detected > 0 
-    filtered_sce <- sce[rowData(sce)$detected > 0 , ]
+    filtered_sce <- sce[genes_to_remove > 0 , ]
     
   })
 ```
