@@ -185,7 +185,8 @@ auc_df <- auc_results@assays@data$AUC |>
                       values_to = "auc"
   ) |> 
   # add in threshold column 
-  dplyr::left_join(threshold_df, by = "gene_set")
+  dplyr::left_join(threshold_df, by = "gene_set") |> 
+  dplyr:::relocate(gene_set, .after = barcodes)
 
 # export results as table
 readr::write_tsv(auc_df, opt$output_file)
