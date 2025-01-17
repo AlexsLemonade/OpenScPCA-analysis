@@ -56,10 +56,10 @@ renv::update("rOpenScPCA")
 ## Example notebooks
 
 1. The `01_perform-evaluate-clustering.Rmd` notebook shows examples of:
-  - Performing clustering with `rOpenScPCA::calculate_clusters()`
-  - Evaluating clustering with `rOpenScPCA::calculate_silhouette()`, `rOpenScPCA::calculate_purity()`, and `rOpenScPCA::calculate_stability()`
+    - Performing clustering with `rOpenScPCA::calculate_clusters()`
+    - Evaluating clustering with `rOpenScPCA::calculate_silhouette()`, `rOpenScPCA::calculate_purity()`, and `rOpenScPCA::calculate_stability()`
 It also contains explanations for how to interpret cluster quality metrics.
 
 2. The `02_compare-clustering-parameters.Rmd` notebook shows examples of:
-  - Performing clustering across a set of parameterizations with `rOpenScPCA::sweep_clusters()`
-  - Comparing and visualizing multiple sets of clustering results
+    - Performing clustering across a set of parameterizations with `rOpenScPCA::sweep_clusters()`
+    - Comparing and visualizing multiple sets of clustering results
