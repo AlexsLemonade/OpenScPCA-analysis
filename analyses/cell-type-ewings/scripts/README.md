@@ -272,6 +272,27 @@ Rscript 01-clustering.R \
   --seed 2024
 ```
 
+## Scripts used for running `AUCell` with `EWS-FLI` gene signatures 
+
+1. `01-aucell.R`: This script is used to run `AUCell` with a set of custom gene signatures on a single processed object. 
+By default, all gene signatures in [references/gene_signatures](../references/gene_signatures/) are used alongside a set of gene signatures from `MSigDB` associated with high and low EWS-FLI1 expression. 
+The full list of gene signatures used can be found in [the references `README.md`](../references/README.md#gene-signatures). 
+
+`AUCell` is run for each gene signature and AUC values along with the AUC threshold reported by `AUCell` are saved to a TSV file. 
+`AUCell` is run with a `aucMaxRank` value equal to 1% of the detected genes in the processed object. 
+This can be changed using the `--max_rank_threshold` parameter. 
+
+By default, this script uses 4 CPUs. 
+
+To run this script using the default parameters use the following command: 
+
+```sh
+Rscript 01-aucell.R \
+  --sce_file <path to processed SCE file> \
+  --output_file <path to TSV file to save AUC results>
+```
+
+
 ## Utils
 
 The `utils` folder contains scripts with any helper functions that are used in `scripts` and notebooks for this module.
