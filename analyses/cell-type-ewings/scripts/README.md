@@ -279,7 +279,7 @@ By default, all gene signatures in [references/gene_signatures](../references/ge
 The full list of gene signatures used can be found in [the references `README.md`](../references/README.md#gene-signatures). 
 
 `AUCell` is run for each gene signature and AUC values along with the AUC threshold reported by `AUCell` are saved to a TSV file. 
-`AUCell` is run with a `aucMaxRank` value equal to 1% of the detected genes in the processed object. 
+`AUCell` is run with an `aucMaxRank` value equal to 1% of the detected genes in the processed object. 
 This can be changed using the `--max_rank_threshold` parameter. 
 
 By default, this script uses 4 CPUs. 

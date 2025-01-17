@@ -20,7 +20,7 @@
 # By default AUCell is run with an aucMaxRank of 1% (max_rank_threshold=0.01) of the total genes detected in a sample
 # To change this use the following command, specifying a max_rank_threshold between 0-1
 
-# max_rank_threshold=1 ./run-aucell-ews-signatures.sh
+# max_rank_threshold=.05 ./run-aucell-ews-signatures.sh
 
 set -euo pipefail
 
