@@ -1,8 +1,8 @@
 # Frequently asked questions
 
-### Why didn't the sample/project I specified when running the [data download script](../getting-started/accessing-resources/getting-access-to-data.md#using-the-download-data-script) download?
+### Why didn't the sample/project I specified when running the data download script download?
 
-First, we recommend using the `--dryrun` flag when running the `download-data.py` script to check which files _would_ be downloaded.
+First, we recommend using the `--dryrun` flag when running the [`download-data.py` script](../getting-started/accessing-resources/getting-access-to-data.md#using-the-download-data-script) to check which files _would_ be downloaded.
 This will confirm that there is nothing wrong with your internet connection and that you are properly [logged into your AWS profile](../technical-setup/environment-setup/configure-aws-cli.md#logging-in-to-a-new-session).
 
 If running the script with `--dryrun` states that _only_ the `DATA_USAGE.md` file is being downloaded, this means the data files you are attempting to download do not exist.
@@ -20,7 +20,7 @@ Data files in each release are organized on S3 as:
 {Release}
     ├── {Project ID}
     │   └── {Sample ID}
-    │       └── {Library files}
+    │       └── {Library files}
     ├── bulk_metadata.tsv (if applicable)
     ├── bulk_quant.tsv (if applicable)
     └── single_cell_metadata.tsv
@@ -117,3 +117,48 @@ However, there may be circumstances when you want to use results from a module w
 In such cases, you will need to run the module yourself to generate the results.
 Instructions for [running the module](../contributing-to-analyses/analysis-modules/running-a-module.md), including its software and compute requirements, should be available in the module's main `README.md` file.
 After running the module, results will generally be stored in `analysis/{module name}/results`, and the module's documentation should describe the contents of result files.
+
+
+### What if I want to use Seurat?
+
+While [data downloads](../getting-started/accessing-resources/getting-access-to-data.md) are only available in `SingleCellExperiment` and `AnnData` format, `Seurat` versions of processed objects (in [v5 assay format](https://satijalab.org/seurat/articles/seurat5_essential_commands)) are also available for use.
+
+These files are part of the OpenScPCA results, associated with the module [`seurat-conversion`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/seurat-conversion) which we wrote to convert the processed `SingleCellExperiment` objects to `Seurat` format.
+For more information on obtaining result files, please refer to the documentation for [the `download-results.py` script](../getting-started/accessing-resources/getting-access-to-data.md#accessing-scpca-module-results).
+
+When working with these `Seurat` objects, please bear in mind the following:
+
+* These `Seurat` objects include the same content as the `SingleCellExperiment` objects that they are derived from.
+This includes raw and normalized counts, annotations of highly variable genes, PCA and UMAP transformations, as well as cell and feature metadata.
+  * Note that all calculations were performed using `Bioconductor` packages, so values will differ from the results obtained using `Seurat` functions from the same raw data.
+  * If your analysis requires fields created from `Seurat` processing pipelines, you will need to repeat those processing steps.
+* To be more consistent with `Seurat` analysis pipelines, these objects use gene symbols rather than Ensembl ids as the row names and primary feature id.
+
+
+### The ScPCA data objects contain Ensembl ids, but I need gene symbols for my analysis. How should I perform this conversion?
+
+In an effort to keep this consistent across the OpenScPCA project, we provide functions to convert Ensembl ids to gene symbols in an R package we maintain called `rOpenScPCA`.
+Installation instructions are provided in the [`rOpenScPCA` GitHub repository](https://github.com/AlexsLemonade/rOpenScPCA/?tab=readme-ov-file#installation).
+This package has two particular functions to support this task:
+
+* `rOpenScPCA::ensembl_to_symbol()`
+  * This function converts a vector of Ensembl ids to a vector of gene symbols
+* `rOpenScPCA::sce_to_symbols()`
+  * This function converts row names in a `SingleCellExperiment` object from Ensembl ids to gene symbols
+
+Please refer to these functions' help pages (e.g., `?rOpenScPCA::sce_to_symbols`) for additional information on their use, including options for handling duplicate or missing gene symbols.
+
+### I noticed there are cluster assignments in the processed data files. Should I use those or re-cluster the data?
+
+All ScPCA data objects contain cluster assignments which were [calculated using an automated pipeline](https://scpca.readthedocs.io/en/stable/processing_information.html#processed-gene-expression-data).
+Because the clustering parameters used in this automated pipeline were not tailored to any given dataset, we do not recommend relying on these clusters for downstream analysis.
+Instead, we strongly recommend re-clustering the data _and_ evaluating your cluster assignments before using them.
+
+To support clustering analysis and evaluation, we provide several functions in an R package we maintain called [`rOpenScPCA`](https://github.com/AlexsLemonade/rOpenScPCA/) to accomplish the following tasks:
+
+* Perform graph-based clustering
+* Evaluate clustering results with several quality control metrics
+* Calculate different sets of clustering results across parameter space in order to identify an optimal clustering scheme
+
+We also provide an OpenScPCA analysis module [`hello-clusters`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/hello-clusters) with example notebooks demonstrating how to use the clustering functionality in `rOpenScPCA`.
+This module also provides instructions on how to install `rOpenScPCA`.
