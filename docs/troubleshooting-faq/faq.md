@@ -146,7 +146,7 @@ This package has two particular functions to support this task:
 * `rOpenScPCA::sce_to_symbols()`
   * This function converts row names in a `SingleCellExperiment` object from Ensembl ids to gene symbols
 
-Please refer to these functions' help pages (e.g., `?rOpenScPCA::sce_to_symbols`) for additional information on their use, including options for handling duplicate and/or missing gene symbols.
+Please refer to these functions' help pages (e.g., `?rOpenScPCA::sce_to_symbols`) for additional information on their use, including options for handling duplicate or missing gene symbols.
 
 ### I noticed there are cluster assignments in the processed data files. Should I use those or re-cluster the data?
 
