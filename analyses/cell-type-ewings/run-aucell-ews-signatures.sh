@@ -42,6 +42,7 @@ mkdir -p ${results_dir}
 
 # gene signature directory 
 gene_signatures_dir="${module_dir}/references/gene_signatures"
+msigdb_geneset_file="${module_dir}/references/msigdb-gene-sets.txt"
 
 # define all sample IDs 
 sample_ids=$(basename -a ${data_dir}/SCPCS*)
@@ -65,6 +66,7 @@ for sample_id in $sample_ids; do
         Rscript scripts/aucell-ews-signatures/01-aucell.R \
           --sce_file $sce_file \
           --custom_geneset_dir $gene_signatures_dir \
+          --msigdb_genesets $msigdb_geneset_file \
           --max_rank_threshold $max_rank_threshold \
           --output_file $auc_results_file \
           --threads $threads \
