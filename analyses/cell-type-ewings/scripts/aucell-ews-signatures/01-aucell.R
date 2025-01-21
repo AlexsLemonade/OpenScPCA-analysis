@@ -25,6 +25,13 @@ option_list <- list(
       File names will be used as the name of the gene set."
   ),
   make_option(
+    opt_str = c("--msigdb_genesets"),
+    type = "character", 
+    default = file.path(project_root, "references", "msigdb-gene-sets.tsv"),
+    help = "Path to TSV file containing all gene sets from MSigDB to use with AUCell.
+      Must contain columns with `name`, `geneset`, `category`, and `subcategory`."
+  ), 
+  make_option(
     opt_str = c("--max_rank_threshold"),
     type = "double",
     default = 0.01,
@@ -58,6 +65,7 @@ opt <- parse_args(OptionParser(option_list = option_list))
 # make sure input files exist
 stopifnot(
   "sce file does not exist" = file.exists(opt$sce_file),
+  "MSigDB gene set file does not exist" = file.exists(opt$msigdb_genesets),
   "max_rank_threshold must be between 0 and 1" = (opt$max_rank_threshold <= 1 & opt$max_rank_threshold > 0)
 )
 
@@ -87,6 +95,9 @@ sce <- readr::read_rds(opt$sce_file)
 genes_to_remove <- rowData(sce)$detected > 0 
 filtered_sce <- sce[genes_to_remove , ]
 
+# read in gene sets to use with msigdb
+genesets_df <- readr::read_tsv(opt$msigdb_genesets)
+
 # Prep gene sets ---------------------------------------------------------------
 
 # get list of files with custom gene sets to use 
@@ -103,30 +114,41 @@ custom_genes_list <- gene_set_files |>
       unique()
   })
 
-# grab msigdb gene sets 
-ews_gene_sets <- c(
-  "staege" = "STAEGE_EWING_FAMILY_TUMOR",
-  "miyagawa_up" = "MIYAGAWA_TARGETS_OF_EWSR1_ETS_FUSIONS_UP",
-  "miyagawa_down" = "MIYAGAWA_TARGETS_OF_EWSR1_ETS_FUSIONS_DN",
-  "zhang"= "ZHANG_TARGETS_OF_EWSR1_FLI1_FUSION", 
-  "riggi_up" = "RIGGI_EWING_SARCOMA_PROGENITOR_UP",
-  "riggi_down" = "RIGGI_EWING_SARCOMA_PROGENITOR_DN",
-  "kinsey_up" = "KINSEY_TARGETS_OF_EWSR1_FLII_FUSION_UP",
-  "kinsey_down"= "KINSEY_TARGETS_OF_EWSR1_FLII_FUSION_DN"
-)
+# get list of categories that we need to grab from msigdb
+category_list <- genesets_df |> 
+  dplyr::select(category, subcategory) |>
+  unique() |>
+  purrr::transpose()
+
+# list of genesets and names 
+geneset_list <- genesets_df$geneset |> 
+  purrr::set_names(genesets_df$name)
 
 # pull gene sets from msigbdr
-# all gene sets are part of C2, CGP
-msig_genes_df <- msigdbr::msigdbr(
-  species = "Homo sapiens",
-  category = "C2",
-  subcategory = "CGP"
-) |>
+# first pull out info for each category and then pull out specific genes for geneset 
+msig_genes_df <- category_list |> 
+  purrr::map(\(category_list){
+    
+    # replace subcategory with default NULL 
+    # can't use NULL in tsv since it gets read in as a character 
+    if(is.na(category_list$subcategory)){
+      subcategory <- NULL
+    } else {
+      subcategory <- category_list$subcategory
+    }
+    
+    msigdbr::msigdbr(
+      species = "Homo sapiens",
+      category = category_list$category,
+      subcategory = subcategory
+    )
+  }) |>
+  dplyr::bind_rows() |>
   # only keep relevant gene sets
-  dplyr::filter(gs_name %in% ews_gene_sets)
+  dplyr::filter(gs_name %in% geneset_list)
 
 # create named list of genes in each gene set
-msig_genes_list <- ews_gene_sets |>
+msig_genes_list <- geneset_list |>
   purrr::map(\(name){
     genes <- msig_genes_df |>
       dplyr::filter(gs_name == name) |>
@@ -152,7 +174,7 @@ auc_results <- AUCell::AUCell_run(
   counts_mtx, 
   collection, 
   aucMaxRank = max_rank,
-  #BPPARAM = bp_param
+  BPPARAM = bp_param
 )
 
 # Get threshold ----------------------------------------------------------------
