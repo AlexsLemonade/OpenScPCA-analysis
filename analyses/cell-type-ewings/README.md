@@ -206,7 +206,7 @@ The `evaluate-clusters.sh` uses 4 CPUs and can be run locally on a laptop or on 
 
 ## Using `AUCell` to calculate gene set signatures 
 
-The script, `run-aucell-ews-gene-signatures.sh`, is used to run `AUCell` with a set of custom gene signatures on all samples in SCPCP000015. 
+The script, `run-aucell-ews-signatures.sh`, is used to run `AUCell` with a set of custom gene signatures on all samples in SCPCP000015. 
 By default, AUC values are calculated for all gene signatures in [references/gene_signatures](references/gene_signatures/) and a set of `MSigDB` signatures associated with high and low EWS-FLI1 expression. 
 The full list of gene signatures used can be found in [the references `README.md`](references/README.md#gene-signatures). 
 
@@ -215,7 +215,7 @@ By default, `AUCell` is run with an `aucMaxRank` value equal to 1% of the detect
 
 ### Usage
 
-The `run-aucell-ews-gene-signatures.sh` script can be run using the following command:
+The `run-aucell-ews-signatures.sh` script can be run using the following command:
 
 ```sh
 ./run-aucell-ews-gene-signatures.sh
@@ -229,7 +229,7 @@ max_rank_threshold=.05 ./run-aucell-ews-signatures.sh
 
 ### Input files
 
-The `run-aucell-ews-gene-signatures.sh` workflow requires the processed `SingleCellExperiment` objects (`_processed.rds`) from SCPCP0000015.
+The `run-aucell-ews-signatures.sh` workflow requires the processed `SingleCellExperiment` objects (`_processed.rds`) from SCPCP0000015.
 These files were obtained using the `download-data.py` script:
 
 ```sh
@@ -241,7 +241,7 @@ The workflow also requires the custom marker gene sets present in [`references/g
 
 ### Output files
 
-Running the `run-aucell-ews-gene-signatures.sh` script will generate the following output files in `results/aucell-ews-signatures` for each sample/library combination.
+Running the `run-aucell-ews-signatures.sh` script will generate the following output files in `results/aucell-ews-signatures` for each sample/library combination.
 
 ```
 aucell-ews-signatures
