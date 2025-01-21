@@ -207,10 +207,10 @@ The `evaluate-clusters.sh` uses 4 CPUs and can be run locally on a laptop or on 
 ## Using `AUCell` to calculate gene set signatures 
 
 The script, `run-aucell-ews-gene-signatures.sh`, is used to run `AUCell` with a set of custom gene signatures on all samples in SCPCP000015. 
-By default, AUC values for calculated for all gene signatures in [references/gene_signatures](../references/gene_signatures/) and a set of `MSigDB` signatures associated with high and low EWS-FLI1 expression. 
-The full list of gene signatures used can be found in [the references `README.md`](../references/README.md#gene-signatures). 
+By default, AUC values are calculated for all gene signatures in [references/gene_signatures](references/gene_signatures/) and a set of `MSigDB` signatures associated with high and low EWS-FLI1 expression. 
+The full list of gene signatures used can be found in [the references `README.md`](references/README.md#gene-signatures). 
 
-`AUCell` is run for each gene signature and AUC values along with the AUC threshold reported by `AUCell` are saved to a TSV file. 
+`AUCell` is run for each gene signature, and AUC values along with the AUC threshold reported by `AUCell` are saved to a TSV file. 
 By default, `AUCell` is run with an `aucMaxRank` value equal to 1% of the detected genes in the processed object. 
 
 ### Usage
@@ -218,7 +218,7 @@ By default, `AUCell` is run with an `aucMaxRank` value equal to 1% of the detect
 The `run-aucell-ews-gene-signatures.sh` script can be run using the following command:
 
 ```sh
-./run-aucell-ews-gene-signatures.sh.sh
+./run-aucell-ews-gene-signatures.sh
 ```
 
 To a different percentage of detected genes to determine `aucMaxRank` use the following command, specifying a max_rank_threshold between 0-1: 
@@ -261,7 +261,7 @@ The `auc-ews-gene-signatures.tsv` file contains the following columns:
 
 ### Computational resources 
 
-`run-aucell-ews-gene-signatures.sh` uses 4 CPUs and can be run locally on a laptop or on a virtual computer on Lightsail for Research.
+`run-aucell-ews-signatures.sh` uses 4 CPUs and can be run locally on a laptop or on a virtual computer on Lightsail for Research.
 
 ## CNV annotation workflow
 

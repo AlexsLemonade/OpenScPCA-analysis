@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This script is used to get AUC values for a set of EWS-FLI1 high/low gene signatures using AUCell
-# The input gene signatures are those saved in `references/gene_signatures` and the following MsigDb gene sets: 
+# The input gene signatures are those saved in `references/gene_signatures` and the following MSigDb gene sets: 
 
 # `STAEGE_EWING_FAMILY_TUMOR`
 # `MIYAGAWA_TARGETS_OF_EWSR1_ETS_FUSIONS_UP`
