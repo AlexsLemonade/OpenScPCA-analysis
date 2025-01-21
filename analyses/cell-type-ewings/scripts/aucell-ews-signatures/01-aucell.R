@@ -64,6 +64,10 @@ opt <- parse_args(OptionParser(option_list = option_list))
 
 # make sure input files exist
 stopifnot(
+  "sce file must be specified using `--sce_file`" = !is.null(opt$sce_file)
+)
+
+stopifnot(
   "sce file does not exist" = file.exists(opt$sce_file),
   "MSigDB gene set file does not exist" = file.exists(opt$msigdb_genesets),
   "max_rank_threshold must be between 0 and 1" = (opt$max_rank_threshold <= 1 & opt$max_rank_threshold > 0)
