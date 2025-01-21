@@ -42,7 +42,7 @@ mkdir -p ${results_dir}
 
 # gene signature directory 
 gene_signatures_dir="${module_dir}/references/gene_signatures"
-msigdb_geneset_file="${module_dir}/references/msigdb-gene-sets.txt"
+msigdb_geneset_file="${module_dir}/references/msigdb-gene-sets.tsv"
 
 # define all sample IDs 
 sample_ids=$(basename -a ${data_dir}/SCPCS*)
