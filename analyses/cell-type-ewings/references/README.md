@@ -88,4 +88,7 @@ The following gene sets from MSigDB were also used to define EWS-FLI1 targets an
 Wrenn _et al._ also used found that the following additional gene sets were highly expressed in CD73 high, EWS-FLI1 low tumor cells:
 
 - [`HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION`](https://www.gsea-msigdb.org/gsea/msigdb/human/geneset/HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION.html)
-- [`REGULATION_OF_EXTRACELLULAR_MATRIX_ORGANIZATION`](https://www.gsea-msigdb.org/gsea/msigdb/human/geneset/GOBP_REGULATION_OF_EXTRACELLULAR_MATRIX_ORGANIZATION.html)
+- [`GOBP_REGULATION_OF_EXTRACELLULAR_MATRIX_ORGANIZATION`](https://www.gsea-msigdb.org/gsea/msigdb/human/geneset/GOBP_REGULATION_OF_EXTRACELLULAR_MATRIX_ORGANIZATION.html)
+
+The `msigdb-gene-sets.tsv` file contains a list of any gene sets that are from `MSigDB` that may be useful for analysis (such as those mentioned above). 
+All gene sets in this file are used when running `AUCell` as part of `run-aucell-ews-signatures.sh`. 
