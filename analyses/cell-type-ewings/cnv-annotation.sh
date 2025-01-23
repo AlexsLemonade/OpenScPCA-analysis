@@ -1,5 +1,7 @@
 #!/bin/bash
 
+## THIS WORKFLOW HAS BEEN REMOVED FROM CI AND IS NO LONGER BEING MAINTAINED ##
+
 ####
 : '
 This workflow will identify tumor cells in a single library.
