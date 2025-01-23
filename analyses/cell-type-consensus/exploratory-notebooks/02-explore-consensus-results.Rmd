@@ -46,50 +46,30 @@ summarize_celltypes <- function(file, id){
 
 # stacked bar chart showing the distribution of the top 9 cell types for each project, including Unknown
 celltype_distribution_plot <- function(label,
-                                       results_df = all_results_df){
+                                       results_df,
+                                       colors){
   
   # filter to get only results for the specified project 
-  plot_df <- results_df |> 
-    dplyr::filter(project_label == {{label}}) |>
-    dplyr::mutate(
-      # get most frequently observed cell types across libraries in that project 
-      top_celltypes = forcats::fct_lump_n(consensus_annotation, 9, other_level = "All remaining cell types", ties.method = "first") |> 
-        # sort by frequency 
-        forcats::fct_infreq() |> 
-        # make sure all remaining and unknown are last 
-        forcats::fct_relevel("All remaining cell types", "Unknown", after = Inf)
-    )
-  
-  
-  # get color assignments 
-  # put grey for unknoqn and all remaining cells at the end of list since they will show up last 
-  # first figure out how many cell types are assigned to make sure colors are assigned properly 
-  num_assigned_celltypes <- plot_df |> 
-    dplyr::filter(!top_celltypes %in% c("Unknown")) |> 
-    dplyr::pull(top_celltypes) |> 
-    unique() |> 
-    length()
-  
-  colors <- c(
-    palette.colors(palette = "Set1")[1:num_assigned_celltypes], # first get colors for cell types that are not unknown or all remaining
-    "grey95" # level for unknown
-  ) 
-  celltypes <- unique((plot_df$top_celltypes)) |> 
-    sort() #make sure they are in the right order 
-  names(colors) <- celltypes
-  
-  # make a stacked bar chart with top cell types 
-  ggplot(plot_df) + 
-    aes(
-      x = library_id, 
-      y = percent_cells_annotation, 
-      fill = top_celltypes
-    ) +
-    geom_col() + 
-    scale_y_continuous(expand = c(0,0)) +
-    scale_fill_manual(values = colors, name = "cell type") +
-    ggtitle(label) +
-    theme(axis.text.x = element_blank())
+    plot_df <- plot_df |> 
+      dplyr::filter(project_label == {{label}}) |> 
+      dplyr::mutate(
+        # relevel factors for specific project 
+        top_celltypes = forcats::fct_infreq(top_celltypes) |> 
+          forcats::fct_relevel("All remaining cell types", "Unknown", after = Inf)
+      )
+    
+    # make a stacked bar chart with top cell types 
+    ggplot(plot_df) + 
+      aes(
+        x = library_id, 
+        y = percent_cells_annotation, 
+        fill = top_celltypes
+      ) +
+      geom_col() + 
+      scale_y_continuous(expand = c(0,0)) +
+      scale_fill_manual(values = colors, name = "cell type") +
+      ggtitle(label) +
+      theme(axis.text.x = element_blank())
   
 }
 ```
@@ -123,7 +103,7 @@ diagnoses_file <- file.path(module_base, "sample-info", "project-diagnoses.tsv")
 
 ```{r}
 # list all results files 
-results_files <- list.files(opt$results_dir, pattern = "*_consensus-cell-types.tsv.gz", full.names = TRUE)
+results_files <- list.files(results_dir, pattern = "*_consensus-cell-types.tsv.gz", full.names = TRUE)
 
 # get project ids from file list  
 project_ids <- stringr::str_remove(basename(results_files), "_consensus-cell-types.tsv.gz")
@@ -260,10 +240,43 @@ Note that because the top cell types are different for each project, the colors 
 The only colors that will stay the same are those for "Unknown" and "All remaining cell types". 
 
 ```{r}
+plot_df <- all_results_df |> 
+    dplyr::group_by(project_id) |> 
+    dplyr::mutate(
+      # get most frequently observed cell types across libraries in that project 
+      top_celltypes = forcats::fct_lump_n(consensus_annotation, 9, other_level = "All remaining cell types", ties.method = "first") |> 
+        # sort by frequency 
+        forcats::fct_infreq() |> 
+        # make sure all remaining and unknown are last, use this to assign colors in specific order
+        forcats::fct_relevel("All remaining cell types", "Unknown", after = Inf)
+    )
+
+# get all unique cell types ordered by frequency 
+unique_celltypes <- plot_df |> 
+  dplyr::filter(!top_celltypes %in% c("All remaining cell types", "Unknown")) |> 
+  dplyr::pull(top_celltypes) |> 
+  unique() |>
+  sort() |> 
+  as.character()
+
+# get color palette
+colors <- c(
+  palette.colors(palette = "alphabet"),
+  "black", # 1 extra since alphabet is 26 and we have 27, this will be plasma cell which shows up once 
+  "grey60", 
+  "grey95"
+)
+names(colors) <- c(unique_celltypes, "All remaining cell types", "Unknown")
+```
+
+
+```{r}
 project_labels <- unique(all_results_df$project_label)
 
 project_labels |> 
-  purrr::map(celltype_distribution_plot)
+  purrr::map(\(label){
+    celltype_distribution_plot(label, plot_df, colors)
+    })
 ```
 
 
