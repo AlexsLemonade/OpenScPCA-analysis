@@ -195,7 +195,7 @@ Rscript 01-aucell.R \
 
 ## Scripts used in the CNV annotation workflow
 
-**NOTE:** This workflow is has been removed from CI and is no longer maintained! 
+**NOTE:** This workflow is no longer used in the cell type annotation analysis, has been removed from CI, and is no longer maintained! 
 
 The scripts in the `cnv-workflow` folder are implemented in `cnv-annotation.sh`:
 
