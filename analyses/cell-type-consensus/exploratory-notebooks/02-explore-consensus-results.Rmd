@@ -111,8 +111,8 @@ names(results_files) <- project_ids
 
 # remove cell line projects from file list
 cell_line_projects <- c("SCPCP000020", "SCPCP000024")
-results_files <- results_files[!names(results_files) %in% cell_line_projects]
-project_ids <- names(results_files) #update project ids to remove cell line projects
+project_ids <- setdiff(project_ids, cell_line_projects) # remove cell line projects
+results_files <- results_files[project_ids]
 ```
 
 
@@ -146,7 +146,7 @@ unknown_only <- all_results_df |>
 
 ggplot(unknown_only, aes(x = project_label, y = percent_cells_annotation)) +
   ggforce::geom_sina(size = 0.1) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1),
+  theme(axis.text.x = element_text(angle = 90, hjust = 0.5),
         plot.margin = margin(10,10,10,10)) +
   labs(
     x = "", 
@@ -220,13 +220,9 @@ num_celltypes_df <- all_results_df |>
   dplyr::select(project_label, library_id, num_celltypes) |> 
   unique()
 
-ggplot(num_celltypes_df, aes(x = project_label, y = num_celltypes)) +
-  ggforce::geom_sina(size = 0.1) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = rel(0.9))) +
-  labs(
-    x = "", 
-    y = "Number of cell types"
-  )
+ggplot(num_celltypes_df, aes(x = num_celltypes)) +
+  geom_histogram(binwidth = 1, center = 0) +
+  facet_wrap(project_label)
 ```
 
 ## Distribution of consensus cell types 
@@ -298,9 +294,10 @@ all_results_df |>
   dplyr::filter(consensus_annotation != "Unknown") |> 
   dplyr::group_by(consensus_annotation) |> 
   dplyr::summarize(
-    total_libraries = length(library_id),
+    total_libraries = dplyr::n(),
     min_percentage = min(percent_cells_annotation),
     mean_percentage = round(mean(percent_cells_annotation), 2),
+    median_percentage = median(percent_cells_annotation),
     max_percentage = max(percent_cells_annotation)
   ) |> 
   dplyr::arrange(desc(total_libraries))
