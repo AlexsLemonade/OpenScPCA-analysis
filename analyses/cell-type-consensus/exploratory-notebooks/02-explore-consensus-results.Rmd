@@ -12,6 +12,18 @@ output:
 This notebook summarizes the findings from assigning consensus cell type labels to all ScPCA samples. 
 All results from the `cell-type-consensus` module in `OpenScPCA-nf` must be saved to `results` prior to rendering this notebook. 
 
+```{r packages}
+suppressPackageStartupMessages({
+  # load required packages
+  library(ggplot2)
+})
+
+# Set default ggplot theme
+theme_set(
+  theme_classic()
+)
+```
+
 ## Functions 
 
 ```{r}
@@ -43,50 +55,9 @@ summarize_celltypes <- function(file, id){
   return(summary_df)
   
 }
-
-# stacked bar chart showing the distribution of the top 9 cell types for each project, including Unknown
-celltype_distribution_plot <- function(label,
-                                       results_df,
-                                       colors){
-  
-  # filter to get only results for the specified project 
-    plot_df <- plot_df |> 
-      dplyr::filter(project_label == {{label}}) |> 
-      dplyr::mutate(
-        # relevel factors for specific project 
-        top_celltypes = forcats::fct_infreq(top_celltypes) |> 
-          forcats::fct_relevel("All remaining cell types", "Unknown", after = Inf)
-      )
-    
-    # make a stacked bar chart with top cell types 
-    ggplot(plot_df) + 
-      aes(
-        x = library_id, 
-        y = percent_cells_annotation, 
-        fill = top_celltypes
-      ) +
-      geom_col() + 
-      scale_y_continuous(expand = c(0,0)) +
-      scale_fill_manual(values = colors, name = "cell type") +
-      ggtitle(label) +
-      theme(axis.text.x = element_blank())
-  
-}
 ```
 
 ## Data setup
-
-```{r packages}
-suppressPackageStartupMessages({
-  # load required packages
-  library(ggplot2)
-})
-
-# Set default ggplot theme
-theme_set(
-  theme_classic()
-)
-```
 
 
 ```{r base paths}
@@ -103,7 +74,7 @@ diagnoses_file <- file.path(module_base, "sample-info", "project-diagnoses.tsv")
 
 ```{r}
 # list all results files 
-results_files <- list.files(results_dir, pattern = "*_consensus-cell-types.tsv.gz", full.names = TRUE)
+results_files <- list.files(results_dir, pattern = "_consensus-cell-types\\.tsv.\\gz$", full.names = TRUE)
 
 # get project ids from file list  
 project_ids <- stringr::str_remove(basename(results_files), "_consensus-cell-types.tsv.gz")
@@ -128,10 +99,8 @@ all_results_df <- results_files |>
   # add in diagnoses 
   dplyr::left_join(diagnoses_df, by = "project_id") |> 
   dplyr::mutate(
-    # remove leading 0s
-    project_string = stringr::str_remove(project_id, "SCPCP0000"),
     # create a label for plotting
-    project_label = glue::glue("{project_string}:{diagnosis}")
+    project_label = glue::glue("{project_id}:{diagnosis}")
   )
 
 ```
@@ -140,13 +109,13 @@ all_results_df <- results_files |>
 
 The first thing we will look at is how many of the cells in each sample are categorized as "Unknown", which means no consensus between `SingleR` and `CellAssign` was identified. 
 
-```{r, fig.height=5}
+```{r, fig.height=7}
 unknown_only <- all_results_df |> 
   dplyr::filter(consensus_annotation == "Unknown")
 
 ggplot(unknown_only, aes(x = project_label, y = percent_cells_annotation)) +
   ggforce::geom_sina(size = 0.1) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 0.5),
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
         plot.margin = margin(10,10,10,10)) +
   labs(
     x = "", 
@@ -155,7 +124,7 @@ ggplot(unknown_only, aes(x = project_label, y = percent_cells_annotation)) +
   
 ```
 
-It looks like we do have some samples that aren't jus all "Unknown"!
+It looks like we do have some samples that aren't just all "Unknown"!
 It definitely varies by project, but for most projects we at least see some proportion of samples with assigned cell types. 
 
 Let's look at how many samples actually have some cells outside of unknown identified. 
@@ -163,7 +132,7 @@ To do this, we will identify all libraries that only have cells called as "Unkno
 
 ```{r}
 high_tumor_df <- unknown_only |> 
-  dplyr::mutate(no_cells_identified = dplyr::if_else(percent_cells_annotation == 100, TRUE, FALSE)) |> 
+  dplyr::mutate(no_cells_identified = percent_cells_annotation == 100) |> 
   dplyr::group_by(project_label) |> 
   dplyr::summarize(all_unknown = sum(no_cells_identified),
                    classified_cells = sum(!no_cells_identified),
@@ -185,26 +154,6 @@ high_tumor_df |>
 
 ```
 
-```{r, fig.height=5}
-# pivot for plotting so above and below count is in the same column 
-high_tumor_df <- high_tumor_df |> 
-  tidyr::pivot_longer(
-    cols = c("all_unknown", "classified_cells"),
-    names_to = "category",
-    values_to = "number_of_samples"
-  )
-
-ggplot(high_tumor_df, aes(x = project_label, y = number_of_samples, fill = category)) +
-  geom_bar(position = "stack", stat= "identity") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = rel(0.9))) +
-  labs(
-    x = "", 
-    y = "Number of samples",
-    fill = ""
-  ) +
-  scale_fill_manual(values = c( "#FFCB05", "#00274C"))
-```
-
 It looks like all projects do have cell types identified that are not "Unknown". 
 However, `SCPCP000011` (retinoblastoma), has a fairly high percentage of samples without any consensus labels. 
 
@@ -213,27 +162,32 @@ However, `SCPCP000011` (retinoblastoma), has a fairly high percentage of samples
 Below we look at the number of cell types observed in each project for all samples. 
 This does not include cells labeled as "Unknown". 
 
-```{r}
+```{r, fig.height=10}
 num_celltypes_df <- all_results_df |> 
+  # add a new line for facet labels 
+  dplyr::mutate(facet_label = glue::glue("{project_id}\n{diagnosis}")) |>
   # remove unknown as a cell type 
   dplyr::filter(consensus_annotation != "Unknown") |> 
-  dplyr::select(project_label, library_id, num_celltypes) |> 
+  dplyr::select(facet_label, library_id, num_celltypes) |> 
   unique()
 
 ggplot(num_celltypes_df, aes(x = num_celltypes)) +
   geom_histogram(binwidth = 1, center = 0) +
-  facet_wrap(project_label)
+  facet_wrap(vars(facet_label), 
+             ncol = 3) +
+  labs(
+    x = "Number of cell types"
+  ) +
+  theme_bw()
 ```
 
 ## Distribution of consensus cell types 
 
 Now we look at the distribution of the cell types in each sample. 
 For these plots, we will pull out the top 9 cell types for each project. 
-All other cells will be labeld with "All remaining cell types". 
+All other cells will be labeled with "All remaining cell types". 
 
 The top cell types are determined by counting how many libraries each cell type is found in within a project and taking the most frequent types. 
-Note that because the top cell types are different for each project, the colors will be different for assigned cell types. 
-The only colors that will stay the same are those for "Unknown" and "All remaining cell types". 
 
 ```{r}
 plot_df <- all_results_df |> 
@@ -266,13 +220,36 @@ names(colors) <- c(unique_celltypes, "All remaining cell types", "Unknown")
 ```
 
 
-```{r}
+```{r, fig.height=60, fig.width=10}
 project_labels <- unique(all_results_df$project_label)
 
+# stacked bar chart showing the distribution of the top 9 cell types for each project, including Unknown
 project_labels |> 
   purrr::map(\(label){
-    celltype_distribution_plot(label, plot_df, colors)
-    })
+    
+    project_df <- plot_df |> 
+      dplyr::filter(project_label == {{label}}) |> 
+      dplyr::mutate(
+        # relevel factors for specific project 
+        top_celltypes = forcats::fct_infreq(top_celltypes) |> 
+          forcats::fct_relevel("All remaining cell types", "Unknown", after = Inf)
+      )
+    
+    # make a stacked bar chart with top cell types 
+    ggplot(project_df) + 
+      aes(
+        x = library_id, 
+        y = percent_cells_annotation, 
+        fill = top_celltypes
+      ) +
+      geom_col() + 
+      scale_y_continuous(expand = c(0,0)) +
+      scale_fill_manual(values = colors, name = "cell type") +
+      ggtitle(label) +
+      theme(axis.text.x = element_blank())
+  
+    }) |>
+  patchwork::wrap_plots(ncol = 1)
 ```
 
 
