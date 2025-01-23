@@ -47,7 +47,6 @@ jobs:
         run: |
           conda activate openscpca-cell-type-ewings
           cd $MODULE_PATH
-          bash cnv-annotation.sh
           bash aucell-singler-annotation.sh
           bash evaluate-clusters.sh
           bash run-aucell-ews-signatures.sh
