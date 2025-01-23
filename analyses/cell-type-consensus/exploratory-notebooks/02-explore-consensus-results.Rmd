@@ -228,7 +228,7 @@ project_labels |>
   purrr::map(\(label){
     
     project_df <- plot_df |> 
-      dplyr::filter(project_label == {{label}}) |> 
+      dplyr::filter(project_label == label) |> 
       dplyr::mutate(
         # relevel factors for specific project 
         top_celltypes = forcats::fct_infreq(top_celltypes) |> 
