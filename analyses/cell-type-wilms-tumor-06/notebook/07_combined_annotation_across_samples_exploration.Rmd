@@ -3,7 +3,7 @@ title: "Combined annotation exploration for SCPCP000006"
 author: "Maud PLASCHKA"
 date: "`r Sys.Date()`"
 params:
-  predicted.celltype.threshold: 0.85
+  predicted.celltype.threshold: 0.75
   cnv_threshold: 0
   testing: 0
 output:
@@ -47,9 +47,9 @@ _Where `cnv.thr` and `pred.thr` need to be discussed_
 
 | first level annotation | second level annotation | selection of the cells | marker genes for validation | CNV validation |
 | ---------------------- | ----------------------- | ---------------------- | --------------------------- | --------------- |
-| normal                 | endothelial             | `compartment == "endothelium" & predicted.score > pred.thr  & cnv_score < cnv.thr` | `VWF`| no CNV |
-| normal                 | immune                  | `compartment == "immune" & predicted.score > pred.thr & cnv_score < cnv.thr` | `PTPRC`, `CD163`, `CD68`| no CNV |
-| normal                 | kidney                  | `cell_type %in% c("kidney cell","kidney epithelial", "podocyte") & predicted.score > pred.thr & cnv_score < cnv.thr` | `CDH1`, `PODXL`, `LTL`| no CNV |
+| normal                 | endothelial             | `compartment == "endothelium" & predicted.score > pred.thr  | `VWF`| no CNV |
+| normal                 | immune                  | `compartment == "immune" & predicted.score > pred.thr  | `PTPRC`, `CD163`, `CD68`| no CNV |
+| normal                 | kidney                  | `compartment == "fetal_nephron" & predicted.score > pred.thr & cnv_score < cnv.thr` | `CDH1`, `PODXL`, `LTL`| no CNV |
 | normal                 | stroma                  | `compartment == "stroma" & predicted.score > pred.thr & cnv_score < cnv.thr`| `VIM`| no CNV |
 | cancer                 | stroma                  | `compartment == "stroma" & cnv_score > cnv.thr` | `VIM`| `proportion_cnv_chr: 1, 4, 11, 16, 17, 18` |
 | cancer                 | blastema                | `compartment == "fetal_nephron" & cell_type == "mesenchymal cell" & cnv_score > cnv.thr`  | `CITED1`| `proportion_cnv_chr: 1, 4, 11, 16, 17, 18` |
@@ -84,6 +84,9 @@ result_dir <- file.path(module_base, "results")
 ```
 
 ### Output files
+
+The report will be saved in the `notebook` directory.
+The final annotation file `SCPCP000006-annotations.tsv` will be saved in the `results` directory.
 
 ```{r}
 # cell type annotation table
@@ -245,9 +248,7 @@ cell_type_df <- sample_ids |>
   dplyr::bind_rows()
 ```
 
-### Output file
 
-The report will be saved in the `notebook` directory.
 
 
 ## Functions
@@ -287,8 +288,17 @@ do_Feature_mean <- function(df, group.by, feature) {
 As done in `06_cnv_infercnv_exploration.Rmd`, we calculate  single CNV score and assess its potential in identifying cells with CNV versus normal cells without CNV.
 
 We simply checked for each chromosome if the cell `has_cnv_chr`.
-Would the cell have more than `cnv_threshold` chromosome with CNV, the global `has_cnv_score` will be TRUE.
-Else, the cell will have a `has_cnv_score` set to FALSE.
+Would the cell have less than `cnv_threshold` chromosome with CNV, the global `has_cnv_score` will be FALSE.
+Would the cell have more than `cnv_threshold` +2 chromosome with CNV, the global `has_cnv_score` will be TRUE.
+The default is set to `unknown`.
+
+The `infercnv` method can lead to false positive CNV.
+We introduced a flexibility of `+2` over the `cnv_threshold` to reduce the risk of misclassification of normal cells as cancer cells.
+
+Please note that some cancer cell might not have any CNV. 
+There is thus a risk of misclassifying cancer cells as normal cells. 
+However, we cannot avoid this risk with the data and tools currently available.
+This is a limitation of our annotations. 
 
 
 
@@ -297,12 +307,12 @@ Else, the cell will have a `has_cnv_score` set to FALSE.
 cell_type_df <- cell_type_df |>
   mutate(has_cnv_score = rowSums(cell_type_df[, grepl("has_cnv_chr", colnames(cell_type_df))])) |>
   mutate(has_cnv_score = case_when(
-    has_cnv_score > params$cnv_threshold ~ "CNV",
-    has_cnv_score <= params$cnv_threshold ~ "no CNV"
+    has_cnv_score > params$cnv_threshold +2 ~ "CNV",
+    has_cnv_score <= params$cnv_threshold ~ "no CNV",
+    .default = "unknown"
   ))
 
 
-table(cell_type_df$has_cnv_score)
 ```
 
 ### First level annotation
@@ -326,11 +336,20 @@ The threshold used for the identification of CNV is also defined as the notebook
 cell_type_df <- cell_type_df |>
   mutate(first.level_annotation = case_when(
     # assign normal/cancer based on condition
-    compartment %in% c("fetal_nephron", "stroma") & has_cnv_score == "no CNV" ~ "normal",
-    compartment %in% c("endothelium", "immune") & cell_type.score > params$predicted.celltype.threshold ~ "normal",
-    compartment %in% c("fetal_nephron", "stroma") & has_cnv_score == "CNV" ~ "cancer",
+    compartment %in% c("fetal_nephron", "stroma") & 
+      compartment.score > params$predicted.celltype.threshold & 
+      has_cnv_score == "no CNV" ~ "normal",
+    
+    compartment %in% c("endothelium", "immune") &
+      cell_type.score > params$predicted.celltype.threshold ~ "normal",
+    
+    compartment %in% c("fetal_nephron", "stroma") & 
+      has_cnv_score == "CNV" ~ "cancer",
+    
     .default = "unknown"
   ))
+
+
 ```
 
 Using this basic strategy, we identified `r table(cell_type_df$first.level_annotation)["cancer"]` _cancer_ cells, `r table(cell_type_df$first.level_annotation)["normal"]` _normal_ cells.
@@ -344,6 +363,31 @@ ggplot(cell_type_df, aes(x = umap.umap_1, y = umap.umap_2, color = first.level_a
   facet_wrap(facets = ~sample_id, ncol = 5) +
   theme_bw() +
   theme(text = element_text(size = 22))
+
+DT::datatable(table(cell_type_df$first.level_annotation, cell_type_df$sample_id))
+
+```
+
+Strikingly, 5 samples show more normal cells than cancer cells:
+
+- `SCPCS000177`
+- `SCPCS000180`
+- `SCPCS000181`
+- `SCPCS000190`
+- `SCPCS000197`
+
+These five samples do not have enough immune and endothelium cell to be used as a normal reference in `scripts/06_infercnv.R` and we previously decided to run `scripts/06_infercnv.R` without any reference for these samples.
+In that case, the mean expression profile over the sample is taken as the normal reference, biaising the inference of CNV. 
+
+For those samples, the annotations based on `infercnv` cannot be trust.
+To avoid any confusion in the following steps of the analysis, we decided to force the annotation of the entire samples to `unknown`.
+
+```{r fig.width=10, fig.height=10, out.width='100%', results='asis'}
+
+cell_type_df$first.level_annotation[cell_type_df$sample_id %in% c("SCPCS000177", "SCPCS000180", "SCPCS000181", "SCPCS000190", "SCPCS000197")] <- "unknown"
+
+DT::datatable(table(cell_type_df$first.level_annotation, cell_type_df$sample_id))
+
 ```
 
 
@@ -377,15 +421,17 @@ cell_type_df <- cell_type_df |>
   mutate(second.level_annotation = case_when(
     # assign normal cells based on condition
     cell_type_df$compartment %in% c("fetal_nephron") &
+      cell_type_df$compartment.score > params$predicted.celltype.threshold &
       cell_type_df$has_cnv_score == "no CNV" ~ "kidney",
+   
     cell_type_df$compartment %in% c("stroma") &
+      cell_type_df$compartment.score > params$predicted.celltype.threshold &
       cell_type_df$has_cnv_score == "no CNV" ~ "normal stroma",
+    
     cell_type_df$compartment %in% c("endothelium") &
-      (cell_type_df$compartment.score > params$predicted.celltype.threshold |
-        cell_type_df$has_cnv_score == "no CNV") ~ "endothelium",
+      (cell_type_df$compartment.score > params$predicted.celltype.threshold) ~ "endothelium",
     cell_type_df$compartment %in% c("immune") &
-      (cell_type_df$compartment.score > params$predicted.celltype.threshold |
-        cell_type_df$has_cnv_score == "no CNV") ~ "immune",
+      (cell_type_df$compartment.score > params$predicted.celltype.threshold) ~ "immune",
 
     # assign cancer cells based on condition
     cell_type_df$compartment %in% c("stroma") &
@@ -398,45 +444,59 @@ cell_type_df <- cell_type_df |>
       cell_type_df$cell_type != "mesenchymal cell" ~ "cancer epithelium",
     .default = "unknown"
   ))
+
+cell_type_df$second.level_annotation[cell_type_df$sample_id %in% c("SCPCS000177", "SCPCS000180", "SCPCS000181", "SCPCS000190", "SCPCS000197")] <- "unknown"
 ```
 
 
+
+#### `Second.level_annotation` of cancer and normal cells - `umap` reduction
+
 ```{r fig.width=20, fig.height=20, out.width='100%', results='asis'}
-ggplot(cell_type_df[cell_type_df$first.level_annotation == "normal", ], aes(x = umap.umap_1, y = umap.umap_2, color = second.level_annotation), shape = 19, size = 1) +
-  geom_point() +
+ggplot(cell_type_df, aes(x = umap.umap_1, y = umap.umap_2, color = second.level_annotation)) +
+  geom_point(size = 0.2, shape = 19) +
   facet_wrap(facets = ~sample_id, ncol = 5) +
   theme_bw() +
   theme(text = element_text(size = 22))
 ```
 
 
-
-
-
+#### `Second.level_annotation` of cancer and normal cells without `unknown` - `umap` reduction
 
 ```{r fig.width=20, fig.height=20, out.width='100%', results='asis'}
-ggplot(cell_type_df[cell_type_df$first.level_annotation == "cancer", ], aes(x = umap.umap_1, y = umap.umap_2, color = second.level_annotation), shape = 19, size = 0.1) +
-  geom_point() +
+tmp <- cell_type_df[cell_type_df$second.level_annotation != "unknown",]
+ggplot(tmp, aes(x = umap.umap_1, y = umap.umap_2, color = second.level_annotation)) +
+  geom_point(size = 0.2, shape = 19) +
   facet_wrap(facets = ~sample_id, ncol = 5) +
   theme_bw() +
   theme(text = element_text(size = 22))
 ```
 
-#### Cancer and normal cells
+
+#### `Second.level_annotation` of cancer cells only - `umap` reduction
+
 
 ```{r fig.width=20, fig.height=20, out.width='100%', results='asis'}
-ggplot(cell_type_df, aes(x = umap.umap_1, y = umap.umap_2, color = second.level_annotation), shape = 19, size = 1) +
-  geom_point() +
+ggplot(cell_type_df[cell_type_df$first.level_annotation == "cancer", ], aes(x = umap.umap_1, y = umap.umap_2, color = second.level_annotation)) +
+  geom_point(size = 0.2, shape = 19) +
   facet_wrap(facets = ~sample_id, ncol = 5) +
   theme_bw() +
   theme(text = element_text(size = 22))
 ```
+
+Per sample, the annotations in the `umap` reduction seem to make sense as we can the three main Wilms tumor components are easily distinguished:
+
+- cancer blastema
+- epithelium
+- stroma
 
 ### Validation cancer versus normal based on the CNV profile
 
+We look for each `second.level_annotation` and `sample_id`, the proportion of cells that has CNV in each of the chromosome.
+
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 for (i in 1:22) {
-  print(do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = glue::glue("proportion_cnv_chr", i)))
+  print(do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = glue::glue("has_cnv_chr", i)))
 }
 ```
 
@@ -506,13 +566,14 @@ do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = "E
 ```
 
 
+
 ## Create annotation table for export
 
 This section creates the cell type annotation table for export.
 
 ```{r}
 annotations_table <- cell_type_df |>
-  select(
+  dplyr::select(
     cell_barcode = barcode,
     scpca_sample_id = sample_id,
     tumor_cell_classification = first.level_annotation,
@@ -541,7 +602,9 @@ length(unique(annotations_table$scpca_sample_id))
 
 ## Conclusion
 
-- Combining label transfer and CNV inference we have produced draft annotations for all 40 Wilms tumor samples in SCPCP000006
+- Combining label transfer and CNV inference we have produced draft annotations for 35/40 Wilms tumor samples in SCPCP000006.
+We decided not to annotate samples for which the `infercnv` couldn't be run with a normal reference, as we don't trust the results in that case and want to avoid misclassification (`SCPCS000177`, `SCPCS000180`, `SCPCS000181`, `SCPCS000190`, `SCPCS000197`).
+
 
 - The heatmaps of CNV proportion and marker genes support our annotations, but signals with some marker genes are very low.
 Also, there is no universal marker for each entity of Wilms tumor that cover all tumor cells from all patient.
@@ -564,5 +627,4 @@ However, as anaplasia can occur in every (but do not has to) Wilms tumor histolo
 # record the versions of the packages used in this analysis and other environment information
 sessionInfo()
 ```
-
 
