@@ -265,6 +265,8 @@ The `auc-ews-gene-signatures.tsv` file contains the following columns:
 
 ## CNV annotation workflow
 
+**NOTE:** This workflow is no longer used in the cell type annotation analysis, has been removed from CI, and is no longer maintained! 
+
 The CNV annotation workflow (`cnv-annotation.sh`) can be used to identify potential tumor cells in a given sample.
 Annotations are obtained by running the following methods within the workflow:
 
