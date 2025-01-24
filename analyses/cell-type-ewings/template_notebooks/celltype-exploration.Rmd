@@ -21,7 +21,7 @@ Instructions for using this guide:
 
 1. Ensure that you have a local copy of the results from `aucell-singler-annotation.sh`, `evaluate-clusters.sh` and `run-aucell-ews-signatures.sh` saved to `results`. 
 2. Copy the contents of this notebook to a new notebook titled `<library_id>_celltype-exploration.Rmd` and save in `exploratory_analysis/final_annotation_notebooks`. 
-3. Replace the `sample_id` and `library_id` with the correct IDs in the `params` list. 
+3. Update the `title` in the `yaml` section and replace the `sample_id` and `library_id` with the correct IDs in the `params` list. 
 4. Optionally, you may choose to update the choices for clustering based on the results from `evaluate-clusters.sh`. 
 All clusters used will be calculated with the Leiden algorithm and the modularity objective function. 
 To modify the nearest neighbors (default: 20) and resolution (default: 0.5) chosen use the `cluster_nn` and `cluster_res` params. 
@@ -161,7 +161,7 @@ TODO: Insert plots that will summarize findings from each of the workflows
 - Density plots by cluster of AUC values and custom gene set means
 - Maybe heatmaps with cluster annotation of AUC scores and custom gene set means 
 
-## Re-cluster tumor cells **Manual exploration**
+## Re-cluster tumor cells {.manual-exploration}
  
 <!-- Use this section to label tumor cells based on the above findings. 
 Any cells that are labeled as tumor will then be re-clustered and plots showing only tumor cells
@@ -170,20 +170,20 @@ can be created to identify tumor cell states -->
 TODO: Functions for re-clustering tumor cells
 Show the same plots across the tumor only clusters and assign tumor cell states to each cluster
 
-## Additional exploration **Manual exploration**
+## Additional exploration {.manual-exploration}
 
 <!--This section is for any additional exploration that may be needed to finalize annotations for this library. 
 If not using, please delete this section.
 For example, here you may want to dive into the normal cell types and make adjustments as needed
 --> 
 
-## Validate final tumor and normal annotation **Manual exploration**
+## Validate final tumor and normal annotation {.manual-exploration}
 
 <!-- This section should be used to update the assignments --> 
 
 TODO: Insert plots that will be useful for validation (UMAPs, heatmaps, density plots)
 
-## Prepare annotations **Manual exploration**
+## Prepare annotations {.manual-exploration}
 
 <!-- This section should be used to create the final.final table with cell type annotations for export --> 
 
