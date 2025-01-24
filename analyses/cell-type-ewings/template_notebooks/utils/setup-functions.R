@@ -2,6 +2,8 @@
 # They are used for reading in and setting up the cell type results
 
 #' Combine workflow results into a single data frame
+#' 
+#' Note that this function will only include clustering results from Leiden with modularity in the output
 #'
 #' @param sce Processed SingleCellExperiment object with UMAP embeddings 
 #' @param singler_df Data frame with results from `aucell-singler-annotation.sh` workflow
