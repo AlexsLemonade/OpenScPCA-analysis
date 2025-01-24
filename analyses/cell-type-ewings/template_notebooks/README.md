@@ -15,7 +15,7 @@ Instructions for using this guide:
 2. Copy the contents of this notebook to a new notebook titled `<library_id>_celltype-exploration.Rmd` and save in `exploratory_analysis/final_annotation_notebooks`. 
 3. Replace the `sample_id` and `library_id` with the correct IDs in the `params` list. 
 4. Optionally, you may choose to update the choices for clustering based on the results from `evaluate-clusters.sh`. 
-All clusters used will be calculated with the Leiden algorithm and the modularity objective function. 
-To modify the nearest neighbors (default: 20) and resolution (default: 0.5) chosen use the `cluster_nn` and `cluster_res` params. 
+All clusters used were calculated with the Leiden algorithm and the modularity objective function. 
+To modify the nearest neighbors (default: 20) and resolution (default: 0.5) parameters use the `cluster_nn` and `cluster_res` params. 
 5. Run through the notebook and update any sections of the notebook marked with `**Manual exploration**`. 
 6. Render the completed notebook which will produce the rendered `html` file and a TSV with cell type annotations for that library. 

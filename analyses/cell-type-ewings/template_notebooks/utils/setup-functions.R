@@ -1,7 +1,6 @@
 # These functions are used in `celltype-exploration.Rmd` 
 # They are used for reading in and setting up the cell type results
 
-# read in and prepare combined data frame 
 #' Combine workflow results into a single data frame
 #'
 #' @param sce Processed SingleCellExperiment object with UMAP embeddings 

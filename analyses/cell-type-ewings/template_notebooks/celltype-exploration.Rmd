@@ -141,7 +141,6 @@ all_results_df <- prep_results(
   cluster_res = params$cluster_res
   )
   
-# calculate gene set means for each cell type/cell state
 cell_types <- unique(all_markers_df$cell_type)
 
 # get the mean expression of all genes for each cell state
