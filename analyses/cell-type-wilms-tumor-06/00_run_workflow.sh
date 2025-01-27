@@ -31,7 +31,7 @@ TESTING=${TESTING:-0}
 RUN_EXPLORATORY=${RUN_EXPLORATORY:-0}
 THREADS=${THREADS:-32}
 project_id="SCPCP000006"
-
+predicted_celltype_threshold=0.85
 # Ensure script is being run from its directory
 module_dir=$(dirname "${BASH_SOURCE[0]}")
 cd ${module_dir}
@@ -150,9 +150,10 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
     Rscript scripts/06_infercnv.R --sample_id $sample_id --reference $reference --HMM i3 ${test_string}
 done
 
+
 # Render notebook to make draft annotations
 Rscript -e "rmarkdown::render('${notebook_dir}/07_combined_annotation_across_samples_exploration.Rmd',
-                        params = list(predicted.celltype.threshold = 0.85, cnv_threshold = 0, testing = ${TESTING}),
+                        params = list(predicted.celltype.threshold = ${predicted_celltype_threshold},  testing = ${TESTING}),
                         output_format = 'html_document',
                         output_file = '07_combined_annotation_across_samples_exploration.html',
                         output_dir = '${notebook_dir}')"
