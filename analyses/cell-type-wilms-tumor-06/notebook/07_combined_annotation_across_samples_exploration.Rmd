@@ -47,7 +47,7 @@ _Where `cnv.thr` and `pred.thr` need to be discussed_
 
 | first level annotation | second level annotation | selection of the cells | marker genes for validation | CNV validation |
 | ---------------------- | ----------------------- | ---------------------- | --------------------------- | --------------- |
-| normal                 | endothelial             | `compartment == "endothelium" & predicted.score > pred.thr  | `VWF`| no CNV |
+| normal                 | endothelial             | `compartment == "endothelium" & predicted.score > pred.thr`  | `VWF`| no CNV |
 | normal                 | immune                  | `compartment == "immune" & predicted.score > pred.thr  | `PTPRC`, `CD163`, `CD68`| no CNV |
 | normal                 | kidney                  | `compartment == "fetal_nephron" & predicted.score > pred.thr & cnv_score < cnv.thr` | `CDH1`, `PODXL`, `LTL`| no CNV |
 | normal                 | stroma                  | `compartment == "stroma" & predicted.score > pred.thr & cnv_score < cnv.thr`| `VIM`| no CNV |
