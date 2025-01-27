@@ -147,7 +147,7 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
     fi
 
     # Run inferCNV
-    Rscript scripts/06_infercnv.R --sample_id $sample_id --reference $reference --HMM i3 ${test_string}
+    Rscript scripts/06_infercnv.R --sample_id $sample_id --reference $reference --HMM i3 ${test_string} --score_threshold ${predicted_celltype_threshold}
 done
 
 
