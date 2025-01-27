@@ -307,7 +307,7 @@ This is a limitation of our annotations.
 cell_type_df <- cell_type_df |>
   mutate(has_cnv_score = rowSums(cell_type_df[, grepl("has_cnv_chr", colnames(cell_type_df))])) |>
   mutate(has_cnv_score = case_when(
-    has_cnv_score > params$cnv_threshold +2 ~ "CNV",
+    has_cnv_score > (params$cnv_threshold +2) ~ "CNV",
     has_cnv_score <= params$cnv_threshold ~ "no CNV",
     .default = "unknown"
   ))
