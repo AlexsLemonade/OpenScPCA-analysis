@@ -31,7 +31,15 @@ TESTING=${TESTING:-0}
 RUN_EXPLORATORY=${RUN_EXPLORATORY:-0}
 THREADS=${THREADS:-32}
 project_id="SCPCP000006"
-predicted_celltype_threshold=0.85
+
+# Define the `predicted_celltype_threshold` which is used to identify cells with a high confident label transfer from the fetal kidney reference.
+# This score is used in the script `06_infercnv.R` and in the notebook `07_combined_annotation_across_samples.Rmd`
+predicted_celltype_threshold=0.75
+
+# Define the `cnv_threshold_low/high` which are used to identify cells with no CNV (`cnv_score` <= `cnv_threshold_low`) or with CNV (`cnv_score` > `cnv_threshold_high`)
+cnv_threshold_low=0
+cnv_threshold_high=2
+
 # Ensure script is being run from its directory
 module_dir=$(dirname "${BASH_SOURCE[0]}")
 cd ${module_dir}
@@ -153,7 +161,7 @@ done
 
 # Render notebook to make draft annotations
 Rscript -e "rmarkdown::render('${notebook_dir}/07_combined_annotation_across_samples_exploration.Rmd',
-                        params = list(predicted.celltype.threshold = ${predicted_celltype_threshold},  testing = ${TESTING}),
+                        params = list(predicted.celltype.threshold = ${predicted_celltype_threshold}, cnv_threshold_low = ${cnv_threhold_low}, cnv_threshold_high = ${cnv_threhold_high},  testing = ${TESTING}),
                         output_format = 'html_document',
                         output_file = '07_combined_annotation_across_samples_exploration.html',
                         output_dir = '${notebook_dir}')"
