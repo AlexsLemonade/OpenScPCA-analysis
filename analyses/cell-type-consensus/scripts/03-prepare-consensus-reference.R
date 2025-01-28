@@ -10,6 +10,9 @@ module_base <- rprojroot::find_root(rprojroot::is_renv_project)
 # cell ontology ref file 
 panglao_ref_file <- file.path(module_base, "references", "panglao-cell-type-ontologies.tsv")
 
+# blueprint ref file 
+blueprint_ref_file <- file.path(module_base, "references", "blueprint-mapped-ontologies.tsv")
+
 # output ref file 
 consensus_ref_file <- file.path(module_base, "references", "consensus-cell-type-reference.tsv")
 
@@ -33,21 +36,8 @@ panglao_df <- readr::read_tsv(panglao_ref_file) |>
   # remove any cell types that don't have ontologies 
   tidyr::drop_na() 
 
-# grab singler ref from celldex
-blueprint_ref <- celldex::BlueprintEncodeData()
-
-# get ontologies and human readable name into data frame
-blueprint_df <- data.frame(
-  blueprint_ontology = blueprint_ref$label.ont,
-  blueprint_annotation_main = blueprint_ref$label.main,
-  blueprint_annotation_fine = blueprint_ref$label.fine
-) |>
-  unique() |> 
-  tidyr::drop_na() |> 
-  # add in the actual name for the ontology from CL
-  dplyr::mutate(
-    blueprint_annotation_cl = cl_ont$name[blueprint_ontology]
-  )
+# read in blueprint data 
+blueprint_df <- readr::read_tsv(blueprint_ref_file)
 
 # Get LCA and descendants ------------------------------------------------------
 
@@ -115,7 +105,7 @@ consensus_labels_df <- lca_df |>
   # everything with more than 1 lca gets removed with the exception of HSCs
   dplyr::filter(total_lca <=1 | cl_annotation == "hematopoietic precursor cell") |> 
   # keep everything with total descendants < 170 except for neuron and epithelial cell when blueprint calls it as epithelial 
-  dplyr::filter(total_descendants <= 170 | cl_annotation %in% c("neuron", "epithelial cell") & blueprint_annotation_main == "Epithelial cells") |> 
+  dplyr::filter(total_descendants <= 170 | cl_annotation %in% c("neuron", "epithelial cell") & blueprint_annotation_cl == "epithelial cell") |> 
   # get rid of terms that have low number of descendants but are still too broad 
   dplyr::filter(!(cl_annotation %in% c("bone cell", "lining cell", "blood cell", "progenitor cell", "supporting cell"))) |> 
   dplyr::select(
@@ -123,8 +113,6 @@ consensus_labels_df <- lca_df |>
     panglao_annotation, 
     original_panglao_name,
     blueprint_ontology, 
-    blueprint_annotation_main, 
-    blueprint_annotation_fine, 
     blueprint_annotation_cl,
     consensus_ontology = lca, 
     consensus_annotation = cl_annotation
