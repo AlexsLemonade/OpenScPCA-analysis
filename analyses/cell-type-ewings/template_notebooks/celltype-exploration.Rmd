@@ -98,9 +98,15 @@ output_file <- file.path(results_dir, glue::glue("{params$library_id}_celltype-a
 setup_functions <- file.path(module_base, "template_notebooks", "utils", "setup-functions.R")
 source(setup_functions)
 
-# source in validation functions calculate_mean_markers()
+# source in validation functions 
+# calculate_mean_markers(), plot_faceted_umap()
 validation_functions <- file.path(module_base, "scripts", "utils", "tumor-validation-helpers.R")
 source(validation_functions)
+
+# source in plotting functions 
+# expression_umap(), cluster_density_plot(), and annotated_exp_heatmap()
+plotting_functions <- file.path(module_base, "template_notebooks", "utils", "plotting-functions.R")
+source(plotting_functions)
 ```
 
 ```{r}
@@ -165,7 +171,7 @@ all_info_df <- all_results_df |>
 The below UMAP shows the top cell types assigned by `SingleR` in the `aucell-singler-annotation.sh` workflow. 
 The top 7 cell types are shown and all other cell types are grouped together as "All remaining cell types". 
 
-```{r, fig.height = 5, fig.width=5}
+```{r, fig.height = 5}
 plot_faceted_umap(all_info_df, singler_lumped, legend_title = "SingleR cell types") +
   theme(strip.text = element_text(size = 8))
 ```
@@ -178,7 +184,7 @@ The below UMAP shows the cluster assignments output by `evaluate-clusters.sh` us
 - Nearest neighbors: `r params$cluster_nn`
 - Resolution: `r params$cluster_res`
 
-```{r, fig.height = 5, fig.width=5}
+```{r, fig.height = 5}
 plot_faceted_umap(all_info_df, cluster, legend_title = "Cluster")
 ```
 
@@ -212,7 +218,7 @@ auc_df <- all_info_df |>
 
 
 ```{r, fig.height=10, fig.width=10}
-expression_umap(auc_df, auc_value)
+expression_umap(auc_df, auc_value, geneset)
 ```
 
 The below plot shows the distribution of AUC values for each gene set colored based on if the AUC value is above the threshold determined by `AUCell`, indicated with a dotted line. 
@@ -237,7 +243,7 @@ ggplot(auc_df, aes(x = auc_value, color = auc_assignment, fill = auc_assignment)
 
 Here we look at the AUC values for each gene set across all clusters. 
 
-```{r, fig.height=10, fig.width=5}
+```{r, fig.height=10}
 auc_columns <- colnames(all_info_df)[which(startsWith(colnames(all_info_df), "auc_"))]
 cluster_density_plot(all_info_df, auc_columns, "AUC")
 ```
@@ -249,7 +255,7 @@ The annotations shown are the `SingleR` cell types and clusters.
 annotated_exp_heatmap(
   all_info_df, 
   exp_columns = auc_columns, 
-  annotation_column = "singler_lumped", 
+  cell_type_column = "singler_lumped", 
   cluster_column = "cluster", 
   legend_title = "AUC"
 )
@@ -265,7 +271,7 @@ exp_df <- all_info_df |>
   tidyr::pivot_longer(ends_with("_mean"), names_to = "geneset", values_to = "mean") |>
   dplyr::mutate(tumor_cell_classification = dplyr::if_else(singler_lumped == "tumor", "tumor", "other"))
 
-expression_umap(exp_df, mean)
+expression_umap(exp_df, mean, geneset)
 ```
 
 ```{r}
@@ -293,7 +299,7 @@ The annotations shown are the `SingleR` cell types and clusters.
 annotated_exp_heatmap(
   all_info_df, 
   exp_columns = mean_exp_columns, 
-  annotation_column = "singler_lumped", 
+  cell_type_column = "singler_lumped", 
   cluster_column = "cluster", 
   legend_title = "Mean\ngene expression"
 )
