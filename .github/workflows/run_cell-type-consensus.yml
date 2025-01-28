@@ -51,6 +51,9 @@ jobs:
 
       - name: Run analysis module
         run: |
+          projects=$(basename -a data/current/SCPCP*)
+
           cd ${MODULE_PATH}
-          # run module script(s) here
-          ./assign-consensus-celltypes.sh
+          for project in $projects; do
+              ./assign-consensus-celltypes.sh $project
+          done
