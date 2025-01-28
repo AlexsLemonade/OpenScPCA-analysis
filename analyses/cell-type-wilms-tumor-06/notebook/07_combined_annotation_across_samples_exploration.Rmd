@@ -4,7 +4,8 @@ author: "Maud PLASCHKA"
 date: "`r Sys.Date()`"
 params:
   predicted.celltype.threshold: 0.85
-  cnv_threshold: !r c(0, 2)
+  cnv_threshold_low: 0
+  cnv_threshold_high: 2
   testing: 0
 output:
   html_document:
@@ -288,12 +289,12 @@ do_Feature_mean <- function(df, group.by, feature) {
 As done in `06_cnv_infercnv_exploration.Rmd`, we calculate  single CNV score and assess its potential in identifying cells with CNV versus normal cells without CNV.
 
 We simply checked for each chromosome if the cell `has_cnv_chr`.
-Would the cell have less than `r params$cnv_threshold[1]` chromosome with CNV, the global `has_cnv_score` will be FALSE.
-Would the cell have more than `r params$cnv_threshold[2]`  chromosome with CNV, the global `has_cnv_score` will be TRUE.
+Would the cell have less than `r params$cnv_threshold_low` chromosome with CNV, the global `has_cnv_score` will be FALSE.
+Would the cell have more than `r params$cnv_threshold_high`  chromosome with CNV, the global `has_cnv_score` will be TRUE.
 The default is set to `unknown`.
 
 The `infercnv` method can lead to false positive CNV.
-We introduced a flexibility of +`r params$cnv_threshold[2]` over the `cnv_threshold` to reduce the risk of misclassification of normal cells as cancer cells.
+We introduced a flexibility of +`r params$cnv_threshold_high` over the `cnv_threshold` to reduce the risk of misclassification of normal cells as cancer cells.
 
 Please note that some cancer cell might not have any CNV. 
 There is thus a risk of misclassifying cancer cells as normal cells. 
@@ -307,8 +308,8 @@ This is a limitation of our annotations.
 cell_type_df <- cell_type_df |>
   mutate(has_cnv_score = rowSums(cell_type_df[, grepl("has_cnv_chr", colnames(cell_type_df))])) |>
   mutate(has_cnv_score = case_when(
-    has_cnv_score > params$cnv_threshold[2] ~ "CNV",
-    has_cnv_score <= params$cnv_threshold[1] ~ "no CNV",
+    has_cnv_score > params$cnv_threshold_high ~ "CNV",
+    has_cnv_score <= params$cnv_threshold_low ~ "no CNV",
     .default = "unknown"
   ))
 
@@ -324,7 +325,7 @@ We only allow a bit of flexibility in terms of CNV profile for immune and endoth
 Indeed, we know that false positive CNV can be observed in a cell type specific manner.
 
 The threshold used for the `predicted.score` is defined as a parameter of this notebook as `r params$predicted.celltype.threshold`.
-The thresholds used for the identification of CNV are also defined as notebook parameters with a minimum of `r params$cnv_threshold[1]` and a maximum of `r params$cnv_threshold[2]`.
+The thresholds used for the identification of CNV are also defined as notebook parameters with a minimum of `r params$cnv_threshold_low` and a maximum of `r params$cnv_threshold_high`.
 
 - _cancer_ cells are either from the `stroma` or `fetal nephron` compartments and must have at least few CNV
 
