@@ -29,14 +29,14 @@ See the [`scripts/README.md`](./scripts/README.md) for instructions on running t
 
 ## Assigning consensus cell types for ScPCA samples
 
-The `assign-consensus-celltypes.sh` script can be used to assign a consensus cell type for all samples in ScPCA. 
+The `assign-consensus-celltypes.sh` script can be used to assign a consensus cell type for all samples in a single ScPCA project. 
 This script outputs a single TSV file for each library in ScPCA with cell type annotations for all cells in that library. 
 Cell type annotations assigned using `SingleR` with the `BlueprintEncodeData` reference and `CellAssign` using the `PanglaoDB` reference are included along side the assigned consensus cell type annotation and ontology identifier. 
 
-To run this script use the following command: 
+To run this script for a given project use the following command: 
 
 ```sh
-./assign-consensus-celltypes.sh
+./assign-consensus-celltypes.sh "SCPCP000001"
 ```
 
 ### Input files
