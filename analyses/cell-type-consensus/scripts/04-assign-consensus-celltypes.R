@@ -55,7 +55,7 @@ stopifnot(
   "blueprint reference file does not exist" = file.exists(opt$blueprint_ref_file),
   "panglao reference file does not exist" = file.exists(opt$panglao_ref_file),
   "cell type consensus reference file does not exist" = file.exists(opt$consensus_ref_file),
-  "output file must end in `.tsv` or `.tsv.gz`" = stringr::str_detect(opt$output_file, ".tsv|.tsv.gz")
+  "output file must end in `.tsv` or `.tsv.gz`" = stringr::str_ends(opt$output_file, "\\.tsv|\\.tsv\\.gz")
 )
 
 # load SCE
@@ -156,12 +156,13 @@ all_assignments_df <- celltype_df |>
   # now add in all the blueprint columns
   dplyr::left_join(blueprint_df, by = c("singler_celltype_ontology" = "blueprint_ontology")) |>
   # then add consensus labels
-  dplyr::left_join(consensus_ref_df,
-                   by = c(
-                     "singler_celltype_ontology" = "blueprint_ontology",
-                     "cellassign_celltype_annotation" = "original_panglao_name",
-                     "panglao_ontology"
-                   )
+  dplyr::left_join(
+    consensus_ref_df,
+    by = c(
+      "singler_celltype_ontology" = "blueprint_ontology",
+      "cellassign_celltype_annotation" = "original_panglao_name",
+      "panglao_ontology"
+    )
   ) |>
   # use unknown for NA annotation but keep ontology ID as NA
   # if the sample type is cell line, keep as NA
