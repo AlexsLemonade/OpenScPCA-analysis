@@ -4,7 +4,7 @@
 # The existing cell type annotations from SingleR and CellAssign are saved alongside the consensus cell types
 # A single TSV file will be saved for every library 
 
-# Usage: ./assign-consensus-celltypes.sh 
+# Usage: ./assign-consensus-celltypes.sh SCPCP000001
 
 
 set -euo pipefail
