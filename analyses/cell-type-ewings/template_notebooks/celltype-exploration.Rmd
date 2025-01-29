@@ -161,7 +161,8 @@ gene_exp_df <- cell_types |>
   purrr::reduce(dplyr::inner_join, by = "barcodes")
 
 all_info_df <- all_results_df |> 
-  dplyr::left_join(gene_exp_df, by = "barcodes")
+  dplyr::left_join(gene_exp_df, by = "barcodes") |> 
+  dplyr::arrange(cluster)
 ```
 
 ## Summary of workflow results
@@ -212,7 +213,7 @@ auc_df <- all_info_df |>
   dplyr::select(barcodes, UMAP1, UMAP2, geneset, auc_value, cluster) |> 
   dplyr::left_join(auc_threshold_df, by = c("barcodes", "geneset")) |> 
   dplyr::mutate(
-    auc_assignment =  auc_value > threshold
+    in_geneset =  auc_value > threshold
   )
 ```
 
@@ -226,7 +227,7 @@ The below plot shows the distribution of AUC values for each gene set colored ba
 
 ```{r, fig.height=5}
 
-ggplot(auc_df, aes(x = auc_value, color = auc_assignment, fill = auc_assignment)) +
+ggplot(auc_df, aes(x = auc_value, color = in_geneset, fill = in_geneset)) +
   geom_density(alpha = 0.5, bw = 0.01) +
   facet_wrap(vars(geneset)) +
   ggplot2::geom_vline(data = auc_df,
@@ -236,8 +237,7 @@ ggplot(auc_df, aes(x = auc_value, color = auc_assignment, fill = auc_assignment)
       aspect.ratio = 1,
       strip.background = element_rect(fill = "transparent", linewidth = 0.5),
       panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5)
-    )
-
+    ) 
 ```
 
 
@@ -274,7 +274,7 @@ exp_df <- all_info_df |>
 expression_umap(exp_df, mean, geneset)
 ```
 
-```{r}
+```{r, fig.height=8}
 ggplot(exp_df, aes(x = mean, color = tumor_cell_classification, fill = tumor_cell_classification)) +
   geom_density(alpha = 0.5, bw = 0.2) +
   facet_wrap(vars(geneset)) +

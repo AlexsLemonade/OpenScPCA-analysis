@@ -35,7 +35,10 @@ expression_umap <- function(
       aspect.ratio = 1,
       strip.background = element_rect(fill = "transparent", linewidth = 0.5),
       panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5)
-    )
+    ) +
+    # remove axis numbers and background grid
+    scale_x_continuous(labels = NULL, breaks = NULL) +
+    scale_y_continuous(labels = NULL, breaks = NULL)
   
 }
 
@@ -131,6 +134,6 @@ annotated_exp_heatmap <- function(
                     row_title = "",
                     legend_title = legend_title,
                     annotation = annotation,
-                    cluster_columns = TRUE
+                    cluster_columns = FALSE
   )
 }
