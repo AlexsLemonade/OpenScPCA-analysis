@@ -51,7 +51,8 @@ jobs:
 
       - name: Run analysis module
         run: |
-          projects=$(basename -a data/current/SCPCP*)
+          # regular single cell, multiplexed, and cell line projects for testing
+          projects=("SCPCP000001" "SCPCP000009" "SCPCP000024")
 
           cd ${MODULE_PATH}
           for project in $projects; do
