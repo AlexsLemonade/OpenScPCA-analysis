@@ -1,0 +1,43 @@
+blueprint_ontology	blueprint_annotation_cl
+CL:0000775	neutrophil
+CL:0000576	monocyte
+CL:0000050	megakaryocyte-erythroid progenitor cell
+CL:0000624	CD4-positive, alpha-beta T cell
+CL:0000815	regulatory T cell
+CL:0000904	central memory CD4-positive, alpha-beta T cell
+CL:0000905	effector memory CD4-positive, alpha-beta T cell
+CL:0000907	central memory CD8-positive, alpha-beta T cell
+CL:0000913	effector memory CD8-positive, alpha-beta T cell
+CL:0000623	natural killer cell
+CL:0000788	naive B cell
+CL:0000787	memory B cell
+CL:0000972	class switched memory B cell
+CL:0000037	hematopoietic stem cell
+CL:0000837	hematopoietic multipotent progenitor cell
+CL:0000051	common lymphoid progenitor
+CL:0000557	granulocyte monocyte progenitor cell
+CL:0000235	macrophage
+CL:0000625	CD8-positive, alpha-beta T cell
+CL:0000232	erythrocyte
+CL:0000556	megakaryocyte
+CL:0000049	common myeloid progenitor
+CL:0000863	inflammatory macrophage
+CL:0000890	alternatively activated macrophage
+CL:0000115	endothelial cell
+CL:0000451	dendritic cell
+CL:0000771	eosinophil
+CL:0000786	plasma cell
+CL:0000138	chondrocyte
+CL:0000057	fibroblast
+CL:0000192	smooth muscle cell
+CL:0000066	epithelial cell
+CL:0000148	melanocyte
+CL:0000188	cell of skeletal muscle
+CL:0000312	keratinocyte
+CL:2000008	microvascular endothelial cell
+CL:0000187	muscle cell
+CL:0000136	adipocyte
+CL:0000540	neuron
+CL:0000669	pericyte
+CL:0000127	astrocyte
+CL:0000650	mesangial cell

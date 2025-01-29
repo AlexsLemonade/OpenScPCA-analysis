@@ -29,14 +29,14 @@ See the [`scripts/README.md`](./scripts/README.md) for instructions on running t
 
 ## Assigning consensus cell types for ScPCA samples
 
-The `assign-consensus-celltypes.sh` script can be used to assign a consensus cell type for all samples in ScPCA. 
-This script outputs a single TSV file with cell type annotations for all cells in ScPCA (excluding cell line samples). 
+The `assign-consensus-celltypes.sh` script can be used to assign a consensus cell type for all samples in a single ScPCA project. 
+This script outputs a single TSV file for each library in ScPCA with cell type annotations for all cells in that library. 
 Cell type annotations assigned using `SingleR` with the `BlueprintEncodeData` reference and `CellAssign` using the `PanglaoDB` reference are included along side the assigned consensus cell type annotation and ontology identifier. 
 
-To run this script use the following command: 
+To run this script for a given project use the following command: 
 
 ```sh
-./assign-consensus-celltypes.sh
+./assign-consensus-celltypes.sh "SCPCP000001"
 ```
 
 ### Input files
@@ -50,25 +50,23 @@ These files were obtained using the `download-data.py` script:
 ./download-data.py
 ```
 
-This script also requires two reference files, `panglao-cell-type-ontologies.tsv` and `consensus-cell-type-reference.tsv`. 
+This script also requires three reference files, `blueprint-mapped-ontologies.tsv`, `panglao-cell-type-ontologies.tsv` and `consensus-cell-type-reference.tsv`. 
 See [Creating a reference for consensus cell types](#creating-a-reference-for-consensus-cell-types) and the [README.md in the references directory](./references/README.md) to learn more about the content of these files. 
 
 ### Output files
 
-Running the `assign-consensus-celltypes.sh` script will generate the following output files in `results`. 
+Running the `assign-consensus-celltypes.sh` script will generate a single TSV file for each library. 
+Output files will be in `results/cell-type-consensus` and organized as follows: 
 
 ```
 results
-├── scpca-consensus-celltype-assignments.tsv
-├── original-celltype-assignments
-    ├── <library_id>_celltype-assignments.tsv
-    └── <library_id>_celltype-assignments.tsv
+└── cell-type-consensus
+    └── <project id>
+        └── <sample id>
+            └── <library id>_consensus-cell-type-assignments.tsv.gz
 ```
 
-The `original-celltyp-assignments` folder contains a single TSV file for each library in ScPCA, except for libraries obtained from cell lines.
-These TSV files have the cell type annotations from running `SingleR` and `CellAssign` that can be found in the `colData` of the processed SCE objects. 
-
-The `scpca-consensus-celltype-assignments.tsv` file contains cell type annotations for all cells in all ScPCA samples with the following columns: 
+The `<library id>_consensus-cell-type-assignments.tsv.gz` file contains cell type annotations for all cells in a single library with the following columns: 
 
 | | |
 | --- | --- | 
@@ -76,6 +74,7 @@ The `scpca-consensus-celltype-assignments.tsv` file contains cell type annotatio
 | `sample_id` | ScPCA sample id | 
 | `library_id` |  ScPCA library id |
 | `barcodes` | cell barcode |
+| `sample_type` | A string indicating the type of sample, with one of the following values: `"patient-derived xenograft"`, `"cell line"`, or `"patient tissue"`. If `cell line`, no cell type annotation is performed and all columns will have `NA` |
 | `singler_celltype_ontology` | Cell type ontology term assigned by `SingleR` | 
 | `singler_celltype_annotation` | Name associated with cell type ontology term assigned by `SingleR`; this term is equivalent to the `label.main` term in the `BlueprintEncodeData` reference | 
 | `cellassign_celltype_annotation` | Cell type assigned by `CellAssign`; this term is the original term found in the `PanglaoDB` reference file | 
