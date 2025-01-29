@@ -80,7 +80,7 @@ project_id <- metadata(sce)$project_id
 # account for having more than one sample and a list of sample types
 # all sample types should be the same theoretically
 sample_type <- unique(metadata(sce)$sample_type)
-is_cell_line <- sample_type == "cell line"
+is_cell_line <- "cell line" %in% sample_type
 
 # grab coldata
 coldata_df <- colData(sce) |>
