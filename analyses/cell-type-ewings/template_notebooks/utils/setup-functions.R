@@ -56,24 +56,30 @@ prep_results <- function(
     dplyr::select(
       barcodes = cell_id,
       cluster
-    )
+    ) |>
+    dplyr::mutate(cluster = as.factor(cluster))
   
   ## prep aucell 
   aucell_wide_df <- aucell_df |> 
-    dplyr::mutate(
-      assignment = auc > auc_threshold
+    dplyr::rename(
+      threshold_auc = auc_threshold
     ) |> 
     tidyr::pivot_wider(
       id_cols = "barcodes",
       names_from = "gene_set",
-      values_from = c(auc, assignment)
+      values_from = c(auc, threshold_auc)
     )
   
   ## combine into one data frame 
   all_results_df <- umap_df |> 
     dplyr::left_join(singler_df, by = c("barcodes")) |> 
     dplyr::left_join(cluster_df, by = c("barcodes")) |> 
-    dplyr::left_join(aucell_wide_df, by = c("barcodes"))
+    dplyr::left_join(aucell_wide_df, by = c("barcodes")) |> 
+    dplyr::mutate(
+      # account for any remaining NAs that might be present from joining
+      singler_lumped = dplyr::if_else(is.na(singler_lumped), "unknown", singler_lumped) |>
+        forcats::fct_relevel("All remaining cell types", after = Inf)
+    )
   
   return(all_results_df)
   

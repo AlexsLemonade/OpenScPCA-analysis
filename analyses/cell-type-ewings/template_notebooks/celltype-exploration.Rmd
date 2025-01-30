@@ -44,6 +44,10 @@ theme_set(
 
 # set seed
 set.seed(2024)
+
+# quiet messages
+options(readr.show_col_types = FALSE)
+ComplexHeatmap::ht_opt(message = FALSE)
 ```
 
 
@@ -94,9 +98,15 @@ output_file <- file.path(results_dir, glue::glue("{params$library_id}_celltype-a
 setup_functions <- file.path(module_base, "template_notebooks", "utils", "setup-functions.R")
 source(setup_functions)
 
-# source in validation functions calculate_mean_markers()
+# source in validation functions 
+# calculate_mean_markers(), plot_faceted_umap()
 validation_functions <- file.path(module_base, "scripts", "utils", "tumor-validation-helpers.R")
 source(validation_functions)
+
+# source in plotting functions 
+# expression_umap(), cluster_density_plot(), and annotated_exp_heatmap()
+plotting_functions <- file.path(module_base, "template_notebooks", "utils", "plotting-functions.R")
+source(plotting_functions)
 ```
 
 ```{r}
@@ -151,15 +161,150 @@ gene_exp_df <- cell_types |>
   purrr::reduce(dplyr::inner_join, by = "barcodes")
 
 all_info_df <- all_results_df |> 
-  dplyr::left_join(gene_exp_df, by = "barcodes")
+  dplyr::left_join(gene_exp_df, by = "barcodes") |> 
+  dplyr::arrange(cluster)
 ```
 
 ## Summary of workflow results
 
-TODO: Insert plots that will summarize findings from each of the workflows
-- UMAPs of SingleR, clusters, AUC values and custom gene set means 
-- Density plots by cluster of AUC values and custom gene set means
-- Maybe heatmaps with cluster annotation of AUC scores and custom gene set means 
+### `aucell-singler-annotation` assignments 
+
+The below UMAP shows the top cell types assigned by `SingleR` in the `aucell-singler-annotation.sh` workflow. 
+The top 7 cell types are shown and all other cell types are grouped together as "All remaining cell types". 
+
+```{r, fig.height = 5}
+plot_faceted_umap(all_info_df, singler_lumped, legend_title = "SingleR cell types") +
+  theme(strip.text = element_text(size = 8))
+```
+
+### Cluster assignments
+
+The below UMAP shows the cluster assignments output by `evaluate-clusters.sh` using the following parameters: 
+
+- Leiden with modularity 
+- Nearest neighbors: `r params$cluster_nn`
+- Resolution: `r params$cluster_res`
+
+```{r, fig.height = 5}
+plot_faceted_umap(all_info_df, cluster, legend_title = "Cluster")
+```
+
+### `AUCell` results 
+
+The below plots show the AUC values determined by `AUCell` and output from `run-aucell-ews-signatures.sh`. 
+The first plot shows the individual AUC values on the UMAP. 
+
+```{r}
+# get the individual thresholds determined by AUCell for each msigdb geneset
+# we want this so we can show the threshold on the density plots 
+auc_threshold_df <- all_info_df |> 
+  tidyr::pivot_longer(starts_with("threshold_auc_"), names_to = "geneset", values_to = "threshold") |> 
+  dplyr::mutate(
+    geneset = stringr::str_remove(geneset, "threshold_auc_")
+  ) |> 
+  dplyr::select(barcodes, geneset, threshold)
+
+# reformat auc data for density plots and UMAPs showing AUC values 
+auc_df <- all_info_df |> 
+  tidyr::pivot_longer(starts_with("auc_"), names_to = "geneset", values_to = "auc_value") |> 
+  dplyr::mutate(
+    geneset = stringr::str_remove(geneset, "auc_")
+  ) |> 
+  dplyr::select(barcodes, UMAP1, UMAP2, geneset, auc_value, cluster) |> 
+  dplyr::left_join(auc_threshold_df, by = c("barcodes", "geneset")) |> 
+  dplyr::mutate(
+    in_geneset =  auc_value > threshold
+  )
+```
+
+
+```{r, fig.height=10, fig.width=10}
+expression_umap(auc_df, auc_value, geneset)
+```
+
+The below plot shows the distribution of AUC values for each gene set colored based on if the AUC value is above the threshold determined by `AUCell`, indicated with a dotted line. 
+
+
+```{r, fig.height=5}
+
+ggplot(auc_df, aes(x = auc_value, color = in_geneset, fill = in_geneset)) +
+  geom_density(alpha = 0.5, bw = 0.01) +
+  facet_wrap(vars(geneset)) +
+  ggplot2::geom_vline(data = auc_df,
+                      mapping = aes(xintercept = threshold),
+                      lty = 2) +
+  theme(
+      aspect.ratio = 1,
+      strip.background = element_rect(fill = "transparent", linewidth = 0.5),
+      panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5)
+    ) 
+```
+
+
+Here we look at the AUC values for each gene set across all clusters. 
+
+```{r, fig.height=10}
+auc_columns <- colnames(all_info_df)[which(startsWith(colnames(all_info_df), "auc_"))]
+cluster_density_plot(all_info_df, auc_columns, "AUC")
+```
+
+The heatmap below shows the AUC values for all cells and all gene sets. 
+The annotations shown are the `SingleR` cell types and clusters. 
+
+```{r}
+annotated_exp_heatmap(
+  all_info_df, 
+  exp_columns = auc_columns, 
+  cell_type_column = "singler_lumped", 
+  cluster_column = "cluster", 
+  legend_title = "AUC"
+)
+```
+
+### Mean expression of custom gene sets
+
+Below we look at the mean expression of all genes in each of the custom gene sets we have defined both on a UMAP and in a density plot. 
+
+```{r, fig.height=10, fig.width=10}
+# format expression data for UMAP and density plot 
+exp_df <- all_info_df |> 
+  tidyr::pivot_longer(ends_with("_mean"), names_to = "geneset", values_to = "mean") |>
+  dplyr::mutate(tumor_cell_classification = dplyr::if_else(singler_lumped == "tumor", "tumor", "other"))
+
+expression_umap(exp_df, mean, geneset)
+```
+
+```{r, fig.height=8}
+ggplot(exp_df, aes(x = mean, color = tumor_cell_classification, fill = tumor_cell_classification)) +
+  geom_density(alpha = 0.5, bw = 0.2) +
+  facet_wrap(vars(geneset)) +
+  theme(
+    aspect.ratio = 1,
+    strip.background = element_rect(fill = "transparent", linewidth = 0.5),
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5)
+  )
+```
+
+Here we look at the mean expression for each gene set across all clusters. 
+
+```{r, fig.height=7}
+mean_exp_columns <- colnames(all_info_df)[which(endsWith(colnames(all_info_df), "_mean"))]
+cluster_density_plot(all_info_df, mean_exp_columns, "mean gene expression")
+```
+
+The heatmap below shows the mean expression values for all cells and all gene sets. 
+The annotations shown are the `SingleR` cell types and clusters. 
+
+```{r}
+annotated_exp_heatmap(
+  all_info_df, 
+  exp_columns = mean_exp_columns, 
+  cell_type_column = "singler_lumped", 
+  cluster_column = "cluster", 
+  legend_title = "Mean\ngene expression"
+)
+```
+
 
 ## Re-cluster tumor cells {.manual-exploration}
  

@@ -323,7 +323,7 @@ plot_density <- function(classification_df,
                          gene_exp_column,
                          annotation_column) {
   # pull out gene set name to create the plot title
-  geneset_name <- stringr::str_remove(gene_exp_column, "_sum|mean-")
+  geneset_name <- stringr::str_remove(gene_exp_column, "_sum|mean-|auc_")
 
   plot <- ggplot(classification_df) +
     aes(x = !!sym(gene_exp_column)) + # marker gene set column
@@ -361,13 +361,15 @@ plot_density <- function(classification_df,
 
 # UMAPs ------------------------------------------------------------------------
 
-# creates a faceted UMAP where each panel shows the cell type of interest in color and
+# creates a faceted UMAP where each panel shows the cell type of interest in red and
 # all other cells in grey
 # adapted from `faceted_umap()` function in `celltypes_qc.rmd` from `scpca-nf`
 # https://github.com/AlexsLemonade/scpca-nf/blob/main/templates/qc_report/celltypes_qc.rmd#L143
 
 plot_faceted_umap <- function(classification_df,
-                              annotation_column) {
+                              annotation_column,
+                              legend_title = "Cell type") {
+  
   ggplot(classification_df, aes(x = UMAP1, y = UMAP2, color = {{ annotation_column }})) +
     # set points for all "other" points
     geom_point(
@@ -379,18 +381,17 @@ plot_faceted_umap <- function(classification_df,
       size = 0.1
     ) +
     # set points for desired cell type
-    geom_point(size = 0.1, alpha = 0.5) +
+    geom_point(size = 0.1, alpha = 0.5, color = "red") +
     facet_wrap(
       vars({{ annotation_column }}),
       ncol = 3
     ) +
-    scale_color_brewer(palette = "Dark2") +
     # remove axis numbers and background grid
     scale_x_continuous(labels = NULL, breaks = NULL) +
     scale_y_continuous(labels = NULL, breaks = NULL) +
     guides(
       color = guide_legend(
-        title = "Cell type",
+        title = legend_title,
         # more visible points in legend
         override.aes = list(
           alpha = 1,
@@ -400,6 +401,7 @@ plot_faceted_umap <- function(classification_df,
     ) +
     theme(
       aspect.ratio = 1,
-      panel.border = element_rect(color = "black", fill = NA)
+      strip.background = element_rect(fill = "transparent", linewidth = 0.5),
+      panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5)
     )
 }
