@@ -31,7 +31,7 @@ on:
 
 jobs:
   run-module:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: github.repository_owner == 'AlexsLemonade'
     defaults:
       run:
