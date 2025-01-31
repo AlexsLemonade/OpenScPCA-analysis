@@ -1,7 +1,7 @@
 # This script downloads and adapt the genome position file for use with infercnv
 
 # load library
-library(dplyr)
+library(tidyverse)
 library(stringr)
 
 
