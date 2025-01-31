@@ -43,7 +43,7 @@ summarize_celltypes <- function(file, id){
     )
   
   summary_df <- df |> 
-    dplyr::group_by(library_id, consensus_annotation, consensus_ontology) |> 
+    dplyr::group_by(library_id, sample_type, consensus_annotation, consensus_ontology) |> 
     dplyr::summarize(total_cells_per_annotation = length(consensus_annotation)) |>
     dplyr::left_join(total_cells_df, by = "library_id") |> 
     dplyr::mutate(
@@ -157,6 +157,49 @@ high_tumor_df |>
 It looks like all projects do have cell types identified that are not "Unknown". 
 However, `SCPCP000011` (retinoblastoma), has a fairly high percentage of samples without any consensus labels. 
 
+Let's also look at the projects that have PDX samples. 
+I expect that fewer cells are able to be classified in PDX samples compared to their patient tissue counterparts. 
+
+```{r, fig.height=7}
+# list of projects with pdx 
+pdx_projects <- c(
+  "SCPCP000003",
+  "SCPCP000004",
+  "SCPCP000005",
+  "SCPCP000011",
+  "SCPCP000013",
+  "SCPCP000014",
+  "SCPCP000015",
+  "SCPCP000016",
+  "SCPCP000023"
+)
+
+# filter to pdx projects and adjust the facet label 
+pdx_only <- unknown_only |>
+  dplyr::filter(project_id %in% pdx_projects) |>
+  dplyr::mutate(facet_label = glue::glue("{project_id}\n{diagnosis}"))
+
+# faceted sina showing patient tissue vs. pdx 
+ggplot(pdx_only, aes(x = sample_type, y = percent_cells_annotation)) +
+  ggforce::geom_sina() +
+  stat_summary(fun.y=median, geom="crossbar" , color = "red", linewidth = 0.2) +
+  facet_wrap(vars(facet_label)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+        plot.margin = margin(10,10,10,10)) +
+  labs(
+    x = "", 
+    y = "Percent of cells annotated as Unknown"
+  )
+```
+
+It looks like in `SCPCP000003` and `SCPCP000004` the PDX samples have less cells classified than the patient tissue samples. 
+
+For `SCPCP000015` there may be a higher percentage of cells that are classified in a few of the PDX samples. 
+For `SCPCP000023` and `SCPCP000013` there appears to be a handful of PDX and patient tissue samples that have cells that are classified with no real difference between the two sample types. 
+My hunch is that the cells getting classified in `SCPCP000013`, `SCPCP000015`, and `SCPCP000023` PDX samples are muscle cells which are very similar to the tumor cells. 
+
+For the remaining projects, there are very few samples that have any cells classified regardless of sample type. 
+
 ## Number of cell types observed
 
 Below we look at the number of cell types observed in each project for all samples. 
@@ -243,6 +286,8 @@ project_labels |>
         fill = top_celltypes
       ) +
       geom_col() + 
+      # split samples based on sample type, patient tissue or pdx 
+      facet_wrap(vars(sample_type), scales ="free") +
       scale_y_continuous(expand = c(0,0)) +
       scale_fill_manual(values = colors, name = "cell type") +
       ggtitle(label) +
@@ -259,7 +304,14 @@ A few observations:
 - Cell types identified tend to line up with expectations for the type of tumor. 
 For example, leukemia libraries have T and B cells, brain tumors have macrophages, and solid tumors have fibroblasts and muscle cells. 
 - Projects that I would expect to be more difficult to classify (sarcomas, wilms, RB) have fewer cells classified then things like brain and leukemia. 
-Notably many of the solid tumor projects (4, 5, 12-16, and 23) have a handful of PDX samples where I would expect to see fewer normal cells. 
+- Generally there are very few cells classified in the PDX samples, and if they are classified they tend to be muscle cell types, fibroblasts, and in a handful of cases, endothelial cells. 
+Immune cell types appear to be absent. 
+Notably the projects that have PDX samples are solid tumors and sarcoma projects, where muscle cells or fibroblasts can be similar to tumor cells. 
+- `SCPCP000023` seems to be an exception where a good amount of PDX samples have a high percentage of classified cells, although they are either muscle cells or chondrocytes. 
+My guess is that these cells look very similar to tumor cells, which is why they are being classified. 
+
+It's important to note that when we quantify gene expression using `alevin-fry` in `scpca-nf` we only use a human reference, so I would not expect non-malignant cells to appear in the PDX samples at any high frequency. 
+Because of this, I think it may be safest to remove these samples when conducting any further analysis. 
 
 ## Most frequently observed cell types 
 
