@@ -73,7 +73,7 @@ if (!file.exists(gene_arm_order_file)) {
     mutate(Chromosome = paste0(Chromosome, Arm)) %>%
     # Define chromosome arm order
     mutate(Chromosome = factor(Chromosome, levels = c(paste0("chr", rep(1:22, each = 2), c("p", "q")),
-                                                      "chrXp", "chrXq", "chrYp", "chrYq"))) %>%
+                                                      "chrXp", "chrXq", "chrYp", "chrYq", "chrM"))) %>%
     # Sort genes by Chromosome arm and Start position
     arrange(Chromosome, Start.x)  %>%
     # Select only relevant column for infercnv
