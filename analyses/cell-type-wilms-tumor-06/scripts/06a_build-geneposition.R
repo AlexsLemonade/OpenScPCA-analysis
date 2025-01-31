@@ -1,7 +1,7 @@
 # This script downloads and adapt the genome position file for use with infercnv
 
 # load library
-library(tidyverse)
+library(dplyr)
 library(stringr)
 
 
@@ -64,19 +64,22 @@ if (!file.exists(gene_arm_order_file)) {
     # Join chromosome arm information with gene_order based on Chromosome
     left_join(chromosome_arms, by = c("Chromosome" = "chrom")) %>%
     # Determine arm (p or q)
-    mutate(Arm = if_else((Start.x > End.y & arm == "p"), "q", arm)) %>%
+    mutate(Arm = case_when(
+      (Start.x > End.y & arm == "p") ~ "q",
+      arm == "q" ~ NA,
+      .default = arm)) %>%
+    na.omit() %>%      
     # Create Chromosome_arm by pasting Chromosome with Arm information
     mutate(Chromosome = paste0(Chromosome, Arm)) %>%
     # Define chromosome arm order
     mutate(Chromosome = factor(Chromosome, levels = c(paste0("chr", rep(1:22, each = 2), c("p", "q")),
                                                       "chrXp", "chrXq", "chrYp", "chrYq"))) %>%
     # Sort genes by Chromosome arm and Start position
-    arrange(Chromosome, Start.x) %>%
+    arrange(Chromosome, Start.x)  %>%
     # Select only relevant column for infercnv
-    select(Ensembl_Gene_ID, Chromosome, Start.x, End.x)  %>%
-    # Remove doublets introduced in left_join
-    distinct(Ensembl_Gene_ID, Chromosome, .keep_all = TRUE)
-  
+    select(Ensembl_Gene_ID, Chromosome, Start.x, End.x) 
+   
   # Save the final output
   write_tsv(gene_order, gene_arm_order_file, col_names = FALSE)
-}
+
+  }
