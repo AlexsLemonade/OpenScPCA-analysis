@@ -28,8 +28,12 @@ max_rank_threshold=${max_rank_threshold:-0.01}
 
 # set up input and output file paths
 data_dir="../../data/current/SCPCP000015"
+merged_sce_file="../../data/current/results/merge-sce/SCPCP000015/SCPCP0000015_merged.rds"
+
 results_dir="results/aucell-ews-signatures"
 mkdir -p ${results_dir}
+
+merged_results_file="${results_dir}/SCPCP000015_auc-ews-gene-signatures.tsv"
 
 # gene signature directory 
 gene_signatures_dir="${module_dir}/references/gene_signatures"
@@ -64,3 +68,15 @@ for sample_id in $sample_ids; do
           --seed $seed
       done
 done
+
+
+# run AUCell on merged object 
+echo "Running AUCell for merged object" 
+Rscript scripts/aucell-ews-signatures/01-aucell.R \
+    --sce_file $merged_sce_file \
+    --custom_geneset_dir $gene_signatures_dir \
+    --msigdb_genesets $msigdb_geneset_file \
+    --max_rank_threshold $max_rank_threshold \
+    --output_file $merged_results_file \
+    --threads $threads \
+    --seed $seed
