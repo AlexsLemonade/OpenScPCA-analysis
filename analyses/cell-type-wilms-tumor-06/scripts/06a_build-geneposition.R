@@ -1,7 +1,7 @@
 # This script downloads and adapt the genome position file for use with infercnv
 
 # load library
-library(dplyr)
+library(tidyverse)
 library(stringr)
 
 
@@ -31,7 +31,7 @@ if (!file.exists(gene_arm_order_file)) {
     filter(V3 == "gene") %>%
     select(V1, V4, V5, V9) %>% # Chromosome, Start, End, Attributes
     filter(str_detect(V9, "gene_id")) %>% # Ensure we only process lines that contain "gene_id"
-    mutate(Ensembl_Gene_ID = str_extract(V9, "\\s*(ENSG[0-9]+)")) %>% # Use str_extract to capture ENSG number
+    mutate(Ensembl_Gene_ID = str_extract(V9, "(ENSG[0-9]+)")) %>% # Use str_extract to capture ENSG number
     select(Ensembl_Gene_ID, V1, V4, V5) %>% # Select relevant columns
     rename(Chromosome = V1, Start = V4, End = V5)
   
@@ -80,7 +80,8 @@ if (!file.exists(gene_arm_order_file)) {
     select(Ensembl_Gene_ID, Chromosome, Start.x, End.x) %>%
     # Remove ENSG duplicated (genes that are both on X and Y chromosome need to be remove before infercnv)
     distinct(Ensembl_Gene_ID, .keep_all = TRUE)
+  
   # Save the final output
-  write_tsv(gene_order, gene_arm_order_file, col_names = FALSE)
+  write_tsv(gene_order, gene_arm_order_file, col_names = FALSE, append = FALSE)
 
   }
