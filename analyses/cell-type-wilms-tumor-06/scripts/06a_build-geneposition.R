@@ -77,8 +77,9 @@ if (!file.exists(gene_arm_order_file)) {
     # Sort genes by Chromosome arm and Start position
     arrange(Chromosome, Start.x)  %>%
     # Select only relevant column for infercnv
-    select(Ensembl_Gene_ID, Chromosome, Start.x, End.x) 
-   
+    select(Ensembl_Gene_ID, Chromosome, Start.x, End.x) %>%
+    # Remove ENSG duplicated (genes that are both on X and Y chromosome need to be remove before infercnv)
+    distinct(Ensembl_Gene_ID, .keep_all = TRUE)
   # Save the final output
   write_tsv(gene_order, gene_arm_order_file, col_names = FALSE)
 
