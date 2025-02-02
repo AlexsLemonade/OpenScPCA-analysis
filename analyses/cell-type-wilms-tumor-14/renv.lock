@@ -483,14 +483,14 @@
     },
     "Rcpp": {
       "Package": "Rcpp",
-      "Version": "1.0.13",
+      "Version": "1.0.14",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "methods",
         "utils"
       ],
-      "Hash": "f27411eb6d9c3dada5edd444b8416675"
+      "Hash": "e7bdd9ee90e96921ca8a0f1972d66682"
     },
     "RcppAnnoy": {
       "Package": "RcppAnnoy",
@@ -506,7 +506,7 @@
     },
     "RcppArmadillo": {
       "Package": "RcppArmadillo",
-      "Version": "14.0.2-1",
+      "Version": "14.2.2-1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -516,7 +516,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "edff747eebfb8f2e18eed194e000caa1"
+      "Hash": "9da7c242d94a8419d045f6b3a64b9765"
     },
     "RcppEigen": {
       "Package": "RcppEigen",
@@ -544,13 +544,13 @@
     },
     "RcppParallel": {
       "Package": "RcppParallel",
-      "Version": "5.1.9",
+      "Version": "5.1.10",
       "Source": "Repository",
-      "Repository": "RSPM",
+      "Repository": "CRAN",
       "Requirements": [
         "R"
       ],
-      "Hash": "f38a72a419b91faac0ce5d9eee04c120"
+      "Hash": "34ee3ba92c1b2df651980325523ed22a"
     },
     "RcppProgress": {
       "Package": "RcppProgress",
@@ -1259,7 +1259,6 @@
       "RemoteSha": "d7d6569ae9e30bf774908301af312f626de4cbd5",
       "Requirements": [
         "MCMCpack",
-        "R",
         "RColorBrewer",
         "cluster",
         "dlm",
@@ -1268,7 +1267,7 @@
         "parallel",
         "parallelDist"
       ],
-      "Hash": "e356046a6ab19635791f7ce46ecd5991"
+      "Hash": "efd05c69dffe1128eb4843f3107eb606"
     },
     "corrplot": {
       "Package": "corrplot",
