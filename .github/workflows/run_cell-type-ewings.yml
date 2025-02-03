@@ -42,7 +42,7 @@ jobs:
         run: |
           conda activate openscpca-cell-type-ewings
           ./download-data.py --test-data --format "sce,anndata" --project SCPCP000015
-          ./download-results.py --modules merge-sce --projects SCPCP000015
+          ./download-results.py --test-data --modules merge-sce --projects SCPCP000015
 
       - name: Run analysis
         run: |
