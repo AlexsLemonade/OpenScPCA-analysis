@@ -188,7 +188,9 @@ collection <- all_genes_list |>
 # Run AUCell -------------------------------------------------------------------
 
 # run AUCell
-counts_mtx <- counts(filtered_sce)
+counts_mtx <- counts(filtered_sce) |>
+  as("dgCMatrix") # account for merged objects not being sparse
+
 max_rank <- ceiling(opt$max_rank_threshold*nrow(counts_mtx))
 
 auc_results <- AUCell::AUCell_run(
