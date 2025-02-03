@@ -12,7 +12,7 @@ This notebook is used to find the appropriate `aucMaxRank` to use with `AUCell` 
 
 From the  [`AUCell` vignette](https://bioconductor.org/packages/release/bioc/vignettes/AUCell/inst/doc/AUCell.html):
 
-> It is important to check that most cells have at least the number of expressed/detected genes that are going to be used to calculate the AUC (aucMaxRank in calcAUC()). The histogram provided by AUCell_buildRankings() allows to quickly check this distribution. 
+> It is important to check that most cells have at least the number of expressed/detected genes that are going to be used to calculate the AUC (`aucMaxRank` in `calcAUC`()). The histogram provided by `AUCell_buildRankings`() allows to quickly check this distribution. 
 
 Here we will look at a histogram showing the number of genes detected per cell for each sample and use that information to pick a threshold (percentage of genes) to use across all samples. 
 
