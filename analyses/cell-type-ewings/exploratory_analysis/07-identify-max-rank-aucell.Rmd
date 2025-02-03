@@ -125,7 +125,7 @@ Now we will look at the potential thresholds for `aucMaxRank` using 5% and 1% of
 The numbers printed here represent the total number of genes that would be used as the `aucMaxRank` for a given dataset using the threshold. 
 We can then use the histograms to see how many cells have at least that number of genes detected. 
 Remember, we want to pick a number of genes that are detected in most cells.
-If we picked a max rank higher than the number of genes detected in most cells, the non-detected genes that are randomly ordered would play an oversized role in our AUC values.
+If we picked a max rank higher than the number of genes detected in most cells, the non-detected genes that are randomly ordered would play an outsized role in our AUC values.
 
 ### 5%  
 
