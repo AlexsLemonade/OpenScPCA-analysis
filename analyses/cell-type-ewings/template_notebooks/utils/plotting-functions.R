@@ -28,7 +28,7 @@ expression_umap <- function(
 
   ggplot(df, aes(x = UMAP1, y = UMAP2, color = {{color_column}})) +
     geom_point(size = 0.1, alpha = 0.5) +
-    scale_color_viridis_c() +
+    scale_color_viridis_c(option = "turbo") +
     facet_wrap(vars({{facet_column}})) +
     # make sure there's a box around every facet 
     theme(
