@@ -39,6 +39,12 @@ option_list <- list(
       Must be a number between 0 and 1."
   ),
   make_option(
+    opt_str = c("--is_merged"),
+    action = "store_true",
+    default = FALSE,
+    help = "Indicate whether or not the SCE object is a merged object."
+  ),
+  make_option(
     opt_str = c("--output_file"),
     type = "character",
     help = "Path to file where results will be saved"
@@ -96,8 +102,19 @@ fs::dir_create(output_dir)
 sce <- readr::read_rds(opt$sce_file)
 
 # remove genes that are not detected from SCE object 
-genes_to_remove <- rowData(sce)$detected > 0 
-filtered_sce <- sce[genes_to_remove , ]
+if(!opt$is_merged){
+  genes_to_remove <- rowData(sce)$detected > 0 
+} else {
+  
+  # if merged object then need to sum all columns to find genes not present in the object at all 
+  genes_to_remove <- rowData(sce) |> 
+    as.data.frame() |>
+    dplyr::select(ends_with("detected")) |> 
+    rowSums() > 0
+  
+}
+
+filtered_sce <- sce[genes_to_remove , ] 
 
 # read in gene sets to use with msigdb
 genesets_df <- readr::read_tsv(opt$msigdb_genesets)
@@ -171,7 +188,7 @@ collection <- all_genes_list |>
 # Run AUCell -------------------------------------------------------------------
 
 # run AUCell
-counts_mtx <- counts(sce)
+counts_mtx <- counts(filtered_sce)
 max_rank <- ceiling(opt$max_rank_threshold*nrow(counts_mtx))
 
 auc_results <- AUCell::AUCell_run(
