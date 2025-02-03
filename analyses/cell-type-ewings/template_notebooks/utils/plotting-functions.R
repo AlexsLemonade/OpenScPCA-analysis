@@ -28,7 +28,7 @@ expression_umap <- function(
 
   ggplot(df, aes(x = UMAP1, y = UMAP2, color = {{color_column}})) +
     geom_point(size = 0.1, alpha = 0.5) +
-    scale_color_viridis_c() +
+    scale_color_viridis_c(option = "turbo") +
     facet_wrap(vars({{facet_column}})) +
     # make sure there's a box around every facet 
     theme(
@@ -57,6 +57,7 @@ expression_umap <- function(
 cluster_density_plot <- function(
     df,
     expression_columns,
+    annotation_column = "cluster",
     x_label){
   
   # create density plot for each column and combine into one figure 
@@ -65,10 +66,9 @@ cluster_density_plot <- function(
       plot_density(
         df,
         column,
-        "cluster"
+        annotation_column
       ) +
-        labs(y = "Cluster", 
-             x = x_label) +
+        labs(x = x_label) +
         theme(text = element_text(size = 8))
     }) |>
     patchwork::wrap_plots(ncol = 2)

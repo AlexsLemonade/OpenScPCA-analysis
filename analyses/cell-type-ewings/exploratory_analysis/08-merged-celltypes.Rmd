@@ -1,0 +1,395 @@
+---
+title: "Cell type assignments for SCPCP000015"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    code_folding: "hide"
+---
+
+
+## Setup
+
+```{r packages}
+suppressPackageStartupMessages({
+  # load required packages
+  library(SingleCellExperiment)
+  library(ggplot2)
+})
+
+# Set default ggplot theme
+theme_set(
+  theme_classic()
+)
+
+# set seed
+set.seed(2024)
+
+# quiet messages
+options(readr.show_col_types = FALSE)
+ComplexHeatmap::ht_opt(message = FALSE)
+```
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The current data directory, found within the repository base directory
+data_dir <- file.path(repository_base, "data", "current", "results", "merge-sce", "SCPCP000015")
+
+# The path to this module
+module_base <- file.path(repository_base, "analyses", "cell-type-ewings") 
+```
+
+```{r}
+# path to sce 
+sce_file <- file.path(data_dir, "SCPCP000015_merged.rds")
+
+# path to workflow results
+workflow_results_dir <- file.path(module_base, "results")
+
+singler_results_dir <- file.path(workflow_results_dir, "aucell_singler_annotation")
+singler_results_files <- list.files(singler_results_dir, pattern = "*singler-classifications.tsv", full.names = TRUE, recursive = TRUE)
+library_ids <- stringr::str_remove(basename(singler_results_files), "_singler-classifications.tsv")
+
+
+aucell_results_dir <- file.path(workflow_results_dir, "aucell-ews-signatures")
+aucell_results_file <- file.path(aucell_results_dir, "SCPCP000015_auc-ews-gene-signatures.tsv")
+
+# small gene sets
+visser_marker_genes_file <- file.path(module_base, "references", "visser-all-marker-genes.tsv")
+cell_state_genes_file <- file.path(module_base, "references", "tumor-cell-state-markers.tsv")
+```
+
+```{r}
+# output file to save final annotations 
+results_dir <- file.path(module_base, "results", "final-annotations")
+output_file <- file.path(results_dir, glue::glue("SCPCP000015_celltype-annotations.tsv"))
+```
+
+
+```{r}
+# source in setup functions prep_results()
+setup_functions <- file.path(module_base, "template_notebooks", "utils", "setup-functions.R")
+source(setup_functions)
+
+# source in validation functions 
+# calculate_mean_markers(), plot_faceted_umap()
+validation_functions <- file.path(module_base, "scripts", "utils", "tumor-validation-helpers.R")
+source(validation_functions)
+
+# source in plotting functions 
+# expression_umap(), cluster_density_plot(), and annotated_exp_heatmap()
+plotting_functions <- file.path(module_base, "template_notebooks", "utils", "plotting-functions.R")
+source(plotting_functions)
+```
+
+```{r}
+stopifnot(
+  "sce file does not exist" = file.exists(sce_file),
+  "aucell results file does not exist" = file.exists(aucell_results_file)
+)
+```
+
+
+```{r, message=FALSE}
+# read in sce
+sce <- readr::read_rds(sce_file)
+
+# read in workflow results
+singler_df <- singler_results_files |> 
+  purrr::set_names(library_ids) |>
+  purrr::map(readr::read_tsv) |> 
+  dplyr::bind_rows(.id = "library_id")
+aucell_df <- readr::read_tsv(aucell_results_file) |> 
+  tidyr::separate(barcodes, "-", into = c("library_id", "barcodes"))
+
+# read in marker genes and combine into one list 
+visser_markers_df <- readr::read_tsv(visser_marker_genes_file) |> 
+  dplyr::select(cell_type, ensembl_gene_id) |> 
+  unique()
+  
+cell_state_markers_df <- readr::read_tsv(cell_state_genes_file) |> 
+  dplyr::select(cell_type = cell_state, ensembl_gene_id)
+
+all_markers_df <- dplyr::bind_rows(list(visser_markers_df, cell_state_markers_df))
+```
+
+## Prepare data for plotting
+
+```{r}
+all_results_df <- prep_results(
+  sce, 
+  singler_df = singler_df, 
+  cluster_df = NULL, 
+  aucell_df = aucell_df,
+  consensus_df = consensus_df,
+  cluster_nn = params$cluster_nn,
+  cluster_res = params$cluster_res,
+  join_columns = c("barcodes", "library_id")
+  ) |>
+  dplyr::mutate(barcodes = glue::glue("{library_id}-{barcodes}"))
+  
+cell_types <- unique(all_markers_df$cell_type)
+
+# get the mean expression of all genes for each cell state
+gene_exp_df <- cell_types |>
+  purrr::map(\(type){
+    calculate_mean_markers(all_markers_df, sce, type, cell_type)
+  }) |>
+  purrr::reduce(dplyr::inner_join, by = "barcodes")
+
+all_info_df <- all_results_df |> 
+  dplyr::left_join(gene_exp_df, by = "barcodes")
+```
+
+## Summary of workflow results
+
+### `aucell-singler-annotation` assignments 
+
+The below UMAP shows the top cell types assigned by `SingleR` in the `aucell-singler-annotation.sh` workflow. 
+The top 7 cell types are shown and all other cell types are grouped together as "All remaining cell types". 
+
+```{r, fig.height = 5}
+plot_faceted_umap(all_info_df, singler_lumped, legend_title = "SingleR cell types") +
+  theme(strip.text = element_text(size = 8))
+```
+
+
+### Consensus cell type assignments 
+
+```{r, fig.height=5}
+plot_faceted_umap(all_info_df, consensus_lumped, legend_title = "Consensus cell types") +
+  theme(strip.text = element_text(size = 8))
+```
+
+
+### `AUCell` results 
+
+The below plots show the AUC values determined by `AUCell` and output from `run-aucell-ews-signatures.sh`. 
+The first plot shows the individual AUC values on the UMAP. 
+
+```{r}
+# get the individual thresholds determined by AUCell for each msigdb geneset
+# we want this so we can show the threshold on the density plots 
+auc_threshold_df <- all_info_df |> 
+  tidyr::pivot_longer(starts_with("threshold_auc_"), names_to = "geneset", values_to = "threshold") |> 
+  dplyr::mutate(
+    geneset = stringr::str_remove(geneset, "threshold_auc_")
+  ) |> 
+  dplyr::select(barcodes, geneset, threshold)
+
+# reformat auc data for density plots and UMAPs showing AUC values 
+auc_df <- all_info_df |> 
+  tidyr::pivot_longer(starts_with("auc_"), names_to = "geneset", values_to = "auc_value") |> 
+  dplyr::mutate(
+    geneset = stringr::str_remove(geneset, "auc_")
+  ) |> 
+  dplyr::select(barcodes, UMAP1, UMAP2, geneset, auc_value) |> 
+  dplyr::left_join(auc_threshold_df, by = c("barcodes", "geneset")) |> 
+  dplyr::mutate(
+    in_geneset =  auc_value > threshold
+  )
+```
+
+
+```{r, fig.height=10, fig.width=10}
+expression_umap(auc_df, auc_value, geneset)
+```
+
+The below plot shows the distribution of AUC values for each gene set colored based on if the AUC value is above the threshold determined by `AUCell`, indicated with a dotted line. 
+
+
+```{r, fig.height=5}
+
+ggplot(auc_df, aes(x = auc_value, color = in_geneset, fill = in_geneset)) +
+  geom_density(alpha = 0.5, bw = 0.01) +
+  facet_wrap(vars(geneset)) +
+  ggplot2::geom_vline(data = auc_df,
+                      mapping = aes(xintercept = threshold),
+                      lty = 2) +
+  theme(
+      aspect.ratio = 1,
+      strip.background = element_rect(fill = "transparent", linewidth = 0.5),
+      panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5)
+    ) 
+```
+
+
+Here we look at the AUC values for each gene set across all clusters. 
+
+
+```{r, fig.height=10}
+auc_columns <- colnames(all_info_df)[which(startsWith(colnames(all_info_df), "auc_"))]
+cluster_density_plot(all_info_df, auc_columns, "consensus_lumped", "AUC")
+```
+
+Here we should identify any tumor cells as those that have high expression of `EWS-FLI` targets and low expression of `EWS-FLI` repressed targets. 
+I think we want to use the gene sets where we see some separation in AUC values between cell types to do our assignment. 
+
+- `aynaud-ews-targets`: > 0.05
+- `staege`: > 0.25
+- `riggi_down`: < 0.025
+- `migayawa_down`: < 0.03
+
+Intriguingly we see high expression of `hallmark_EMT` and the down gene sets (genes that are repressed by `EWS-FLI`) in fibroblasts, which also happen to have high expression of the `EWS-FLI` low targets identifed by Wrenn et al.
+That paper identifies `EWS-FLI` low cells as cancer associated fibroblasts.
+Let's label these cells accordingly. 
+If cells have `in_geneset=TRUE` for the `hallmark_EMT`, `wrenn-nt5e-genes`, and `migayawa_down` they will be classified as `ews_low_cafs`.
+
+- `wrenn-nt5e-genes`: > 0.1
+- `hallmark_EMT`: > 0.05
+- `migayawa_down`: > 0.03
+- `riggi_down`: > 0.025
+
+```{r}
+all_info_df <- all_info_df |> 
+  dplyr::mutate(
+    final_annotation = dplyr::case_when(
+      `auc_wrenn-nt5e-genes` > 0.1 & auc_miyagawa_down > 0.03 ~ "ews_low_caf",
+      `auc_aynaud-ews-targets` > 0.025 | 
+        consensus_annotation %in% c("Unknown", "muscle cell", "smooth muscle cell") ~ "ews_high",
+      .default = consensus_annotation
+    )
+  )
+
+head(all_info_df)
+table(all_info_df$final_annotation)
+```
+
+
+
+The heatmap below shows the AUC values for all cells and all gene sets. 
+The annotations shown are the `SingleR` cell types and clusters. 
+
+```{r}
+all_info_df <- all_info_df |> 
+  dplyr::arrange(final_annotation)
+
+annotated_exp_heatmap(
+  all_info_df, 
+  exp_columns = auc_columns, 
+  cell_type_column = "consensus_lumped", 
+  cluster_column = "final_annotation", 
+  legend_title = "AUC"
+)
+
+# get annotation colors for cell type and cluster 
+cell_types <- unique(all_info_df$final_annotation)
+num_cell_types <- length(cell_types)
+cell_type_colors <- palette.colors(palette = "alphabet") |>
+  head(n = num_cell_types) |>
+  purrr::set_names(cell_types)
+
+# create annotation for heatmap
+annotation <- ComplexHeatmap::columnAnnotation(
+  cell_type = all_info_df$final_annotation,
+  col = list(
+    cell_type = cell_type_colors
+  )
+)
+
+# build matrix for heatmap cells x gene set/ expression columns 
+heatmap_mtx <- all_info_df |>
+  dplyr::select(barcodes, all_of(auc_columns)) |>
+  tibble::column_to_rownames("barcodes") |>
+  as.matrix() |>
+  t()
+
+# remove any extra strings from the expression column names 
+rownames(heatmap_mtx) <- stringr::str_remove(rownames(heatmap_mtx), "auc_|_mean")
+  
+# plot heatmap of marker genes
+plot_gene_heatmap(heatmap_mtx,
+                  row_title = "",
+                  legend_title = "final_annotation",
+                  annotation = annotation,
+                  cluster_columns = TRUE
+)
+```
+
+
+
+### Mean expression of custom gene sets
+
+Below we look at the mean expression of all genes in each of the custom gene sets we have defined both on a UMAP and in a density plot. 
+
+```{r, fig.height=10, fig.width=10}
+# format expression data for UMAP and density plot 
+exp_df <- all_info_df |> 
+  tidyr::pivot_longer(ends_with("_mean"), names_to = "geneset", values_to = "mean") |>
+  dplyr::mutate(tumor_cell_classification = dplyr::if_else(singler_lumped == "tumor", "tumor", "other"))
+
+expression_umap(exp_df, mean, geneset)
+```
+
+```{r, fig.height=8}
+ggplot(exp_df, aes(x = mean, color = tumor_cell_classification, fill = tumor_cell_classification)) +
+  geom_density(alpha = 0.5, bw = 0.5) +
+  facet_wrap(vars(geneset)) +
+  theme(
+    aspect.ratio = 1,
+    strip.background = element_rect(fill = "transparent", linewidth = 0.5),
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5)
+  )
+```
+
+Here we look at the mean expression for each gene set across all clusters. 
+
+```{r, fig.height=30, warning=FALSE}
+mean_exp_columns <- colnames(all_info_df)[which(endsWith(colnames(all_info_df), "_mean"))]
+cluster_density_plot(all_info_df, mean_exp_columns, annotation_column = "consensus_annotation", "mean gene expression")
+```
+
+The heatmap below shows the mean expression values for all cells and all gene sets. 
+The annotations shown are the `SingleR` cell types and clusters. 
+
+```{r}
+annotated_exp_heatmap(
+  all_info_df, 
+  exp_columns = mean_exp_columns, 
+  cell_type_column = "singler_lumped", 
+  cluster_column = "singler_lumped", 
+  legend_title = "Mean\ngene expression"
+)
+```
+
+
+## Re-cluster tumor cells {.manual-exploration}
+ 
+<!-- Use this section to label tumor cells based on the above findings. 
+Any cells that are labeled as tumor will then be re-clustered and plots showing only tumor cells
+can be created to identify tumor cell states --> 
+
+TODO: Functions for re-clustering tumor cells
+Show the same plots across the tumor only clusters and assign tumor cell states to each cluster
+
+## Additional exploration {.manual-exploration}
+
+<!--This section is for any additional exploration that may be needed to finalize annotations for this library. 
+If not using, please delete this section.
+For example, here you may want to dive into the normal cell types and make adjustments as needed
+--> 
+
+## Validate final tumor and normal annotation {.manual-exploration}
+
+<!-- This section should be used to update the assignments --> 
+
+TODO: Insert plots that will be useful for validation (UMAPs, heatmaps, density plots)
+
+## Prepare annotations {.manual-exploration}
+
+<!-- This section should be used to create the final.final table with cell type annotations for export --> 
+
+TODO: Code and instructions for exporting such as what columns should be named. 
+
+## Session info 
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
+
