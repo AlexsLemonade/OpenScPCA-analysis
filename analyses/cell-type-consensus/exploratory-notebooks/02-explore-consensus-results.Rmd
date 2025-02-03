@@ -258,7 +258,7 @@ A few observations:
 
 - Cell types identified tend to line up with expectations for the type of tumor. 
 For example, leukemia libraries have T and B cells, brain tumors have macrophages, and solid tumors have fibroblasts and muscle cells. 
-- Projects that I would expect to be more difficult to classify (sarcomas, wilms, RB) have fewer cells classified then things like brain and leukemia. 
+- Projects that I would expect to be more difficult to classify (sarcomas, Wilms, RB) have fewer cells classified then things like brain and leukemia. 
 Notably many of the solid tumor projects (4, 5, 12-16, and 23) have a handful of PDX samples where I would expect to see fewer normal cells. 
 
 ## Most frequently observed cell types 

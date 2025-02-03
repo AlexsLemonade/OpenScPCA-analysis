@@ -256,7 +256,7 @@ The `auc-ews-gene-signatures.tsv` file contains the following columns:
 | `barcodes`           | Unique cell barcode                                                                                                                                  |
 | `gene_set`           | The name associated with the gene set used for calculating AUC values                                                                                |
 | `auc`                | AUC value reported by running `AUCell`                                                                                                               |
-| `auc_threshold` | The threshold AUC value used to classify cells as having high expression of genes in the gene siganture as reported by `AUCell` |
+| `auc_threshold` | The threshold AUC value used to classify cells as having high expression of genes in the gene signature as reported by `AUCell` |
 
 
 ### Computational resources 
