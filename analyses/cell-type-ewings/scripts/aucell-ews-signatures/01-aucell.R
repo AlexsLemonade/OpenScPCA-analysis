@@ -103,18 +103,18 @@ sce <- readr::read_rds(opt$sce_file)
 
 # remove genes that are not detected from SCE object 
 if(!opt$is_merged){
-  genes_to_remove <- rowData(sce)$detected > 0 
+  genes_to_keep <- rowData(sce)$detected > 0 
 } else {
   
   # if merged object then need to sum all columns to find genes not present in the object at all 
-  genes_to_remove <- rowData(sce) |> 
+  genes_to_keep <- rowData(sce) |> 
     as.data.frame() |>
     dplyr::select(ends_with("detected")) |> 
     rowSums() > 0
   
 }
 
-filtered_sce <- sce[genes_to_remove , ] 
+filtered_sce <- sce[genes_to_keep , ] 
 
 # read in gene sets to use with msigdb
 genesets_df <- readr::read_tsv(opt$msigdb_genesets)
