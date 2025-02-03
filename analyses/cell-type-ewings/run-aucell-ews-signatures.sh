@@ -3,7 +3,8 @@
 # This script is used to get AUC values for a set of EWS-FLI1 high/low gene signatures using AUCell
 # The input gene signatures are those saved in `references/gene_signatures` and MSigDB gene sets noted in `references/msigdb-gene-sets.tsv`
 
-# For each library, a TSV is saved with the following columns: 
+# AUCell is run on each library and the merged object 
+# The output is a TSV for each library/object with the following columns: 
 # `gene_set`, `barcodes`, `auc`, and `auc_threshold`
 
 # Usage: ./run-aucell-ews-signatures.sh
@@ -58,14 +59,14 @@ for sample_id in $sample_ids; do
 
         # run AUCell
         echo "Running AUCell for $library_id"
-        #Rscript scripts/aucell-ews-signatures/01-aucell.R \
-        #  --sce_file $sce_file \
-        #  --custom_geneset_dir $gene_signatures_dir \
-        #  --msigdb_genesets $msigdb_geneset_file \
-        #  --max_rank_threshold $max_rank_threshold \
-        #  --output_file $auc_results_file \
-        #  --threads $threads \
-        #  --seed $seed
+        Rscript scripts/aucell-ews-signatures/01-aucell.R \
+          --sce_file $sce_file \
+          --custom_geneset_dir $gene_signatures_dir \
+          --msigdb_genesets $msigdb_geneset_file \
+          --max_rank_threshold $max_rank_threshold \
+          --output_file $auc_results_file \
+          --threads $threads \
+          --seed $seed
       done
 done
 

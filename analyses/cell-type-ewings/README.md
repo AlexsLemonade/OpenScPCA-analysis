@@ -212,6 +212,7 @@ The full list of gene signatures used can be found in [the references `README.md
 
 `AUCell` is run for each gene signature, and AUC values along with the AUC threshold reported by `AUCell` are saved to a TSV file. 
 By default, `AUCell` is run with an `aucMaxRank` value equal to 1% of the detected genes in the processed object. 
+Results from `AUCell` will be generated for each library and for the merged object containing all samples in `SCPCP000015`. 
 
 ### Usage
 
