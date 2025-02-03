@@ -21,7 +21,7 @@ This workflow is now present in `OpenScPCA-nf`, and results will be made availab
 
 New FAQs covering how to work with ScPCA data as `Seurat` objects and using gene symbols instead of Ensembl IDs have been added to the [OpenScPCA documentation](https://openscpca.readthedocs.io/en/latest/troubleshooting-faq/faq/). 
 
-`Rcpp` packages were updated for compatibility. 
+`Rcpp` package versions within modules were updated for compatibility. 
 
 ## v0.2.0
 
