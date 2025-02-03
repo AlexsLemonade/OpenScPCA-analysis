@@ -95,7 +95,7 @@ if (opt$threads > 1) {
 # check that max rank is number between 0-1
 
 # make sure directory exists for writing output
-output_dir <- dir(opt$output_file)
+output_dir <- dirname(opt$output_file)
 fs::dir_create(output_dir)
 
 # read in SCE
