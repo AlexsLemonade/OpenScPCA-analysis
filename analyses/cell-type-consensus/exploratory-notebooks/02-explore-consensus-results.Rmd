@@ -303,7 +303,7 @@ A few observations:
 
 - Cell types identified tend to line up with expectations for the type of tumor. 
 For example, leukemia libraries have T and B cells, brain tumors have macrophages, and solid tumors have fibroblasts and muscle cells. 
-- Projects that I would expect to be more difficult to classify (sarcomas, wilms, RB) have fewer cells classified then things like brain and leukemia. 
+- Projects that I would expect to be more difficult to classify (sarcomas, Wilms, RB) have fewer cells classified then things like brain and leukemia. 
 - Generally there are very few cells classified in the PDX samples, and if they are classified they tend to be muscle cell types, fibroblasts, and in a handful of cases, endothelial cells. 
 Immune cell types appear to be absent. 
 Notably the projects that have PDX samples are solid tumors and sarcoma projects, where muscle cells or fibroblasts can be similar to tumor cells. 
