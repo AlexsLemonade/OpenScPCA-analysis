@@ -185,12 +185,21 @@ This can be changed using the `--max_rank_threshold` parameter.
 
 By default, this script uses 4 CPUs. 
 
-To run this script using the default parameters use the following command: 
+To run this script on a single library use the default parameters use the following command: 
 
 ```sh
 Rscript 01-aucell.R \
   --sce_file <path to processed SCE file> \
   --output_file <path to TSV file to save AUC results>
+```
+
+To run this script with a merged object use the following command: 
+
+```sh
+Rscript 01-aucell.R \
+  --sce_file <path to processed SCE file> \
+  --output_file <path to TSV file to save AUC results> \
+  --is_merged
 ```
 
 ## Scripts used in the CNV annotation workflow
@@ -301,7 +310,7 @@ This script also requires a gene order file (created by `00-make-gene-order-file
 To run this script use the following command:
 
 ```sh
-Rscript 04-run-infercnv.Rmd \
+Rscript 04-run-infercnv.R \
   --annotations_file <path to save annotations file> \
   --reference_cell_file <path to file with table of normal cell barcodes> \
   --output_dir <full path to folder to save results> \

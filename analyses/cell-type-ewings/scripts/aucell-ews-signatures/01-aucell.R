@@ -39,6 +39,12 @@ option_list <- list(
       Must be a number between 0 and 1."
   ),
   make_option(
+    opt_str = c("--is_merged"),
+    action = "store_true",
+    default = FALSE,
+    help = "Indicate whether or not the SCE object is a merged object."
+  ),
+  make_option(
     opt_str = c("--output_file"),
     type = "character",
     help = "Path to file where results will be saved"
@@ -89,15 +95,26 @@ if (opt$threads > 1) {
 # check that max rank is number between 0-1
 
 # make sure directory exists for writing output
-output_dir <- dir(opt$output_file)
+output_dir <- dirname(opt$output_file)
 fs::dir_create(output_dir)
 
 # read in SCE
 sce <- readr::read_rds(opt$sce_file)
 
 # remove genes that are not detected from SCE object 
-genes_to_remove <- rowData(sce)$detected > 0 
-filtered_sce <- sce[genes_to_remove , ]
+if(!opt$is_merged){
+  genes_to_keep <- rowData(sce)$detected > 0 
+} else {
+  
+  # if merged object then need to sum all columns to find genes not present in the object at all 
+  genes_to_keep <- rowData(sce) |> 
+    as.data.frame() |>
+    dplyr::select(ends_with("detected")) |> 
+    rowSums() > 0
+  
+}
+
+filtered_sce <- sce[genes_to_keep , ] 
 
 # read in gene sets to use with msigdb
 genesets_df <- readr::read_tsv(opt$msigdb_genesets)
@@ -170,10 +187,29 @@ collection <- all_genes_list |>
 
 # Run AUCell -------------------------------------------------------------------
 
-# run AUCell
-counts_mtx <- counts(sce)
+# extract counts matrix
+counts_mtx <- counts(filtered_sce) |>
+  as("dgCMatrix") # account for merged objects not being sparse
+
+# check intersection with gene sets
+overlap_pct <- all_genes_list |> 
+  purrr::map_dbl(\(list){
+    num_genes <- length(list)
+    intersect(rownames(counts_mtx), list) |>
+      length()/num_genes 
+  })
+
+# if any gene sets don't have enough overlap (cutoff is 20%)
+# print a message and quit
+if(any(overlap_pct <= 0.20)){
+  message("Gene sets do not have at least 20% of genes present in SCE. 
+          AUCell will not be run.")
+  quit(save = "no")
+}
+
 max_rank <- ceiling(opt$max_rank_threshold*nrow(counts_mtx))
 
+# run aucell 
 auc_results <- AUCell::AUCell_run(
   counts_mtx, 
   collection, 
