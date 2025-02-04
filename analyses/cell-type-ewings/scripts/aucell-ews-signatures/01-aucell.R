@@ -187,12 +187,29 @@ collection <- all_genes_list |>
 
 # Run AUCell -------------------------------------------------------------------
 
-# run AUCell
+# extract counts matrix
 counts_mtx <- counts(filtered_sce) |>
   as("dgCMatrix") # account for merged objects not being sparse
 
+# check intersection with gene sets
+overlap_pct <- all_genes_list |> 
+  purrr::map_dbl(\(list){
+    num_genes <- length(list)
+    intersect(rownames(counts_mtx), list) |>
+      length()/num_genes 
+  })
+
+# if any gene sets don't have enough overlap (cutoff is 20%)
+# print a message and quit
+if(any(overlap_pct <= 0.20)){
+  message("Gene sets do not have at least 20% of genes present in SCE. 
+          AUCell will not be run.")
+  quit(save = "no")
+}
+
 max_rank <- ceiling(opt$max_rank_threshold*nrow(counts_mtx))
 
+# run aucell 
 auc_results <- AUCell::AUCell_run(
   counts_mtx, 
   collection, 
