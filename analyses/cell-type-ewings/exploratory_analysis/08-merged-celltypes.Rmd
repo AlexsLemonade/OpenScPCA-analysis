@@ -253,7 +253,11 @@ all_info_df <- all_info_df |>
       `auc_aynaud-ews-targets` > 0.025 | 
         consensus_annotation %in% c("Unknown", "muscle cell", "smooth muscle cell") ~ "ews_high",
       .default = consensus_annotation
-    )
+    ),
+    final_lumped = final_annotation |>
+          forcats::fct_lump_n(8, other_level = "All remaining cell types", ties.method = "first") |>
+          forcats::fct_infreq() |>
+          forcats::fct_relevel("All remaining cell types", after = Inf)
   )
 
 head(all_info_df)
@@ -273,41 +277,8 @@ annotated_exp_heatmap(
   all_info_df, 
   exp_columns = auc_columns, 
   cell_type_column = "consensus_lumped", 
-  cluster_column = "final_annotation", 
+  cluster_column = "final_lumped", 
   legend_title = "AUC"
-)
-
-# get annotation colors for cell type and cluster 
-cell_types <- unique(all_info_df$final_annotation)
-num_cell_types <- length(cell_types)
-cell_type_colors <- palette.colors(palette = "alphabet") |>
-  head(n = num_cell_types) |>
-  purrr::set_names(cell_types)
-
-# create annotation for heatmap
-annotation <- ComplexHeatmap::columnAnnotation(
-  cell_type = all_info_df$final_annotation,
-  col = list(
-    cell_type = cell_type_colors
-  )
-)
-
-# build matrix for heatmap cells x gene set/ expression columns 
-heatmap_mtx <- all_info_df |>
-  dplyr::select(barcodes, all_of(auc_columns)) |>
-  tibble::column_to_rownames("barcodes") |>
-  as.matrix() |>
-  t()
-
-# remove any extra strings from the expression column names 
-rownames(heatmap_mtx) <- stringr::str_remove(rownames(heatmap_mtx), "auc_|_mean")
-  
-# plot heatmap of marker genes
-plot_gene_heatmap(heatmap_mtx,
-                  row_title = "",
-                  legend_title = "final_annotation",
-                  annotation = annotation,
-                  cluster_columns = TRUE
 )
 ```
 
@@ -326,65 +297,60 @@ exp_df <- all_info_df |>
 expression_umap(exp_df, mean, geneset)
 ```
 
-```{r, fig.height=8}
-ggplot(exp_df, aes(x = mean, color = tumor_cell_classification, fill = tumor_cell_classification)) +
-  geom_density(alpha = 0.5, bw = 0.5) +
-  facet_wrap(vars(geneset)) +
-  theme(
-    aspect.ratio = 1,
-    strip.background = element_rect(fill = "transparent", linewidth = 0.5),
-    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5)
-  )
-```
-
 Here we look at the mean expression for each gene set across all clusters. 
 
-```{r, fig.height=30, warning=FALSE}
+```{r, fig.height=7, warning=FALSE}
 mean_exp_columns <- colnames(all_info_df)[which(endsWith(colnames(all_info_df), "_mean"))]
-cluster_density_plot(all_info_df, mean_exp_columns, annotation_column = "consensus_annotation", "mean gene expression")
+cluster_density_plot(all_info_df, mean_exp_columns, annotation_column = "final_lumped", "mean gene expression")
 ```
 
-The heatmap below shows the mean expression values for all cells and all gene sets. 
-The annotations shown are the `SingleR` cell types and clusters. 
+What are the other cell types not present here? 
+```{r}
+lumped_celltypes <- unique(all_info_df$final_lumped)
+all_celltypes <- unique(all_info_df$final_annotation)
+missing_celltypes <- setdiff(all_celltypes, lumped_celltypes)
+
+missing_only <- all_info_df |> 
+  dplyr::filter(final_annotation %in% missing_celltypes)
+table(missing_only$final_annotation)
+```
+
+I think we can leave these few cells alone and just lump them as "All remaining cell types" for plots as we have been doing. 
+
+Now let's make a dot plot! Or a heatmap only looking at key genes! 
+In these plots, lets group all T cells together. 
 
 ```{r}
-annotated_exp_heatmap(
-  all_info_df, 
-  exp_columns = mean_exp_columns, 
-  cell_type_column = "singler_lumped", 
-  cluster_column = "singler_lumped", 
-  legend_title = "Mean\ngene expression"
-)
+markers_df <- readr::read_tsv(file.path(module_base, "references", "combined-markers.tsv"))
+genes <- markers_df |>
+  dplyr::pull(ensembl_gene_id)
+
+gene_cts <- logcounts(sce[genes, ]) |>
+  as.matrix() |>
+  t() |> 
+  as.data.frame()
+gene_cts$barcodes <- rownames(gene_cts)
+
+
+rowData(sce)[genes, ] |> 
+  as.data.frame() |> 
+  dplyr::select(ends_with(".mean")) |> 
+  tibble::rownames_to_column("ensembl_gene_id") |> 
+  tidyr::pivot_longer(!ensembl_gene_id, names_to = "library_id", values_to = "mean")
+
+celltypes_df <- endsWith()celltypes_df <- all_info_df |> 
+  dplyr::select(barcodes, final_lumped)
+
+genes_df <- gene_cts |> 
+  tidyr::pivot_longer(!barcodes, names_to = "ensembl_gene_id", values_to = "gene_exp") |> 
+  dplyr::left_join(celltypes_df, by = c("barcodes")) |> 
+  dplyr::mutate(
+    percent_expression = 
+  )
+
+head(genes_df)
 ```
 
-
-## Re-cluster tumor cells {.manual-exploration}
- 
-<!-- Use this section to label tumor cells based on the above findings. 
-Any cells that are labeled as tumor will then be re-clustered and plots showing only tumor cells
-can be created to identify tumor cell states --> 
-
-TODO: Functions for re-clustering tumor cells
-Show the same plots across the tumor only clusters and assign tumor cell states to each cluster
-
-## Additional exploration {.manual-exploration}
-
-<!--This section is for any additional exploration that may be needed to finalize annotations for this library. 
-If not using, please delete this section.
-For example, here you may want to dive into the normal cell types and make adjustments as needed
---> 
-
-## Validate final tumor and normal annotation {.manual-exploration}
-
-<!-- This section should be used to update the assignments --> 
-
-TODO: Insert plots that will be useful for validation (UMAPs, heatmaps, density plots)
-
-## Prepare annotations {.manual-exploration}
-
-<!-- This section should be used to create the final.final table with cell type annotations for export --> 
-
-TODO: Code and instructions for exporting such as what columns should be named. 
 
 ## Session info 
 
