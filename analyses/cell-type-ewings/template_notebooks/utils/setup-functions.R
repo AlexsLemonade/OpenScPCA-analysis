@@ -9,8 +9,11 @@
 #' @param singler_df Data frame with results from `aucell-singler-annotation.sh` workflow
 #' @param cluster_df Data frame with results from `evaluate-clusters.sh` workflow
 #' @param aucell_df Data frame with results from `run-aucell-ews-signatures.sh` workflow
+#' @param consensus_df Data frame with results from `cell-type-consensus` module
 #' @param cluster_nn Value of nearest neighbors to use for cluster results. Default is 20.
 #' @param cluster_res Value of resolution to use for cluster results. Default is 20.  
+#' @param join_columns Character vector indicating which columns to use for joining all tables. 
+#'   Default is "barcodes", for merged objects use c("barcodes", "library_id")
 #'
 prep_results <- function(
     sce,

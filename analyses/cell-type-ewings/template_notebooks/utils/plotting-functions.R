@@ -141,7 +141,7 @@ annotated_exp_heatmap <- function(
 
 #' Heatmap with genes or gene sets as rows and cells as columns
 #' Values in the heatmap correspond to an expression value or AUC
-#' Two annotations will be included, one for cell type and one for clusters
+#' Only one annotation will be included indicating cell type
 #'
 #' @param df Data frame containing exp_columns, cell_type_column, and cluster_column
 #' @param exp_columns Vector of column names that contain values to be shown in the heatmap
