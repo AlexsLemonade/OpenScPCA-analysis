@@ -42,7 +42,7 @@ gene_order_df <- gtf %>%
   filter(
     grepl("^[0-9XY]+$", seqid),
     type == "gene"
-  ) |>
+  ) %>%
   select(
     ensembl_id = gene_id,
     chrom = seqid,
