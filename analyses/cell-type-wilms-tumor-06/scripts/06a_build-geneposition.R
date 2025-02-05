@@ -79,9 +79,9 @@ combined_df <- gene_order_df %>%
     chromosome_arms_df,
     by = "chrom",
     relationship = "many-to-many"
-  ) |>
+  ) %>%
   # keep only rows where gene is on the chromosome arm
-  filter(gene_start >= chrom_arm_start & gene_end <= chrom_arm_end) |>
+  filter(gene_start >= chrom_arm_start & gene_end <= chrom_arm_end) %>%
   # create chrom_arm column
   mutate(chrom_arm = glue::glue("{chrom}{arm}")) %>%
   # Define chromosome arm order
