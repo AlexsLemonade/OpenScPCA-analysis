@@ -3,8 +3,9 @@ title: "Combined annotation exploration for SCPCP000006"
 author: "Maud PLASCHKA"
 date: "`r Sys.Date()`"
 params:
-  predicted.celltype.threshold: 0.85
-  cnv_threshold: 0
+  predicted.celltype.threshold: 0.75
+  cnv_threshold_low: 0
+  cnv_threshold_high: 2
   testing: 0
 output:
   html_document:
@@ -47,9 +48,9 @@ _Where `cnv.thr` and `pred.thr` need to be discussed_
 
 | first level annotation | second level annotation | selection of the cells | marker genes for validation | CNV validation |
 | ---------------------- | ----------------------- | ---------------------- | --------------------------- | --------------- |
-| normal                 | endothelial             | `compartment == "endothelium" & predicted.score > pred.thr  & cnv_score < cnv.thr` | `VWF`| no CNV |
-| normal                 | immune                  | `compartment == "immune" & predicted.score > pred.thr & cnv_score < cnv.thr` | `PTPRC`, `CD163`, `CD68`| no CNV |
-| normal                 | kidney                  | `cell_type %in% c("kidney cell","kidney epithelial", "podocyte") & predicted.score > pred.thr & cnv_score < cnv.thr` | `CDH1`, `PODXL`, `LTL`| no CNV |
+| normal                 | endothelial             | `compartment == "endothelium" & predicted.score > pred.thr`  | `VWF`| no CNV |
+| normal                 | immune                  | `compartment == "immune" & predicted.score > pred.thr`  | `PTPRC`, `CD163`, `CD68`| no CNV |
+| normal                 | kidney                  | `compartment == "fetal_nephron" & predicted.score > pred.thr & cnv_score < cnv.thr` | `CDH1`, `PODXL`, `LTL`| no CNV |
 | normal                 | stroma                  | `compartment == "stroma" & predicted.score > pred.thr & cnv_score < cnv.thr`| `VIM`| no CNV |
 | cancer                 | stroma                  | `compartment == "stroma" & cnv_score > cnv.thr` | `VIM`| `proportion_cnv_chr: 1, 4, 11, 16, 17, 18` |
 | cancer                 | blastema                | `compartment == "fetal_nephron" & cell_type == "mesenchymal cell" & cnv_score > cnv.thr`  | `CITED1`| `proportion_cnv_chr: 1, 4, 11, 16, 17, 18` |
@@ -84,6 +85,9 @@ result_dir <- file.path(module_base, "results")
 ```
 
 ### Output files
+
+The report will be saved in the `notebook` directory.
+The final annotation file `SCPCP000006-annotations.tsv` will be saved in the `results` directory.
 
 ```{r}
 # cell type annotation table
@@ -190,52 +194,136 @@ cell_type_df <- sample_ids |>
 
 
         # proportion of cnv per chromosome
-        proportion_cnv_chr1 = srat$proportion_cnv_chr1,
-        proportion_cnv_chr2 = srat$proportion_cnv_chr2,
-        proportion_cnv_chr3 = srat$proportion_cnv_chr3,
-        proportion_cnv_chr4 = srat$proportion_cnv_chr4,
-        proportion_cnv_chr5 = srat$proportion_cnv_chr5,
-        proportion_cnv_chr6 = srat$proportion_cnv_chr6,
-        proportion_cnv_chr7 = srat$proportion_cnv_chr7,
-        proportion_cnv_chr8 = srat$proportion_cnv_chr8,
-        proportion_cnv_chr9 = srat$proportion_cnv_chr9,
-        proportion_cnv_chr10 = srat$proportion_cnv_chr10,
-        proportion_cnv_chr11 = srat$proportion_cnv_chr11,
-        proportion_cnv_chr12 = srat$proportion_cnv_chr12,
-        proportion_cnv_chr13 = srat$proportion_cnv_chr13,
-        proportion_cnv_chr14 = srat$proportion_cnv_chr14,
-        proportion_cnv_chr15 = srat$proportion_cnv_chr15,
-        proportion_cnv_chr16 = srat$proportion_cnv_chr16,
-        proportion_cnv_chr17 = srat$proportion_cnv_chr17,
-        proportion_cnv_chr18 = srat$proportion_cnv_chr18,
-        proportion_cnv_chr19 = srat$proportion_cnv_chr19,
-        proportion_cnv_chr20 = srat$proportion_cnv_chr20,
-        proportion_cnv_chr21 = srat$proportion_cnv_chr21,
-        proportion_cnv_chr22 = srat$proportion_cnv_chr22,
+        proportion_cnv_chr1p = srat$proportion_cnv_chr1p,
+        proportion_cnv_chr2p = srat$proportion_cnv_chr2p,
+        proportion_cnv_chr3p = srat$proportion_cnv_chr3p,
+        proportion_cnv_chr4p = srat$proportion_cnv_chr4p,
+        proportion_cnv_chr5p = srat$proportion_cnv_chr5p,
+        proportion_cnv_chr6p = srat$proportion_cnv_chr6p,
+        proportion_cnv_chr7p = srat$proportion_cnv_chr7p,
+        proportion_cnv_chr8p = srat$proportion_cnv_chr8p,
+        proportion_cnv_chr9p = srat$proportion_cnv_chr9p,
+        proportion_cnv_chr10p = srat$proportion_cnv_chr10p,
+        proportion_cnv_chr11p = srat$proportion_cnv_chr11p,
+        proportion_cnv_chr12p = srat$proportion_cnv_chr12p,
+       
+        proportion_cnv_chr16p = srat$proportion_cnv_chr16p,
+        proportion_cnv_chr17p = srat$proportion_cnv_chr17p,
+        proportion_cnv_chr18p = srat$proportion_cnv_chr18p,
+        proportion_cnv_chr19p = srat$proportion_cnv_chr19p,
+        proportion_cnv_chr20p = srat$proportion_cnv_chr20p,
+        
+        
+        proportion_cnv_chr1q = srat$proportion_cnv_chr1q,
+        proportion_cnv_chr2q = srat$proportion_cnv_chr2q,
+        proportion_cnv_chr3q = srat$proportion_cnv_chr3q,
+        proportion_cnv_chr4q = srat$proportion_cnv_chr4q,
+        proportion_cnv_chr5q = srat$proportion_cnv_chr5q,
+        proportion_cnv_chr6q = srat$proportion_cnv_chr6q,
+        proportion_cnv_chr7q = srat$proportion_cnv_chr7q,
+        proportion_cnv_chr8q = srat$proportion_cnv_chr8q,
+        proportion_cnv_chr9q = srat$proportion_cnv_chr9q,
+        proportion_cnv_chr10q = srat$proportion_cnv_chr10q,
+        proportion_cnv_chr11q = srat$proportion_cnv_chr11q,
+        proportion_cnv_chr12q = srat$proportion_cnv_chr12q,
+        proportion_cnv_chr13q = srat$proportion_cnv_chr13q,
+        proportion_cnv_chr14q = srat$proportion_cnv_chr14q,
+        proportion_cnv_chr15q = srat$proportion_cnv_chr15q,
+        proportion_cnv_chr16q = srat$proportion_cnv_chr16q,
+        proportion_cnv_chr17q = srat$proportion_cnv_chr17q,
+        proportion_cnv_chr18q = srat$proportion_cnv_chr18q,
+        proportion_cnv_chr19q = srat$proportion_cnv_chr19q,
+        proportion_cnv_chr20q = srat$proportion_cnv_chr20q,
+        proportion_cnv_chr21q = srat$proportion_cnv_chr21q,
+        proportion_cnv_chr22q = srat$proportion_cnv_chr22q,
 
-        # cnv global estimation per chromosome
-        has_cnv_chr1 = srat$has_cnv_chr1,
-        has_cnv_chr2 = srat$has_cnv_chr2,
-        has_cnv_chr3 = srat$has_cnv_chr3,
-        has_cnv_chr4 = srat$has_cnv_chr4,
-        has_cnv_chr5 = srat$has_cnv_chr5,
-        has_cnv_chr6 = srat$has_cnv_chr6,
-        has_cnv_chr7 = srat$has_cnv_chr7,
-        has_cnv_chr8 = srat$has_cnv_chr8,
-        has_cnv_chr9 = srat$has_cnv_chr9,
-        has_cnv_chr10 = srat$has_cnv_chr10,
-        has_cnv_chr11 = srat$has_cnv_chr11,
-        has_cnv_chr12 = srat$has_cnv_chr12,
-        has_cnv_chr13 = srat$has_cnv_chr13,
-        has_cnv_chr14 = srat$has_cnv_chr14,
-        has_cnv_chr15 = srat$has_cnv_chr15,
-        has_cnv_chr16 = srat$has_cnv_chr16,
-        has_cnv_chr17 = srat$has_cnv_chr17,
-        has_cnv_chr18 = srat$has_cnv_chr18,
-        has_cnv_chr19 = srat$has_cnv_chr19,
-        has_cnv_chr20 = srat$has_cnv_chr20,
-        has_cnv_chr21 = srat$has_cnv_chr21,
-        has_cnv_chr22 = srat$has_cnv_chr22
+        # loss global estimation per chromosome
+        has_loss_chr1p = srat$has_loss_chr1p,
+        has_loss_chr2p = srat$has_loss_chr2p,
+        has_loss_chr3p = srat$has_loss_chr3p,
+        has_loss_chr4p = srat$has_loss_chr4p,
+        has_loss_chr5p = srat$has_loss_chr5p,
+        has_loss_chr6p = srat$has_loss_chr6p,
+        has_loss_chr7p = srat$has_loss_chr7p,
+        has_loss_chr8p = srat$has_loss_chr8p,
+        has_loss_chr9p = srat$has_loss_chr9p,
+        has_loss_chr10p = srat$has_loss_chr10p,
+        has_loss_chr11p = srat$has_loss_chr11p,
+        has_loss_chr12p = srat$has_loss_chr12p,
+       
+        has_loss_chr16p = srat$has_loss_chr16p,
+        has_loss_chr17p = srat$has_loss_chr17p,
+        has_loss_chr18p = srat$has_loss_chr18p,
+        has_loss_chr19p = srat$has_loss_chr19p,
+        has_loss_chr20p = srat$has_loss_chr20p,
+        
+        
+        has_loss_chr1q = srat$has_loss_chr1q,
+        has_loss_chr2q = srat$has_loss_chr2q,
+        has_loss_chr3q = srat$has_loss_chr3q,
+        has_loss_chr4q = srat$has_loss_chr4q,
+        has_loss_chr5q = srat$has_loss_chr5q,
+        has_loss_chr6q = srat$has_loss_chr6q,
+        has_loss_chr7q = srat$has_loss_chr7q,
+        has_loss_chr8q = srat$has_loss_chr8q,
+        has_loss_chr9q = srat$has_loss_chr9q,
+        has_loss_chr10q = srat$has_loss_chr10q,
+        has_loss_chr11q = srat$has_loss_chr11q,
+        has_loss_chr12q = srat$has_loss_chr12q,
+        has_loss_chr13q = srat$has_loss_chr13q,
+        has_loss_chr14q = srat$has_loss_chr14q,
+        has_loss_chr15q = srat$has_loss_chr15q,
+        has_loss_chr16q = srat$has_loss_chr16q,
+        has_loss_chr17q = srat$has_loss_chr17q,
+        has_loss_chr18q = srat$has_loss_chr18q,
+        has_loss_chr19q = srat$has_loss_chr19q,
+        has_loss_chr20q = srat$has_loss_chr20q,
+        has_loss_chr21q = srat$has_loss_chr21q,
+        has_loss_chr22q = srat$has_loss_chr22q,
+        
+        # dupli global estimation per chromosome
+        has_dupli_chr1p = srat$has_dupli_chr1p,
+        has_dupli_chr2p = srat$has_dupli_chr2p,
+        has_dupli_chr3p = srat$has_dupli_chr3p,
+        has_dupli_chr4p = srat$has_dupli_chr4p,
+        has_dupli_chr5p = srat$has_dupli_chr5p,
+        has_dupli_chr6p = srat$has_dupli_chr6p,
+        has_dupli_chr7p = srat$has_dupli_chr7p,
+        has_dupli_chr8p = srat$has_dupli_chr8p,
+        has_dupli_chr9p = srat$has_dupli_chr9p,
+        has_dupli_chr10p = srat$has_dupli_chr10p,
+        has_dupli_chr11p = srat$has_dupli_chr11p,
+        has_dupli_chr12p = srat$has_dupli_chr12p,
+       
+        has_dupli_chr16p = srat$has_dupli_chr16p,
+        has_dupli_chr17p = srat$has_dupli_chr17p,
+        has_dupli_chr18p = srat$has_dupli_chr18p,
+        has_dupli_chr19p = srat$has_dupli_chr19p,
+        has_dupli_chr20p = srat$has_dupli_chr20p,
+        
+        
+        has_dupli_chr1q = srat$has_dupli_chr1q,
+        has_dupli_chr2q = srat$has_dupli_chr2q,
+        has_dupli_chr3q = srat$has_dupli_chr3q,
+        has_dupli_chr4q = srat$has_dupli_chr4q,
+        has_dupli_chr5q = srat$has_dupli_chr5q,
+        has_dupli_chr6q = srat$has_dupli_chr6q,
+        has_dupli_chr7q = srat$has_dupli_chr7q,
+        has_dupli_chr8q = srat$has_dupli_chr8q,
+        has_dupli_chr9q = srat$has_dupli_chr9q,
+        has_dupli_chr10q = srat$has_dupli_chr10q,
+        has_dupli_chr11q = srat$has_dupli_chr11q,
+        has_dupli_chr12q = srat$has_dupli_chr12q,
+        has_dupli_chr13q = srat$has_dupli_chr13q,
+        has_dupli_chr14q = srat$has_dupli_chr14q,
+        has_dupli_chr15q = srat$has_dupli_chr15q,
+        has_dupli_chr16q = srat$has_dupli_chr16q,
+        has_dupli_chr17q = srat$has_dupli_chr17q,
+        has_dupli_chr18q = srat$has_dupli_chr18q,
+        has_dupli_chr19q = srat$has_dupli_chr19q,
+        has_dupli_chr20q = srat$has_dupli_chr20q,
+        has_dupli_chr21q = srat$has_dupli_chr21q,
+        has_dupli_chr22q = srat$has_dupli_chr22q
       ) |>
         tibble::rownames_to_column("barcode") |>
         dplyr::mutate(sample_id = sample_id)
@@ -245,9 +333,7 @@ cell_type_df <- sample_ids |>
   dplyr::bind_rows()
 ```
 
-### Output file
 
-The report will be saved in the `notebook` directory.
 
 
 ## Functions
@@ -287,34 +373,44 @@ do_Feature_mean <- function(df, group.by, feature) {
 As done in `06_cnv_infercnv_exploration.Rmd`, we calculate  single CNV score and assess its potential in identifying cells with CNV versus normal cells without CNV.
 
 We simply checked for each chromosome if the cell `has_cnv_chr`.
-Would the cell have more than `cnv_threshold` chromosome with CNV, the global `has_cnv_score` will be TRUE.
-Else, the cell will have a `has_cnv_score` set to FALSE.
+Would the cell have less than `r params$cnv_threshold_low` chromosome with CNV, the global `has_cnv_score` will be FALSE.
+Would the cell have more than `r params$cnv_threshold_high`  chromosome with CNV, the global `has_cnv_score` will be TRUE.
+The default is set to `unknown`.
+
+The `infercnv` method can lead to false positive CNV.
+We introduced a flexibility of +`r params$cnv_threshold_high` over the `cnv_threshold` to reduce the risk of misclassification of normal cells as cancer cells.
+
+Please note that some cancer cell might not have any CNV. 
+There is thus a risk of misclassifying cancer cells as normal cells. 
+However, we cannot avoid this risk with the data and tools currently available.
+This is a limitation of our annotations. 
 
 
 
 
 ```{r fig.width=10, fig.height=10, out.width='100%', results='asis'}
 cell_type_df <- cell_type_df |>
-  mutate(has_cnv_score = rowSums(cell_type_df[, grepl("has_cnv_chr", colnames(cell_type_df))])) |>
+  mutate(has_cnv_score = rowSums(cell_type_df[, grepl("has_loss_chr|has_dupli_chr", colnames(cell_type_df))])) |>
   mutate(has_cnv_score = case_when(
-    has_cnv_score > params$cnv_threshold ~ "CNV",
-    has_cnv_score <= params$cnv_threshold ~ "no CNV"
+    has_cnv_score > params$cnv_threshold_high ~ "CNV",
+    has_cnv_score <= params$cnv_threshold_low ~ "no CNV",
+    .default = "unknown"
   ))
 
 
-table(cell_type_df$has_cnv_score)
 ```
 
 ### First level annotation
 
 At first, we like to indicate in the `first.level_annotation` if a cell is normal, cancer or unknown.
 
-- _normal_ cells can be observe in all four compartments (`endothelium`, `immune`, `stroma` or `fetal nephron`) and do not have CNV
+- _normal_ cells can be observe in all five compartments (`normal`,`endothelium`, `immune`, `stroma` or `fetal nephron`) and do not have CNV
 We only allow a bit of flexibility in terms of CNV profile for immune and endothelium cells that have a high predicted score.
+Please note that in `06_infercnv.R`, we renamed all `immune` and `endothelium` cells with a `fetal_kidney_predicted.compartment.score` > `r params$predicted.celltype.threshold` as `normal`.
 Indeed, we know that false positive CNV can be observed in a cell type specific manner.
 
 The threshold used for the `predicted.score` is defined as a parameter of this notebook as `r params$predicted.celltype.threshold`.
-The threshold used for the identification of CNV is also defined as the notebook parameter `r params$cnv_threshold`.
+The thresholds used for the identification of CNV are also defined as notebook parameters with a minimum of `r params$cnv_threshold_low` and a maximum of `r params$cnv_threshold_high`.
 
 - _cancer_ cells are either from the `stroma` or `fetal nephron` compartments and must have at least few CNV
 
@@ -326,11 +422,20 @@ The threshold used for the identification of CNV is also defined as the notebook
 cell_type_df <- cell_type_df |>
   mutate(first.level_annotation = case_when(
     # assign normal/cancer based on condition
-    compartment %in% c("fetal_nephron", "stroma") & has_cnv_score == "no CNV" ~ "normal",
-    compartment %in% c("endothelium", "immune") & cell_type.score > params$predicted.celltype.threshold ~ "normal",
-    compartment %in% c("fetal_nephron", "stroma") & has_cnv_score == "CNV" ~ "cancer",
+    compartment %in% c("fetal_nephron", "stroma") & 
+      compartment.score > params$predicted.celltype.threshold & 
+      has_cnv_score == "no CNV" ~ "normal",
+    
+    compartment %in% c("normal", "immune", "endothelium") &
+      cell_type.score > params$predicted.celltype.threshold ~ "normal",
+    
+    compartment %in% c("fetal_nephron", "stroma") & 
+      has_cnv_score == "CNV" ~ "cancer",
+    
     .default = "unknown"
   ))
+
+
 ```
 
 Using this basic strategy, we identified `r table(cell_type_df$first.level_annotation)["cancer"]` _cancer_ cells, `r table(cell_type_df$first.level_annotation)["normal"]` _normal_ cells.
@@ -344,6 +449,31 @@ ggplot(cell_type_df, aes(x = umap.umap_1, y = umap.umap_2, color = first.level_a
   facet_wrap(facets = ~sample_id, ncol = 5) +
   theme_bw() +
   theme(text = element_text(size = 22))
+
+DT::datatable(table(cell_type_df$first.level_annotation, cell_type_df$sample_id))
+
+```
+
+Strikingly, 5 samples show more normal cells than cancer cells:
+
+- `SCPCS000177`
+- `SCPCS000180`
+- `SCPCS000181`
+- `SCPCS000190`
+- `SCPCS000197`
+
+These five samples do not have enough immune and endothelium cell to be used as a normal reference in `scripts/06_infercnv.R` and we previously decided to run `scripts/06_infercnv.R` without any reference for these samples.
+In that case, the mean expression profile over the sample is taken as the normal reference, biaising the inference of CNV. 
+
+For those samples, the annotations based on `infercnv` cannot be trust.
+To avoid any confusion in the following steps of the analysis, we decided to force the annotation of the entire samples to `unknown`.
+
+```{r fig.width=10, fig.height=10, out.width='100%', results='asis'}
+
+cell_type_df$first.level_annotation[cell_type_df$sample_id %in% c("SCPCS000177", "SCPCS000180", "SCPCS000181", "SCPCS000190", "SCPCS000197")] <- "unknown"
+
+DT::datatable(table(cell_type_df$first.level_annotation, cell_type_df$sample_id))
+
 ```
 
 
@@ -377,15 +507,26 @@ cell_type_df <- cell_type_df |>
   mutate(second.level_annotation = case_when(
     # assign normal cells based on condition
     cell_type_df$compartment %in% c("fetal_nephron") &
+      cell_type_df$compartment.score > params$predicted.celltype.threshold &
       cell_type_df$has_cnv_score == "no CNV" ~ "kidney",
+   
     cell_type_df$compartment %in% c("stroma") &
+      cell_type_df$compartment.score > params$predicted.celltype.threshold &
       cell_type_df$has_cnv_score == "no CNV" ~ "normal stroma",
-    cell_type_df$compartment %in% c("endothelium") &
-      (cell_type_df$compartment.score > params$predicted.celltype.threshold |
-        cell_type_df$has_cnv_score == "no CNV") ~ "endothelium",
-    cell_type_df$compartment %in% c("immune") &
-      (cell_type_df$compartment.score > params$predicted.celltype.threshold |
-        cell_type_df$has_cnv_score == "no CNV") ~ "immune",
+    
+    cell_type_df$compartment %in% c("normal") &
+      cell_type_df$cell_type %in% c("endothelial cell") ~ "endothelium",
+    cell_type_df$compartment %in% c("normal") &
+      cell_type_df$cell_type %in% c("B cell",
+                                    "CD4-positive, alpha-beta T cell",
+                                    "conventional dendritic cell",
+                                    "lymphocyte",
+                                    "macrophage",
+                                    "mast cell",
+                                    "monocyte",
+                                    "natural killer cell",
+                                    "neutrophil",
+                                    "plasmacytoid dendritic cell") ~ "immune",
 
     # assign cancer cells based on condition
     cell_type_df$compartment %in% c("stroma") &
@@ -398,45 +539,84 @@ cell_type_df <- cell_type_df |>
       cell_type_df$cell_type != "mesenchymal cell" ~ "cancer epithelium",
     .default = "unknown"
   ))
+
+cell_type_df$second.level_annotation[cell_type_df$sample_id %in% c("SCPCS000177", "SCPCS000180", "SCPCS000181", "SCPCS000190", "SCPCS000197")] <- "unknown"
 ```
 
 
+
+#### `Second.level_annotation` of cancer and normal cells - `umap` reduction
+
 ```{r fig.width=20, fig.height=20, out.width='100%', results='asis'}
-ggplot(cell_type_df[cell_type_df$first.level_annotation == "normal", ], aes(x = umap.umap_1, y = umap.umap_2, color = second.level_annotation), shape = 19, size = 1) +
-  geom_point() +
+ggplot(cell_type_df, aes(x = umap.umap_1, y = umap.umap_2, color = second.level_annotation)) +
+  geom_point(size = 1, shape = 19) +
   facet_wrap(facets = ~sample_id, ncol = 5) +
   theme_bw() +
   theme(text = element_text(size = 22))
 ```
 
 
-
-
-
+#### `Second.level_annotation` of cancer and normal cells without `unknown` - `umap` reduction
 
 ```{r fig.width=20, fig.height=20, out.width='100%', results='asis'}
-ggplot(cell_type_df[cell_type_df$first.level_annotation == "cancer", ], aes(x = umap.umap_1, y = umap.umap_2, color = second.level_annotation), shape = 19, size = 0.1) +
-  geom_point() +
+tmp <- cell_type_df[cell_type_df$second.level_annotation != "unknown",]
+ggplot(tmp, aes(x = umap.umap_1, y = umap.umap_2, color = second.level_annotation)) +
+  geom_point(size = 1, shape = 19) +
   facet_wrap(facets = ~sample_id, ncol = 5) +
   theme_bw() +
   theme(text = element_text(size = 22))
 ```
 
-#### Cancer and normal cells
+
+#### `Second.level_annotation` of cancer cells only - `umap` reduction
+
 
 ```{r fig.width=20, fig.height=20, out.width='100%', results='asis'}
-ggplot(cell_type_df, aes(x = umap.umap_1, y = umap.umap_2, color = second.level_annotation), shape = 19, size = 1) +
-  geom_point() +
+ggplot(cell_type_df[cell_type_df$first.level_annotation == "cancer", ], aes(x = umap.umap_1, y = umap.umap_2, color = second.level_annotation)) +
+  geom_point(size = 1, shape = 19) +
   facet_wrap(facets = ~sample_id, ncol = 5) +
   theme_bw() +
   theme(text = element_text(size = 22))
 ```
+
+Per sample, the annotations in the `umap` reduction seem to make sense as we can the three main Wilms tumor components are easily distinguished:
+
+- cancer blastema
+- epithelium
+- stroma
 
 ### Validation cancer versus normal based on the CNV profile
 
+We look for each `second.level_annotation` and `sample_id`, the proportion of cells that has CNV in each of the chromosome.
+
+#### Loss on long arms
+
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 for (i in 1:22) {
-  print(do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = glue::glue("proportion_cnv_chr", i)))
+  print(do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = glue::glue("has_loss_chr", i, "q")))
+}
+```
+#### gains on long arms
+
+```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
+for (i in 1:22) {
+  print(do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = glue::glue("has_dupli_chr", i, "q")))
+}
+```
+
+#### loss on short arms
+
+```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
+for (i in c(1:12, 16:20)) {
+  print(do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = glue::glue("has_loss_chr", i, "p")))
+}
+```
+
+#### gains on short arms
+
+```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
+for (i in c(1:12, 16:20)) {
+  print(do_Feature_mean(cell_type_df, group.by = "second.level_annotation", feature = glue::glue("has_dupli_chr", i, "p")))
 }
 ```
 
