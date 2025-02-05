@@ -73,7 +73,7 @@ stopifnot("Could not get all chromosome arm bounds" = nrow(chromosome_arms_df) =
 
 
 # Combine data frames to get the chromosome and arm for each gene --------------
-combined_df <- gene_order_df |>
+combined_df <- gene_order_df %>%
   # combine gene coordinates with chromosome arm coordinates
   left_join(
     chromosome_arms_df,
