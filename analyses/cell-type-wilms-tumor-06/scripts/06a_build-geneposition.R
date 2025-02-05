@@ -57,8 +57,8 @@ colnames(cytoBand) <- c("chrom", "chrom_arm_start", "chrom_arm_end", "band", "st
 
 # Add a column for the chromosome arm (p or q) and group by chromosome and arm
 #  to calculate arm start and end positions
-chromosome_arms_df <- cytoBand |>
-  mutate(arm = substr(band, 1, 1)) |>
+chromosome_arms_df <- cytoBand %>%
+  mutate(arm = substr(band, 1, 1)) %>%
   group_by(chrom, arm) %>%
   summarize(
     chrom_arm_start = min(chrom_arm_start),
