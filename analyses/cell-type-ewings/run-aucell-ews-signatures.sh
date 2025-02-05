@@ -3,7 +3,8 @@
 # This script is used to get AUC values for a set of EWS-FLI1 high/low gene signatures using AUCell
 # The input gene signatures are those saved in `references/gene_signatures` and MSigDB gene sets noted in `references/msigdb-gene-sets.tsv`
 
-# For each library, a TSV is saved with the following columns: 
+# AUCell is run on each library and the merged object 
+# The output is a TSV for each library/object with the following columns: 
 # `gene_set`, `barcodes`, `auc`, and `auc_threshold`
 
 # Usage: ./run-aucell-ews-signatures.sh
@@ -28,8 +29,12 @@ max_rank_threshold=${max_rank_threshold:-0.01}
 
 # set up input and output file paths
 data_dir="../../data/current/SCPCP000015"
+merged_sce_file="../../data/current/results/merge-sce/SCPCP000015/SCPCP000015_merged.rds"
+
 results_dir="results/aucell-ews-signatures"
 mkdir -p ${results_dir}
+
+merged_results_file="${results_dir}/SCPCP000015_auc-ews-gene-signatures.tsv"
 
 # gene signature directory 
 gene_signatures_dir="${module_dir}/references/gene_signatures"
@@ -64,3 +69,16 @@ for sample_id in $sample_ids; do
           --seed $seed
       done
 done
+
+
+# run AUCell on merged object 
+echo "Running AUCell for merged object" 
+Rscript scripts/aucell-ews-signatures/01-aucell.R \
+    --sce_file $merged_sce_file \
+    --custom_geneset_dir $gene_signatures_dir \
+    --msigdb_genesets $msigdb_geneset_file \
+    --max_rank_threshold $max_rank_threshold \
+    --is_merged \
+    --output_file $merged_results_file \
+    --threads $threads \
+    --seed $seed
