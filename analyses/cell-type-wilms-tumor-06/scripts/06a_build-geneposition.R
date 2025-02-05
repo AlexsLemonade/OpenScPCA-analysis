@@ -64,7 +64,7 @@ chromosome_arms_df <- cytoBand %>%
     chrom_arm_start = min(chrom_arm_start),
     chrom_arm_end = max(chrom_arm_end),
     .groups = "drop"
-  ) |>
+  ) %>%
   # this will remove non-standard chromosomes which have NA arms
   tidyr::drop_na()
 
