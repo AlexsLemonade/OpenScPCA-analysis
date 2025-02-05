@@ -90,9 +90,7 @@ combined_df <- gene_order_df %>%
   # Sort genes by Chromosome arm and Start position
   arrange(chrom_arm, gene_start)  %>%
   # Select only relevant column for infercnv
-  select(ensembl_id, chrom_arm, gene_start, gene_end) %>%
-  # Remove ENSG duplicated (genes that are both on X and Y chromosome need to be remove before infercnv)
-  distinct(ensembl_id, .keep_all = TRUE)
+  select(ensembl_id, chrom_arm, gene_start, gene_end) 
 
 
 # Export --------------
