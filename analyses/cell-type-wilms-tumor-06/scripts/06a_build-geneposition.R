@@ -37,7 +37,7 @@ if (!file.exists(arm_order_file)) {
 
 gtf <- rtracklayer::readGFF(gtf_file)
 
-gene_order_df <- gtf |>
+gene_order_df <- gtf %>%
   # keep only genes on standard chromosomes
   filter(
     grepl("^[0-9XY]+$", seqid),
