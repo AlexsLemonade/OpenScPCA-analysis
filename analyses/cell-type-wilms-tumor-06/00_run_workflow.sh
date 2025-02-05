@@ -137,6 +137,10 @@ if [[ $RUN_EXPLORATORY -eq 1 ]]; then
 fi
 
 # Prepare gene file for inferCNV
+## Download the gene position file from the aws scpca storage
+gene_order_file="results/references/gencode_v38_gene_pos.txt"
+aws s3 cp s3://scpca-references/homo_sapiens/ensembl-104/annotation/Homo_sapiens.GRCh38.104.gtf.gz gene_order_file --no-sign-request
+## Run the script to prepare the infercnv input
 Rscript scripts/06a_build-geneposition.R
 
 # Run infercnv for all samples with HMM i3 and using "both" as the reference, where possible
