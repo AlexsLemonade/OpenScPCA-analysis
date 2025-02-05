@@ -3,12 +3,20 @@ title: "Cell type assignments for SCPCP000015"
 author: Ally Hawkins
 date: "`r Sys.Date()`"
 output:
-  html_document:
+  html_notebook:
     toc: true
     toc_depth: 3
     code_folding: "hide"
 ---
 
+This notebook looks at cell type annotations and gene set expression across all samples in `SCPCP00015` and assigns "final" annotations. 
+To do this we are using the merged, but not batch-corrected, object containing the gene expression data for all samples. 
+
+The following input is used: 
+
+- Annotations obtained by running `SingleR` with tumor cells as a reference output by `aucell-singler-annotation.sh`. 
+- Consensus cell type annotations output from the `cell-type-consensus` module. 
+- AUC values as calculated by `AUCell` for a set of Ewing sarcoma specific gene sets in MSigDB output by `run-aucell-ews-signatures.sh`. 
 
 ## Setup
 
@@ -59,15 +67,22 @@ library_ids <- stringr::str_remove(basename(singler_results_files), "_singler-cl
 aucell_results_dir <- file.path(workflow_results_dir, "aucell-ews-signatures")
 aucell_results_file <- file.path(aucell_results_dir, "SCPCP000015_auc-ews-gene-signatures.tsv")
 
+consensus_results_dir <- file.path(repository_base, "analyses", "cell-type-consensus", "results", "cell-type-consensus", "SCPCP000015")
+consensus_results_files <- list.files(consensus_results_dir, pattern = "*_consensus-cell-type-assignments.tsv.gz", full.names = TRUE, recursive = TRUE)
+
 # small gene sets
 visser_marker_genes_file <- file.path(module_base, "references", "visser-all-marker-genes.tsv")
 cell_state_genes_file <- file.path(module_base, "references", "tumor-cell-state-markers.tsv")
+
+# marker genes to be used for validating assignments 
+validation_markers_file <- file.path(module_base, "references", "combined-markers.tsv")
 ```
 
 ```{r}
 # output file to save final annotations 
 results_dir <- file.path(module_base, "results", "final-annotations")
-output_file <- file.path(results_dir, glue::glue("SCPCP000015_celltype-annotations.tsv"))
+fs::dir_create(results_dir)
+output_file <- file.path(results_dir, glue::glue("SCPCP000015_celltype-annotations.tsv.gz"))
 ```
 
 
@@ -104,16 +119,22 @@ singler_df <- singler_results_files |>
   purrr::set_names(library_ids) |>
   purrr::map(readr::read_tsv) |> 
   dplyr::bind_rows(.id = "library_id")
+
 aucell_df <- readr::read_tsv(aucell_results_file) |> 
   tidyr::separate(barcodes, "-", into = c("library_id", "barcodes"))
 
+# consensus cell types 
+consensus_df <- consensus_results_files |> 
+  purrr::map(readr::read_tsv) |> 
+  dplyr::bind_rows()
+
 # read in marker genes and combine into one list 
 visser_markers_df <- readr::read_tsv(visser_marker_genes_file) |> 
-  dplyr::select(cell_type, ensembl_gene_id) |> 
+  dplyr::select(cell_type, ensembl_gene_id, gene_symbol) |> 
   unique()
   
 cell_state_markers_df <- readr::read_tsv(cell_state_genes_file) |> 
-  dplyr::select(cell_type = cell_state, ensembl_gene_id)
+  dplyr::select(cell_type = cell_state, ensembl_gene_id, gene_symbol)
 
 all_markers_df <- dplyr::bind_rows(list(visser_markers_df, cell_state_markers_df))
 ```
@@ -146,7 +167,10 @@ all_info_df <- all_results_df |>
   dplyr::left_join(gene_exp_df, by = "barcodes")
 ```
 
-## Summary of workflow results
+## Results summary
+
+First, we will just summarize the results from the various inputs and workflows. 
+Then we will look at those results and assign any tumor cells and refine annotations as needed. 
 
 ### `aucell-singler-annotation` assignments 
 
@@ -161,6 +185,12 @@ plot_faceted_umap(all_info_df, singler_lumped, legend_title = "SingleR cell type
 
 ### Consensus cell type assignments 
 
+The below UMAP shows the top cell types for which consensus cell types were assigned.
+Consensus cell types are observed when cell types from `SingleR` and `CellAssign` share a common ancestor. 
+If no consensus is found, the cells are labeled with "Unknown". 
+We anticipate that in many cases, the "Unknown" cells will be tumor cells.
+The top 7 cell types are shown and all other cell types are grouped together as "All remaining cell types". 
+
 ```{r, fig.height=5}
 plot_faceted_umap(all_info_df, consensus_lumped, legend_title = "Consensus cell types") +
   theme(strip.text = element_text(size = 8))
@@ -171,6 +201,14 @@ plot_faceted_umap(all_info_df, consensus_lumped, legend_title = "Consensus cell 
 
 The below plots show the AUC values determined by `AUCell` and output from `run-aucell-ews-signatures.sh`. 
 The first plot shows the individual AUC values on the UMAP. 
+
+For context:  
+
+- Any gene sets labeled with `up` represent `EWS-FLI1` target genes that we expect to be upregulated in `EWS-FLI1` high tumor cells. 
+- Any gene sets labeled with `down` represent `EWS-FLI1` repressed genes that we expect to be downregulated in `EWS-FLI1` high tumor cells and upregulated in `EWS-FLI1` low tumor cells. 
+- The `aynaud-ews-targets` is a list of genes found to be upregulated in `EWS-FLI1` high tumor cells. 
+- The `wrenn-nt5e-genes` is a list of genes found to be upregulated in `EWS-FLI1` low tumor cells/ cancer associated fibroblasts.
+- The `gobp_ECM` and `hallmark_EMT` are gene sets that are hypothesized to be upregulated in `EWS-FLI1` low tumor cells/ cancer associated fibroblasts.
 
 ```{r}
 # get the individual thresholds determined by AUCell for each msigdb geneset
@@ -219,7 +257,7 @@ ggplot(auc_df, aes(x = auc_value, color = in_geneset, fill = in_geneset)) +
 ```
 
 
-Here we look at the AUC values for each gene set across all clusters. 
+Here we look at the AUC values for each gene set across all consensus cell types.  
 
 
 ```{r, fig.height=10}
@@ -227,57 +265,23 @@ auc_columns <- colnames(all_info_df)[which(startsWith(colnames(all_info_df), "au
 cluster_density_plot(all_info_df, auc_columns, "consensus_lumped", "AUC")
 ```
 
-Here we should identify any tumor cells as those that have high expression of `EWS-FLI` targets and low expression of `EWS-FLI` repressed targets. 
-I think we want to use the gene sets where we see some separation in AUC values between cell types to do our assignment. 
+Here we look at the AUC values for each gene set across all `SingleR` cell types.  
 
-- `aynaud-ews-targets`: > 0.05
-- `staege`: > 0.25
-- `riggi_down`: < 0.025
-- `migayawa_down`: < 0.03
-
-Intriguingly we see high expression of `hallmark_EMT` and the down gene sets (genes that are repressed by `EWS-FLI`) in fibroblasts, which also happen to have high expression of the `EWS-FLI` low targets identifed by Wrenn et al.
-That paper identifies `EWS-FLI` low cells as cancer associated fibroblasts.
-Let's label these cells accordingly. 
-If cells have `in_geneset=TRUE` for the `hallmark_EMT`, `wrenn-nt5e-genes`, and `migayawa_down` they will be classified as `ews_low_cafs`.
-
-- `wrenn-nt5e-genes`: > 0.1
-- `hallmark_EMT`: > 0.05
-- `migayawa_down`: > 0.03
-- `riggi_down`: > 0.025
-
-```{r}
-all_info_df <- all_info_df |> 
-  dplyr::mutate(
-    final_annotation = dplyr::case_when(
-      `auc_wrenn-nt5e-genes` > 0.1 & auc_miyagawa_down > 0.03 ~ "ews_low_caf",
-      `auc_aynaud-ews-targets` > 0.025 | 
-        consensus_annotation %in% c("Unknown", "muscle cell", "smooth muscle cell") ~ "ews_high",
-      .default = consensus_annotation
-    ),
-    final_lumped = final_annotation |>
-          forcats::fct_lump_n(8, other_level = "All remaining cell types", ties.method = "first") |>
-          forcats::fct_infreq() |>
-          forcats::fct_relevel("All remaining cell types", after = Inf)
-  )
-
-head(all_info_df)
-table(all_info_df$final_annotation)
+```{r, fig.height=10}
+cluster_density_plot(all_info_df, auc_columns, "singler_lumped", "AUC")
 ```
 
-
-
-The heatmap below shows the AUC values for all cells and all gene sets. 
-The annotations shown are the `SingleR` cell types and clusters. 
+The heatmap below shows the AUC values for all cells and all gene sets and the final refined cell type annotations. 
 
 ```{r}
+# sort by final cell types 
 all_info_df <- all_info_df |> 
-  dplyr::arrange(final_annotation)
+  dplyr::arrange(consensus_lumped)
 
-annotated_exp_heatmap(
+single_annotation_heatmap(
   all_info_df, 
   exp_columns = auc_columns, 
   cell_type_column = "consensus_lumped", 
-  cluster_column = "final_lumped", 
   legend_title = "AUC"
 )
 ```
@@ -286,25 +290,93 @@ annotated_exp_heatmap(
 
 ### Mean expression of custom gene sets
 
-Below we look at the mean expression of all genes in each of the custom gene sets we have defined both on a UMAP and in a density plot. 
-
-```{r, fig.height=10, fig.width=10}
-# format expression data for UMAP and density plot 
-exp_df <- all_info_df |> 
-  tidyr::pivot_longer(ends_with("_mean"), names_to = "geneset", values_to = "mean") |>
-  dplyr::mutate(tumor_cell_classification = dplyr::if_else(singler_lumped == "tumor", "tumor", "other"))
-
-expression_umap(exp_df, mean, geneset)
-```
-
-Here we look at the mean expression for each gene set across all clusters. 
+Below we look at the mean expression of all genes in each of the custom gene sets we have across the consensus cell types. 
+First using a density plot and then using a heatmap. 
 
 ```{r, fig.height=7, warning=FALSE}
 mean_exp_columns <- colnames(all_info_df)[which(endsWith(colnames(all_info_df), "_mean"))]
-cluster_density_plot(all_info_df, mean_exp_columns, annotation_column = "final_lumped", "mean gene expression")
+cluster_density_plot(all_info_df, mean_exp_columns, annotation_column = "consensus_lumped", "mean gene expression")
+```
+```{r}
+single_annotation_heatmap(
+  all_info_df, 
+  exp_columns = mean_exp_columns, 
+  cell_type_column = "consensus_lumped", 
+  legend_title = "AUC"
+)
 ```
 
-What are the other cell types not present here? 
+### Conclusions based on workflow results 
+
+Looking at these results, it looks like things labeled as "tumor" by `SingleR` and "Unknown" in the consensus cell types have high AUC values for the `EWS-FLI1` upregulated gene sets. 
+We also see low expression of `EWS-FLI1` repressed targets in these cells. 
+It looks like the cells that are called as muscle cells in both cell types have high expression of `EWS-FLI1` targets. 
+This makes me think those are actually tumor cells that are mis-classified.
+
+Intriguingly we see high expression of `hallmark_EMT` and the `EWS-FLI1` repressed targets in fibroblasts, which also happen to have high expression of the `EWS-FLI1` low targets identifed by Wrenn _et al._ (`wrenn-nt5e-genes`). 
+That paper identifies `EWS-FLI1` low cells as cancer associated fibroblasts.
+It's also important to note that many of the genes that define the `EWS-FLI1` low state are also high in fibroblasts, so distinguishing them may be difficult. 
+We also see that the chondrocytes identified in `SingleR` have high expression of this gene set. 
+
+Another key observation is that we see separation between the AUC values observed in tumor/ other cells in the density plots, but these values are much lower than the AUC threshold automatically determined by `AUCell`. 
+I think because of that we want to pick gene sets where we see very clear separation in AUC values between cell types to aid in finalizing our assignments. 
+
+The density plots also show increased expression in the immune markers in immune cell populations and endothelial cell markers in the endothelial cells. 
+There may be a small group of cells that have high expression of the proliferative markers. 
+Perhaps we can label any cells that are tumor cells and show proliferative markers as `Tumor EWS-high proliferative`. 
+
+## Refining cell type annotations
+
+Here we will combine annotations from `SingleR` and consensus cell types with help from the `AUCell` output. 
+We'll use the following criteria: 
+
+- `Tumor EWS-low CAF`: High expression of `wrenn-nt5e-genes` (> 0.1 AUC) and high expression of repressed targets using `miyagawa_down` (> 0.03 AUC)
+- `Tumor EWS-high`: High expression of `aynaud-ews-targets` (>0.025 AUC) and identified as tumor with `SingleR` and identified as either unknown, muscle cell, or smooth muscle cell in the consensus cell types
+- `Tumor EWS-high proliferative`: Cells that meet the requirements for `Tumor EWS-high` and have expression of proliferative markers defined as mean > 0
+- All other cell types will be based on the `consensus_annotation`
+
+```{r}
+# set desired order for plotting final annotations 
+cell_type_order <- c(
+  "tumor EWS-high",
+  "tumor EWS-high proliferative",
+  "tumor EWS-low CAF",
+  "fibroblast",
+  "endothelial cell",
+  "macrophage",
+  "mature T cell",
+  "memory T cell",
+  "Unknown",
+  "All remaining cell types"
+)
+
+# define "final.final" cell types 
+all_info_df <- all_info_df |> 
+  dplyr::mutate(
+    final_annotation = dplyr::case_when(
+      `auc_wrenn-nt5e-genes` > 0.1 & auc_miyagawa_down > 0.03 ~ "tumor EWS-low CAF",
+      `auc_aynaud-ews-targets` > 0.025 | 
+        consensus_annotation %in% c("Unknown", "muscle cell", "smooth muscle cell") &
+        singler_lumped == "tumor" ~ "tumor EWS-high",
+      .default = consensus_annotation
+    ),
+    final_annotation = dplyr::if_else(
+      final_annotation == "tumor EWS-high" & proliferative_mean > 0,
+      "tumor EWS-high proliferative",
+      final_annotation
+    ),
+    # lump together for easier plotting
+    final_lumped = final_annotation |>
+      forcats::fct_lump_n(9, other_level = "All remaining cell types", ties.method = "first") |>
+      forcats::fct_infreq() |>
+      forcats::fct_relevel(cell_type_order)
+  )
+
+table(all_info_df$final_annotation)
+```
+For plotting purposes, we won't show any of the cell types that only have a handful of cells. 
+Let's see what cell types we won't be looking at if we only plot the top 9 cell types. 
+
 ```{r}
 lumped_celltypes <- unique(all_info_df$final_lumped)
 all_celltypes <- unique(all_info_df$final_annotation)
@@ -317,38 +389,214 @@ table(missing_only$final_annotation)
 
 I think we can leave these few cells alone and just lump them as "All remaining cell types" for plots as we have been doing. 
 
-Now let's make a dot plot! Or a heatmap only looking at key genes! 
-In these plots, lets group all T cells together. 
+## Validation of cell type assignments
+
+In the following section we'll show some plots to help validate that we are content with our cell type assignments. 
+These plots will look specifically at expression of a set of key marker genes that we expect to up in the assigned cell types. 
+These markers are found in `references/combined-markers.tsv` and include a smaller set of markers for each of the cell types we have identified. 
 
 ```{r}
-markers_df <- readr::read_tsv(file.path(module_base, "references", "combined-markers.tsv"))
-genes <- markers_df |>
+validation_markers_df <- readr::read_tsv(validation_markers_file)
+
+# pull out list of genes 
+genes <- validation_markers_df |>
   dplyr::pull(ensembl_gene_id)
 
+# get individual gene counts for all marker genes 
 gene_cts <- logcounts(sce[genes, ]) |>
   as.matrix() |>
   t() |> 
   as.data.frame()
 gene_cts$barcodes <- rownames(gene_cts)
 
-
-rowData(sce)[genes, ] |> 
-  as.data.frame() |> 
-  dplyr::select(ends_with(".mean")) |> 
-  tibble::rownames_to_column("ensembl_gene_id") |> 
-  tidyr::pivot_longer(!ensembl_gene_id, names_to = "library_id", values_to = "mean")
-
-celltypes_df <- endsWith()celltypes_df <- all_info_df |> 
+# get all unique cell types from the final lumped group 
+celltypes_df <- all_info_df |> 
   dplyr::select(barcodes, final_lumped)
 
+# create a df that has gene expression column and column indicating whether or not the gene is detected in that cell 
 genes_df <- gene_cts |> 
   tidyr::pivot_longer(!barcodes, names_to = "ensembl_gene_id", values_to = "gene_exp") |> 
   dplyr::left_join(celltypes_df, by = c("barcodes")) |> 
+  dplyr::left_join(validation_markers_df, by = c("ensembl_gene_id")) |> 
+  dplyr::rowwise() |> 
   dplyr::mutate(
-    percent_expression = 
+    detected = gene_exp > 0 # column indicating if gene is present or not
   )
 
-head(genes_df)
+# get total number of cells per final annotation group 
+total_cells_df <- genes_df |> 
+  dplyr::select(barcodes, final_lumped) |> 
+  unique() |> 
+  dplyr::count(final_lumped, name = "total_cells")
+
+# get total number of cells each gene is detected in per group 
+# and mean gene expression per group 
+group_stats_df <- genes_df |> 
+  dplyr::group_by(final_lumped, ensembl_gene_id) |>
+  dplyr::summarize(
+    detected_count = sum(detected),
+    mean_exp = mean(gene_exp)
+  )
+
+gene_summary_df <- genes_df |> 
+  # add total cells
+  dplyr::left_join(total_cells_df, by = c("final_lumped")) |> 
+  # add per gene stats
+  dplyr::left_join(group_stats_df, by = c("ensembl_gene_id", "final_lumped")) |> 
+  dplyr::select(gene_symbol, final_lumped, cell_type, total_cells, detected_count, mean_exp) |> 
+  unique() |>
+  dplyr::rowwise() |> 
+  dplyr::mutate(
+    # get total percent
+    percent_exp = (detected_count/total_cells) * 100,
+    # order genes based on cell type they indicate
+    gene_symbol = factor(gene_symbol, levels = validation_markers_df$gene_symbol),
+    final_lumped = forcats::fct_relevel(final_lumped, cell_type_order)
+    
+  ) 
+```
+
+```{r, fig.height=7}
+# filter out low expressed genes
+dotplot_df <- gene_summary_df |> 
+  dplyr::filter(mean_exp > 0, percent_exp > 10)
+
+
+dotplot <- ggplot(dotplot_df, aes(y = forcats::fct_rev(final_lumped), x = gene_symbol, color = mean_exp, size = percent_exp)) +
+  geom_point() +
+  scale_color_viridis_c(option = "magma") +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 0.5)
+  ) +
+  labs(
+    x = "",
+    y = ""
+  )
+
+color_bar <- ggplot(dotplot_df, aes(x = gene_symbol, y = 1, fill = cell_type)) + 
+  geom_tile() + 
+  scale_fill_brewer(palette = 'Set1') +
+  ggmap::theme_nothing() +
+  theme(legend.position = "bottom") +
+  labs(fill = "")
+
+dotplot + color_bar +
+  patchwork::plot_layout(ncol = 1, heights = c(4, 0.1)) 
+```
+
+A few notes from this plot: 
+
+- Generally tumor markers are present throughout, although they are highest in tumor cells. 
+- Tumor EWS low CAFs show pretty strong expression of the `EWS-low` markers. 
+These markers are also present in fibroblasts, but to a lesser degree. 
+Additionally, `TNC` (which has been published to be important in the metastatic phenotype in Ewing cells) is specific to the low cells and not found in the fibroblasts, which makes me more confident that those are indeed tumor cells. 
+- Endothelial cells show strong expression of `PECAM1` and `VWF`, while that is not seen in most of the other cells. 
+- All immune cell types show `PTPRC` as expected with macrophages also showing `MRC1`. 
+The only concern I see is that the `mature T cell` does not express either of the `CD3` genes, but the memory T cells do? 
+I'm not totally sure what to do there since that label is a consensus label so perhaps that gene is not as well covered in these samples? 
+
+
+Let's make a heatmap version of the same plot. 
+
+```{r, fig.width=7}
+# note that we can't use the same heatmap function as before since we are looking at cell types as rows rather than gene sets
+# we also want to specify the annotation name
+
+# first make a mtx to use for the heatmap with rows as cell types and genes as columns 
+heatmap_mtx <- gene_summary_df |> 
+  dplyr::select(gene_symbol, final_lumped, mean_exp) |> 
+  tidyr::pivot_wider(
+    names_from = gene_symbol,
+    values_from = mean_exp
+  ) |> 
+  tibble::column_to_rownames("final_lumped") |>
+  as.matrix()
+# make sure cell types are present in the right order
+heatmap_mtx <- heatmap_mtx[cell_type_order,]
+
+# get annotation colors for each of the marker gene types 
+marker_gene_categories <- unique(validation_markers_df$cell_type)
+num_categories <- length(marker_gene_categories)
+category_colors <- palette.colors(palette = "Dark2") |>
+  head(n = num_categories) |>
+  purrr::set_names(marker_gene_categories)
+
+
+# create annotation for heatmap
+annotation <- ComplexHeatmap::columnAnnotation(
+  marker_gene_category = validation_markers_df$cell_type,
+  col = list(
+    marker_gene_category = category_colors
+  )
+)
+
+ComplexHeatmap::Heatmap(
+    heatmap_mtx,
+    # set the color scale based on min and max values
+    col = circlize::colorRamp2(seq(min(heatmap_mtx), max(heatmap_mtx), length = 2), colors = c("white", "#00274C")),
+    border = TRUE,
+    ## Row parameters
+    cluster_rows = FALSE,
+    row_title = "",
+    row_title_side = "left",
+    row_names_side = "left",
+    row_dend_side = "right",
+    row_names_gp = grid::gpar(fontsize = 10),
+    ## Column parameters
+    cluster_columns = FALSE,
+    show_column_names = TRUE,
+    column_names_gp = grid::gpar(fontsize = 8),
+    top_annotation = annotation,
+    heatmap_legend_param = list(
+      title = "Mean expression"
+    )
+  )
+```
+
+
+And finally we'll look at our annotations on a UMAP! 
+Because, why not. 
+
+```{r}
+ggplot(all_info_df, aes(x = UMAP1, y = UMAP2, color = final_lumped)) +
+  geom_point(alpha = 0.5, size = 0.01) +
+  # set color for all remaining cell types since there are more colors than in the palette
+  scale_color_manual(values = c(palette.colors(palette = "Set1"), "grey65", "grey90")) +
+  labs(color = "") +
+  guides(color = guide_legend(override.aes = list(alpha = 1, size = 1.5)))
+```
+
+## Export cell types 
+
+Now that we have our cell types let's export them to a TSV to save for future use! 
+
+```{r}
+annotation_df <- all_info_df |> 
+  dplyr::mutate(
+    # remove library id from barcodes since we have a library id column already 
+    barcodes = stringr::word(barcodes, -1, sep = "-"),
+    # assign ontology ID using consensus ontology ID
+    # anything without an ID is either unknown or tumor 
+    final_ontology = dplyr::if_else(
+      final_annotation == consensus_annotation,
+      consensus_ontology,
+      final_annotation
+    )
+  ) |> 
+  dplyr::select(
+    barcodes,
+    library_id,
+    sample_id,
+    sample_type,
+    singler_ontology,
+    singler_annotation,
+    consensus_annotation,
+    consensus_ontology,
+    final_annotation,
+    final_ontology
+  )
+
+readr::write_tsv(annotation_df, output_file)
 ```
 
 
