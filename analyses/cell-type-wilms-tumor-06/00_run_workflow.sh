@@ -160,8 +160,8 @@ done
 
 
 # Render notebook to make draft annotations
-Rscript -e "rmarkdown::render('${notebook_dir}/07_combined_annotation_across_samples_exploration.Rmd',
-                        params = list(predicted.celltype.threshold = ${predicted_celltype_threshold}, cnv_threshold = 0, testing = ${TESTING}),
-                        output_format = 'html_document',
-                        output_file = '07_combined_annotation_across_samples_exploration.html',
-                        output_dir = '${notebook_dir}')"
+# Rscript -e "rmarkdown::render('${notebook_dir}/07_combined_annotation_across_samples_exploration.Rmd',
+  #                      params = list(predicted.celltype.threshold = ${predicted_celltype_threshold}, cnv_threshold_low = ${cnv_threshold_low}, cnv_threshold_high = ${cnv_threshold_high}, testing = ${TESTING}),
+   #                     output_format = 'html_document',
+    #                    output_file = '07_combined_annotation_across_samples_exploration.html',
+     #                   output_dir = '${notebook_dir}')"
