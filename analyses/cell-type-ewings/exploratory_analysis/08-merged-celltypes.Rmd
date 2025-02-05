@@ -75,7 +75,7 @@ visser_marker_genes_file <- file.path(module_base, "references", "visser-all-mar
 cell_state_genes_file <- file.path(module_base, "references", "tumor-cell-state-markers.tsv")
 
 # marker genes to be used for validating assignments 
-validation_markers_file <- file.path(module_base, "references", "combined-markers.tsv")
+validation_markers_file <- file.path(module_base, "references", "combined-validation-markers.tsv")
 ```
 
 ```{r}
@@ -372,7 +372,9 @@ all_info_df <- all_info_df |>
       forcats::fct_relevel(cell_type_order)
   )
 
-table(all_info_df$final_annotation)
+all_info_df |> 
+  dplyr::count(final_annotation) |> 
+  dplyr::arrange(desc(n))
 ```
 For plotting purposes, we won't show any of the cell types that only have a handful of cells. 
 Let's see what cell types we won't be looking at if we only plot the top 9 cell types. 
@@ -384,7 +386,10 @@ missing_celltypes <- setdiff(all_celltypes, lumped_celltypes)
 
 missing_only <- all_info_df |> 
   dplyr::filter(final_annotation %in% missing_celltypes)
-table(missing_only$final_annotation)
+
+missing_only |> 
+  dplyr::count(final_annotation) |> 
+  dplyr::arrange(desc(n))
 ```
 
 I think we can leave these few cells alone and just lump them as "All remaining cell types" for plots as we have been doing. 
