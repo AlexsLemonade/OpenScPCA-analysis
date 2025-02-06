@@ -1,27 +1,27 @@
 consensus_annotation	consensus_ontology
-myeloid leukocyte	CL:0000766
-granulocyte	CL:0000094
-neutrophil	CL:0000775
-mononuclear phagocyte	CL:0000113
-monocyte	CL:0000576
-hematopoietic precursor cell	CL:0008001
-T cell	CL:0000084
-CD4-positive, alpha-beta T cell	CL:0000624
-mature alpha-beta T cell	CL:0000791
-mature T cell	CL:0002419
-regulatory T cell	CL:0000815
-memory T cell	CL:0000813
-natural killer cell	CL:0000623
-innate lymphoid cell	CL:0001065
-B cell	CL:0000236
-lymphocyte of B lineage	CL:0000945
-mature B cell	CL:0000785
-naive B cell	CL:0000788
-memory B cell	CL:0000787
 hematopoietic stem cell	CL:0000037
+T cell	CL:0000084
+granulocyte	CL:0000094
+mononuclear phagocyte	CL:0000113
 macrophage	CL:0000235
-erythroid lineage cell	CL:0000764
-megakaryocyte	CL:0000556
+B cell	CL:0000236
 dendritic cell	CL:0000451
+megakaryocyte	CL:0000556
+monocyte	CL:0000576
+natural killer cell	CL:0000623
+CD4-positive, alpha-beta T cell	CL:0000624
+erythroid lineage cell	CL:0000764
+myeloid leukocyte	CL:0000766
 eosinophil	CL:0000771
+neutrophil	CL:0000775
+mature B cell	CL:0000785
 plasma cell	CL:0000786
+memory B cell	CL:0000787
+naive B cell	CL:0000788
+mature alpha-beta T cell	CL:0000791
+memory T cell	CL:0000813
+regulatory T cell	CL:0000815
+lymphocyte of B lineage	CL:0000945
+innate lymphoid cell	CL:0001065
+mature T cell	CL:0002419
+hematopoietic precursor cell	CL:0008001
