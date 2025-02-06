@@ -60,7 +60,7 @@ prep_results <- function(
         threshold_auc = auc_threshold
       ) |> 
       tidyr::pivot_wider(
-        id_cols = join_columns,
+        id_cols = all_of(join_columns),
         names_from = "gene_set",
         values_from = c(auc, threshold_auc)
       )
