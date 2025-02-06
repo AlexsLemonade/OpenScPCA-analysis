@@ -1,0 +1,281 @@
+---
+title: "Consensus cell types across osteosarcoma samples"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 3
+    code_folding: show
+---
+
+
+```{r packages}
+suppressPackageStartupMessages({
+  # load required packages
+  library(ggplot2)
+})
+
+# Set default ggplot theme
+theme_set(
+  theme_classic()
+)
+```
+
+## Data setup
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+module_base <- file.path(repository_base, "analyses", "cell-type-consensus")
+
+# results directory with cell-type-consensus 
+results_dir <- file.path(module_base, "results", "cell-type-consensus")
+
+# data directory where project metadata files live
+data_dir <- file.path(repository_base, "data", "current")
+```
+
+```{r}
+# list all results files 
+results_files <- list.files(results_dir, pattern = "_consensus-cell-types\\.tsv.\\gz$", full.names = TRUE)
+
+# get project ids from file list  
+project_ids <- stringr::str_remove(basename(results_files), "_consensus-cell-types.tsv.gz")
+names(results_files) <- project_ids
+
+# remove cell line projects from file list
+osteo_project_ids <- c("SCPCP000017", "SCPCP000018", "SCPCP000023")
+results_files <- results_files[osteo_project_ids]
+
+# list metadata files 
+metadata_files <- list.files(data_dir, pattern = "single_cell_metadata\\.tsv$", full.names = TRUE, recursive = TRUE)
+metadata_ids <- stringr::word(dirname(metadata_files), -1, sep = "/")
+names(metadata_files) <- metadata_ids
+osteo_metadata_files <- metadata_files[osteo_project_ids]
+
+# immune cell types 
+consensus_immune_file <- file.path(module_base, "references", "consensus-immune-cell-types.tsv")
+```
+
+```{r}
+# source summarize_celltypes() function
+setup_functions <- file.path(module_base, "exploratory-notebooks", "utils", "setup-functions.R")
+source(setup_functions)
+```
+
+```{r, message=FALSE}
+# read in metadata
+all_metadata_df <- osteo_metadata_files |>
+  purrr::map(readr::read_tsv) |>
+  dplyr::bind_rows() |>
+  # select columns that might be useful 
+  dplyr::select(
+    project_id = scpca_project_id,
+    library_id = scpca_library_id,
+    disease_timing,
+    age,
+    sex,
+    tissue_location,
+    primary_or_metastasis,
+    seq_unit
+  )
+
+# immune consensus cell types 
+consensus_immune_types <- readr::read_tsv(consensus_immune_file) |> 
+  dplyr::pull(consensus_annotation)
+
+# read in results and prep data frame for plotting 
+all_results_df <- results_files |> 
+  purrr::imap(summarize_celltypes) |> 
+  dplyr::bind_rows(.id = "project_id") |> 
+  # join with sample metadata
+  dplyr::left_join(all_metadata_df, by = c("project_id", "library_id")) |>
+  dplyr::filter(sample_type != "patient-derived xenograft") |> 
+  dplyr::mutate(is_immune = consensus_annotation %in% consensus_immune_types)
+
+head(all_results_df)
+```
+
+```{r}
+all_results_df |>
+  dplyr::count(consensus_annotation) |> 
+  dplyr::arrange(desc(n))
+```
+
+
+```{r}
+all_results_df <- all_results_df |> 
+    dplyr::mutate(
+      # get most frequently observed cell types across libraries in that project 
+      top_celltypes = forcats::fct_lump_n(consensus_annotation, 10, other_level = "All remaining cell types", ties.method = "first") |> 
+        # sort by frequency 
+        forcats::fct_infreq() |> 
+        # make sure all remaining and unknown are last, use this to assign colors in specific order
+        forcats::fct_relevel("All remaining cell types", "Unknown", after = Inf)
+    )
+
+# get all unique cell types ordered by frequency 
+unique_celltypes <- all_results_df |> 
+  dplyr::filter(!top_celltypes %in% c("All remaining cell types", "Unknown")) |> 
+  dplyr::pull(top_celltypes) |> 
+  unique() |>
+  sort() |> 
+  as.character()
+
+# get color palette
+colors <- c(
+  palette.colors(palette = "alphabet")[1:9],
+  "grey60", 
+  "grey95"
+)
+names(colors) <- c(unique_celltypes, "All remaining cell types", "Unknown")
+
+ggplot(all_results_df) + 
+  aes(
+    x = library_id, 
+    y = percent_cells_annotation, 
+    fill = top_celltypes
+  ) +
+  geom_col() + 
+  facet_wrap(vars(project_id), scales ="free") +
+  scale_y_continuous(expand = c(0,0)) +
+  scale_fill_manual(values = colors, name = "cell type") +
+  theme(axis.text.x = element_blank())
+```
+
+```{r}
+# t cell types
+t_cell_types <- consensus_immune_types[stringr::str_detect(consensus_immune_types, "T")]
+b_cell_types <- consensus_immune_types[stringr::str_detect(consensus_immune_types, "B")]
+myeloid_cell_types <- c(
+  "macrophage",
+  "myeloid leukocyte",
+  "neutrophil",
+  "granulocyte",
+  "monocyte",
+  "erythroid lineage cell",
+  "megakaryocyte",
+  "eosinophil",
+  "dendritic cell"
+)
+
+# look at immune cell types vs. unknown vs. other 
+all_results_df <- all_results_df |> 
+  dplyr::mutate(
+    immune_category = dplyr::case_when(
+      is_immune ~ "immune",
+      consensus_annotation == "Unknown" ~ "unknown",
+      .default = "other"
+    ),
+    broad_category = dplyr::case_when(
+      consensus_annotation %in% t_cell_types ~ "T cell",
+      consensus_annotation %in% b_cell_types ~ "B cell",
+      consensus_annotation %in% myeloid_cell_types ~ "myeloid",
+      consensus_annotation == "Unknown" ~ "unknown",
+      .default = "non-immune"
+    )
+  )
+```
+
+```{r}
+library_levels <- pct_immune_df <- all_results_df |> 
+  dplyr::filter(immune_category == "immune") |> 
+  dplyr::group_by(library_id) |> 
+  dplyr::summarize(
+    percent_immune = sum(total_cells_per_annotation)/total_cells_per_library
+  ) |>
+  unique() |> 
+  dplyr::arrange(desc(percent_immune)) |> 
+  dplyr::pull(library_id)
+
+all_results_df <- all_results_df |> 
+  dplyr::mutate(
+    library_id = forcats::fct_relevel(library_id, library_levels)
+  )
+
+ggplot(all_results_df) + 
+  aes(
+    x = library_id, 
+    y = percent_cells_annotation, 
+    fill = immune_category
+  ) +
+  geom_col() + 
+  # split samples based on sample type, patient tissue or pdx 
+  #facet_wrap(vars(seq_unit), scales ="free") +
+  scale_y_continuous(expand = c(0,0)) +
+  scale_fill_manual(values = c("red", "grey60", "grey95"), name = "cell type") +
+  theme(axis.text.x = element_blank())
+```
+
+
+
+```{r}
+# define colors for broad categories 
+celtype_order <- c("myeloid", "B cell", "T cell", "non-immune", "unknown") 
+
+# get color palette
+colors <- c(
+  palette.colors(palette = "Dark2")[1:3],
+  "grey60", 
+  "grey95"
+)
+names(colors) <- celtype_order
+
+
+ggplot(all_results_df) + 
+  aes(
+    x = library_id, 
+    y = percent_cells_annotation, 
+    fill = broad_category
+  ) +
+  geom_col() + 
+  scale_y_continuous(expand = c(0,0)) +
+  scale_fill_manual(values = colors, name = "cell type") +
+  theme(axis.text.x = element_blank())
+```
+
+
+```{r}
+updated_metadata_df <- all_results_df |> 
+  dplyr::mutate(
+    primary_or_metastasis = dplyr::if_else(!is.na(primary_or_metastasis), primary_or_metastasis, disease_timing)
+  ) |> 
+  dplyr::filter(primary_or_metastasis %in% c("Primary", "Metastasis"))
+
+ggplot(updated_metadata_df) + 
+  aes(
+    x = library_id, 
+    y = percent_cells_annotation, 
+    fill = immune_category
+  ) +
+  geom_col() + 
+  # split samples based on sample type, patient tissue or pdx 
+  facet_wrap(vars(primary_or_metastasis), scales ="free") +
+  scale_y_continuous(expand = c(0,0)) +
+  scale_fill_manual(values = c("red", "grey60", "grey95"), name = "cell type") +
+  theme(axis.text.x = element_blank())
+
+ggplot(updated_metadata_df, aes(x = primary_or_metastasis, y = percent_immune)) +
+  ggforce::geom_sina() +
+  stat_summary(fun.y=median, geom="crossbar" , color = "red", linewidth = 0.2) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+        plot.margin = margin(10,10,10,10)) +
+  labs(
+    x = "", 
+    y = "Percent of cells annotated as Immune"
+  )
+```
+
+Do the same thing but with T/B/myeloid percentage? 
+Will also need to update code to make sure immune percentage is actually in the df. 
+
+Then filter for initial diagnosis vs. recurrence and do the same thing
+
+All samples together sorted by immune population 
+facte by project id - what's different about osteo project 23? 
+all samples broken up by primary vs. mets, stacked bar chart and sina plot 
+all samples broken up by disease timing 
+why is project 23 different? 
+what about just T cell infiltrate? and macrophage? 
