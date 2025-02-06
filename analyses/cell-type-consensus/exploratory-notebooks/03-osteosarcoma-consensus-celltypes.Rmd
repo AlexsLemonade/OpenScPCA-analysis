@@ -194,7 +194,7 @@ We have already looked at this in `02-explore-consensus-results.Rmd`, but here w
 all_results_df <- all_results_df |> 
   dplyr::mutate(
     # get most frequently observed cell types across libraries in that project 
-    top_celltypes = forcats::fct_lump_n(consensus_annotation, 10, other_level = "All remaining cell types", ties.method = "first") |> 
+    top_celltypes = forcats::fct_lump_n(consensus_annotation, 15, other_level = "All remaining cell types", ties.method = "first") |> 
       # sort by frequency 
       forcats::fct_infreq() |> 
       # make sure all remaining and unknown are last, use this to assign colors in specific order
@@ -235,6 +235,13 @@ It looks like there's definitely some variation between distributions of cell ty
 Generally, we see most annotated cells are smooth muscle cells and endothelial cells. 
 There also appears to be some samples that have macrophages and/or T cell populations. 
 We also see a handful of samples that don't have any cells that are annotated.
+
+```{r}
+stacked_barchart(total_order_df, fill_color = "top_celltypes", facet_variable = "project_id", colors = all_celltype_colors)
+```
+
+It looks like both total number of cells that are classified and composition of those cells is project dependent. 
+This makes sense since sample prep is probably different across labs. 
 
 ## Immune cell populations
 
