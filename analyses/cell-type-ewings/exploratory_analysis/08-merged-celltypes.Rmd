@@ -109,7 +109,9 @@ source(jaccard_functions)
 ```{r}
 stopifnot(
   "sce file does not exist" = file.exists(sce_file),
-  "aucell results file does not exist" = file.exists(aucell_results_file)
+  "aucell results file does not exist" = file.exists(aucell_results_file), 
+  "at least one singler file is missing" = all(file.exists(singler_results_files),
+  "at least one consensus file is missing" = all(file.exists(consensus_results_files),
 )
 ```
 
@@ -323,7 +325,7 @@ Let's pick some gene sets where we see variation across cell types that we can u
 - EWS-low gene sets: `wrenn-nt5e-genes` and `hallmark_EMT`
 
 ```{r}
-genesets_of_interest = c(
+genesets_of_interest <- c(
   "auc_aynaud-ews-targets",
   "auc_staege",
   "auc_wrenn-nt5e-genes",
@@ -551,7 +553,7 @@ dotplot <- ggplot(dotplot_df, aes(y = forcats::fct_rev(final_lumped), x = gene_s
   ) +
   labs(
     x = "",
-    y = ""
+    y = "Final cell type annotation"
   )
 
 color_bar <- ggplot(dotplot_df, aes(x = gene_symbol, y = 1, fill = cell_type)) + 
@@ -569,7 +571,7 @@ A few notes from this plot:
 
 - Generally tumor markers are present throughout, although they are highest in tumor cells. 
 - EWS-high proliferative cells show strong expression of proliferation markers. 
-- Tumor EWS low cells show pretty strong expression of the `EWS-low` markers. 
+- Tumor EWS-low cells show pretty strong expression of the `EWS-low` markers. 
 These markers are also present in fibroblasts, but to a lesser degree. 
 Additionally, `TNC` (which has been published to be important in the metastatic phenotype in Ewing cells) is specific to the low cells and not found in the fibroblasts, which makes me more confident that those are indeed tumor cells. 
 - Endothelial cells show strong expression of `PECAM1` and `VWF`, while that is not seen in most of the other cells. 

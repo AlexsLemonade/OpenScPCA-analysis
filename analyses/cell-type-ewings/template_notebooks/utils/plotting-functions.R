@@ -143,7 +143,7 @@ annotated_exp_heatmap <- function(
 #' Values in the heatmap correspond to an expression value or AUC
 #' Only one annotation will be included indicating cell type
 #'
-#' @param df Data frame containing exp_columns, cell_type_column, and cluster_column
+#' @param df Data frame containing all columns in exp_columns and cell_type_column
 #' @param exp_columns Vector of column names that contain values to be shown in the heatmap
 #' @param cell_type_column Column indicating cell types for each cell in the df
 #' @param legend_title Title to use for heatmap legend 
