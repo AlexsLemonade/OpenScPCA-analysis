@@ -310,7 +310,7 @@ ComplexHeatmap::Heatmap(
     show_column_names = TRUE,
     column_names_gp = grid::gpar(fontsize = 8),
     heatmap_legend_param = list(
-      title = "Mean expression"
+      title = "Mean AUC"
     )
   )
 
@@ -449,7 +449,7 @@ single_annotation_heatmap(
   all_info_df, 
   exp_columns = mean_exp_columns, 
   cell_type_column = "final_lumped", 
-  legend_title = "AUC"
+  legend_title = "Mean expression"
 )
 ```
 
