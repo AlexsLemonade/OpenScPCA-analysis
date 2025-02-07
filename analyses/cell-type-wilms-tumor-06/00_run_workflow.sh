@@ -32,6 +32,14 @@ RUN_EXPLORATORY=${RUN_EXPLORATORY:-0}
 THREADS=${THREADS:-32}
 project_id="SCPCP000006"
 
+# Define the `predicted_celltype_threshold` which is used to identify cells with a high confident label transfer from the fetal kidney reference.
+# This score is used in the script `06_infercnv.R` and in the notebook `07_combined_annotation_across_samples.Rmd`
+predicted_celltype_threshold=0.75
+
+# Define the `cnv_threshold_low/high` which are used to identify cells with no CNV (`cnv_score` <= `cnv_threshold_low`) or with CNV (`cnv_score` > `cnv_threshold_high`)
+cnv_threshold_low=0
+cnv_threshold_high=2
+
 # Ensure script is being run from its directory
 module_dir=$(dirname "${BASH_SOURCE[0]}")
 cd ${module_dir}
@@ -147,12 +155,13 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
     fi
 
     # Run inferCNV
-    Rscript scripts/06_infercnv.R --sample_id $sample_id --reference $reference --HMM i3 ${test_string}
+    Rscript scripts/06_infercnv.R --sample_id $sample_id --reference $reference --HMM i3 ${test_string} --score_threshold ${predicted_celltype_threshold}
 done
 
+
 # Render notebook to make draft annotations
-Rscript -e "rmarkdown::render('${notebook_dir}/07_combined_annotation_across_samples_exploration.Rmd',
-                        params = list(predicted.celltype.threshold = 0.85, cnv_threshold = 0, testing = ${TESTING}),
-                        output_format = 'html_document',
-                        output_file = '07_combined_annotation_across_samples_exploration.html',
-                        output_dir = '${notebook_dir}')"
+# Rscript -e "rmarkdown::render('${notebook_dir}/07_combined_annotation_across_samples_exploration.Rmd',
+  #                      params = list(predicted.celltype.threshold = ${predicted_celltype_threshold}, cnv_threshold_low = ${cnv_threshold_low}, cnv_threshold_high = ${cnv_threshold_high}, testing = ${TESTING}),
+   #                     output_format = 'html_document',
+    #                    output_file = '07_combined_annotation_across_samples_exploration.html',
+     #                   output_dir = '${notebook_dir}')"
