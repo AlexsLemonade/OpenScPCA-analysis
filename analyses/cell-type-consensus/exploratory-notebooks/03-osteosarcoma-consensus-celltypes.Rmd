@@ -35,20 +35,20 @@ theme_set(
 # faceting is only done if a facet_variable is provided
 stacked_barchart <- function(
     df, 
-    fill_color, 
-    facet_variable = NULL,
-    colors
+    fill_column,
+    celltype_colors, # named vector where names match the values in fill_column
+    facet_variable = NULL
 ){
   
   barchart <- ggplot(df) + 
     aes(
       x = library_id, 
       y = percent_cells_annotation, 
-      fill = !!sym(fill_color)
+      fill = !!sym(fill_column)
     ) +
     geom_col() + 
     scale_y_continuous(expand = c(0,0)) +
-    scale_fill_manual(values = colors) +
+    scale_fill_manual(values = celltype_colors) +
     theme(axis.text.x = element_blank()) +
     labs(
       fill= "cell type"
@@ -65,7 +65,7 @@ stacked_barchart <- function(
 # sina plot looking at immune percentage on the y-axis 
 sina_plot <- function(df, plot_column){
   
-  ggplot(immune_plot_df, aes(x = !!sym(plot_column), y = percent_immune)) +
+  ggplot(df, aes(x = !!sym(plot_column), y = percent_immune)) +
     ggforce::geom_sina() +
     stat_summary(fun.y=median, geom="crossbar" , color = "red", linewidth = 0.2) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
@@ -227,7 +227,7 @@ total_order_df <- all_results_df |>
 
 
 ```{r}
-stacked_barchart(total_order_df, fill_color = "top_celltypes", colors = all_celltype_colors)
+stacked_barchart(total_order_df, fill_column = "top_celltypes", celltype_colors = all_celltype_colors)
 ```
 
 It looks like there's definitely some variation in the distributions of cell types among the osteo samples. 
@@ -236,7 +236,7 @@ There also appears to be some samples that have macrophages and/or T cell popula
 We also see a handful of samples that don't have any cells that are annotated.
 
 ```{r}
-stacked_barchart(total_order_df, fill_color = "top_celltypes", facet_variable = "project_id", colors = all_celltype_colors)
+stacked_barchart(total_order_df, fill_column = "top_celltypes", facet_variable = "project_id", celltype_colors = all_celltype_colors)
 ```
 
 It looks like both total number of cells that are classified and composition of those cells is project dependent. 
@@ -265,7 +265,7 @@ all_results_df <- all_results_df |>
 # now sort just by immune percentage
 immune_pct_df <- all_results_df |> 
   dplyr::filter(immune_category == "immune") |> 
-  dplyr::mutate(annotation_percent_immune = total_cells_per_annotation/total_cells_per_library)
+  dplyr::mutate(annotation_percent_immune = total_cells_per_annotation/total_cells_per_library) |>
   dplyr::group_by(library_id) |> 
   dplyr::summarize(
     percent_immune = sum(annotation_percent_immune)
@@ -286,32 +286,16 @@ immune_results_df <- all_results_df |>
     library_id = forcats::fct_relevel(library_id, library_levels)
   )
 
-stacked_barchart(immune_results_df, fill_color = "immune_category", colors = three_color_scheme)
+stacked_barchart(immune_results_df, fill_column = "immune_category", celltype_colors = three_color_scheme)
 ```
 Let's see how the percentage of immune cells compares across projects. 
 
 ```{r}
-stacked_barchart(immune_results_df, fill_color = "immune_category", facet_variable = "project_id", colors = three_color_scheme)
+stacked_barchart(immune_results_df, fill_column = "immune_category", facet_variable = "project_id", celltype_colors = three_color_scheme)
 ```
 
 When looking at all samples together we do see variation in immune cells classified and it appears that `SCPCP000017` and `SCPCP000018` have more cells classified in general and have more cells classified as immune. 
 It does appear that libraries that have more immune cell composition also have a higher percentage of non-immune cell types which could very well be a technical artifact and related to sample prep. 
-
-Just for visualization purposes, let's classify these as "hot" and "cold", where "hot" tumors have an immune composition > 5%.
-
-```{r}
-immune_results_df <- immune_results_df |> 
-  dplyr::mutate(
-    # classify hot/cold based on immune percent > 5 %
-    hot_cold = dplyr::if_else(percent_immune > .05, "hot", "cold")
-  )
-```
-
-```{r}
-stacked_barchart(immune_results_df, fill_color = "immune_category", facet_variable = "hot_cold", colors = three_color_scheme)
-```
-
-Our threshold is pretty arbitrary, but I think there are definitely some "cold" tumors where we see little to no immune involvement. 
 
 Below we can look at all immune cell types vs. all non-immune. 
 
@@ -325,7 +309,7 @@ immune_results_df <- immune_results_df |>
     )
   )
 
-stacked_barchart(immune_results_df, fill_color = "is_immune", colors = all_celltype_colors)
+stacked_barchart(immune_results_df, fill_column = "is_immune", celltype_colors = all_celltype_colors)
 ```
 
 Generally, if immune cells are present they tend to be macrophages. 
@@ -341,17 +325,20 @@ This is just a preliminary look and if we really want to dig into this further w
 
 ```{r}
 # do some data wrangling on the metadata columns we want to look at 
-immune_results_df <- immune_results_df |> 
+immune_metadata_df <- immune_results_df |> 
   dplyr::mutate(
-    primary_or_metastasis = dplyr::if_else(!is.na(primary_or_metastasis), primary_or_metastasis, disease_timing),
-    disease_timing_mod = dplyr::if_else(disease_timing %in% c("Initial diagnosis", "Recurrence"), disease_timing, "other"),
+    primary_or_metastasis = dplyr::if_else((is.na(primary_or_metastasis) &
+                                             disease_timing != "Recurrence"), disease_timing, primary_or_metastasis) |>
+      forcats::fct_relevel(c("Primary", "Metastasis")),
+    disease_timing_mod = dplyr::if_else(disease_timing %in% c("Initial diagnosis", "Recurrence"), disease_timing, "other") |> 
+      forcats::fct_relevel("other", after = Inf),
     tissue_location_mod = dplyr::case_when(
-      stringr::str_detect(tissue_location, "Bone|femur|Humerus|Tibia") ~ "Bone",
+      stringr::str_detect(tissue_location, "Bone|femur|Humerus|Tibia") ~ "bone",
       #stringr::str_detect(tissue_location, "femur") ~ "Bone",
       stringr::str_detect(tissue_location, "lung|Lung|Chest") ~ "lung or chest",
       .default = "other"
     )
-  )
+  ) 
 ```
 
 
@@ -368,11 +355,15 @@ metadata_categories <- c(
 metadata_categories |> 
   purrr::map(\(category){
     
+    df <- immune_metadata_df |> 
+      dplyr::select(library_id, percent_cells_annotation, immune_category, {{category}}) |> 
+      tidyr::drop_na() #remove any samples that are missing that metadata
+    
     stacked_barchart(
-      immune_results_df,
-      fill_color = "immune_category",
+      df,
+      fill_column = "immune_category",
       facet_variable = category,
-      colors = three_color_scheme
+      celltype_colors = three_color_scheme
     )
 }) |>
   patchwork::wrap_plots(ncol = 1, guides = "collect") + 
@@ -385,20 +376,24 @@ metadata_categories |>
 metadata_categories |> 
   purrr::map(\(category){
     
+    df <- immune_metadata_df |> 
+      dplyr::select(library_id, percent_cells_annotation, top_celltypes, {{category}}) |> 
+      tidyr::drop_na() #remove any samples that are missing that metadata
+    
     stacked_barchart(
-      immune_results_df,
-      fill_color = "top_celltypes",
+      df,
+      fill_column = "top_celltypes",
       facet_variable = category,
-      colors = all_celltype_colors
+      celltype_colors = all_celltype_colors
     )
-}) |>
+  }) |>
   patchwork::wrap_plots(ncol = 1, guides = "collect")
 ```
 
 Below are sina plots that compare the total immune percentage for all samples in a given category. 
 
 ```{r}
-immune_plot_df <- immune_results_df |> 
+immune_plot_df <- immune_metadata_df |> 
   # just look at immune population across different diagnoses 
   dplyr::select(library_id, primary_or_metastasis, disease_timing_mod, tissue_location_mod, percent_immune, seq_unit) |> 
   unique()
@@ -407,7 +402,12 @@ immune_plot_df <- immune_results_df |>
 ```{r}
 metadata_categories |> 
   purrr::map(\(category){
-    sina_plot(immune_plot_df, category)
+    
+    df <- immune_plot_df |> 
+      dplyr::select(library_id, percent_immune, {{category}}) |> 
+      tidyr::drop_na() #remove any samples that are missing that metadata
+    
+    sina_plot(df, category)
   })
 ```
 
