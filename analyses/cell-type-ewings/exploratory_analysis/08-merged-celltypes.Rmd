@@ -16,7 +16,8 @@ The following input is used:
 
 - Annotations obtained by running `SingleR` with tumor cells as a reference output by [`aucell-singler-annotation.sh`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/cell-type-ewings/aucell-singler-annotation.sh). 
 - Consensus cell type annotations output by running [`assign-consensus-celltypes.sh` in `cell-type-consensus`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/cell-type-consensus/assign-consensus-celltypes.sh). 
-- AUC values as calculated by `AUCell` for a set of Ewing sarcoma specific gene sets in MSigDB output by [`run-aucell-ews-signatures.sh`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/cell-type-ewings/run-aucell-ews-signatures.sh). 
+- AUC values as calculated by `AUCell` for a set of Ewing sarcoma specific gene sets from MSigDB output by [`run-aucell-ews-signatures.sh`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/cell-type-ewings/run-aucell-ews-signatures.sh). 
+- Custom gene sets from [`visser-all-marker-genes.tsv`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/cell-type-ewings/references/visser-all-marker-genes.tsv), [`tumor-cell-state-markers.tsv`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/cell-type-ewings/references/tumor-cell-state-markers.tsv), and [`combined-validation-markers.tsv`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/cell-type-ewings/references/combined-validation-markers.tsv). 
 
 ## Setup
 
@@ -186,6 +187,7 @@ Consensus cell types are observed when cell types from `SingleR` and `CellAssign
 If no consensus is found, the cells are labeled with "Unknown". 
 
 Any cells that are unable to be labeled via consensus cell types are labeled as "Unknown" and I expect these will line up with cells labeled as tumor cells by `SingleR`.  
+Note that only cell types from `SingleR` with > 50 cells are shown in the heatmap. 
 
 ```{r, fig.height=5}
 # get cell types that have at least 50 cells
@@ -440,7 +442,9 @@ Since we are plotting the proliferative markers, let's also look at our other cu
 
 ```{r}
 # get columns with mean expression of custom gene sets 
-mean_exp_columns <- colnames(all_info_df)[which(endsWith(colnames(all_info_df), "_mean"))]
+mean_exp_columns <- colnames(all_info_df) |> 
+  stringr::str_subset("_mean$")
+
 # make sure order is defined by cell type order
 all_info_df <- all_info_df |> 
   dplyr::arrange(final_lumped)
@@ -489,16 +493,15 @@ all_info_df <- all_info_df |>
 total_libraries <- all_info_df |> 
   dplyr::select(final_annotation, library_id) |> 
   unique() |> # get rid of duplicate cells
-  dplyr::group_by(final_annotation) |> 
-  dplyr::summarize(
-    total_libraries = length(library_id)) |> 
-  dplyr::arrange(desc(total_libraries))
+  dplyr::add_count(final_annotation, name = "total_libraries") |>
+  dplyr::select(final_annotation, total_libraries)
 
 # print out both total cells and total libraries 
 all_info_df |> 
   dplyr::count(final_annotation, name = "total_cells") |>
   dplyr::left_join(total_libraries, by = "final_annotation") |> 
-  dplyr::arrange(desc(total_cells))
+  dplyr::arrange(desc(total_cells)) |>
+  unique()
 ```
 
 
@@ -512,6 +515,9 @@ In the following section we'll show some plots to help validate that we are cont
 These plots will look specifically at expression of a set of key marker genes that we expect to up in the assigned cell types. 
 These markers are found in [`references/combined-validation-markers.tsv`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/cell-type-ewings/references/combined-validation-markers.tsv) and include a smaller set of markers for each of the cell types we have identified. 
 
+Note that only genes with mean expression > 0 and expressed in at least 10% of cells are included in the dotplot. 
+All genes are included in the heatmap.
+
 ```{r}
 # read in file with validation markers 
 validation_markers_df <- readr::read_tsv(validation_markers_file)
@@ -522,7 +528,6 @@ genes <- validation_markers_df |>
 
 # get individual gene counts for all marker genes 
 gene_cts <- logcounts(sce[genes, ]) |>
-  as.matrix() |>
   t() |> 
   as.data.frame()
 gene_cts$barcodes <- rownames(gene_cts)
@@ -608,6 +613,8 @@ color_bar <- ggplot(dotplot_df, aes(x = gene_symbol, y = 1, fill = cell_type)) +
 dotplot + color_bar +
   patchwork::plot_layout(ncol = 1, heights = c(4, 0.1)) 
 ```
+
+The mean expression in this plot is capped at 2.5 for coloring purposes, but some values may be higher.  
 
 A few notes from this plot: 
 
