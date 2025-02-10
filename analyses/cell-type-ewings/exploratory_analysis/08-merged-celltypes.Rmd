@@ -9,14 +9,14 @@ output:
     code_folding: "hide"
 ---
 
-This notebook looks at cell type annotations and gene set expression across all samples in `SCPCP00015` and assigns "final" annotations. 
+This notebook looks at cell type annotations and gene set expression across all samples in `SCPCP000015` and assigns "final" annotations. 
 To do this we are using the merged, but not batch-corrected, object containing the gene expression data for all samples. 
 
 The following input is used: 
 
 - Annotations obtained by running `SingleR` with tumor cells as a reference output by [`aucell-singler-annotation.sh`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/cell-type-ewings/aucell-singler-annotation.sh). 
 - Consensus cell type annotations output by running [`assign-consensus-celltypes.sh` in `cell-type-consensus`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/cell-type-consensus/assign-consensus-celltypes.sh). 
-- AUC values as calculated by `AUCell` for a set of Ewing sarcoma specific gene sets in MSigDB output by `run-aucell-ews-signatures.sh`. 
+- AUC values as calculated by `AUCell` for a set of Ewing sarcoma specific gene sets in MSigDB output by [`run-aucell-ews-signatures.sh`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/cell-type-ewings/run-aucell-ews-signatures.sh). 
 
 ## Setup
 
@@ -270,7 +270,7 @@ Below is some information for the gene sets:
 - Any gene sets labeled with `down` represent `EWS-FLI1` repressed genes that we expect to be downregulated in `EWS-FLI1` high tumor cells and upregulated in `EWS-FLI1` low tumor cells. 
 - The `aynaud-ews-targets` is a list of genes found to be upregulated in `EWS-FLI1` high tumor cells. 
 - The `wrenn-nt5e-genes` is a list of genes found to be upregulated in `EWS-FLI1` low tumor cells/ cancer associated fibroblasts.
-- The `gobp_ECM` and `hallmark_EMT` are gene sets that are hypothesized to be upregulated in `EWS-FLI1` low tumor cells/ cancer associated fibroblasts.
+- The `gobp_ECM` and `hallmark_EMT` are gene sets that are hypothesized to be upregulated in `EWS-FLI1` low tumor cells/cancer associated fibroblasts.
 
 ```{r}
 # reformat auc data for plots
@@ -434,7 +434,7 @@ I'm still a little worried these are actually tumor cells, but because they only
 
 ## Identifying proliferative cells
 
-The last tumor cell state that we want to identify is if any cells can be considered proliferative using the set of proliferative markers in `tumor-cell-state-markers.tsv`. 
+The last tumor cell state that we want to identify is if any cells can be considered proliferative using the set of proliferative markers in [`tumor-cell-state-markers.tsv`](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/cell-type-ewings/references/tumor-cell-state-markers.tsv). 
 Let's look at the mean expression of these markers across all cells. 
 Since we are plotting the proliferative markers, let's also look at our other custom marker gene sets. 
 
@@ -510,7 +510,7 @@ For any cells where there's only 1 cell we may want to confirm that those cells 
 
 In the following section we'll show some plots to help validate that we are content with our cell type assignments. 
 These plots will look specifically at expression of a set of key marker genes that we expect to up in the assigned cell types. 
-These markers are found in `references/combined-markers.tsv` and include a smaller set of markers for each of the cell types we have identified. 
+These markers are found in [`references/combined-validation-markers.tsv`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/cell-type-ewings/references/combined-validation-markers.tsv) and include a smaller set of markers for each of the cell types we have identified. 
 
 ```{r}
 # read in file with validation markers 
