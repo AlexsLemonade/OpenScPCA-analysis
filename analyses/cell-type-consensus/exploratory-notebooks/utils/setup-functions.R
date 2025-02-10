@@ -6,12 +6,13 @@ summarize_celltypes <- function(file, id){
   df <- readr::read_tsv(file) 
   
   # get total cell count and number of assigned cell types per library
-  total_cells_df <- df |> 
+  df <- df |> 
     dplyr::group_by(library_id) |> 
-    dplyr::summarize(
-      total_cells_per_library = length(library_id),
+    dplyr::mutate(
+      total_cells_per_library = dplyr::n(),
       num_celltypes = length(unique(consensus_annotation))
-    )
+    ) |>
+    dplyr::ungroup()
   
   summary_df <- df |> 
     dplyr::group_by(library_id, sample_type, consensus_annotation, consensus_ontology) |> 
