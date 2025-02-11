@@ -364,10 +364,10 @@ metadata_categories |>
       fill_column = "immune_category",
       facet_variable = category,
       celltype_colors = three_color_scheme
-    )
+    ) +
+      labs(title = category)
 }) |>
-  patchwork::wrap_plots(ncol = 1, guides = "collect") + 
-    patchwork::plot_annotation(tag_levels = list(metadata_categories))
+  patchwork::wrap_plots(ncol = 1, guides = "collect")
   
 ```
 
@@ -385,7 +385,8 @@ metadata_categories |>
       fill_column = "top_celltypes",
       facet_variable = category,
       celltype_colors = all_celltype_colors
-    )
+    ) +
+      labs(title = category)
   }) |>
   patchwork::wrap_plots(ncol = 1, guides = "collect")
 ```
