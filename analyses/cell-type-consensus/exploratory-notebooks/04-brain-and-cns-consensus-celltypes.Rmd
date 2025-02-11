@@ -1,0 +1,403 @@
+---
+title: "Consensus cell types across samples from brain and CNS tumors"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+---
+
+This notebook summarizes the consensus cell types identified in all samples from brain and CNS tumors that are part of ScPCA. 
+This includes all samples from `SCPCP000001`, `SCPCP000002`, `SCPCP000010`, `SCPCP000021`, and all non-multiplexed samples from `SCPCP000009`. 
+
+We are interested in looking at any differences in cell composition across samples, with a particular interest in looking at the immune cell populations. 
+
+```{r packages}
+suppressPackageStartupMessages({
+  # load required packages
+  library(ggplot2)
+})
+
+# Set default ggplot theme
+theme_set(
+  theme_classic()
+)
+```
+
+
+## Data setup
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+module_base <- file.path(repository_base, "analyses", "cell-type-consensus")
+
+# results directory with cell-type-consensus 
+results_dir <- file.path(module_base, "results", "cell-type-consensus")
+
+# data directory where project metadata files live
+data_dir <- file.path(repository_base, "data", "current")
+```
+
+```{r}
+# list all results files 
+results_files <- list.files(results_dir, pattern = "_consensus-cell-types\\.tsv.\\gz$", full.names = TRUE)
+
+# get project ids from file list and assign as names
+project_ids <- stringr::str_remove(basename(results_files), "_consensus-cell-types.tsv.gz")
+names(results_files) <- project_ids
+
+# grab only brain/cns projects
+brain_project_ids <- c("SCPCP000001", "SCPCP000002", "SCPCP000010", "SCPCP000021", "SCPCP000009")
+results_files <- results_files[brain_project_ids]
+
+# list project metadata files and grab only osteo metadata 
+metadata_files <- list.files(data_dir, pattern = "single_cell_metadata\\.tsv$", full.names = TRUE, recursive = TRUE)
+metadata_ids <- fs::path_file(dirname(metadata_files))
+names(metadata_files) <- metadata_ids
+brain_metadata_files <- metadata_files[brain_project_ids]
+
+# list of all immune cell types 
+consensus_immune_file <- file.path(module_base, "references", "consensus-immune-cell-types.tsv")
+```
+
+```{r}
+# source summarize_celltypes() function
+setup_functions <- file.path(module_base, "exploratory-notebooks", "utils", "setup-functions.R")
+source(setup_functions)
+
+# source stacked_barchart() and sina_plot() functions
+plotting_functions <- file.path(module_base, "exploratory-notebooks", "utils", "plotting-functions.R")
+source(plotting_functions)
+```
+
+```{r, message=FALSE}
+# get immune cell types 
+immune_df <- readr::read_tsv(consensus_immune_file)
+immune_types <- immune_df$consensus_annotation
+
+# read in metadata
+all_metadata_df <- brain_metadata_files |>
+  purrr::map(\(file) readr::read_tsv(file, col_types = list(.default = "c"))) |>
+  dplyr::bind_rows() |>
+  # select columns that might be useful 
+  dplyr::select(
+    project_id = scpca_project_id,
+    library_id = scpca_library_id,
+    diagnosis,
+    subdiagnosis,
+    disease_timing,
+    age,
+    sex,
+    tissue_location,
+    seq_unit
+  )
+
+# define multiplexed libraries from SCPCP000009
+non_multiplexed_libs <- c("SCPCL000531", "SCPCL000569", "SCPCL000570", "SCPCL000571")
+multiplexed_libs <- all_metadata_df |> 
+  dplyr::filter(project_id == "SCPCP000009",
+                !(library_id %in% non_multiplexed_libs)) |> 
+  dplyr::pull(library_id) |>
+  unique()
+
+# read in results and prep data frame for plotting 
+all_results_df <- results_files |> 
+  purrr::imap(summarize_celltypes) |> 
+  dplyr::bind_rows(.id = "project_id") |> 
+  # remove multiplexed libraries 
+  dplyr::filter(!(library_id %in% multiplexed_libs)) |> 
+  # join with sample metadata
+  dplyr::left_join(all_metadata_df, by = c("project_id", "library_id"))
+```
+
+
+```{r}
+# assign a color scheme for all bar charts 
+
+# get all possible cell types 
+# there are exactly 26 of them so we will use alphabet with two greys for unknown/all remaining 
+unique_celltypes <- all_results_df |> 
+  dplyr::filter(percent_cells_annotation > 0.1, # we're only ever going to plot cell types that are greater than 1%
+                !consensus_annotation == "Unknown") |> 
+  dplyr::pull(consensus_annotation) |> 
+  unique() |>
+  as.character()
+
+# define colors for all cell types
+all_celltype_colors <- c(
+  palette.colors(palette = "alphabet"),
+  "grey60", # all remaining
+  "grey95", # unknown
+  "grey60" # non-immune, use the same as all remaining since they are never in the same plot
+)
+names(all_celltype_colors) <- c(unique_celltypes, "All remaining cell types", "Unknown", "non-immune")
+
+# define a three color scheme for immune, other, and unknown
+three_color_scheme <- c(
+  "immune" = "navy",
+  "non-immune" = "grey60",
+  "Unknown" = "grey95"
+)
+```
+
+## Composition of top cell types 
+
+Here we look at the top cell types identified across all samples. 
+We have already looked at this in `02-explore-consensus-results.Rmd`, but here we will plot all samples from all brain and CNS projects ordered by the total percent of cells labeled with a consensus label. 
+
+```{r}
+# add column of "top cell types" for easier plotting 
+all_results_df <- all_results_df |> 
+  dplyr::mutate(
+    # get most frequently observed cell types across libraries in that project 
+    top_celltypes = forcats::fct_lump_n(consensus_annotation, 15, other_level = "All remaining cell types", ties.method = "first") |> 
+      # sort by frequency 
+      forcats::fct_infreq() |> 
+      # make sure all remaining and unknown are last, use this to assign colors in specific order
+      forcats::fct_relevel("All remaining cell types", "Unknown", after = Inf),
+  )
+```
+
+
+```{r}
+# get a vector of library ids ordered by total percentage annotated
+library_levels <- all_results_df |> 
+  dplyr::filter(consensus_annotation != "Unknown") |> 
+  dplyr::group_by(library_id) |> 
+  dplyr::summarize(
+    total_percent_annotated = sum(total_cells_per_annotation)/unique(total_cells_per_library)
+  ) |>
+  dplyr::arrange(desc(total_percent_annotated)) |> 
+  dplyr::pull(library_id)
+
+# append any libraries that have 0 cells annotated
+non_annotated_libs <- setdiff(unique(all_results_df$library_id), library_levels)
+library_levels <- c(library_levels, non_annotated_libs)
+
+# reorder by total percentage annotated 
+all_results_df <- all_results_df |> 
+  dplyr::mutate(
+    library_id = forcats::fct_relevel(library_id, library_levels)
+  ) |>
+  unique()
+```
+
+
+```{r}
+stacked_barchart(all_results_df, fill_column = "top_celltypes", celltype_colors = all_celltype_colors)
+```
+
+Below we show the same data but faceted by project. 
+
+```{r}
+stacked_barchart(all_results_df, fill_column = "top_celltypes", facet_variable = "project_id", celltype_colors = all_celltype_colors)
+```
+
+- Macrophages seem to be the dominant cell type across most samples. 
+- There appear to be some samples that have a higher proportion of T cells, but this is not project specific. 
+- As with the osteosarcoma samples there is some general heterogeneity both in the number of assigned cells and the cell types across all samples. 
+
+We hypothesize that there will be differences in the cell types observed based on the specific type of brain or CNS tumor. 
+Let's look at what tumor types are represented here and then use that to assign diagnosis groups so we can separate samples by diagnosis in the later plots. 
+
+```{r}
+all_results_df |>
+  dplyr::select(library_id, diagnosis) |> 
+  unique() |> 
+  dplyr::count(diagnosis, name = "number_of_samples") |>
+  dplyr::arrange(desc(number_of_samples))
+```
+
+Based on this let's make the following groups: 
+
+- Low-grade glioma: Any samples labeled with "Low-grade glioma" or are part of `SCPCP000002` which are categorized as LGG tumors. 
+- High-grade glioma: Any samples labeled with "High-grade glioma" or are part of `SCPCP000001` which are categorized as HGG tumors. 
+- Glioblastoma
+- Pilocytic astrocytoma
+- Ganglioglioma 
+- ATRT 
+- Other: All samples that do not fall into the above categories. 
+
+We also have one "Non-cancerous" sample that we will keep separate. 
+
+```{r}
+# assign diagnosis groups to use for faceting plots 
+all_results_df <- all_results_df |> 
+  dplyr::mutate(
+    grouped_diagnosis = dplyr::case_when(
+      diagnosis %in% c("Low-grade glioma", "Glioblastoma", "Pilocytic astrocytoma", "Ganglioglioma", "High-grade glioma", "Atypical teratoid rhabdoid tumor", "Non-cancerous") ~ diagnosis,
+      project_id == "SCPCP000001" ~ "High-grade glioma",
+      project_id == "SCPCP000002" ~ "Low-grade glioma",
+      .default =  "other"
+    ) |>
+      forcats::fct_relevel(c("other", "Non-cancerous"), after = Inf)
+  )
+```
+
+Before we show the plots, let's look at what samples are being grouped as "other". 
+
+```{r}
+all_results_df |> 
+  dplyr::filter(grouped_diagnosis == "other") |> 
+  dplyr::select(library_id, project_id, diagnosis, grouped_diagnosis) |> 
+  unique()
+```
+
+```{r}
+stacked_barchart(all_results_df, fill_column = "top_celltypes", facet_variable = "grouped_diagnosis", celltype_colors = all_celltype_colors) +
+  theme(strip.text = element_text(size = 6)) 
+```
+
+It looks like we do some qualitative differences between diagnosis groups! 
+In particular, Glioblastoma seems to have the least amount of macrophages and favors T cells instead. 
+ATRT also looks to generally have a lower amount of classified cells compared to other diagnoses. 
+
+Also a side note that there are a lot of "Unknown" cells in the "Non-cancerous" sample. 
+I would have expected cell types there to be classified since we don't have tumor, but this also might be a limit of the reference, we don't have a lot of brain specific cell types outside of neuron and astrocyte. 
+
+## Immune cell populations
+
+Let's look specifically at immune cell populations. 
+To do this we will lump all immune cells as "immune", all non-immune as "non-immune", and all unknown as "unknown". 
+Here we will sort by total percentage of immune cells. 
+
+```{r}
+# look at immune cell types vs. unknown vs. other 
+all_results_df <- all_results_df |> 
+  dplyr::mutate(
+    # first get a column that is just immune, unknown, or other
+    immune_category = dplyr::case_when(
+      consensus_annotation %in% immune_types ~ "immune",
+      consensus_annotation == "Unknown" ~ "Unknown",
+      .default = "non-immune"
+    ),
+    library_id = as.character(library_id) #remove existing levels 
+  )
+```
+
+```{r}
+# now sort just by immune percentage
+immune_pct_df <- all_results_df |> 
+  dplyr::filter(immune_category == "immune") |> 
+  dplyr::mutate(annotation_percent_immune = total_cells_per_annotation/total_cells_per_library) |>
+  dplyr::group_by(library_id) |> 
+  dplyr::summarize(
+    percent_immune = sum(annotation_percent_immune)
+  ) 
+
+library_levels <- immune_pct_df |> 
+  dplyr::arrange(desc(percent_immune)) |> 
+  dplyr::pull(library_id)
+
+# append any libraries that have 0 immune cells annotated
+non_annotated_libs <- setdiff(unique(all_results_df$library_id), library_levels)
+library_levels <- c(library_levels, non_annotated_libs)
+
+immune_results_df <- all_results_df |> 
+  dplyr::left_join(immune_pct_df, by = c("library_id")) |> 
+  dplyr::mutate(
+    percent_immune = dplyr::if_else(is.na(percent_immune), 0, percent_immune),
+    library_id = forcats::fct_relevel(library_id, library_levels)
+  )
+
+stacked_barchart(immune_results_df, fill_column = "immune_category", celltype_colors = three_color_scheme)
+```
+Let's see how the percentage of immune cells compares across projects and diagnosis. 
+
+```{r}
+stacked_barchart(immune_results_df, fill_column = "immune_category", facet_variable = "project_id", celltype_colors = three_color_scheme)
+```
+
+```{r}
+stacked_barchart(immune_results_df, fill_column = "immune_category", facet_variable = "grouped_diagnosis", celltype_colors = three_color_scheme)
+```
+
+This isn't super interesting to me since most classified cells are immune cells and there doesn't seem to be any major differences across disease types outside of ATRT having a lower percentage of classified cells than other projects. 
+
+## Macrophage vs. T cell populations 
+
+It looks like there may be some differences between T cell and macrophage infiltrate based on the tumor type. 
+Here we will look specifically at all T cells and anything in the macrophage/monocyte lineage. 
+I'm including any cell types that are in our list of possible cell types and a child of [mononuclear phagocyte](https://www.ebi.ac.uk/ols4/ontologies/cl/classes/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FCL_0000113?lang=en) in the macro/mono group. 
+We should also note that "macrophage" here probably refers to microglia instead. 
+
+```{r}
+# t cell subtypes
+t_cells <- unique_celltypes |> 
+  stringr::str_subset("T")
+
+# macro/mono lineage 
+macro_mono_cells <- c(
+  "macrophage", 
+  "monocyte",
+  "mononuclear phagocyte", 
+  "dendritic cell"
+)
+
+# create broad category for T cell vs. macro/mono 
+immune_results_df <- immune_results_df |> 
+  dplyr::mutate(
+    immune_broad_category = dplyr::case_when(
+      consensus_annotation %in% t_cells ~ "T cell", 
+      consensus_annotation %in% macro_mono_cells ~ "Macro/mono",
+      consensus_annotation == "Unknown" ~ "Unknown",
+      .default = "All remaining cell types"
+    )
+  )
+
+# define colors 
+immune_category_colors <- c(
+  "T cell" = all_celltype_colors[["T cell"]],
+  "Macro/mono" = all_celltype_colors[["macrophage"]],
+  "All remaining cell types" = "grey60",
+  "Unknown" = "grey90"
+)
+```
+
+```{r}
+stacked_barchart(immune_results_df, fill_column = "immune_broad_category", facet_variable = "grouped_diagnosis", celltype_colors = immune_category_colors) +
+  theme(strip.text = element_text(size = 6)) 
+```
+
+- As expected based on the previous plot, glioblastoma appears to have greater T cell infiltrate than macrophages across all samples. 
+- There appears to be a handful of samples in the "High-grade glioma" group that also have high T cell infiltrate. 
+Notably, glioblastoma is a type of HGG. 
+- Generally, the T cell population seems lowest in LGG. 
+Ganglioglioma also has fewer samples with high percentage of T cell infiltrate and this is also a LGG. 
+- It looks like about 50% of the pilocytic astrocytomas have more T cell infiltrate than macrophages. 
+
+Finally, let's group by either HGG or LGG. 
+
+```{r}
+# assign diagnosis groups to use for faceting plots 
+hgg_lgg_df <- immune_results_df |> 
+  dplyr::mutate(
+    hgg_vs_lgg = dplyr::case_when(
+      grouped_diagnosis %in% c("Low-grade glioma", "Pilocytic astrocytoma", "Ganglioglioma") ~ "Low-grade glioma", 
+      grouped_diagnosis %in% c("High-grade glioma", "Atypical teratoid rhabdoid tumor", "Glioblastoma") ~ "High-grade glioma",
+      grouped_diagnosis == "Non-cancerous" ~ "Non-cancerous",
+      .default =  "other"
+    ) 
+  ) |> 
+  dplyr::filter(
+    hgg_vs_lgg %in% c("High-grade glioma", "Low-grade glioma")
+  )
+```
+
+```{r}
+stacked_barchart(hgg_lgg_df, fill_column = "immune_broad_category", facet_variable = "hgg_vs_lgg", celltype_colors = immune_category_colors)
+```
+
+Consistent with the previous findings it looks like HGG tend to have higher T cell infiltrate while LGG tend to have higher macrophage infiltrate. 
+
+## Session info 
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
+
