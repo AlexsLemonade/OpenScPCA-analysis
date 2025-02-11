@@ -89,7 +89,7 @@ output_file <- file.path(results_dir, "SCPCP000015_celltype-annotations.tsv.gz")
 
 ```{r}
 # source in setup functions prep_results()
-setup_functions <- file.path(module_base, "template_notebooks", "utils", "setup-functions.R")
+setup_functions <- file.path(module_base, "scripts", "utils", "setup-functions.R")
 source(setup_functions)
 
 # source in validation functions 
@@ -99,7 +99,7 @@ source(validation_functions)
 
 # source in plotting functions 
 # expression_umap(), cluster_density_plot(), and annotated_exp_heatmap()
-plotting_functions <- file.path(module_base, "template_notebooks", "utils", "plotting-functions.R")
+plotting_functions <- file.path(module_base, "scripts", "utils", "plotting-functions.R")
 source(plotting_functions)
 
 # source jaccard functions plot_jaccard()
