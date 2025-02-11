@@ -1,0 +1,424 @@
+---
+title: "Consensus cell types across osteosarcoma samples"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+---
+
+This notebook summarizes the consensus cell types identified in all osteosarcoma samples that are part of ScPCA. 
+This includes all samples from `SCPCP000017`, `SCPCP000018`, and `SCPCP000023`. 
+
+We are interested in looking at any differences in cell composition across samples, with a particular interest in looking at the immune cell populations. 
+
+```{r packages}
+suppressPackageStartupMessages({
+  # load required packages
+  library(ggplot2)
+})
+
+# Set default ggplot theme
+theme_set(
+  theme_classic()
+)
+```
+
+
+## Functions
+
+```{r}
+# barchart with or without faceting
+# each bar is a stacked barchart using the fill_color
+# faceting is only done if a facet_variable is provided
+stacked_barchart <- function(
+    df, 
+    fill_column,
+    celltype_colors, # named vector where names match the values in fill_column
+    facet_variable = NULL
+){
+  
+  barchart <- ggplot(df) + 
+    aes(
+      x = library_id, 
+      y = percent_cells_annotation, 
+      fill = !!sym(fill_column)
+    ) +
+    geom_col() + 
+    scale_y_continuous(expand = c(0,0)) +
+    scale_fill_manual(values = celltype_colors) +
+    theme(axis.text.x = element_blank()) +
+    labs(
+      fill= "cell type"
+    )
+  
+  if(!is.null(facet_variable)){
+    barchart <- barchart +
+      facet_wrap(vars(!!sym(facet_variable)), scales ="free_x")
+  }
+  
+  return(barchart)
+}
+
+# sina plot looking at immune percentage on the y-axis 
+sina_plot <- function(df, plot_column){
+  
+  ggplot(df, aes(x = !!sym(plot_column), y = percent_immune)) +
+    ggforce::geom_sina() +
+    stat_summary(fun.y=median, geom="crossbar" , color = "red", linewidth = 0.2) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+          plot.margin = margin(10,10,10,10)) +
+    labs(
+      x = "", 
+      y = "Percent of cells annotated as Immune",
+      title = plot_column
+    )
+  
+}
+```
+
+
+## Data setup
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+module_base <- file.path(repository_base, "analyses", "cell-type-consensus")
+
+# results directory with cell-type-consensus 
+results_dir <- file.path(module_base, "results", "cell-type-consensus")
+
+# data directory where project metadata files live
+data_dir <- file.path(repository_base, "data", "current")
+```
+
+```{r}
+# list all results files 
+results_files <- list.files(results_dir, pattern = "_consensus-cell-types\\.tsv.\\gz$", full.names = TRUE)
+
+# get project ids from file list and assign as names
+project_ids <- stringr::str_remove(basename(results_files), "_consensus-cell-types.tsv.gz")
+names(results_files) <- project_ids
+
+# grab only osteo projects
+osteo_project_ids <- c("SCPCP000017", "SCPCP000018", "SCPCP000023")
+results_files <- results_files[osteo_project_ids]
+
+# list project metadata files and grab only osteo metadata 
+metadata_files <- list.files(data_dir, pattern = "single_cell_metadata\\.tsv$", full.names = TRUE, recursive = TRUE)
+metadata_ids <- fs::path_file(dirname(metadata_files))
+names(metadata_files) <- metadata_ids
+osteo_metadata_files <- metadata_files[osteo_project_ids]
+
+# list of all immune cell types 
+consensus_immune_file <- file.path(module_base, "references", "consensus-immune-cell-types.tsv")
+```
+
+```{r}
+# source summarize_celltypes() function
+setup_functions <- file.path(module_base, "exploratory-notebooks", "utils", "setup-functions.R")
+source(setup_functions)
+```
+
+```{r, message=FALSE}
+# get immune cell types 
+immune_df <- readr::read_tsv(consensus_immune_file)
+immune_types <- immune_df$consensus_annotation
+
+# read in metadata
+all_metadata_df <- osteo_metadata_files |>
+  purrr::map(readr::read_tsv) |>
+  dplyr::bind_rows() |>
+  # select columns that might be useful 
+  dplyr::select(
+    project_id = scpca_project_id,
+    library_id = scpca_library_id,
+    disease_timing,
+    age,
+    sex,
+    tissue_location,
+    primary_or_metastasis,
+    seq_unit
+  )
+
+# read in results and prep data frame for plotting 
+all_results_df <- results_files |> 
+  purrr::imap(summarize_celltypes) |> 
+  dplyr::bind_rows(.id = "project_id") |> 
+  # join with sample metadata
+  dplyr::left_join(all_metadata_df, by = c("project_id", "library_id")) |>
+  # remove pdx samples 
+  dplyr::filter(sample_type != "patient-derived xenograft")
+```
+
+
+```{r}
+# assign a color scheme for all bar charts 
+
+# get all possible cell types 
+# there are exactly 25 of them so will use alphabet with two greys for unknown/all remaining 
+unique_celltypes <- all_results_df |> 
+  dplyr::filter(percent_cells_annotation > 0.1, # we're only ever going to plot cell types that are greater than 1%
+                !consensus_annotation == "Unknown") |> 
+  dplyr::pull(consensus_annotation) |> 
+  unique() |>
+  as.character()
+
+# define colors for all cell types
+all_celltype_colors <- c(
+  palette.colors(palette = "alphabet")[1:25],
+  "grey60", # all remaining
+  "grey95", # unknown
+  "grey60" # non-immune, use the same as all remaining since they are never in the same plot
+)
+names(all_celltype_colors) <- c(unique_celltypes, "All remaining cell types", "Unknown", "non-immune")
+
+# define a three color scheme for immune, other, and unknown
+three_color_scheme <- c(
+  "immune" = "navy",
+  "non-immune" = "grey60",
+  "Unknown" = "grey95"
+)
+```
+
+## Composition of top cell types 
+
+Here we look at the top cell types identified across all samples. 
+We have already looked at this in `02-explore-consensus-results.Rmd`, but here we will plot all samples from all three osteo projects ordered by the total percent of cells labeled with a consensus label. 
+
+```{r}
+# add column of "top cell types" for easier plotting 
+all_results_df <- all_results_df |> 
+  dplyr::mutate(
+    # get most frequently observed cell types across libraries in that project 
+    top_celltypes = forcats::fct_lump_n(consensus_annotation, 15, other_level = "All remaining cell types", ties.method = "first") |> 
+      # sort by frequency 
+      forcats::fct_infreq() |> 
+      # make sure all remaining and unknown are last, use this to assign colors in specific order
+      forcats::fct_relevel("All remaining cell types", "Unknown", after = Inf),
+  )
+```
+
+
+```{r}
+# get a vector of library ids ordered by total percentage annotated
+library_levels <- all_results_df |> 
+  dplyr::filter(consensus_annotation != "Unknown") |> 
+  dplyr::group_by(library_id) |> 
+  dplyr::summarize(
+    total_percent_annotated = sum(total_cells_per_annotation)/unique(total_cells_per_library)
+  ) |>
+  dplyr::arrange(desc(total_percent_annotated)) |> 
+  dplyr::pull(library_id)
+
+# append any libraries that have 0 cells annotated
+non_annotated_libs <- setdiff(unique(all_results_df$library_id), library_levels)
+library_levels <- c(library_levels, non_annotated_libs)
+
+# reorder by total percentage annotated 
+total_order_df <- all_results_df |> 
+  dplyr::mutate(
+    library_id = forcats::fct_relevel(library_id, library_levels)
+  )
+```
+
+
+```{r}
+stacked_barchart(total_order_df, fill_column = "top_celltypes", celltype_colors = all_celltype_colors)
+```
+
+It looks like there's definitely some variation in the distributions of cell types among the osteo samples. 
+Generally, we see most annotated cells are smooth muscle cells and endothelial cells. 
+There also appears to be some samples that have macrophages and/or T cell populations. 
+We also see a handful of samples that don't have any cells that are annotated.
+
+```{r}
+stacked_barchart(total_order_df, fill_column = "top_celltypes", facet_variable = "project_id", celltype_colors = all_celltype_colors)
+```
+
+It looks like both total number of cells that are classified and composition of those cells is project dependent. 
+This makes sense since sample prep is probably different across labs. 
+
+## Immune cell populations
+
+Let's look specifically at immune cell populations. 
+To do this we will lump all immune cells as "immune", all non-immune as "non-immune", and all unknown as "unknown". 
+Here we will sort by total percentage of immune cells. 
+
+```{r}
+# look at immune cell types vs. unknown vs. other 
+all_results_df <- all_results_df |> 
+  dplyr::mutate(
+    # first get a column that is just immune, unknown, or other
+    immune_category = dplyr::case_when(
+      consensus_annotation %in% immune_types ~ "immune",
+      consensus_annotation == "Unknown" ~ "Unknown",
+      .default = "non-immune"
+    )
+  )
+```
+
+```{r}
+# now sort just by immune percentage
+immune_pct_df <- all_results_df |> 
+  dplyr::filter(immune_category == "immune") |> 
+  dplyr::mutate(annotation_percent_immune = total_cells_per_annotation/total_cells_per_library) |>
+  dplyr::group_by(library_id) |> 
+  dplyr::summarize(
+    percent_immune = sum(annotation_percent_immune)
+  ) 
+
+library_levels <- immune_pct_df |> 
+  dplyr::arrange(desc(percent_immune)) |> 
+  dplyr::pull(library_id)
+
+# append any libraries that have 0 immune cells annotated
+non_annotated_libs <- setdiff(unique(all_results_df$library_id), library_levels)
+library_levels <- c(library_levels, non_annotated_libs)
+
+immune_results_df <- all_results_df |> 
+  dplyr::left_join(immune_pct_df, by = c("library_id")) |> 
+  dplyr::mutate(
+    percent_immune = dplyr::if_else(is.na(percent_immune), 0, percent_immune),
+    library_id = forcats::fct_relevel(library_id, library_levels)
+  )
+
+stacked_barchart(immune_results_df, fill_column = "immune_category", celltype_colors = three_color_scheme)
+```
+Let's see how the percentage of immune cells compares across projects. 
+
+```{r}
+stacked_barchart(immune_results_df, fill_column = "immune_category", facet_variable = "project_id", celltype_colors = three_color_scheme)
+```
+
+When looking at all samples together we do see variation in immune cells classified and it appears that `SCPCP000017` and `SCPCP000018` have more cells classified in general and have more cells classified as immune. 
+It does appear that libraries that have more immune cell composition also have a higher percentage of non-immune cell types which could very well be a technical artifact and related to sample prep. 
+
+Below we can look at all immune cell types vs. all non-immune. 
+
+```{r}
+immune_results_df <- immune_results_df |> 
+  dplyr::mutate(
+    is_immune = dplyr::if_else(
+      immune_category == "immune" | top_celltypes == "Unknown",
+      consensus_annotation,
+      "non-immune"
+    )
+  )
+
+stacked_barchart(immune_results_df, fill_column = "is_immune", celltype_colors = all_celltype_colors)
+```
+
+Generally, if immune cells are present they tend to be macrophages. 
+There's also a lot of T cell populations, which makes sense since it has been previously noted that osteosarcoma has a high percentage of T cell infiltrate (https://doi.org/10.18632/oncotarget.19071).  
+
+## Is there any relationship between immune cell percentage and clinical metadata? 
+
+One thing I was curious about was whether or not there are any differences in the presence of immune cells based on clinical metadata such as primary vs. metastasis, initial diagnosis vs. recurrence, and tissue location (bone vs. soft tissue). 
+I also expect there might be some differences between single-cell and single-nuclei samples. 
+
+Below I look at the immune cell percentage stratified by each of the mentioned metadata. 
+This is just a preliminary look and if we really want to dig into this further we should consider looking at algorithms for comparing cell type composition in single-cell RNA-seq data, but that is outside the scope of this notebook. 
+
+```{r}
+# do some data wrangling on the metadata columns we want to look at 
+immune_metadata_df <- immune_results_df |> 
+  dplyr::mutate(
+    primary_or_metastasis = dplyr::if_else((is.na(primary_or_metastasis) &
+                                             disease_timing != "Recurrence"), disease_timing, primary_or_metastasis) |>
+      forcats::fct_relevel(c("Primary", "Metastasis")),
+    disease_timing_mod = dplyr::if_else(disease_timing %in% c("Initial diagnosis", "Recurrence"), disease_timing, "other") |> 
+      forcats::fct_relevel("other", after = Inf),
+    tissue_location_mod = dplyr::case_when(
+      stringr::str_detect(tissue_location, "Bone|femur|Humerus|Tibia") ~ "bone",
+      #stringr::str_detect(tissue_location, "femur") ~ "Bone",
+      stringr::str_detect(tissue_location, "lung|Lung|Chest") ~ "lung or chest",
+      .default = "other"
+    )
+  ) 
+```
+
+
+```{r, fig.height = 10}
+# get a list of metadata we care about 
+metadata_categories <- c(
+  "primary_or_metastasis",
+  "disease_timing_mod",
+  "tissue_location_mod",
+  "seq_unit"
+)
+
+# make stacked bar plots looking at only immune and non immune 
+metadata_categories |> 
+  purrr::map(\(category){
+    
+    df <- immune_metadata_df |> 
+      dplyr::select(library_id, percent_cells_annotation, immune_category, {{category}}) |> 
+      tidyr::drop_na() #remove any samples that are missing that metadata
+    
+    stacked_barchart(
+      df,
+      fill_column = "immune_category",
+      facet_variable = category,
+      celltype_colors = three_color_scheme
+    ) +
+      labs(title = category)
+}) |>
+  patchwork::wrap_plots(ncol = 1, guides = "collect")
+  
+```
+
+```{r, fig.height=10}
+# now look at all top celltypes 
+metadata_categories |> 
+  purrr::map(\(category){
+    
+    df <- immune_metadata_df |> 
+      dplyr::select(library_id, percent_cells_annotation, top_celltypes, {{category}}) |> 
+      tidyr::drop_na() #remove any samples that are missing that metadata
+    
+    stacked_barchart(
+      df,
+      fill_column = "top_celltypes",
+      facet_variable = category,
+      celltype_colors = all_celltype_colors
+    ) +
+      labs(title = category)
+  }) |>
+  patchwork::wrap_plots(ncol = 1, guides = "collect")
+```
+
+Below are sina plots that compare the total immune percentage for all samples in a given category. 
+
+```{r}
+immune_plot_df <- immune_metadata_df |> 
+  # just look at immune population across different diagnoses 
+  dplyr::select(library_id, primary_or_metastasis, disease_timing_mod, tissue_location_mod, percent_immune, seq_unit) |> 
+  unique()
+```
+
+```{r}
+metadata_categories |> 
+  purrr::map(\(category){
+    
+    df <- immune_plot_df |> 
+      dplyr::select(library_id, percent_immune, {{category}}) |> 
+      tidyr::drop_na() #remove any samples that are missing that metadata
+    
+    sina_plot(df, category)
+  })
+```
+
+It looks like there might be higher immune infiltrate in "bone" samples, but again I think if we want to make any conclusions we need to look at software that helps correct for technical artifacts. 
+There may also be a difference in single-cell and single-nuclei, but there are much fewer single-cell samples so it's hard to say. 
+
+
+## Session info 
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
