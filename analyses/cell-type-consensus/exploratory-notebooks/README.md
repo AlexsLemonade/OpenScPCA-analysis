@@ -10,6 +10,8 @@ Prior to rendering this notebook results from the `cell-type-consensus` module i
 
 3. `03-osteosarcoma-consensus-celltypes.Rmd`: This notebook summarizes the consensus labels assigned to projects with Osteosarcoma samples. 
 
+4. `04-brain-and-cns-consensus-celltypes.Rmd`: THis notebook summarizes the consensus labels assigned to all samples belonging to projects with Brain and CNS tumors, excluding any samples that are part of multiplexed libraries. 
+
 ## Utils 
 
 The `utils` folder contains scripts with any functions that are used by multiple notebooks. 
