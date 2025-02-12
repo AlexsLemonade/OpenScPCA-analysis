@@ -318,7 +318,7 @@ stacked_barchart(immune_results_df, fill_column = "immune_category", facet_varia
 
 This isn't super interesting to me since most classified cells are immune cells and there doesn't seem to be any major differences across disease types outside of ATRT having a lower percentage of classified cells than other projects. 
 
-## Macrophage vs. T cell populations 
+## Myeloid vs. T cell populations 
 
 It looks like there may be some differences between T cell and macrophage infiltrate based on the tumor type. 
 Here we will look specifically at all T cells and anything in the macrophage/monocyte lineage. 
@@ -393,7 +393,7 @@ hgg_lgg_df <- immune_results_df |>
 stacked_barchart(hgg_lgg_df, fill_column = "immune_broad_category", facet_variable = "hgg_vs_lgg", celltype_colors = immune_category_colors)
 ```
 
-Consistent with the previous findings it looks like HGG tend to have higher T cell infiltrate while LGG tend to have higher macrophage infiltrate. 
+Consistent with the previous findings it looks like HGG tend to have higher T cell infiltrate while LGG tend to have higher myeloid cell proportions. 
 
 ## Session info 
 
