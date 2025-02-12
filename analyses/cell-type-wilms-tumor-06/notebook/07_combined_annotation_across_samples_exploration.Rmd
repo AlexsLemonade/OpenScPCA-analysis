@@ -66,7 +66,6 @@ library(Seurat)
 library(tidyverse)
 library(patchwork)
 library(DT)
-library(ggpubr)
 ```
 
 
@@ -364,8 +363,7 @@ do_BoxPlot_mean <- function(df, group.by, comparison){
   scale_fill_brewer(palette="PuRd") +
   geom_dotplot(binaxis='y', stackdir='center') +
   facet_wrap(~chromosome_arm, nrow = 5 ) +
-  theme_classic()  +
-  stat_compare_means( method = "wilcox.test", paired = FALSE,  hide.ns = TRUE, label = "p.signif",  bracket.size = 0.5,tip.length = 0.01 ,comparison = list(comparison), size =8, label.y = 0.9) 
+  theme_classic()  
 
   return(p)
 }
