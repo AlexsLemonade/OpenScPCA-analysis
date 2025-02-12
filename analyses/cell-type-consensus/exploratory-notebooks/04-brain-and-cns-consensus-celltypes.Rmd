@@ -215,7 +215,7 @@ all_results_df |>
 Based on this let's make the following groups: 
 
 - Low-grade glioma: Any samples labeled with "Low-grade glioma" or are part of `SCPCP000002` which are categorized as LGG tumors. 
-- High-grade glioma: Any samples labeled with "High-grade glioma" or are part of `SCPCP000001` which are categorized as HGG tumors. 
+- High-grade glioma: Any samples labeled with "High-grade glioma", "Diffuse midline glioma", or are part of `SCPCP000001` which are categorized as HGG tumors. 
 - Glioblastoma
 - Pilocytic astrocytoma
 - Ganglioglioma 
@@ -230,7 +230,7 @@ all_results_df <- all_results_df |>
   dplyr::mutate(
     grouped_diagnosis = dplyr::case_when(
       diagnosis %in% c("Low-grade glioma", "Glioblastoma", "Pilocytic astrocytoma", "Ganglioglioma", "High-grade glioma", "Atypical teratoid rhabdoid tumor", "Non-cancerous") ~ diagnosis,
-      project_id == "SCPCP000001" ~ "High-grade glioma",
+      project_id == "SCPCP000001" | diagnosis == "Diffuse midline glioma" ~ "High-grade glioma",
       project_id == "SCPCP000002" ~ "Low-grade glioma",
       .default =  "other"
     ) |>
@@ -328,14 +328,15 @@ We should also note that "macrophage" here probably refers to microglia instead.
 ```{r}
 # t cell subtypes
 t_cells <- unique_celltypes |> 
-  stringr::str_subset("T")
+  stringr::str_subset("T cell")
 
 # macro/mono lineage 
-macro_mono_cells <- c(
+myeloid_cells <- c(
   "macrophage", 
   "monocyte",
   "mononuclear phagocyte", 
-  "dendritic cell"
+  "myeloid leukocyte",
+  "neutrophil"
 )
 
 # create broad category for T cell vs. macro/mono 
@@ -343,7 +344,7 @@ immune_results_df <- immune_results_df |>
   dplyr::mutate(
     immune_broad_category = dplyr::case_when(
       consensus_annotation %in% t_cells ~ "T cell", 
-      consensus_annotation %in% macro_mono_cells ~ "Macro/mono",
+      consensus_annotation %in% myeloid_cells ~ "Myeloid",
       consensus_annotation == "Unknown" ~ "Unknown",
       .default = "All remaining cell types"
     )
@@ -352,7 +353,7 @@ immune_results_df <- immune_results_df |>
 # define colors 
 immune_category_colors <- c(
   "T cell" = all_celltype_colors[["T cell"]],
-  "Macro/mono" = all_celltype_colors[["macrophage"]],
+  "Myeloid" = all_celltype_colors[["macrophage"]],
   "All remaining cell types" = "grey60",
   "Unknown" = "grey90"
 )
