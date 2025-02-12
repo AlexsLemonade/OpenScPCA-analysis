@@ -320,9 +320,8 @@ This isn't super interesting to me since most classified cells are immune cells 
 
 ## Myeloid vs. T cell populations 
 
-It looks like there may be some differences between T cell and macrophage infiltrate based on the tumor type. 
-Here we will look specifically at all T cells and anything in the macrophage/monocyte lineage. 
-I'm including any cell types that are in our list of possible cell types and a child of [mononuclear phagocyte](https://www.ebi.ac.uk/ols4/ontologies/cl/classes/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FCL_0000113?lang=en) in the macro/mono group. 
+It looks like there may be some differences between the presence of T cells and macrophages based on the tumor type. 
+Here we will look specifically at all T cells and anything in the myeloid lineage, which includes macrophages, monocytes, mononuclear phagocytes, myeloid leukoctyes, and neutrophils. 
 We should also note that "macrophage" here probably refers to microglia instead. 
 
 ```{r}
@@ -364,12 +363,12 @@ stacked_barchart(immune_results_df, fill_column = "immune_broad_category", facet
   theme(strip.text = element_text(size = 6)) 
 ```
 
-- As expected based on the previous plot, glioblastoma appears to have greater T cell infiltrate than macrophages across all samples. 
+- As expected based on the previous plot, glioblastoma appears to have a higher proportion of T cells when compared to myleoid cells across all samples. 
 - There appears to be a handful of samples in the "High-grade glioma" group that also have high T cell infiltrate. 
 Notably, glioblastoma is a type of HGG. 
 - Generally, the T cell population seems lowest in LGG. 
 Ganglioglioma also has fewer samples with high percentage of T cell infiltrate and this is also a LGG. 
-- It looks like about 50% of the pilocytic astrocytomas have more T cell infiltrate than macrophages. 
+- It looks like about 50% of the pilocytic astrocytomas have more T cells than myeloid cells. 
 
 Finally, let's group by either HGG or LGG. 
 
@@ -393,7 +392,7 @@ hgg_lgg_df <- immune_results_df |>
 stacked_barchart(hgg_lgg_df, fill_column = "immune_broad_category", facet_variable = "hgg_vs_lgg", celltype_colors = immune_category_colors)
 ```
 
-Consistent with the previous findings it looks like HGG tend to have higher T cell infiltrate while LGG tend to have higher myeloid cell proportions. 
+Consistent with the previous findings it looks like HGG tend to have a higher proportion of T cells while LGG tend to have higher myeloid cell proportions. 
 
 ## Session info 
 
