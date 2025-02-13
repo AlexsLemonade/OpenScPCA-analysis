@@ -9,6 +9,16 @@ Add new release notes in reverse numerical order (newest first) below this comme
 You may want to add temporary notes here for tracking as features are added, before a new release is ready.
 -->
 
+## v0.2.2
+
+This release includes minor updates to the following modules: 
+
+- `cell-type-consensus`
+- `cell-type-ewings`
+- `cell-type-wilms-06`
+
+Within the `cell-type-consensus` module, the [reference used to assign consensus cell types](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/cell-type-consensus/references/consensus-cell-type-reference.tsv) has been updated to now include `neuron` as a possible cell type. 
+
 ## v0.2.1
 
 This release includes minor updates to the following modules: 
