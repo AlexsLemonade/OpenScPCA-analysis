@@ -105,7 +105,7 @@ consensus_labels_df <- lca_df |>
   # everything with more than 1 lca gets removed with the exception of HSCs
   dplyr::filter(total_lca <=1 | cl_annotation == "hematopoietic precursor cell") |> 
   # keep everything with total descendants < 170 except for neuron and epithelial cell when blueprint calls it as epithelial 
-  dplyr::filter(total_descendants <= 170 | cl_annotation %in% c("neuron", "epithelial cell") & blueprint_annotation_cl == "epithelial cell") |> 
+  dplyr::filter(total_descendants <= 170 | cl_annotation == "neuron" | (cl_annotation == "epithelial cell" & blueprint_annotation_cl == "epithelial cell")) |> 
   # get rid of terms that have low number of descendants but are still too broad 
   dplyr::filter(!(cl_annotation %in% c("bone cell", "lining cell", "blood cell", "progenitor cell", "supporting cell"))) |> 
   dplyr::select(
