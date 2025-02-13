@@ -88,7 +88,7 @@ The TSV file contains the following columns:
 | `consensus_annotation` | The human readable term associated with consensus cell type, output by `cell-type-consensus` | 
 | `consensus_ontology` | The cell ontology identifier associated with the consensus cell type, output by `cell-type-consensus` | 
 | `final_annotation` | The human readable term associated with the final annotation assigned using a combination of consensus cell types and `AUCell` results, output by `exploratory_analysis/08-merged-celltypes.Rmd` |
-| `final_ontology` |The cell ontology identifier associated with the final annotation assigned using a combination of consensus cell types and `AUCell` results, output by `exploratory_analysis/08-merged-celltypes.Rmd` | 
+| `final_ontology` |The cell ontology identifier associated with the final annotation assigned using a combination of consensus cell types and `AUCell` results, output by `exploratory_analysis/08-merged-celltypes.Rmd`, if the `final_annotation` contains `tumor`, this column will match the `final_annotation` column instead of containing the ontology term | 
 
 ## `AUCell` and `SingleR` annotation workflow
 
