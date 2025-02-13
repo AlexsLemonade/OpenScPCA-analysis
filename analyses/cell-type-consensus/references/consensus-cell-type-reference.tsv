@@ -289,6 +289,26 @@ CL:0000359	vascular associated smooth muscle cell	Pulmonary vascular smooth musc
 CL:0000359	vascular associated smooth muscle cell	Vascular smooth muscle cells	CL:0000187	muscle cell	CL:0000187	muscle cell
 CL:0002068	Purkinje myocyte	Purkinje fiber cells	CL:0000187	muscle cell	CL:0000187	muscle cell
 CL:0000136	adipocyte	Adipocytes	CL:0000136	adipocyte	CL:0000136	adipocyte
+CL:0000109	adrenergic neuron	Adrenergic neurons	CL:0000540	neuron	CL:0000540	neuron
+CL:0000108	cholinergic neuron	Cholinergic neurons	CL:0000540	neuron	CL:0000540	neuron
+CL:0000166	chromaffin cell	Chromaffin cells	CL:0000540	neuron	CL:0000540	neuron
+CL:0000700	dopaminergic neuron	Dopaminergic neurons	CL:0000540	neuron	CL:0000540	neuron
+CL:0007011	enteric neuron	Enteric neurons	CL:0000540	neuron	CL:0000540	neuron
+CL:1001509	glycinergic neuron	Glycinergic neurons	CL:0000540	neuron	CL:0000540	neuron
+CL:0000099	interneuron	Interneurons	CL:0000540	neuron	CL:0000540	neuron
+CL:0000100	motor neuron	Motor neurons	CL:0000540	neuron	CL:0000540	neuron
+CL:0000165	neuroendocrine cell	Neuroendocrine cells	CL:0000540	neuron	CL:0000540	neuron
+CL:0000540	neuron	Neurons	CL:0000540	neuron	CL:0000540	neuron
+CL:0008025	noradrenergic neuron	Noradrenergic neurons	CL:0000540	neuron	CL:0000540	neuron
+CL:0000210	photoreceptor cell	Photoreceptor cells	CL:0000540	neuron	CL:0000540	neuron
+CL:0000740	retinal ganglion cell	Retinal ganglion cells	CL:0000540	neuron	CL:0000540	neuron
+CL:0000850	serotonergic neuron	Serotonergic neurons	CL:0000540	neuron	CL:0000540	neuron
+CL:4023169	trigeminal neuron	Trigeminal neurons	CL:0000540	neuron	CL:0000540	neuron
+CL:0000695	Cajal-Retzius cell	Cajal-Retzius cells	CL:0000540	neuron	CL:0000540	neuron
+CL:0000617	GABAergic neuron	GABAergic neurons	CL:0000540	neuron	CL:0000540	neuron
+CL:0000679	glutamatergic neuron	Glutaminergic neurons	CL:0000540	neuron	CL:0000540	neuron
+CL:0000121	Purkinje cell	Purkinje neurons	CL:0000540	neuron	CL:0000540	neuron
+CL:0000598	pyramidal neuron	Pyramidal cells	CL:0000540	neuron	CL:0000540	neuron
 CL:0000650	mesangial cell	Mesangial cells	CL:0000669	pericyte	CL:0000669	pericyte
 CL:0000669	pericyte	Pericytes	CL:0000669	pericyte	CL:0000669	pericyte
 CL:0000127	astrocyte	Astrocytes	CL:0000127	astrocyte	CL:0000127	astrocyte
