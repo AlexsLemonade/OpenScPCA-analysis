@@ -72,7 +72,7 @@ See the [full instructions for the `SingleR` workflow below](#aucell-and-singler
 
 See this [notebook](http://htmlpreview.github.io/?https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/cell-type-ewings/exploratory_analysis/08-merged-celltypes.nb.html) for a summary of how the final cell type annotations were assigned and plots that validate these assignments. 
 
-A TSV file containing the final annotations are stored in S3 at: 
+A TSV file containing the final annotations is stored in S3 at: 
 `s3://researcher-211125375652-us-east-2/cell-type-ewings/results/final-annotations/SCPCP000015_celltype-annotations.tsv.gz`
 
 The TSV file contains the following columns: 
