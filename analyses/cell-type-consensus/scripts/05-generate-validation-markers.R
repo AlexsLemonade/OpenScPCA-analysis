@@ -67,7 +67,7 @@ mapped_ids <-AnnotationDbi::mapIds(
 total_tissues_df <- cell_marker_df |> 
   dplyr::select(validation_group_ontology, tissue_type) |> 
   unique() |>
-  dplyr::count(validation_group_ontology, name = "total_tissues_assayed")
+  dplyr::count(validation_group_ontology, name = "celltype_total_tissues")
 
 # create data frame with top 10 marker genes per cell type 
 # ranking is based on the percentage of tissues the gene shows up in for a given cell type  
@@ -78,7 +78,7 @@ top_markers_df <- cell_marker_df |>
   dplyr::left_join(total_tissues_df) |> 
   dplyr::mutate(
     # get the total percent of tissues that have that marker gene in that cell type 
-    percent_tissues = round((number_of_tissues/total_tissues_assayed) * 100, 2)
+    percent_tissues = round((number_of_tissues/celltype_total_tissues) * 100, 2)
   ) |> 
   # get the top 10 for each group, if there's a tie all will be saved
   dplyr::group_by(validation_group_ontology) |> 
