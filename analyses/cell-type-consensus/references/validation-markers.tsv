@@ -1,4 +1,4 @@
-validation_group_ontology	validation_group_annotation	ensembl_gene_id	gene_symbol	number_of_tissues	total_tissues_assayed	percent_tissues
+validation_group_ontology	validation_group_annotation	ensembl_gene_id	gene_symbol	number_of_tissues	celltype_total_tissues	percent_tissues
 CL:0000034	stem cell	ENSG00000026508	CD44	32	86	37.21
 CL:0000034	stem cell	ENSG00000174059	CD34	27	86	31.4
 CL:0000034	stem cell	ENSG00000181449	SOX2	27	86	31.4
