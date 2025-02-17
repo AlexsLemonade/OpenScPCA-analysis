@@ -363,7 +363,7 @@ stacked_barchart(immune_results_df, fill_column = "immune_broad_category", facet
   theme(strip.text = element_text(size = 6)) 
 ```
 
-- As expected based on the previous plot, glioblastoma appears to have a higher proportion of T cells when compared to myleoid cells across all samples. 
+- As expected based on the previous plot, glioblastoma appears to have a higher proportion of T cells when compared to myeloid cells across all samples. 
 - There appears to be a handful of samples in the "High-grade glioma" group that also have high T cell infiltrate. 
 Notably, glioblastoma is a type of HGG. 
 - Generally, the T cell population seems lowest in LGG. 
