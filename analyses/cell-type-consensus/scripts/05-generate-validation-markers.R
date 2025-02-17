@@ -83,6 +83,9 @@ top_markers_df <- cell_marker_df |>
   # get the top 10 for each group, if there's a tie all will be saved
   dplyr::group_by(validation_group_ontology) |> 
   dplyr::top_n(10, percent_tissues) |> 
+  dplyr::ungroup() |> 
+  # add column for total number of times that gene is observed in the table
+  dplyr::add_count(gene_symbol, name = "gene_observed_count") |> 
   # arrange genes by cell type and percentage of tissues 
   dplyr::arrange(validation_group_ontology, desc(percent_tissues)) |> 
   # bring in ensembl ids
