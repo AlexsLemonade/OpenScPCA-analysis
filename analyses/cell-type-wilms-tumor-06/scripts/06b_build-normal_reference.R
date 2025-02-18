@@ -1,5 +1,7 @@
 # This script pulls all normal cells, as identified by label transfer, which pass the score threshold into their Seurat object for use as an inferCNV reference.
 
+# PLEASE BE AWARE: This script is no longer used in the analysis workflow but it is retained for posterity.
+
 library(Seurat)
 
 # Define path -------------------------------------------------------------------
