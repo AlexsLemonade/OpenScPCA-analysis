@@ -59,8 +59,8 @@ option_list <- list(
   ),
   make_option(
     opt_str = c("--seed"),
-    type = "character",
-    default = "12345",
+    type = integer,
+    default = 12345,
     help = "Random seed to set"
   )
 )
@@ -179,7 +179,7 @@ if (opts$HMM == "no") {
 dir.create(output_dir, recursive = TRUE)
 
 # retrieve the gene order file created in `06a_build-geneposition.R`
-gene_arm_order_file <- file.path(module_base, "results","references", 'gencode_v38_gene_pos_arm.txt')
+gene_arm_order_file <- file.path(module_base, "results", "references", "gencode_v38_gene_pos_arm.txt")
 
 # Run infercnv ------------------------------------------------------------------
 # create inferCNV object and run method
