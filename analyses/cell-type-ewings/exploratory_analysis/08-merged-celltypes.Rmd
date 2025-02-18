@@ -268,11 +268,11 @@ First we'll look at the mean AUC value for each gene set across all cell types.
 
 Below is some information for the gene sets:  
 
-- Any gene sets labeled with `up` represent `EWS-FLI1` target genes that we expect to be upregulated in `EWS-FLI1` high tumor cells. 
-- Any gene sets labeled with `down` represent `EWS-FLI1` repressed genes that we expect to be downregulated in `EWS-FLI1` high tumor cells and upregulated in `EWS-FLI1` low tumor cells. 
-- The `aynaud-ews-targets` is a list of genes found to be upregulated in `EWS-FLI1` high tumor cells. 
-- The `wrenn-nt5e-genes` is a list of genes found to be upregulated in `EWS-FLI1` low tumor cells/ cancer associated fibroblasts.
-- The `gobp_ECM` and `hallmark_EMT` are gene sets that are hypothesized to be upregulated in `EWS-FLI1` low tumor cells/cancer associated fibroblasts.
+- Any gene sets labeled with `up` represent `EWS-FLI1` target genes that we expect to be up regulated in `EWS-FLI1` high tumor cells. 
+- Any gene sets labeled with `down` represent `EWS-FLI1` repressed genes that we expect to be down regulated in `EWS-FLI1` high tumor cells and up regulated in `EWS-FLI1` low tumor cells. 
+- The `aynaud-ews-targets` is a list of genes found to be up regulated in `EWS-FLI1` high tumor cells. 
+- The `wrenn-nt5e-genes` is a list of genes found to be up regulated in `EWS-FLI1` low tumor cells/ cancer associated fibroblasts.
+- The `gobp_ECM` and `hallmark_EMT` are gene sets that are hypothesized to be up regulated in `EWS-FLI1` low tumor cells/cancer associated fibroblasts.
 
 ```{r}
 # reformat auc data for plots
@@ -318,13 +318,13 @@ ComplexHeatmap::Heatmap(
 
 ```
 
-- Here it looks like the tumor cells have high expression of `EWS-FLI1` upregulated gene sets and low expression of `EWS-FLI1` repressed targets. 
+- Here it looks like the tumor cells have high expression of `EWS-FLI1` up regulated gene sets and low expression of `EWS-FLI1` repressed targets. 
 This suggests these cells are `EWS-high`. 
 - This same pattern is seen in cells labeled as "smooth muscle cell" and "stromal cell". 
-There may even be some slight expression of `EWS-FLI1` upregulated gene sets in "muscle cell", "Unknown", and some of the T cell populations. 
+There may even be some slight expression of `EWS-FLI1` up regulated gene sets in "muscle cell", "Unknown", and some of the T cell populations. 
 Some of these cells are probably mistakenly labeled and should be tumor cells that are "EWS-high".
-- Fibroblasts and chondroctyes have low expression of `EWS-FLI1` upregulated gene sets and high expression of `EWS-FLI1` repressed targets. 
-Many of the genes in the `EWS-FLI1` repressed targets are also genes upregulated in fibroblasts so I'm sure we have a mix of tumor and fibroblasts in there.
+- Fibroblasts and chondrocytes have low expression of `EWS-FLI1` up regulated gene sets and high expression of `EWS-FLI1` repressed targets. 
+Many of the genes in the `EWS-FLI1` repressed targets are also genes up regulated in fibroblasts so I'm sure we have a mix of tumor and fibroblasts in there.
 
 Because we have some normal cell types that are showing gene signatures expected to be specific to tumor cells, we should use the AUC values to help pull out any remaining cells that should be tumor cells. 
 We can also use the up and down gene sets to distinguish EWS-high and EWS-low tumor cells. 
@@ -429,10 +429,10 @@ Let's remake the density plot to see if we have pulled out the tumor cells from 
 cluster_density_plot(all_info_df, genesets_of_interest, "final_lumped", "AUC")
 ```
 
-It looks like generally the `tumor EWS-high` cells show high expression of both upregulated gene sets and `tumor EWS-low` cells show high expression of both downregulated gene sets, so I feel good about this! 
+It looks like generally the `tumor EWS-high` cells show high expression of both up regulated gene sets and `tumor EWS-low` cells show high expression of both down regulated gene sets, so I feel good about this! 
 
 I will also note that there are some muscle cells that show slight expression of `aynaud-ews-targets`, but show little to no expression of `staege` targets. 
-I'm still a little worried these are actually tumor cells, but because they only show expression of one of the genesets, we are probably okay to keep them as is noting that the expression profile of muscle cells is very similar to those of tumor cells, this being sarcoma. 
+I'm still a little worried these are actually tumor cells, but because they only show expression of one of the gene sets, we are probably okay to keep them as is noting that the expression profile of muscle cells is very similar to those of tumor cells, this being sarcoma. 
 
 ## Identifying proliferative cells
 
@@ -515,7 +515,7 @@ In the following section we'll show some plots to help validate that we are cont
 These plots will look specifically at expression of a set of key marker genes that we expect to up in the assigned cell types. 
 These markers are found in [`references/combined-validation-markers.tsv`](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/cell-type-ewings/references/combined-validation-markers.tsv) and include a smaller set of markers for each of the cell types we have identified. 
 
-Note that only genes with mean expression > 0 and expressed in at least 10% of cells are included in the dotplot. 
+Note that only genes with mean expression > 0 and expressed in at least 10% of cells are included in the dot plot. 
 All genes are included in the heatmap.
 
 ```{r}

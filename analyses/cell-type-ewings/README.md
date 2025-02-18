@@ -65,7 +65,7 @@ This script requires the processed `SingleCellExperiment` objects for all sample
 ```
 
 Note that an alternative approach we used was to build a custom reference containing both tumor cells and normal cell types for use with `SingleR` to assign cell types. 
-The results from this appraoch was concordant with the above outlined approach and is included in the TSV file with the final annotations (see the [results section below](#annotation-results)). 
+The results from this approach was concordant with the above outlined approach and is included in the TSV file with the final annotations (see the [results section below](#annotation-results)). 
 See the [full instructions for the `SingleR` workflow below](#aucell-and-singler-annotation-workflow). 
 
 ### Annotation results 

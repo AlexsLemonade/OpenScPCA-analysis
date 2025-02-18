@@ -12,7 +12,11 @@ AnnData
 anonymize
 anonymized
 ARI
+astrocyte
 astrocytes
+astrocytoma
+astrocytomas
+ATRT
 AUCell
 authenticator
 Aynaud
@@ -94,6 +98,7 @@ fibroblasts
 FLI
 formatters
 Franzetti
+ganglioglioma
 Generis
 GFM
 GHA
@@ -103,6 +108,7 @@ GitKraken
 GitKraken's
 glial
 glioblastoma
+glioma
 Goodspeed
 GPUs
 GTF
@@ -110,6 +116,7 @@ Hafemeister
 Halbritter
 hematopoietic
 heterotypic
+HGG
 histological
 histologies
 homotypic
@@ -133,7 +140,9 @@ karyotyping
 LCA
 leiden
 leptomeningeal
+leukocytes
 LGBTQ
+LGG
 licensor
 licensor's
 licensors
@@ -157,7 +166,9 @@ metacell
 metacells
 metanephric
 microenvironment
+microglia
 microRNA
+midline
 Miniconda
 Miniforge
 misidentification
@@ -187,6 +198,7 @@ OpenScPCA's
 osteoblasts
 osteoclast
 osteoclasts
+osteosarcoma
 outsized
 overclustered
 Panglao
@@ -194,6 +206,7 @@ PanglaoDB
 PDX
 peritubular
 perivascular
+pilocytic
 ploidy
 pluripotent
 programmatically
@@ -239,6 +252,7 @@ ScType
 SEACells
 SemVar
 seq
+sina
 SingleCellExperiment
 SingleR
 snRNA
