@@ -13,7 +13,7 @@
 # consensus_annotation: human readable name associated with the consensus label
 # consensus_ontology: CL ontology term for the consensus cell type
 
-# optionally, an additional TSV file containing the expression for a set of marker genes is saved
+# An additional TSV file containing the expression for a set of marker genes is saved
 # the `logcounts` for all genes in `ensembl_gene_id` column of the `marker_gene_file` will be saved to the output file
 
 # output TSV columns
