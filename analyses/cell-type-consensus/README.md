@@ -50,12 +50,12 @@ These files were obtained using the `download-data.py` script:
 ./download-data.py
 ```
 
-This script also requires three reference files, `blueprint-mapped-ontologies.tsv`, `panglao-cell-type-ontologies.tsv` and `consensus-cell-type-reference.tsv`. 
+This script also requires four reference files, `blueprint-mapped-ontologies.tsv`, `panglao-cell-type-ontologies.tsv`, `consensus-cell-type-reference.tsv`, and `validation-markers.tsv`. 
 See [Creating a reference for consensus cell types](#creating-a-reference-for-consensus-cell-types) and the [README.md in the references directory](./references/README.md) to learn more about the content of these files. 
 
 ### Output files
 
-Running the `assign-consensus-celltypes.sh` script will generate a single TSV file for each library. 
+Running the `assign-consensus-celltypes.sh` script will generate two TSV files for each library. 
 Output files will be in `results/cell-type-consensus` and organized as follows: 
 
 ```
@@ -63,7 +63,9 @@ results
 └── cell-type-consensus
     └── <project id>
         └── <sample id>
-            └── <library id>_consensus-cell-type-assignments.tsv.gz
+            ├── <library id>_consensus-cell-type-assignments.tsv.gz
+            └── <library id>_marker-gene-expression.tsv.gz
+
 ```
 
 The `<library id>_consensus-cell-type-assignments.tsv.gz` file contains cell type annotations for all cells in a single library with the following columns: 
@@ -83,6 +85,18 @@ The `<library id>_consensus-cell-type-assignments.tsv.gz` file contains cell typ
 | `blueprint_annotation_cl` | Name associated with the cell type ontology term in `singler_celltype_ontology` |
 | `consensus_ontology` | Cell type ontology term assigned as the consensus cell type | 
 | `consensus_annotation` | Name associated with the assigned consensus cell type in `consensus_ontology` | 
+
+
+The `<library id>_marker-gene-expression.tsv.gz` file contains the `logcounts` for all marker genes in [`references/validation-markers.tsv`](./references/validation-markers.tsv). 
+Only genes that are expressed in the library are included in the output. 
+
+| | | 
+| --- | --- | 
+| `library_id` | ScPCA library id | 
+| `barcodes` | cell barcode | 
+| `ensembl_gene_id` | Ensembl gene identifier for marker gene | 
+| `gene_symbol` | Gene symbol for marker gene | 
+| `gene_expression` | Gene expression for marker gene obtained from the `logcounts` assay | 
 
 ## Software requirements
 
