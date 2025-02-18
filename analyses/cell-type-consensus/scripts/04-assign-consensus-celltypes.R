@@ -13,6 +13,16 @@
 # consensus_annotation: human readable name associated with the consensus label
 # consensus_ontology: CL ontology term for the consensus cell type
 
+# optionally, an additional TSV file containing the expression for a set of marker genes is saved
+# the `logcounts` for all genes in `ensembl_gene_id` column of the `marker_gene_file` will be saved to the output file
+
+# output TSV columns
+# library_id
+# barcodes
+# ensembl_gene_id
+# gene_symbol
+# gene_expression
+
 library(optparse)
 
 option_list <- list(
@@ -37,9 +47,21 @@ option_list <- list(
     help = "Path to file containing the reference for assigning consensus cell type labels"
   ),
   make_option(
-    opt_str = c("--output_file"),
+    opt_str = c("--marker_gene_file"),
     type = "character",
-    help = "Path to file where combined TSV file will be saved.
+    help = "Path to file containing a table of marker genes.
+     The logcounts for all genes in the `ensembl_gene_id` column that are expressed in the input SCE will be saved." 
+  ),
+  make_option(
+    opt_str = c("--consensus_output_file"),
+    type = "character",
+    help = "Path to file where TSV file containing consensus cell types will be saved.
+      File name must end in either `.tsv` or `.tsv.gz` to save a compressed TSV file"
+  ),
+  make_option(
+    opt_str = c("--gene_exp_output_file"),
+    type = "character",
+    help = "Path to file where TSV file containing marker gene expression will be saved.
       File name must end in either `.tsv` or `.tsv.gz` to save a compressed TSV file"
   )
 )
@@ -55,13 +77,23 @@ stopifnot(
   "blueprint reference file does not exist" = file.exists(opt$blueprint_ref_file),
   "panglao reference file does not exist" = file.exists(opt$panglao_ref_file),
   "cell type consensus reference file does not exist" = file.exists(opt$consensus_ref_file),
-  "output file must end in `.tsv` or `.tsv.gz`" = stringr::str_ends(opt$output_file, "\\.tsv|\\.tsv\\.gz")
+  "marker gene file does not exist" = file.exists(opt$marker_gene_file),
+  "consensus output file must end in `.tsv` or `.tsv.gz`" = stringr::str_ends(opt$consensus_output_file, "\\.tsv|\\.tsv\\.gz"),
+  "gene expression output file must end in `.tsv` or `.tsv.gz`" = stringr::str_ends(opt$gene_exp_output_file, "\\.tsv|\\.tsv\\.gz")
 )
 
 # load SCE
 suppressPackageStartupMessages({
   library(SingleCellExperiment)
 })
+
+# read in file
+markers_df <- readr::read_tsv(opt$marker_gene_file)
+
+#check that ensembl gene id is present
+stopifnot(
+  "ensembl_gene_id column is missing from marker gene file" = "ensembl_gene_id" %in% colnames(markers_df)
+)
 
 # Extract colData --------------------------------------------------------------
 
@@ -147,7 +179,7 @@ consensus_ref_df <- readr::read_tsv(opt$consensus_ref_file) |>
 # grab blueprint ref 
 blueprint_df <- readr::read_tsv(opt$blueprint_ref_file)
 
-# Create combined TSV ----------------------------------------------------------
+# Create consensus TSV ---------------------------------------------------------
 
 all_assignments_df <- celltype_df |> 
   # add columns for panglao ontology and consensus
@@ -169,4 +201,55 @@ all_assignments_df <- celltype_df |>
   dplyr::mutate(consensus_annotation = dplyr::if_else(is.na(consensus_annotation) & (sample_type != "cell line"), "Unknown", consensus_annotation))
 
 # export file
-readr::write_tsv(all_assignments_df, opt$output_file)
+readr::write_tsv(all_assignments_df, opt$consensus_output_file)
+
+# Save gene expression file ----------------------------------------------------
+
+
+# list of all marker genes
+all_markers <- markers_df |> 
+  dplyr::pull(ensembl_gene_id) |> 
+  unique()
+
+# we only care about if that gene is expressed otherwise we wont' waste memory and include it
+expressed_genes <- rowData(sce) |> 
+  as.data.frame() |>
+  dplyr::filter(detected > 0) |> 
+  dplyr::pull(gene_ids)
+
+# get markers that are expressed
+expressed_markers <- intersect(all_markers, expressed_genes)
+
+# if no markers are found, fill in columns with NA
+if(length(expressed_markers) == 0)(
+  
+  gene_exp_df <- data.frame(
+    barcodes = rownames(sce),
+    library_id = library_id, 
+    ensembl_gene_id = NA,
+    gene_symbol = NA,
+    gene_expression = NA, 
+    validation_group_annotation = NA,
+    validation_group_ontology = NA
+  )
+  
+) else {
+  
+  # get logcounts from sce for expressed genes 
+  gene_exp_df <- logcounts(sce[expressed_markers, ]) |> 
+    as.matrix() |> # need this before converting to a dataframe
+    t() |> 
+    as.data.frame() |> 
+    tibble::rownames_to_column("barcodes") |> 
+    # collapse expression into one column
+    tidyr::pivot_longer(!barcodes, names_to = "ensembl_gene_id", values_to = "gene_expression") |> 
+    # add in library id and make it the first column
+    dplyr::mutate(
+      library_id = library_id
+    ) |> 
+    dplyr::relocate(library_id, .before = 0)
+  
+}
+
+# export the file 
+readr::write_tsv(gene_exp_df, opt$gene_exp_output_file)
