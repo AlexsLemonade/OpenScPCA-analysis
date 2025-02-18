@@ -140,6 +140,7 @@ karyotyping
 LCA
 leiden
 leptomeningeal
+leukocytes
 LGBTQ
 LGG
 licensor

@@ -321,7 +321,7 @@ This isn't super interesting to me since most classified cells are immune cells 
 ## Myeloid vs. T cell populations 
 
 It looks like there may be some differences between the presence of T cells and macrophages based on the tumor type. 
-Here we will look specifically at all T cells and anything in the myeloid lineage, which includes macrophages, monocytes, mononuclear phagocytes, myeloid leukoctyes, and neutrophils. 
+Here we will look specifically at all T cells and anything in the myeloid lineage, which includes macrophages, monocytes, mononuclear phagocytes, myeloid leukocytes, and neutrophils. 
 We should also note that "macrophage" here probably refers to microglia instead. 
 
 ```{r}
