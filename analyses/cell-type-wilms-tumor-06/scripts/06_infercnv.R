@@ -59,7 +59,7 @@ option_list <- list(
   ),
   make_option(
     opt_str = c("--seed"),
-    type = integer,
+    type = "integer",
     default = 12345,
     help = "Random seed to set"
   )
