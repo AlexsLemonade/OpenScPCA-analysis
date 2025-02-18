@@ -50,8 +50,10 @@ notebook_template_dir="notebook_template"
 notebook_dir="notebook"
 
 # Define test data string to use with 06_infercnv.R
+# Also, if testing, override the cell type threshold to use a larger population of normal cells
 if [[ $TESTING -eq 1 ]]; then
   test_string="--testing"
+  predicted_celltype_threshold=0.95
 else
   test_string=""
 fi
@@ -138,6 +140,9 @@ fi
 
 # Prepare gene file for inferCNV
 Rscript scripts/06a_build-geneposition.R
+
+# Prepare normal reference for inferCNV
+Rscript scripts/06b_build-normal_reference.R
 
 # Run infercnv for all samples with HMM i3 and using "both" as the reference, where possible
 for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
