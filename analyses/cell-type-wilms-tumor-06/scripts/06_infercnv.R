@@ -201,8 +201,6 @@ infercnv_obj <- infercnv::CreateInfercnvObject(
 )
 
 print(infercnv_obj@observation_grouped_cell_indices)
-print(infercnv_obj@max_cells_per_group)
-
 
 infercnv_obj <- infercnv::run(
   infercnv_obj,
@@ -214,8 +212,8 @@ infercnv_obj <- infercnv::run(
   HMM = HMM_logical,
   HMM_type = HMM_type,
   # turn off the caching?
-  save_rds = FALSE,
-  save_final_rds = FALSE
+  save_rds = F,
+  save_final_rds = F
 )
 
 if (HMM_logical) {
