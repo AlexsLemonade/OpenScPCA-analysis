@@ -67,8 +67,6 @@ option_list <- list(
 
 opts <- parse_args(OptionParser(option_list = option_list))
 
-print(opts)
-
 set.seed(opts$seed)
 # paths to data ----------------------------------------------------------------
 
@@ -189,6 +187,10 @@ options(future.globals.maxSize = 89128960000000)
 options(scipen = 100) # recommended for infercnv analysis_mode = "subclusters"
 
 
+stopifnot(
+  "Annotations don't match counts matrix" = all(rownames(annot_df) == colnames(counts))
+)
+
 infercnv_obj <- infercnv::CreateInfercnvObject(
   raw_counts_matrix = as.matrix(counts),
   annotations_file = annot_df,
@@ -198,7 +200,8 @@ infercnv_obj <- infercnv::CreateInfercnvObject(
   min_max_counts_per_cell = c(-Inf, +Inf)
 )
 
-print(infercnv_obj)
+print(infercnv_obj@observation_grouped_cell_indices)
+print(infercnv_obj@max_cells_per_group)
 
 
 infercnv_obj <- infercnv::run(
@@ -210,8 +213,9 @@ infercnv_obj <- infercnv::run(
   denoise = TRUE,
   HMM = HMM_logical,
   HMM_type = HMM_type,
-  save_rds = TRUE,
-  save_final_rds = TRUE
+  # turn off the caching?
+  save_rds = FALSE,
+  save_final_rds = FALSE
 )
 
 if (HMM_logical) {
