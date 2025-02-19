@@ -202,6 +202,7 @@ infercnv_obj <- infercnv::CreateInfercnvObject(
 
 print(infercnv_obj@observation_grouped_cell_indices)
 
+
 infercnv_obj <- infercnv::run(
   infercnv_obj,
   cutoff = 0.1, # cutoff=1 works well for Smart-seq2, and cutoff=0.1 works well for 10x Genomics
@@ -211,9 +212,8 @@ infercnv_obj <- infercnv::run(
   denoise = TRUE,
   HMM = HMM_logical,
   HMM_type = HMM_type,
-  # turn off the caching?
-  save_rds = F,
-  save_final_rds = F
+  save_rds = T,
+  save_final_rds = T
 )
 
 if (HMM_logical) {
