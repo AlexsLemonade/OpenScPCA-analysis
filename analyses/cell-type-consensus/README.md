@@ -95,7 +95,6 @@ Only genes that are expressed in the library are included in the output.
 | `library_id` | ScPCA library id | 
 | `barcodes` | cell barcode | 
 | `ensembl_gene_id` | Ensembl gene identifier for marker gene | 
-| `gene_symbol` | Gene symbol for marker gene | 
 | `logcounts` | Gene expression for marker gene obtained from the `logcounts` assay | 
 
 ## Software requirements
