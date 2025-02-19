@@ -78,8 +78,8 @@ stopifnot(
   "panglao reference file does not exist" = file.exists(opt$panglao_ref_file),
   "cell type consensus reference file does not exist" = file.exists(opt$consensus_ref_file),
   "marker gene file does not exist" = file.exists(opt$marker_gene_file),
-  "consensus output file must end in `.tsv` or `.tsv.gz`" = stringr::str_ends(opt$consensus_output_file, "\\.tsv|\\.tsv\\.gz"),
-  "gene expression output file must end in `.tsv` or `.tsv.gz`" = stringr::str_ends(opt$gene_exp_output_file, "\\.tsv|\\.tsv\\.gz")
+  "consensus output file must end in `.tsv` or `.tsv.gz`" = stringr::str_ends(opt$consensus_output_file, "\\.tsv(\\.gz)?"),
+  "gene expression output file must end in `.tsv` or `.tsv.gz`" = stringr::str_ends(opt$gene_exp_output_file, "\\.tsv(\\.gz)?")
 )
 
 # load SCE
@@ -211,7 +211,7 @@ all_markers <- markers_df |>
   dplyr::pull(ensembl_gene_id) |> 
   unique()
 
-# we only care about if that gene is expressed otherwise we wont' waste memory and include it
+# we only care about if that gene is expressed otherwise we won't waste memory and include it
 expressed_genes <- rowData(sce) |> 
   as.data.frame() |>
   dplyr::filter(detected > 0) |> 
@@ -236,18 +236,14 @@ if(length(expressed_markers) == 0)(
 ) else {
   
   # get logcounts from sce for expressed genes 
-  gene_exp_df <- logcounts(sce[expressed_markers, ]) |> 
-    as.matrix() |> # need this before converting to a dataframe
-    t() |> 
-    as.data.frame() |> 
-    tibble::rownames_to_column("barcodes") |> 
-    # collapse expression into one column
-    tidyr::pivot_longer(!barcodes, names_to = "ensembl_gene_id", values_to = "gene_expression") |> 
-    # add in library id and make it the first column
-    dplyr::mutate(
-      library_id = library_id
-    ) |> 
-    dplyr::relocate(library_id, .before = 0)
+  gene_exp_df <- scuttle::makePerCellDF(
+    sce, 
+    features = expressed_markers, 
+    assay.type = "logcounts",
+    use.coldata = c("libary_id", "barcodes"),
+    use.dimred = FALSE
+  ) |>
+  tidyr::pivot_longer(starts_with("ENSG"), names_to = "ensembl_gene_id", values_to = "logcounts")
   
 }
 

@@ -96,7 +96,7 @@ Only genes that are expressed in the library are included in the output.
 | `barcodes` | cell barcode | 
 | `ensembl_gene_id` | Ensembl gene identifier for marker gene | 
 | `gene_symbol` | Gene symbol for marker gene | 
-| `gene_expression` | Gene expression for marker gene obtained from the `logcounts` assay | 
+| `logcounts` | Gene expression for marker gene obtained from the `logcounts` assay | 
 
 ## Software requirements
 
