@@ -67,6 +67,8 @@ option_list <- list(
 
 opts <- parse_args(OptionParser(option_list = option_list))
 
+print(opts)
+
 set.seed(opts$seed)
 # paths to data ----------------------------------------------------------------
 
@@ -195,6 +197,9 @@ infercnv_obj <- infercnv::CreateInfercnvObject(
   # ensure all cells are included
   min_max_counts_per_cell = c(-Inf, +Inf)
 )
+
+print(infercnv_obj)
+
 
 infercnv_obj <- infercnv::run(
   infercnv_obj,
