@@ -45,7 +45,7 @@ module_dir=$(dirname "${BASH_SOURCE[0]}")
 cd ${module_dir}
 
 # Define directories
-data_dir="data" # "../../data/current"
+data_dir="../../data/current"
 notebook_template_dir="notebook_template"
 notebook_dir="notebook"
 
@@ -74,13 +74,11 @@ if [[ ! -f $homologs_file ]]; then
 fi
 
 # Create the fetal references for label transfer (Stewart et al and Cao et al)
-#Rscript scripts/prepare-fetal-references.R --kidney_ref_file "${kidney_ref_file}" --kidney_ref_file_seurat ${kidney_ref_file_seurat}
+Rscript scripts/prepare-fetal-references.R --kidney_ref_file "${kidney_ref_file}" --kidney_ref_file_seurat ${kidney_ref_file_seurat}
 
 # Run the label transfer and cluster exploration for all samples in the project
 for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
     sample_id=$(basename $sample_dir)
-
-    break
 
     # define and create sample-specific directories
     # directory for the pre-processed and labeled `Seurat` objects
@@ -139,7 +137,7 @@ if [[ $RUN_EXPLORATORY -eq 1 ]]; then
 fi
 
 # Prepare gene file for inferCNV
-#Rscript scripts/06a_build-geneposition.R
+Rscript scripts/06a_build-geneposition.R
 
 # Run infercnv for all samples with HMM i3 and using "both" as the reference, where possible
 for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
