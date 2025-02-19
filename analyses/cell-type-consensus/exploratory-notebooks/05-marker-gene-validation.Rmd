@@ -1,0 +1,399 @@
+---
+title: "Validation of marker gene expression"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+params:
+  project_id: "SCPCP000001"
+---
+
+
+```{r packages}
+suppressPackageStartupMessages({
+  # load required packages
+  library(ggplot2)
+})
+
+# Set default ggplot theme
+theme_set(
+  theme_classic()
+)
+```
+
+
+## Data setup
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+module_base <- file.path(repository_base, "analyses", "cell-type-consensus")
+
+# results directory with cell-type-consensus 
+results_dir <- file.path(module_base, "results", "cell-type-consensus", params$project_id)
+
+# data directory where project metadata files live
+data_dir <- file.path(repository_base, "data", "current")
+```
+
+```{r}
+# get consensus results 
+consensus_results_files <- list.files(results_dir, pattern = "_consensus-cell-type-assignments\\.tsv.\\gz$", recursive = TRUE, full.names = TRUE)
+
+# get gene expression files 
+gene_exp_files <- list.files(results_dir, pattern = "_marker-gene-expression\\.tsv.\\gz$", recursive = TRUE, full.names = TRUE)
+
+# list of all validation markers
+validation_markers_file <- file.path(module_base, "references", "validation-markers.tsv")
+
+# all validation groups mapped to consensus labels 
+validation_groups_file <- file.path(module_base, "references", "consensus-validation-groups.tsv")
+```
+
+```{r}
+# source summarize_celltypes() function
+setup_functions <- file.path(module_base, "exploratory-notebooks", "utils", "setup-functions.R")
+source(setup_functions)
+```
+
+```{r, message=FALSE}
+# read in consensus and gene expression results 
+consensus_df <- consensus_results_files |> 
+  purrr::map(readr::read_tsv) |>
+  dplyr::bind_rows()
+
+gene_exp_df <- gene_exp_files |> 
+  purrr::map(readr::read_tsv) |>
+  dplyr::bind_rows()
+
+# read in validation markers 
+markers_df <- readr::read_tsv(validation_markers_file) |> 
+  dplyr::mutate(
+    plot_label = glue::glue("{gene_symbol}-{validation_group_annotation}")
+  )
+
+validation_groups_df <- readr::read_tsv(validation_groups_file) |> 
+  # rename final assigned group to avoid conflicts when merging in marker gene expression 
+  # we want to separate the marker gene group from the actual cell type annotation
+  dplyr::select(consensus_annotation, assigned_group = validation_group_annotation)
+```
+
+
+```{r}
+# combine into one data frame 
+combined_df <- consensus_df |> 
+  dplyr::left_join(validation_groups_df, by = c("consensus_annotation")) |> 
+  dplyr::left_join(gene_exp_df, by = c("barcodes", "library_id")) |> 
+  # account for the same gene being present in multiple cell types 
+  dplyr::left_join(markers_df, by = c("ensembl_gene_id"), relationship = "many-to-many") |> 
+  dplyr::rowwise() |> 
+  dplyr::mutate(
+    detected = logcounts > 0 # column indicating if gene is present or not
+  ) 
+
+# make a data frame that just has the unique genes 
+unique_gene_df <- combined_df |> 
+  dplyr::filter(gene_observed_count == 1)
+```
+
+```{r}
+# get total number of cells per final annotation group 
+total_cells_df <- unique_gene_df |> 
+  dplyr::select(library_id, barcodes, assigned_group) |> 
+  unique() |> 
+  dplyr::count(assigned_group, name = "total_cells") 
+
+# get total number of cells each gene is detected in per group 
+# and mean gene expression per group 
+group_stats_df <- unique_gene_df |> 
+  dplyr::group_by(assigned_group, ensembl_gene_id) |>
+  dplyr::summarize(
+    detected_count = sum(detected),
+    mean_exp = mean(logcounts)
+  )
+
+gene_summary_df <- group_stats_df |> 
+  # add total cells
+  dplyr::left_join(total_cells_df, by = c("assigned_group")) |> 
+  dplyr::filter(total_cells > 50) |> 
+  # add marker gene groups
+  dplyr::left_join(markers_df, by = c("ensembl_gene_id"), relationship = "many-to-many") |> 
+  dplyr::rowwise() |> 
+  dplyr::mutate(
+    # get total percent
+    percent_exp = (detected_count/total_cells) * 100,
+    # account for NA/unknowns and set axes order
+    assigned_group = dplyr::if_else(is.na(assigned_group), "unknown", assigned_group) |> 
+      factor(levels =  c(unique(markers_df$validation_group_annotation), "unknown"))
+  ) 
+```
+
+```{r}
+# filter out low expressed genes
+dotplot_df <- gene_summary_df |> 
+  dplyr::filter(mean_exp > 0, percent_exp > 5) |>
+  dplyr::arrange(assigned_group) |> 
+  dplyr::mutate(y_label = as.factor(glue::glue("{assigned_group} ({total_cells})")))
+
+# pull out cell types to specify legend and x-axis order
+celltype_groups <- dotplot_df |> 
+  dplyr::pull(assigned_group) |> 
+  unique() |>
+  as.character()
+
+# specify x axis order
+marker_gene_order <- markers_df |> 
+  dplyr::filter(validation_group_annotation %in% celltype_groups,
+                gene_symbol %in% dotplot_df$gene_symbol) |> 
+  dplyr::pull(gene_symbol)
+
+# remove marker genes that aren't present in final annotations and set x axis order 
+dotplot_df <- dotplot_df |> 
+  dplyr::filter(validation_group_annotation %in% celltype_groups) |> 
+  dplyr::mutate(
+    gene_symbol = factor(gene_symbol, levels = marker_gene_order)
+  )
+
+dotplot <- ggplot(dotplot_df, aes(y = forcats::fct_rev(y_label), x = gene_symbol, color = mean_exp, size = percent_exp)) +
+  geom_point() +
+  scale_color_viridis_c(option = "magma") +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)
+  ) +
+  labs(
+    x = "",
+    y = "Cell type annotation"
+  )
+
+color_bar <- ggplot(dotplot_df, aes(x = gene_symbol, y = 1, fill = validation_group_annotation)) + 
+  geom_tile() + 
+  scale_fill_brewer(palette = "Dark2", breaks = celltype_groups) +
+  #scale_fill_manual(values = color_palette, breaks = celltype_groups) +
+  ggmap::theme_nothing() +
+  theme(legend.position = "bottom") +
+  labs(fill = "")
+
+dotplot + color_bar +
+  patchwork::plot_layout(ncol = 1, heights = c(4, 0.1)) 
+
+```
+
+```{r}
+# note that we can't use the same heatmap function as before since we are looking at cell types as rows rather than gene sets
+# we also want to specify the annotation name
+
+# get annotation colors for each of the marker gene types 
+filtered_markers_df <- markers_df |> 
+  dplyr::filter(validation_group_annotation %in% celltype_groups,
+                gene_symbol %in% gene_summary_df$gene_symbol)
+
+# first make a mtx to use for the heatmap with rows as cell types and genes as columns 
+heatmap_mtx <- gene_summary_df |> 
+  dplyr::select(gene_symbol, assigned_group, mean_exp) |> 
+  dplyr::filter(gene_symbol %in% filtered_markers_df$gene_symbol) |> 
+  tidyr::pivot_wider(
+    names_from = gene_symbol,
+    values_from = mean_exp
+  ) |> 
+  tibble::column_to_rownames("assigned_group") |>
+  as.matrix()
+# make sure cell types are present in the right order
+heatmap_mtx <- heatmap_mtx[celltype_groups, filtered_markers_df$gene_symbol]
+
+marker_gene_categories <- unique(filtered_markers_df$validation_group_annotation)
+num_categories <- length(marker_gene_categories)
+category_colors <- palette.colors(palette = "Dark2") |>
+  head(n = num_categories) |>
+  purrr::set_names(marker_gene_categories)
+
+
+# create annotation for heatmap
+annotation <- ComplexHeatmap::columnAnnotation(
+  category = filtered_markers_df$validation_group_annotation,
+  col = list(
+    category = category_colors
+  ),
+  annotation_legend_param = list(
+      title = "Marker gene category"
+    )
+)
+
+ComplexHeatmap::Heatmap(
+    heatmap_mtx,
+    # set the color scale based on min and max values
+    col = circlize::colorRamp2(seq(min(heatmap_mtx), max(heatmap_mtx), length = 2), colors = c("white", "#00274C")),
+    border = TRUE,
+    ## Row parameters
+    cluster_rows = FALSE,
+    row_title = "",
+    row_title_side = "left",
+    row_names_side = "left",
+    row_dend_side = "right",
+    row_names_gp = grid::gpar(fontsize = 10),
+    ## Column parameters
+    cluster_columns = FALSE,
+    show_column_names = TRUE,
+    column_names_gp = grid::gpar(fontsize = 8),
+    top_annotation = annotation,
+    heatmap_legend_param = list(
+      title = "Mean expression"
+    )
+  )
+```
+
+
+Repeat the plots above but use mean expression of all marker genes across all cells 
+
+```{r}
+# get total number of cells each gene is detected in per group 
+# and mean gene expression per group 
+group_stats_df <- combined_df |> 
+  dplyr::group_by(assigned_group, ensembl_gene_id) |>
+  dplyr::summarize(
+    detected_count = sum(detected),
+    mean_exp = mean(logcounts),
+    .groups = "drop"
+  ) |> 
+  # add in validation group for marker genes
+  dplyr::left_join(markers_df, by = c("ensembl_gene_id")) |>
+  dplyr::group_by(assigned_group, validation_group_annotation) |> 
+  dplyr::mutate(
+    group_mean_exp = mean(mean_exp),
+    group_detected_count = mean(detected_count),
+    .groups = "drop"
+  ) |> 
+  dplyr::select(assigned_group, validation_group_annotation, group_mean_exp, group_detected_count) |>
+  unique()
+
+gene_summary_df <- group_stats_df |> 
+  # add total cells
+  dplyr::left_join(total_cells_df, by = c("assigned_group")) |> 
+  dplyr::filter(total_cells > 50) |> 
+  # add per gene stats
+  #dplyr::left_join(group_stats_df, by = c("ensembl_gene_id", "assigned_group")) |> 
+  #dplyr::left_join(markers_df, by = c("ensembl_gene_id"), relationship = "many-to-many") |> 
+  dplyr::rowwise() |> 
+  dplyr::mutate(
+    # get total percent
+    percent_exp = (group_detected_count/total_cells) * 100,
+    # account for NA/unknowns and set axes order
+    assigned_group = dplyr::if_else(is.na(assigned_group), "unknown", assigned_group) |> 
+      factor(levels =  c(unique(markers_df$validation_group_annotation), "unknown"))
+  ) 
+```
+
+```{r}
+# filter out low expressed genes
+dotplot_df <- gene_summary_df |> 
+  dplyr::filter(group_mean_exp > 0, percent_exp > 5) |>
+  dplyr::arrange(assigned_group) |> 
+  dplyr::mutate(y_label = as.factor(glue::glue("{assigned_group} ({total_cells})")))
+
+# pull out cell types to specify legend and x-axis order
+celltype_groups <- dotplot_df |> 
+  dplyr::pull(assigned_group) |> 
+  unique() |>
+  as.character()
+
+# remove marker genes that aren't present in final annotations and set x axis order 
+dotplot_df <- dotplot_df |> 
+  dplyr::filter(validation_group_annotation %in% celltype_groups) |>
+  dplyr::mutate(
+    validation_group_annotation = factor(validation_group_annotation, levels = celltype_groups)
+  )
+
+dotplot <- ggplot(dotplot_df, aes(y = forcats::fct_rev(y_label), x = validation_group_annotation, color = group_mean_exp, size = percent_exp)) +
+  geom_point() +
+  scale_color_viridis_c(option = "magma") +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)
+  ) +
+  labs(
+    x = "Marker gene group",
+    y = "Cell type annotation"
+  )
+
+color_bar <- ggplot(dotplot_df, aes(x = validation_group_annotation, y = 1, fill = validation_group_annotation)) + 
+  geom_tile() + 
+  scale_fill_brewer(palette = "Dark2", breaks = celltype_groups) +
+  #scale_fill_manual(values = color_palette, breaks = celltype_groups) +
+  ggmap::theme_nothing() +
+  theme(legend.position = "bottom") +
+  labs(fill = "")
+
+dotplot + color_bar +
+  patchwork::plot_layout(ncol = 1, heights = c(4, 0.1)) 
+
+```
+
+```{r}
+# get annotation colors for each of the marker gene types 
+filtered_markers_df <- markers_df |> 
+  dplyr::filter(validation_group_annotation %in% celltype_groups) |> 
+  dplyr::select(validation_group_annotation) |> 
+  unique()
+
+# first make a mtx to use for the heatmap with rows as cell types and genes as columns 
+heatmap_mtx <- gene_summary_df |> 
+  dplyr::select(validation_group_annotation, assigned_group, group_mean_exp) |> 
+  tidyr::pivot_wider(
+    names_from = validation_group_annotation,
+    values_from = group_mean_exp
+  ) |> 
+  tibble::column_to_rownames("assigned_group") |>
+  as.matrix()
+# make sure cell types are present in the right order
+heatmap_mtx <- heatmap_mtx[celltype_groups, filtered_markers_df$validation_group_annotation]
+
+marker_gene_categories <- unique(filtered_markers_df$validation_group_annotation)
+num_categories <- length(marker_gene_categories)
+category_colors <- palette.colors(palette = "Dark2") |>
+  head(n = num_categories) |>
+  purrr::set_names(marker_gene_categories)
+
+
+# create annotation for heatmap
+annotation <- ComplexHeatmap::columnAnnotation(
+  category = filtered_markers_df$validation_group_annotation,
+  col = list(
+    category = category_colors
+  ),
+  annotation_legend_param = list(
+      title = "Marker gene category"
+    )
+)
+
+ComplexHeatmap::Heatmap(
+    heatmap_mtx,
+    # set the color scale based on min and max values
+    col = circlize::colorRamp2(seq(min(heatmap_mtx), max(heatmap_mtx), length = 2), colors = c("white", "#00274C")),
+    border = TRUE,
+    ## Row parameters
+    cluster_rows = FALSE,
+    row_title = "",
+    row_title_side = "left",
+    row_names_side = "left",
+    row_dend_side = "right",
+    row_names_gp = grid::gpar(fontsize = 10),
+    ## Column parameters
+    cluster_columns = FALSE,
+    show_column_names = TRUE,
+    column_names_gp = grid::gpar(fontsize = 8),
+    top_annotation = annotation,
+    heatmap_legend_param = list(
+      title = "Mean expression"
+    )
+  )
+```
+
+
+## Session info 
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
