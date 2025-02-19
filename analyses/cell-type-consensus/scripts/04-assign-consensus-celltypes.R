@@ -226,7 +226,6 @@ if(length(expressed_markers) == 0)(
     barcodes = rownames(sce),
     library_id = library_id, 
     ensembl_gene_id = NA,
-    gene_symbol = NA,
     gene_expression = NA, 
     validation_group_annotation = NA,
     validation_group_ontology = NA
