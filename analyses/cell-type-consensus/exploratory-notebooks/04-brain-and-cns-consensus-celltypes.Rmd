@@ -44,15 +44,10 @@ data_dir <- file.path(repository_base, "data", "current")
 
 ```{r}
 # list all results files 
-results_files <- list.files(results_dir, pattern = "_consensus-cell-types\\.tsv.\\gz$", full.names = TRUE)
-
-# get project ids from file list and assign as names
-project_ids <- stringr::str_remove(basename(results_files), "_consensus-cell-types.tsv.gz")
-names(results_files) <- project_ids
-
-# grab only brain/cns projects
 brain_project_ids <- c("SCPCP000001", "SCPCP000002", "SCPCP000010", "SCPCP000021", "SCPCP000009")
-results_files <- results_files[brain_project_ids]
+brain_results_dirs <- file.path(results_dir, brain_project_ids)
+results_files <- brain_results_dirs |> 
+  list.files(pattern = "_processed_consensus-cell-types\\.tsv.\\gz$", recursive = TRUE, full.names = TRUE)
 
 # list project metadata files and grab only osteo metadata 
 metadata_files <- list.files(data_dir, pattern = "single_cell_metadata\\.tsv$", full.names = TRUE, recursive = TRUE)
@@ -107,7 +102,7 @@ multiplexed_libs <- all_metadata_df |>
 # read in results and prep data frame for plotting 
 all_results_df <- results_files |> 
   purrr::imap(summarize_celltypes) |> 
-  dplyr::bind_rows(.id = "project_id") |> 
+  dplyr::bind_rows() |> 
   # remove multiplexed libraries 
   dplyr::filter(!(library_id %in% multiplexed_libs)) |> 
   # join with sample metadata
@@ -121,6 +116,8 @@ all_results_df <- results_files |>
 # get all possible cell types 
 # there are exactly 26 of them so we will use alphabet with two greys for unknown/all remaining 
 unique_celltypes <- all_results_df |> 
+  # order by frequency otherwise neurons will be light grey 
+  dplyr::arrange(desc(total_cells_per_annotation)) |> 
   dplyr::filter(percent_cells_annotation > 0.1, # we're only ever going to plot cell types that are greater than 1%
                 !consensus_annotation == "Unknown") |> 
   dplyr::pull(consensus_annotation) |> 
@@ -130,6 +127,7 @@ unique_celltypes <- all_results_df |>
 # define colors for all cell types
 all_celltype_colors <- c(
   palette.colors(palette = "alphabet"),
+  "black", # extra cell type 
   "grey60", # all remaining
   "grey95", # unknown
   "grey60" # non-immune, use the same as all remaining since they are never in the same plot
