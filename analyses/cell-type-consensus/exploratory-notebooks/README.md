@@ -12,6 +12,8 @@ Prior to rendering this notebook results from the `cell-type-consensus` module i
 
 4. `04-brain-and-cns-consensus-celltypes.Rmd`: This notebook summarizes the consensus labels assigned to all samples belonging to projects with Brain and CNS tumors, excluding any samples that are part of multiplexed libraries. 
 
+5. `05-marker-gene-validation.Rmd`: This notebook looks at marker gene expression of markers in [references/validation-markers.tsv](../references/validation-markers.tsv) across consensus cell types for `SCPCP000001`. 
+
 ## Utils 
 
 The `utils` folder contains scripts with any functions that are used by multiple notebooks. 
