@@ -137,7 +137,7 @@ if [[ $RUN_EXPLORATORY -eq 1 ]]; then
 fi
 
 # Prepare gene file for inferCNV
-Rscript scripts/06a_build-geneposition.R
+Rscript scripts/06a_build-geneposition.R ${test_string}
 
 # Run infercnv for all samples with HMM i3 and using "both" as the reference, where possible
 for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
