@@ -42,16 +42,10 @@ diagnoses_file <- file.path(module_base, "sample-info", "project-diagnoses.tsv")
 
 ```{r}
 # list all results files 
-results_files <- list.files(results_dir, pattern = "_consensus-cell-types\\.tsv.\\gz$", full.names = TRUE)
+results_files <- list.files(results_dir, pattern = "_processed_consensus-cell-types\\.tsv.\\gz$", recursive = TRUE, full.names = TRUE)
 
-# get project ids from file list  
-project_ids <- stringr::str_remove(basename(results_files), "_consensus-cell-types.tsv.gz")
-names(results_files) <- project_ids
-
-# remove cell line projects from file list
+# define cell line projects to remove
 cell_line_projects <- c("SCPCP000020", "SCPCP000024")
-project_ids <- setdiff(project_ids, cell_line_projects) # remove cell line projects
-results_files <- results_files[project_ids]
 ```
 
 ```{r}
@@ -61,7 +55,7 @@ source(setup_functions)
 ```
 
 
-```{r, message=FALSE}
+```{r, message=FALSE, warning=FALSE}
 # read in diagnoses
 diagnoses_df <- readr::read_tsv(diagnoses_file)
 
@@ -69,7 +63,9 @@ diagnoses_df <- readr::read_tsv(diagnoses_file)
 # read in results and prep data frame for plotting 
 all_results_df <- results_files |> 
   purrr::imap(summarize_celltypes) |> 
-  dplyr::bind_rows(.id = "project_id") |> 
+  dplyr::bind_rows() |> 
+  # remove cell line projects
+  dplyr::filter(!project_id %in% cell_line_projects) |> 
   # add in diagnoses 
   dplyr::left_join(diagnoses_df, by = "project_id") |> 
   dplyr::mutate(
@@ -229,7 +225,8 @@ unique_celltypes <- plot_df |>
 # get color palette
 colors <- c(
   palette.colors(palette = "alphabet"),
-  "black", # 1 extra since alphabet is 26 and we have 27, this will be plasma cell which shows up once 
+  "lightyellow", # plasma cell 
+  "black", # glial cell
   "grey60", 
   "grey95"
 )
