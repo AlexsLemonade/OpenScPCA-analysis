@@ -43,16 +43,12 @@ data_dir <- file.path(repository_base, "data", "current")
 ```
 
 ```{r}
-# list all results files 
-results_files <- list.files(results_dir, pattern = "_consensus-cell-types\\.tsv.\\gz$", full.names = TRUE)
-
-# get project ids from file list and assign as names
-project_ids <- stringr::str_remove(basename(results_files), "_consensus-cell-types.tsv.gz")
-names(results_files) <- project_ids
-
 # grab only osteo projects
 osteo_project_ids <- c("SCPCP000017", "SCPCP000018", "SCPCP000023")
-results_files <- results_files[osteo_project_ids]
+osteo_results_dirs <- file.path(results_dir, osteo_project_ids)
+# list all results files 
+results_files <- osteo_results_dirs |> 
+  list.files(pattern = "_processed_consensus-cell-types\\.tsv.\\gz$", recursive = TRUE, full.names = TRUE)
 
 # list project metadata files and grab only osteo metadata 
 metadata_files <- list.files(data_dir, pattern = "single_cell_metadata\\.tsv$", full.names = TRUE, recursive = TRUE)
@@ -74,7 +70,7 @@ plotting_functions <- file.path(module_base, "exploratory-notebooks", "utils", "
 source(plotting_functions)
 ```
 
-```{r, message=FALSE}
+```{r, message=FALSE, warning=FALSE}
 # get immune cell types 
 immune_df <- readr::read_tsv(consensus_immune_file)
 immune_types <- immune_df$consensus_annotation
@@ -98,7 +94,7 @@ all_metadata_df <- osteo_metadata_files |>
 # read in results and prep data frame for plotting 
 all_results_df <- results_files |> 
   purrr::imap(summarize_celltypes) |> 
-  dplyr::bind_rows(.id = "project_id") |> 
+  dplyr::bind_rows() |> 
   # join with sample metadata
   dplyr::left_join(all_metadata_df, by = c("project_id", "library_id")) |>
   # remove pdx samples 
