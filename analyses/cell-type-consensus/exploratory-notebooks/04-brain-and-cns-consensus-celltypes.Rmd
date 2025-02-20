@@ -69,7 +69,7 @@ plotting_functions <- file.path(module_base, "exploratory-notebooks", "utils", "
 source(plotting_functions)
 ```
 
-```{r, message=FALSE}
+```{r, message=FALSE,warning=FALSE}
 # get immune cell types 
 immune_df <- readr::read_tsv(consensus_immune_file)
 immune_types <- immune_df$consensus_annotation
