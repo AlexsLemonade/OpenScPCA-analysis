@@ -11,8 +11,8 @@ module_base <- file.path(repository_base, "analyses", "cell-type-wilms-tumor-06"
 reference_dir <- file.path(module_base, "results", "references")
 
 # URLs for data to download
-gtf_file_uri <- "s3://scpca-references/homo_sapiens/ensembl-104/annotation/Homo_sapiens.GRCh38.104.gtf.gz"
-arm_order_file_url <- "http://hgdownload.soe.ucsc.edu/goldenPath/hg38/database/cytoBand.txt.gz"
+gtf_file_url <- "https://ftp.ensembl.org/pub/release-104/gtf/homo_sapiens/Homo_sapiens.GRCh38.104.gtf.gz"
+arm_order_file_url <- "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/database/cytoBand.txt.gz"
 
 # Define the gene order file
 gtf_file <- file.path(reference_dir, "Homo_sapiens.GRCh38.104.gtf.gz")
@@ -25,9 +25,7 @@ gene_arm_order_file <- file.path(reference_dir, "gencode_v38_gene_pos_arm.txt")
 
 # Download files if they don't exist --------------------
 if (!file.exists(gtf_file)) {
-  system(
-    glue::glue("aws s3 cp {gtf_file_uri} {gtf_file} --no-sign-request")
-  )
+  download.file(url = gtf_file_url, destfile = gtf_file)
 }
 if (!file.exists(arm_order_file)) {
   download.file(url = arm_order_file_url, destfile = arm_order_file)
@@ -85,12 +83,14 @@ combined_df <- gene_order_df %>%
   # create chrom_arm column
   mutate(chrom_arm = glue::glue("{chrom}{arm}")) %>%
   # Define chromosome arm order
-  mutate(chrom_arm = factor(chrom_arm, levels = c(paste0("chr", rep(1:22, each = 2), c("p", "q")),
-                                                  "chrXp", "chrXq", "chrYp", "chrYq"))) %>%
+  mutate(chrom_arm = factor(chrom_arm, levels = c(
+    paste0("chr", rep(1:22, each = 2), c("p", "q")),
+    "chrXp", "chrXq", "chrYp", "chrYq"
+  ))) %>%
   # Sort genes by Chromosome arm and Start position
-  arrange(chrom_arm, gene_start)  %>%
+  arrange(chrom_arm, gene_start) %>%
   # Select only relevant column for infercnv
-  select(ensembl_id, chrom_arm, gene_start, gene_end) 
+  select(ensembl_id, chrom_arm, gene_start, gene_end)
 
 
 # Export --------------
