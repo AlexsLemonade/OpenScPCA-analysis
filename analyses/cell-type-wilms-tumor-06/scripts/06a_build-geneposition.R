@@ -46,7 +46,7 @@ if (!file.exists(gtf_file)) {
   )
 }
 if (!file.exists(arm_order_file)) {
-  download.file(url = arm_order_file_url, destfile = arm_order_file)
+  download.file(url = arm_order_file_url, destfile = arm_order_file, method = "wget")
 }
 
 # Read and prepare input files -----------------
