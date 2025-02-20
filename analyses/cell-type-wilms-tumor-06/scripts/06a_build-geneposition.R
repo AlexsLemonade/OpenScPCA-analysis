@@ -14,6 +14,8 @@ option_list <- list(
     help = "This flag should be specified when test data is being used. The exported file will not include separate rows for chromosome arms."
   )
 )
+opts <- parse_args(OptionParser(option_list = option_list))
+
 
 # Setup ------------------
 
