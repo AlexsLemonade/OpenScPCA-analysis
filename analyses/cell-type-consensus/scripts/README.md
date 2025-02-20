@@ -19,6 +19,7 @@ If the combination is not included in the reference file, then no consensus cell
 
 5. `04-assign-consensus-celltypes.R`: This script is used to grab the existing cell type annotations from the `colData` of an individual processed SCE object and assign the appropriate consensus cell type based on the `singler_celltype_ontology` (`BlueprintEncodeData`) and the `cellassign_celltype_ontology` (`PanglaoDB`). 
 All annotations, including the consensus annotation, are then saved to a TSV file. 
+An additional TSV file containing the gene expression for all marker genes found in `references/validation-markers.tsv` will also be saved. 
 
 6. `00-download-cellmarker-ref.sh`: This script is used to download the [marker genes for all Human tissues from `CellMarker2.0`](http://117.50.127.228/CellMarker/CellMarker_download.html). 
 This file will be stored in `references/Cell_markers_Human.xlsx`. 

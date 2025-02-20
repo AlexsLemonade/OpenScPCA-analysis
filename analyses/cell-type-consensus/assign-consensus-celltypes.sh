@@ -25,6 +25,9 @@ blueprint_ref_file="references/blueprint-mapped-ontologies.tsv"
 panglao_ref_file="references/panglao-cell-type-ontologies.tsv"
 consensus_ref_file="references/consensus-cell-type-reference.tsv"
 
+# marker gene file to use for validation 
+validation_markers_file="references/validation-markers.tsv"
+
 for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
 
   # grab sample id
@@ -40,8 +43,9 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
     # define library ID
     library_id=$(basename $sce_file | sed 's/_processed.rds$//')
 
-    # define output file 
-    output_file="${sample_results_dir}/${library_id}_consensus-cell-type-assignments.tsv.gz"
+    # define output files
+    consensus_output_file="${sample_results_dir}/${library_id}_consensus-cell-type-assignments.tsv.gz"
+    gene_exp_output_file="${sample_results_dir}/${library_id}_marker-gene-expression.tsv.gz"
     
     echo "Assigning cell types for ${library_id}"
     Rscript scripts/04-assign-consensus-celltypes.R \
@@ -49,7 +53,9 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
       --blueprint_ref_file $blueprint_ref_file\
       --panglao_ref_file $panglao_ref_file \
       --consensus_ref_file $consensus_ref_file \
-      --output_file $output_file
+      --marker_gene_file $validation_markers_file \
+      --consensus_output_file $consensus_output_file \
+      --gene_exp_output_file $gene_exp_output_file
 
   done 
 
