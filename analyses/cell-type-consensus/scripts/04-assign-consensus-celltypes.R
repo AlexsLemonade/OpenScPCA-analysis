@@ -238,14 +238,12 @@ if(length(expressed_markers) == 0)(
     sce, 
     features = expressed_markers, 
     assay.type = "logcounts",
+    use.coldata = "barcodes",
     use.dimred = FALSE
   ) |>
     tidyr::pivot_longer(starts_with("ENSG"), names_to = "ensembl_gene_id", values_to = "logcounts") |> 
-    # only pull out relevant columns
-    dplyr::select(barcodes, ensembl_gene_id, logcounts) |> 
     # add library id column
-    dplyr::mutate(library_id = library_id) |> 
-    dplyr::relocate(library_id, .before = 0)
+    dplyr::mutate(library_id = library_id, .before = 0)
   
 }
 
