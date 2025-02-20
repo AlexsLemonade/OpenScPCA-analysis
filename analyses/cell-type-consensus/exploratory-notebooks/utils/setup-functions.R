@@ -15,7 +15,7 @@ summarize_celltypes <- function(file, id){
     dplyr::ungroup()
   
   summary_df <- df |> 
-    dplyr::group_by(library_id, sample_type, consensus_annotation, consensus_ontology) |> 
+    dplyr::group_by(project_id, library_id, sample_type, consensus_annotation, consensus_ontology, num_celltypes) |> 
     dplyr::summarize(total_cells_per_annotation = dplyr::n(),
                      total_cells_per_library = unique(total_cells_per_library)) |>
     dplyr::mutate(
