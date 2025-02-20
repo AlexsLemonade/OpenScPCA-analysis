@@ -173,13 +173,6 @@
       "Repository": "CRAN",
       "Encoding": "UTF-8"
     },
-    "BH": {
-      "Package": "BH",
-      "Version": "1.87.0-1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "468d9a03ba57f22ebde50060fd13ba9f"
-    },
     "Biobase": {
       "Package": "Biobase",
       "Version": "2.66.0",
@@ -413,25 +406,6 @@
       "NeedsCompilation": "yes",
       "Author": "Martin Morgan [aut, cre], Jiefei Wang [aut], Valerie Obenchain [aut], Michel Lang [aut], Ryan Thompson [aut], Nitesh Turaga [aut], Aaron Lun [ctb], Henrik Bengtsson [ctb], Madelyn Carlson [ctb] (Translated 'Random Numbers' vignette from Sweave to RMarkdown / HTML.), Phylis Atieno [ctb] (Translated 'Introduction to BiocParallel' vignette from Sweave to Rmarkdown / HTML.), Sergio Oller [ctb] (Improved bpmapply() efficiency., <https://orcid.org/0000-0002-8994-1549>)",
       "Maintainer": "Martin Morgan <mtmorgan.bioc@gmail.com>"
-    },
-    "BiocParallel": {
-      "Package": "BiocParallel",
-      "Version": "1.38.0",
-      "Source": "Bioconductor",
-      "Repository": "Bioconductor 3.19",
-      "Requirements": [
-        "BH",
-        "R",
-        "codetools",
-        "cpp11",
-        "futile.logger",
-        "methods",
-        "parallel",
-        "snow",
-        "stats",
-        "utils"
-      ],
-      "Hash": "7b6e79f86e3d1c23f62c5e2052e848d4"
     },
     "BiocVersion": {
       "Package": "BiocVersion",
@@ -2307,21 +2281,6 @@
       "Author": "Aaron Lun [aut, cre], Hervé Pagès [aut], Mike Smith [aut]",
       "Maintainer": "Aaron Lun <infinite.monkeys.with.keyboards@gmail.com>"
     },
-    "beachmat": {
-      "Package": "beachmat",
-      "Version": "2.20.0",
-      "Source": "Bioconductor",
-      "Repository": "Bioconductor 3.19",
-      "Requirements": [
-        "BiocGenerics",
-        "DelayedArray",
-        "Matrix",
-        "Rcpp",
-        "SparseArray",
-        "methods"
-      ],
-      "Hash": "10e94b1bce9070632a40c6b873f8b2d4"
-    },
     "bit": {
       "Package": "bit",
       "Version": "4.5.0.1",
@@ -2680,16 +2639,6 @@
       "License": "GPL",
       "NeedsCompilation": "no",
       "Repository": "CRAN"
-    },
-    "codetools": {
-      "Package": "codetools",
-      "Version": "0.2-20",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R"
-      ],
-      "Hash": "61e097f35917d342622f21cdc79c256e"
     },
     "colorspace": {
       "Package": "colorspace",
@@ -3334,16 +3283,6 @@
       "Maintainer": "Yihui Xie <xie@yihui.name>",
       "Repository": "CRAN"
     },
-    "formatR": {
-      "Package": "formatR",
-      "Version": "1.14",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R"
-      ],
-      "Hash": "63cb26d12517c7863f5abb006c5e0f25"
-    },
     "fs": {
       "Package": "fs",
       "Version": "1.6.5",
@@ -3435,29 +3374,6 @@
       "NeedsCompilation": "no",
       "Repository": "CRAN",
       "Encoding": "UTF-8"
-    },
-    "futile.logger": {
-      "Package": "futile.logger",
-      "Version": "1.4.3",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R",
-        "futile.options",
-        "lambda.r",
-        "utils"
-      ],
-      "Hash": "99f0ace8c05ec7d3683d27083c4f1e7e"
-    },
-    "futile.options": {
-      "Package": "futile.options",
-      "Version": "1.0.1",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R"
-      ],
-      "Hash": "0d9bf02413ddc2bbe8da9ce369dcdd2b"
     },
     "generics": {
       "Package": "generics",
@@ -4414,17 +4330,6 @@
       "NeedsCompilation": "no",
       "Repository": "CRAN",
       "Encoding": "UTF-8"
-    },
-    "lambda.r": {
-      "Package": "lambda.r",
-      "Version": "1.2.4",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R",
-        "formatR"
-      ],
-      "Hash": "b1e925c4b9ffeb901bacf812cbe9a6ad"
     },
     "later": {
       "Package": "later",
@@ -6012,31 +5917,6 @@
       "Author": "Aaron Lun [aut, cre], Davis McCarthy [aut]",
       "Maintainer": "Aaron Lun <infinite.monkeys.with.keyboards@gmail.com>"
     },
-    "scuttle": {
-      "Package": "scuttle",
-      "Version": "1.16.0",
-      "Source": "Bioconductor",
-      "Repository": "Bioconductor 3.20",
-      "Requirements": [
-        "BiocGenerics",
-        "BiocParallel",
-        "DelayedArray",
-        "GenomicRanges",
-        "Matrix",
-        "MatrixGenerics",
-        "Rcpp",
-        "S4Arrays",
-        "S4Vectors",
-        "SingleCellExperiment",
-        "SparseArray",
-        "SummarizedExperiment",
-        "beachmat",
-        "methods",
-        "stats",
-        "utils"
-      ],
-      "Hash": "6c56872e965b466591cb077382eb7b70"
-    },
     "shiny": {
       "Package": "shiny",
       "Version": "1.9.1",
@@ -6127,17 +6007,6 @@
       "NeedsCompilation": "no",
       "Repository": "CRAN",
       "Encoding": "UTF-8"
-    },
-    "snow": {
-      "Package": "snow",
-      "Version": "0.4-4",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R",
-        "utils"
-      ],
-      "Hash": "40b74690debd20c57d93d8c246b305d4"
     },
     "sourcetools": {
       "Package": "sourcetools",
