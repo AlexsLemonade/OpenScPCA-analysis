@@ -63,7 +63,7 @@ marker_gene_heatmap <- function(heatmap_mtx, col_annotation){
     row_names_gp = grid::gpar(fontsize = 10),
     ## Column parameters
     cluster_columns = FALSE,
-    show_column_names = TRUE,
+    show_column_names = FALSE,
     column_names_gp = grid::gpar(fontsize = 8),
     top_annotation = col_annotation,
     heatmap_legend_param = list(
