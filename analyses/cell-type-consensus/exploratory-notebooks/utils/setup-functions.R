@@ -15,8 +15,9 @@ summarize_celltypes <- function(file, id){
     dplyr::ungroup()
   
   summary_df <- df |> 
-    dplyr::group_by(library_id, sample_type, consensus_annotation, consensus_ontology) |> 
-    dplyr::summarize(total_cells_per_annotation = dplyr::n(),
+    dplyr::group_by(project_id, library_id, sample_type, consensus_annotation, consensus_ontology) |> 
+    dplyr::summarize(num_celltypes = unique(num_celltypes), # constant for each library
+                     total_cells_per_annotation = dplyr::n(),
                      total_cells_per_library = unique(total_cells_per_library)) |>
     dplyr::mutate(
       # add percentage 
