@@ -139,7 +139,7 @@ group_stats_df <- combined_df |>
     percent_exp = (detected_count/total_cells) * 100,
     all_markers_percent_exp = (all_markers_detected_count/total_cells) * 100, 
     # account for NA/unknowns and set axes order
-    broad_celltype_group = dplyr::if_else(is.na(broad_celltype_group), "unknown", broad_celltype_group) |> 
+    broad_celltype_group = tidyr::replace_na(broad_celltype_group, "unknown") |> 
       factor(levels =  c(unique(markers_df$validation_group_annotation), "unknown"))
   ) 
 
