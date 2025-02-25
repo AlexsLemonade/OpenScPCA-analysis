@@ -25,6 +25,9 @@ Tumor cells are grouped into `EWS-FLI` high, `EWS-FLI` low, and `EWS-FLI` middle
 
 7. `07-identify-max-rank-aucell.Rmd`: This notebook identifies an appropriate threshold for `aucMaxRank` to use with `AUCell`. 
 
+8. `08-merged-celltypes.Rmd`: This notebook explores and validates cell types for all samples using the merged object. 
+This notebook requires the output from `aucell-singler-annotation.sh`, `run-aucell-ews-signatures.sh`, and the `cell-type-consensus` module in the workflow results. 
+
 ## Annotation notebooks
 
 The `annotation_notebooks` folder contains exploratory notebooks used to explore and validate annotations in individual samples. 

@@ -48,12 +48,6 @@ The `gencode_v19_gen_pos.complete.txt` is then saved in `results/references`.
 
 
 
-### `06b_build-normal_reference.R`
-
-This script builds a Seurat object with normal cells passing a score threshold for use by inferCNV.
-
-The output is saved to `results/references/06b_normal-cell-reference.rds`.
-
 ### `06_infercnv.R`
 
 This script is used to run `infercnv`.
@@ -73,3 +67,9 @@ The final `infercnv` object includes the following slots:
 - `infercnv_obj@observation_grouped_cell_indices` : similar list as above, but corresponds to the tumor cell types.
 
 Based on the above slots, it would be straightforward to extract info of interest and/or move data into other analysis frameworks.
+
+## Deprecated scripts
+
+- `06b_build-normal_reference.R`
+  - This script builds a Seurat object with normal cells passing a fixed score threshold for use by inferCNV.
+  - The output is saved to `results/references/06b_normal-cell-reference.rds`.

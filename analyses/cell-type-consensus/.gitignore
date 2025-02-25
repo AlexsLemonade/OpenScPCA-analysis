@@ -8,3 +8,7 @@
 
 # Ignore the panglao ref file 
 /references/PanglaoDB_markers_2020-03-27.tsv
+
+# Ignore the cell marker ref file 
+/references/Cell_marker_Human.xlsx
+

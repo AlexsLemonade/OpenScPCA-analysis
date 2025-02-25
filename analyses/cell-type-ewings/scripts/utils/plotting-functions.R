@@ -28,7 +28,7 @@ expression_umap <- function(
 
   ggplot(df, aes(x = UMAP1, y = UMAP2, color = {{color_column}})) +
     geom_point(size = 0.1, alpha = 0.5) +
-    scale_color_viridis_c() +
+    scale_color_viridis_c(option = "turbo") +
     facet_wrap(vars({{facet_column}})) +
     # make sure there's a box around every facet 
     theme(
@@ -57,6 +57,7 @@ expression_umap <- function(
 cluster_density_plot <- function(
     df,
     expression_columns,
+    annotation_column = "cluster",
     x_label){
   
   # create density plot for each column and combine into one figure 
@@ -65,10 +66,9 @@ cluster_density_plot <- function(
       plot_density(
         df,
         column,
-        "cluster"
+        annotation_column
       ) +
-        labs(y = "Cluster", 
-             x = x_label) +
+        labs(x = x_label) +
         theme(text = element_text(size = 8))
     }) |>
     patchwork::wrap_plots(ncol = 2)
@@ -123,6 +123,60 @@ annotated_exp_heatmap <- function(
   # build matrix for heatmap cells x gene set/ expression columns 
   heatmap_mtx <- df |>
     dplyr::select(barcodes, all_of(exp_columns)) |>
+    tibble::column_to_rownames("barcodes") |>
+    as.matrix() |>
+    t()
+  # remove any extra strings from the expression column names 
+  rownames(heatmap_mtx) <- stringr::str_remove(rownames(heatmap_mtx), "auc_|_mean")
+  
+  # plot heatmap of marker genes
+  plot_gene_heatmap(heatmap_mtx,
+                    row_title = "",
+                    legend_title = legend_title,
+                    annotation = annotation,
+                    cluster_columns = FALSE
+  )
+}
+
+
+#' Heatmap with genes or gene sets as rows and cells as columns
+#' Values in the heatmap correspond to an expression value or AUC
+#' Only one annotation will be included indicating cell type
+#'
+#' @param df Data frame containing all columns in exp_columns and cell_type_column
+#' @param exp_columns Vector of column names that contain values to be shown in the heatmap
+#' @param cell_type_column Column indicating cell types for each cell in the df
+#' @param legend_title Title to use for heatmap legend 
+#'
+#' @return Heatmap where each exp_column is a row and each cell in the df is a column
+
+single_annotation_heatmap <- function(
+    df,
+    exp_columns,
+    cell_type_column,
+    legend_title
+){
+  
+  
+  # get annotation colors for cell type and cluster 
+  cell_types <- unique(df[[cell_type_column]])
+  num_cell_types <- length(cell_types)
+  cell_type_colors <- palette.colors(palette = "alphabet") |>
+    head(n = num_cell_types) |>
+    purrr::set_names(cell_types)
+  
+  
+  # create annotation for heatmap
+  annotation <- ComplexHeatmap::columnAnnotation(
+    cell_type = df[[cell_type_column]],
+    col = list(
+      cell_type = cell_type_colors
+    )
+  )
+  
+  # build matrix for heatmap cells x gene set/ expression columns 
+  heatmap_mtx <- df |>
+    dplyr::select("barcodes", all_of(exp_columns)) |>
     tibble::column_to_rownames("barcodes") |>
     as.matrix() |>
     t()

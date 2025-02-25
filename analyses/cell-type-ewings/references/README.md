@@ -92,3 +92,9 @@ Wrenn _et al._ also used found that the following additional gene sets were high
 
 The `msigdb-gene-sets.tsv` file contains a list of any gene sets that are from `MSigDB` that may be useful for analysis (such as those mentioned above). 
 All gene sets in this file are used when running `AUCell` as part of `run-aucell-ews-signatures.sh`. 
+
+## Combined validation markers
+
+`combined-validation-markers.tsv` contains a list of key genes that are used in visualizations to validate cell type annotations. 
+Genes listed in this file are those that are expected to have high expression in the specified cell type and cover the top cell types observed in `SCPCP000015`. 
+With the exception of the macrophage and T cell markers, all genes are obtained from other marker genes lists in this repo, including `visser-all-marker-genes.tsv` and `tumor-cell-state-markers.tsv`. 
