@@ -17,8 +17,8 @@ body:
     label: Detailed protocol for cell type annotation
     description: |
       - Explain step-by-step, and in depth, how you would perform cell type annotation for these samples.
-      - The protocol should include how tumor cell classification and cell type assignment, including the non-malignant cell types (T cell, fibroblast, etc.) and any cell states present in tumor cells.
-      - If you are proposing different preprocessing steps than what has already been performed as part of ScPCA, please explain why.
+      - The protocol should include how tumor cell classification and cell type assignment, including the non-malignant cell types (T cell, fibroblast, etc.) and any cell states present in tumor cells (e.g., mesenchymal-like cells), should be performed.
+      - If you are proposing different [preprocessing steps than what has already been performed as part of ScPCA](https://scpca.readthedocs.io/en/stable/processing_information.html#), please explain your rationale.
       - Please name specific computational tools you would use (when applicable).
   validations:
     required: true
