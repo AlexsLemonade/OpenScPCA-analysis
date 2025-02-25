@@ -1,0 +1,55 @@
+body:
+- type: textarea
+  attributes:
+    label: Samples to be annotated
+    description: List the unique group identifier, project title, project identifier, and diagnoses you are submitting a protocol for.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Input data
+    description: |
+      Describe what Single-cell Pediatric Cancer Atlas (ScPCA) Portal data should be used as input (e.g., SingleCellExperiment or AnnData objects)
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Detailed protocol for cell type annotation
+    description: |
+      - Explain step-by-step, and in depth, how you would perform cell type annotation for these samples.
+      - The protocol should include how tumor cell classification and cell type assignment, including the non-malignant cell types (T cell, fibroblast, etc.) and any cell states present in tumor cells (e.g., mesenchymal-like cells), should be performed.
+      - If you are proposing different [preprocessing steps than what has already been performed as part of ScPCA](https://scpca.readthedocs.io/en/stable/processing_information.html#), please explain your rationale.
+      - Please name specific computational tools you would use (when applicable).
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Citations of scientific literature or publicly available analyses
+    description: |
+      Include scientific literature or links to publicly available analyses that support the rationale for your protocol.
+      Examples of citations that are helpful:
+
+      - Publications or code employing the approach described in the protocol
+      - Publications about the computational tools you recommend
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Potential pitfalls
+    description: Describe any known weaknesses in your protocol and how someone implementing it might overcome them.
+  validations:
+    required: false
+- type: textarea
+  attributes:
+    label: Required files
+    description: "[Attach any required files](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files), such as marker genes lists here."
+  validations:
+    required: false
+- type: textarea
+  attributes:
+    label: Other details
+    description: |
+      Please add any other relevant details.
+      For example, what computational resources do you anticipate this protocol requires?
+  validations:
+    required: false
