@@ -39,11 +39,3 @@ body:
     description: Describe any known weaknesses in your protocol and how someone implementing it might overcome them.
   validations:
     required: false
-- type: textarea
-  attributes:
-    label: Other details
-    description: |
-      Please add any other relevant details.
-      For example, what computational resources do you anticipate this protocol requires?
-  validations:
-    required: false
