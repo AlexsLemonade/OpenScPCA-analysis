@@ -41,7 +41,7 @@ body:
     required: false
 - type: textarea
   attributes:
-    label: Required files
+    label: Files
     description: |
       Please [attach any required files](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files), such as marker genes lists here.
   validations:
