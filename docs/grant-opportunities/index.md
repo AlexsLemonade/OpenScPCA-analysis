@@ -28,7 +28,7 @@ We expect final cell type annotations will include tumor (malignant) and normal 
 
 A maximum of 19 grants are available. 
 Each grant is tied to a specific sample group assigned a unique group identifier. 
-A complete table of group identifiers is available at TODO: NEW DISCUSSION ISSUE.
+A complete table of group identifiers is available at <https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/1062>.
 
 This table contains the unique group identifier, project identifier, project title, list of diagnoses, and total number of samples for each group. 
 Groups of samples encompass samples from a single ScPCA project representing either a single diagnosis or a group of related diagnoses.
@@ -39,7 +39,7 @@ For an individual group, the award categories are mutually exclusive.
 Only one grant will be awarded per group of samples. 
 It will be awarded to the institution for the first researcher to complete the submission acceptance requirements satisfactorily for either the Advisor or Analyst Award and meet all eligibility and other requirements established by ALSF.
 
-ALSF will update the table of available grants at TODO: NEW DISCUSSION ISSUE to indicate which grant awards have been awarded and are no longer available.
+ALSF will update the table of available grants at <https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/1062> to indicate which grant awards have been awarded and are no longer available.
 
 ALSF will only award grants for submissions meeting the eligibility and acceptance criteria. 
 All decisions regarding applications and grants, including satisfaction of requirements, are made solely by ALSF, in its sole discretion.
@@ -54,12 +54,12 @@ The maximum amount that may be awarded in USD for an Analyst Award is determined
 
 -   $1000 for annotating groups with 15 or fewer samples
 
-The table of available grants at TODO: NEW DISCUSSION ISSUE indicates the maximum amount that may be awarded for an Analyst Award for a given group.
+The table of available grants at <https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/1062> indicates the maximum amount that may be awarded for an Analyst Award for a given group.
 
 #### The Advisor Award
 
 The maximum amount that may be awarded for an Advisor Award is $500 USD. 
-The table of available grants at TODO: NEW DISCUSSION ISSUE indicates the maximum amount that may be awarded for an Advisor Award for a given group.
+The table of available grants at <https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/1062> indicates the maximum amount that may be awarded for an Advisor Award for a given group.
 
 ### Distribution and Permitted Use of Funds
 
