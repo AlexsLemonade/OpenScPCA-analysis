@@ -39,6 +39,14 @@ To run this script for a given project use the following command:
 ./assign-consensus-celltypes.sh "SCPCP000001"
 ```
 
+**Note:** The contents of this workflow have been ported to `OpenScPCA-nf`. 
+To download results from this module run the following command from the root of this repository:
+
+```sh
+./download-results.py --module cell-type-consensus
+```
+
+
 ### Input files
 
 
@@ -96,6 +104,10 @@ Only genes that are expressed in the library are included in the output.
 | `barcodes` | cell barcode | 
 | `ensembl_gene_id` | Ensembl gene identifier for marker gene | 
 | `logcounts` | Gene expression for marker gene obtained from the `logcounts` assay | 
+
+## Validation of consensus cell types 
+
+Following assignment 
 
 ## Software requirements
 
