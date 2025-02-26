@@ -193,7 +193,7 @@ names(celltype_colors) <- celltype_groups
 ## Expression of unique marker genes 
 
 First we will look at the expression of marker genes that are specific to a cell type group.  
-All marker genes shown in the following plots are only found to be a marker gene for a single cell type group. 
+All marker genes shown in the following plots are only found to be a marker gene for a single cell type group with the exception of marker genes for hematopoietic precursor cells, as none of those genes are unique to a single cell type and may also be found in other immune cells.
 Only cell type groups with at least 50 cells will be shown. 
 
 The dot plot shows the mean expression of each marker gene across all cells assigned to a given cell type group. 
