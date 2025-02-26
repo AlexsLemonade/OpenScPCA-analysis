@@ -27,19 +27,13 @@ mkdir -p ${output_notebook_dir}
 # render one notebook for each project 
 for project_id in $(basename ${consensus_results_dir}/SCPCP*); do
 
-    output_file="${output_notebook_dir}/${project_id}_cell-type-validation-summary.html"
-
-    # skip the large project for now 
-    if [[ (! -f $output_file) && ($project_id != "SCPCP000003") && ($project_id != "SCPCP000008")]]; then
-
-        echo "Rendering notebook for $project_id"
-        Rscript -e "rmarkdown::render('template-notebooks/marker-gene-validation.Rmd', \
-          clean = TRUE, \
-          output_dir = '$output_notebook_dir', \
-          output_file = '${project_id}_cell-type-validation-summary.html', \
-          params = list(project_id = '$project_id'), \
-          envir = new.env()) \
-        "
-    fi
+    echo "Rendering notebook for $project_id"
+    Rscript -e "rmarkdown::render('template-notebooks/marker-gene-validation.Rmd', \
+      clean = TRUE, \
+      output_dir = '$output_notebook_dir', \
+      output_file = '${project_id}_cell-type-validation-summary.html', \
+      params = list(project_id = '$project_id'), \
+      envir = new.env()) \
+    "
 
 done
