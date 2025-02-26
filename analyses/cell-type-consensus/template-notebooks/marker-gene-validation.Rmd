@@ -173,7 +173,7 @@ rm(combined_df)
 # unique genes are those that are only observed in one cell type based on observance in Cell Marker 
 # this was determined when creating the marker gene table from Cell Marker 
 unique_gene_df <- group_stats_df |> 
-  dplyr::filter(gene_observed_count == 1)
+  dplyr::filter(gene_observed_count == 1 | validation_group_annotation == "hematopoietic precursor cell")
 ```
 
 ```{r}
