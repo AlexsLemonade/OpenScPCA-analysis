@@ -469,7 +469,7 @@ Strikingly, 5 samples show more normal cells than cancer cells:
 - `SCPCS000197`
 
 These five samples do not have enough immune and endothelium cell to be used as a normal reference in `scripts/06_infercnv.R` and we previously decided to run `scripts/06_infercnv.R` without any reference for these samples.
-In that case, the mean expression profile over the sample is taken as the normal reference, biaising the inference of CNV. 
+In that case, the mean expression profile over the sample is taken as the normal reference, biasing the inference of CNV. 
 
 For those samples, the annotations based on `infercnv` cannot be trust.
 To avoid any confusion in the following steps of the analysis, we decided to force the annotation of the entire samples to `unknown`.
