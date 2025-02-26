@@ -210,7 +210,7 @@ filtered_markers_df <- markers_dt |>
 
 # now only keep unique markers for the dotplot 
 unique_markers_df <- filtered_markers_df |> 
-  dplyr::filter(gene_observed_count == 1)
+  dplyr::filter(gene_observed_count == 1 | validation_group_annotation == "hematopoietic precursor cell")
 
 # specify x axis order for dotplot
 marker_gene_order <- unique_markers_df |> 
