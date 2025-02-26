@@ -8,7 +8,7 @@ output:
     toc_depth: 3
     code_folding: hide
 params:
-  project_id: "SCPCP000001"
+  project_id: "SCPCP000020"
 ---
 
 This notebook looks at marker gene expression for consensus cell types in `r params$project_id`. 
@@ -80,7 +80,7 @@ validation_groups_file <- file.path(module_base, "references", "consensus-valida
 # use vroom and data.table to try and be more memory-efficient
 consensus_dt <- consensus_results_files |> 
   purrr::map(vroom::vroom) |> 
-  data.table::rbindlist(fill = TRUE)
+  data.table::rbindlist(fill = TRUE) 
 
 gene_exp_dt <- gene_exp_files |> 
   purrr::map(vroom::vroom) |> 
@@ -96,7 +96,24 @@ validation_groups_dt <- fread(validation_groups_file) |>
 ```
 
 
-```{r}
+```{r, results='asis'}
+# check for if the project is all cell lines or not 
+is_cell_line <- all(consensus_dt$sample_type == "cell line")
+
+if(is_cell_line){
+  glue::glue("
+    <div class=\"alert alert-info\">
+
+    All samples in this project are from cell lines. 
+    No cell typing was performed, so no plots will be shown. 
+
+    </div>
+  ")
+}
+```
+
+
+```{r, eval=!is_cell_line}
 # combine into one data frame that has all marker genes
 # one row for each cell/marker gene combination (total rows= total cells x total marker genes)
 # includes original consensus annotation, braod cell type group, marker gene id, logcounts, validation group annotation, information regarding expression of marker gene in CellMarker tissues 
@@ -118,7 +135,7 @@ rm(gene_exp_dt)
 
 ## Plot setup
 
-```{r}
+```{r, eval=!is_cell_line}
 # prep for plots 
 # get total number of cells per final annotation group 
 total_cells_df <- consensus_dt |> 
@@ -128,7 +145,7 @@ total_cells_df <- consensus_dt |>
 ```
 
 
-```{r}
+```{r, eval=!is_cell_line}
 # table with one row per unique broad cell type/ marker gene combination 
 # first all cells in with the same broad_celltype_group (determined based on consensus_annotation) are grouped together
 # then get the mean gene expression and total percentage of cells that express each marker gene across all cells in that group
@@ -177,7 +194,7 @@ unique_gene_df <- group_stats_df |>
   dplyr::filter(gene_observed_count == 1 | validation_group_annotation == "hematopoietic precursor cell")
 ```
 
-```{r}
+```{r, eval=!is_cell_line}
 # get list of celltypes to keep and assign colors 
 celltype_groups <- group_stats_df |> 
   dplyr::pull(broad_celltype_group) |> 
@@ -199,7 +216,7 @@ Only cell type groups with at least 50 cells will be shown.
 The dot plot shows the mean expression of each marker gene across all cells assigned to a given cell type group. 
 Only genes that have mean expression > 0 and are expressed in at least 5% of cells in at least one cell type group will be shown. 
 
-```{r}
+```{r, eval=!is_cell_line}
 # filter markers to those that are actually relevant 
 # we will only plot the marker genes for cell types that are part of the assigned broad validation group for this project
 # we don't care about plotting marker genes for cell types that aren't present here 
@@ -220,7 +237,7 @@ marker_gene_order <- unique_markers_df |>
 celltype_order <- unique(unique_markers_df$validation_group_annotation)
 ```
 
-```{r, fig.height=10, fig.width=15}
+```{r, eval=!is_cell_line, fig.height=10, fig.width=15}
 # filter out low expressed genes
 dotplot_df <- unique_gene_df |> 
   dplyr::filter(mean_exp > 0, percent_exp > 5) |> 
@@ -270,7 +287,7 @@ We will make the same dot plot but instead of looking at the expression of indiv
 This is calculated by first getting the mean expression of each individual marker gene across all cells in a cell type group and then taking the mean of that value across all marker genes. 
 This results in one row per assigned cell type group and one column per marker gene group. 
 
-```{r}
+```{r, eval=!is_cell_line}
 # filter low expressed genes 
 grouped_dotplot_df <- group_stats_df |> 
   dplyr::select(broad_celltype_group, validation_group_annotation, all_markers_mean_exp, all_markers_percent_exp, total_cells) |>
