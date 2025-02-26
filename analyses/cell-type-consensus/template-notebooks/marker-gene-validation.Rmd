@@ -8,7 +8,7 @@ output:
     toc_depth: 3
     code_folding: hide
 params:
-  project_id: "SCPCP000020"
+  project_id: "SCPCP000001"
 ---
 
 This notebook looks at marker gene expression for consensus cell types in `r params$project_id`. 
@@ -51,7 +51,24 @@ plotting_functions <- file.path(module_base, "exploratory-notebooks", "utils", "
 source(plotting_functions)
 ```
 
-```{r}
+```{r, results='asis', message=FALSE}
+# print out diagnoses for project 
+project_diagnoses_file <- file.path(module_base, "sample-info", "project-diagnoses.tsv")
+diagnosis <- readr::read_tsv(project_diagnoses_file) |> 
+  dplyr::filter(project_id == params$project_id) |> 
+  dplyr::pull(diagnosis)
+
+glue::glue("
+    <div class=\"alert alert-info\">
+
+    This project contains {diagnosis} samples.
+
+    </div>
+  ")
+```
+
+
+```{r, warning=FALSE}
 # get consensus results 
 consensus_results_files <- list.files(results_dir, pattern = "_processed_consensus-cell-types\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE) 
 
@@ -75,7 +92,7 @@ validation_groups_file <- file.path(module_base, "references", "consensus-valida
 ```
 
 
-```{r, message=FALSE}
+```{r, message=FALSE, warning=FALSE}
 # read in consensus and gene expression results 
 # use vroom and data.table to try and be more memory-efficient
 consensus_dt <- consensus_results_files |> 
@@ -113,7 +130,7 @@ if(is_cell_line){
 ```
 
 
-```{r, eval=!is_cell_line}
+```{r, eval=!is_cell_line, message=FALSE}
 # combine into one data frame that has all marker genes
 # one row for each cell/marker gene combination (total rows= total cells x total marker genes)
 # includes original consensus annotation, braod cell type group, marker gene id, logcounts, validation group annotation, information regarding expression of marker gene in CellMarker tissues 
@@ -153,14 +170,15 @@ total_cells_df <- consensus_dt |>
 # second we calculate the mean expression and mean percentage of all marker genes in a given validation group (this value is used only in the second section of the report)
 group_stats_df <- consensus_dt |> 
   # for each assigned cell type/marker gene combo get total detected and mean expression
-  dplyr::group_by(broad_celltype_group, ensembl_gene_id) |>
+  # group by both broad group and validation group to account for genes that are expressed in more than one cell type
+  dplyr::group_by(broad_celltype_group, ensembl_gene_id, validation_group_annotation) |>
   dplyr::summarize(
     detected_count = sum(detected),
     mean_exp = mean(logcounts)
   ) |> 
   # add in validation group for marker genes
   # this includes all possible marker genes and all possible validation group assignments 
-  dplyr::left_join(markers_dt, by = c("ensembl_gene_id"), relationship = "many-to-many") |>
+  dplyr::left_join(markers_dt, by = c("ensembl_gene_id", "validation_group_annotation"), relationship = "many-to-many") |>
   # now get the mean expression/ mean percentage across all marker genes for a given validation group
   # here the broad_celltype_group is the final assigned annotation for that group of cells 
   # the validation_group_annotation refers to the cell type that marker gene is associated with 
