@@ -37,12 +37,11 @@ theme_set(
 
 
 ```{r base paths}
-# The base path for the OpenScPCA repository, found by its (hidden) .git directory
-repository_base <- rprojroot::find_root(rprojroot::is_git_root)
-module_base <- file.path(repository_base, "analyses", "cell-type-consensus")
+# The path for this module
+module_base <- rprojroot::find_root(rprojroot::is_renv_project)
 
 # path to results directory
-results_dir <- file.path(repository_base, "data", "current", "results", "cell-type-consensus", params$project_id)
+results_dir <- file.path(module_base, "..", "..", "data", "current", "results", "cell-type-consensus", params$project_id)
 ```
 
 ```{r}
