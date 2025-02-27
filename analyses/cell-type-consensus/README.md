@@ -107,7 +107,20 @@ Only genes that are expressed in the library are included in the output.
 
 ## Validation of consensus cell types 
 
-Following assignment 
+Following assignment of consensus cell types, we have confirmed that assigned cell types express the expected cell type marker genes. 
+The [`exploratory-notebooks/cell-type-validation-notebooks`](./exploratory-notebooks/cell-type-validation-notebooks/) folder contains an HTML report for each project with summary plots looking at expression of cell type marker genes across assigned cell types. 
+
+To generate these notebooks for all projects, first download the results from the `cell-type-consensus` module for all projects using: 
+
+```sh
+./download-results.py --module cell-type-consensus
+```
+
+Then run the script to generate the notebooks: 
+
+```sh
+./render-validation-notebooks.sh
+```
 
 ## Software requirements
 
