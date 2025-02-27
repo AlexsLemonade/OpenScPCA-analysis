@@ -63,7 +63,9 @@ consensus_group_order <- c(
   # neural cells
   "neuron",
   "astrocyte",
-  "glial cell"
+  "glial cell",
+  # other 
+  "mesangial cell"
 )
 
 # get list of all ontology IDs that we care about 
