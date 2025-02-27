@@ -242,7 +242,8 @@ filtered_markers_df <- markers_dt |>
   dplyr::filter(validation_group_annotation %in% celltype_groups,
                 gene_symbol %in% group_stats_df$gene_symbol)
 
-# now only keep unique markers for the dotplot 
+# now only keep unique markers for the dotplot
+# except for hematopoietic precursor cells, where there are no unique markers
 unique_markers_df <- filtered_markers_df |> 
   dplyr::filter(gene_observed_count == 1 | validation_group_annotation == "hematopoietic precursor cell")
 
