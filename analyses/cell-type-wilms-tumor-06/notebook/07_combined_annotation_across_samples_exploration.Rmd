@@ -836,10 +836,10 @@ CNV_profile_gain <- cell_type_df_sub |>
   rename("chromosome_arm" = "name", "percentage" = "value") |>
   left_join( chromosome_arms, by = c("chromosome_arm"="dupli")) |>
   mutate(chromosome_arm = factor(chromosome_arm, levels = has_dupli_chr)) |>
-  mutate(absolute_70 = case_when((percentage > 0.7) ~ 1,
-         .default = 0),
-         absolute_10 = case_when((percentage > 0.1) ~ 1,
-         .default = 0)) 
+  mutate(
+    absolute_70 = ifelse(percentage > 0.7, 1, 0), 
+    absolute_10 = ifelse(percentage > 0.1, 1, 0)
+ )
 
 
 # plot
