@@ -114,8 +114,9 @@ validation_groups_dt <- fread(validation_groups_file) |>
 
 
 ```{r, results='asis'}
-# check for if the project is all cell lines or not 
-is_cell_line <- all(consensus_dt$sample_type == "cell line")
+# check for if the project is a cell line project or not 
+# explicitly skip project 24 since the current processed data doesn't have the updated combination of PDX and cell line
+is_cell_line <- all(consensus_dt$sample_type == "cell line") | params$project_id == "SCPCP000024"
 
 if(is_cell_line){
   glue::glue("
@@ -297,6 +298,57 @@ dotplot + color_bar +
   patchwork::plot_layout(ncol = 1, heights = c(4, 0.1)) 
 ```
 
+The heatmap shows the mean expression of each marker gene across all cells assigned to a given cell type group. 
+In contrast to the dot plot, we will show all marker genes for a given cell type group, not just the uniquely expressed genes. 
+
+```{r, eval=!is_cell_line}
+# add column to uniquely label gene symbols since some genes are present across multiple cell types 
+# add this here since we will use the order in this data frame to set the order of the heatmap columns
+heatmap_markers_df <- filtered_markers_df |> 
+  dplyr::mutate(
+    unique_symbol = glue::glue("{gene_symbol}-{validation_group_annotation}")
+  ) 
+```
+
+
+```{r, eval=!is_cell_line}
+# first make a mtx to use for the heatmap with rows as cell types and genes as columns 
+heatmap_mtx <- group_stats_df |> 
+  dplyr::ungroup() |> 
+  # add unique label for gene symbol 
+  dplyr::mutate(
+    unique_symbol = glue::glue("{gene_symbol}-{validation_group_annotation}")
+  ) |> 
+  dplyr::select(unique_symbol, broad_celltype_group, mean_exp) |> 
+  dplyr::filter(unique_symbol %in% heatmap_markers_df$unique_symbol) |> 
+  tidyr::pivot_wider(
+    names_from = unique_symbol,
+    values_from = mean_exp
+  ) |> 
+  tibble::column_to_rownames("broad_celltype_group") |>
+  as.matrix()
+# replace any NA with 0
+# accounts for marker genes that aren't found in all cells 
+heatmap_mtx[is.na(heatmap_mtx)] <- 0
+# make sure cell types are present in the right order
+heatmap_mtx <- heatmap_mtx[c(celltype_order, "unknown"), heatmap_markers_df$unique_symbol]
+
+# create annotation for heatmap
+annotation <- ComplexHeatmap::columnAnnotation(
+  group = heatmap_markers_df$validation_group_annotation,
+  col = list(
+    group = celltype_colors
+  ),
+  annotation_legend_param = list(
+      title = "Validation group"
+    )
+)
+```
+
+
+```{r, eval=!is_cell_line, fig.height=7, fig.width=10}
+marker_gene_heatmap(heatmap_mtx, annotation)
+```
 
 ## Mean expression across all marker genes 
 
