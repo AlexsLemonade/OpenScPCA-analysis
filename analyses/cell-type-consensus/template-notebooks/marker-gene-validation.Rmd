@@ -95,12 +95,12 @@ validation_groups_file <- file.path(module_base, "references", "consensus-valida
 # read in consensus and gene expression results 
 # use vroom and data.table to try and be more memory-efficient
 consensus_dt <- consensus_results_files |> 
-  purrr::map(vroom::vroom) |> 
-  data.table::rbindlist(fill = TRUE) 
+  purrr::map(fread) |> 
+  data.table::rbindlist(fill = TRUE, use.names = TRUE) 
 
 gene_exp_dt <- gene_exp_files |> 
-  purrr::map(vroom::vroom) |> 
-  data.table::rbindlist(fill = TRUE)
+  purrr::map(fread) |> 
+  data.table::rbindlist(fill = TRUE, use.names = TRUE)
 
 # read in validation markers as data.tables
 markers_dt <- fread(validation_markers_file)
@@ -137,14 +137,13 @@ if(is_cell_line){
 consensus_dt <- consensus_dt |> 
   # add in broad cell type group which is used for plotting
   # groups similar cell types together 
-  merge(validation_groups_dt, by = "consensus_annotation", all.x = TRUE) |> 
-  merge(gene_exp_dt, by = c("barcodes", "library_id"), all.x = TRUE) |> 
+  dplyr::left_join(validation_groups_dt, by = "consensus_annotation") |> 
+  dplyr::left_join(gene_exp_dt, by = c("barcodes", "library_id")) |> 
   # add marker gene information (associated validation group annotation, gene observed count, percent tissues)
   # account for the same gene being present in multiple cell types 
-  merge(markers_dt, by = "ensembl_gene_id", all.x = TRUE, allow.cartesian = TRUE) 
+  dplyr::left_join(markers_dt, by = "ensembl_gene_id", relationship = "many-to-many") |> 
+  dplyr::mutate(detected = logcounts > 0)
 
-# add a column indicating if gene is present or not
-consensus_dt[, detected := logcounts > 0]
 
 # remove the extra data table 
 rm(gene_exp_dt)
@@ -157,7 +156,7 @@ rm(gene_exp_dt)
 # get total number of cells per final annotation group 
 total_cells_df <- consensus_dt |> 
   dplyr::select(library_id, barcodes, broad_celltype_group) |> 
-  unique() |> 
+  dplyr::distinct() |> 
   dplyr::count(broad_celltype_group, name = "total_cells") 
 ```
 
