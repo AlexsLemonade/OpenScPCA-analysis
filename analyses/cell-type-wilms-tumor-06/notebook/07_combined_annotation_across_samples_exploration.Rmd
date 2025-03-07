@@ -391,6 +391,10 @@ ggplot(cell_type_df, aes(x = umap.umap_1, y = umap.umap_2, color = first.level_a
 
 cell_type_df |>
   dplyr::count(first.level_annotation, sample_id) |>
+  tidyr::pivot_wider(
+    names_from = first.level_annotation, 
+    values_from = n
+  )|>
   DT::datatable()
 
 ```
@@ -442,20 +446,8 @@ We expect these cells to express epithelial markers.
 Their predicted cell type should correspond to more mature kidney epithelial subunits.
 
 ```{r fig.width=10, fig.height=10, out.width='100%', results='asis'}
-cell_type_df <- cell_type_df |>
-  mutate(second.level_annotation = case_when(
-    # assign normal cells based on condition
-      cell_type_df$fetal_kidney_predicted.compartment   == c("fetal_nephron") &
-      cell_type_df$cnv_score                            == "no CNV" ~ "kidney",
-   
-      cell_type_df$fetal_kidney_predicted.compartment   == c("stroma") &
-      cell_type_df$cnv_score                            == "no CNV" ~ "normal stroma",
-    
-      cell_type_df$fetal_kidney_predicted.compartment   == c("normal") &
-      cell_type_df$fetal_kidney_predicted.cell_type     == c("endothelial cell") ~ "endothelium",
-      
-      cell_type_df$fetal_kidney_predicted.compartment   == c("normal") &
-      cell_type_df$fetal_kidney_predicted.cell_type    %in% c("B cell",
+# Define a vector of `fetal_kidney_predicted.cell_type` levels that corresponds to immune cells
+immune_celltypes <- c("B cell",
                                     "CD4-positive, alpha-beta T cell",
                                     "conventional dendritic cell",
                                     "lymphocyte",
@@ -464,21 +456,40 @@ cell_type_df <- cell_type_df |>
                                     "monocyte",
                                     "natural killer cell",
                                     "neutrophil",
-                                    "plasmacytoid dendritic cell") ~ "immune",
+                                    "plasmacytoid dendritic cell")
 
+
+
+cell_type_df <- cell_type_df |>
+  mutate(second.level_annotation = case_when(
+    # assign normal cells based on condition
+      (sample_id                                         %in% none_reference_samples) ~ "unknown",
+    
+      (cell_type_df$fetal_kidney_predicted.compartment   == c("fetal_nephron") &
+      cell_type_df$cnv_score                             == "no CNV") ~ "kidney",
+   
+      (cell_type_df$fetal_kidney_predicted.compartment   == c("stroma") &
+      cell_type_df$cnv_score                             == "no CNV") ~ "normal stroma",
+    
+      (cell_type_df$fetal_kidney_predicted.compartment   == c("normal") &
+      cell_type_df$fetal_kidney_predicted.cell_type      == c("endothelial cell")) ~ "endothelium",
+      
+      (cell_type_df$fetal_kidney_predicted.compartment   == c("normal") &
+      cell_type_df$fetal_kidney_predicted.cell_type    %in% immune_celltypes) ~ "immune",
+      
     # assign cancer cells based on condition
-      cell_type_df$fetal_kidney_predicted.compartment    == c("stroma") &
-      cell_type_df$cnv_score                             == "CNV" ~ "cancer stroma",
+      (cell_type_df$fetal_kidney_predicted.compartment    == c("stroma") &
+      cell_type_df$cnv_score                              == "CNV") ~ "cancer stroma",
     
-      cell_type_df$fetal_kidney_predicted.compartment    == c("fetal_nephron") &
-      cell_type_df$cnv_score                             == "CNV" &
-      cell_type_df$fetal_kidney_predicted.cell_type      == "mesenchymal cell" ~ "blastema",
+      (cell_type_df$fetal_kidney_predicted.compartment    == c("fetal_nephron") &
+      cell_type_df$cnv_score                              == "CNV" &
+      cell_type_df$fetal_kidney_predicted.cell_type       == "mesenchymal cell") ~ "blastema",
     
-      cell_type_df$fetal_kidney_predicted.compartment    == c("fetal_nephron") &
-      cell_type_df$cnv_score                             == "CNV" &
-      cell_type_df$fetal_kidney_predicted.cell_type      != "mesenchymal cell" ~ "cancer epithelium",
+      (cell_type_df$fetal_kidney_predicted.compartment    == c("fetal_nephron") &
+      cell_type_df$cnv_score                              == "CNV" &
+      cell_type_df$fetal_kidney_predicted.cell_type       != "mesenchymal cell") ~ "cancer epithelium",
     
-      sample_id                                         %in% none_reference_samples ~ "unknown",
+      
     
     .default = "unknown"
   ))
@@ -531,34 +542,54 @@ These heatmaps allow us to:
 
 #### Loss on long arms
 
-```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
-for (i in 1:22) {
-  print(do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = glue::glue("has_loss_chr", i, "q")))
-}
+```{r fig.width=25, fig.height=50, out.width='100%', results='asis'}
+# create a list of all plots by mapping over the vector of indices, instead of a for loop
+1:22 |>
+  purrr::map(
+    \(i) 
+      do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = glue::glue("has_loss_chr", i, "q"))
+) |>
+# send into patchwork to make a single plot from the list of plots in 2 columns
+patchwork::wrap_plots(ncol = 2)
 ```
 
 #### gains on long arms
 
-```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
-for (i in 1:22) {
-  print(do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = glue::glue("has_dupli_chr", i, "q")))
-}
+```{r fig.width=25, fig.height=50, out.width='100%', results='asis'}
+# create a list of all plots by mapping over the vector of indices, instead of a for loop
+1:22 |>
+  purrr::map(
+    \(i) 
+      do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = glue::glue("has_dupli_chr", i, "q"))
+) |>
+# send into patchwork to make a single plot from the list of plots in 2 columns
+patchwork::wrap_plots(ncol = 2)
 ```
 
 #### loss on short arms
 
-```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
-for (i in c(1:12, 16:20)) {
-  print(do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = glue::glue("has_loss_chr", i, "p")))
-}
+```{r fig.width=25, fig.height=50, out.width='100%', results='asis'}
+# create a list of all plots by mapping over the vector of indices, instead of a for loop
+c(1:12, 16:20) |>
+  purrr::map(
+    \(i) 
+      do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = glue::glue("has_loss_chr", i, "p"))
+) |>
+# send into patchwork to make a single plot from the list of plots in 2 columns
+patchwork::wrap_plots(ncol = 2)
 ```
 
 #### gains on short arms
 
-```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
-for (i in c(1:12, 16:20)) {
-  print(do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = glue::glue("has_dupli_chr", i, "p")))
-}
+```{r fig.width=25, fig.height=50, out.width='100%', results='asis'}
+# create a list of all plots by mapping over the vector of indices, instead of a for loop
+c(1:12, 16:20) |>
+  purrr::map(
+    \(i) 
+      do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = glue::glue("has_dupli_chr", i, "p"))
+) |>
+# send into patchwork to make a single plot from the list of plots in 2 columns
+patchwork::wrap_plots(ncol = 2)
 ```
 
 ### Mean CNV profile
@@ -668,6 +699,7 @@ We do see a tendency of _chr1p_ loss and _chr1q_ gain but it is not as pronounce
 _chr1q_ gain is however one of the most promising predictive marker of Wilms tumor outcome ([Nelson et al, Curr Opin Pediatr (2020)](https://pmc.ncbi.nlm.nih.gov/articles/PMC7919941/)).
 It is however important to notice that the profile shown in [Cresswell et al, BioRXiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1) derived from SIOP samples that have been pre-treated with chemotherapy, while samples in the dataset are enriched in `upfront resection` samples that haven't been pre-treated, according to the COG protocol. 
 So far, we do not know how the pre-operative chemotherapy impact the clonal selection of specific CNV. 
+
 
 ### Mean of the percentage of cells with CNV in a specific chromosome arm per clinical relevant group
 
