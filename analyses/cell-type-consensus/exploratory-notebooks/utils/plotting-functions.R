@@ -45,3 +45,30 @@ sina_plot <- function(df, plot_column){
     )
   
 }
+
+# make a heatmap looking at marker genes x cell type groups
+marker_gene_heatmap <- function(heatmap_mtx, col_annotation){
+  
+  ComplexHeatmap::Heatmap(
+    heatmap_mtx,
+    # set the color scale based on min and max values
+    col = circlize::colorRamp2(seq(min(heatmap_mtx), max(heatmap_mtx), length = 2), colors = c("white", "#00274C")),
+    border = TRUE,
+    ## Row parameters
+    cluster_rows = FALSE,
+    row_title = "Broad cell type annotation",
+    row_title_side = "left",
+    row_names_side = "left",
+    row_dend_side = "right",
+    row_names_gp = grid::gpar(fontsize = 10),
+    ## Column parameters
+    cluster_columns = FALSE,
+    show_column_names = FALSE,
+    column_names_gp = grid::gpar(fontsize = 8),
+    top_annotation = col_annotation,
+    heatmap_legend_param = list(
+      title = "Mean expression"
+    )
+  )  
+}
+

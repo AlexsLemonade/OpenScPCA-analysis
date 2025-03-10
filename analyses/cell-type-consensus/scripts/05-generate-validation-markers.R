@@ -33,6 +33,41 @@ consensus_groups_df <- readr::read_tsv(consensus_validation_file) |>
   dplyr::select(validation_group_annotation, validation_group_ontology) |> 
   unique()
 
+# set consensus group order 
+consensus_group_order <- c(
+  # lymphocytes
+  "B cell",
+  "plasma cell",
+  "T cell",
+  "innate lymphoid cell",
+  # myeloid
+  "dendritic cell",
+  "macrophage",
+  "monocyte",
+  "myeloid",
+  "natural killer cell",
+  # hpsc 
+  "hematopoietic precursor cell",
+  # stem cell
+  "stem cell",
+  # stromal cells
+  "adipocyte",
+  "chondrocyte",
+  "endothelial cell",
+  "epithelial cell",
+  "fibroblast",
+  "melanocyte",
+  "muscle cell",
+  "pericyte",
+  "stromal cell",
+  # neural cells
+  "neuron",
+  "astrocyte",
+  "glial cell",
+  # other 
+  "mesangial cell"
+)
+
 # get list of all ontology IDs that we care about 
 group_ontology_ids <- consensus_groups_df |> 
   dplyr::pull(validation_group_ontology) |> 
@@ -86,15 +121,17 @@ top_markers_df <- cell_marker_df |>
   dplyr::ungroup() |> 
   # add column for total number of times that gene is observed in the table
   dplyr::add_count(gene_symbol, name = "gene_observed_count") |> 
-  # arrange genes by cell type and percentage of tissues 
-  dplyr::arrange(validation_group_ontology, desc(percent_tissues)) |> 
   # bring in ensembl ids
   dplyr::left_join(mapped_ids, by = c("gene_symbol")) |>
   # match to human readable name for ontology group 
   dplyr::left_join(consensus_groups_df, by = c("validation_group_ontology")) |> 
   dplyr::relocate(
     validation_group_annotation, ensembl_gene_id, .after = validation_group_ontology
-  )
+  ) |> 
+  # ensure validation_group_ontology follows consensus_group_order
+  dplyr::mutate(validation_group_annotation = factor(validation_group_annotation, levels = consensus_group_order)) |> 
+  # arrange genes by cell type and percentage of tissues 
+  dplyr::arrange(validation_group_annotation, desc(percent_tissues))
 
 # save to validation markers 
 readr::write_tsv(top_markers_df, validation_markers_file)
