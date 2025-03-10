@@ -27,7 +27,8 @@ reference_dir <- file.path(module_base, "results", "references")
 
 # URLs for data to download
 gtf_file_url <- "https://ftp.ensembl.org/pub/release-104/gtf/homo_sapiens/Homo_sapiens.GRCh38.104.gtf.gz"
-arm_order_file_url <- "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/database/cytoBand.txt.gz"
+arm_order_file_url <- "ftp://hgdownload.cse.ucsc.edu/goldenPath/hg38/database/cytoBand.txt.gz"
+
 
 # Define the gene order file
 gtf_file <- file.path(reference_dir, "Homo_sapiens.GRCh38.104.gtf.gz")
