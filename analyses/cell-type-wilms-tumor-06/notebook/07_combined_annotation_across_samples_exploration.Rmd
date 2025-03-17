@@ -548,7 +548,7 @@ While the above heatmaps can be informative, because there are so many of them i
 Here we aim to plot a mean CNV profile across the 35 annotated samples as presented in Figure 1A of [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1). 
 This represents the mean SNP Array profile of 64 pediatric kidney cancer (including 60 Wilms tumors).
 
-Here we plot for each chromosome arm (x-axis) the number of samples having a `dupli` (y-axis \> 0, in red) or a `loss` (y-axis \< 0, in blue).
+Here we plot for each chromosome arm (x-axis) the number of samples having a `dupli` (y-axis > 0, in red) or a `loss` (y-axis < 0, in blue).
 
 For a sample, a CNV is defined as `clonal` (opaque) if detected in more than 70% of the cells; and `subclonal` (transparent) when detected in at least 10% of the cells.
 
@@ -634,29 +634,29 @@ gain_profile <- wrap_plots(gain_profile, nrow = 1, widths = chromosome_arms$Size
 wrap_plots(gain_profile, loss_profile, ncol = 1) + plot_layout(widths = CNV_profile_gain$Size)
 ```
 
-Comparing with the profile in [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1), we identified important CNV known to play a role in Wilms tumor, including:
+Comparing with the profile in [Cresswell et al. (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1), we identified important CNV known to play a role in Wilms tumor, including:
 
 - *chr8q*, *chr12*, *chr13*, *chr18q* gains
 - *chr11q*, *chr16*, *chr17q* loss
 
 However, we spotted some differences:
 
-- We couldn't detect any *chr4q* loss as described in [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1).
+- We couldn't detect any *chr4q* loss as described in [Cresswell et al. (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1).
 
-- We identified 2 losses in *chr5* and *chr6* that do not show up in [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1).
+- We identified 2 losses in *chr5* and *chr6* that do not show up in [Cresswell et al. (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1).
 These may be `infercnv` induced false-positive CNV.
 
 Our major concern is the pattern of the *chr1*. 
-We do see a tendency of *chr1p* loss and *chr1q* gain but it is not as pronounced as in [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1). 
-*chr1q* gain is however one of the most promising predictive marker of Wilms tumor outcome ([Nelson et al, Current Opinion in Pediatrics (2020)](https://pmc.ncbi.nlm.nih.gov/articles/PMC7919941/)). 
-It is however important to notice that the profile shown in [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1) derived from SIOP samples that have been pre-treated with chemotherapy, while samples in the dataset are enriched in `upfront resection` samples that haven't been pre-treated, according to the COG protocol. 
+We do see a tendency of *chr1p* loss and *chr1q* gain but it is not as pronounced as in [Cresswell et al. (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1).
+*chr1q* gain is however one of the most promising predictive marker of Wilms tumor outcome ([Nelson et al. (2020)](https://pmc.ncbi.nlm.nih.gov/articles/PMC7919941/)).
+It is however important to notice that the profile shown in [Cresswell et al. (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1) derived from SIOP samples that have been pre-treated with chemotherapy, while samples in the dataset are enriched in `upfront resection` samples that haven't been pre-treated, according to the COG protocol.
 So far, we do not know how the pre-operative chemotherapy impact the clonal selection of specific CNV.
 
 ### Mean of the percentage of cells with CNV in a specific chromosome arm per clinical relevant group
 
 #### `vital_status`
 
-As described in [Nelson et al, Current Opinions in Pediatrics (2020)](https://pmc.ncbi.nlm.nih.gov/articles/PMC7919941/), [Phelps et al, Children (2018)](https://pmc.ncbi.nlm.nih.gov/articles/PMC6262554/) and [Zheng et al, Frontiers in Oncology (2023)](https://www.frontiersin.org/journals/oncology/articles/10.3389/fonc.2023.1137346/full), LOH at *chr1p*, *chr11p* and *chr16q* as well as *chr1q* gain are prognostic factors.
+As described in [Nelson et al. (2020)](https://pmc.ncbi.nlm.nih.gov/articles/PMC7919941/), [Phelps et al. (2018)](https://pmc.ncbi.nlm.nih.gov/articles/PMC6262554/) and [Zheng et al. (2023)](https://www.frontiersin.org/journals/oncology/articles/10.3389/fonc.2023.1137346/full), LOH at *chr1p*, *chr11p* and *chr16q* as well as *chr1q* gain are prognostic factors.
 
 Here we aim to see if we identify CNV associated with poorer prognosis.
 
@@ -668,14 +668,14 @@ In our study, we validate the association of *chr1q* gain, *chr11q* loss and *ch
 
 ##### `treatment`
 
-As we don't know the effect of the treatment on the selection of cells with CNV, it is difficult to compare our CNV profile with the one in [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1). 
+As we don't know the effect of the treatment on the selection of cells with CNV, it is difficult to compare our CNV profile with the one in [Cresswell et al. (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1).
 We those check the repartition of CNV in samples that have been pre-treated (i.e `Resection post chemotherapy`) with samples that have been removed surgically before any treatment (i.e `Upfront resection`).
 
 ```{r fig.height=15, fig.width=20, message=FALSE, warning=FALSE, out.width='100%', results='asis'}
 do_BoxPlot_mean(df = cell_type_df_sub, group.by = "treatment", comparison = c("Upfront resection", "Resection post chemotherapy"))
 ```
 
-Our analysis suggest that there is indeed an enrichment in cells with CNV after chemotherapy, including a tendency of more *chr1q* gain samples after chemotherapy. This could explain some of the differences observed between our mean CNV profile and the one published in [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1).
+Our analysis suggest that there is indeed an enrichment in cells with CNV after chemotherapy, including a tendency of more *chr1q* gain samples after chemotherapy. This could explain some of the differences observed between our mean CNV profile and the one published in [Cresswell et al. (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1).
 
 ### Validation of second level annotation using marker genes
 
@@ -687,7 +687,7 @@ Finally, we aim to validate the `second level annotation` using marker genes.
 do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = "ENSG00000081237")
 ```
 
-Immune cells are well annotated based on `PTPRC` expression.
+Immune cells are well annotated based on *PTPRC* expression.
 
 #### Endothelium, `VWF` expression
 
@@ -695,7 +695,7 @@ Immune cells are well annotated based on `PTPRC` expression.
 do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = "ENSG00000110799")
 ```
 
-Endothelial cells are well annotated based on `VWF` expression.
+Endothelial cells are well annotated based on *VWF* expression.
 
 #### Stroma
 
