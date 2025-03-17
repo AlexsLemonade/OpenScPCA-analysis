@@ -28,6 +28,7 @@ Bhasin
 Bioconda
 Bioconductor
 bioinformatics
+bioRxiv
 Biostars
 blastema
 blastemal
@@ -53,8 +54,10 @@ containerd
 CopyKAT
 CPM
 CRediT
+Cresswell
 Crompton
 Ctrl
+cytoband
 cxds
 demultiplexing
 dendogram
@@ -152,6 +155,7 @@ linter
 linter's
 linters
 lockfile
+LOH
 Looney
 louvain
 LSfR
@@ -171,6 +175,7 @@ microRNA
 midline
 Miniconda
 Miniforge
+misclassifying
 misidentification
 modularity
 monocyte
@@ -255,9 +260,11 @@ seq
 sina
 SingleCellExperiment
 SingleR
+SIOP
 snRNA
 socio
 Spearman
+specificities
 SSO
 stemness
 stroma
@@ -304,3 +311,4 @@ YAML
 Zappia
 Zenodo
 Zhang
+Zheng
