@@ -27,7 +27,8 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-The aim is to combine label transfer and CNV inference to annotate Wilms tumor samples in SCPCP000006. The proposed annotation will be based on the combination of:
+The aim is to combine label transfer and CNV inference to annotate Wilms tumor samples in SCPCP000006.
+The proposed annotation will be based on the combination of:
 
 - the label transfer from the fetal kidney reference (Stewart et al.), in particular the `fetal_kidney_predicted.compartment` and `fetal_kidney:predicted.cell_type`, as well as the `prediction.score` for each compartment,
 
@@ -101,12 +102,12 @@ sample_metadata_file <- file.path(repository_base, "data", "current", "SCPCP0000
 metadata <- read.table(sample_metadata_file, sep = "\t", header = TRUE)
 ```
 
-From the pre-processed and labeled `Seurat` object from `results/{sample_id}/06_infercnv_HMM-i3_{sample_id}_reference-{reference}.rds`, we will extract the following information per cell:
+From the pre-processed and labeled `Seurat` object in `results/{sample_id}/06_infercnv_HMM-i3_{sample_id}_reference-{reference}.rds`, we will extract the following per-cell information:
 
 - the predicted compartment in `fetal_kidney_predicted.compartment` and `fetal_kidney_predicted.compartment.score`
 - the predicted cell type in `fetal_kidney_predicted.cell_type` and `fetal_kidney_predicted.cell_type.score`
 - the sample identifier in `sample_id`
-- the CNV `{dupli|loss}` estimate per chromosome `{i}`, where `i \in {1-22}`, and arm `{p|q}`: `has_{dupli|loss}_chr{i}{p|q}`
+- the CNV `{dupli|loss}` estimate per chromosome `{i}`, where `i` is in `{1-22}`, and arm `{p|q}`: `has_{dupli|loss}_chr{i}{p|q}`
 - the `counts` of [markers genes](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/cell-type-wilms-tumor-06#the-table-celltype_metadatacsv-contains-the-following-column-and-information)
 
 ```{r path_to_query}
@@ -324,7 +325,7 @@ At first, we like to indicate in the `first.level_annotation` if a cell is norma
 
 We only allow a bit of flexibility in terms of CNV profile for immune and endothelium cells that have a high predicted score. 
 Indeed, we know that false positive CNV can be observed in a cell type specific manner. 
-Please note that in `06_infercnv.R`, we renamed all `immune` and `endothelium` cells with a `fetal_kidney_predicted.compartment.score` \> `r params$predicted.celltype.threshold` as `normal`.
+Please note that in `06_infercnv.R`, we renamed all `immune` and `endothelium` cells with a `fetal_kidney_predicted.compartment.score` > `r params$predicted.celltype.threshold` as `normal`.
 
 The threshold used for the `predicted.score` is defined as a parameter of this notebook as `r params$predicted.celltype.threshold`. 
 The thresholds used for the identification of CNV are also defined as notebook parameters with a minimum of `r params$cnv_threshold_low` and a maximum of `r params$cnv_threshold_high`.
@@ -398,7 +399,7 @@ Wilms tumor cancer cells can be:
 - *cancer stroma*: We define as *cancer stroma* all cancer cells from the stroma compartment.
 - *blastema*: We defined as *blastema* every cancer cell that has a `fetal_kidney_predicted.cell_type == mesenchymal cell`. 
 We know that these *mesenchymal* cells are cells from the cap mesenchyme that are not expected to be in a mature kidney. 
-These blastema cells should express higher `CITED1` and/or `NCAM1`.
+These blastema cells should express higher *CITED1* and/or *NCAM1*.
 - *cancer epithelium*: We defined as *cancer epithelium* all cancer cells that are neither stroma nor blastemal cells. 
 We expect these cells to express epithelial markers. 
 Their predicted cell type should correspond to more mature kidney epithelial subunits.
@@ -707,7 +708,7 @@ They should express in some extend similar markers as normal stromal cells inclu
 do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = "ENSG00000026025")
 ```
 
-*VIM* do not seem to be neither specific nor universal.
+*VIM* expression does not seem to be either specific or universal.
 
 ##### `COL6A3` expression
 
@@ -723,12 +724,12 @@ do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature 
 do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = "ENSG00000154096")
 ```
 
-*THY1* do not seem to be neither specific nor universal.
+*THY1* expression does not seem to be either specific or universal.
 
 #### Blastema
 
 (\*) To the best of our knowledge, there is no Wilms tumor specific and universal (i.e. expressed by all cells in every sample) marker of blastema cells. 
-We expect however blastema cells to express higher levels of stemness markers such as `CITED1`, `SIX1/2`, `NCAM1`.
+We expect however blastema cells to express higher levels of stemness markers such as *CITED1*, *SIX1/2*, *NCAM1*.
 
 ##### `CITED1` expression
 
@@ -736,7 +737,7 @@ We expect however blastema cells to express higher levels of stemness markers su
 do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = "ENSG00000125931")
 ```
 
-Blastema cells are enriched in `CITED1+` cells, but some samples do not express it at all.
+Blastema cells are enriched in *CITED1+* cells, but some samples do not express it at all.
 
 ##### `NCAM1` expression
 
@@ -744,7 +745,7 @@ Blastema cells are enriched in `CITED1+` cells, but some samples do not express 
 do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = "ENSG00000149294")
 ```
 
-`NCAM1` seems to be more cancer specific and broadly expressed among samples.
+*NCAM1* seems to be more cancer specific and broadly expressed among samples.
 
 ##### `SIX2` expression
 
@@ -760,7 +761,7 @@ do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature 
 do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = "ENSG00000039068")
 ```
 
-As expected, epithelial cells express higher expression of `CDH1`.
+As expected, epithelial cells express higher expression of *CDH1*.
 
 ##### `PODXL` expression
 
@@ -806,7 +807,7 @@ length(unique(annotations_table$scpca_sample_id))
 - Combining label transfer and CNV inference we have produced draft annotations for 35/40 Wilms tumor samples in SCPCP000006. 
 We decided not to annotate samples for which the `infercnv` couldn't be run with a normal reference, as we don't trust the results in that case and want to avoid misclassification (`SCPCS000177`, `SCPCS000180`, `SCPCS000181`, `SCPCS000190`, `SCPCS000197`).
 
-- The mean CNV profile of the Wilms tumor cohort seems reasonable in regards to the one published in [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1). 
+- The mean CNV profile of the Wilms tumor cohort seems reasonable in regards to the one published in [Cresswell et al. (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1). 
 We identify some commonalities but also some divergence. 
 They can be due to technical limitation of our CNV inference but can also reflect some specificities of this cohort (e.g. pre/post treatment samples). 
 It would be really useful to compare for some sample the `infercnv` result to a ground truth such as SNP Array (to be requested).
