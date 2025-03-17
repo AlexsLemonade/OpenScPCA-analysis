@@ -545,7 +545,7 @@ c(1:12, 16:20) |>
 
 While the above heatmaps can be informative, because there are so many of them it is difficult to get a global picture of the CNV profile of the entire dataset.
 
-Here we aim to plot a mean CNV profile across the 35 annotated samples as presented in Figure 1A of [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1). 
+Here we aim to plot a mean CNV profile across the 35 annotated samples as presented in Figure 1A of [Cresswell et al. (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1). 
 This represents the mean SNP Array profile of 64 pediatric kidney cancer (including 60 Wilms tumors).
 
 Here we plot for each chromosome arm (x-axis) the number of samples having a `dupli` (y-axis > 0, in red) or a `loss` (y-axis < 0, in blue).
