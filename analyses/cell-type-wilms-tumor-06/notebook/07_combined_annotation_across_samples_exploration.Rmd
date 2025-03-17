@@ -42,13 +42,13 @@ The analysis can be summarized as the following:
 
 | first level annotation | second level annotation | selection of the cells | marker genes for validation | CNV validation |
 |----|----|----|----|----|
-| normal | endothelial | `compartment == "endothelium" & predicted.score > pred.thr` | `VWF` | no CNV |
-| normal | immune | `compartment == "immune" & predicted.score > pred.thr` | `PTPRC`, `CD163`, `CD68` | no CNV |
-| normal | kidney | `compartment == "fetal_nephron" & predicted.score > pred.thr & cnv_score < cnv.thr.lower` | `CDH1`, `PODXL`, `LTL` | no CNV |
-| normal | stroma | `compartment == "stroma" & predicted.score > pred.thr & cnv_score < cnv.thr.upper` | `VIM` | no CNV |
-| cancer | stroma | `compartment == "stroma" & cnv_score > cnv.thr.upper` | `VIM` | `proportion_cnv_chr: 1, 4, 11, 16, 17, 18` |
-| cancer | blastema | `compartment == "fetal_nephron" & cell_type == "mesenchymal cell" & cnv_score > cnv.thr.upper` | `CITED1` | `proportion_cnv_chr: 1, 4, 11, 16, 17, 18` |
-| cancer | epithelial | `compartment == "fetal_nephron" & cell_type != "mesenchymal cell" & cnv_score > cnv.thr.upper` | `CDH1` | `proportion_cnv_chr: 1, 4, 11, 16, 17, 18` |
+| normal | endothelial | `compartment == "endothelium" & predicted.score > pred.thr` | *VWF* | no CNV |
+| normal | immune | `compartment == "immune" & predicted.score > pred.thr` | *PTPRC*, *CD163*, *CD68* | no CNV |
+| normal | kidney | `compartment == "fetal_nephron" & predicted.score > pred.thr & cnv_score < cnv.thr.lower` | *CDH1*, *PODXL*, *LTL* | no CNV |
+| normal | stroma | `compartment == "stroma" & predicted.score > pred.thr & cnv_score < cnv.thr.upper` | *VIM* | no CNV |
+| cancer | stroma | `compartment == "stroma" & cnv_score > cnv.thr.upper` | *VIM* | `proportion_cnv_chr: 1, 4, 11, 16, 17, 18` |
+| cancer | blastema | `compartment == "fetal_nephron" & cell_type == "mesenchymal cell" & cnv_score > cnv.thr.upper` | *CITED1* | `proportion_cnv_chr: 1, 4, 11, 16, 17, 18` |
+| cancer | epithelial | `compartment == "fetal_nephron" & cell_type != "mesenchymal cell" & cnv_score > cnv.thr.upper` | *CDH1* | `proportion_cnv_chr: 1, 4, 11, 16, 17, 18` |
 | unknown | \- | the rest of the cells | \- | \- |
 
 with the defined parameters:
@@ -292,7 +292,7 @@ do_BoxPlot_mean <- function(df, group.by, comparison) {
 
 As done in `06_cnv_infercnv_exploration.Rmd`, we calculate single CNV score and assess its potential in identifying cells with CNV versus normal cells without CNV.
 
-We simply checked the `cnv_chr` for each chromosome across cells.
+For each cell, we checked the level of CNV for each chromosome.
 
 - If the cell has less than `r params$cnv_threshold_low` chromosome with CNV, the global `cnv_score` will be `FALSE`. 
 - If the cell has more than `r params$cnv_threshold_high` chromosome with CNV, the global `cnv_score` will be `TRUE`. 
@@ -481,7 +481,7 @@ We look for each `second.level_annotation` and `sample_id` at the proportion of 
 These heatmaps allow us to:
 
 - validate that mostly tumor cells do present high percentages of cells with CNV (by definition)
-- identify chromosome and cell types that might be more sensitive to *FALSE* positive CNV, such as `chr6p` which is a hub for immune genes
+- identify chromosome and cell types that might be more sensitive to *FALSE* positive CNV, such as *chr6p* which is a hub for immune genes
 - get the repartition per sample of the CNV
 
 #### Loss on long arms
@@ -681,7 +681,7 @@ Our analysis suggest that there is indeed an enrichment in cells with CNV after 
 
 Finally, we aim to validate the `second level annotation` using marker genes.
 
-#### Immune, `PTPRC` expression
+#### Immune, *PTPRC* expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = "ENSG00000081237")
@@ -689,7 +689,7 @@ do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature 
 
 Immune cells are well annotated based on *PTPRC* expression.
 
-#### Endothelium, `VWF` expression
+#### Endothelium, *VWF* expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = "ENSG00000110799")
@@ -710,7 +710,7 @@ do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature 
 
 *VIM* expression does not seem to be either specific or universal.
 
-##### `COL6A3` expression
+##### *COL6A3* expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = "ENSG00000163359")
@@ -718,7 +718,7 @@ do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature 
 
 *COL6A3* expression is higher in Wilms tumor stroma cells and expressed across a wider range of samples.
 
-##### `THY1` expression
+##### **THY1* expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = "ENSG00000154096")
@@ -731,7 +731,7 @@ do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature 
 (\*) To the best of our knowledge, there is no Wilms tumor specific and universal (i.e. expressed by all cells in every sample) marker of blastema cells. 
 We expect however blastema cells to express higher levels of stemness markers such as *CITED1*, *SIX1/2*, *NCAM1*.
 
-##### `CITED1` expression
+##### *CITED1* expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = "ENSG00000125931")
@@ -739,7 +739,7 @@ do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature 
 
 Blastema cells are enriched in *CITED1+* cells, but some samples do not express it at all.
 
-##### `NCAM1` expression
+##### *NCAM1* expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = "ENSG00000149294")
@@ -747,7 +747,7 @@ do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature 
 
 *NCAM1* seems to be more cancer specific and broadly expressed among samples.
 
-##### `SIX2` expression
+##### *SIX2* expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = "ENSG00000170577")
@@ -755,7 +755,7 @@ do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature 
 
 #### Epithelium
 
-##### `CDH1` expression
+##### *CDH1* expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = "ENSG00000039068")
@@ -763,7 +763,7 @@ do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature 
 
 As expected, epithelial cells express higher expression of *CDH1*.
 
-##### `PODXL` expression
+##### *PODXL* expression
 
 ```{r fig.width=20, fig.height=5, out.width='100%', results='asis'}
 do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = "ENSG00000128567")
