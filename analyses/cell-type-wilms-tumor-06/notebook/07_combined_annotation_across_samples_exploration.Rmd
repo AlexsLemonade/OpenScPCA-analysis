@@ -29,11 +29,11 @@ knitr::opts_chunk$set(
 
 The aim is to combine label transfer and CNV inference to annotate Wilms tumor samples in SCPCP000006. The proposed annotation will be based on the combination of:
 
--   the label transfer from the fetal kidney reference (Stewart et al.), in particular the `fetal_kidney_predicted.compartment` and `fetal_kidney:predicted.cell_type`, as well as the `prediction.score` for each compartment,
+- the label transfer from the fetal kidney reference (Stewart et al.), in particular the `fetal_kidney_predicted.compartment` and `fetal_kidney:predicted.cell_type`, as well as the `prediction.score` for each compartment,
 
--   the predicted CNV calculated using intra-sample endothelial and immune cells (`--reference both`) as normal reference; no reference was used for samples with fewer than 3 predicted normal cells.
+- the predicted CNV calculated using intra-sample endothelial and immune cells (`--reference both`) as normal reference; no reference was used for samples with fewer than 3 predicted normal cells.
 
-In a second time, we will explore and validate the chosen annotation.
+We will then explore and validate the chosen annotation.
 
 We will use some of the [markers genes](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/cell-type-wilms-tumor-06#the-table-celltype_metadatacsv-contains-the-following-column-and-information) to validate visually the annotations.
 
@@ -52,11 +52,9 @@ The analysis can be summarized as the following:
 
 with the defined parameters:
 
--   `pred.thr` = `r params$predicted.celltype.threshold`
-
--   `cnv.thr.lower` = `r params$cnv_threshold_low`
-
--   `cnv.thr.upper` = `r params$cnv_threshold_high`
+- `pred.thr` = `r params$predicted.celltype.threshold`
+- `cnv.thr.lower` = `r params$cnv_threshold_low`
+- `cnv.thr.upper` = `r params$cnv_threshold_high`
 
 ### Packages
 
@@ -84,7 +82,8 @@ result_dir <- file.path(module_base, "results")
 
 ### Output files
 
-The report will be saved in the `notebook` directory. The final annotation file `SCPCP000006-annotations.tsv` will be saved in the `results` directory.
+The report will be saved in the `notebook` directory. 
+The final annotation file `SCPCP000006-annotations.tsv` will be saved in the `results` directory.
 
 ```{r}
 # cell type annotation table
@@ -94,7 +93,6 @@ annotations_tsv <- file.path(result_dir, "SCPCP000006-annotations.tsv")
 ### Input files
 
 In this notebook, we are working with all of the samples in SCPCP000006.
-
 The sample metadata can be found in `sample_metadata_file` in the `data` folder.
 
 ```{r }
@@ -103,17 +101,13 @@ sample_metadata_file <- file.path(repository_base, "data", "current", "SCPCP0000
 metadata <- read.table(sample_metadata_file, sep = "\t", header = TRUE)
 ```
 
-We extracted from the pre-processed and labeled `Seurat` object from `results/{sample_id}/06_infercnv_HMM-i3_{sample_id}_reference-{reference}.rds`. the following information per cell:
+From the pre-processed and labeled `Seurat` object from `results/{sample_id}/06_infercnv_HMM-i3_{sample_id}_reference-{reference}.rds`, we will extract the following information per cell:
 
--   the predicted compartment in `fetal_kidney_predicted.compartment` and `fetal_kidney_predicted.compartment.score`
-
--   the predicted cell type in `fetal_kidney_predicted.cell_type` and `fetal_kidney_predicted.cell_type.score`
-
--   the sample identifier in `sample_id`
-
--   the CNV `{dupli|loss}` estimation per chromosome {i} and arm `{p|q}`: `has_{dupli|loss}_chr{i}{p|q}`, in 1 to 22
-
--   the `counts` of [markers genes](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/cell-type-wilms-tumor-06#the-table-celltype_metadatacsv-contains-the-following-column-and-information)
+- the predicted compartment in `fetal_kidney_predicted.compartment` and `fetal_kidney_predicted.compartment.score`
+- the predicted cell type in `fetal_kidney_predicted.cell_type` and `fetal_kidney_predicted.cell_type.score`
+- the sample identifier in `sample_id`
+- the CNV `{dupli|loss}` estimation per chromosome {i} and arm `{p|q}`: `has_{dupli|loss}_chr{i}{p|q}`, in 1 to 22
+- the `counts` of [markers genes](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/cell-type-wilms-tumor-06#the-table-celltype_metadatacsv-contains-the-following-column-and-information)
 
 ```{r path_to_query}
 # Extract from each Seurat object information that will be used
@@ -188,15 +182,15 @@ cell_type_df <- sample_ids |>
 
 We will also use:
 
--   the samples metadata or clinical data reported in `r file.path(repository_base, "data", "current", "SCPCP000006", "single_cell_metadata.tsv")`
+- the samples metadata or clinical data reported in `r file.path(repository_base, "data", "current", "SCPCP000006", "single_cell_metadata.tsv")`
+- the cytoband file to get the length of each chromosome arm (for plotting only)
 
-```{r }
+```{r metadata}
 # Add clinical metadata
 cell_type_df <- cell_type_df |>
   left_join(metadata, by = c("sample_id" = "scpca_sample_id"))
 ```
 
--   the cytoband file to get the length of each chromosome arm (for plotting only)
 
 ```{r input}
 # the cytoband file that will be used to extract the size of each chromosome arm for plotting only
@@ -240,9 +234,9 @@ chromosome_arms <- cytoBand |>
 
 `do_Feature_mean` shows heatmap of mean expression of a feature grouped by a metadata.
 
--   `df` is the name of the table containing metadata and feature expression (counts) per cells
--   `group.by` is the name of the metadata to group the cells
--   `feature` is the name of the gene to average the expression
+- `df` is the name of the table containing metadata and feature expression (counts) per cells
+- `group.by` is the name of the metadata to group the cells
+- `feature` is the name of the gene to average the expression
 
 ```{r fig.width=10, fig.height=4, out.width='100%'}
 do_Feature_mean <- function(df, group.by, feature) {
@@ -266,9 +260,9 @@ do_Feature_mean <- function(df, group.by, feature) {
 
 `do_BoxPlot_mean` shows boxplot of the percentage of cells with CNV in a specific chromosome arm per clinical relevant group (metadata)
 
--   `df` is the name of the table containing metadata and feature expression (counts) per cells
--   `group.by` is the name of the metadata to group the cells
--   `comparison` is a list of factors in `group.by` for which we will compare the means using an unpaired Wilcoxon test
+- `df` is the name of the table containing metadata and feature expression (counts) per cells
+- `group.by` is the name of the metadata to group the cells
+- `comparison` is a list of factors in `group.by` for which we will compare the means using an unpaired Wilcoxon test
 
 ```{r fig.width=20, fig.height=15, out.width='100%', results='asis'}
 do_BoxPlot_mean <- function(df, group.by, comparison) {
@@ -297,11 +291,19 @@ do_BoxPlot_mean <- function(df, group.by, comparison) {
 
 As done in `06_cnv_infercnv_exploration.Rmd`, we calculate single CNV score and assess its potential in identifying cells with CNV versus normal cells without CNV.
 
-We simply checked for each chromosome the cell `cnv_chr`. Would the cell have less than `r params$cnv_threshold_low` chromosome with CNV, the global `cnv_score` will be FALSE. Would the cell have more than `r params$cnv_threshold_high` chromosome with CNV, the global `cnv_score` will be TRUE. The default is set to `unknown`.
+We simply checked the `cnv_chr` for each chromosome across cells.
 
-The `infercnv` method can lead to false positive CNV. We introduced a flexibility of +`r params$cnv_threshold_high` over the `cnv_threshold` to reduce the risk of misclassification of normal cells as cancer cells.
+- If the cell has less than `r params$cnv_threshold_low` chromosome with CNV, the global `cnv_score` will be `FALSE`. 
+- If the cell has more than `r params$cnv_threshold_high` chromosome with CNV, the global `cnv_score` will be `TRUE`. 
+- The default is set to `unknown`.
 
-Please note that some cancer cell might not have any CNV. There is thus a risk of misclassifying cancer cells as normal cells. However, we cannot avoid this risk with the data and tools currently available. This is a limitation of our annotations.
+The `infercnv` method can lead to false positive CNV. 
+We introduced a flexibility of +`r params$cnv_threshold_high` over the `cnv_threshold` to reduce the risk of misclassification of normal cells as cancer cells.
+
+Please note that some cancer cell might not have any CNV. 
+There is thus a risk of misclassifying cancer cells as normal cells. 
+However, we cannot avoid this risk with the data and tools currently available. 
+This is a limitation of our annotations.
 
 ```{r fig.width=10, fig.height=10, out.width='100%', results='asis'}
 cell_type_df <- cell_type_df |>
@@ -317,11 +319,16 @@ cell_type_df <- cell_type_df |>
 
 At first, we like to indicate in the `first.level_annotation` if a cell is normal, cancer or unknown.
 
--   *normal* cells can be observe in all five compartments (`normal`,`endothelium`, `immune`, `stroma` or `fetal nephron`) and do not have CNV. We only allow a bit of flexibility in terms of CNV profile for immune and endothelium cells that have a high predicted score. Indeed, we know that false positive CNV can be observed in a cell type specific manner. Please note that in `06_infercnv.R`, we renamed all `immune` and `endothelium` cells with a `fetal_kidney_predicted.compartment.score` \> `r params$predicted.celltype.threshold` as `normal`.
+- *normal* cells can be observed in all five compartments (`normal`,`endothelium`, `immune`, `stroma` or `fetal nephron`) and do not have CNV. 
+- *cancer* cells are either from the `stroma` or `fetal nephron` compartments and must have at least few CNV
 
-The threshold used for the `predicted.score` is defined as a parameter of this notebook as `r params$predicted.celltype.threshold`. The thresholds used for the identification of CNV are also defined as notebook parameters with a minimum of `r params$cnv_threshold_low` and a maximum of `r params$cnv_threshold_high`.
+We only allow a bit of flexibility in terms of CNV profile for immune and endothelium cells that have a high predicted score. 
+Indeed, we know that false positive CNV can be observed in a cell type specific manner. 
+Please note that in `06_infercnv.R`, we renamed all `immune` and `endothelium` cells with a `fetal_kidney_predicted.compartment.score` \> `r params$predicted.celltype.threshold` as `normal`.
 
--   *cancer* cells are either from the `stroma` or `fetal nephron` compartments and must have at least few CNV
+The threshold used for the `predicted.score` is defined as a parameter of this notebook as `r params$predicted.celltype.threshold`. 
+The thresholds used for the identification of CNV are also defined as notebook parameters with a minimum of `r params$cnv_threshold_low` and a maximum of `r params$cnv_threshold_high`.
+
 
 ```{r fig.width=10, fig.height=10, out.width='100%', results='asis'}
 # Define normal cells
@@ -339,7 +346,9 @@ cell_type_df <- cell_type_df |>
   ))
 ```
 
-Using this basic strategy, we identified `r table(cell_type_df$first.level_annotation)["cancer"]` *cancer* cells, `r table(cell_type_df$first.level_annotation)["normal"]` *normal* cells. `r table(cell_type_df$first.level_annotation)["unknown"]` cells remain *unknown*
+Using this basic strategy, we identified `r table(cell_type_df$first.level_annotation)["cancer"]` *cancer* cells, `r table(cell_type_df$first.level_annotation)["normal"]` *normal* cells. 
+
+`r table(cell_type_df$first.level_annotation)["unknown"]` cells remain *unknown*.
 
 ```{r fig.width=20, fig.height=20, out.width='100%', results='asis'}
 ggplot(cell_type_df, aes(x = umap.umap_1, y = umap.umap_2, color = first.level_annotation)) +
@@ -359,15 +368,16 @@ cell_type_df |>
 
 Strikingly, 5 samples show more normal cells than cancer cells:
 
--   `SCPCS000177`
--   `SCPCS000180`
--   `SCPCS000181`
--   `SCPCS000190`
--   `SCPCS000197`
+- `SCPCS000177`
+- `SCPCS000180`
+- `SCPCS000181`
+- `SCPCS000190`
+- `SCPCS000197`
 
-These five samples do not have enough immune and endothelium cell to be used as a normal reference in `scripts/06_infercnv.R` and we previously decided to run `scripts/06_infercnv.R` without any reference for these samples. In that case, the mean expression profile over the sample is taken as the normal reference, biasing the inference of CNV.
-
-For those samples, the annotations based on `infercnv` cannot be trust. To avoid any confusion in the following steps of the analysis, we decided to force the annotation of the entire samples to `unknown`.
+These five samples do not have enough immune and endothelium cell to be used as a normal reference in `scripts/06_infercnv.R` and we previously decided to run `scripts/06_infercnv.R` without any reference for these samples. 
+Without a specified reference, the mean expression profile across the sample is taken as the normal reference, biasing the inference of CNV.
+For those samples, the annotations based on `infercnv` cannot be trusted. 
+To avoid any confusion in the following steps of the analysis, we decided to force the annotation of the entire samples to `unknown`.
 
 ```{r fig.width=10, fig.height=10, out.width='100%', results='asis'}
 cell_type_df$first.level_annotation[cell_type_df$sample_id %in% none_reference_samples] <- "unknown"
@@ -377,21 +387,21 @@ cell_type_df$first.level_annotation[cell_type_df$sample_id %in% none_reference_s
 
 #### Normal cells
 
--   Normal cells from the `fetal nephron` compartment must be normal kidney cells.
-
--   Normal cells from the `stroma` compartment must be normal stroma cells.
-
--   Immune and endothelial cells have been already identified by label transfer.
+- Normal cells from the `fetal nephron` compartment must be normal kidney cells.
+- Normal cells from the `stroma` compartment must be normal stroma cells.
+- Immune and endothelial cells have been already identified by label transfer.
 
 #### Cancer cells
 
 Wilms tumor cancer cells can be:
 
--   *cancer stroma*: We define as *cancer stroma* all cancer cells from the stroma compartment.
-
--   *blastema*,: we defined as *blastema* every cancer cell that has a `fetal_kidney_predicted.cell_type == mesenchymal cell`. We know that these *mesenchymal* cells are cells from the cap mesenchyme that are not expected to be in a mature kidney. These blastema cells should express higher `CITED1` and/or `NCAM1`.
-
--   *cancer epithelium*: we defined as *cancer epithelium* all cancer cells that are neither stroma nor blastemal cells. We expect these cells to express epithelial markers. Their predicted cell type should correspond to more mature kidney epithelial subunits.
+- *cancer stroma*: We define as *cancer stroma* all cancer cells from the stroma compartment.
+- *blastema*: We defined as *blastema* every cancer cell that has a `fetal_kidney_predicted.cell_type == mesenchymal cell`. 
+We know that these *mesenchymal* cells are cells from the cap mesenchyme that are not expected to be in a mature kidney. 
+These blastema cells should express higher `CITED1` and/or `NCAM1`.
+- *cancer epithelium*: We defined as *cancer epithelium* all cancer cells that are neither stroma nor blastemal cells. 
+We expect these cells to express epithelial markers. 
+Their predicted cell type should correspond to more mature kidney epithelial subunits.
 
 ```{r fig.width=10, fig.height=10, out.width='100%', results='asis'}
 # Define a vector of `fetal_kidney_predicted.cell_type` levels that corresponds to immune cells
@@ -459,9 +469,9 @@ ggplot(cell_type_df_sub, aes(x = umap.umap_1, y = umap.umap_2, color = second.le
 
 Per sample, the annotations in the `umap` reduction seem to make sense as we can the three main Wilms tumor components are easily distinguished:
 
--   cancer blastema
--   epithelium
--   stroma
+- cancer blastema
+- epithelium
+- stroma
 
 ### Validation cancer versus normal based on the CNV profile
 
@@ -469,11 +479,9 @@ We look for each `second.level_annotation` and `sample_id` at the proportion of 
 
 These heatmaps allow us to:
 
--   validate that mostly tumor cells do present high percentages of cells with CNV (by definition)
-
--   identify chromosome and cell types that might be more sensitive to *FALSE* positive CNV, such as the *chr6p* which is a hub for immune genes
-
--   get the repartition per sample of the CNV
+- validate that mostly tumor cells do present high percentages of cells with CNV (by definition)
+- identify chromosome and cell types that might be more sensitive to *FALSE* positive CNV, such as `chr6p` which is a hub for immune genes
+- get the repartition per sample of the CNV
 
 #### Loss on long arms
 
@@ -534,9 +542,10 @@ c(1:12, 16:20) |>
 
 ### Mean CNV profile
 
-While the above heatmaps can be informative, we have to acknowledge that there are numerous and it is difficult to get a global picture of the CNV profile of the entire dataset.
+While the above heatmaps can be informative, because there are so many of them it is difficult to get a global picture of the CNV profile of the entire dataset.
 
-Here we aim to plot a mean CNV profile across the 35 annotated samples as presented in Figure 1A of [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1). This represent the mean SNP Array profile of 64 pediatric kidney cancer (including 60 Wilms tumors).
+Here we aim to plot a mean CNV profile across the 35 annotated samples as presented in Figure 1A of [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1). 
+This represents the mean SNP Array profile of 64 pediatric kidney cancer (including 60 Wilms tumors).
 
 Here we plot for each chromosome arm (x-axis) the number of samples having a `dupli` (y-axis \> 0, in red) or a `loss` (y-axis \< 0, in blue).
 
@@ -626,17 +635,21 @@ wrap_plots(gain_profile, loss_profile, ncol = 1) + plot_layout(widths = CNV_prof
 
 Comparing with the profile in [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1), we identified important CNV known to play a role in Wilms tumor, including:
 
--   *chr8q*, *chr12*, *chr13*, *chr18q* gains
-
--   *chr11q*, *chr16*, *chr17q* loss
+- *chr8q*, *chr12*, *chr13*, *chr18q* gains
+- *chr11q*, *chr16*, *chr17q* loss
 
 However, we spotted some differences:
 
--   we couldn't detect any *chr4q* loss as described in [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1).
+- We couldn't detect any *chr4q* loss as described in [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1).
 
--   we identified 2 losses in *chr5* and *chr6* that do not show up in [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1). These can be `infercnv` induced \_FALSE_positive CNV.
+- We identified 2 losses in *chr5* and *chr6* that do not show up in [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1).
+These may be `infercnv` induced false-positive CNV.
 
-Our major concern is the pattern of the *chr1*. We do see a tendency of *chr1p* loss and *chr1q* gain but it is not as pronounced as in [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1). *chr1q* gain is however one of the most promising predictive marker of Wilms tumor outcome ([Nelson et al, Current Opinion in Pediatrics (2020)](https://pmc.ncbi.nlm.nih.gov/articles/PMC7919941/)). It is however important to notice that the profile shown in [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1) derived from SIOP samples that have been pre-treated with chemotherapy, while samples in the dataset are enriched in `upfront resection` samples that haven't been pre-treated, according to the COG protocol. So far, we do not know how the pre-operative chemotherapy impact the clonal selection of specific CNV.
+Our major concern is the pattern of the *chr1*. 
+We do see a tendency of *chr1p* loss and *chr1q* gain but it is not as pronounced as in [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1). 
+*chr1q* gain is however one of the most promising predictive marker of Wilms tumor outcome ([Nelson et al, Current Opinion in Pediatrics (2020)](https://pmc.ncbi.nlm.nih.gov/articles/PMC7919941/)). 
+It is however important to notice that the profile shown in [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1) derived from SIOP samples that have been pre-treated with chemotherapy, while samples in the dataset are enriched in `upfront resection` samples that haven't been pre-treated, according to the COG protocol. 
+So far, we do not know how the pre-operative chemotherapy impact the clonal selection of specific CNV.
 
 ### Mean of the percentage of cells with CNV in a specific chromosome arm per clinical relevant group
 
@@ -654,7 +667,8 @@ In our study, we validate the association of *chr1q* gain, *chr11q* loss and *ch
 
 ##### `treatment`
 
-As we don't know the effect of the treatment on the selection of cells with CNV, it is difficult to compare our CNV profile with the one in [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1). We those check the repartition of CNV in samples that have been pre-treated (i.e `Resection post chemotherapy`) with samples that have been removed surgically before any treatment (i.e `Upfront resection`).
+As we don't know the effect of the treatment on the selection of cells with CNV, it is difficult to compare our CNV profile with the one in [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1). 
+We those check the repartition of CNV in samples that have been pre-treated (i.e `Resection post chemotherapy`) with samples that have been removed surgically before any treatment (i.e `Upfront resection`).
 
 ```{r fig.height=15, fig.width=20, message=FALSE, warning=FALSE, out.width='100%', results='asis'}
 do_BoxPlot_mean(df = cell_type_df_sub, group.by = "treatment", comparison = c("Upfront resection", "Resection post chemotherapy"))
@@ -684,7 +698,8 @@ Endothelial cells are well annotated based on `VWF` expression.
 
 #### Stroma
 
-(\*) To the best of our knowledge, there is no Wilms tumor specific marker of stroma cells. They should express in some extend similar markers as normal stromal cells including *VIM*, *THY1* and *COL6A3*.
+(\*) To the best of our knowledge, there is no Wilms tumor specific marker of stroma cells. 
+They should express in some extend similar markers as normal stromal cells including *VIM*, *THY1* and *COL6A3*.
 
 ##### `Vimentin` expression
 
@@ -712,7 +727,8 @@ do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature 
 
 #### Blastema
 
-(\*) To the best of our knowledge, there is no Wilms tumor specific and universal (i.e. expressed by all cells in every sample) marker of blastema cells. We expect however blastema cells to express higher levels of stemness markers such as `CITED1`, `SIX1/2`, `NCAM1`.
+(\*) To the best of our knowledge, there is no Wilms tumor specific and universal (i.e. expressed by all cells in every sample) marker of blastema cells. 
+We expect however blastema cells to express higher levels of stemness markers such as `CITED1`, `SIX1/2`, `NCAM1`.
 
 ##### `CITED1` expression
 
@@ -720,7 +736,7 @@ do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature 
 do_Feature_mean(cell_type_df_sub, group.by = "second.level_annotation", feature = "ENSG00000125931")
 ```
 
-Blastema cells are enriched in *CITED1*+ cells, but some samples do not express it at all.
+Blastema cells are enriched in `CITED1+` cells, but some samples do not express it at all.
 
 ##### `NCAM1` expression
 
@@ -787,19 +803,28 @@ length(unique(annotations_table$scpca_sample_id))
 
 ## Conclusion
 
--   Combining label transfer and CNV inference we have produced draft annotations for 35/40 Wilms tumor samples in SCPCP000006. We decided not to annotate samples for which the `infercnv` couldn't be run with a normal reference, as we don't trust the results in that case and want to avoid misclassification (`SCPCS000177`, `SCPCS000180`, `SCPCS000181`, `SCPCS000190`, `SCPCS000197`).
+- Combining label transfer and CNV inference we have produced draft annotations for 35/40 Wilms tumor samples in SCPCP000006. 
+We decided not to annotate samples for which the `infercnv` couldn't be run with a normal reference, as we don't trust the results in that case and want to avoid misclassification (`SCPCS000177`, `SCPCS000180`, `SCPCS000181`, `SCPCS000190`, `SCPCS000197`).
 
--   The mean CNV profile of the Wilms tumor cohort seems reasonable in regards to the one published in [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1). We identify some commonalities but also some divergence. They can be due to technical limitation of our CNV inference but can also reflect some specificities of this cohort (e.g. pre/post treatment samples). It would be really useful to compare for some sample the `infercnv` result to a ground truth such as SNP Array (to be requested).
+- The mean CNV profile of the Wilms tumor cohort seems reasonable in regards to the one published in [Cresswell et al, bioRxiv (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1). 
+We identify some commonalities but also some divergence. 
+They can be due to technical limitation of our CNV inference but can also reflect some specificities of this cohort (e.g. pre/post treatment samples). 
+It would be really useful to compare for some sample the `infercnv` result to a ground truth such as SNP Array (to be requested).
 
--   The heatmaps of CNV proportion and marker genes support our annotations, but signals with some marker genes are very low. Also, there is no universal marker for each entity of Wilms tumor that cover all tumor cells from all patient. This makes the validation of the annotations quite difficult.
+- The heatmaps of CNV proportion and marker genes support our annotations, but signals with some marker genes are very low. 
+Also, there is no universal marker for each entity of Wilms tumor that cover all tumor cells from all patient. 
+This makes the validation of the annotations quite difficult.
 
--   However, we could try to take the problem from the other side, and used the current annotation to perform differential expression analysis and try to find marker genes that are consistent across patient and Wilms tumor histologies.
+- However, we could try to take the problem from the other side, and used the current annotation to perform differential expression analysis and try to find marker genes that are consistent across patient and Wilms tumor histologies.
 
--   In each histology (i.e. epithelial and stroma), the distinction between cancer and non cancer cell is difficult (as expected). In this analysis, we suggested to rely on the CNV score to assess the normality of the cell. Here again, we could try to run differential expression analysis and compare epithelial (resp. stroma) cancer versus non-cancer cells across patient, aiming to find a share transcriptional program allowing the classification cancer versus normal.
+- In each histology (i.e. epithelial and stroma), the distinction between cancer and non cancer cell is difficult (as expected). 
+In this analysis, we suggested to rely on the CNV score to assess the normality of the cell. 
+Here again, we could try to run differential expression analysis and compare epithelial (resp. stroma) cancer versus non-cancer cells across patient, aiming to find a share transcriptional program allowing the classification cancer versus normal.
 
--   In our annotation, we haven't taken into account the favorable/anaplastic status of the sample. However, as anaplasia can occur in every (but do not has to) Wilms tumor histology, I am not sure how to integrate the information into the annotation.
+- In our annotation, we haven't taken into account the favorable/anaplastic status of the sample. 
+However, as anaplasia can occur in every (but do not has to) Wilms tumor histology, I am not sure how to integrate the information into the annotation.
 
--   This notebook could be finally rendered using different parameters, i.e. threshold for the CNV score and predicted score to use.
+- This notebook could be finally rendered using different parameters, i.e. threshold for the CNV score and predicted score to use.
 
 ## Session Info
 
