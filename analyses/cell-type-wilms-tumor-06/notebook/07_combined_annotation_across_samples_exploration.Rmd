@@ -675,7 +675,8 @@ We those check the repartition of CNV in samples that have been pre-treated (i.e
 do_BoxPlot_mean(df = cell_type_df_sub, group.by = "treatment", comparison = c("Upfront resection", "Resection post chemotherapy"))
 ```
 
-Our analysis suggest that there is indeed an enrichment in cells with CNV after chemotherapy, including a tendency of more *chr1q* gain samples after chemotherapy. This could explain some of the differences observed between our mean CNV profile and the one published in [Cresswell et al. (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1).
+Our analysis suggest that there is indeed an enrichment in cells with CNV after chemotherapy, including a tendency of more *chr1q* gain samples after chemotherapy. 
+This could explain some of the differences observed between our mean CNV profile and the one published in [Cresswell et al. (2024)](https://www.biorxiv.org/content/10.1101/2024.09.04.610994v1).
 
 ### Validation of second level annotation using marker genes
 
