@@ -106,7 +106,7 @@ From the pre-processed and labeled `Seurat` object from `results/{sample_id}/06_
 - the predicted compartment in `fetal_kidney_predicted.compartment` and `fetal_kidney_predicted.compartment.score`
 - the predicted cell type in `fetal_kidney_predicted.cell_type` and `fetal_kidney_predicted.cell_type.score`
 - the sample identifier in `sample_id`
-- the CNV `{dupli|loss}` estimation per chromosome {i} and arm `{p|q}`: `has_{dupli|loss}_chr{i}{p|q}`, in 1 to 22
+- the CNV `{dupli|loss}` estimate per chromosome `{i}`, where `i \in {1-22}`, and arm `{p|q}`: `has_{dupli|loss}_chr{i}{p|q}`
 - the `counts` of [markers genes](https://github.com/AlexsLemonade/OpenScPCA-analysis/tree/main/analyses/cell-type-wilms-tumor-06#the-table-celltype_metadatacsv-contains-the-following-column-and-information)
 
 ```{r path_to_query}
