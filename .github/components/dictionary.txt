@@ -40,6 +40,7 @@ chemotherapies
 chondrocyte
 chondrocytes
 chr
+CDH
 CLI
 Cmd
 CNA
@@ -53,8 +54,10 @@ containerd
 CopyKAT
 CPM
 CRediT
+Cresswell
 Crompton
 Ctrl
+cytoband
 cxds
 demultiplexing
 dendogram
@@ -152,9 +155,11 @@ linter
 linter's
 linters
 lockfile
+LOH
 Looney
 louvain
 LSfR
+LTL
 macOS
 macrophage
 md
@@ -171,6 +176,7 @@ microRNA
 midline
 Miniconda
 Miniforge
+misclassifying
 misidentification
 modularity
 monocyte
@@ -182,6 +188,7 @@ multifactor
 multinucleated
 myeloid
 natively
+NCAM
 Nextflow
 nephroblastoma
 nephron
@@ -215,6 +222,7 @@ PMID
 PNG
 podman
 podocyte
+PODXL
 Posit
 Posit's
 PowerShell
@@ -223,6 +231,7 @@ pre
 preprint
 PRs
 pseudobulk
+PTPRC
 README
 redistribution
 redistributions
@@ -255,9 +264,11 @@ seq
 sina
 SingleCellExperiment
 SingleR
+SIOP
 snRNA
 socio
 Spearman
+specificities
 SSO
 stemness
 stroma
@@ -293,6 +304,7 @@ vCPUs
 Visser
 vitro
 VSCodium
+VWF
 Wilms
 WIPO
 WisCon
@@ -304,3 +316,4 @@ YAML
 Zappia
 Zenodo
 Zhang
+Zheng
