@@ -9,10 +9,16 @@ The goal of this analysis module is to explore approaches for normal, in particu
 
 ## Input files
 
-* [Anticipated] The merged SCE for project `SCPCP000015`.
-To obtain this file, use the following command from the top-level of the repository after logging into your AWS account.
+* Results from the `cell-type-consensus` module for project `SCPCP000015`
+* The merged SCE for project `SCPCP000015`
+
+To obtain these file, use the following command from the top-level of the repository after logging into your AWS account.
 
 ```sh
+# Obtain the consensus cell type results
+./download-results.py --module cell-type-consensus --project SCPCP000015
+
+# Obtain the merged SCE
 ./download-results.py --module merge-sce --project SCPCP000015
 ```
 
