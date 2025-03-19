@@ -33,3 +33,18 @@ This module uses `renv` and `docker` to manage software dependencies.
 
 This module can be run with the resources of a standard personal laptop.
 
+
+## Analysis information
+
+To validate `inferCNV` results, we use a set of expected CNVs across diagnoses:
+
+### Ewing sarcoma
+
+* Gain of chr1q [1,2]
+* Gain of chr8 [1,2]
+* Loss of chr16q [1]
+* Gain of chr12 [1]
+
+Sources:
+1. https://doi.org/10.1158/2159-8290.CD-14-0622
+2. https://doi.org/10.1158/2159-8290.CD-13-1037
