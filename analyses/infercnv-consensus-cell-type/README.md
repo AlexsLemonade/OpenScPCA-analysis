@@ -18,8 +18,8 @@ To obtain these files, run the following commands from the top-level of the repo
 # Obtain the consensus cell type results
 ./download-results.py --module cell-type-consensus --project SCPCP000015
 
-# Obtain the merged SCE
-./download-results.py --module merge-sce --project SCPCP000015
+# Obtain the processed SCE objects
+./download-data.py --project SCPCP000015
 ```
 
 ## Output files
