@@ -2,7 +2,7 @@
 
 ## Description
 
-The goal of this analysis module is to explore approaches for normal, in particular immune, consensus cell types as a normal reference for `inferCNV`.
+The goal of this analysis module is to explore approaches for using normal, in particular immune, consensus cell types as a normal reference for `inferCNV`.
 
 ## Usage
 
