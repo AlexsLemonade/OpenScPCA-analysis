@@ -12,7 +12,4 @@ set -euo pipefail
 module_dir=$(dirname "${BASH_SOURCE[0]}")
 cd ${module_dir}
 
-# Define directories
-notebook_dir="notebooks"
-
 ##### Analysis for SCPCP000015 #####

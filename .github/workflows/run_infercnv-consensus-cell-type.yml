@@ -18,15 +18,15 @@ concurrency:
 
 on:
   workflow_dispatch:
-  workflow_call:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - analyses/infercnv-consensus-cell-type/**
-      - "!analyses/infercnv-consensus-cell-type/Dockerfile"
-      - "!analyses/infercnv-consensus-cell-type/.dockerignore"
-      - .github/workflows/run_infercnv-consensus-cell-type.yml
+  # workflow_call:
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - analyses/infercnv-consensus-cell-type/**
+  #     - "!analyses/infercnv-consensus-cell-type/Dockerfile"
+  #     - "!analyses/infercnv-consensus-cell-type/.dockerignore"
+  #     - .github/workflows/run_infercnv-consensus-cell-type.yml
 
 jobs:
   run-module:
