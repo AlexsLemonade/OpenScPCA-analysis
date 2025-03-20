@@ -9,16 +9,16 @@ The goal of this analysis module is to explore approaches for using normal, in p
 
 ## Input files
 
-* Results from the `cell-type-consensus` module for project `SCPCP000015`
-* The merged SCE for project `SCPCP000015`
+* Results from the `cell-type-ewings` module
+* Processed SCEs for project `SCPCP000015`
 
 To obtain these files, run the following commands from the top-level of the repository after logging into your AWS account.
 
 ```sh
-# Obtain the consensus cell type results
-./download-results.py --module cell-type-consensus --project SCPCP000015
+# Download the cell-type-ewings results
+./download-results.py --module cell-type-ewings
 
-# Obtain the processed SCE objects
+# Download the processed SCE objects
 ./download-data.py --project SCPCP000015
 ```
 
