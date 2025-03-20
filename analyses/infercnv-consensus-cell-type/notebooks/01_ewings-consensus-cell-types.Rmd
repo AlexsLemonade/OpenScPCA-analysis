@@ -30,8 +30,8 @@ repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 # The current results directory, found within the repository base directory
 result_dir <- file.path(repository_base, "data", "current", "results")
 
-# Path to consensus cell types for this project
-celltype_dir <- file.path(result_dir, "cell-type-consensus", "SCPCP000015")
+# Path to cell-type-ewings results, which also contains consensus annotations
+ewings_dir <- file.path(result_dir, "cell-type-ewings", "SCPCP000015")
 
 # Path to immune cell list
 immune_url <- "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/consensus-immune-cell-types.tsv"
@@ -44,13 +44,11 @@ Set paths to input and output directories and files in the chunk below.
 ```{r paths}
 # Input files
 celltype_files <- list.files(
-  path = celltype_dir,
-  pattern = "_processed_consensus-cell-types\\.tsv\\.gz$",
+  path = ewings_dir,
+  pattern = "_ewing-celltype-assignments\\.tsv$",
   recursive = TRUE,
   full.names = TRUE
 )
-
-# Output files
 ```
 
 ## Analysis 
@@ -59,11 +57,10 @@ celltype_files <- list.files(
 immune_celltypes <- readr::read_tsv(immune_url) |>
   dplyr::pull(consensus_annotation)
 
-
 celltype_df <- celltype_files |>
   purrr::map(readr::read_tsv) |>
   purrr::list_rbind() |>
-  dplyr::select(library_id, barcodes, consensus_annotation) |>
+  dplyr::select(library_id, barcodes, ewing_annotation, consensus_annotation) |>
   dplyr::mutate(
     category = dplyr::case_when(
       consensus_annotation == "Unknown" ~ "Unknown",
@@ -150,11 +147,35 @@ If we were to want a single immune cell type, then macrophage is the only suitab
 We should also check whether any of the immune cells were classified as a tumor cell in the `cell-type-ewings` analysis module.
 Ideally this will not have been the case, but it's an important thing to check!
 
+```{r}
+celltype_df |>
+  dplyr::filter(category == "immune") |>
+  dplyr::count(ewing_annotation) |>
+  dplyr::filter(stringr::str_detect(ewing_annotation, "tumor"))
+```
+
+Well, it appears there are some consensus immune cells which were classified as `tumor`. 
+Which samples are these in?
+
+```{r}
+celltype_df |>
+  dplyr::filter(
+    stringr::str_detect(ewing_annotation, "tumor"),
+    category == "immune"
+  ) |>
+  dplyr::count(library_id, ewing_annotation, consensus_annotation)
+```
+
+These results show macrophage and T cells, which are the two most prevalent categories immune cell categories.
+We might want to investigate these cells further, but at least we should probably exclude them as "normal" cells for `inferCNV` since their true status is bit unclear.
+
 
 ## Conclusions
 
 * There are sufficient immune cells to pool together to run `inferCNV` specifying them as a normal reference
 * We could also consider using only `macrophage` cells, or combined `macrophage` and all `T cell` types together, if we wanted to assess any potential effect of limit the types of immune cells feeding into `inferCNV`. 
+* There are 17 cells which are annotated as an immune consensus cell type (specifically, macrophage and mature T cell) which the `cell-type-ewings` module annotated as tumor cells.
+We would probably want to exclude these cells from any normal reference.
 
 
 ## Session Info
