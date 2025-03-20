@@ -6,6 +6,11 @@ The goal of this analysis module is to explore approaches for using normal, in p
 
 ## Usage
 
+To run the analysis, use the following command:
+
+```sh
+./run-analysis.sh
+```
 
 ## Input files
 
