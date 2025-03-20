@@ -16,6 +16,3 @@ cd ${module_dir}
 notebook_dir="notebooks"
 
 ##### Analysis for SCPCP000015 #####
-
-# Explore distribution of cell types
-Rscript -e "rmarkdown::render('${notebook_dir}/01_ewings-consensus-cell-types.Rmd')"
