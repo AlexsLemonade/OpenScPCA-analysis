@@ -167,7 +167,7 @@ celltype_df |>
 ```
 
 These results show macrophage and T cells, which are the two most prevalent categories immune cell categories.
-We might want to investigate these cells further, but at least we should probably exclude them as "normal" cells for `inferCNV` since their true status is bit unclear.
+We might want to investigate these cells further, but at least we should probably exclude them as "normal" cells for `inferCNV` since their true status is a bit unclear.
 
 
 ## Conclusions
