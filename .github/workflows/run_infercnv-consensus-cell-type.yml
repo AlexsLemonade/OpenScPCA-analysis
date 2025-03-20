@@ -4,8 +4,7 @@
 # - Manual trigger
 # - On pull requests where code in the module has changed
 # - As a reusable workflow called from a separate workflow which periodically runs all modules
-#
-# At initialization, only the manual trigger is active
+
 
 name: Run infercnv-consensus-cell-type analysis module
 env:
@@ -19,15 +18,15 @@ concurrency:
 
 on:
   workflow_dispatch:
-  # workflow_call:
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - analyses/infercnv-consensus-cell-type/**
-  #     - "!analyses/infercnv-consensus-cell-type/Dockerfile"
-  #     - "!analyses/infercnv-consensus-cell-type/.dockerignore"
-  #     - .github/workflows/run_infercnv-consensus-cell-type.yml
+  workflow_call:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - analyses/infercnv-consensus-cell-type/**
+      - "!analyses/infercnv-consensus-cell-type/Dockerfile"
+      - "!analyses/infercnv-consensus-cell-type/.dockerignore"
+      - .github/workflows/run_infercnv-consensus-cell-type.yml
 
 jobs:
   run-module:
@@ -52,11 +51,11 @@ jobs:
         with:
           working-directory: ${{ env.MODULE_PATH }}
 
-      # Update this step as needed to download the desired data
-      - name: Download test data
-        run: ./download-data.py --test-data --format SCE
+      - name: Download test data and results
+        run: |
+          ./download-results.py --module cell-type-ewings --test-data
 
       - name: Run analysis module
         run: |
           cd ${MODULE_PATH}
-          # run module script(s) here
+          bash run-analysis.sh
