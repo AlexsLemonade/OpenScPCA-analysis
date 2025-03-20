@@ -1,0 +1,188 @@
+---
+title: "Explore immune cell types in Ewing sarcoma"
+author: "Stephanie J. Spielman"
+date: "`r Sys.Date()`"
+output: html_notebook
+---
+
+
+## Introduction
+
+The goal of this notebook is to explore the distribution of immune consensus cell types in Ewing sarcoma samples (`SCPCP000015`).
+
+Based on these findings, we can determine approaches to evaluate for pooling immune cells to use as a normal reference for `inferCNV`.
+
+## Setup
+
+```{r}
+options(readr.show_col_types = FALSE)
+```
+
+### Paths
+
+#### Base directories
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The current results directory, found within the repository base directory
+result_dir <- file.path(repository_base, "data", "current", "results")
+
+# Path to cell-type-ewings results, which also contains consensus annotations
+ewings_dir <- file.path(result_dir, "cell-type-ewings", "SCPCP000015")
+
+# Path to immune cell list
+immune_url <- "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/consensus-immune-cell-types.tsv"
+```
+
+#### Input and output files
+
+Set paths to input and output directories and files in the chunk below.
+
+```{r paths}
+# Input files
+celltype_files <- list.files(
+  path = ewings_dir,
+  pattern = "_ewing-celltype-assignments\\.tsv$",
+  recursive = TRUE,
+  full.names = TRUE
+)
+```
+
+## Analysis 
+
+```{r}
+immune_celltypes <- readr::read_tsv(immune_url) |>
+  dplyr::pull(consensus_annotation)
+
+celltype_df <- celltype_files |>
+  purrr::map(readr::read_tsv) |>
+  purrr::list_rbind() |>
+  dplyr::select(library_id, barcodes, ewing_annotation, consensus_annotation) |>
+  dplyr::mutate(
+    category = dplyr::case_when(
+      consensus_annotation == "Unknown" ~ "Unknown",
+      consensus_annotation %in% immune_celltypes ~ "immune",
+      .default = "other"
+    )
+  )
+```
+
+
+```{r}
+category_count_df <- celltype_df |>
+  dplyr::count(library_id, category) |>
+  tidyr::pivot_wider(
+    names_from = category,
+    values_from = n,
+    values_fill = 0
+  )
+
+# this way we can print the full table at once; RMarkdown will only show 10 rows at once
+knitr::kable(category_count_df)
+```
+It seems most immune cells are concentrated in 2-3 samples, and most samples don't have any immune cells.
+
+How many immune cells are there total?
+
+```{r}
+total_immune <- sum(category_count_df$immune)
+total_immune
+```
+
+`inferCNV` authors [recommend that at least 100 cells](https://github.com/broadinstitute/infercnv/issues/188) be used for a "normal" reference, so we are above that threshold.
+
+If we were to use all of these, what fraction is that per sample?
+We'll just divide the total number of cells by this count, not taking into consideration how many immune cells are actually in that sample, to get a rough sense of how many immune cells there are relative to all.
+
+```{r}
+celltype_df |>
+  dplyr::count(library_id, name = "total_cells") |>
+  dplyr::mutate(fraction_immune = round(total_immune / total_cells, 2)) |>
+  knitr::kable()
+```
+
+For the low-quality sample `SCPCL001111` this fraction isn't very meaningful since there are fewer cells in the sample than there are pooled immune cells.
+For all other samples, the fraction ranges from 0.03 - 0.13.
+
+
+Let's look a bit more at the breakdown of immune cell types:
+
+```{r}
+celltype_df |>
+  dplyr::filter(category == "immune") |>
+  dplyr::count(library_id, consensus_annotation) |>
+  # this will arrange columns (after pivoting) in descending order of total counts
+  dplyr::arrange(desc(n)) |>
+  tidyr::pivot_wider(
+    names_from = consensus_annotation,
+    values_from = n,
+    values_fill = 0
+  )
+```
+
+
+Let's look at the total number of macrophages and all types of T cell, since these are the dominant cell types here.
+
+```{r}
+celltype_df |>
+  dplyr::mutate(
+    consensus_annotation = ifelse(
+      stringr::str_detect(consensus_annotation, "T cell"),
+      "T cell type",
+      consensus_annotation
+    )
+  ) |>
+  dplyr::filter(consensus_annotation %in% c("T cell type", "macrophage")) |>
+  dplyr::count(consensus_annotation)
+```
+These constitute the vast majority of cells, so it would also be an option to use just these groups of cell types.
+If we were to want a single immune cell type, then macrophage is the only suitable option to get more than 100 cells.
+
+
+## Compare to ewings cell typing
+
+We should also check whether any of the immune cells were classified as a tumor cell in the `cell-type-ewings` analysis module.
+Ideally this will not have been the case, but it's an important thing to check!
+
+```{r}
+celltype_df |>
+  dplyr::filter(category == "immune") |>
+  dplyr::count(ewing_annotation) |>
+  dplyr::filter(stringr::str_detect(ewing_annotation, "tumor"))
+```
+
+Well, it appears there are some consensus immune cells which were classified as `tumor`. 
+Which samples are these in?
+
+```{r}
+celltype_df |>
+  dplyr::filter(
+    stringr::str_detect(ewing_annotation, "tumor"),
+    category == "immune"
+  ) |>
+  dplyr::count(library_id, ewing_annotation, consensus_annotation)
+```
+
+These results show macrophage and T cells, which are the two most prevalent categories immune cell categories.
+We might want to investigate these cells further, but at least we should probably exclude them as "normal" cells for `inferCNV` since their true status is a bit unclear.
+
+
+## Conclusions
+
+* There are sufficient immune cells to pool together to run `inferCNV` specifying them as a normal reference
+* We could also consider combined `macrophage` and all `T cell` types together to assess any potential effect of limiting the types of immune cells feeding into `inferCNV`
+* We should exclude library `SCPCL001111` from analysis since it has less than 100 cells.  
+* There are 17 cells which are annotated as an immune consensus cell type (specifically, macrophage and mature T cell) which the `cell-type-ewings` module annotated as tumor cells.
+We would probably want to exclude these cells from any normal reference.
+
+
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```

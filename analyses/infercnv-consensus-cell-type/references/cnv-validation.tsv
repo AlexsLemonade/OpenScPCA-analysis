@@ -1,0 +1,5 @@
+diagnosis	chromosome	arm	cnv_type	source
+Ewing sarcoma	1	q	gain	https://doi.org/10.1158/2159-8290.CD-14-0622; https://doi.org/10.1158/2159-8290.CD-13-1037
+Ewing sarcoma	8	NA	gain	https://doi.org/10.1158/2159-8290.CD-14-0622; https://doi.org/10.1158/2159-8290.CD-13-1037
+Ewing sarcoma	12	NA	gain	https://doi.org/10.1158/2159-8290.CD-14-0622
+Ewing sarcoma	16	q	loss	https://doi.org/10.1158/2159-8290.CD-14-0622

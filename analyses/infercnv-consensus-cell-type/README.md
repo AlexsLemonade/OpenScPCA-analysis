@@ -6,20 +6,25 @@ The goal of this analysis module is to explore approaches for using normal, in p
 
 ## Usage
 
+To run the analysis, use the following command:
+
+```sh
+./run-analysis.sh
+```
 
 ## Input files
 
-* Results from the `cell-type-consensus` module for project `SCPCP000015`
-* The merged SCE for project `SCPCP000015`
+* Results from the `cell-type-ewings` module
+* Processed SCEs for project `SCPCP000015`
 
 To obtain these files, run the following commands from the top-level of the repository after logging into your AWS account.
 
 ```sh
-# Obtain the consensus cell type results
-./download-results.py --module cell-type-consensus --project SCPCP000015
+# Download the cell-type-ewings results
+./download-results.py --module cell-type-ewings
 
-# Obtain the merged SCE
-./download-results.py --module merge-sce --project SCPCP000015
+# Download the processed SCE objects
+./download-data.py --project SCPCP000015
 ```
 
 ## Output files
@@ -32,4 +37,3 @@ This module uses `renv` and `docker` to manage software dependencies.
 ## Computational resources
 
 This module can be run with the resources of a standard personal laptop.
-
