@@ -173,9 +173,11 @@ We might want to investigate these cells further, but at least we should probabl
 ## Conclusions
 
 * There are sufficient immune cells to pool together to run `inferCNV` specifying them as a normal reference
-* We could also consider using only `macrophage` cells, or combined `macrophage` and all `T cell` types together, if we wanted to assess any potential effect of limit the types of immune cells feeding into `inferCNV`. 
+* We could also consider combined `macrophage` and all `T cell` types together to assess any potential effect of limiting the types of immune cells feeding into `inferCNV`
+* We should exclude library `SCPCL001111` from analysis since it has less than 100 cells.  
 * There are 17 cells which are annotated as an immune consensus cell type (specifically, macrophage and mature T cell) which the `cell-type-ewings` module annotated as tumor cells.
 We would probably want to exclude these cells from any normal reference.
+
 
 
 ## Session Info
