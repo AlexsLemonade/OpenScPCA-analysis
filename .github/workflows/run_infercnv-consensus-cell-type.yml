@@ -51,6 +51,22 @@ jobs:
         with:
           working-directory: ${{ env.MODULE_PATH }}
 
+      - name: Install aws-cli
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+
+      - name: Install dependencies needed to build certain R packages
+        run: |
+          sudo apt-get update
+          # libcurl4-openssl-dev and lzma-dev are needed for Rhtslib:
+          #    https://github.com/samtools/htslib/blob/30c9c50a874059e3dae7ff8c0ad9e8a9258031c8/INSTALL#L31-L41
+          # libglpk-dev is needed for igraph
+          sudo apt-get install \
+            libcurl4-openssl-dev \
+            lzma-dev
+
       - name: Download test data and results
         run: |
           ./download-results.py --module cell-type-ewings --test-data
