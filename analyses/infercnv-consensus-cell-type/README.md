@@ -15,13 +15,16 @@ To run the analysis, use the following command:
 ## Input files
 
 * Results from the `cell-type-ewings` module
-* Processed SCEs for project `SCPCP000015`
+* Processed SCEs and the merged SCE for project `SCPCP000015`
 
 To obtain these files, run the following commands from the top-level of the repository after logging into your AWS account.
 
 ```sh
 # Download the cell-type-ewings results
 ./download-results.py --module cell-type-ewings
+
+# Download the merged SCE object
+./download-results.py --module merge-sce --project SCPCP000015
 
 # Download the processed SCE objects
 ./download-data.py --project SCPCP000015
