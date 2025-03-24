@@ -54,6 +54,7 @@ jobs:
       - name: Download test data and results
         run: |
           ./download-results.py --module cell-type-ewings --test-data
+          ./download-results.py --module merge-sce --project SCPCP000015 --test-data
 
       - name: Run analysis module
         run: |
