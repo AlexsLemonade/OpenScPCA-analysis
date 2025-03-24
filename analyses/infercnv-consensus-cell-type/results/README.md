@@ -1,5 +1,8 @@
-# Results directory instructions
+# Results
 
-Files in the results directory should not be directly committed to the repository.
+This directory contains result files.
+These files are not under version control but are available from the S3 bucket `researcher-654654257431-us-east-2`.
 
-Instead, copy results files to an S3 bucket and add a link to the S3 location in this README file.
+* `normal-references/`
+  * This directory contains, organized by project, RDS files containing raw counts matrices for use as normal references with `inferCNV`.
+  Individual `README` files are provided for each project
