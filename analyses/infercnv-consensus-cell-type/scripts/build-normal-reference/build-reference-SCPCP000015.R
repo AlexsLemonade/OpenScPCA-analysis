@@ -21,12 +21,12 @@ option_list <- list(
   make_option(
     opt_str = "--reference_immune",
     type = "character",
-    help = "Path to output RDS file to save a matrix reference with all Ewing immune cells"
+    help = "Path to output RDS file to save an SCE file to use as a normal reference with all Ewing immune cells"
   ),
   make_option(
     opt_str = "--reference_immune_subset",
     type = "character",
-    help = "Path to output RDS file to save a matrix reference with a subset Ewing immune cells, specifically macrophages and T cell types"
+    help = "Path to output RDS file to save an SCE file to use as a normal reference with a subset Ewing immune cells, specifically macrophages and T cell types"
   ),
   make_option(
     opt_str = "--immune_ref_url",
@@ -86,11 +86,20 @@ immune_subset_cells_df <- immune_cells_df |>
       stringr::str_detect(consensus_annotation, "T cell")
   )
 
+# Subset the SCEs to create references -------------
+all_immune_reference <- merged_sce[, immune_cells_df$sce_cell_id]
+subset_immune_reference <- merged_sce[, immune_subset_cells_df$sce_cell_id]
 
-# Extract matrices of references -------------
-all_immune_reference <- counts(merged_sce[, immune_cells_df$sce_cell_id])
-subset_immune_reference <- counts(merged_sce[, immune_subset_cells_df$sce_cell_id])
-
+# Helper function to remove some SCE slots to save space
+remove_sce_slots <- function(sce) {
+  logcounts(sce) <- NULL
+  assay(sce, "spliced") <- NULL
+  reducedDim(sce, "PCA") <- NULL
+  reducedDim(sce, "UMAP") <- NULL
+  return(sce)
+}
+all_immune_reference <- remove_sce_slots(all_immune_reference)
+subset_immune_reference <- remove_sce_slots(subset_immune_reference)
 
 # Export references ---------
 readr::write_rds(all_immune_reference, opts$reference_immune, compress = "gz")
