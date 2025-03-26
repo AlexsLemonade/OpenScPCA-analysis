@@ -18,15 +18,15 @@ concurrency:
 
 on:
   workflow_dispatch:
-  # workflow_call:
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - analyses/infercnv-consensus-cell-type/**
-  #     - "!analyses/infercnv-consensus-cell-type/Dockerfile"
-  #     - "!analyses/infercnv-consensus-cell-type/.dockerignore"
-  #     - .github/workflows/run_infercnv-consensus-cell-type.yml
+  workflow_call:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - analyses/infercnv-consensus-cell-type/**
+      - "!analyses/infercnv-consensus-cell-type/Dockerfile"
+      - "!analyses/infercnv-consensus-cell-type/.dockerignore"
+      - .github/workflows/run_infercnv-consensus-cell-type.yml
 
 jobs:
   run-module:
@@ -46,10 +46,26 @@ jobs:
       - name: Set up pandoc
         uses: r-lib/actions/setup-pandoc@v2
 
+      - name: Install dependencies needed to build certain R packages
+        run: |
+          sudo apt-get update
+          # libcurl4-openssl-dev and lzma-dev are needed for Rhtslib:
+          #    https://github.com/samtools/htslib/blob/30c9c50a874059e3dae7ff8c0ad9e8a9258031c8/INSTALL#L31-L41
+          # libglpk-dev is needed for igraph
+          sudo apt-get install \
+            libcurl4-openssl-dev \
+            lzma-dev
+
       - name: Set up renv
         uses: r-lib/actions/setup-renv@v2
         with:
           working-directory: ${{ env.MODULE_PATH }}
+
+      #- name: Install aws-cli
+      #  run: |
+      #    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      #    unzip awscliv2.zip
+      #    sudo ./aws/install
 
       - name: Download test data and results
         run: |
