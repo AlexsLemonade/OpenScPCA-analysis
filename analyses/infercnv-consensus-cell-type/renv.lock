@@ -1006,6 +1006,48 @@
       "Author": "Hervé Pagès [aut, cre], Michael Lawrence [aut], Patrick Aboyoun [aut], Aaron Lun [ctb], Beryl Kanali [ctb] (Converted vignettes from Sweave to RMarkdown)",
       "Maintainer": "Hervé Pagès <hpages.on.github@gmail.com>"
     },
+    "SingleCellExperiment": {
+      "Package": "SingleCellExperiment",
+      "Version": "1.26.0",
+      "Source": "Bioconductor",
+      "Date": "2024-03-25",
+      "Title": "S4 Classes for Single Cell Data",
+      "Authors@R": "c( person(\"Aaron\", \"Lun\", role=c(\"aut\", \"cph\"), email=\"infinite.monkeys.with.keyboards@gmail.com\"), person(\"Davide\",\"Risso\", role=c(\"aut\",\"cre\", \"cph\"), email=\"risso.davide@gmail.com\"), person(\"Keegan\", \"Korthauer\", role=\"ctb\"), person(\"Kevin\", \"Rue-Albrecht\", role=\"ctb\"), person(\"Luke\", \"Zappia\", role = \"ctb\", comment = c(ORCID = \"0000-0001-7744-8565\", github = \"lazappi\")))",
+      "Depends": [
+        "SummarizedExperiment"
+      ],
+      "Imports": [
+        "methods",
+        "utils",
+        "stats",
+        "S4Vectors",
+        "BiocGenerics",
+        "GenomicRanges",
+        "DelayedArray"
+      ],
+      "Suggests": [
+        "testthat",
+        "BiocStyle",
+        "knitr",
+        "rmarkdown",
+        "Matrix",
+        "scRNAseq (>= 2.9.1)",
+        "Rtsne"
+      ],
+      "biocViews": "ImmunoOncology, DataRepresentation, DataImport, Infrastructure, SingleCell",
+      "Description": "Defines a S4 class for storing data from single-cell experiments. This includes specialized methods to store and retrieve spike-in information, dimensionality reduction coordinates and size factors for each cell, along with the usual metadata for genes and libraries.",
+      "License": "GPL-3",
+      "VignetteBuilder": "knitr",
+      "RoxygenNote": "7.3.1",
+      "git_url": "https://git.bioconductor.org/packages/SingleCellExperiment",
+      "git_branch": "RELEASE_3_19",
+      "git_last_commit": "9dae229",
+      "git_last_commit_date": "2024-04-30",
+      "Repository": "Bioconductor 3.19",
+      "NeedsCompilation": "no",
+      "Author": "Aaron Lun [aut, cph], Davide Risso [aut, cre, cph], Keegan Korthauer [ctb], Kevin Rue-Albrecht [ctb], Luke Zappia [ctb] (<https://orcid.org/0000-0001-7744-8565>, lazappi)",
+      "Maintainer": "Davide Risso <risso.davide@gmail.com>"
+    },
     "SparseArray": {
       "Package": "SparseArray",
       "Version": "1.4.8",

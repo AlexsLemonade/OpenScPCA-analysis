@@ -61,15 +61,10 @@ jobs:
         with:
           working-directory: ${{ env.MODULE_PATH }}
 
-      #- name: Install aws-cli
-      #  run: |
-      #    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-      #    unzip awscliv2.zip
-      #    sudo ./aws/install
-
       - name: Download test data and results
         run: |
           ./download-results.py --module cell-type-ewings --test-data
+          ./download-results.py --module merge-sce --project SCPCP000015 --test-data
 
       - name: Run analysis module
         run: |
