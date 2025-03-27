@@ -20,6 +20,9 @@ infercnv_ref_dir="${results_dir}/normal-references"
 
 mkdir -p ${infercnv_ref_dir}
 
+# Create the gene order file for input to inferCNV
+Rscript ${script_dir}/00-make-gene-order-file.R
+
 ##### Analysis for SCPCP000015 #####
 
 # Define input files for scripts
