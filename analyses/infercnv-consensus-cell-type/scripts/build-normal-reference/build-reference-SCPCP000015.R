@@ -87,19 +87,18 @@ immune_subset_cells_df <- immune_cells_df |>
   )
 
 # Subset the SCEs to create references -------------
-all_immune_reference <- merged_sce[, immune_cells_df$sce_cell_id]
-subset_immune_reference <- merged_sce[, immune_subset_cells_df$sce_cell_id]
 
-# Helper function to remove some SCE slots to save space
-remove_sce_slots <- function(sce) {
-  logcounts(sce) <- NULL
-  assay(sce, "spliced") <- NULL
-  reducedDim(sce, "PCA") <- NULL
-  reducedDim(sce, "UMAP") <- NULL
-  return(sce)
-}
-all_immune_reference <- remove_sce_slots(all_immune_reference)
-subset_immune_reference <- remove_sce_slots(subset_immune_reference)
+# first the reference with all immune cells
+all_immune_reference <- merged_sce[, immune_cells_df$sce_cell_id]
+
+# remove some SCE slots to save space
+logcounts(all_immune_reference) <- NULL
+assay(all_immune_reference, "spliced") <- NULL
+reducedDim(all_immune_reference, "PCA") <- NULL
+reducedDim(all_immune_reference, "UMAP") <- NULL
+
+# subset it to create the second reference
+subset_immune_reference <- all_immune_reference[, immune_subset_cells_df$sce_cell_id]
 
 # Export references ---------
 readr::write_rds(all_immune_reference, opts$reference_immune, compress = "gz")
