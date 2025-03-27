@@ -16,7 +16,8 @@ cd ${module_dir}
 data_dir="../../data/current"
 script_dir="scripts"
 results_dir="results"
-infercnv_ref_dir="${results_dir}/normal-references"
+ref_dir="references"
+infercnv_ref_dir="${ref_dir}/normal-references"
 
 mkdir -p ${infercnv_ref_dir}
 
