@@ -7,8 +7,6 @@ This directory contains reference information needed for analysis.
 More information about these files is provided below.
 This directory is ignored from the repository due to its large size
 
-
-
 ## Normal references
 
 The `normal-references/` directory contains the following references for each given project:
