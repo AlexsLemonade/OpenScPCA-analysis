@@ -7,4 +7,5 @@
 !/scratch/.gitkeep
 
 # Ignore any large reference files
-references/*gene_order.txt
+references/Homo_sapiens.GRCh38.104.gene_order.txt
+references/normal-references/
