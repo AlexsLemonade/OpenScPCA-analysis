@@ -11,13 +11,11 @@ option_list <- list(
   make_option(
     opt_str = "--merged_sce_file",
     type = "character",
-    default = "../../data/2025-03-20/results/merge-sce/SCPCP000015/SCPCP000015_merged.rds",
     help = "Path to the merged SingleCellExperiment object"
   ),
   make_option(
     opt_str = "--cell_type_ewings_dir",
     type = "character",
-    default = "../../data/2025-03-20/results/cell-type-ewings/SCPCP000015/",
     help = "Path to directory containing results from the `cell-type-ewings` module"
   ),
   make_option(
