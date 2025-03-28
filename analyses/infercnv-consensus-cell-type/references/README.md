@@ -9,6 +9,15 @@ This directory is ignored from the repository due to its large size
 
 ## Normal references
 
+Normal references for use with `inferCNV` are formatted as SCE files and are expected to have the following components:
+
+* Files should be named as `ref-{reference name}.rds`
+* Reference SCEs should contain at least:
+  * A raw counts matrix
+  * Column names (cell ids) formatted as `{library_id}-{barcode}`
+  * A colData column `consensus_annotation` recording each cell's consensus annotation
+
+
 The `normal-references/` directory contains the following references for each given project:
 
 * `SCPCP000015`
