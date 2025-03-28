@@ -1,5 +1,17 @@
 #!/usr/bin/env Rscript
 # This script runs inferCNV on an SCE object using the provided normal reference
+#
+# Usage:
+#
+# Rscript 01_run-infercnv.R \
+#   --sce_file <input sce file> \
+#   --reference_file <input normal reference file> \
+#   --output_dir <output directory for infercnv results> \
+#
+# For information on additional arguments, run:
+#
+# Rscript 01_run-infercnv.R --help
+#
 
 project_root <- here::here()
 
@@ -20,10 +32,18 @@ option_list <- list(
     help = "Path to the normal reference SCE"
   ),
   make_option(
-    opt_str = "--annotation_file",
+    opt_str = c("--output_dir"),
     type = "character",
-    default = file.path(project_root, "scratch", "infercnv_annotation.txt"),
-    help = "Path to annotation file for inferCNV input"
+    help = "Folder to save final infercnv results"
+  ),
+  # TODO: we may want some clustering options here later:
+  # https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/1089
+  # https://github.com/broadinstitute/infercnv/wiki/infercnv-tumor-subclusters#tumor-subclustering-by-leiden-clustering-preferred
+  make_option(
+    opt_str = c("--hmm_model"),
+    type = "character",
+    default = "i3",
+    help = "The HMM model to use with inferCNV, either 'i3' or 'i6'. Default is i3."
   ),
   make_option(
     opt_str = c("--gene_order_file"),
@@ -32,25 +52,17 @@ option_list <- list(
     help = "Path to gene order file as tab delimited .txt file with no column headers.
       Columns are: Ensembl gene id, chr, start, stop."
   ),
-  # TODO: we may want some clustering options here later:
-  # https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/1089
-  # https://github.com/broadinstitute/infercnv/wiki/infercnv-tumor-subclusters#tumor-subclustering-by-leiden-clustering-preferred
   make_option(
-    opt_str = c("--output_dir"),
+    opt_str = "--annotation_file",
     type = "character",
-    help = "Folder to save final infercnv results"
+    default = file.path(project_root, "scratch", "infercnv_annotation.txt"),
+    help = "Path to annotation file for inferCNV input"
   ),
   make_option(
     opt_str = c("--scratch_dir"),
     type = "character",
     default = file.path(project_root, "scratch", "infercnv"),
     help = "path to scratch directory to store intermediate files from infercnv"
-  ),
-  make_option(
-    opt_str = c("--hmm_model"),
-    type = "character",
-    default = "i3",
-    help = "The HMM model to use with inferCNV, either 'i3' or 'i6'. Default is i3."
   ),
   make_option(
     opt_str = c("-t", "--threads"),
