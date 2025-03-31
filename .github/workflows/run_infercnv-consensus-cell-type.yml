@@ -52,10 +52,12 @@ jobs:
           # libcurl4-openssl-dev and lzma-dev are needed for Rhtslib:
           #    https://github.com/samtools/htslib/blob/30c9c50a874059e3dae7ff8c0ad9e8a9258031c8/INSTALL#L31-L41
           # libglpk-dev is needed for igraph
+          # jags is needed for rjags
           sudo apt-get install \
             libcurl4-openssl-dev \
             lzma-dev \
-            libglpk-dev
+            libglpk-dev \
+            jags
 
       - name: Set up renv
         uses: r-lib/actions/setup-renv@v2
