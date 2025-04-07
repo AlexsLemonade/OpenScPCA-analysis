@@ -180,9 +180,10 @@ stopifnot(
 # Define reference group name for inferCNV
 reference_group_name <- "reference"
 
-# Create and export annotation table for inferCNV
-data.frame(cell_id = colnames(sce)) |>
-  dplyr::mutate(annotations = dplyr::if_else(barcodes %in% normal_cells, "reference", "unknown")) |>
+# Create and export annotation table for inferCNV:
+# "unknown" cells are uncharacterized, and "reference" cells are in the reference
+data.frame(cell_id = colnames(raw_counts_matrix)) |>
+  dplyr::mutate(annotations = dplyr::if_else(cell_id %in% colnames(sce), "unknown", "reference")) |>
   readr::write_tsv(opts$annotation_file, col_names = FALSE)
 
 
