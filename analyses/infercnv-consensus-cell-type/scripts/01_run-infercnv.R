@@ -232,8 +232,10 @@ if (!opts$skip_hmm) {
     readr::write_tsv(cnv_metadata_file)
 }
 
-# copy final object to output directory
-fs::file_copy(scratch_obj_file, output_obj_file, overwrite = TRUE)
+# add reference information the options slot and save to output directory
+dat <- readRDS(scratch_obj_file)
+dat@options$normal_reference <- ref_name
+readr::write_rds(dat, output_obj_file, overwrite = TRUE)
 
 # copy png file to output directory
 fs::file_copy(scratch_png, output_png, overwrite = TRUE)
