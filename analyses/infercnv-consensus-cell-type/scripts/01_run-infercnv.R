@@ -7,6 +7,7 @@
 #   --sce_file <input sce file> \
 #   --reference_file <input normal reference file> \
 #   --output_dir <output directory for infercnv results> \
+#   --hmm_type <i3 or i6>
 #
 # For information on additional arguments, run:
 #
@@ -36,14 +37,37 @@ option_list <- list(
     type = "character",
     help = "Folder to save final infercnv results"
   ),
-  # TODO: we may want some clustering options here later:
-  # https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/1089
-  # https://github.com/broadinstitute/infercnv/wiki/infercnv-tumor-subclusters#tumor-subclustering-by-leiden-clustering-preferred
   make_option(
     opt_str = c("--hmm_model"),
     type = "character",
     default = "i3",
     help = "The HMM model to use with inferCNV, either 'i3' or 'i6'. Default is i3."
+  ),
+  make_option(
+    opt_str = c("--skip_hmm"),
+    action = "store_false",
+    default = TRUE,
+    help = "Use this flag to turn off fitting the HMM."
+  ),
+  # clustering options. context:
+  # https://github.com/broadinstitute/infercnv/wiki/infercnv-tumor-subclusters#tumor-subclustering-by-leiden-clustering-preferred
+  make_option(
+    opt_str = c("--leiden_function"),
+    type = "character",
+    default = "modularity", # overrides their default of CPM
+    help = "Objective function to use during leiden clustering"
+  ),
+  make_option(
+    opt_str = c("--leiden_method"),
+    type = "character",
+    default = "PCA",
+    help = "Data on which clustering should be performed, either PCA or simple (expression data itself) for leiden clustering"
+  ),
+  make_option(
+    opt_str = c("--leiden_resolution"),
+    type = "character",
+    default = 1,
+    help = "Resolution value to use with leiden clsutering, which will use modularity by default"
   ),
   make_option(
     opt_str = c("--gene_order_file"),
@@ -67,7 +91,7 @@ option_list <- list(
   make_option(
     opt_str = c("-t", "--threads"),
     type = "integer",
-    default = 1,
+    default = 4,
     help = "Number of multiprocessing threads to use."
   ),
   make_option(
@@ -89,7 +113,7 @@ stopifnot(
   "reference_file does not exist" = file.exists(opts$reference_file),
   "gene_order_file does not exist" = file.exists(opts$gene_order_file),
   "annotation_file does not exist" = file.exists(opts$annotation_file),
-  "output_dir was not specified" = !is.null(opts$output_dir)
+  "output_dir was not specified" = !is.null(opts$output_dir),
   "hmm_model not properly specified" = opts$hmm_model %in% c("i3", "i6")
 )
 
@@ -98,6 +122,9 @@ set.seed(opts$seed)
 
 # read SCE file so we can set up paths with its library id
 sce <- readRDS(opts$sce_file)
+
+# Read in reference SCE file
+ref_sce <- readRDS(opts$reference_file)
 
 # define reference name to set up output files and paths
 ref_name <- stringr::str_remove(
@@ -131,7 +158,7 @@ output_png <- file.path(opts$output_dir, glue::glue("{library_id}_reference-{ref
 
 
 # Prepare input data  ---------------------------------------------
-ref_sce <- readRDS(opts$reference_file)
+
 
 # Update SCE column names to always prefix with library for downstream bookkeeping
 colnames(sce) <- glue::glue("{library_id}-{colnames(sce)}")
@@ -155,10 +182,8 @@ stopifnot(
 reference_group_name <- "reference"
 
 # Create and export annotation table for inferCNV
-data.frame(
-  cell_id = colnames(sce)
-  ) |>
-  dplyr::mutate(annotations = dplyr::if_else(barcodes %in% normal_cells, "reference", "unknown")
+data.frame(cell_id = colnames(sce)) |>
+  dplyr::mutate(annotations = dplyr::if_else(barcodes %in% normal_cells, "reference", "unknown")) |>
   readr::write_tsv(opts$annotation_file, col_names = FALSE)
 
 
@@ -179,10 +204,15 @@ infercnv_obj <- infercnv::run(
   infercnv_obj,
   cutoff = 0.1, # use 1 for smart-seq, 0.1 for 10x-genomics
   out_dir = scratch_dir, # save all intermediate files to scratch dir
-  HMM = TRUE,
+  denoise = TRUE,
+  HMM = !opts$skip_hmm,
   HMM_type = opts$hmm_model, # specifies i3 or i6
   save_rds = FALSE, # don't save the intermediate rds files
-  num_threads = opts$threads
+  num_threads = opts$threads,
+  ###### clustering settings
+  leiden_function = opts$leiden_function,
+  leiden_method = opts$leiden_method,
+  leiden_resolution = opts$leiden_resolution
 )
 
 
