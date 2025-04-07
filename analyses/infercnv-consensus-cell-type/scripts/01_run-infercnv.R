@@ -235,7 +235,7 @@ if (!opts$skip_hmm) {
 # add reference information the options slot and save to output directory
 dat <- readRDS(scratch_obj_file)
 dat@options$normal_reference <- ref_name
-readr::write_rds(dat, output_obj_file, overwrite = TRUE)
+readr::write_rds(dat, output_obj_file)
 
 # copy png file to output directory
 fs::file_copy(scratch_png, output_png, overwrite = TRUE)
