@@ -45,8 +45,8 @@ option_list <- list(
   ),
   make_option(
     opt_str = c("--skip_hmm"),
-    action = "store_false",
-    default = TRUE,
+    action = "store_true",
+    default = FALSE,
     help = "Use this flag to turn off fitting the HMM."
   ),
   # clustering options. context:
@@ -65,7 +65,7 @@ option_list <- list(
   ),
   make_option(
     opt_str = c("--leiden_resolution"),
-    type = "character",
+    type = "numeric",
     default = 1,
     help = "Resolution value to use with leiden clsutering, which will use modularity by default"
   ),
@@ -198,7 +198,6 @@ infercnv_obj <- infercnv::CreateInfercnvObject(
   ref_group_names = reference_group_name
 )
 
-
 # run infercnv
 infercnv_obj <- infercnv::run(
   infercnv_obj,
@@ -215,19 +214,23 @@ infercnv_obj <- infercnv::run(
   leiden_resolution = opts$leiden_resolution
 )
 
-
 # Save final results -----------------------------------------------------------
 
-# create table with barcodes and CNVs for each chromosome
-infercnv::add_to_seurat(
-  seurat_obj = NULL,
-  infercnv_output_path = scratch_dir
-)
+if (!opts$skip_hmm) {
+  # create table with barcodes and CNVs for each chromosome
+  infercnv::add_to_seurat(
+    seurat_obj = NULL,
+    infercnv_output_path = scratch_dir
+  )
 
-# add reference information to metadata file and save to output directory
-readr::read_tsv(scratch_metadata_file) |>
-  dplyr::mutate(normal_reference = ref_name) |>
-  readr::write_tsv(cnv_metadata_file)
+  # add reference information to metadata file and save to output directory
+  # we have to read in with base R, since there are rownames
+  read.table(scratch_metadata_file, header = TRUE, sep = "\t") |>
+    dplyr::mutate(normal_reference = ref_name) |>
+    # pull out row names into cell_id column
+    tibble::rownames_to_column(var = "cell_id") |>
+    readr::write_tsv(cnv_metadata_file)
+}
 
 # copy final object to output directory
 fs::file_copy(scratch_obj_file, output_obj_file, overwrite = TRUE)
