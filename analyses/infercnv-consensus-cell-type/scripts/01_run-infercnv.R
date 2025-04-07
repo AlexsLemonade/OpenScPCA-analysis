@@ -112,7 +112,7 @@ stopifnot(
   "sce_file does not exist" = file.exists(opts$sce_file),
   "reference_file does not exist" = file.exists(opts$reference_file),
   "gene_order_file does not exist" = file.exists(opts$gene_order_file),
-  "annotation_file does not exist" = file.exists(opts$annotation_file),
+  "annotation_file not provided" = !is.null(opts$annotation_file),
   "output_dir was not specified" = !is.null(opts$output_dir),
   "hmm_model not properly specified" = opts$hmm_model %in% c("i3", "i6")
 )
