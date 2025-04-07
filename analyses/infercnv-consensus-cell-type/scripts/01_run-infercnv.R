@@ -88,9 +88,8 @@ stopifnot(
   "sce_file does not exist" = file.exists(opts$sce_file),
   "reference_file does not exist" = file.exists(opts$reference_file),
   "gene_order_file does not exist" = file.exists(opts$gene_order_file),
-  "annotation_file was not specified" = !is.null(opts$annotation_file),
-  "output_dir was not specified" = !is.null(opts$output_dir),
-  "scratch_dir was not specified" = !is.null(opts$scratch_dir),
+  "annotation_file does not exist" = file.exists(opts$annotation_file),
+  "output_dir was not specified" = !is.null(opts$output_dir)
   "hmm_model not properly specified" = opts$hmm_model %in% c("i3", "i6")
 )
 
@@ -157,15 +156,9 @@ reference_group_name <- "reference"
 
 # Create and export annotation table for inferCNV
 data.frame(
-  cell_id = colnames(sce),
-  annotation = "unknown" # TODO: Should we make this a consensus annotation once that information is in the SCEs? Is this overkill?
-) |>
-  dplyr::bind_rows(
-    data.frame(
-      cell_id = colnames(ref_sce),
-      annotation = reference_group_name
-    )
+  cell_id = colnames(sce)
   ) |>
+  dplyr::mutate(annotations = dplyr::if_else(barcodes %in% normal_cells, "reference", "unknown")
   readr::write_tsv(opts$annotation_file, col_names = FALSE)
 
 
