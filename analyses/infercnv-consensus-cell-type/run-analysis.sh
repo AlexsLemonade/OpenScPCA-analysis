@@ -54,9 +54,9 @@ Rscript ${script_dir}/build-normal-reference/build-reference-SCPCP000015.R \
 # Run inferCNV across libraries
 sample_ids=$(basename -a ${project_data_dir}/SCPCS*)
 for sample_id in $sample_ids; do
-    # define sample results directory
+
+    # top-level sample results directory
     sample_results_dir="${project_results_dir}/${sample_id}"
-    mkdir -p $sample_results_dir
 
     for sce_file in ${project_data_dir}/${sample_id}/*_processed.rds; do
         # skip ${exclude_library}
@@ -69,12 +69,13 @@ for sample_id in $sample_ids; do
         Rscript ${script_dir}/01_run-infercnv.R \
             --sce_file $sce_file \
             --reference_file $immune_ref_file \
-            --output_dir $sample_results_dir
+            --output_dir $sample_results_dir/ref-all-immune/
 
         Rscript ${script_dir}/01_run-infercnv.R \
             --sce_file $sce_file \
             --reference_file $immune_subset_ref_file \
-            --output_dir $sample_results_dir
+            --output_dir $sample_results_dir/ref-subset-immune/
+
     done
 done
 
