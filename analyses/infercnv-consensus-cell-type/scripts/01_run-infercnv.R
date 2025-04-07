@@ -120,13 +120,13 @@ stopifnot(
 # Setup files and paths -----------------
 set.seed(opts$seed)
 
-# read SCE file so we can set up paths with its library id
+# read SCE file
 sce <- readRDS(opts$sce_file)
 
 # Read in reference SCE file
 ref_sce <- readRDS(opts$reference_file)
 
-# define reference name to set up output files and paths
+# define reference name to save in output
 ref_name <- stringr::str_remove(
   basename(opts$reference_file),
   "^ref-"
@@ -144,21 +144,20 @@ scratch_dir <- file.path(opts$scratch_dir, library_id)
 fs::dir_create(scratch_dir)
 
 # define output metadata file
-cnv_metadata_file <- file.path(opts$output_dir, glue::glue("{library_id}_reference-{ref_name}_cnv-metadata.tsv"))
+cnv_metadata_file <- file.path(opts$output_dir, glue::glue("{library_id}_cnv-metadata.tsv"))
 # define path to output cnv metadata file saved in scratch dir
 scratch_metadata_file <- file.path(scratch_dir, "map_metadata_from_infercnv.txt")
 
 # define output infercnv obj
 scratch_obj_file <- file.path(scratch_dir, "run.final.infercnv_obj")
-output_obj_file <- file.path(opts$output_dir, glue::glue("{library_id}_reference-{ref_name}_cnv-obj.rds"))
+output_obj_file <- file.path(opts$output_dir, glue::glue("{library_id}_cnv-obj.rds"))
 
 # png file to save
 scratch_png <- file.path(scratch_dir, "infercnv.png")
-output_png <- file.path(opts$output_dir, glue::glue("{library_id}_reference-{ref_name}_infercnv.png"))
+output_png <- file.path(opts$output_dir, glue::glue("{library_id}_infercnv.png"))
 
 
 # Prepare input data  ---------------------------------------------
-
 
 # Update SCE column names to always prefix with library for downstream bookkeeping
 colnames(sce) <- glue::glue("{library_id}-{colnames(sce)}")
@@ -224,8 +223,10 @@ infercnv::add_to_seurat(
   infercnv_output_path = scratch_dir
 )
 
-# format metadata file and save to output directory
-fs::file_copy(scratch_metadata_file, cnv_metadata_file, overwrite = TRUE)
+# add reference information to metadata file and save to output directory
+readr::read_tsv(scratch_metadata_file) |>
+  dplyr::mutate(normal_reference = ref_name) |>
+  readr::write_tsv(cnv_metadata_file)
 
 # copy final object to output directory
 fs::file_copy(scratch_obj_file, output_obj_file, overwrite = TRUE)
