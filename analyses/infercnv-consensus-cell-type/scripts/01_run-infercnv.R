@@ -40,8 +40,8 @@ option_list <- list(
   make_option(
     opt_str = c("--hmm_model"),
     type = "character",
-    default = "i3",
-    help = "The HMM model to use with inferCNV, either 'i3' or 'i6'. Default is i3."
+    default = "i6",
+    help = "The HMM model to use with inferCNV, either 'i3' or 'i6'. Default is i6."
   ),
   make_option(
     opt_str = c("--skip_hmm"),
