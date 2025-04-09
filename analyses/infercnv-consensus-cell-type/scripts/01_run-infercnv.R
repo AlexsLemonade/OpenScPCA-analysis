@@ -195,7 +195,7 @@ infercnv_obj <- infercnv::CreateInfercnvObject(
   annotations_file = opts$annotation_file,
   delim = "\t",
   gene_order_file = opts$gene_order_file,
-  ref_group_names = reference_group_name
+  ref_group_name = reference_group_name
 )
 
 # run infercnv
