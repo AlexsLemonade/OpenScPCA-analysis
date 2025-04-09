@@ -119,7 +119,6 @@ stopifnot(
   "reference_file does not exist" = file.exists(opts$reference_file),
   "gene_order_file does not exist" = file.exists(opts$gene_order_file),
   "annotation_file not provided" = !is.null(opts$annotation_file),
-  "annotation_file directory does not exist" = dir.exists(dirname(opts$annotation_file)),
   "output_dir was not specified" = !is.null(opts$output_dir),
   "hmm_model not properly specified" = opts$hmm_model %in% c("i3", "i6")
 )
@@ -143,12 +142,15 @@ ref_name <- stringr::str_remove(
 # get library id and construct scratch directory
 library_id <- metadata(sce)$library_id
 
-# create output and scratch directory if not already present for library id
-fs::dir_create(opts$output_dir)
-
 # organize scratch by library id
 scratch_dir <- file.path(opts$scratch_dir, library_id)
-fs::dir_create(scratch_dir)
+
+# ensure directories we need exist
+fs::dir_create(c(
+  opts$output_dir,
+  scratch_dir,
+  dirname(opts$annotation_file)
+))
 
 # define output metadata file
 cnv_metadata_file <- file.path(opts$output_dir, glue::glue("{library_id}_cnv-metadata.tsv"))
