@@ -67,29 +67,42 @@ immune_celltypes <- readr::read_tsv(opts$immune_ref_url) |>
 
 # Define data frames of cells to include in each reference ----------
 
-# All immune cells
-immune_cells_df <- celltype_files |>
+# All consensus annotations
+consensus_df <- celltype_files |>
   purrr::map(readr::read_tsv) |>
   purrr::list_rbind() |>
-  # Consider only immune cells not labeled as tumor
+  dplyr::mutate(sce_cell_id = glue::glue("{library_id}-{barcodes}")) |>
+  dplyr::select(sce_cell_id, ewing_annotation, consensus_annotation)
+
+# Pull out immune cells not labeled as tumor
+immune_cells_df <- consensus_df |>
   dplyr::filter(
     consensus_annotation %in% immune_celltypes,
     !(stringr::str_detect(ewing_annotation, "tumor"))
-  ) |>
-  dplyr::mutate(sce_cell_id = glue::glue("{library_id}-{barcodes}")) |>
-  dplyr::select(sce_cell_id, consensus_annotation)
+  )
 
-# Only macrophage and T cell cell types
+# Subset further to only macrophage and T-cell cell types
 immune_subset_cells_df <- immune_cells_df |>
   dplyr::filter(
     consensus_annotation == "macrophage" |
       stringr::str_detect(consensus_annotation, "T cell")
   )
-
 # Subset the SCEs to create references -------------
 
 # first the reference with all immune cells
 all_immune_reference <- merged_sce[, immune_cells_df$sce_cell_id]
+
+# Ensure that the consensus cell type is recorded in reference SCE if not present
+if (!("consensus_annotation" %in% colnames(colData(all_immune_reference)))) {
+  colData(all_immune_reference) <- colData(all_immune_reference) |>
+    as.data.frame() |>
+    # temporarily make the rownames a column so we can join consensus
+    tibble::rownames_to_column(var = "sce_cell_id") |>
+    dplyr::left_join(consensus_df, by = "sce_cell_id") |>
+    dplyr::select(-sce_cell_id) |>
+    # make it a DataFrame again
+    DataFrame(row.names = rownames(colData(all_immune_reference)))
+}
 
 # remove some SCE slots to save space
 logcounts(all_immune_reference) <- NULL
