@@ -52,22 +52,28 @@ option_list <- list(
   # clustering options. context:
   # https://github.com/broadinstitute/infercnv/wiki/infercnv-tumor-subclusters#tumor-subclustering-by-leiden-clustering-preferred
   make_option(
+    opt_str = c("--k_nn"),
+    type = "numeric",
+    default = 20,
+    help = "Number of nearest neighbors to use during leiden clsutering in inferCNV; default is 20"
+  ),
+  make_option(
+    opt_str = c("--leiden_method"),
+    type = "character",
+    default = "PCA",
+    help = "Data on which clustering should be performed in inferCNV, either PCA or simple (expression data itself) for leiden clustering"
+  ),
+  make_option(
     opt_str = c("--leiden_function"),
     type = "character",
     default = "modularity", # overrides their default of CPM
     help = "Objective function to use during leiden clustering"
   ),
   make_option(
-    opt_str = c("--leiden_method"),
-    type = "character",
-    default = "PCA",
-    help = "Data on which clustering should be performed, either PCA or simple (expression data itself) for leiden clustering"
-  ),
-  make_option(
     opt_str = c("--leiden_resolution"),
     type = "numeric",
     default = 1,
-    help = "Resolution value to use with leiden clsutering, which will use modularity by default"
+    help = "Resolution value to use with leiden clustering in inferCNV, which will use modularity by default"
   ),
   make_option(
     opt_str = c("--gene_order_file"),
@@ -113,6 +119,7 @@ stopifnot(
   "reference_file does not exist" = file.exists(opts$reference_file),
   "gene_order_file does not exist" = file.exists(opts$gene_order_file),
   "annotation_file not provided" = !is.null(opts$annotation_file),
+  "annotation_file directory does not exist" = dir.exists(dirname(opts$annotation_file)),
   "output_dir was not specified" = !is.null(opts$output_dir),
   "hmm_model not properly specified" = opts$hmm_model %in% c("i3", "i6")
 )
@@ -183,7 +190,7 @@ reference_group_name <- "reference"
 # Create and export annotation table for inferCNV:
 # "unknown" cells are uncharacterized, and "reference" cells are in the reference
 data.frame(cell_id = colnames(raw_counts_matrix)) |>
-  dplyr::mutate(annotations = dplyr::if_else(cell_id %in% colnames(sce), "unknown", "reference")) |>
+  dplyr::mutate(annotations = dplyr::if_else(cell_id %in% colnames(sce), "unknown", reference_group_name)) |>
   readr::write_tsv(opts$annotation_file, col_names = FALSE)
 
 
