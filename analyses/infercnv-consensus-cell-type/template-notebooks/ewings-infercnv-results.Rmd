@@ -6,6 +6,7 @@ output:
   html_notebook:
     toc: true
     toc_depth: 3
+    code_folding: hide
 params:
   sample_id: SCPCS000490
   library_id: SCPCL000822
@@ -34,9 +35,11 @@ This notebook explores `inferCNV` results run on library `params$library_id` fro
 ```{r}
 options(readr.show_col_types = FALSE)
 
-library(SingleCellExperiment)
-library(ggplot2)
-library(patchwork)
+suppressPackageStartupMessages({
+  library(SingleCellExperiment)
+  library(ggplot2)
+  library(patchwork)
+})
 
 theme_set(theme_bw())
 
@@ -175,7 +178,6 @@ has_cnv_df <- infercnv_df |>
   dplyr::select(
     barcodes,
     normal_reference,
-    subcluster,
     starts_with("has_cnv_")
   ) |>
   tidyr::pivot_longer(
@@ -186,6 +188,7 @@ has_cnv_df <- infercnv_df |>
   # sum all values for each cell, but separately for each run of inferCNV (aka each normal reference)
   dplyr::group_by(barcodes, normal_reference) |>
   dplyr::summarize(total_cnv_per_cell = sum(cnv)) |>
+  dplyr::ungroup() |>
   # add indicator columns for whether the cell is reference or query
   dplyr::mutate(
     immune_reference_cell = barcodes %in% immune_ref_barcodes,
@@ -270,7 +273,7 @@ Next, we'll visualize the total CNV counts as a UMAP.
 
 First, as a guide to interpret the UMAP, let's color by the top 10 `cell-type-ewings` cell types.
 
-```{r}
+```{r, fig.width = 6}
 query_has_cnv_df |>
   # arbitrary filtering, this is just data
   dplyr::filter(normal_reference == "all-immune") |>
@@ -282,21 +285,10 @@ query_has_cnv_df |>
   guides(color = guide_legend(override.aes = list(size = 2, alpha = 1))) +
   umap_theme
 ```
+
 Next, the total CNVs per cell; ideally, higher values will overlap with regions in the UMAP containing putative tumor cells.
 
 ```{r fig.width=10, warning = FALSE}
-# add clusters into data frame
-has_cnv_df <- infercnv_df |>
-  dplyr::select(
-    barcodes,
-    normal_reference,
-    infercnv_cluster = subcluster
-  ) |>
-  dplyr::inner_join(
-    has_cnv_df,
-    by = c("barcodes", "normal_reference")
-  )
-
 # noting we expect warnings with this plot since there's no UMAP coordinates
 # for cells from other libraries in the reference
 ggplot(has_cnv_df) +
@@ -312,7 +304,7 @@ ggplot(has_cnv_df) +
 
 We can also look at CNV predictions directly between references using a point-density scatterplot, with the Spearman correlation shown:
 
-```{r}
+```{r, fig.height=6}
 compare_refs <- has_cnv_df |>
   # bring in library_id so we can only include those cells.
   dplyr::inner_join(
@@ -367,10 +359,19 @@ To see whether we'd like to further tune the clustering parameters, we'll get a 
 First, how many cells are there per cluster?
 Clusters labeled `reference_` contain only normal reference cells, and clusters labeled `unknown_` contain the query cells.
 
-```{r}
-ggplot(has_cnv_df) +
+```{r, fig.width = 10}
+# bring in cluster and library information
+cluster_cnv_df <- has_cnv_df |>
+  dplyr::inner_join(
+    infercnv_df |>
+      dplyr::select(barcodes, library_id, subcluster, normal_reference) |>
+      unique(),
+    by = c("barcodes", "normal_reference")
+  )
+
+ggplot(cluster_cnv_df) +
   # keep in default order so "reference" and "unknown" are grouped
-  aes(x = infercnv_cluster) +
+  aes(x = subcluster) +
   geom_bar() +
   facet_wrap(
     vars(normal_reference),
@@ -384,8 +385,11 @@ Is there a trend for which cell types tend to show up in which cluster?
 We'll plot this for both the consensus and ewing annotations, considering only the top 7 cell types for visual ease.
 
 ```{r fig.width=12}
-ggplot(query_has_cnv_df) +
-  aes(x = infercnv_cluster, fill = forcats::fct_lump(consensus_annotation, 7)) +
+cluster_cnv_df |>
+  # remove cells from other libraries
+  dplyr::filter(library_id == params$library_id) |>
+  ggplot() +
+  aes(x = subcluster, fill = forcats::fct_lump(consensus_annotation, 7)) +
   geom_bar() +
   scale_fill_brewer(palette = "Dark2") +
   facet_wrap(
@@ -400,8 +404,11 @@ ggplot(query_has_cnv_df) +
 ```
 
 ```{r fig.width=12}
-ggplot(query_has_cnv_df) +
-  aes(x = infercnv_cluster, fill = forcats::fct_lump(ewing_annotation, 7)) +
+cluster_cnv_df |>
+  # remove cells from other libraries
+  dplyr::filter(library_id == params$library_id) |>
+  ggplot() +
+  aes(x = subcluster, fill = forcats::fct_lump(ewing_annotation, 7)) +
   geom_bar() +
   scale_fill_brewer(palette = "Set1") +
   facet_wrap(
@@ -419,25 +426,19 @@ Let's also look more specifically at the `reference` clusters, where we might ex
 Do originating libraries cluster together?
 
 ```{r fig.width=10}
-all_reference_clusters <- has_cnv_df |>
-  # bring in library_id
-  dplyr::inner_join(
-    infercnv_df |>
-      dplyr::select(barcodes, library_id) |>
-      unique()
-  ) |>
+all_reference_clusters <- cluster_cnv_df |>
   dplyr::filter(
     normal_reference == "all-immune",
     immune_reference_cell
   )
 all_plot <- ggplot(all_reference_clusters) +
-  aes(x = infercnv_cluster, fill = library_id) +
+  aes(x = subcluster, fill = library_id) +
   geom_bar() +
   labs("All immune reference") +
   theme(legend.position = "bottom")
 
 
-subset_reference_clusters <- has_cnv_df |>
+subset_reference_clusters <- cluster_cnv_df |>
   # bring in library_id
   dplyr::inner_join(
     infercnv_df |>
@@ -449,7 +450,7 @@ subset_reference_clusters <- has_cnv_df |>
     subset_reference_cell
   )
 subset_plot <- ggplot(subset_reference_clusters) +
-  aes(x = infercnv_cluster, fill = library_id) +
+  aes(x = subcluster, fill = library_id) +
   geom_bar() +
   labs("Subset immune reference") +
   theme(legend.position = "bottom")
@@ -459,15 +460,13 @@ wrap_plots(all_plot, subset_plot, guides = "collect") &
 ```
 
 
-
 How many CNVs were inferred per cluster?
 We expect a single value here, because with `analysis_mode = "subclusters"` (the `inferCNV` default), CNV parameters are estimated per cluster.
 
-
 ```{r}
 # How many CNV per cell per cluster?
-ggplot(per_cell_cnv_df) +
-  aes(x = infercnv_cluster, y = total_cnv_per_cell) +
+ggplot(cluster_cnv_df) +
+  aes(x = subcluster, y = total_cnv_per_cell) +
   geom_point(size = 2) +
   facet_wrap(
     vars(normal_reference),
@@ -479,59 +478,70 @@ ggplot(per_cell_cnv_df) +
 
 ## CNV across chromosomes
 
-Now, we'll look at CNVs across chromosomes, including specific CNVs we expect to see in Ewing sarcoma:
+Now, we'll look at CNVs across chromosomes, specifically considering the `proportion_scaled_cnv_` output from the HMM.
+
+Again, these are the specific CNVs we expect to see in Ewing sarcoma:
 
 ```{r}
 validation_df
 ```
 
 ```{r}
+# First, construct data frame with proportion_scaled_ instead of has_cnv
 cnv_validation_df <- infercnv_df |>
   dplyr::select(
     barcodes,
-    infercnv_cluster,
-    total_cnv_per_cell,
+    library_id,
     normal_reference,
-    is_immune_reference,
-    is_subset_reference,
-    all_of(
-      c(
-        glue::glue("proportion_scaled_cnv_chr{1:22}"),
-        glue::glue("proportion_scaled_loss_chr{1:22}"),
-        glue::glue("proportion_scaled_dupli_chr{1:22}")
-      )
-    )
+    starts_with("proportion_scaled_")
   ) |>
+  # tidy up
   tidyr::pivot_longer(
     starts_with("proportion_scaled_"),
     names_to = "cnv_type_raw",
     values_to = "proportion"
   ) |>
+  # more tidying
   dplyr::mutate(cnv_type_raw = stringr::str_remove(cnv_type_raw, "^proportion_scaled_")) |>
-  tidyr::separate(cnv_type_raw, into = c("cnv_type", "chr")) |>
-  dplyr::mutate(chr = stringr::str_remove(chr, "^chr"), chr = as.numeric(chr))
+  tidyr::separate(cnv_type_raw, sep = "_", into = c("cnv_type", "chr")) |>
+  # remove extra chromosomes and cells not in this library, and then can make chr numeric
+  dplyr::filter(
+    !stringr::str_starts(chr, "chrMT"),
+    !stringr::str_starts(chr, "chrGL"),
+    library_id == params$library_id
+  ) |>
+  dplyr::mutate(
+    chr = stringr::str_remove(chr, "^chr"),
+    chr = as.numeric(chr)
+  )
 ```
 
-```{r}
+We'll make density plots of the predicted CNV events across chromosomes, for each of the two normal references:
+
+
+```{r fig.height=8, fig.width=8}
+cnv_validation_df |>
+  dplyr::filter(normal_reference == "all-immune") |>
+  ggplot() +
+  aes(
+    x = proportion,
+    color = cnv_type
+  ) +
+  geom_density() +
+  facet_wrap(vars(chr)) +
+  ggtitle("All immune reference")
+
+
 cnv_validation_df |>
   dplyr::filter(normal_reference == "subset-immune") |>
   ggplot() +
   aes(
     x = proportion,
-    color = is_subset_reference
+    color = cnv_type
   ) +
   geom_density() +
-  facet_wrap(vars(chr))
-
-
-cnv_validation_df |>
-  dplyr::group_by(
-    normal_reference,
-    cnv_type,
-    chr
-  ) |>
-  dplyr::summarize(median_proportion = median(proportion)) |>
-  dplyr::arrange(cnv_type)
+  facet_wrap(vars(chr)) +
+  ggtitle("Subset immune reference")
 ```
 
 ## Session Info
