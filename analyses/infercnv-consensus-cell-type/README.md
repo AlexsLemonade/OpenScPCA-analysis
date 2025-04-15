@@ -1,4 +1,4 @@
-# infercnv-consensus-cell-type
+# `infercnv-consensus-cell-type`
 
 ## Description
 
