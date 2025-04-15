@@ -113,9 +113,6 @@ sce_file <- file.path(
 validation_df <- readr::read_tsv(validation_tsv) |>
   dplyr::filter(diagnosis == "Ewing sarcoma")
 
-celltype_df <- readr::read_tsv(ewings_tsv) |>
-  dplyr::select(barcodes, consensus_annotation, ewing_annotation)
-
 immune_ref_barcodes <- readr::read_rds(immune_ref_sce_file) |>
   colnames() |>
   stringr::str_split_i("-", 2)
@@ -131,13 +128,19 @@ infercnv_df <- readr::read_tsv(immune_hmm_tsv) |>
   ) |>
   tidyr::separate(cell_id, into = c("library_id", "barcodes"))
 
-# Read SCE and save UMAP coordinates
+# Read SCE and save UMAP coordinates and cell types
 umap_df <- readr::read_rds(sce_file) |>
   scuttle::makePerCellDF(use.dimred = "UMAP") |>
   dplyr::select(
     barcodes,
     UMAP1 = UMAP.1,
     UMAP2 = UMAP.2
+  ) |>
+  # TODO: We currently are bringing in cell types from separate files, but in the next
+  # data release they will be in the SCE objects
+  dplyr::inner_join(
+    readr::read_tsv(ewings_tsv) |>
+      dplyr::select(barcodes, consensus_annotation, ewing_annotation)
   )
 ```
 
@@ -194,9 +197,15 @@ has_cnv_df <- infercnv_df |>
     immune_reference_cell = barcodes %in% immune_ref_barcodes,
     subset_reference_cell = barcodes %in% subset_ref_barcodes
   ) |>
-  # join in other data
-  dplyr::left_join(celltype_df) |>
-  dplyr::left_join(umap_df)
+  # join in SCE information
+  dplyr::left_join(umap_df) |>
+  # finally, bring back in cluster and library information
+  dplyr::left_join(
+    infercnv_df |>
+      dplyr::select(barcodes, library_id, subcluster, normal_reference) |>
+      unique(),
+    by = c("barcodes", "normal_reference")
+  )
 ```
 
 
@@ -234,9 +243,9 @@ Ideally, we'll see that Unknown cells from `cell-type-consensus` and cells label
 In addition, comparing distributions between `all-immune` and `subset-immune` may be helpful to identify the optimal normal reference strategy.
 
 ```{r fig.height=10, fig.width=12, message=FALSE, warning=FALSE}
-# drop NAs from reference cells from other libraries
+# drop cells from other libraries
 query_has_cnv_df <- has_cnv_df |>
-  tidyr::drop_na(ewing_annotation, consensus_annotation)
+  dplyr::filter(library_id == params$library_id)
 
 consensus_violin <- ggplot(query_has_cnv_df) +
   aes(
@@ -274,14 +283,10 @@ Next, we'll visualize the total CNV counts as a UMAP.
 First, as a guide to interpret the UMAP, let's color by the top 10 `cell-type-ewings` cell types.
 
 ```{r, fig.width = 6}
-query_has_cnv_df |>
-  # arbitrary filtering, this is just data
-  dplyr::filter(normal_reference == "all-immune") |>
-  ggplot() +
+ggplot(umap_df) +
   aes(x = UMAP1, y = UMAP2, color = forcats::fct_lump(ewing_annotation, 8)) +
   geom_point(size = 0.1, alpha = 0.3) +
-  facet_wrap(vars(normal_reference)) +
-  labs(color = "annotation") +
+  labs(color = "ewings annotation") +
   guides(color = guide_legend(override.aes = list(size = 2, alpha = 1))) +
   umap_theme
 ```
@@ -306,12 +311,6 @@ We can also look at CNV predictions directly between references using a point-de
 
 ```{r, fig.height=6}
 compare_refs <- has_cnv_df |>
-  # bring in library_id so we can only include those cells.
-  dplyr::inner_join(
-    infercnv_df |>
-      dplyr::select(barcodes, library_id) |>
-      unique()
-  ) |>
   dplyr::filter(library_id == params$library_id) |>
   dplyr::select(
     barcodes, normal_reference, total_cnv_per_cell
@@ -360,16 +359,7 @@ First, how many cells are there per cluster?
 Clusters labeled `reference_` contain only normal reference cells, and clusters labeled `unknown_` contain the query cells.
 
 ```{r, fig.width = 10}
-# bring in cluster and library information
-cluster_cnv_df <- has_cnv_df |>
-  dplyr::inner_join(
-    infercnv_df |>
-      dplyr::select(barcodes, library_id, subcluster, normal_reference) |>
-      unique(),
-    by = c("barcodes", "normal_reference")
-  )
-
-ggplot(cluster_cnv_df) +
+ggplot(has_cnv_df) +
   # keep in default order so "reference" and "unknown" are grouped
   aes(x = subcluster) +
   geom_bar() +
@@ -385,10 +375,7 @@ Is there a trend for which cell types tend to show up in which cluster?
 We'll plot this for both the consensus and ewing annotations, considering only the top 7 cell types for visual ease.
 
 ```{r fig.width=12}
-cluster_cnv_df |>
-  # remove cells from other libraries
-  dplyr::filter(library_id == params$library_id) |>
-  ggplot() +
+ggplot(query_has_cnv_df) +
   aes(x = subcluster, fill = forcats::fct_lump(consensus_annotation, 7)) +
   geom_bar() +
   scale_fill_brewer(palette = "Dark2") +
@@ -404,10 +391,7 @@ cluster_cnv_df |>
 ```
 
 ```{r fig.width=12}
-cluster_cnv_df |>
-  # remove cells from other libraries
-  dplyr::filter(library_id == params$library_id) |>
-  ggplot() +
+ggplot(query_has_cnv_df) +
   aes(x = subcluster, fill = forcats::fct_lump(ewing_annotation, 7)) +
   geom_bar() +
   scale_fill_brewer(palette = "Set1") +
@@ -426,7 +410,7 @@ Let's also look more specifically at the `reference` clusters, where we might ex
 Do originating libraries cluster together?
 
 ```{r fig.width=10}
-all_reference_clusters <- cluster_cnv_df |>
+all_reference_clusters <- has_cnv_df |>
   dplyr::filter(
     normal_reference == "all-immune",
     immune_reference_cell
@@ -438,7 +422,7 @@ all_plot <- ggplot(all_reference_clusters) +
   theme(legend.position = "bottom")
 
 
-subset_reference_clusters <- cluster_cnv_df |>
+subset_reference_clusters <- has_cnv_df |>
   # bring in library_id
   dplyr::inner_join(
     infercnv_df |>
@@ -465,7 +449,7 @@ We expect a single value here, because with `analysis_mode = "subclusters"` (the
 
 ```{r}
 # How many CNV per cell per cluster?
-ggplot(cluster_cnv_df) +
+ggplot(has_cnv_df) +
   aes(x = subcluster, y = total_cnv_per_cell) +
   geom_point(size = 2) +
   facet_wrap(
