@@ -73,14 +73,14 @@ for sample_id in $sample_ids; do
             --sce_file $sce_file \
             --reference_file $immune_ref_file \
             --output_dir $sample_results_dir/ref-all-immune \
-            --hmm_model "i3" \
+            --hmm_model "i6" \
             --threads $threads
 
         Rscript ${script_dir}/01_run-infercnv.R \
             --sce_file $sce_file \
             --reference_file $immune_subset_ref_file \
             --output_dir $sample_results_dir/ref-subset-immune \
-            --hmm_model "i3" \
+            --hmm_model "i6" \
             --threads $threads
 
     done
