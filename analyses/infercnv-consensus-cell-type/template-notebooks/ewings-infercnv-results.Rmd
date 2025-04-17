@@ -23,7 +23,7 @@ This notebook explores `inferCNV` results run on library `params$library_id` fro
 
 `inferCNV` was run with the following settings:
 
-* We used the `i3` HMM which has improved run times relative to the `i6` HMM.
+* We used the `i6` HMM
 * We used the default `analysis_mode = "subclusters"`, which allows the HMM to call CNVs at the level of clusters rather than whole samples or individual cells
 * We used the following clustering parameters:
   * Leiden clustering run on PCA (not the expression matrix)
@@ -303,51 +303,6 @@ ggplot(has_cnv_df) +
   facet_wrap(vars(normal_reference)) +
   labs(title = "Total CNV per cell") +
   umap_theme
-```
-
-## Compare references directly
-
-We can also look at CNV predictions directly between references using a point-density scatterplot, with the Spearman correlation shown:
-
-```{r, fig.height=6}
-compare_refs <- has_cnv_df |>
-  dplyr::filter(library_id == params$library_id) |>
-  dplyr::select(
-    barcodes, normal_reference, total_cnv_per_cell
-  ) |>
-  tidyr::pivot_wider(
-    names_from = normal_reference,
-    values_from = total_cnv_per_cell
-  ) |>
-  # color points this way rather than binning to ensure small bins aren't left out
-  dplyr::add_count(`all-immune`, `subset-immune`)
-
-# Determine max limit for axes
-max_axis <- max(has_cnv_df$total_cnv_per_cell)
-axis_breaks <- 1:max_axis
-
-# Calculate in spearman correlation coefficient to include in plot
-rho <- cor(compare_refs$`all-immune`, compare_refs$`subset-immune`, method = "spearman") |>
-  round(2)
-
-ggplot(compare_refs) +
-  aes(
-    x = `all-immune`,
-    y = `subset-immune`,
-    color = n
-  ) +
-  geom_point(size = 5) +
-  geom_abline(color = "red") +
-  scale_color_viridis_c() +
-  coord_equal() +
-  scale_x_continuous(limits = c(0, max_axis), breaks = 1:max_axis) +
-  scale_y_continuous(limits = c(0, max_axis), breaks = 1:max_axis) +
-  labs(
-    title = "Per-cell CNVs between normal references",
-    subtitle = glue::glue("rho = {rho}"),
-    color = "Number of cells"
-  ) +
-  theme(legend.position = "bottom")
 ```
 
 ## Clusters
