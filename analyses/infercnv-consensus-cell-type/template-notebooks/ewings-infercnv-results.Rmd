@@ -78,6 +78,9 @@ data_dir <- file.path(repository_base, "data", "current")
 # TSV with expected Ewing CNVs
 validation_tsv <- file.path(ref_dir, "cnv-validation.tsv")
 
+# immune cell URL to check for ambiguous cell types
+immune_url <- "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/consensus-immune-cell-types.tsv"
+
 # References themselves so we know which cells belong to reference
 immune_ref_sce_file <- file.path(ref_dir, "normal-references", "SCPCP000015", "ref-all-immune.rds")
 subset_ref_sce_file <- file.path(ref_dir, "normal-references", "SCPCP000015", "ref-subset-immune.rds")
@@ -113,6 +116,9 @@ sce_file <- file.path(
 validation_df <- readr::read_tsv(validation_tsv) |>
   dplyr::filter(diagnosis == "Ewing sarcoma")
 
+immune_labels <- readr::read_tsv(immune_url) |>
+  dplyr::pull(consensus_annotation)
+
 immune_ref_barcodes <- readr::read_rds(immune_ref_sce_file) |>
   colnames() |>
   stringr::str_split_i("-", 2)
@@ -135,13 +141,30 @@ umap_df <- readr::read_rds(sce_file) |>
     barcodes,
     UMAP1 = UMAP.1,
     UMAP2 = UMAP.2
-  ) |>
-  # TODO: We currently are bringing in cell types from separate files, but in the next
-  # data release they will be in the SCE objects
-  dplyr::inner_join(
-    readr::read_tsv(ewings_tsv) |>
-      dplyr::select(barcodes, consensus_annotation, ewing_annotation)
   )
+
+# TODO: We currently are bringing in cell types from separate files, but in the next
+# data release they will be in the SCE objects this could be part of the colData wrangling above.
+celltype_df <- readr::read_tsv(ewings_tsv) |>
+  # Label cells as:
+  # - tumor-immune: Cells labeled as tumor by cell-type-ewings, but immune by cell-type-consensus
+  # - tumor: Cells labeled as tumor by cell-type-ewings
+  # - their existing ewing_annotation if none of the above
+  dplyr::mutate(
+    celltype = dplyr::case_when(
+      ## tumor-immune
+      consensus_annotation %in% immune_labels &
+        stringr::str_starts(ewing_annotation, "tumor") ~ "tumor-immune",
+      ## tumor
+      stringr::str_starts(ewing_annotation, "tumor") ~ "tumor",
+      ## default
+      .default = ewing_annotation
+    )
+  ) |>
+  dplyr::select(barcodes, celltype)
+
+umap_df <- umap_df |>
+  dplyr::left_join(celltype_df)
 ```
 
 
@@ -239,39 +262,27 @@ wrap_plots(all_plot, subset_plot) +
 Next, we'll look at the per-cell distributions of CNVs across cell types.
 Specifically, we'll look at both the cell types from the `cell-type-consensus` module and the `cell-type-ewings` module separately.
 
-Ideally, we'll see that Unknown cells from `cell-type-consensus` and cells labeled as tumor in `cell-type-ewings` will have relatively higher CNV scores compared to other cell types.
-In addition, comparing distributions between `all-immune` and `subset-immune` may be helpful to identify the optimal normal reference strategy.
+Ideally, we'll see that tumor and Unknown cells from `cell-type-consensus` and cells labeled as tumor in `cell-type-ewings` will have relatively higher CNV scores compared to other cell types.
+
+In addition, it will be useful to:
+
+* See values for cells labeled `tumor-immune`, which were labeled as `tumor` by `cell-type-ewings` but as an immune cell type by `cell-type-consensus`
+* Compare distributions between `all-immune` and `subset-immune` which may support identifying the optimal normal reference strategy.
 
 ```{r fig.height=10, fig.width=12, message=FALSE, warning=FALSE}
 # drop cells from other libraries
 query_has_cnv_df <- has_cnv_df |>
   dplyr::filter(library_id == params$library_id)
 
-consensus_violin <- ggplot(query_has_cnv_df) +
+ggplot(query_has_cnv_df) +
   aes(
-    x = consensus_annotation,
+    x = celltype,
     y = total_cnv_per_cell,
     fill = normal_reference
   ) +
   geom_violin(scale = "width") +
   scale_fill_brewer(palette = "Pastel2") +
-  labs(title = "Annotations from cell-type-consensus") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-ewings_violin <- ggplot(query_has_cnv_df) +
-  aes(
-    x = ewing_annotation,
-    y = total_cnv_per_cell,
-    fill = normal_reference
-  ) +
-  geom_violin(scale = "width") +
-  scale_fill_brewer(palette = "Pastel2") +
-  labs(title = "Annotations from cell-type-ewings") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-wrap_plots(consensus_violin, ewings_violin, ncol = 1, guides = "collect") +
-  plot_annotation(title = "CNV scores across cell types") &
-  theme(legend.position = "bottom")
 ```
 
 
@@ -280,13 +291,12 @@ wrap_plots(consensus_violin, ewings_violin, ncol = 1, guides = "collect") +
 
 Next, we'll visualize the total CNV counts as a UMAP.
 
-First, as a guide to interpret the UMAP, let's color by the top 10 `cell-type-ewings` cell types.
+First, as a guide to interpret the UMAP, let's color by cell types.
 
 ```{r, fig.width = 6}
 ggplot(umap_df) +
-  aes(x = UMAP1, y = UMAP2, color = forcats::fct_lump(ewing_annotation, 8)) +
+  aes(x = UMAP1, y = UMAP2, color = celltype) +
   geom_point(size = 0.1, alpha = 0.3) +
-  labs(color = "ewings annotation") +
   guides(color = guide_legend(override.aes = list(size = 2, alpha = 1))) +
   umap_theme
 ```
@@ -327,36 +337,15 @@ ggplot(has_cnv_df) +
 
 Let's also look at the distributions of cell types in clusters.
 Is there a trend for which cell types tend to show up in which cluster?
-We'll plot this for both the consensus and ewing annotations, considering only the top 7 cell types for visual ease.
 
 ```{r fig.width=12}
 ggplot(query_has_cnv_df) +
-  aes(x = subcluster, fill = forcats::fct_lump(consensus_annotation, 7)) +
-  geom_bar() +
-  scale_fill_brewer(palette = "Dark2") +
-  facet_wrap(
-    vars(normal_reference),
-    scales = "free_x"
-  ) +
-  labs(
-    title = "Consensus cell types",
-    fill = "annotation"
-  ) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-```
-
-```{r fig.width=12}
-ggplot(query_has_cnv_df) +
-  aes(x = subcluster, fill = forcats::fct_lump(ewing_annotation, 7)) +
+  aes(x = subcluster, fill = celltype) +
   geom_bar() +
   scale_fill_brewer(palette = "Set1") +
   facet_wrap(
     vars(normal_reference),
     scales = "free_x"
-  ) +
-  labs(
-    title = "Ewing cell types",
-    fill = "annotation"
   ) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
