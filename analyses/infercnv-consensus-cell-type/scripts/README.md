@@ -12,4 +12,4 @@ These SCE objects should contain at least:
 
 * A raw counts matrix
 * Column names (cell ids) formatted as `{library_id}-{barcode}`
-* A colData column `consensus_annotation` recording each cell's consensus annotation
+* A `colData` column `consensus_annotation` recording each cell's consensus annotation

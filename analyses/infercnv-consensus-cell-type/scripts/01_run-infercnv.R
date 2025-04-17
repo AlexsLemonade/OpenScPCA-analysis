@@ -40,8 +40,8 @@ option_list <- list(
   make_option(
     opt_str = c("--hmm_model"),
     type = "character",
-    default = "i3",
-    help = "The HMM model to use with inferCNV, either 'i3' or 'i6'. Default is i3."
+    default = "i6",
+    help = "The HMM model to use with inferCNV, either 'i3' or 'i6'. Default is i6."
   ),
   make_option(
     opt_str = c("--skip_hmm"),
@@ -144,6 +144,12 @@ library_id <- metadata(sce)$library_id
 
 # organize scratch by library id
 scratch_dir <- file.path(opts$scratch_dir, library_id)
+
+# if scratch_dir exists, we need to remove it to prevent conflicts from previous inferCNV runs
+if (dir.exists(scratch_dir)) {
+  fs::dir_delete(scratch_dir)
+}
+
 
 # ensure directories we need exist
 fs::dir_create(c(
