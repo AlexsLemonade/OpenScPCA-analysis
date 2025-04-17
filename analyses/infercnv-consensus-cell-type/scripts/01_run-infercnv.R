@@ -145,6 +145,12 @@ library_id <- metadata(sce)$library_id
 # organize scratch by library id
 scratch_dir <- file.path(opts$scratch_dir, library_id)
 
+# if scratch_dir exists, we need to remove it to prevent conflicts from previous inferCNV runs
+if (dir.exists(scratch_dir)) {
+  fs::dir_delete(scratch_dir)
+}
+
+
 # ensure directories we need exist
 fs::dir_create(c(
   opts$output_dir,
