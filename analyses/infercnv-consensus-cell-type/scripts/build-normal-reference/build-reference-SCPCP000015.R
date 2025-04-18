@@ -29,6 +29,11 @@ option_list <- list(
     help = "Path to output RDS file to save an SCE file to use as a normal reference with a subset Ewing immune cells, specifically macrophages and T cell types"
   ),
   make_option(
+    opt_str = "--reference_endo",
+    type = "character",
+    help = "Path to output RDS file to save an SCE file to use as a normal reference with all Ewing endothelial cells"
+  ),
+  make_option(
     opt_str = "--immune_ref_url",
     type = "character",
     default = "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/consensus-immune-cell-types.tsv",
@@ -87,7 +92,23 @@ immune_subset_cells_df <- immune_cells_df |>
     consensus_annotation == "macrophage" |
       stringr::str_detect(consensus_annotation, "T cell")
   )
+
+# Subset to the endothelial cells only
+endo_cells_df <- consensus_df |>
+  dplyr::filter(consensus_annotation == "endothelial cell")
+
 # Subset the SCEs to create references -------------
+
+# Define helper function to remove unneeded slots
+# from a reference SCE to save space
+clean_sce <- function(sce) {
+  logcounts(sce) <- NULL
+  assay(sce, "spliced") <- NULL
+  reducedDim(sce, "PCA") <- NULL
+  reducedDim(sce, "UMAP") <- NULL
+
+  return(sce)
+}
 
 # first the reference with all immune cells
 all_immune_reference <- merged_sce[, immune_cells_df$sce_cell_id]
@@ -105,14 +126,16 @@ if (!("consensus_annotation" %in% colnames(colData(all_immune_reference)))) {
 }
 
 # remove some SCE slots to save space
-logcounts(all_immune_reference) <- NULL
-assay(all_immune_reference, "spliced") <- NULL
-reducedDim(all_immune_reference, "PCA") <- NULL
-reducedDim(all_immune_reference, "UMAP") <- NULL
+all_immune_reference <- clean_sce(all_immune_reference)
 
 # subset it to create the second reference
 subset_immune_reference <- all_immune_reference[, immune_subset_cells_df$sce_cell_id]
 
+# finally, the endo reference
+endo_reference <- merged_sce[, endo_cells_df$sce_cell_id] |>
+  clean_sce()
+
 # Export references ---------
 readr::write_rds(all_immune_reference, opts$reference_immune, compress = "gz")
 readr::write_rds(subset_immune_reference, opts$reference_immune_subset, compress = "gz")
+readr::write_rds(endo_reference, opts$reference_endo, compress = "gz")
