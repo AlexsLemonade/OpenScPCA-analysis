@@ -160,7 +160,6 @@ if (dir.exists(scratch_dir)) {
   fs::dir_delete(scratch_dir)
 }
 
-
 # ensure directories we need exist
 fs::dir_create(c(
   opts$output_dir,
@@ -180,7 +179,6 @@ output_obj_file <- file.path(opts$output_dir, glue::glue("{library_id}_cnv-obj.r
 # png file to save
 scratch_png <- file.path(scratch_dir, "infercnv.png")
 output_png <- file.path(opts$output_dir, glue::glue("{library_id}_infercnv.png"))
-
 
 # Prepare input data  ---------------------------------------------
 
@@ -222,7 +220,6 @@ infercnv_obj <- infercnv::CreateInfercnvObject(
   gene_order_file = opts$gene_order_file,
   ref_group_name = reference_group_name
 )
-
 
 # run infercnv
 infercnv_obj <- infercnv::run(
