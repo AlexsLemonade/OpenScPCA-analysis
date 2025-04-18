@@ -10,13 +10,11 @@ suppressPackageStartupMessages({
 option_list <- list(
   make_option(
     opt_str = "--merged_sce_file",
-    default = "../../data/current/results/merge-sce/SCPCP000015/SCPCP000015_merged.rds",
     type = "character",
     help = "Path to the merged SingleCellExperiment object"
   ),
   make_option(
     opt_str = "--cell_type_ewings_dir",
-    default = "../../data/current/results/cell-type-ewings/SCPCP000015/",
     type = "character",
     help = "Path to directory containing results from the `cell-type-ewings` module"
   ),
