@@ -18,9 +18,9 @@ TESTING=${testing:-0}
 
 # If we are testing, we should use the i3 HMM model with inferCNV
 if [[ $TESTING -eq 1 ]]; then
-    hmm_type="i3"
+    hmm_model="i3"
 else
-    hmm_type="i6"
+    hmm_model="i6"
 fi
 
 # Define directories and file paths
@@ -80,13 +80,13 @@ for sample_id in $sample_ids; do
         Rscript ${script_dir}/01_run-infercnv.R \
             --sce_file $sce_file \
             --reference_file $immune_ref_file \
-            --hmm_type ${hmm_type} \
+            --hmm_model ${hmm_model} \
             --output_dir $sample_results_dir/ref-all-immune/
 
         Rscript ${script_dir}/01_run-infercnv.R \
             --sce_file $sce_file \
             --reference_file $immune_subset_ref_file \
-            --hmm_type ${hmm_type} \
+            --hmm_model ${hmm_model} \
             --output_dir $sample_results_dir/ref-subset-immune/
 
     done
