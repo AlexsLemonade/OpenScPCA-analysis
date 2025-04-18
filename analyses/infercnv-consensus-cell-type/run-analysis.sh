@@ -14,10 +14,10 @@ module_dir=$(dirname "${BASH_SOURCE[0]}")
 cd ${module_dir}
 
 # Set up input variables
-TESTING=${testing:-0}
+TESTING=${TESTING:-0}
 
 # If we are testing, we should use the i3 HMM model with inferCNV
-if [[ $TESTING -eq 1 ]]; then
+if [[ $TESTING == 1 ]]; then
     hmm_model="i3"
 else
     hmm_model="i6"
