@@ -25,10 +25,7 @@ This notebook explores `inferCNV` results run on library `params$library_id` fro
 
 * We used the `i6` HMM
 * We used the default `analysis_mode = "subclusters"`, which allows the HMM to call CNVs at the level of clusters rather than whole samples or individual cells
-* We used the following clustering parameters:
-  * Leiden clustering run on PCA (not the expression matrix)
-  * `k=20` nearest neighbors with a `resolution` parameter of 1 and using the `modularity` objective function 
-
+* We used the default `inferCNV` clustering parameters
 
 ## Setup
 
@@ -340,7 +337,7 @@ Is there a trend for which cell types tend to show up in which cluster?
 
 ```{r fig.width=12}
 ggplot(query_has_cnv_df) +
-  aes(x = subcluster, fill = celltype) +
+  aes(x = subcluster, fill = forcats::fct_lump(celltype, 8)) +
   geom_bar() +
   scale_fill_brewer(palette = "Set1") +
   facet_wrap(
