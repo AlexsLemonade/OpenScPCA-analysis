@@ -8,9 +8,20 @@
 
 set -euo pipefail
 
+
 # Ensure script is being run from its directory
 module_dir=$(dirname "${BASH_SOURCE[0]}")
 cd ${module_dir}
+
+# Set up input variables
+TESTING=${TESTING:-0}
+
+# If we are testing, we should use the i3 HMM model with inferCNV
+if [[ $TESTING == 1 ]]; then
+    hmm_model="i3"
+else
+    hmm_model="i6"
+fi
 
 # Define directories and file paths
 data_dir="../../data/current"
@@ -69,11 +80,13 @@ for sample_id in $sample_ids; do
         Rscript ${script_dir}/01_run-infercnv.R \
             --sce_file $sce_file \
             --reference_file $immune_ref_file \
+            --hmm_model ${hmm_model} \
             --output_dir $sample_results_dir/ref-all-immune/
 
         Rscript ${script_dir}/01_run-infercnv.R \
             --sce_file $sce_file \
             --reference_file $immune_subset_ref_file \
+            --hmm_model ${hmm_model} \
             --output_dir $sample_results_dir/ref-subset-immune/
 
     done

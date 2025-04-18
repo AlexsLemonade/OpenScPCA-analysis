@@ -7,7 +7,7 @@
 #   --sce_file <input sce file> \
 #   --reference_file <input normal reference file> \
 #   --output_dir <output directory for infercnv results> \
-#   --hmm_type <i3 or i6>
+#   --hmm_model <i3 or i6>
 #
 # For information on additional arguments, run:
 #
