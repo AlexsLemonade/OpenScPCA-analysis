@@ -43,13 +43,16 @@ ewings_ref_dir="${infercnv_ref_dir}/SCPCP000015"
 mkdir -p ${ewings_ref_dir}
 immune_ref_file="${ewings_ref_dir}/ref-all-immune.rds"
 immune_subset_ref_file="${ewings_ref_dir}/ref-subset-immune.rds"
+endo_ref_file="${ewings_ref_dir}/ref-endo.rds"
 
 # Build the SCPCP000015 reference files
 Rscript ${script_dir}/build-normal-reference/build-reference-SCPCP000015.R \
     --merged_sce_file ${merged_sce_file} \
     --cell_type_ewings_dir ${cell_type_ewings_dir} \
     --reference_immune ${immune_ref_file} \
-    --reference_immune_subset ${immune_subset_ref_file}
+    --reference_immune_subset ${immune_subset_ref_file} \
+    --reference_endo ${endo_ref_file}
+
 
 # Run inferCNV across libraries
 sample_ids=$(basename -a ${project_data_dir}/SCPCS*)
