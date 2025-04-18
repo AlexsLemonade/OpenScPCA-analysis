@@ -40,8 +40,8 @@ option_list <- list(
   make_option(
     opt_str = c("--hmm_model"),
     type = "character",
-    default = "i3",
-    help = "The HMM model to use with inferCNV, either 'i3' or 'i6'. Default is i3."
+    default = "i6",
+    help = "The HMM model to use with inferCNV, either 'i3' or 'i6'. Default is i6."
   ),
   make_option(
     opt_str = c("--skip_hmm"),
@@ -66,14 +66,14 @@ option_list <- list(
   make_option(
     opt_str = c("--leiden_function"),
     type = "character",
-    default = "modularity", # overrides their default of CPM
+    default = "CPM",
     help = "Objective function to use during leiden clustering"
   ),
   make_option(
     opt_str = c("--leiden_resolution"),
-    type = "numeric",
-    default = 1,
-    help = "Resolution value to use with leiden clustering in inferCNV, which will use modularity by default"
+    type = "character", # note this will get converted to numeric later if needed
+    default = "auto",
+    help = "Resolution value to use with leiden clustering in inferCNV. By default this is automatically chosen, but a numeric value can be provided.."
   ),
   make_option(
     opt_str = c("--gene_order_file"),
@@ -123,6 +123,16 @@ stopifnot(
   "hmm_model not properly specified" = opts$hmm_model %in% c("i3", "i6")
 )
 
+
+# make the resolution parameter numeric if it's not auto
+resolution <- opts$leiden_resolution
+if (resolution != "auto") {
+  resolution <- as.numeric(resolution)
+  stopifnot(
+    "The resolution parameter should either be a number or the string 'auto'." = !is.na(resolution)
+  )
+}
+
 # Setup files and paths -----------------
 set.seed(opts$seed)
 
@@ -144,6 +154,12 @@ library_id <- metadata(sce)$library_id
 
 # organize scratch by library id
 scratch_dir <- file.path(opts$scratch_dir, library_id)
+
+# if scratch_dir exists, we need to remove it to prevent conflicts from previous inferCNV runs
+if (dir.exists(scratch_dir)) {
+  fs::dir_delete(scratch_dir)
+}
+
 
 # ensure directories we need exist
 fs::dir_create(c(
@@ -207,6 +223,7 @@ infercnv_obj <- infercnv::CreateInfercnvObject(
   ref_group_name = reference_group_name
 )
 
+
 # run infercnv
 infercnv_obj <- infercnv::run(
   infercnv_obj,
@@ -220,7 +237,7 @@ infercnv_obj <- infercnv::run(
   ###### clustering settings
   leiden_function = opts$leiden_function,
   leiden_method = opts$leiden_method,
-  leiden_resolution = opts$leiden_resolution
+  leiden_resolution = resolution
 )
 
 # Save final results -----------------------------------------------------------
