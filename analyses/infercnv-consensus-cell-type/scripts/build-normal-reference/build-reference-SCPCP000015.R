@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # This script creates normal references for use with Ewing sarcoma (SCPCP000015) samples
-# Cells to include in these references were determined in ../exploratory-notebooks/01_ewings-consensus-cell-types.Rmd
+# Cells to include in the immune-related references were determined in ../exploratory-notebooks/01_ewings-consensus-cell-types.Rmd
 
 suppressPackageStartupMessages({
   library(SingleCellExperiment)
@@ -94,9 +94,14 @@ immune_subset_cells_df <- immune_cells_df |>
   )
 
 # Subset to the endothelial cells only
+endo_cell_types <- c(
+  "endothelial cell",
+  "blood vessel endothelial cell",
+  "microvascular endothelial cell"
+)
 endo_cells_df <- consensus_df |>
   dplyr::filter(
-    consensus_annotation == "endothelial cell",
+    consensus_annotation %in% endo_cell_types,
     !(stringr::str_detect(ewing_annotation, "tumor"))
   )
 
