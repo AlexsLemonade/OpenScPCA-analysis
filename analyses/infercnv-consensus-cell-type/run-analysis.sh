@@ -41,41 +41,14 @@ cell_type_ewings_dir="${data_dir}/results/cell-type-ewings/SCPCP000015"
 # Define normal reference files
 ewings_ref_dir="${infercnv_ref_dir}/SCPCP000015"
 mkdir -p ${ewings_ref_dir}
-immune_ref_file="${ewings_ref_dir}/ref-all-immune.rds"
-immune_subset_ref_file="${ewings_ref_dir}/ref-subset-immune.rds"
+immune_ref_file="${ewings_ref_dir}/ref_immune.rds"
+endo_ref_file="${ewings_ref_dir}/ref_endo.rds"
+endo_immune_ref_file="${ewings_ref_dir}/ref_endo-immune.rds"
 
 # Build the SCPCP000015 reference files
 Rscript ${script_dir}/build-normal-reference/build-reference-SCPCP000015.R \
     --merged_sce_file ${merged_sce_file} \
     --cell_type_ewings_dir ${cell_type_ewings_dir} \
     --reference_immune ${immune_ref_file} \
-    --reference_immune_subset ${immune_subset_ref_file}
-
-# Run inferCNV across libraries
-sample_ids=$(basename -a ${project_data_dir}/SCPCS*)
-for sample_id in $sample_ids; do
-
-    # top-level sample results directory
-    sample_results_dir="${project_results_dir}/${sample_id}"
-
-    for sce_file in ${project_data_dir}/${sample_id}/*_processed.rds; do
-        # skip ${exclude_library}
-        library_id=$(basename $sce_file | sed 's/_processed.rds$//')
-        if [[ $library_id == $exclude_library ]]; then
-            continue
-        fi
-
-        # run infercnv using both references
-        Rscript ${script_dir}/01_run-infercnv.R \
-            --sce_file $sce_file \
-            --reference_file $immune_ref_file \
-            --output_dir $sample_results_dir/ref-all-immune/
-
-        Rscript ${script_dir}/01_run-infercnv.R \
-            --sce_file $sce_file \
-            --reference_file $immune_subset_ref_file \
-            --output_dir $sample_results_dir/ref-subset-immune/
-
-    done
-done
-
+    --reference_endo ${endo_ref_file} \
+    --reference_endo_immune ${endo_immune_ref_file}

@@ -11,7 +11,7 @@ This directory is ignored from the repository due to its large size
 
 Normal references for use with `inferCNV` are formatted as SCE files and are expected to have the following components:
 
-* Files should be named as `ref-{reference name}.rds`
+* Files should be named as `ref_{reference name}.rds`
 * Reference SCEs should contain at least:
   * A raw counts matrix
   * Column names (cell ids) formatted as `{library_id}-{barcode}`
@@ -21,5 +21,6 @@ Normal references for use with `inferCNV` are formatted as SCE files and are exp
 The `normal-references/` directory contains the following references for each given project:
 
 * `SCPCP000015`
-  * `ref-all-immune.rds` contains all immune cells across samples, excluding those which were annotated as `tumor` in the `cell-type-ewings` module
-  * `ref-subset-immune.rds` contains a subset of `ref-all-immune.rds`, considering only macrophages and T cell types
+  * `ref_immune.rds` contains all immune cells across samples, excluding those which were annotated as `tumor` in the `cell-type-ewings` module
+  * `ref_endo.rds` contains all endothelial cells across samples, excluding those which were annotated as `tumor` in the `cell-type-ewings` module
+  * `ref_endo-immune.rds` contains the union of `ref_immune` and `ref_endo`
