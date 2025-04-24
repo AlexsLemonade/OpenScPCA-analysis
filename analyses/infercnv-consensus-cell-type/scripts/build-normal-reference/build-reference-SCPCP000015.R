@@ -1,6 +1,10 @@
 #!/usr/bin/env Rscript
 # This script creates normal references for use with Ewing sarcoma (SCPCP000015) samples
-# Cells to include in the immune-related references were determined in ../exploratory-notebooks/01_ewings-consensus-cell-types.Rmd
+# We create three references:
+# - `endo`: All endothelial cells
+# - `immune`: All immune cells
+# - `endo-immune`: All endothelial and immune cells
+# References exclude any cells which the `cell-type-ewings` OpenScPCA-analysis module labeled as "tumor"
 
 suppressPackageStartupMessages({
   library(SingleCellExperiment)
@@ -19,21 +23,20 @@ option_list <- list(
     help = "Path to directory containing results from the `cell-type-ewings` module"
   ),
   make_option(
-    opt_str = "--reference_immune",
-    type = "character",
-    help = "Path to output RDS file to save an SCE file to use as a normal reference with all Ewing immune cells"
-  ),
-  make_option(
-    opt_str = "--reference_immune_subset",
-    type = "character",
-    help = "Path to output RDS file to save an SCE file to use as a normal reference with a subset Ewing immune cells, specifically macrophages and T cell types"
-  ),
-  make_option(
     opt_str = "--reference_endo",
     type = "character",
     help = "Path to output RDS file to save an SCE file to use as a normal reference with all Ewing endothelial cells"
   ),
   make_option(
+    opt_str = "--reference_immune",
+    type = "character",
+    help = "Path to output RDS file to save an SCE file to use as a normal reference with all Ewing immune cells"
+  ),
+  make_option(
+    opt_str = "--reference_endo_immune",
+    type = "character",
+    help = "Path to output RDS file to save an SCE file to use as a normal reference with all Ewing endothelial and immune cells"
+  ), make_option(
     opt_str = "--immune_ref_url",
     type = "character",
     default = "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/consensus-immune-cell-types.tsv",
@@ -80,18 +83,12 @@ consensus_df <- celltype_files |>
   dplyr::select(sce_cell_id, ewing_annotation, consensus_annotation)
 
 # Pull out immune cells not labeled as tumor
-immune_cells_df <- consensus_df |>
+immune_cell_ids <- consensus_df |>
   dplyr::filter(
     consensus_annotation %in% immune_celltypes,
     !(stringr::str_detect(ewing_annotation, "tumor"))
-  )
-
-# Subset further to only macrophage and T-cell cell types
-immune_subset_cells_df <- immune_cells_df |>
-  dplyr::filter(
-    consensus_annotation == "macrophage" |
-      stringr::str_detect(consensus_annotation, "T cell")
-  )
+  ) |>
+  dplyr::pull(sce_cell_id)
 
 # Subset to the endothelial cells only
 endo_cell_types <- c(
@@ -99,11 +96,13 @@ endo_cell_types <- c(
   "blood vessel endothelial cell",
   "microvascular endothelial cell"
 )
-endo_cells_df <- consensus_df |>
+endo_cell_ids <- consensus_df |>
   dplyr::filter(
     consensus_annotation %in% endo_cell_types,
     !(stringr::str_detect(ewing_annotation, "tumor"))
-  )
+  ) |>
+  dplyr::pull(sce_cell_id)
+
 
 # Subset the SCEs to create references -------------
 
@@ -118,32 +117,34 @@ clean_sce <- function(sce) {
   return(sce)
 }
 
-# first the reference with all immune cells
-all_immune_reference <- merged_sce[, immune_cells_df$sce_cell_id]
+
+# First make the combined endo+immune reference
+combined_reference <- merged_sce[, c(immune_cell_ids, endo_cell_ids)] |>
+  # remove unneeded slots
+  clean_sce()
+
 
 # Ensure that the consensus cell type is recorded in reference SCE if not present
-if (!("consensus_annotation" %in% colnames(colData(all_immune_reference)))) {
-  colData(all_immune_reference) <- colData(all_immune_reference) |>
+if (!("consensus_annotation" %in% colnames(colData(combined_reference)))) {
+  colData(combined_reference) <- colData(combined_reference) |>
     as.data.frame() |>
     # temporarily make the rownames a column so we can join consensus
     tibble::rownames_to_column(var = "sce_cell_id") |>
     dplyr::left_join(consensus_df, by = "sce_cell_id") |>
     dplyr::select(-sce_cell_id) |>
     # make it a DataFrame again
-    DataFrame(row.names = rownames(colData(all_immune_reference)))
+    DataFrame(row.names = rownames(colData(combined_reference)))
 }
 
-# remove some SCE slots to save space
-all_immune_reference <- clean_sce(all_immune_reference)
 
-# subset it to create the second reference
-subset_immune_reference <- all_immune_reference[, immune_subset_cells_df$sce_cell_id]
+# Create the immune reference
+immune_reference <- combined_reference[, immune_cell_ids]
 
-# finally, the endo reference
-endo_reference <- merged_sce[, endo_cells_df$sce_cell_id] |>
-  clean_sce()
+# Create the endo reference
+endo_reference <- combined_reference[, endo_cell_ids]
+
 
 # Export references ---------
-readr::write_rds(all_immune_reference, opts$reference_immune, compress = "gz")
-readr::write_rds(subset_immune_reference, opts$reference_immune_subset, compress = "gz")
+readr::write_rds(immune_reference, opts$reference_immune, compress = "gz")
 readr::write_rds(endo_reference, opts$reference_endo, compress = "gz")
+readr::write_rds(combined_reference, opts$reference_endo_immune, compress = "gz")
