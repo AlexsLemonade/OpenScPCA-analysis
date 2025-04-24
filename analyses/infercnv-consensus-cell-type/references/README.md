@@ -23,4 +23,4 @@ The `normal-references/` directory contains the following references for each gi
 * `SCPCP000015`
   * `ref_immune.rds` contains all immune cells across samples, excluding those which were annotated as `tumor` in the `cell-type-ewings` module
   * `ref_endo.rds` contains all endothelial cells across samples, excluding those which were annotated as `tumor` in the `cell-type-ewings` module
-  * `ref_endo-immune.rds` contains the union of `ref_immune` nd `ref_endo`
+  * `ref_endo-immune.rds` contains the union of `ref_immune` and `ref_endo`
