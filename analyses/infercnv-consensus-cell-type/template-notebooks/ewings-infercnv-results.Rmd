@@ -1,5 +1,5 @@
 ---
-title: "`r glue::glue('Initial inferCNV results for {params$library_id}')`"
+title: "`r glue::glue('inferCNV results for {params$library_id}')`"
 author: "Stephanie J. Spielman"
 date: "`r Sys.Date()`"
 output:
@@ -8,27 +8,25 @@ output:
     toc_depth: 3
     code_folding: hide
 params:
-  sample_id: SCPCS000490
   library_id: SCPCL000822
+  sample_id: SCPCS000490
 ---
 
 
 ## Introduction
 
 This notebook explores `inferCNV` results run on library `params$library_id` from `SCPCP000015`.
-`inferCNV` was run with two different normal references:
+`inferCNV` was run with three different normal references:
 
-* `all-immune`: All consensus immune cells across `SCPCP000015` libraries, _excluding_ any which were also identified as tumor in the `cell-type-ewings` analysis module
-* `subset-immune`: A subset of `all-immune`, considering only macrophage and T-cell cell types
+* `endo`: All consensus endothelial cells across `SCPCP000015` libraries, _excluding_ any which were also identified as tumor in the `cell-type-ewings` analysis module
+* `immune`: All consensus immune cells across `SCPCP000015` libraries, _excluding_ any which were also identified as tumor in the `cell-type-ewings` analysis module
+* `endo-immune`: The `endo` and `immune` references combined
 
-`inferCNV` was run with the following settings:
+`inferCNV` was run with default settings, including:
 
-* We used the `i6` HMM
-* We used the default `analysis_mode = "subclusters"`, which allows the HMM to call CNVs at the level of clusters rather than whole samples or individual cells
-* We used the following clustering parameters:
-  * Leiden clustering run on PCA (not the expression matrix)
-  * `k=20` nearest neighbors with a `resolution` parameter of 1 and using the `modularity` objective function 
-
+* The `i6` HMM
+* The setting `analysis_mode = "subclusters"`, which allows the HMM to call CNVs at the level of clusters rather than whole samples or individual cells
+* Default clustering parameters
 
 ## Setup
 
@@ -53,53 +51,36 @@ umap_theme <- list(
 )
 ```
 
+
 ### Paths
 
 #### Base directories
 
 ```{r base paths}
-# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+# repo and analysis base dirs
 repository_base <- rprojroot::find_root(rprojroot::is_git_root)
-
-# InferCNV directories
 analysis_dir <- file.path(repository_base, "analyses", "infercnv-consensus-cell-type")
-ref_dir <- file.path(analysis_dir, "references")
+
+# reference names, defined here to help define directories
+ref_names <- c("ref_endo", "ref_immune", "ref_endo-immune")
+
+# inferCNV directories
 infercnv_dir <- file.path(analysis_dir, "results", "SCPCP000015", params$sample_id)
-infercnv_immune_dir <- file.path(infercnv_dir, "ref-all-immune")
-infercnv_subset_dir <- file.path(infercnv_dir, "ref-subset-immune")
+infercnv_dirs <- file.path(infercnv_dir, ref_names)
+names(infercnv_dirs) <- ref_names
 
 # OpenScpCA data and results directories
 data_dir <- file.path(repository_base, "data", "current")
 ```
 
-#### Input and output files
+#### Input files
 
 ```{r paths}
 # TSV with expected Ewing CNVs
-validation_tsv <- file.path(ref_dir, "cnv-validation.tsv")
+validation_tsv <- file.path(analysis_dir, "references", "cnv-validation.tsv")
 
 # immune cell URL to check for ambiguous cell types
 immune_url <- "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/consensus-immune-cell-types.tsv"
-
-# References themselves so we know which cells belong to reference
-immune_ref_sce_file <- file.path(ref_dir, "normal-references", "SCPCP000015", "ref-all-immune.rds")
-subset_ref_sce_file <- file.path(ref_dir, "normal-references", "SCPCP000015", "ref-subset-immune.rds")
-
-# input infercnv files from both references, "all-immune" and "subset-immune"
-immune_hmm_tsv <- file.path(infercnv_immune_dir, glue::glue("{params$library_id}_cnv-metadata.tsv"))
-immune_png <- file.path(infercnv_immune_dir, glue::glue("{params$library_id}_infercnv.png"))
-subset_hmm_tsv <- file.path(infercnv_subset_dir, glue::glue("{params$library_id}_cnv-metadata.tsv"))
-subset_png <- file.path(infercnv_subset_dir, glue::glue("{params$library_id}_infercnv.png"))
-
-# ewings and consensus cell types
-ewings_tsv <- file.path(
-  data_dir,
-  "results",
-  "cell-type-ewings",
-  "SCPCP000015",
-  params$sample_id,
-  glue::glue("{params$library_id}_ewing-celltype-assignments.tsv")
-)
 
 # processed sce file
 sce_file <- file.path(
@@ -107,6 +88,19 @@ sce_file <- file.path(
   "SCPCP000015",
   params$sample_id,
   glue::glue("{params$library_id}_processed.rds")
+)
+
+
+# consensus cell types, which we'll grab from the ewings results for now
+# TODO: We currently are bringing in cell types from separate files, but in the next
+# data release they will be in the SCE objects so we won't need this tsv
+ewings_tsv <- file.path(
+  data_dir,
+  "results",
+  "cell-type-ewings",
+  "SCPCP000015",
+  params$sample_id,
+  glue::glue("{params$library_id}_ewing-celltype-assignments.tsv")
 )
 ```
 
@@ -119,20 +113,35 @@ validation_df <- readr::read_tsv(validation_tsv) |>
 immune_labels <- readr::read_tsv(immune_url) |>
   dplyr::pull(consensus_annotation)
 
-immune_ref_barcodes <- readr::read_rds(immune_ref_sce_file) |>
-  colnames() |>
-  stringr::str_split_i("-", 2)
-subset_ref_barcodes <- readr::read_rds(subset_ref_sce_file) |>
-  colnames() |>
-  stringr::str_split_i("-", 2)
 
-# note these tsvs already have an indicator column for the reference
-# the `subcluster` contains the inferCNV-calculated clusters
-infercnv_df <- readr::read_tsv(immune_hmm_tsv) |>
-  dplyr::bind_rows(
-    readr::read_tsv(subset_hmm_tsv)
+# read infercnv files 
+infercnv_df <- infercnv_dirs |>
+  purrr::map(
+    \(input_dir) {
+      readr::read_tsv(
+        file.path(input_dir, glue::glue("{params$library_id}_cnv-metadata.tsv"))
+      ) |>
+        # indicator for reference vs query cell based on `subcluster` name
+        dplyr::mutate(cell_group = stringr::str_split_i(subcluster, "_", 1)) |>
+        # separate barcode and library
+        tidyr::separate(
+          cell_id, 
+          sep = "-", 
+          into = c("library_id", "barcodes"), 
+          remove = FALSE
+        )
+    }
   ) |>
-  tidyr::separate(cell_id, into = c("library_id", "barcodes"))
+  purrr::list_rbind(names_to = "normal_reference")
+
+
+# Extract a version of the data frame with just the infercnv metadata, not CNVs themselves
+infercnv_metadata_df <- infercnv_df |>
+  dplyr::select(
+    -starts_with("has_"), 
+    -starts_with("proportion_"),
+    -starts_with("top_")
+  )
 
 # Read SCE and save UMAP coordinates and cell types
 umap_df <- readr::read_rds(sce_file) |>
@@ -178,13 +187,23 @@ To help contextualize these, here is the table of known CNVs in Ewing sarcoma we
 validation_df
 ```
 
+
+```{r}
+# define the pngs
+infercnv_pngs <- file.path(infercnv_dirs, glue::glue("{params$library_id}_infercnv.png"))
+names(infercnv_pngs) <- ref_names
+```
+### Reference with all endothelial cells
+
+![InferCNV heatmap with endo reference](`r infercnv_pngs["endo"]`) 
+
 ### Reference with all immune cells
 
-![InferCNV heatmap with immune-all reference](`r immune_png`)
+![InferCNV heatmap with immune reference](`r infercnv_pngs["immune"]`) 
 
-### Reference with a subset of immune cells 
+### Reference with both endothelial and immune cells 
 
-![InferCNV heatmap with immune-subset reference](`r subset_png`)
+![InferCNV heatmap with end-immune reference](`r infercnv_pngs["endo-immune"]`) 
 
 
 
@@ -196,12 +215,13 @@ This section contains figures showing the total number of CNVs detected per cell
 
 The figures below compare the number of CNVs per cell between reference and query cells. 
 Ideally, we'll see a bimodal distribution where reference cells are at/near zero, and there is a peak of higher values which may represent tumor cells.
-In the density plots below, distributions are colored based on whether the cells are in the reference or not (aka, query cells).
+In the density plots below, distributions are colored based on whether the cells are in the reference or not (aka, "unknown" cells).
 
 ```{r}
 # First, construct data frame of total `has_cnv` counts, with other variables needed for plots
 has_cnv_df <- infercnv_df |>
   dplyr::select(
+    library_id, 
     barcodes,
     normal_reference,
     starts_with("has_cnv_")
@@ -212,49 +232,26 @@ has_cnv_df <- infercnv_df |>
     values_to = "cnv"
   ) |>
   # sum all values for each cell, but separately for each run of inferCNV (aka each normal reference)
-  dplyr::group_by(barcodes, normal_reference) |>
+  dplyr::group_by(library_id, barcodes, normal_reference) |>
   dplyr::summarize(total_cnv_per_cell = sum(cnv)) |>
   dplyr::ungroup() |>
-  # add indicator columns for whether the cell is reference or query
-  dplyr::mutate(
-    immune_reference_cell = barcodes %in% immune_ref_barcodes,
-    subset_reference_cell = barcodes %in% subset_ref_barcodes
+  # bring back metadata
+  dplyr::inner_join(
+    infercnv_metadata_df, by = c("library_id", "barcodes", "normal_reference")
   ) |>
   # join in SCE information
   dplyr::left_join(umap_df) |>
-  # finally, bring back in cluster and library information
-  dplyr::left_join(
-    infercnv_df |>
-      dplyr::select(barcodes, library_id, subcluster, normal_reference) |>
-      unique(),
-    by = c("barcodes", "normal_reference")
-  )
+  # set levels
+  dplyr::mutate(normal_reference = factor(normal_reference, levels = ref_names))
 ```
 
 
 ```{r fig.width = 10, fig.height = 5}
-all_plot <- has_cnv_df |>
-  dplyr::filter(normal_reference == "all-immune") |>
-  ggplot() +
-  aes(x = total_cnv_per_cell, fill = immune_reference_cell) +
+ggplot(has_cnv_df) +
+  aes(x = total_cnv_per_cell, fill = cell_group) +
   geom_density(alpha = 0.5) +
-  labs(
-    title = "Immune-all reference"
-  ) +
+  facet_wrap(vars(normal_reference)) +
   theme(legend.position = "bottom")
-
-subset_plot <- has_cnv_df |>
-  dplyr::filter(normal_reference == "subset-immune") |>
-  ggplot() +
-  aes(x = total_cnv_per_cell, fill = subset_reference_cell) +
-  geom_density(alpha = 0.5) +
-  labs(
-    title = "Immune-subset reference"
-  ) +
-  theme(legend.position = "bottom")
-
-wrap_plots(all_plot, subset_plot) +
-  plot_annotation(title = "Total CNVs per cell")
 ```
 
 ### CNVs across cell types
@@ -269,7 +266,7 @@ In addition, it will be useful to:
 * See values for cells labeled `tumor-immune`, which were labeled as `tumor` by `cell-type-ewings` but as an immune cell type by `cell-type-consensus`
 * Compare distributions between `all-immune` and `subset-immune` which may support identifying the optimal normal reference strategy.
 
-```{r fig.height=10, fig.width=12, message=FALSE, warning=FALSE}
+```{r fig.height=6, fig.width=12, message=FALSE, warning=FALSE}
 # drop cells from other libraries
 query_has_cnv_df <- has_cnv_df |>
   dplyr::filter(library_id == params$library_id)
@@ -280,7 +277,7 @@ ggplot(query_has_cnv_df) +
     y = total_cnv_per_cell,
     fill = normal_reference
   ) +
-  geom_violin(scale = "width") +
+  geom_boxplot(linewidth = 0.25, outlier.size = 0.25) +
   scale_fill_brewer(palette = "Pastel2") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
@@ -320,87 +317,60 @@ ggplot(has_cnv_df) +
 Part of `inferCNV`'s algorithm involves clustering the data, and poor clusters have the potential to lead to inaccurate inferences of CNV. 
 To see whether we'd like to further tune the clustering parameters, we'll get a sense of their size and rough composition here.
 
-First, how many cells are there per cluster?
-Clusters labeled `reference_` contain only normal reference cells, and clusters labeled `unknown_` contain the query cells.
+How many clusters are there, and how big are they?
 
-```{r, fig.width = 10}
-ggplot(has_cnv_df) +
-  # keep in default order so "reference" and "unknown" are grouped
-  aes(x = subcluster) +
-  geom_bar() +
-  facet_wrap(
-    vars(normal_reference),
-    scales = "free_x"
-  ) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```{r}
+has_cnv_df |>
+  dplyr::count(subcluster) |>
+  dplyr::group_by(subcluster) |>
+  dplyr::arrange(desc(n))
 ```
 
-Let's also look at the distributions of cell types in clusters.
-Is there a trend for which cell types tend to show up in which cluster?
 
-```{r fig.width=12}
-ggplot(query_has_cnv_df) +
-  aes(x = subcluster, fill = celltype) +
-  geom_bar() +
-  scale_fill_brewer(palette = "Set1") +
-  facet_wrap(
-    vars(normal_reference),
-    scales = "free_x"
-  ) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```{r}
+summary(as.numeric(table(has_cnv_df$subcluster)))
 ```
+
+Is there any relationship between cluster size and the number of CNVs?
+We would ideally not want there to be a relationship since this might indicate a bias.
+
+```{r}
+cluster_size_df <- has_cnv_df |>
+  dplyr::add_count(subcluster, name = "cluster_size") |>
+  dplyr::select(
+    total_cnv_per_cell,
+    cluster_size, 
+    normal_reference
+  ) |>
+  dplyr::distinct()
+
+ggplot(cluster_size_df) + 
+  aes(x = cluster_size, y = total_cnv_per_cell) +
+  geom_point() + 
+  facet_wrap(vars(normal_reference)) + 
+  geom_smooth(method = "lm")
+
+```
+
 
 Let's also look more specifically at the `reference` clusters, where we might expect some batch effects since cells were taken from several different libraries.
 Do originating libraries cluster together?
 
-```{r fig.width=10}
-all_reference_clusters <- has_cnv_df |>
-  dplyr::filter(
-    normal_reference == "all-immune",
-    immune_reference_cell
-  )
-all_plot <- ggplot(all_reference_clusters) +
-  aes(x = subcluster, fill = library_id) +
-  geom_bar() +
-  labs("All immune reference") +
-  theme(legend.position = "bottom")
-
-
-subset_reference_clusters <- has_cnv_df |>
-  # bring in library_id
-  dplyr::inner_join(
-    infercnv_df |>
-      dplyr::select(barcodes, library_id) |>
-      unique()
-  ) |>
-  dplyr::filter(
-    normal_reference == "subset-immune",
-    subset_reference_cell
-  )
-subset_plot <- ggplot(subset_reference_clusters) +
-  aes(x = subcluster, fill = library_id) +
-  geom_bar() +
-  labs("Subset immune reference") +
-  theme(legend.position = "bottom")
-
-wrap_plots(all_plot, subset_plot, guides = "collect") &
-  theme(legend.position = "bottom")
-```
-
-
-How many CNVs were inferred per cluster?
-We expect a single value here, because with `analysis_mode = "subclusters"` (the `inferCNV` default), CNV parameters are estimated per cluster.
-
 ```{r}
-# How many CNV per cell per cluster?
-ggplot(has_cnv_df) +
-  aes(x = subcluster, y = total_cnv_per_cell) +
-  geom_point(size = 2) +
+reference_cells_df <- has_cnv_df |>
+  dplyr::filter(cell_group == "reference")
+
+ggplot(reference_cells_df) +
+  aes(x = subcluster, fill = library_id) +
+  geom_bar() +
   facet_wrap(
-    vars(normal_reference),
+    vars(normal_reference), 
     scales = "free_x"
   ) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(
+    legend.position = "bottom", 
+    axis.text.x = element_blank()
+  )
 ```
 
 
@@ -416,14 +386,13 @@ validation_df
 
 ```{r}
 # First, construct data frame with proportion_scaled_ instead of has_cnv
-cnv_validation_df <- infercnv_df |>
+prop_cnv_df <- infercnv_df |>
   dplyr::select(
+    library_id, 
     barcodes,
-    library_id,
     normal_reference,
     starts_with("proportion_scaled_")
   ) |>
-  # tidy up
   tidyr::pivot_longer(
     starts_with("proportion_scaled_"),
     names_to = "cnv_type_raw",
@@ -432,7 +401,7 @@ cnv_validation_df <- infercnv_df |>
   # more tidying
   dplyr::mutate(cnv_type_raw = stringr::str_remove(cnv_type_raw, "^proportion_scaled_")) |>
   tidyr::separate(cnv_type_raw, sep = "_", into = c("cnv_type", "chr")) |>
-  # remove extra chromosomes and cells not in this library, and then can make chr numeric
+  # remove extra chromosomes and cells not in this library
   dplyr::filter(
     !stringr::str_starts(chr, "chrMT"),
     !stringr::str_starts(chr, "chrGL"),
@@ -440,36 +409,32 @@ cnv_validation_df <- infercnv_df |>
   ) |>
   dplyr::mutate(
     chr = stringr::str_remove(chr, "^chr"),
-    chr = as.numeric(chr)
+    # set factor levels
+    chr = factor(chr, levels = 1:22), 
+    normal_reference = factor(normal_reference, levels = ref_names),
+    chr = forcats::fct_relevel(chr, as.character(validation_df$chromosome))
   )
 ```
 
-We'll make density plots of the predicted CNV events across chromosomes, for each of the two normal references:
+We'll make density plots of the predicted CNV events across chromosomes, for each of the normal references:
+The panels will be ordered first by the chromosomes with known CNVs, and then in order for the rest of the chromosomes.
 
 
-```{r fig.height=8, fig.width=8}
-cnv_validation_df |>
-  dplyr::filter(normal_reference == "all-immune") |>
-  ggplot() +
+```{r fig.height=40, fig.width=8}
+ggplot(prop_cnv_df) + 
   aes(
     x = proportion,
     color = cnv_type
   ) +
   geom_density() +
-  facet_wrap(vars(chr)) +
-  ggtitle("All immune reference")
-
-
-cnv_validation_df |>
-  dplyr::filter(normal_reference == "subset-immune") |>
-  ggplot() +
-  aes(
-    x = proportion,
-    color = cnv_type
-  ) +
-  geom_density() +
-  facet_wrap(vars(chr)) +
-  ggtitle("Subset immune reference")
+  # use wrap to get truly free scales 
+  facet_wrap(
+   vars(chr, normal_reference),
+   scales = "free", 
+   labeller = "label_both",
+   ncol = 3
+  ) + 
+  theme(strip.text = element_text(size = 8))
 ```
 
 ## Session Info
