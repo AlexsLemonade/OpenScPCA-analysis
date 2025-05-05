@@ -72,6 +72,12 @@ jobs:
 
 
       - name: Run analysis module
+        env:
+          # To save cycles, when running this from a PR we run with a subset of normal references only.
+          # The full set of normal references is used otherwise.
+          # `testing=1` will run a subset of normal references and `testing=0` will run with all normal references
+          testing: ${{ github.event_name == 'pull_request' && 1 || 0 }}
+
         run: |
           cd ${MODULE_PATH}
-          bash run-analysis.sh
+          testing=${testing} bash run-analysis.sh
