@@ -1,10 +1,13 @@
 #!/bin/bash
 
-# This script runs the module workflow.
+# This script runs the module across projects
 #
 # Usage:
 #
 # ./run-analysis.sh
+#
+# When running in CI or with test data, use:
+# testing=1 ./run-analysis.sh
 
 set -euo pipefail
 
@@ -12,43 +15,22 @@ set -euo pipefail
 module_dir=$(dirname "${BASH_SOURCE[0]}")
 cd ${module_dir}
 
-# Define directories and file paths
-data_dir="../../data/current"
-script_dir="scripts"
-results_dir="results"
-ref_dir="references"
-infercnv_ref_dir="${ref_dir}/normal-references"
+testing=${testing:-0}
 
-mkdir -p ${infercnv_ref_dir}
+# Define directories
+script_dir="scripts"
+scratch_dir="scratch"
+ref_dir="references"
+mkdir -p ${scratch_dir}
+mkdir -p ${ref_dir}
 
 # Create the gene order file for input to inferCNV
-Rscript ${script_dir}/00-make-gene-order-file.R
+Rscript ${script_dir}/00-make-gene-order-file.R \
+    --scratch_dir ${scratch_dir} \
+    --local_ref_dir ${ref_dir}
 
-##### Analysis for SCPCP000015 #####
+# Run individual projects through the module
+# Each script prepares the project's normal references and runs inferCNV across relevant project samples
 
-project_id="SCPCP000015"
-project_data_dir="${data_dir}/${project_id}/"
-project_results_dir="${results_dir}/${project_id}/"
-mkdir -p ${project_results_dir}
-
-# Define library to exclude from inferCNV
-exclude_library="SCPCL001111"
-
-# Define input files for scripts
-merged_sce_file="${data_dir}/results/merge-sce/SCPCP000015/SCPCP000015_merged.rds"
-cell_type_ewings_dir="${data_dir}/results/cell-type-ewings/SCPCP000015"
-
-# Define normal reference files
-ewings_ref_dir="${infercnv_ref_dir}/SCPCP000015"
-mkdir -p ${ewings_ref_dir}
-immune_ref_file="${ewings_ref_dir}/ref_immune.rds"
-endo_ref_file="${ewings_ref_dir}/ref_endo.rds"
-endo_immune_ref_file="${ewings_ref_dir}/ref_endo-immune.rds"
-
-# Build the SCPCP000015 reference files
-Rscript ${script_dir}/build-normal-reference/build-reference-SCPCP000015.R \
-    --merged_sce_file ${merged_sce_file} \
-    --cell_type_ewings_dir ${cell_type_ewings_dir} \
-    --reference_immune ${immune_ref_file} \
-    --reference_endo ${endo_ref_file} \
-    --reference_endo_immune ${endo_immune_ref_file}
+# SCPCP000015: Ewing sarcoma samples
+testing=$testing ./project-workflows/run-SCPCP000015.sh
