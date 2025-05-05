@@ -15,7 +15,6 @@
 #
 
 project_root <- here::here()
-renv::load(project_root)
 
 suppressPackageStartupMessages({
   library(SingleCellExperiment)

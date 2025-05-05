@@ -4,8 +4,6 @@
 # https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/b1b8dea054d30f081279be9277501bd189a3c4d0/analyses/cell-type-ewings/scripts/cnv-workflow/00-make-gene-order-file.R
 
 project_root <- here::here()
-renv::load(project_root)
-
 library(optparse)
 
 option_list <- list(

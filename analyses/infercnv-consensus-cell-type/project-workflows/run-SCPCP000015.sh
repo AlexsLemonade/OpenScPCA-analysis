@@ -7,8 +7,9 @@
 
 set -euo pipefail
 
-# Ensure script is being run from its directory
-module_dir=$(dirname "${BASH_SOURCE[0]}")
+# Ensure script is being run from _one directory up_, which represents the root directory of the module
+# This is so `renv` loads properly, without needing to call `renv::load()` in scripts since code run in Docker containers won't use `renv`
+module_dir=$(dirname "${BASH_SOURCE[0]}")/..
 cd ${module_dir}
 
 # This script processes samples from SCPCP000015
@@ -22,11 +23,12 @@ threads=${threads:-4}
 seed=${seed:-2025}
 
 # Define input directories and files
-top_data_dir="../../../data/current"
-data_dir="../../../data/current/${project_id}"
-script_dir="../scripts"
-results_dir="../results/${project_id}"
-normal_ref_dir="../references/normal-references/${project_id}"
+# These should all be relative to `../`
+top_data_dir="../../data/current"
+data_dir="../../data/current/${project_id}"
+script_dir="scripts"
+results_dir="results/${project_id}"
+normal_ref_dir="references/normal-references/${project_id}"
 merged_sce_file="${top_data_dir}/results/merge-sce/${project_id}/${project_id}_merged.rds"
 cell_type_ewings_dir="${top_data_dir}/results/cell-type-ewings/${project_id}"
 
