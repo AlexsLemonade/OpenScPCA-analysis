@@ -3,7 +3,7 @@
 # This script runs the module workflow for SCPCP000015 and is meant to be called from ./run-analysis.sh.
 # It can be run as follows, optionally specifying the following variables:
 #
-# threads=<number of threads for inferCNV> seed=<random seed to set for inferCNV> ./run-SCPCP000015.sh
+# testing=<0 or 1> threads=<number of threads for inferCNV> seed=<random seed to set for inferCNV> ./run-SCPCP000015.sh
 
 set -euo pipefail
 
@@ -17,6 +17,9 @@ project_id="SCPCP000015"
 
 # Define library to exclude from analysis
 exclude_library="SCPCL001111"
+
+# Whether to use a subset of references with inferCNV
+testing=${testing:-0}
 
 # inferCNV settings
 threads=${threads:-4}
@@ -52,6 +55,16 @@ Rscript ${script_dir}/build-normal-reference/build-reference-SCPCP000015.R \
 # Define all sample ids
 sample_ids=$(basename -a ${data_dir}/SCPCS*)
 
+# Define array of references to run across based on $testing
+# Use reference names (not file names) since these will be used to create directories below
+if [[ $testing -eq 1 ]]; then
+    # Use only the immune references for testing
+    normal_refs=("ref_immune")
+else
+    # Use all references for full analysis
+    normal_refs=("ref_immune" "ref_endo" "ref_endo-immune")
+fi
+
 # Run inferCNV on all samples across conditions of interest
 for sample_id in $sample_ids; do
 
@@ -65,8 +78,7 @@ for sample_id in $sample_ids; do
     fi
 
     # Loop over normal references of interest
-    # Use reference names (not file names) since these will be used to create directories
-    for normal_ref in "ref_immune" "ref_endo" "ref_endo-immune"; do
+    for normal_ref in "${normal_refs[@]}"; do
 
         # create sample results directory
         sample_results_dir="${results_dir}/${sample_id}/${normal_ref}"

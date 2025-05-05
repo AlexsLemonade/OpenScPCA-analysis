@@ -5,12 +5,17 @@
 # Usage:
 #
 # ./run-analysis.sh
+#
+# When running in CI or with test data, use:
+# testing=1 ./run-analysis.sh
 
 set -euo pipefail
 
 # Ensure script is being run from its directory
 module_dir=$(dirname "${BASH_SOURCE[0]}")
 cd ${module_dir}
+
+testing=${testing:-0}
 
 # Define directories
 script_dir="scripts"
@@ -28,4 +33,4 @@ Rscript ${script_dir}/00-make-gene-order-file.R \
 # Each script prepares the project's normal references and runs inferCNV across relevant project samples
 
 # SCPCP000015: Ewing sarcoma samples
-./project-workflows/run-SCPCP000015.sh
+testing=$testing ./project-workflows/run-SCPCP000015.sh
