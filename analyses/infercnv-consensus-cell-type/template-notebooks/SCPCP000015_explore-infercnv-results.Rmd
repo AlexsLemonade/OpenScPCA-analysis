@@ -279,10 +279,8 @@ Next, we'll visualize the total CNV counts as a UMAP.
 Below, the UMAP colored by cell type is shown on the left, and the UMAP colored by total CNV counts is shown on the right.
 Ideally, unknown and tumor cells will overlap with regions in the UMAP with higher total CNV.
 
-```{r}
-```
 
-```{r, fig.width = 12}
+```{r, fig.height = 10}
 celltype_umap <- ggplot(umap_df) +
   aes(x = UMAP1, y = UMAP2, color = celltype) +
   geom_point(size = 0.1, alpha = 0.3) +
