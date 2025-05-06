@@ -65,11 +65,13 @@ jobs:
           working-directory: ${{ env.MODULE_PATH }}
 
       - name: Download test data and results
+        env:
+          # Use all samples for testing unless this is triggered by a PR, in which case only use a subset of samples for faster testing
+          samples: ${{ github.event_name != 'pull_request' && 'all' || 'SCPCS000490,SCPCS000491,SCPCS000492' }}
         run: |
-          ./download-results.py --module cell-type-ewings --test-data
+          ./download-results.py --module cell-type-ewings --test-data --samples ${samples}
           ./download-results.py --module merge-sce --project SCPCP000015 --test-data
-          ./download-data.py --project SCPCP000015 --test-data
-
+          ./download-data.py --project SCPCP000015 --test-data --samples ${samples}
 
       - name: Run analysis module
         env:
