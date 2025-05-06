@@ -97,7 +97,7 @@ for sample_id in $sample_ids; do
             --seed $seed
 
         # run inferCNV results through exploratory notebook
-        html_name="${library}_infercnv-results.nb.html"
+        html_name="${library_id}_infercnv-results.nb.html"
         Rscript -e "rmarkdown::render('${notebook_dir}/SCPCP000015_explore-infercnv-results.Rmd',
             params = list(library_id = '${library_id}', sample_id = '${sample_id}', reference_name = '${normal_ref}'),
             output_dir = '${sample_results_dir}',
