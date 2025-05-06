@@ -393,7 +393,7 @@ prop_cnv_df <- infercnv_df |>
   )
 ```
 
-We'll make density plots of the predicted CNV events across chromosomes, for each of the normal references:
+We'll make density plots of the predicted CNV events across chromosomes:
 The panels will be ordered first by the chromosomes with known CNVs, and then in order for the rest of the chromosomes.
 
 
