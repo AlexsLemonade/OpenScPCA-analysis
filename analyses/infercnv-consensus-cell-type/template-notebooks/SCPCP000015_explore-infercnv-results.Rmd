@@ -161,31 +161,8 @@ umap_df <- readr::read_rds(sce_file) |>
     UMAP2 = UMAP.2
   )
 
-# Define cell types based on ewing module
-celltype_df <- readr::read_tsv(ewings_tsv) |>
-  # Label cells as:
-  # - tumor-immune: Cells labeled as tumor by cell-type-ewings, but immune by cell-type-consensus
-  # - tumor-endo: Cells labeled as tumor by cell-type-ewings, but endothelial by cell-type-consensus
-  # - tumor: Cells labeled as tumor by cell-type-ewings
-  # - their existing ewing_annotation if none of the above
-  dplyr::mutate(
-    celltype = dplyr::case_when(
-      ## tumor-immune
-      consensus_annotation %in% immune_labels &
-        stringr::str_starts(ewing_annotation, "tumor") ~ "tumor-immune",
-      ## tumor-endo
-      consensus_annotation %in% endo_labels &
-        stringr::str_starts(ewing_annotation, "tumor") ~ "tumor-endo",
-      ## tumor
-      stringr::str_starts(ewing_annotation, "tumor") ~ "tumor",
-      ## default
-      .default = ewing_annotation
-    )
-  ) |>
-  dplyr::select(barcodes, celltype)
-
-umap_df <- umap_df |>
-  dplyr::left_join(celltype_df)
+# Read ewings cell types
+celltype_df <- readr::read_tsv(ewings_tsv)
 ```
 
 
@@ -210,7 +187,6 @@ This section contains figures showing the total number of CNVs detected per cell
 
 The figures below compare the number of CNVs per cell between reference and query cells.
 Ideally, we'll see a bimodal distribution where reference cells are at/near zero, and there is a peak of higher values which may represent tumor cells.
-In the density plots below, distributions are colored based on whether the cells are in the reference or not (aka, "unknown" cells).
 
 ```{r}
 # First, construct data frame of total `has_cnv` counts, with other variables needed for plots
@@ -234,25 +210,69 @@ has_cnv_df <- infercnv_df |>
     by = "barcodes"
   ) |>
   # join in SCE information
-  dplyr::left_join(umap_df)
+  dplyr::left_join(celltype_df) |>
+  dplyr::left_join(umap_df) |>
+  # add cell type grouping column, with counts
+  dplyr::mutate(
+    celltype = dplyr::case_when(
+      cell_group == "reference" ~ "reference cell",
+      stringr::str_detect(ewing_annotation, "tumor") ~ "tumor cell",
+      .default = "other query cell"
+    )
+  ) |>
+  # add columns with cell type & group counts
+  dplyr::add_count(celltype, name = "celltype_count") |>
+  dplyr::add_count(cell_group, name = "cell_group_count") |>
+  dplyr::mutate(
+    celltype_n = glue::glue("{celltype} (n={celltype_count})"),
+    cell_group_n = glue::glue("{cell_group} (n={cell_group_count})")
+  )
+
+# Set the celltype_n factor order based on label, not frequency
+# We don't know the exact labels due to `(n=)`, so use grep
+has_cnv_df$celltype_n <- as.factor(has_cnv_df$celltype_n)
+present_values <- levels(has_cnv_df$celltype_n)
+has_cnv_df$celltype_n <- forcats::fct_relevel(
+  has_cnv_df$celltype_n,
+  c(
+    grep("reference", present_values, value = TRUE),
+    grep("tumor", present_values, value = TRUE),
+    grep("other", present_values, value = TRUE)
+  )
+)
 ```
 
 
-```{r fig.width = 10, fig.height = 5}
-ggplot(has_cnv_df) +
-  aes(x = total_cnv_per_cell, fill = cell_group) +
-  geom_density(alpha = 0.5) +
+Below, we show two ridge plots for the total detected CNVs across cell groups:
+
+* On the left, distributions are colored based on whether the cells are in the reference or not (aka, "query" cells)
+* On the right, distributions are colored based on a broad cell type category as follows:
+  * `reference cell`: Cells in the normal reference
+  * `tumor cell`: Cells labeled as tumor by the `cell-type-ewings` module
+  * `other query cell`: All other cells
+
+```{r fig.width = 12, fig.height = 5}
+left_plot <- ggplot(has_cnv_df) +
+  aes(y = forcats::fct_rev(cell_group_n), x = total_cnv_per_cell, fill = cell_group_n) +
+  ggridges::geom_density_ridges2(alpha = 0.7, scale = 0.85) +
+  labs(y = "Cell group (number of cells)") +
   theme(legend.position = "bottom")
+
+right_plot <- ggplot(has_cnv_df) +
+  aes(y = forcats::fct_rev(celltype_n), x = total_cnv_per_cell, fill = celltype_n) +
+  ggridges::geom_density_ridges2(alpha = 0.7, scale = 0.85) +
+  labs(y = "Cell type (number of cells)") +
+  theme(legend.position = "bottom") +
+  scale_fill_brewer(palette = "Dark2")
+
+
+left_plot + right_plot
 ```
 
 ### CNVs across cell types
 
 Next, we'll look at the per-cell distributions of CNVs across cell types, using labels derived from the `cell-type-ewings` module as follows:
 
-* `tumor-endo`: Cells labeled as tumor by cell-type-ewings, but endothelial by `cell-type-consensus`
-* `tumor-immune`: Cells labeled as tumor by cell-type-ewings, but immune by `cell-type-consensus`
-* `tumor`: Cells labeled as tumor by `cell-type-ewings`
-* If none of the above, their existing `cell-type-ewings` annotation
 
 Ideally, we'll see that tumor and Unknown cells from will have relatively higher CNV scores compared to other cell types, in particular those cell types in the reference.
 
