@@ -85,9 +85,6 @@ infercnv_dir <- file.path(
 # TSV with expected Ewing CNVs
 validation_tsv <- file.path(analysis_dir, "references", "cnv-validation.tsv")
 
-# immune cell URL
-immune_url <- "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/consensus-immune-cell-types.tsv"
-
 # processed sce file
 sce_file <- file.path(
   data_dir,
@@ -123,15 +120,6 @@ infercnv_png <- file.path(
 validation_df <- readr::read_tsv(validation_tsv) |>
   dplyr::filter(diagnosis == "Ewing sarcoma")
 
-immune_labels <- readr::read_tsv(immune_url) |>
-  dplyr::pull(consensus_annotation)
-
-endo_labels <- c(
-  "endothelial cell",
-  "blood vessel endothelial cell",
-  "microvascular endothelial cell"
-)
-
 # read infercnv results
 infercnv_df <- readr::read_tsv(infercnv_tsv) |>
   # indicator for reference vs query cell based on `subcluster` name
@@ -143,7 +131,6 @@ infercnv_df <- readr::read_tsv(infercnv_tsv) |>
     into = c("library_id", "barcodes"),
     remove = FALSE
   )
-
 
 # Extract a version of the data frame with just the infercnv metadata, not CNVs themselves
 infercnv_metadata_df <- infercnv_df |>
@@ -276,21 +263,21 @@ Next, we'll visualize the total CNV counts as a UMAP.
 Below, the UMAP colored by cell type is shown on the left, and the UMAP colored by total CNV counts is shown on the right.
 Ideally, unknown and tumor cells will overlap with regions in the UMAP with higher total CNV.
 
-```{r, fig.height = 10}
+```{r, fig.height = 8}
 # Filter to just cells in the library to avoid warnings
 library_has_cnv_df <- has_cnv_df |>
   dplyr::filter(library_id == params$library_id)
 
 celltype_umap <- ggplot(library_has_cnv_df) +
   aes(x = UMAP1, y = UMAP2, color = celltype_n) +
-  geom_point(size = 0.1, alpha = 0.3) +
+  geom_point(size = 0.25, alpha = 0.4) +
   guides(color = guide_legend(override.aes = list(size = 2, alpha = 1))) +
   labs(title = "Cell types") +
   umap_theme
 
 cnv_umap <- ggplot(library_has_cnv_df) +
   aes(x = UMAP1, y = UMAP2, color = total_cnv_per_cell) +
-  geom_point(size = 0.1, alpha = 0.3) +
+  geom_point(size = 0.25, alpha = 0.4) +
   scale_color_viridis_c() +
   labs(title = "Total CNV per cell") +
   umap_theme
@@ -307,7 +294,7 @@ To see whether we'd like to further tune the clustering parameters, we'll get a 
 How many clusters are there, and how big are they?
 We'll show this separately for reference vs query cells.
 
-```{r}
+```{r, fig.width = 8}
 cluster_count_df <- has_cnv_df |>
   dplyr::count(subcluster, cell_group_n)
 ggplot(cluster_count_df) +
@@ -323,7 +310,7 @@ ggplot(cluster_count_df) +
 Is there any relationship between cluster size and the number of CNVs?
 We would ideally not want there to be a relationship since this might indicate a bias.
 
-```{r}
+```{r, fig.width = 6}
 cluster_size_df <- has_cnv_df |>
   dplyr::add_count(subcluster, name = "cluster_size") |>
   dplyr::select(
@@ -410,6 +397,7 @@ reference_cells_df <- has_cnv_df |>
 ggplot(reference_cells_df) +
   aes(x = subcluster, fill = library_id) +
   geom_bar() +
+  scale_fill_brewer(palette = "Dark2") +
   theme(
     legend.position = "bottom",
     axis.text.x = element_blank()
@@ -449,27 +437,58 @@ prop_cnv_df <- infercnv_df |>
     !stringr::str_starts(chr, "chrGL"),
     library_id == params$library_id
   ) |>
+  # set chr factor levels, with ones used for validation first
   dplyr::mutate(
     chr = stringr::str_remove(chr, "^chr"),
-    # set factor levels
     chr = factor(chr, levels = 1:22),
     chr = forcats::fct_relevel(chr, as.character(validation_df$chromosome))
+  ) |>
+  # finally, join in the cell types
+  dplyr::inner_join(
+    has_cnv_df |>
+      dplyr::select(barcodes, celltype_n)
   )
+
+prop_cnv_df
 ```
 
-We'll make density plots of the predicted CNV events across chromosomes:
+```{r}
+# separate gain and loss dfs
+loss_df <- prop_cnv_df |>
+  dplyr::filter(cnv_type == "loss")
+gain_df <- prop_cnv_df |>
+  dplyr::filter(cnv_type == "dupli")
+```
+
+We'll make density plots of the predicted CNV events across chromosomes, considering gain and loss separately.
 The panels will be ordered first by the chromosomes with known CNVs, and then in order for the rest of the chromosomes.
+Each line in the density plot represents a different cell type grouping.
 
 
 ```{r fig.height=12, fig.width=14}
-ggplot(prop_cnv_df) +
-  aes(x = proportion, color = cnv_type) +
+ggplot(loss_df) +
+  aes(x = proportion, color = celltype_n) +
   geom_density() +
   facet_wrap(
     vars(chr),
     scales = "free",
-    ncol = 6
+    ncol = 4 # this way the first row is the validation ones only
   ) +
+  ggtitle("Proportion of CNV loss across chromosomes for each cell type group") +
+  theme(strip.text = element_text(size = 8))
+```
+
+
+```{r fig.height=12, fig.width=14}
+ggplot(gain_df) +
+  aes(x = proportion, color = celltype_n) +
+  geom_density() +
+  facet_wrap(
+    vars(chr),
+    scales = "free",
+    ncol = 4 # this way the first row is the validation ones only
+  ) +
+  ggtitle("Proportion of CNV gain across chromosomes for each cell type group") +
   theme(strip.text = element_text(size = 8))
 ```
 
