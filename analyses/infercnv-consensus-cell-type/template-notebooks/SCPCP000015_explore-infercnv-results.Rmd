@@ -50,8 +50,7 @@ umap_theme <- list(
   theme_classic(),
   theme(
     axis.ticks = element_blank(),
-    axis.text = element_blank(),
-    legend.position = "bottom"
+    axis.text = element_blank()
   )
 )
 ```
@@ -263,21 +262,21 @@ Next, we'll visualize the total CNV counts as a UMAP.
 Below, the UMAP colored by cell type is shown on the left, and the UMAP colored by total CNV counts is shown on the right.
 Ideally, unknown and tumor cells will overlap with regions in the UMAP with higher total CNV.
 
-```{r, fig.height = 8}
+```{r, fig.width = 12}
 # Filter to just cells in the library to avoid warnings
 library_has_cnv_df <- has_cnv_df |>
   dplyr::filter(library_id == params$library_id)
 
 celltype_umap <- ggplot(library_has_cnv_df) +
   aes(x = UMAP1, y = UMAP2, color = celltype_n) +
-  geom_point(size = 0.25, alpha = 0.4) +
+  geom_point(size = 0.2, alpha = 0.3) +
   guides(color = guide_legend(override.aes = list(size = 2, alpha = 1))) +
   labs(title = "Cell types") +
   umap_theme
 
 cnv_umap <- ggplot(library_has_cnv_df) +
   aes(x = UMAP1, y = UMAP2, color = total_cnv_per_cell) +
-  geom_point(size = 0.25, alpha = 0.4) +
+  geom_point(size = 0.2, alpha = 0.3) +
   scale_color_viridis_c() +
   labs(title = "Total CNV per cell") +
   umap_theme
@@ -373,7 +372,10 @@ query_only_df <- query_only_df |>
 # 11 hex colors!
 # adapted from 'Classic 10' from paletteer: https://r-graph-gallery.com/color-palette-finder
 colors <- c("#1F77B4", "#FF7F0E", "#2CA02C", "#D6272F", "#9467BD", "#8C564B", "#E377C2", "#7F7F7F", "#BCBD22", "#17CFFB", "#17CF1F")
+```
 
+
+```{r, fig.width = 12}
 ggplot(query_only_df) +
   aes(
     x = forcats::fct_infreq(subcluster),
