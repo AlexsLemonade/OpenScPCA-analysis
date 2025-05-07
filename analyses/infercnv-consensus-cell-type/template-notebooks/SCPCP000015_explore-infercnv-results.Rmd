@@ -278,17 +278,17 @@ Ideally, unknown and tumor cells will overlap with regions in the UMAP with high
 
 ```{r, fig.height = 10}
 # Filter to just cells in the library to avoid warnings
-query_has_cnv_df <- has_cnv_df |>
+library_has_cnv_df <- has_cnv_df |>
   dplyr::filter(library_id == params$library_id)
 
-celltype_umap <- ggplot(query_has_cnv_df) +
+celltype_umap <- ggplot(library_has_cnv_df) +
   aes(x = UMAP1, y = UMAP2, color = celltype_n) +
   geom_point(size = 0.1, alpha = 0.3) +
   guides(color = guide_legend(override.aes = list(size = 2, alpha = 1))) +
   labs(title = "Cell types") +
   umap_theme
 
-cnv_umap <- ggplot(query_has_cnv_df) +
+cnv_umap <- ggplot(library_has_cnv_df) +
   aes(x = UMAP1, y = UMAP2, color = total_cnv_per_cell) +
   geom_point(size = 0.1, alpha = 0.3) +
   scale_color_viridis_c() +
@@ -309,11 +309,15 @@ We'll show this separately for reference vs query cells.
 
 ```{r}
 cluster_count_df <- has_cnv_df |>
-  dplyr::count(subcluster, cell_group)
+  dplyr::count(subcluster, cell_group_n)
 ggplot(cluster_count_df) +
-  aes(x = n, fill = cell_group) +
+  aes(x = n, fill = cell_group_n) +
   geom_histogram(color = "grey20", bins = 15) +
-  facet_wrap(vars(cell_group), scales = "free")
+  facet_wrap(vars(cell_group_n), scales = "free") +
+  labs(
+    x = "Number of cells in cluster",
+    y = "Number of clusters"
+  )
 ```
 
 Is there any relationship between cluster size and the number of CNVs?
@@ -335,7 +339,67 @@ ggplot(cluster_size_df) +
 ```
 
 
-Let's also look more specifically at the `reference` clusters, where we might expect some batch effects since cells were taken from several different libraries.
+We'd also like to look at the distribution of cell types across clusters, specifically considering the non-reference clusters.
+For this, we'll focus on the top 10 cell types (based on the `cell-type-ewings` labels) considering all "tumor" as a single grouping.
+For visual ease, we'll only show clusters with at least 10 cells.
+
+```{r}
+query_only_df <- library_has_cnv_df |>
+  dplyr::filter(cell_group == "unknown") |>
+  # create a finer cell type column for this plot
+  dplyr::mutate(
+    celltype_fine = dplyr::case_when(
+      cell_group == "reference" ~ "reference cell",
+      stringr::str_detect(ewing_annotation, "tumor") ~ "tumor cell",
+      .default = ewing_annotation
+    )
+  ) |>
+  dplyr::add_count(celltype_fine, name = "celltype_fine_count") |>
+  dplyr::mutate(
+    celltype_fine_n = glue::glue("{celltype_fine} (n={celltype_fine_count})"),
+    # top 10 only
+    celltype_fine_n = forcats::fct_lump(celltype_fine_n, 10),
+  )
+
+# add n() to "Other" for plot clarity and update factor to frequency order
+current_levels <- levels(query_only_df$celltype_fine_n)
+total_other <- query_only_df |>
+  dplyr::filter(celltype_fine_n == "Other") |>
+  nrow()
+updated_other <- glue::glue("Other (n={total_other})")
+
+query_only_df <- query_only_df |>
+  dplyr::mutate(
+    # update other level to have counts
+    celltype_fine_n = as.character(celltype_fine_n),
+    celltype_fine_n = ifelse(celltype_fine_n == "Other", updated_other, celltype_fine_n),
+    # order based on freq
+    celltype_fine_n = as.factor(celltype_fine_n),
+    celltype_fine_n = forcats::fct_infreq(celltype_fine_n),
+    celltype_fine_n = forcats::fct_relevel(celltype_fine_n, updated_other, after = Inf)
+  ) |>
+  # exclude small clusters
+  dplyr::add_count(subcluster, name = "subcluster_size") |>
+  dplyr::filter(subcluster_size >= 10)
+
+
+# 11 hex colors!
+# adapted from 'Classic 10' from paletteer: https://r-graph-gallery.com/color-palette-finder
+colors <- c("#1F77B4", "#FF7F0E", "#2CA02C", "#D6272F", "#9467BD", "#8C564B", "#E377C2", "#7F7F7F", "#BCBD22", "#17CFFB", "#17CF1F")
+
+ggplot(query_only_df) +
+  aes(
+    x = forcats::fct_infreq(subcluster),
+    fill = celltype_fine_n
+  ) +
+  geom_bar() +
+  scale_fill_manual(values = colors) +
+  theme(axis.text.x = element_blank())
+```
+
+
+
+Finally, let's also look more specifically at the `reference` clusters, where we might expect some batch effects since cells were taken from several different libraries.
 Do originating libraries cluster together?
 When interpreting this plot, bear in mind that there might also be an association between cell types and libraries, and we would expect cell types to still cluster together.
 
