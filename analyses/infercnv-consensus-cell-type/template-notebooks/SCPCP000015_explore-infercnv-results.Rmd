@@ -252,23 +252,26 @@ Next, we'll look at the per-cell distributions of CNVs across cell types, using 
 * `tumor-endo`: Cells labeled as tumor by cell-type-ewings, but endothelial by `cell-type-consensus`
 * `tumor-immune`: Cells labeled as tumor by cell-type-ewings, but immune by `cell-type-consensus`
 * `tumor`: Cells labeled as tumor by `cell-type-ewings`
-* `endo`: An endothelial cell type
-* `immune`: An immune cell type
 * If none of the above, their existing `cell-type-ewings` annotation
 
 Ideally, we'll see that tumor and Unknown cells from will have relatively higher CNV scores compared to other cell types, in particular those cell types in the reference.
 
-```{r fig.height=12, message=FALSE, warning=FALSE}
-# drop cells from other libraries
+```{r fig.height=8, message=FALSE, warning=FALSE}
+# drop cells from other libraries, and update data frame for plotting
 query_has_cnv_df <- has_cnv_df |>
-  dplyr::filter(library_id == params$library_id)
+  dplyr::filter(library_id == params$library_id) |>
+  dplyr::add_count(celltype) |>
+  # remove really low count cell types
+  dplyr::filter(n >= 3) |>
+  # add column with cell type counts, and arrange in order
+  dplyr::mutate(
+    celltype_n = glue::glue("{celltype} (n={n})"),
+    celltype_n = forcats::fct_infreq(celltype_n),
+    celltype_n = forcats::fct_rev(celltype_n)
+  )
 
 ggplot(query_has_cnv_df) +
-  aes(
-    y = celltype,
-    x = total_cnv_per_cell,
-    fill = cell_group
-  ) +
+  aes(x = total_cnv_per_cell, y = celltype_n) +
   ggridges::geom_density_ridges2(alpha = 0.7, scale = 0.85)
 ```
 
