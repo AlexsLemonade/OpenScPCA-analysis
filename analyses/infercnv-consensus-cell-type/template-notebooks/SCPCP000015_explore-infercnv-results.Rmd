@@ -50,7 +50,8 @@ umap_theme <- list(
   theme_classic(),
   theme(
     axis.ticks = element_blank(),
-    axis.text = element_blank()
+    axis.text = element_blank(),
+    legend.position = "bottom"
   )
 )
 ```
@@ -183,9 +184,7 @@ validation_df
 
 This section contains figures showing the total number of CNVs detected per cell.
 
-### CNVs in reference vs query cells
-
-The figures below compare the number of CNVs per cell between reference and query cells.
+The figures below compare the number of CNVs per cell between cell groupings.
 Ideally, we'll see a bimodal distribution where reference cells are at/near zero, and there is a peak of higher values which may represent tumor cells.
 
 ```{r}
@@ -255,44 +254,19 @@ Below, we show two ridge plots for the total detected CNVs across cell groups:
 left_plot <- ggplot(has_cnv_df) +
   aes(y = forcats::fct_rev(cell_group_n), x = total_cnv_per_cell, fill = cell_group_n) +
   ggridges::geom_density_ridges2(alpha = 0.7, scale = 0.85) +
+  scale_fill_brewer(palette = "Dark2") +
   labs(y = "Cell group (number of cells)") +
   theme(legend.position = "bottom")
+
 
 right_plot <- ggplot(has_cnv_df) +
   aes(y = forcats::fct_rev(celltype_n), x = total_cnv_per_cell, fill = celltype_n) +
   ggridges::geom_density_ridges2(alpha = 0.7, scale = 0.85) +
   labs(y = "Cell type (number of cells)") +
-  theme(legend.position = "bottom") +
-  scale_fill_brewer(palette = "Dark2")
+  theme(legend.position = "bottom")
 
 
 left_plot + right_plot
-```
-
-### CNVs across cell types
-
-Next, we'll look at the per-cell distributions of CNVs across cell types, using labels derived from the `cell-type-ewings` module as follows:
-
-
-Ideally, we'll see that tumor and Unknown cells from will have relatively higher CNV scores compared to other cell types, in particular those cell types in the reference.
-
-```{r fig.height=8, message=FALSE, warning=FALSE}
-# drop cells from other libraries, and update data frame for plotting
-query_has_cnv_df <- has_cnv_df |>
-  dplyr::filter(library_id == params$library_id) |>
-  dplyr::add_count(celltype) |>
-  # remove really low count cell types
-  dplyr::filter(n >= 3) |>
-  # add column with cell type counts, and arrange in order
-  dplyr::mutate(
-    celltype_n = glue::glue("{celltype} (n={n})"),
-    celltype_n = forcats::fct_infreq(celltype_n),
-    celltype_n = forcats::fct_rev(celltype_n)
-  )
-
-ggplot(query_has_cnv_df) +
-  aes(x = total_cnv_per_cell, y = celltype_n) +
-  ggridges::geom_density_ridges2(alpha = 0.7, scale = 0.85)
 ```
 
 
@@ -302,10 +276,13 @@ Next, we'll visualize the total CNV counts as a UMAP.
 Below, the UMAP colored by cell type is shown on the left, and the UMAP colored by total CNV counts is shown on the right.
 Ideally, unknown and tumor cells will overlap with regions in the UMAP with higher total CNV.
 
-
 ```{r, fig.height = 10}
-celltype_umap <- ggplot(umap_df) +
-  aes(x = UMAP1, y = UMAP2, color = celltype) +
+# Filter to just cells in the library to avoid warnings
+query_has_cnv_df <- has_cnv_df |>
+  dplyr::filter(library_id == params$library_id)
+
+celltype_umap <- ggplot(query_has_cnv_df) +
+  aes(x = UMAP1, y = UMAP2, color = celltype_n) +
   geom_point(size = 0.1, alpha = 0.3) +
   guides(color = guide_legend(override.aes = list(size = 2, alpha = 1))) +
   labs(title = "Cell types") +
@@ -318,7 +295,7 @@ cnv_umap <- ggplot(query_has_cnv_df) +
   labs(title = "Total CNV per cell") +
   umap_theme
 
-celltype_umap / cnv_umap
+celltype_umap + cnv_umap
 ```
 
 
