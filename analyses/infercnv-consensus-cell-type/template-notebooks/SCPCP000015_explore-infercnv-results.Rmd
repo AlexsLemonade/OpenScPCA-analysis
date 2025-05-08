@@ -132,6 +132,7 @@ infercnv_df <- readr::read_tsv(infercnv_tsv) |>
   )
 
 # Extract a version of the data frame with just the infercnv metadata, not CNVs themselves
+# Note that we keep this separate for circumstances when the metadata has to be joined back in with results
 infercnv_metadata_df <- infercnv_df |>
   dplyr::select(
     -starts_with("has_"),
@@ -176,10 +177,6 @@ Ideally, we'll see a bimodal distribution where reference cells are at/near zero
 ```{r}
 # First, construct data frame of total `has_cnv` counts, with other variables needed for plots
 has_cnv_df <- infercnv_df |>
-  dplyr::select(
-    barcodes,
-    starts_with("has_cnv_")
-  ) |>
   tidyr::pivot_longer(
     starts_with("has_cnv_"),
     names_to = "chr",
@@ -209,22 +206,15 @@ has_cnv_df <- infercnv_df |>
   dplyr::add_count(celltype, name = "celltype_count") |>
   dplyr::add_count(cell_group, name = "cell_group_count") |>
   dplyr::mutate(
-    celltype_n = glue::glue("{celltype} (n={celltype_count})"),
+    celltype = forcats::fct_relevel(celltype, c("reference cell", "tumor cell", "other query cell")),
+    # set celltype labels with (n=)
+    celltype = forcats::fct_relabel(
+      celltype,
+      # https://stackoverflow.com/questions/70510771/how-can-i-use-fct-relabel-but-maintain-original-factor-levels-or-how-can-i-set
+      ~ glue::glue("{levels(celltype)} (n = {celltype_count[match(levels(celltype), celltype)]})")
+    ),
     cell_group_n = glue::glue("{cell_group} (n={cell_group_count})")
   )
-
-# Set the celltype_n factor order based on label, not frequency
-# We don't know the exact labels due to `(n=)`, so use grep
-has_cnv_df$celltype_n <- as.factor(has_cnv_df$celltype_n)
-present_values <- levels(has_cnv_df$celltype_n)
-has_cnv_df$celltype_n <- forcats::fct_relevel(
-  has_cnv_df$celltype_n,
-  c(
-    grep("reference", present_values, value = TRUE),
-    grep("tumor", present_values, value = TRUE),
-    grep("other", present_values, value = TRUE)
-  )
-)
 ```
 
 
@@ -246,7 +236,7 @@ left_plot <- ggplot(has_cnv_df) +
 
 
 right_plot <- ggplot(has_cnv_df) +
-  aes(y = forcats::fct_rev(celltype_n), x = total_cnv_per_cell, fill = celltype_n) +
+  aes(y = forcats::fct_rev(celltype), x = total_cnv_per_cell, fill = celltype) +
   ggridges::geom_density_ridges2(alpha = 0.7, scale = 0.85) +
   labs(y = "Cell type (number of cells)") +
   theme(legend.position = "bottom")
@@ -268,7 +258,7 @@ library_has_cnv_df <- has_cnv_df |>
   dplyr::filter(library_id == params$library_id)
 
 celltype_umap <- ggplot(library_has_cnv_df) +
-  aes(x = UMAP1, y = UMAP2, color = celltype_n) +
+  aes(x = UMAP1, y = UMAP2, color = celltype) +
   geom_point(size = 0.2, alpha = 0.3) +
   guides(color = guide_legend(override.aes = list(size = 2, alpha = 1))) +
   labs(title = "Cell types") +
@@ -409,7 +399,7 @@ ggplot(reference_cells_df) +
 
 ## CNV across chromosomes
 
-Now, we'll look at CNVs across chromosomes, specifically considering the `proportion_scaled_cnv_` output from the HMM.
+Now, we'll look at CNVs across chromosomes, specifically considering the `proportion_scaled_cnv_` output from the HMM focusing on gain and loss events.
 
 Again, these are the specific CNVs we expect to see in Ewing sarcoma:
 
@@ -420,11 +410,6 @@ validation_df
 ```{r}
 # First, construct data frame with proportion_scaled_ instead of has_cnv
 prop_cnv_df <- infercnv_df |>
-  dplyr::select(
-    library_id,
-    barcodes,
-    starts_with("proportion_scaled_")
-  ) |>
   tidyr::pivot_longer(
     starts_with("proportion_scaled_"),
     names_to = "cnv_type_raw",
@@ -448,10 +433,8 @@ prop_cnv_df <- infercnv_df |>
   # finally, join in the cell types
   dplyr::inner_join(
     has_cnv_df |>
-      dplyr::select(barcodes, celltype_n)
+      dplyr::select(barcodes, celltype)
   )
-
-prop_cnv_df
 ```
 
 ```{r}
@@ -469,7 +452,7 @@ Each line in the density plot represents a different cell type grouping.
 
 ```{r fig.height=12, fig.width=14}
 ggplot(loss_df) +
-  aes(x = proportion, color = celltype_n) +
+  aes(x = proportion, color = celltype) +
   geom_density() +
   facet_wrap(
     vars(chr),
@@ -483,7 +466,7 @@ ggplot(loss_df) +
 
 ```{r fig.height=12, fig.width=14}
 ggplot(gain_df) +
-  aes(x = proportion, color = celltype_n) +
+  aes(x = proportion, color = celltype) +
   geom_density() +
   facet_wrap(
     vars(chr),
