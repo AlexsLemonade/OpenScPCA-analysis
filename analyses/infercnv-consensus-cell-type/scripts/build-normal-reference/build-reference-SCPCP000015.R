@@ -115,7 +115,7 @@ clean_sce <- function(sce) {
   reducedDim(sce, "UMAP") <- NULL
 
   # ensure the counts matrix is sparse
-  counts(sce) <- as(counts(sce), "dgCMatrix")
+  counts(sce) <- as(counts(sce), "CsparseMatrix")
 
   return(sce)
 }
