@@ -332,35 +332,20 @@ query_only_df <- library_has_cnv_df |>
       stringr::str_detect(ewing_annotation, "tumor"),
       "tumor",
       ewing_annotation
-    )
+    ),
+    # top 10 only - lump here to assist in color setup
+    celltype_fine = forcats::fct_lump(celltype_fine, 10)
   ) |>
   dplyr::add_count(celltype_fine) |>
-  dplyr::mutate(
-    celltype_fine_n = glue::glue("{celltype_fine} (n={n})"),
-    # top 10 only
-    celltype_fine_n = forcats::fct_lump(celltype_fine_n, 10)
-  )
-
-# add n() to "Other" for plot clarity and update factor to frequency order
-current_levels <- levels(query_only_df$celltype_fine_n)
-total_other <- query_only_df |>
-  dplyr::filter(celltype_fine_n == "Other") |>
-  nrow()
-updated_other <- glue::glue("Other (n={total_other})")
-
-query_only_df <- query_only_df |>
-  dplyr::mutate(
-    # update other level to have counts
-    celltype_fine_n = as.character(celltype_fine_n),
-    celltype_fine_n = ifelse(celltype_fine_n == "Other", updated_other, celltype_fine_n),
-    # order based on freq
-    celltype_fine_n = as.factor(celltype_fine_n),
-    celltype_fine_n = forcats::fct_infreq(celltype_fine_n),
-    celltype_fine_n = forcats::fct_relevel(celltype_fine_n, updated_other, after = Inf)
-  ) |>
+  dplyr::mutate(celltype_fine_n = glue::glue("{celltype_fine} (n={n})")) |>
   # exclude small clusters
   dplyr::add_count(subcluster, name = "subcluster_size") |>
   dplyr::filter(subcluster_size >= 10)
+
+# Set cell type factor order by frequency, with the "Other (n=XX)" at the end
+other_level <- grep("Other", unique(query_only_df$celltype_fine_n), value = TRUE)
+query_only_df$celltype_fine_n <- forcats::fct_infreq(query_only_df$celltype_fine_n) |>
+  forcats::fct_relevel(other_level, after = Inf)
 
 # Create color palette with (n=) in labels
 color_n_df <- query_only_df |>
@@ -373,9 +358,6 @@ color_n_df <- query_only_df |>
   unique()
 colors <- color_n_df$color
 names(colors) <- color_n_df$celltype_fine_n
-
-# Add in the other color with its label, since that won't be in the palette
-colors[updated_other] <- "#D2D2D2"
 ```
 
 
@@ -387,6 +369,10 @@ ggplot(query_only_df) +
   ) +
   geom_bar() +
   scale_fill_manual(values = colors) +
+  labs(
+    fill = "Cell type (number of cells)",
+    x = "InferCNV subcluster"
+  ) +
   theme(axis.text.x = element_blank())
 ```
 
