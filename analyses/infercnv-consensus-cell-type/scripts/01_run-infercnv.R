@@ -191,11 +191,9 @@ sce <- sce[, !(colnames(sce) %in% duplicated_cells)]
 
 # Create input matrix by combining library SCE and reference SCE counts assays
 raw_counts_matrix <- cbind(
-  as.matrix(counts(sce)),
-  as.matrix(counts(ref_sce))
-) |>
-  # sparse for memory
-  as("CsparseMatrix")
+  counts(sce),
+  counts(ref_sce)
+) 
 
 # Check that we removed the duplicates:
 stopifnot(
