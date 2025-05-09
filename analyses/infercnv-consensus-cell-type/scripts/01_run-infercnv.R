@@ -191,8 +191,8 @@ sce <- sce[, !(colnames(sce) %in% duplicated_cells)]
 
 # Create input matrix by combining library SCE and reference SCE counts assays
 raw_counts_matrix <- cbind(
-  as.matrix(counts(sce)),
-  as.matrix(counts(ref_sce))
+  counts(sce),
+  counts(ref_sce)
 )
 
 # Check that we removed the duplicates:
@@ -220,6 +220,10 @@ infercnv_obj <- infercnv::CreateInfercnvObject(
   gene_order_file = opts$gene_order_file,
   ref_group_name = reference_group_name
 )
+
+# Clean up some memory before running inferCNV
+rm(sce, ref_sce, raw_counts_matrix)
+gc()
 
 # run infercnv
 infercnv_obj <- infercnv::run(
