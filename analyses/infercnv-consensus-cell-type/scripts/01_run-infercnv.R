@@ -227,7 +227,6 @@ infercnv_obj <- infercnv::CreateInfercnvObject(
 rm(sce, ref_sce, raw_counts_matrix)
 gc()
 
-
 # run infercnv
 infercnv_obj <- infercnv::run(
   infercnv_obj,
