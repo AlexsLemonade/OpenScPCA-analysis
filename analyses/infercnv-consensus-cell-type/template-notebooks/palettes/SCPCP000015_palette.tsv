@@ -1,7 +1,7 @@
 celltype	color
-tumor	#AA0DFE
+tumor	#DF95FF
 plasma cell	#FBE426
-Unknown	#FE00FA
+Unknown	#B10DA1
 memory T cell	#325A9B
 mature T cell	#16FF32
 macrophage	#1C8356
@@ -11,7 +11,7 @@ adipocyte	#FEAF16
 chondrocyte	#F7E1A0
 endothelial cell	#FC1CBF
 epithelial cell	#C075A6
-fibroblast	#B10DA1
+fibroblast	#F8A19F
 smooth muscle cell	#3283FE
 muscle cell	#2ED9FF
 stromal cell	#1CFFCE
