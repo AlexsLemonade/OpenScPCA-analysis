@@ -193,7 +193,9 @@ sce <- sce[, !(colnames(sce) %in% duplicated_cells)]
 raw_counts_matrix <- cbind(
   as.matrix(counts(sce)),
   as.matrix(counts(ref_sce))
-)
+) |>
+  # sparse for memory
+  as("CsparseMatrix")
 
 # Check that we removed the duplicates:
 stopifnot(
@@ -220,6 +222,11 @@ infercnv_obj <- infercnv::CreateInfercnvObject(
   gene_order_file = opts$gene_order_file,
   ref_group_name = reference_group_name
 )
+
+# Clean up some memory before running inferCNV
+rm(sce, ref_sce, raw_counts_matrix)
+gc()
+
 
 # run infercnv
 infercnv_obj <- infercnv::run(
