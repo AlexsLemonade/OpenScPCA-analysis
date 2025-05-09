@@ -30,6 +30,7 @@ seed=${seed:-2025}
 top_data_dir="../../data/current"
 data_dir="../../data/current/${project_id}"
 script_dir="scripts"
+notebook_dir="template-notebooks"
 results_dir="results/${project_id}"
 normal_ref_dir="references/normal-references/${project_id}"
 merged_sce_file="${top_data_dir}/results/merge-sce/${project_id}/${project_id}_merged.rds"
@@ -95,6 +96,11 @@ for sample_id in $sample_ids; do
             --threads $threads \
             --seed $seed
 
-        # TODO: Next, we'll run the forthcoming exploratory notebook on each inferCNV result
+        # run inferCNV results through exploratory notebook
+        html_name="${library_id}_infercnv-results.nb.html"
+        Rscript -e "rmarkdown::render('${notebook_dir}/SCPCP000015_explore-infercnv-results.Rmd',
+            params = list(library_id = '${library_id}', sample_id = '${sample_id}', reference_name = '${normal_ref}'),
+            output_dir = '${sample_results_dir}',
+            output_file = '${html_name}')"
     done
 done

@@ -1,0 +1,486 @@
+---
+title: "`r glue::glue('inferCNV results for {params$library_id} with {params$reference_name} reference')`"
+author: "Stephanie J. Spielman"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+params:
+  library_id: SCPCL000822
+  sample_id: SCPCS000490
+  reference_name: ref_endo
+---
+
+
+## Introduction
+
+This notebook explores `inferCNV` results run on library `r params$library_id` from `SCPCP000015`.
+
+```{r, results = 'asis'}
+ref_text <- list(
+  "ref_endo" = "endothelial",
+  "ref_immune" = "immune",
+  "ref_endo-immune" = "endothelial and immune"
+)
+glue::glue(
+  "`inferCNV` was run with the following normal reference: `{params$reference_name}`.
+  This reference contains all {ref_text[[params$reference_name]]}  cells across `SCPCP000015` libraries, excluding any which were also identified as tumor in the `cell-type-ewings` analysis module.
+  "
+)
+```
+
+
+## Setup
+
+```{r}
+options(readr.show_col_types = FALSE)
+
+suppressPackageStartupMessages({
+  library(SingleCellExperiment)
+  library(ggplot2)
+  library(patchwork)
+})
+
+theme_set(theme_bw())
+
+umap_theme <- list(
+  coord_fixed(),
+  theme_classic(),
+  theme(
+    axis.ticks = element_blank(),
+    axis.text = element_blank()
+  )
+)
+```
+
+
+### Paths
+
+#### Base directories
+
+```{r base paths}
+# repo and analysis base dirs
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+analysis_dir <- file.path(repository_base, "analyses", "infercnv-consensus-cell-type")
+
+# OpenScpCA data and results directories
+data_dir <- file.path(repository_base, "data", "current")
+
+# inferCNV directory
+infercnv_dir <- file.path(
+  analysis_dir,
+  "results",
+  "SCPCP000015",
+  params$sample_id,
+  params$reference_name
+)
+```
+
+#### Input files
+
+```{r paths}
+# TSV with expected Ewing CNVs
+validation_tsv <- file.path(analysis_dir, "references", "cnv-validation.tsv")
+
+# processed sce file
+sce_file <- file.path(
+  data_dir,
+  "SCPCP000015",
+  params$sample_id,
+  glue::glue("{params$library_id}_processed.rds")
+)
+
+# ewing module cell types
+ewings_tsv <- file.path(
+  data_dir,
+  "results",
+  "cell-type-ewings",
+  "SCPCP000015",
+  params$sample_id,
+  glue::glue("{params$library_id}_ewing-celltype-assignments.tsv")
+)
+
+# infercnv files
+infercnv_tsv <- file.path(
+  infercnv_dir,
+  glue::glue("{params$library_id}_cnv-metadata.tsv")
+)
+infercnv_png <- file.path(
+  infercnv_dir,
+  glue::glue("{params$library_id}_infercnv.png")
+)
+```
+
+### Read in data
+
+```{r message = FALSE}
+validation_df <- readr::read_tsv(validation_tsv) |>
+  dplyr::filter(diagnosis == "Ewing sarcoma")
+
+# read infercnv results
+infercnv_df <- readr::read_tsv(infercnv_tsv) |>
+  # indicator for reference vs query cell based on `subcluster` name
+  dplyr::mutate(cell_group = stringr::str_split_i(subcluster, "_", 1)) |>
+  # separate barcode and library
+  tidyr::separate(
+    cell_id,
+    sep = "-",
+    into = c("library_id", "barcodes"),
+    remove = FALSE
+  )
+
+# Extract a version of the data frame with just the infercnv metadata, not CNVs themselves
+# Note that we keep this separate for circumstances when the metadata has to be joined back in with results
+infercnv_metadata_df <- infercnv_df |>
+  dplyr::select(
+    -starts_with("has_"),
+    -starts_with("proportion_"),
+    -starts_with("top_")
+  )
+
+# Read SCE and save UMAP coordinates
+umap_df <- readr::read_rds(sce_file) |>
+  scuttle::makePerCellDF(use.dimred = "UMAP") |>
+  dplyr::select(
+    barcodes,
+    UMAP1 = UMAP.1,
+    UMAP2 = UMAP.2
+  )
+
+# Read ewings cell types
+celltype_df <- readr::read_tsv(ewings_tsv)
+```
+
+
+## InferCNV Heatmap
+
+Below, we show the `inferCNV` heatmap for this library.
+To help contextualize this image, here is the table of known CNVs in Ewing sarcoma used for validation:
+
+```{r}
+validation_df
+```
+
+
+![InferCNV heatmap](`r infercnv_png`)
+
+
+## Distribution of CNVs per cell
+
+This section contains figures showing the total number of CNVs detected per cell.
+
+The figures below compare the number of CNVs per cell between cell groupings.
+Ideally, we'll see a bimodal distribution where reference cells are at/near zero, and there is a peak of higher values which may represent tumor cells.
+
+```{r}
+# First, construct data frame of total `has_cnv` counts, with other variables needed for plots
+has_cnv_df <- infercnv_df |>
+  tidyr::pivot_longer(
+    starts_with("has_cnv_"),
+    names_to = "chr",
+    values_to = "cnv"
+  ) |>
+  # sum all values for each
+  dplyr::group_by(barcodes) |>
+  dplyr::summarize(total_cnv_per_cell = sum(cnv)) |>
+  dplyr::ungroup() |>
+  # bring back metadata
+  dplyr::inner_join(
+    infercnv_metadata_df,
+    by = "barcodes"
+  ) |>
+  # join in SCE information
+  dplyr::left_join(celltype_df) |>
+  dplyr::left_join(umap_df) |>
+  # add cell type grouping column, with counts
+  dplyr::mutate(
+    celltype = dplyr::case_when(
+      cell_group == "reference" ~ "reference cell",
+      stringr::str_detect(ewing_annotation, "tumor") ~ "tumor cell",
+      .default = "other query cell"
+    )
+  ) |>
+  # add columns with cell type & group counts
+  dplyr::add_count(celltype, name = "celltype_count") |>
+  dplyr::add_count(cell_group, name = "cell_group_count") |>
+  dplyr::mutate(
+    celltype = forcats::fct_relevel(celltype, c("reference cell", "tumor cell", "other query cell")),
+    # set celltype labels with (n=)
+    celltype = forcats::fct_relabel(
+      celltype,
+      # https://stackoverflow.com/questions/70510771/how-can-i-use-fct-relabel-but-maintain-original-factor-levels-or-how-can-i-set
+      ~ glue::glue("{levels(celltype)} (n = {celltype_count[match(levels(celltype), celltype)]})")
+    ),
+    cell_group_n = glue::glue("{cell_group} (n={cell_group_count})")
+  )
+```
+
+
+Below, we show two ridge plots for the total detected CNVs across cell groups:
+
+* On the left, distributions are colored based on whether the cells are in the reference or not (aka, "query" cells)
+* On the right, distributions are colored based on a broad cell type category as follows:
+  * `reference cell`: Cells in the normal reference
+  * `tumor cell`: Cells labeled as tumor by the `cell-type-ewings` module
+  * `other query cell`: All other cells
+
+```{r fig.width = 12, fig.height = 5}
+left_plot <- ggplot(has_cnv_df) +
+  aes(y = forcats::fct_rev(cell_group_n), x = total_cnv_per_cell, fill = cell_group_n) +
+  ggridges::geom_density_ridges2(alpha = 0.7, scale = 0.85) +
+  scale_fill_brewer(palette = "Dark2") +
+  labs(y = "Cell group (number of cells)") +
+  theme(legend.position = "bottom")
+
+
+right_plot <- ggplot(has_cnv_df) +
+  aes(y = forcats::fct_rev(celltype), x = total_cnv_per_cell, fill = celltype) +
+  ggridges::geom_density_ridges2(alpha = 0.7, scale = 0.85) +
+  labs(y = "Cell type (number of cells)") +
+  theme(legend.position = "bottom")
+
+
+left_plot + right_plot
+```
+
+
+## UMAPs
+
+Next, we'll visualize the total CNV counts as a UMAP.
+Below, the UMAP colored by cell type is shown on the left, and the UMAP colored by total CNV counts is shown on the right.
+Ideally, unknown and tumor cells will overlap with regions in the UMAP with higher total CNV.
+
+```{r, fig.width = 12}
+# Filter to just cells in the library to avoid warnings
+library_has_cnv_df <- has_cnv_df |>
+  dplyr::filter(library_id == params$library_id)
+
+celltype_umap <- ggplot(library_has_cnv_df) +
+  aes(x = UMAP1, y = UMAP2, color = celltype) +
+  geom_point(size = 0.2, alpha = 0.3) +
+  guides(color = guide_legend(override.aes = list(size = 2, alpha = 1))) +
+  labs(title = "Cell types") +
+  umap_theme
+
+cnv_umap <- ggplot(library_has_cnv_df) +
+  aes(x = UMAP1, y = UMAP2, color = total_cnv_per_cell) +
+  geom_point(size = 0.2, alpha = 0.3) +
+  scale_color_viridis_c() +
+  labs(title = "Total CNV per cell") +
+  umap_theme
+
+celltype_umap + cnv_umap
+```
+
+
+## Clusters
+
+Part of `inferCNV`'s algorithm involves clustering the data, and poor clusters have the potential to lead to inaccurate inferences of CNV.
+To see whether we'd like to further tune the clustering parameters, we'll get a sense of their size and rough composition here.
+
+How many clusters are there, and how big are they?
+We'll show this separately for reference vs query cells.
+
+```{r, fig.width = 8}
+cluster_count_df <- has_cnv_df |>
+  dplyr::count(subcluster, cell_group_n)
+ggplot(cluster_count_df) +
+  aes(x = n, fill = cell_group_n) +
+  geom_histogram(color = "grey20", bins = 15) +
+  facet_wrap(vars(cell_group_n), scales = "free") +
+  labs(
+    x = "Number of cells in cluster",
+    y = "Number of clusters"
+  )
+```
+
+Is there any relationship between cluster size and the number of CNVs?
+We would ideally not want there to be a relationship since this might indicate a bias.
+
+```{r, fig.width = 6}
+cluster_size_df <- has_cnv_df |>
+  dplyr::add_count(subcluster, name = "cluster_size") |>
+  dplyr::select(
+    total_cnv_per_cell,
+    cluster_size
+  ) |>
+  dplyr::distinct()
+
+ggplot(cluster_size_df) +
+  aes(x = cluster_size, y = total_cnv_per_cell) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+
+We'd also like to look at the distribution of cell types across clusters, specifically considering the non-reference clusters.
+For this, we'll focus on the top 10 cell types (based on the `cell-type-ewings` labels) considering all "tumor" as a single grouping.
+For visual ease, we'll only show clusters with at least 10 cells.
+
+```{r}
+query_only_df <- library_has_cnv_df |>
+  dplyr::filter(cell_group == "unknown") |>
+  # create a finer cell type column for this plot
+  dplyr::mutate(
+    celltype_fine = dplyr::case_when(
+      cell_group == "reference" ~ "reference cell",
+      stringr::str_detect(ewing_annotation, "tumor") ~ "tumor cell",
+      .default = ewing_annotation
+    )
+  ) |>
+  dplyr::add_count(celltype_fine, name = "celltype_fine_count") |>
+  dplyr::mutate(
+    celltype_fine_n = glue::glue("{celltype_fine} (n={celltype_fine_count})"),
+    # top 10 only
+    celltype_fine_n = forcats::fct_lump(celltype_fine_n, 10),
+  )
+
+# add n() to "Other" for plot clarity and update factor to frequency order
+current_levels <- levels(query_only_df$celltype_fine_n)
+total_other <- query_only_df |>
+  dplyr::filter(celltype_fine_n == "Other") |>
+  nrow()
+updated_other <- glue::glue("Other (n={total_other})")
+
+query_only_df <- query_only_df |>
+  dplyr::mutate(
+    # update other level to have counts
+    celltype_fine_n = as.character(celltype_fine_n),
+    celltype_fine_n = ifelse(celltype_fine_n == "Other", updated_other, celltype_fine_n),
+    # order based on freq
+    celltype_fine_n = as.factor(celltype_fine_n),
+    celltype_fine_n = forcats::fct_infreq(celltype_fine_n),
+    celltype_fine_n = forcats::fct_relevel(celltype_fine_n, updated_other, after = Inf)
+  ) |>
+  # exclude small clusters
+  dplyr::add_count(subcluster, name = "subcluster_size") |>
+  dplyr::filter(subcluster_size >= 10)
+
+
+# 11 hex colors!
+# adapted from 'Classic 10' from paletteer: https://r-graph-gallery.com/color-palette-finder
+colors <- c("#1F77B4", "#FF7F0E", "#2CA02C", "#D6272F", "#9467BD", "#8C564B", "#E377C2", "#7F7F7F", "#BCBD22", "#17CFFB", "#17CF1F")
+```
+
+
+```{r, fig.width = 12}
+ggplot(query_only_df) +
+  aes(
+    x = forcats::fct_infreq(subcluster),
+    fill = celltype_fine_n
+  ) +
+  geom_bar() +
+  scale_fill_manual(values = colors) +
+  theme(axis.text.x = element_blank())
+```
+
+
+
+Finally, let's also look more specifically at the `reference` clusters, where we might expect some batch effects since cells were taken from several different libraries.
+Do originating libraries cluster together?
+When interpreting this plot, bear in mind that there might also be an association between cell types and libraries, and we would expect cell types to still cluster together.
+
+```{r}
+reference_cells_df <- has_cnv_df |>
+  dplyr::filter(cell_group == "reference")
+
+ggplot(reference_cells_df) +
+  aes(x = subcluster, fill = library_id) +
+  geom_bar() +
+  scale_fill_brewer(palette = "Dark2") +
+  theme(
+    legend.position = "bottom",
+    axis.text.x = element_blank()
+  )
+```
+
+
+## CNV across chromosomes
+
+Now, we'll look at CNVs across chromosomes, specifically considering the `proportion_scaled_cnv_` output from the HMM focusing on gain and loss events.
+
+Again, these are the specific CNVs we expect to see in Ewing sarcoma:
+
+```{r}
+validation_df
+```
+
+```{r}
+# First, construct data frame with proportion_scaled_ instead of has_cnv
+prop_cnv_df <- infercnv_df |>
+  tidyr::pivot_longer(
+    starts_with("proportion_scaled_"),
+    names_to = "cnv_type_raw",
+    values_to = "proportion"
+  ) |>
+  # more tidying
+  dplyr::mutate(cnv_type_raw = stringr::str_remove(cnv_type_raw, "^proportion_scaled_")) |>
+  tidyr::separate(cnv_type_raw, sep = "_", into = c("cnv_type", "chr")) |>
+  # remove extra chromosomes and cells not in this library
+  dplyr::filter(
+    !stringr::str_starts(chr, "chrMT"),
+    !stringr::str_starts(chr, "chrGL"),
+    library_id == params$library_id
+  ) |>
+  # set chr factor levels, with ones used for validation first
+  dplyr::mutate(
+    chr = stringr::str_remove(chr, "^chr"),
+    chr = factor(chr, levels = 1:22),
+    chr = forcats::fct_relevel(chr, as.character(validation_df$chromosome))
+  ) |>
+  # finally, join in the cell types
+  dplyr::inner_join(
+    has_cnv_df |>
+      dplyr::select(barcodes, celltype)
+  )
+```
+
+```{r}
+# separate gain and loss dfs
+loss_df <- prop_cnv_df |>
+  dplyr::filter(cnv_type == "loss")
+gain_df <- prop_cnv_df |>
+  dplyr::filter(cnv_type == "dupli")
+```
+
+We'll make density plots of the predicted CNV events across chromosomes, considering gain and loss separately.
+The panels will be ordered first by the chromosomes with known CNVs, and then in order for the rest of the chromosomes.
+Each line in the density plot represents a different cell type grouping.
+
+
+```{r fig.height=12, fig.width=14}
+ggplot(loss_df) +
+  aes(x = proportion, color = celltype) +
+  geom_density() +
+  facet_wrap(
+    vars(chr),
+    scales = "free",
+    ncol = 4 # this way the first row is the validation ones only
+  ) +
+  ggtitle("Proportion of CNV loss across chromosomes for each cell type group") +
+  theme(strip.text = element_text(size = 8))
+```
+
+
+```{r fig.height=12, fig.width=14}
+ggplot(gain_df) +
+  aes(x = proportion, color = celltype) +
+  geom_density() +
+  facet_wrap(
+    vars(chr),
+    scales = "free",
+    ncol = 4 # this way the first row is the validation ones only
+  ) +
+  ggtitle("Proportion of CNV gain across chromosomes for each cell type group") +
+  theme(strip.text = element_text(size = 8))
+```
+
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
