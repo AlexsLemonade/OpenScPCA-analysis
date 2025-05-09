@@ -190,10 +190,10 @@ duplicated_cells <- intersect(colnames(ref_sce), colnames(sce))
 sce <- sce[, !(colnames(sce) %in% duplicated_cells)]
 
 # Create input matrix by combining library SCE and reference SCE counts assays
-raw_counts_matrix <- cbind(
+raw_counts_matrix <- DelayedArray::cbind(
   counts(sce),
   counts(ref_sce)
-) 
+)
 
 # Check that we removed the duplicates:
 stopifnot(
