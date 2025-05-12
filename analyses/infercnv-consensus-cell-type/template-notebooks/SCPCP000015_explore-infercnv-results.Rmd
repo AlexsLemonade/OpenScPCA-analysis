@@ -410,6 +410,14 @@ validation_df
 ```{r}
 # First, construct data frame with proportion_scaled_ instead of has_cnv
 prop_cnv_df <- infercnv_df |>
+  # selecting here is helpful for debugging and viewing results
+  dplyr::select(
+    starts_with("proportion_scaled_"),
+    cell_id,
+    library_id,
+    barcodes,
+    subcluster
+  ) |>
   tidyr::pivot_longer(
     starts_with("proportion_scaled_"),
     names_to = "cnv_type_raw",
@@ -418,11 +426,10 @@ prop_cnv_df <- infercnv_df |>
   # more tidying
   dplyr::mutate(cnv_type_raw = stringr::str_remove(cnv_type_raw, "^proportion_scaled_")) |>
   tidyr::separate(cnv_type_raw, sep = "_", into = c("cnv_type", "chr")) |>
-  # remove extra chromosomes and cells not in this library
+  # remove extra chromosomes
   dplyr::filter(
     !stringr::str_starts(chr, "chrMT"),
-    !stringr::str_starts(chr, "chrGL"),
-    library_id == params$library_id
+    !stringr::str_starts(chr, "chrGL")
   ) |>
   # set chr factor levels, with ones used for validation first
   dplyr::mutate(
@@ -433,7 +440,9 @@ prop_cnv_df <- infercnv_df |>
   # finally, join in the cell types
   dplyr::inner_join(
     has_cnv_df |>
-      dplyr::select(barcodes, celltype)
+      dplyr::select(barcodes, celltype),
+    # we're joining a wide and long df, so we expect many matches
+    relationship = "many-to-many"
   )
 ```
 
