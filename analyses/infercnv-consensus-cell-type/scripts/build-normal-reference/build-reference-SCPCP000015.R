@@ -36,7 +36,8 @@ option_list <- list(
     opt_str = "--reference_endo_immune",
     type = "character",
     help = "Path to output RDS file to save an SCE file to use as a normal reference with all Ewing endothelial and immune cells"
-  ), make_option(
+  ),
+  make_option(
     opt_str = "--immune_ref_url",
     type = "character",
     default = "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/consensus-immune-cell-types.tsv",
