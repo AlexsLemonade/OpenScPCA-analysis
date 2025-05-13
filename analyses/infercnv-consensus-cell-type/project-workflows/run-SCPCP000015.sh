@@ -61,9 +61,11 @@ sample_ids=$(basename -a ${data_dir}/SCPCS*)
 if [[ $testing -eq 1 ]]; then
     # Use only the immune references for testing
     normal_refs=("ref_immune")
+    test_flag="--testing"
 else
     # Use all references for full analysis
     normal_refs=("ref_immune" "ref_endo" "ref_endo-immune")
+    test_flag=""
 fi
 
 # Run inferCNV on all samples across conditions of interest
@@ -100,6 +102,47 @@ for sample_id in $sample_ids; do
         html_name="${library_id}_infercnv-results.nb.html"
         Rscript -e "rmarkdown::render('${notebook_dir}/SCPCP000015_explore-infercnv-results.Rmd',
             params = list(library_id = '${library_id}', sample_id = '${sample_id}', reference_name = '${normal_ref}'),
+            output_dir = '${sample_results_dir}',
+            output_file = '${html_name}')"
+    done
+done
+
+# Next, we run a set of control inferences where the reference is taken from the same library itself
+# Libraries and references to run were determined here: https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/1125
+for sample_id in SCPCS000490 SCPCS000492 SCPCS000750; do
+
+    sce_file=`ls ${data_dir}/${sample_id}/*_processed.rds`
+    library_id=$(basename $sce_file | sed 's/_processed.rds$//')
+
+    # Loop over references
+    for reference in endo immune endo-immune; do
+
+        # Skip SCPCS000750 if it's _not_ endo
+        if [[ ${sample_id} == "SCPCS000750" && $reference != "endo" ]]; then
+            continue
+        fi
+        ref_name="ref_${reference}_internal"
+
+        # Define output directory with _internal suffix
+        sample_results_dir="${results_dir}/${sample_id}/${ref_name}"
+
+        # Define TSV file with cell type information
+        celltype_tsv="${cell_type_ewings_dir}/${sample_id}/${library_id}_ewing-celltype-assignments.tsv"
+
+        # run inferCNV
+        Rscript ${script_dir}/01b_run-infercnv-internal-reference.R \
+            --sce_file $sce_file \
+            --reference_celltype_group $reference \
+            --celltype_file $celltype_tsv \
+            --output_dir $sample_results_dir \
+            --threads $threads \
+            --seed $seed \
+            ${test_flag}
+
+        # run inferCNV results through exploratory notebook
+        html_name="${library_id}_infercnv-results.nb.html"
+        Rscript -e "rmarkdown::render('${notebook_dir}/SCPCP000015_explore-infercnv-results.Rmd',
+            params = list(library_id = '${library_id}', sample_id = '${sample_id}', reference_name = '${ref_name}'),
             output_dir = '${sample_results_dir}',
             output_file = '${html_name}')"
     done
