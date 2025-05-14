@@ -237,6 +237,8 @@ if (opts$reference_type == "pooled") {
   # Create input matrix for inferCNV as the input counts matrix
   raw_counts_matrix <- counts(sce)
 
+  # TODO: Currently this function is specific to SCPCP000015
+  # In the future this may need to be updated as a wrapper function to call individual project functions
   prepare_internal_reference_annotations(
     opts$reference_celltype_group, # cell type groups to include in reference
     opts$reference_celltype_tsv, # map between reference groups and consensus cell types
