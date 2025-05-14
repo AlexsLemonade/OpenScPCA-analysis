@@ -54,7 +54,9 @@ gtf <- rtracklayer::import(local_gtf_file, feature.type = "gene")
 gtf_df <- gtf |>
   as.data.frame() |>
   dplyr::select(gene_id, seqnames, start, end) |>
-  dplyr::mutate(seqnames = glue::glue("chr{seqnames}"))
+  dplyr::mutate(seqnames = glue::glue("chr{seqnames}")) |>
+  # only keep chr1 - 22 and chrX and chrY
+  dplyr::filter(grepl("^chr([1-9]|1[0-9]|2[0-2]|X|Y)$", seqnames))
 
 # export gene order file
 readr::write_tsv(gtf_df, gene_order_file, col_names = FALSE)

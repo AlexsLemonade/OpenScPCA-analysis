@@ -435,11 +435,6 @@ prop_cnv_df <- infercnv_df |>
   # more tidying
   dplyr::mutate(cnv_type_raw = stringr::str_remove(cnv_type_raw, "^proportion_scaled_")) |>
   tidyr::separate(cnv_type_raw, sep = "_", into = c("cnv_type", "chr")) |>
-  # remove extra chromosomes
-  dplyr::filter(
-    !stringr::str_starts(chr, "chrMT"),
-    !stringr::str_starts(chr, "chrGL")
-  ) |>
   # set chr factor levels, with ones used for validation first
   dplyr::mutate(
     chr = stringr::str_remove(chr, "^chr"),
