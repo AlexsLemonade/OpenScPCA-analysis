@@ -9,11 +9,11 @@ suppressPackageStartupMessages({
 })
 
 # source helper functions for preparing inferCNV annotations
-source(
+source(file.path(
   project_root,
   "scripts",
   "utils.R"
-)
+))
 
 option_list <- list(
   make_option(
@@ -165,6 +165,7 @@ if (opts$reference_type == "pooled") {
     "reference_celltype_tsv does not exist." = file.exists(opts$reference_celltype_tsv)
   )
 
+  # use "_internal" designation
   ref_name <- glue::glue("{opts$internal_reference_group}_internal")
 }
 
