@@ -90,10 +90,11 @@ for sample_id in $sample_ids; do
         # define normal reference SCE file
         normal_ref_file="${normal_ref_dir}/${normal_ref}.rds"
 
-        # run inferCNV
+        # run inferCNV with the pooled reference
         Rscript ${script_dir}/01_run-infercnv.R \
             --sce_file $sce_file \
-            --reference_file $normal_ref_file \
+            --reference_type "pooled" \
+            --pooled_reference_sce $normal_ref_file \
             --output_dir $sample_results_dir \
             --threads $threads \
             --seed $seed
@@ -129,11 +130,13 @@ for sample_id in SCPCS000490 SCPCS000492 SCPCS000750; do
         # Define TSV file with cell type information
         celltype_tsv="${cell_type_ewings_dir}/${sample_id}/${library_id}_ewing-celltype-assignments.tsv"
 
-        # run inferCNV
-        Rscript ${script_dir}/01b_run-infercnv-internal-reference.R \
+        # run inferCNV with the internal reference
+        Rscript ${script_dir}/01_run-infercnv.R \
             --sce_file $sce_file \
-            --reference_celltype_group $reference \
-            --celltype_file $celltype_tsv \
+            --reference_type "internal" \
+            --internal_reference_group $ref_name \
+            --celltype_tsv $celltype_tsv \
+            --reference_celltype_tsv $ref_celltypes_tsv \
             --output_dir $sample_results_dir \
             --threads $threads \
             --seed $seed \
