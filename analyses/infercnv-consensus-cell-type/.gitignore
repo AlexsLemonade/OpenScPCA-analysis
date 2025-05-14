@@ -8,6 +8,5 @@
 
 # Ignore any large reference files
 references/Homo_sapiens.GRCh38.104.gene_order.txt
-references/normal-references/*
-!references/normal-references/README.md
+references/normal-references/SCPCP000015/*
 !references/normal-references/SCPCP000015/reference-celltypes.tsv
