@@ -10,16 +10,14 @@ More information about these files is provided below.
 
 Normal references for use with `inferCNV` are formatted as SCE files and are expected to have the following components:
 
-* Files should be named as `ref_{reference name}.rds`
-* Reference SCEs should contain at least:
-  * A raw counts matrix
-  * Column names (cell ids) formatted as `{library_id}-{barcode}`
-  * A `colData` column `consensus_annotation` recording each cell's consensus annotation
+* A raw counts matrix
+* Column names (cell ids) formatted as `{library_id}-{barcode}`
+* A `colData` column `consensus_annotation` recording each cell's consensus annotation
 
 The `normal-references/` directory contains the following references for each given project:
 
 * `SCPCP000015`
-  * `ref_immune.rds` contains all immune cells across samples, excluding those which were annotated as `tumor` in the `cell-type-ewings` module
-  * `ref_endo.rds` contains all endothelial cells across samples, excluding those which were annotated as `tumor` in the `cell-type-ewings` module
-  * `ref_endo-immune.rds` contains the union of `ref_immune` and `ref_endo`
+  * `immune.rds` contains all immune cells across samples, excluding those which were annotated as `tumor` in the `cell-type-ewings` module
+  * `endo.rds` contains all endothelial cells across samples, excluding those which were annotated as `tumor` in the `cell-type-ewings` module
+  * `endo-immune.rds` contains the union of the `immune` and `endo` references
   * `reference-celltypes.tsv` is a TSV of all consensus cell type labels that contribute to each normal reference
