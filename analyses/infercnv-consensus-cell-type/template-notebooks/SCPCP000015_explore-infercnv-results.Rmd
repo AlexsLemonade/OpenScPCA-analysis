@@ -24,7 +24,7 @@ ref_text <- list(
   "ref_immune" = "immune",
   "ref_endo-immune" = "endothelial and immune"
 )
-if (stringr::str_detect(opts$reference_name, "internal")) {
+if (stringr::str_detect(params$reference_name, "internal")) {
   reference_type_text <- glue::glue("within the `SCPCL000822` library")
 } else {
   reference_type_text <- glue::glue("across all `SCPCP000015` libraries")
