@@ -140,7 +140,7 @@ opts <- parse_args(OptionParser(option_list = option_list))
 stopifnot(
   "sce_file does not exist" = file.exists(opts$sce_file),
   "gene_order_file does not exist" = file.exists(opts$gene_order_file),
-  "annotation_file not provided" = file.exists(opts$annotation_file),
+  "annotation_file not provided" = !is.null(opts$annotation_file),
   "reference_type must be one of 'pooled' or 'internal'" = opts$reference_type %in% c("pooled", "internal"),
   "reference_celltype_group not provided." = !is.null(opts$reference_celltype_group),
   "hmm_model not properly specified" = opts$hmm_model %in% c("i3", "i6")
