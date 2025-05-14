@@ -154,7 +154,6 @@ if (opts$reference_type == "pooled") {
     "^ref_"
   ) |>
     stringr::str_remove("\\.rds$")
-  ref_name <- glue::glue("{ref_name}_pooled")
 } else {
   stopifnot(
     "internal_reference_group was not specified. This is required if reference_type is 'internal'." = !is.null(opts$internal_reference_group),
