@@ -116,6 +116,7 @@ for sample_id in SCPCS000490 SCPCS000492 SCPCS000750; do
     library_id=$(basename $sce_file | sed 's/_processed.rds$//')
 
     # Loop over references
+    # Note that we set this reference looping variable as just the cell type grouping for input to inferCNV script
     for reference in endo immune endo-immune; do
 
         # Skip SCPCS000750 if it's _not_ endo
@@ -134,7 +135,7 @@ for sample_id in SCPCS000490 SCPCS000492 SCPCS000750; do
         Rscript ${script_dir}/01_run-infercnv.R \
             --sce_file $sce_file \
             --reference_type "internal" \
-            --internal_reference_group $ref_name \
+            --internal_reference_group $reference \
             --celltype_tsv $celltype_tsv \
             --reference_celltype_tsv $ref_celltypes_tsv \
             --output_dir $sample_results_dir \
