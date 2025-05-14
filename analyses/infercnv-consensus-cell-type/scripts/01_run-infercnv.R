@@ -19,31 +19,36 @@ option_list <- list(
   make_option(
     opt_str = "--sce_file",
     type = "character",
+    default = "",
     help = "Path to the SCE file to run inferCNV on"
   ),
   make_option(
     opt_str = "--reference_type",
     type = "character",
+    default = "",
     help = "Whether a pooled or internal normal reference should be used with inferCNV. The provided value should be one of 'pooled' or 'internal'."
+  ),
+  make_option(
+    opt_str = "--reference_celltype_group",
+    type = "character",
+    help = "Cell type grouping that the reference uses, which will be saved in the inferCNV output."
   ),
   make_option(
     opt_str = "--pooled_reference_sce",
     type = "character",
+    default = "",
     help = "When a pooled reference is used, path to the normal reference SCE. This is required if reference_type is 'pooled'."
-  ),
-  make_option(
-    opt_str = "--internal_reference_group",
-    type = "character",
-    help = "When an internal reference is used, cell type grouping of the reference to use. This is required if reference_type is 'internal'."
   ),
   make_option(
     opt_str = "--celltype_tsv",
     type = "character",
+    default = "",
     help = "Path to TSV file with consensus cell types for the library to use when building an internal reference. This is required if reference_type is 'internal'."
   ),
   make_option(
     opt_str = "--reference_celltype_tsv",
     type = "character",
+    default = "",
     help = "TSV with cell type groups to use in the reference. This is required if reference_type is 'internal'."
   ),
   make_option(
@@ -135,39 +140,24 @@ opts <- parse_args(OptionParser(option_list = option_list))
 stopifnot(
   "sce_file does not exist" = file.exists(opts$sce_file),
   "gene_order_file does not exist" = file.exists(opts$gene_order_file),
-  "annotation_file not provided" = !is.null(opts$annotation_file),
-  "output_dir was not specified" = !is.null(opts$output_dir),
-  "reference_type was not specified" = !is.null(opts$reference_type),
+  "annotation_file not provided" = file.exists(opts$annotation_file),
+  "reference_type must be one of 'pooled' or 'internal'" = opts$reference_type %in% c("pooled", "internal"),
+  "reference_celltype_group not provided." = !is.null(opts$reference_celltype_group),
   "hmm_model not properly specified" = opts$hmm_model %in% c("i3", "i6")
 )
 
 
 # check the reference information for both types of references, as different arguments are required for either type
-# also, define the ref_name while here
-stopifnot("reference_type must be one of 'pooled' or 'internal'." = opts$reference_type %in% c("pooled", "internal"))
+# also, define the reference_name while here
 if (opts$reference_type == "pooled") {
-  stopifnot("pooled_reference_sce was not specified. This is required if reference_type is 'pooled'." = !is.null(opts$pooled_reference_sce))
   stopifnot("pooled_reference_sce does not exist." = file.exists(opts$pooled_reference_sce))
-
-  ref_name <- stringr::str_remove(
-    basename(opts$pooled_reference_sce),
-    "^ref_"
-  ) |>
-    stringr::str_remove("\\.rds$")
 } else {
-  stopifnot(
-    "internal_reference_group was not specified. This is required if reference_type is 'internal'." = !is.null(opts$internal_reference_group),
-    "celltype_tsv was not specified. This is required if reference_type is 'internal'." = !is.null(opts$celltype_tsv),
-    "reference_celltype_tsv was not specified. This is required if reference_type is 'internal'." = !is.null(opts$reference_celltype_tsv)
-  )
   stopifnot(
     "celltype_tsv does not exist." = file.exists(opts$celltype_tsv),
     "reference_celltype_tsv does not exist." = file.exists(opts$reference_celltype_tsv)
   )
-
-  # use "_internal" designation
-  ref_name <- glue::glue("{opts$internal_reference_group}_internal")
 }
+reference_name <- glue::glue("{opts$reference_celltype_group}_{opts$reference_type}")
 
 # make the resolution parameter numeric if it's not auto
 resolution <- opts$leiden_resolution
@@ -248,7 +238,7 @@ if (opts$reference_type == "pooled") {
   raw_counts_matrix <- counts(sce)
 
   prepare_internal_reference_annotations(
-    opts$internal_reference_group, # cell type groups to include in reference
+    opts$reference_celltype_group, # cell type groups to include in reference
     opts$reference_celltype_tsv, # map between reference groups and consensus cell types
     opts$celltype_tsv, # consensus cell type annotations
     opts$annotation_file, # annotations file to export
@@ -303,7 +293,7 @@ if (!opts$skip_hmm) {
   # add reference information to metadata file and save to output directory
   # we have to read in with base R, since there are rownames
   read.table(scratch_metadata_file, header = TRUE, sep = "\t") |>
-    dplyr::mutate(normal_reference = ref_name) |>
+    dplyr::mutate(normal_reference = reference_name) |>
     # pull out row names into cell_id column
     tibble::rownames_to_column(var = "cell_id") |>
     readr::write_tsv(cnv_metadata_file)
@@ -311,7 +301,7 @@ if (!opts$skip_hmm) {
 
 # add reference information the options slot and save to output directory
 dat <- readRDS(scratch_obj_file)
-dat@options$normal_reference <- ref_name
+dat@options$normal_reference <- reference_name
 readr::write_rds(dat, output_obj_file)
 
 # copy png file to output directory
