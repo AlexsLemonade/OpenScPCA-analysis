@@ -24,9 +24,15 @@ ref_text <- list(
   "ref_immune" = "immune",
   "ref_endo-immune" = "endothelial and immune"
 )
+if (stringr::str_detect(opts$reference_name, "internal")) {
+  reference_type_text <- glue::glue("within the `SCPCL000822` library")
+} else {
+  reference_type_text <- glue::glue("across all `SCPCP000015` libraries")
+}
+
 glue::glue(
   "`inferCNV` was run with the following normal reference: `{params$reference_name}`.
-  This reference contains all {ref_text[[params$reference_name]]}  cells across `SCPCP000015` libraries, excluding any which were also identified as tumor in the `cell-type-ewings` analysis module.
+  This reference contains all {ref_text[[params$reference_name]]} cells {reference_type_text}, excluding any which were also identified as tumor in the `cell-type-ewings` analysis module.
   "
 )
 ```
