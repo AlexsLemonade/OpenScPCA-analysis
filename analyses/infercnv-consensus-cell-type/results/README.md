@@ -12,6 +12,8 @@ Results are organized by project as follows:
             └── ...
 ```
 
+References are named as `{cell type group}_{pooled/internal}`, where `pooled` references contain cells of the given cell type group pooled across all samples in the project, and `internal` references contain cells of that group only from the given library itself.
+
 ### Description of results files
 
 The following files are `inferCNV` output produced by `../scripts/01_run-infercnv.R`:
