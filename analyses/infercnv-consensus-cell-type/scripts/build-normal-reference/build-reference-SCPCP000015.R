@@ -36,7 +36,13 @@ option_list <- list(
     opt_str = "--reference_endo_immune",
     type = "character",
     help = "Path to output RDS file to save an SCE file to use as a normal reference with all Ewing endothelial and immune cells"
-  ), make_option(
+  ),
+  make_option(
+    opt_str = "--reference_tsv",
+    type = "character",
+    help = "Path to output TSV file to save cell types included in each reference",
+  ),
+  make_option(
     opt_str = "--immune_ref_url",
     type = "character",
     default = "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/consensus-immune-cell-types.tsv",
@@ -91,14 +97,15 @@ immune_cell_ids <- consensus_df |>
   dplyr::pull(sce_cell_id)
 
 # Subset to the endothelial cells only
-endo_cell_types <- c(
+endo_celltypes <- c(
   "endothelial cell",
   "blood vessel endothelial cell",
-  "microvascular endothelial cell"
+  "microvascular endothelial cell",
+  "pericyte"
 )
 endo_cell_ids <- consensus_df |>
   dplyr::filter(
-    consensus_annotation %in% endo_cell_types,
+    consensus_annotation %in% endo_celltypes,
     !(stringr::str_detect(ewing_annotation, "tumor"))
   ) |>
   dplyr::pull(sce_cell_id)
@@ -148,6 +155,24 @@ endo_reference <- combined_reference[, endo_cell_ids]
 
 
 # Export references ---------
+
 readr::write_rds(immune_reference, opts$reference_immune, compress = "gz")
 readr::write_rds(endo_reference, opts$reference_endo, compress = "gz")
 readr::write_rds(combined_reference, opts$reference_endo_immune, compress = "gz")
+
+# Export TSV of reference cell types ---------------
+dplyr::bind_rows(
+  data.frame(
+    reference_name = "immune",
+    consensus_celltype = immune_celltypes
+  ),
+  data.frame(
+    reference_name = "endo",
+    consensus_celltype = endo_celltypes
+  ),
+  data.frame(
+    reference_name = "endo-immune",
+    consensus_celltype = c(endo_celltypes, immune_celltypes)
+  )
+) |>
+  readr::write_tsv(opts$reference_tsv)

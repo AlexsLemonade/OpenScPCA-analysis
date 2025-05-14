@@ -39,6 +39,7 @@ cell_type_ewings_dir="${top_data_dir}/results/cell-type-ewings/${project_id}"
 mkdir -p ${normal_ref_dir}
 
 # Define normal reference files
+ref_celltypes_tsv="${normal_ref_dir}/reference-celltypes.tsv"
 immune_ref_file="${normal_ref_dir}/ref_immune.rds"
 endo_ref_file="${normal_ref_dir}/ref_endo.rds"
 endo_immune_ref_file="${normal_ref_dir}/ref_endo-immune.rds"
@@ -51,7 +52,8 @@ Rscript ${script_dir}/build-normal-reference/build-reference-SCPCP000015.R \
     --cell_type_ewings_dir ${cell_type_ewings_dir} \
     --reference_immune ${immune_ref_file} \
     --reference_endo ${endo_ref_file} \
-    --reference_endo_immune ${endo_immune_ref_file}
+    --reference_endo_immune ${endo_immune_ref_file} \
+    --reference_tsv ${ref_celltypes_tsv}
 
 # Define all sample ids
 sample_ids=$(basename -a ${data_dir}/SCPCS*)
