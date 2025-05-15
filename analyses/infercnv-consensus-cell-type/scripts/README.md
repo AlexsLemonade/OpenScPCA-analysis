@@ -7,7 +7,7 @@ This directory contains scripts used in the analysis.
 
 ## Normal references
 
-The directory `build-normal-references/` contains scripts that prepare pooled normal SCE references for use with `inferCNV` for individual projects and are named `build-reference-{project id}.R`.
+The directory `build-normal-reference/` contains scripts that prepare pooled normal SCE references for use with `inferCNV` for individual projects and are named `build-reference-{project id}.R`.
 Normal reference files should be stored in `../references/normal-references/` and named as `{reference name}.rds`.
 These SCE objects should contain at least:
 
