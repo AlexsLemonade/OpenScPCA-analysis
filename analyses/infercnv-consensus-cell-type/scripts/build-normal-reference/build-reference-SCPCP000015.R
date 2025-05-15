@@ -1,5 +1,6 @@
 #!/usr/bin/env Rscript
-# This script creates normal references for use with Ewing sarcoma (SCPCP000015) samples
+# This script creates normal references for use with Ewing sarcoma (SCPCP000015) samples.
+# References are created by pooling relevant cell types across all project samples.
 # We create three references:
 # - `endo`: All endothelial cells
 # - `immune`: All immune cells

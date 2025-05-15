@@ -10,7 +10,7 @@ output:
 params:
   library_id: SCPCL000822
   sample_id: SCPCS000490
-  reference_name: ref_endo
+  reference_name: endo_pooled
 ---
 
 
@@ -19,14 +19,23 @@ params:
 This notebook explores `inferCNV` results run on library `r params$library_id` from `SCPCP000015`.
 
 ```{r, results = 'asis'}
+ref_celltype <- stringr::str_split(params$reference_name, "_")[1]
+ref_type <- stringr::str_split(params$reference_name, "_")[2]
+
 ref_text <- list(
-  "ref_endo" = "endothelial",
-  "ref_immune" = "immune",
-  "ref_endo-immune" = "endothelial and immune"
+  "endo" = "endothelial",
+  "immune" = "immune",
+  "endo-immune" = "endothelial and immune"
 )
+if (ref_type == "internal") {
+  reference_type_text <- glue::glue("within the {params$library_id} library")
+} else {
+  reference_type_text <- glue::glue("across all `SCPCP000015` libraries")
+}
+
 glue::glue(
   "`inferCNV` was run with the following normal reference: `{params$reference_name}`.
-  This reference contains all {ref_text[[params$reference_name]]}  cells across `SCPCP000015` libraries, excluding any which were also identified as tumor in the `cell-type-ewings` analysis module.
+  This reference contains all {ref_celltype} cells {reference_type_text}, excluding any which were also identified as tumor in the `cell-type-ewings` analysis module.
   "
 )
 ```
@@ -426,11 +435,6 @@ prop_cnv_df <- infercnv_df |>
   # more tidying
   dplyr::mutate(cnv_type_raw = stringr::str_remove(cnv_type_raw, "^proportion_scaled_")) |>
   tidyr::separate(cnv_type_raw, sep = "_", into = c("cnv_type", "chr")) |>
-  # remove extra chromosomes
-  dplyr::filter(
-    !stringr::str_starts(chr, "chrMT"),
-    !stringr::str_starts(chr, "chrGL")
-  ) |>
   # set chr factor levels, with ones used for validation first
   dplyr::mutate(
     chr = stringr::str_remove(chr, "^chr"),

@@ -38,11 +38,11 @@ cell_type_ewings_dir="${top_data_dir}/results/cell-type-ewings/${project_id}"
 
 mkdir -p ${normal_ref_dir}
 
-# Define normal reference files
+# Define pooled normal reference files
 ref_celltypes_tsv="${normal_ref_dir}/reference-celltypes.tsv"
-immune_ref_file="${normal_ref_dir}/ref_immune.rds"
-endo_ref_file="${normal_ref_dir}/ref_endo.rds"
-endo_immune_ref_file="${normal_ref_dir}/ref_endo-immune.rds"
+immune_ref_file="${normal_ref_dir}/immune.rds"
+endo_ref_file="${normal_ref_dir}/endo.rds"
+endo_immune_ref_file="${normal_ref_dir}/endo-immune.rds"
 
 ### Perform the analysis ###
 
@@ -62,38 +62,54 @@ sample_ids=$(basename -a ${data_dir}/SCPCS*)
 # Use reference names (not file names) since these will be used to create directories below
 if [[ $testing -eq 1 ]]; then
     # Use only the immune references for testing
-    normal_refs=("ref_immune")
+    normal_refs=("immune")
+    test_flag="--testing"
 else
     # Use all references for full analysis
-    normal_refs=("ref_immune" "ref_endo" "ref_endo-immune")
+    normal_refs=("immune" "endo" "endo-immune")
+    test_flag=""
 fi
 
-# Run inferCNV on all samples across conditions of interest
+# Run inferCNV with all samples across references of interest
 for sample_id in $sample_ids; do
 
     # There is only one library per sample for this project, so we can right away define the SCE
     sce_file=`ls ${data_dir}/${sample_id}/*_processed.rds`
 
-    # skip `exclude_library`
+    # skip the `exclude_library`
     library_id=$(basename $sce_file | sed 's/_processed.rds$//')
     if [[ $library_id == $exclude_library ]]; then
         continue
     fi
+    
+    # define exploratory notebook name for this library
+    # the name is be the same for all references, organized into different directories
+    html_name="${library_id}_infercnv-results.nb.html"
+    
+    # Define TSV file with cell type information, used when running with internal references
+    celltype_tsv="${cell_type_ewings_dir}/${sample_id}/${library_id}_ewing-celltype-assignments.tsv"
 
     # Loop over normal references of interest
     for normal_ref in "${normal_refs[@]}"; do
+    
+        ####### First, run with the pooled reference #######
+        
+        # add _pooled suffix for output directory
+        ref_name="${normal_ref}_pooled"
 
         # create sample results directory
-        sample_results_dir="${results_dir}/${sample_id}/${normal_ref}"
+        sample_results_dir="${results_dir}/${sample_id}/${ref_name}"
         mkdir -p ${sample_results_dir}
 
-        # define normal reference SCE file
+        # define normal reference SCE file with 
         normal_ref_file="${normal_ref_dir}/${normal_ref}.rds"
 
-        # run inferCNV
+        # run inferCNV with the pooled reference
         Rscript ${script_dir}/01_run-infercnv.R \
             --sce_file $sce_file \
-            --reference_file $normal_ref_file \
+            --reference_type "pooled" \
+            --reference_celltype_group $normal_ref \
+            --pooled_reference_sce $normal_ref_file \
             --output_dir $sample_results_dir \
             --threads $threads \
             --seed $seed
@@ -101,8 +117,39 @@ for sample_id in $sample_ids; do
         # run inferCNV results through exploratory notebook
         html_name="${library_id}_infercnv-results.nb.html"
         Rscript -e "rmarkdown::render('${notebook_dir}/SCPCP000015_explore-infercnv-results.Rmd',
-            params = list(library_id = '${library_id}', sample_id = '${sample_id}', reference_name = '${normal_ref}'),
+            params = list(library_id = '${library_id}', sample_id = '${sample_id}', reference_name = '${ref_name}'),
             output_dir = '${sample_results_dir}',
             output_file = '${html_name}')"
+            
+        ####### Second, run with the internal reference #######
+        # See https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/1125
+        if [[ $sample_id == "SCPCS000490" || $sample_id == "SCPCS000492" || $sample_id == "SCPCS000750" ]]; then
+           
+            # Only run SCPCS000750 with the endo reference; continue otherwise
+            if [[ ${sample_id} == "SCPCS000750" && ${normal_ref} != "endo" ]]; then
+                continue
+            fi
+        
+            # update variables to have _internal suffix
+            ref_name="${normal_ref}_internal"
+            sample_results_dir="${results_dir}/${sample_id}/${ref_name}"
+            
+            # run inferCNV with the internal reference
+            Rscript ${script_dir}/01_run-infercnv.R \
+                --sce_file $sce_file \
+                --reference_type "internal" \
+                --reference_celltype_group $normal_ref \
+                --celltype_tsv $celltype_tsv \
+                --reference_celltype_tsv $ref_celltypes_tsv \
+                --output_dir $sample_results_dir \
+                --threads $threads \
+                --seed $seed \
+                ${test_flag}
+            
+            Rscript -e "rmarkdown::render('${notebook_dir}/SCPCP000015_explore-infercnv-results.Rmd',
+                params = list(library_id = '${library_id}', sample_id = '${sample_id}', reference_name = '${ref_name}'),
+                output_dir = '${sample_results_dir}',
+                output_file = '${html_name}')"
+        fi
     done
 done
