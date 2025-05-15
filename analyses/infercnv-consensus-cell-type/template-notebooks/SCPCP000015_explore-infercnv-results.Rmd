@@ -19,8 +19,8 @@ params:
 This notebook explores `inferCNV` results run on library `r params$library_id` from `SCPCP000015`.
 
 ```{r, results = 'asis'}
-ref_celltype <- stringr::str_split(params$reference_name, "_")[1]
-ref_type <- stringr::str_split(params$reference_name, "_")[2]
+ref_celltype <- stringr::str_split_1(params$reference_name, "_")[1]
+ref_type <- stringr::str_split_1(params$reference_name, "_")[2]
 
 ref_text <- list(
   "endo" = "endothelial",
@@ -35,7 +35,7 @@ if (ref_type == "internal") {
 
 glue::glue(
   "`inferCNV` was run with the following normal reference: `{params$reference_name}`.
-  This reference contains all {ref_celltype} cells {reference_type_text}, excluding any which were also identified as tumor in the `cell-type-ewings` analysis module.
+  This reference contains all {ref_text[[ref_celltype]]} cells {reference_type_text}, excluding any which were also identified as tumor in the `cell-type-ewings` analysis module.
   "
 )
 ```
