@@ -78,17 +78,24 @@ celltype_files <- list.files(
   pattern = "_ewing-celltype-assignments\\.tsv$",
   recursive = TRUE,
   full.names = TRUE
-)
+) |>
+  # name by library_id
+  purrr::set_names(
+    \(x) {
+      stringr::str_split_i(basename(x), "_", 1)
+    }
+  )
+
 stopifnot(
   "Could not find celltype files" = length(celltype_files) > 0
 )
 
 
-# get sample ids to include, which are only the "Tumor" samples
+# get library ids to include, which are only the "Tumor" samples
 # we'll use this to exclude PDX samples
-include_samples <- readr::read_tsv(opts$metadata_file) |>
+include_libraries <- readr::read_tsv(opts$metadata_file) |>
   dplyr::filter(sample_type == "Tumor") |>
-  dplyr::pull(scpca_sample_id)
+  dplyr::pull(scpca_library_id)
 
 merged_sce <- readRDS(opts$merged_sce_file)
 
@@ -101,9 +108,10 @@ immune_celltypes <- readr::read_tsv(opts$immune_ref_url) |>
 
 # All consensus annotations
 consensus_df <- celltype_files |>
+  # only read in libraries of interest
+  purrr::keep_at(include_libraries) |>
   purrr::map(readr::read_tsv) |>
   purrr::list_rbind() |>
-  dplyr::filter(sample_id %in% include_samples) |>
   dplyr::mutate(sce_cell_id = glue::glue("{library_id}-{barcodes}")) |>
   dplyr::select(sce_cell_id, ewing_annotation, consensus_annotation)
 
