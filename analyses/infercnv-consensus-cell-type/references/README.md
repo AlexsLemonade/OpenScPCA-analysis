@@ -17,7 +17,7 @@ Normal references for use with `inferCNV` are formatted as SCE files and are exp
 The `normal-references/` directory contains the following references for each given project:
 
 * `SCPCP000015`
-  * `immune.rds` contains all immune cells across samples, excluding those which were annotated as `tumor` in the `cell-type-ewings` module
-  * `endo.rds` contains all endothelial cells across samples, excluding those which were annotated as `tumor` in the `cell-type-ewings` module
+  * `immune.rds` contains all immune cells across non-PDX samples, excluding those which were annotated as `tumor` in the `cell-type-ewings` module
+  * `endo.rds` contains all endothelial cells across non-PDX samples, excluding those which were annotated as `tumor` in the `cell-type-ewings` module
   * `endo-immune.rds` contains the union of the `immune` and `endo` references
   * `reference-celltypes.tsv` is a TSV of all consensus cell type labels that contribute to each normal reference
