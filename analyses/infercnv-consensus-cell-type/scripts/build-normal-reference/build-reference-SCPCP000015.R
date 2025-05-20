@@ -69,15 +69,6 @@ stopifnot(
   "cell_type_ewings_dir does not exist" = dir.exists(opts$cell_type_ewings_dir)
 )
 
-# Define PDX samples which should be excluded
-pdx_samples <- c(
-  "SCPCS000491",
-  "SCPCS000750",
-  "SCPCS000751",
-  "SCPCS000752",
-  "SCPCS000753",
-  "SCPCS000754"
-)
 
 # Paths -----------------
 
