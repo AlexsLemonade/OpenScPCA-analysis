@@ -5,7 +5,7 @@
 # - `endo`: All endothelial cells
 # - `immune`: All immune cells
 # - `endo-immune`: All endothelial and immune cells
-# References exclude any cells which the `cell-type-ewings` OpenScPCA-analysis module labeled as "tumor"
+# References exclude any cells from PDX samples or for which the `cell-type-ewings` OpenScPCA-analysis module labeled as "tumor"
 
 suppressPackageStartupMessages({
   library(SingleCellExperiment)
@@ -16,12 +16,20 @@ option_list <- list(
   make_option(
     opt_str = "--merged_sce_file",
     type = "character",
+    default = "",
     help = "Path to the merged SingleCellExperiment object"
   ),
   make_option(
     opt_str = "--cell_type_ewings_dir",
     type = "character",
+    default = "",
     help = "Path to directory containing results from the `cell-type-ewings` module"
+  ),
+  make_option(
+    opt_str = "--metadata_file",
+    type = "character",
+    default = "",
+    help = "Path to single_cell_metadata.tsv file for project SCPCP000015"
   ),
   make_option(
     opt_str = "--reference_endo",
@@ -57,8 +65,10 @@ opts <- parse_args(OptionParser(option_list = option_list))
 # check input directories
 stopifnot(
   "merged_sce_file does not exist" = file.exists(opts$merged_sce_file),
+  "metadata_file does not exist" = file.exists(opts$metadata_file),
   "cell_type_ewings_dir does not exist" = dir.exists(opts$cell_type_ewings_dir)
 )
+
 
 # Paths -----------------
 
@@ -68,10 +78,24 @@ celltype_files <- list.files(
   pattern = "_ewing-celltype-assignments\\.tsv$",
   recursive = TRUE,
   full.names = TRUE
-)
+) |>
+  # name by library_id
+  purrr::set_names(
+    \(x) {
+      stringr::str_split_i(basename(x), "_", 1)
+    }
+  )
+
 stopifnot(
   "Could not find celltype files" = length(celltype_files) > 0
 )
+
+
+# get library ids to include, which are only the "Tumor" samples
+# we'll use this to exclude PDX samples
+include_libraries <- readr::read_tsv(opts$metadata_file) |>
+  dplyr::filter(sample_type == "Tumor") |>
+  dplyr::pull(scpca_library_id)
 
 merged_sce <- readRDS(opts$merged_sce_file)
 
@@ -84,6 +108,8 @@ immune_celltypes <- readr::read_tsv(opts$immune_ref_url) |>
 
 # All consensus annotations
 consensus_df <- celltype_files |>
+  # only read in libraries of interest
+  purrr::keep_at(include_libraries) |>
   purrr::map(readr::read_tsv) |>
   purrr::list_rbind() |>
   dplyr::mutate(sce_cell_id = glue::glue("{library_id}-{barcodes}")) |>
