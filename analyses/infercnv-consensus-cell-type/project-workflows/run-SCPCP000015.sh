@@ -35,6 +35,7 @@ results_dir="results/${project_id}"
 normal_ref_dir="references/normal-references/${project_id}"
 merged_sce_file="${top_data_dir}/results/merge-sce/${project_id}/${project_id}_merged.rds"
 cell_type_ewings_dir="${top_data_dir}/results/cell-type-ewings/${project_id}"
+metadata_file="${data_dir}/single_cell_metadata.tsv"
 
 mkdir -p ${normal_ref_dir}
 
@@ -65,6 +66,7 @@ sample_ids=$(basename -a ${data_dir}/SCPCS*)
 Rscript ${script_dir}/build-normal-reference/build-reference-SCPCP000015.R \
     --merged_sce_file ${merged_sce_file} \
     --cell_type_ewings_dir ${cell_type_ewings_dir} \
+    --metadata_file ${metadata_file} \
     --reference_immune ${immune_ref_file} \
     --reference_endo ${endo_ref_file} \
     --reference_endo_immune ${endo_immune_ref_file} \
