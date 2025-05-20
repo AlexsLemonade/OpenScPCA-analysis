@@ -71,7 +71,8 @@ jobs:
         run: |
           ./download-results.py --module cell-type-ewings --test-data ${data}
           ./download-results.py --module merge-sce --project SCPCP000015 --test-data
-          ./download-data.py  --test-data ${data}
+          ./download-data.py --test-data ${data}
+          ./download-data.py --test-data --metadata-only
 
       - name: Run analysis module
         env:
