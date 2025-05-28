@@ -29,6 +29,8 @@ theme_set(theme_bw())
 
 ### Functions
 
+This function prepares a TSV of `inferCNV` results by creating a `total_cnv_per_cell` column to summarize CNVs per cell. 
+
 ```{r}
 prepare_cnv_df <- function(infercnv_tsv) {
   infercnv_df <- readr::read_tsv(infercnv_tsv)
@@ -218,6 +220,10 @@ top25 |>
     values_fill = 0
   )
 ```
+
+## Conclusions
+
+It does not seem that reference cell CNV distributions are problematically overlapping with tumor CNV distributions now that references were updated to generate these re-processed results.
 
 ## Session Info
 
