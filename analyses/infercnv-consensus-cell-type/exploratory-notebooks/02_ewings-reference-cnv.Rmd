@@ -29,7 +29,7 @@ theme_set(theme_bw())
 
 ### Functions
 
-This function prepares a TSV of `inferCNV` results by creating a `total_cnv_per_cell` column to summarize CNVs per cell. 
+This function prepares a table of `inferCNV` results by creating a `total_cnv_per_cell` column to summarize CNVs per cell. 
 
 ```{r}
 prepare_cnv_df <- function(infercnv_tsv) {
@@ -61,6 +61,24 @@ prepare_cnv_df <- function(infercnv_tsv) {
 }
 ```
 
+
+This function plots ridge plots of total CNV values across cell groupings for a given normal reference.
+
+```{r}
+plot_cnv_distributions <- function(df, reference_name) {
+  filtered_df <- infercnv_df |>
+    dplyr::filter(normal_reference == reference_name)
+
+  ggplot(filtered_df) +
+    aes(x = total_cnv_per_cell, y = label, fill = label) +
+    ggridges::geom_density_ridges2(scale = 0.9) +
+    facet_wrap(vars(infercnv_library_id)) +
+    theme(legend.position = "none") +
+    ggtitle(reference_name)
+}
+```
+
+
 ### Paths
 
 #### Base directories
@@ -85,17 +103,14 @@ infercnv_files <- list.files(
   recursive = TRUE,
   full.names = TRUE
 ) |>
-  # remove any containing "endo_immune" or "internal"; we only want pooled endo or immune
+  # remove any containing "internal"; we only want pooled
   purrr::discard(\(x) {
-    stringr::str_detect(x, "endo-immune|internal")
+    stringr::str_detect(x, "internal")
   }) |>
   # name by "library-reference"
   purrr::set_names(\(x) {
     library_id <- stringr::str_split_i(basename(x), "_", 1)
   })
-#    ref_name <- stringr::str_remove(basename(dirname(x)), "_pooled")
-#    glue::glue("{library_id}-{ref_name}")
-# })
 
 
 # ewing module cell types
@@ -152,31 +167,14 @@ We'll first visualize the total CNV distributions for each inference for each gr
 - `reference`: cells in the normal reference
 
 ```{r, fig.height = 8}
-immune_df <- infercnv_df |>
-  dplyr::filter(normal_reference == "immune_pooled")
-
-endo_df <- infercnv_df |>
-  dplyr::filter(normal_reference == "endo_pooled")
-
-ggplot(immune_df) +
-  aes(x = total_cnv_per_cell, y = label, fill = label) +
-  ggridges::geom_density_ridges2(scale = 0.9) +
-  facet_wrap(vars(infercnv_library_id)) +
-  theme(legend.position = "none") +
-  ggtitle("Immune pooled reference")
-
-
-ggplot(endo_df) +
-  aes(x = total_cnv_per_cell, y = label, fill = label) +
-  ggridges::geom_density_ridges2(scale = 0.9) +
-  facet_wrap(vars(infercnv_library_id)) +
-  theme(legend.position = "none") +
-  ggtitle("Endo pooled reference")
+plot_cnv_distributions(infercnv_df, "endo_pooled")
+plot_cnv_distributions(infercnv_df, "immune_pooled")
+plot_cnv_distributions(infercnv_df, "endo-immune_pooled")
 ```
 
 
 * The `endo` reference cell CNV distributions generally do not overlap with tumor cell CNV distributions.
-* The `immune` reference cell CNV distributions do have a wider spread but do not _substantially_ overlap with the tumor cell CNV distributions. 
+* The `endo-immune` and `immune` reference cell CNV distributions do have a wider spread but do not _substantially_ overlap with the tumor cell CNV distributions. 
 
 Let's look more closely at the `immune` reference to see if any particular libraries might be driving a (minor) trend.
 For each inference with the pooled `immune` reference, we'll find the 25\% top reference cells with the highest CNVs.
@@ -185,8 +183,11 @@ Do these cells tend to be from a particular library?
 First, note how many reference cells come from each library:
 
 ```{r}
-ref_immune_df <- immune_df |>
-  dplyr::filter(cell_group == "reference") |>
+ref_immune_df <- infercnv_df |>
+  dplyr::filter(
+    normal_reference == "immune_pooled",
+    cell_group == "reference"
+  ) |>
   tidyr::separate(cell_id, into = c("reference_library_id", "barcode"), sep = "-", remove = FALSE)
 
 
