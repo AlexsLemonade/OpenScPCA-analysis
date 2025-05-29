@@ -8,12 +8,12 @@ output:
     toc_depth: 3
     code_folding: hide
 ---
-
-
-## Introduction
-
-We have previously observed that the reference cell CNV distributions in pooled references may overlap with tumor CNV distributions.
-This notebook aims to explore the extent of this trend for `SCPCP000015`.
+  
+  
+  ## Introduction
+  
+  We have previously observed that the reference cell CNV distributions in pooled references may overlap with tumor CNV distributions.
+This notebook aims to explore the extent of this trend for `SCPCP000015`, as well as compare CNV distributions among cell groups for all libraries. 
 
 ## Setup
 
@@ -166,7 +166,9 @@ We'll first visualize the total CNV distributions for each inference for each gr
 - `tumor`: query cells labeled "tumor" by `cell-type-ewings`
 - `reference`: cells in the normal reference
 
-```{r, fig.height = 8}
+We show a plot faceted by library `inferCNV` was run on for each of the three pooled references explored.
+
+```{r, fig.width = 10, fig.height = 8, message = FALSE}
 plot_cnv_distributions(infercnv_df, "endo_pooled")
 plot_cnv_distributions(infercnv_df, "immune_pooled")
 plot_cnv_distributions(infercnv_df, "endo-immune_pooled")
@@ -176,55 +178,46 @@ plot_cnv_distributions(infercnv_df, "endo-immune_pooled")
 * The `endo` reference cell CNV distributions generally do not overlap with tumor cell CNV distributions.
 * The `endo-immune` and `immune` reference cell CNV distributions do have a wider spread but do not _substantially_ overlap with the tumor cell CNV distributions. 
 
-Let's look more closely at the `immune` reference to see if any particular libraries might be driving a (minor) trend.
-For each inference with the pooled `immune` reference, we'll find the 25\% top reference cells with the highest CNVs.
+
+Let's look more closely at the `immune_polled` reference to see if any particular libraries might be driving a (minor) trend.
+For each inference with the `immune_pooled` reference, we'll find the 25\% top reference cells with the highest CNVs.
 Do these cells tend to be from a particular library?
 
-First, note how many reference cells come from each library:
 
-```{r}
-ref_immune_df <- infercnv_df |>
+The barplot below shows for each `inferCNV` inference with the `immune_pooled` reference, the proportion of reference cells contributed by each of the five given libraries.
+
+```{r, fig.width = 8}
+top25_df <- infercnv_df |>
   dplyr::filter(
     normal_reference == "immune_pooled",
     cell_group == "reference"
   ) |>
-  tidyr::separate(cell_id, into = c("reference_library_id", "barcode"), sep = "-", remove = FALSE)
-
-
-ref_immune_df |>
-  dplyr::select(cell_id) |>
-  dplyr::distinct() |>
   tidyr::separate(cell_id, into = c("reference_library_id", "barcode"), sep = "-") |>
-  dplyr::count(reference_library_id)
-```
-
-The table displayed below shows for each inference (`infercnv_library_id`), how many of top 25\% CNV cells in the pooled immune reference are from each library.
-For example, of the reference cells with the highest CNVs in the `SCPCL000822` inference, 28 cells came from `SCPCL000822`, 30 cells came from `SCPCL000824`, etc.
-Generally, these numbers are consistent across inferences although cells from `SCPCL000824` do seem to be more prevalent in certain samples.
-Even so, there doesn't seem to be any major trend here.
-
-```{r}
-top25 <- ref_immune_df |>
+  # keep only the top 25% of cells
   dplyr::group_by(infercnv_library_id) |>
   dplyr::slice_max(total_cnv_per_cell, prop = 0.25) |>
   dplyr::ungroup()
+
+ggplot(top25_df) +
+  aes(x = infercnv_library_id, fill = reference_library_id) +
+  geom_bar(position = "fill") +
+  labs(
+    x = "Library that inferCNV was run on",
+    y = "Proportion of cells in the top 25% CNV\nfrom the given reference library"
+  ) +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
 ```
 
 
 
-```{r}
-top25 |>
-  dplyr::count(infercnv_library_id, reference_library_id) |>
-  tidyr::pivot_wider(
-    names_from = reference_library_id,
-    values_from = n,
-    values_fill = 0
-  )
-```
+We see a generally consistent trend across inferences; cells in the top 25\% are similarly distributed across libraries that contributed to the reference. 
+No particular library seems to be biasing higher CNV values in the reference cells.
+
 
 ## Conclusions
 
 It does not seem that reference cell CNV distributions are problematically overlapping with tumor CNV distributions now that references were updated to generate these re-processed results.
+Overall, the `endo_pooled` reference appears to give the most distinct CNV distributions between reference and tumor cells.
 
 ## Session Info
 
