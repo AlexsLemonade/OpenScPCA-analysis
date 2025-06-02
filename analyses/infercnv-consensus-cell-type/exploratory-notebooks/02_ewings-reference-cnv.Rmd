@@ -10,9 +10,9 @@ output:
 ---
   
   
-  ## Introduction
+## Introduction
   
-  We have previously observed that the reference cell CNV distributions in pooled references may overlap with tumor CNV distributions.
+We have previously observed that the reference cell CNV distributions in pooled references may overlap with tumor CNV distributions.
 This notebook aims to explore the extent of this trend for `SCPCP000015`, as well as compare CNV distributions among cell groups for all libraries. 
 
 ## Setup
@@ -65,8 +65,8 @@ prepare_cnv_df <- function(infercnv_tsv) {
 This function plots ridge plots of total CNV values across cell groupings for a given normal reference.
 
 ```{r}
-plot_cnv_distributions <- function(df, reference_name) {
-  filtered_df <- infercnv_df |>
+plot_cnv_distributions <- function(reference_name, df) {
+  filtered_df <- df |>
     dplyr::filter(normal_reference == reference_name)
 
   ggplot(filtered_df) +
@@ -169,9 +169,8 @@ We'll first visualize the total CNV distributions for each inference for each gr
 We show a plot faceted by library `inferCNV` was run on for each of the three pooled references explored.
 
 ```{r, fig.width = 10, fig.height = 8, message = FALSE}
-plot_cnv_distributions(infercnv_df, "endo_pooled")
-plot_cnv_distributions(infercnv_df, "immune_pooled")
-plot_cnv_distributions(infercnv_df, "endo-immune_pooled")
+unique(infercnv_df$normal_reference) |>
+  purrr::map(plot_cnv_distributions, infercnv_df)
 ```
 
 
@@ -182,7 +181,6 @@ plot_cnv_distributions(infercnv_df, "endo-immune_pooled")
 Let's look more closely at the `immune_polled` reference to see if any particular libraries might be driving a (minor) trend.
 For each inference with the `immune_pooled` reference, we'll find the 25\% top reference cells with the highest CNVs.
 Do these cells tend to be from a particular library?
-
 
 The barplot below shows for each `inferCNV` inference with the `immune_pooled` reference, the proportion of reference cells contributed by each of the five given libraries.
 
