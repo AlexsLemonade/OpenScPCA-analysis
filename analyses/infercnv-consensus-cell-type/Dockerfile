@@ -1,5 +1,6 @@
 # Dockerfile for infercnv-consensus-cell-type module
-FROM bioconductor/r-ver:3.20
+# note: use 3.19 for compatibility with Rsamtools installation
+FROM bioconductor/r-ver:3.19
 
 # Labels following the Open Containers Initiative (OCI) recommendations
 # For more information, see https://specs.opencontainers.org/image-spec/annotations/?v=v1.0.1
@@ -23,6 +24,9 @@ RUN apt-get -y update &&  \
 
 # Install renv to enable later package installation
 RUN Rscript -e "install.packages('renv')"
+
+# Install Rsamtools directly to avoid build errors when installing from renv.lock
+RUN Rscript -e 'BiocManager::install("Rsamtools")'
 
 # Copy the renv.lock file from the host environment to the image
 COPY renv.lock renv.lock
