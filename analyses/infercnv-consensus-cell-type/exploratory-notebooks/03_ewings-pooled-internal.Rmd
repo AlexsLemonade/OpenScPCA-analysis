@@ -189,7 +189,7 @@ We'll plot the total CNV distributions for each inference for each grouping of c
 We'll plot this separately for each reference cell group (`endo`, `immune`, and `endo-immune`) for visual ease to make comparisons between `internal` and `pooled` reference versions.
 Note that `SCPCL001112` was only run with an `endo` internal reference since it didn't have sufficient immune cells; this library will therefore only appear in the plots for the `endo` reference.
 
-```{r message = FALSE, warning = FALSE, fig.height = 6}
+```{r message = FALSE, warning = FALSE, fig.width = 8}
 unique(infercnv_df$reference_cell_group) |>
   purrr::map(plot_cnv_distributions, infercnv_df)
 ```
