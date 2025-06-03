@@ -13,7 +13,7 @@ output:
 ## Introduction
 
 For several samples in `SCPCP000015`, we were able to run `inferCNV` with a so-called "internal" normal reference, where normal cells were taken only from the library being analyzed and were not pooled across all libraries.
-The goal of this notebook is to directly compared results from internal references with their pooled counterparts to assess if there is evidence that the pooled reference strategy improves tumor/normal classification.
+The goal of this notebook is to directly compare results from internal references with their pooled counterparts to assess if there is evidence that the pooled reference strategy improves tumor/normal classification.
 
 ## Setup
 
@@ -198,7 +198,7 @@ unique(infercnv_df$reference_cell_group) |>
 ## Conclusions
 
 * For all three libraries we were able to directly compare internal and pooled references for, the pooled reference appears to do either a similar or slightly a better job separating normal and tumor cells compared to the internal reference.
-* There is no obvious inference where using a pooled reference appears _worse_ than using a pooled reference.
+* There is no obvious inference where using a pooled reference appears _worse_ than using an internal reference.
 * Similar to previous observations we've made, the `endo` reference (either pooled or internal) shows improved separation between tumor and normal compared to references containing `immune` cells.
 * Notably, `SCPCL001112` is a much smaller library than `SCPCL000822` and `SCPCL000824`, and we see evidence here that using a pooled reference dramatically improves separation between tumor and normal.
 
