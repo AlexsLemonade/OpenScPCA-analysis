@@ -178,7 +178,7 @@ unique(infercnv_df$normal_reference) |>
 * The `endo-immune` and `immune` reference cell CNV distributions do have a wider spread but do not _substantially_ overlap with the tumor cell CNV distributions. 
 
 
-Let's look more closely at the `immune_polled` reference to see if any particular libraries might be driving a (minor) trend.
+Let's look more closely at the `immune_pooled` reference to see if any particular libraries might be driving a (minor) trend.
 For each inference with the `immune_pooled` reference, we'll find the 25\% top reference cells with the highest CNVs.
 Do these cells tend to be from a particular library?
 
