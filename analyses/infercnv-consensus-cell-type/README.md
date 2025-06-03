@@ -51,6 +51,6 @@ This section provides brief conclusions for different projects which this module
 
 ### Ewing sarcoma (`SCPCP000015`)
 
-* Among references `endo`, `immune`, `endo-immune`, the `endo`-only reference appears more able to distinguish between tumor and normal cells
+* Among references `endo`, `immune`, `endo-immune`, the `endo`-only reference appears more able to distinguish between tumor and normal cells, as observed in [this exploratory notebook](exploratory-notebooks/02_ewings-reference-cnv.Rmd)
   * Note that tumor cells were identified by the `cell-type-ewings` module
-* Pooled references appear to do a similar or slightly better job than do internal references at distinguishing between tumor and normal cells
+* Pooled references appear to do a similar or slightly better job compared to internal references at distinguishing between tumor and normal cells, as observed in [this exploratory notebook](exploratory-notebooks/03_ewings-pooled-internal.Rmd)
