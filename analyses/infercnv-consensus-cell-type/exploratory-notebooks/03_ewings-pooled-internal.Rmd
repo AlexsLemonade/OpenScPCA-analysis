@@ -1,0 +1,212 @@
+---
+title: "Compare internal vs pooled references: SCPCP000015"
+author: "Stephanie J. Spielman"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+---
+  
+  
+## Introduction
+
+For several samples in `SCPCP000015`, we were able to run `inferCNV` with a so-called "internal" normal reference, where normal cells were taken only from the library being analyzed and were not pooled across all libraries.
+The goal of this notebook is to directly compare results from internal references with their pooled counterparts to assess if there is evidence that the pooled reference strategy improves tumor/normal classification.
+
+## Setup
+
+```{r, warning = FALSE}
+options(readr.show_col_types = FALSE)
+suppressPackageStartupMessages({
+  library(ggplot2)
+  library(SingleCellExperiment)
+})
+
+theme_set(theme_bw())
+```
+
+### Functions
+
+This function prepares a table of `inferCNV` results by creating a `total_cnv_per_cell` column to summarize CNVs per cell. 
+
+```{r}
+prepare_cnv_df <- function(infercnv_tsv) {
+  infercnv_df <- readr::read_tsv(infercnv_tsv)
+
+  infercnv_metadata_df <- infercnv_df |>
+    dplyr::select(
+      -starts_with("has_"),
+      -starts_with("proportion_"),
+      -starts_with("top_")
+    ) |>
+    dplyr::mutate(cell_group = stringr::str_split_i(subcluster, "_", 1))
+
+  infercnv_df |>
+    tidyr::pivot_longer(
+      starts_with("has_cnv_"),
+      names_to = "chr",
+      values_to = "cnv"
+    ) |>
+    # sum all values for each
+    dplyr::group_by(cell_id) |>
+    dplyr::summarize(total_cnv_per_cell = sum(cnv)) |>
+    dplyr::ungroup() |>
+    # bring back metadata
+    dplyr::inner_join(
+      infercnv_metadata_df,
+      by = "cell_id"
+    )
+}
+```
+
+
+This function plots ridge plots of total CNV values across cell groupings, faceted by reference type (pooled vs. internal) and library id, for a given reference cell grouping.
+
+```{r}
+plot_cnv_distributions <- function(reference_name, df) {
+  df <- infercnv_df |>
+    dplyr::filter(
+      reference_cell_group == reference_name
+    )
+  ggplot(df) +
+    aes(x = total_cnv_per_cell, y = label, fill = label) +
+    ggridges::geom_density_ridges2(scale = 0.9) +
+    facet_grid(
+      cols = vars(library_id),
+      rows = vars(reference_type)
+    ) +
+    theme(legend.position = "none") +
+    ggtitle(
+      glue::glue("Comparing {reference_name} internal vs. pooled")
+    )
+}
+```
+
+
+### Paths
+
+#### Base directories
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+module_dir <- file.path(repository_base, "analyses", "infercnv-consensus-cell-type")
+result_dir <- file.path(module_dir, "results", "SCPCP000015") # organized as sample/reference/infercnv results
+ewings_dir <- file.path(repository_base, "data", "current", "results", "cell-type-ewings", "SCPCP000015")
+```
+
+#### Input files
+
+```{r}
+# inferCNV output files
+infercnv_files <- list.files(
+  path = result_dir,
+  pattern = "_cnv-metadata\\.tsv",
+  recursive = TRUE,
+  full.names = TRUE
+) |>
+  # we only want internal here.
+  # based on these internals, we'll also grab corresponding pooled
+  purrr::keep(\(x) {
+    stringr::str_detect(x, "internal")
+  })
+
+
+infercnv_files <- c(
+  infercnv_files,
+  stringr::str_replace(infercnv_files, "internal", "pooled")
+) |>
+  # name by library id
+  purrr::set_names(\(x) {
+    library_id <- stringr::str_split_i(basename(x), "_", 1)
+  })
+
+
+
+# ewing module cell types
+celltype_files <- list.files(
+  ewings_dir,
+  pattern = "_ewing-celltype-assignments\\.tsv",
+  recursive = TRUE,
+  full.names = TRUE
+) |>
+  # name by library id
+  purrr::set_names(\(x) {
+    stringr::str_split_i(basename(x), "_", 1)
+  })
+```
+
+
+### Read input files
+
+We'll first read in the cell type annotations:
+```{r}
+celltype_df <- celltype_files |>
+  purrr::map(readr::read_tsv) |>
+  purrr::list_rbind(names_to = "library_id") |>
+  dplyr::mutate(cell_id = glue::glue("{library_id}-{barcodes}")) |>
+  dplyr::select(cell_id, consensus_annotation, ewing_annotation)
+```
+
+Next we'll read in and prepare the `inferCNV` results:
+
+```{r}
+infercnv_df <- infercnv_files |>
+  purrr::map(prepare_cnv_df) |>
+  purrr::list_rbind(names_to = "library_id") |>
+  dplyr::inner_join(celltype_df, by = "cell_id") |>
+  # split normal_reference into "reference_cell_group" and "reference_type"
+  tidyr::separate(
+    normal_reference,
+    into = c("reference_cell_group", "reference_type"),
+    sep = "_",
+    remove = FALSE # keep the normal_reference column around
+  ) |>
+  # condense labels for cell type groupings
+  dplyr::mutate(
+    label = ifelse(
+      stringr::str_detect(ewing_annotation, "tumor"),
+      "tumor",
+      cell_group
+    ),
+    label = forcats::fct_relevel(label, "unknown", "tumor", "reference")
+  )
+```
+
+
+## Visualization
+
+We'll plot the total CNV distributions for each inference for each grouping of cells:
+
+- `unknown`: query cells
+- `tumor`: query cells labeled "tumor" by `cell-type-ewings`
+- `reference`: cells in the normal reference
+
+We'll plot this separately for each reference cell group (`endo`, `immune`, and `endo-immune`) for visual ease to make comparisons between `internal` and `pooled` reference versions.
+Note that `SCPCL001112` was only run with an `endo` internal reference since it didn't have sufficient immune cells; this library will therefore only appear in the plots for the `endo` reference.
+
+```{r message = FALSE, warning = FALSE, fig.width = 8}
+unique(infercnv_df$reference_cell_group) |>
+  purrr::map(plot_cnv_distributions, infercnv_df)
+```
+
+
+## Conclusions
+
+* For all three libraries we were able to directly compare internal and pooled references for, the pooled reference appears to do either a similar or slightly a better job separating normal and tumor cells compared to the internal reference.
+* There is no obvious inference where using a pooled reference appears _worse_ than using an internal reference.
+* Similar to previous observations we've made, the `endo` reference (either pooled or internal) shows improved separation between tumor and normal compared to references containing `immune` cells.
+* Notably, `SCPCL001112` is a much smaller library than `SCPCL000822` and `SCPCL000824`, and we see evidence here that using a pooled reference dramatically improves separation between tumor and normal.
+
+Overall, these comparisons suggest that using a pooled reference is a reasonable approach, in particular when information is limited within a single library.
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
