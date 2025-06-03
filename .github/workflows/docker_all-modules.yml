@@ -44,6 +44,7 @@ jobs:
           - cell-type-ETP-ALL-03
           - cell-type-consensus
           - seurat-conversion
+          - infercnv-consensus-cell-type
     uses: ./.github/workflows/build-push-docker-module.yml
     if: github.repository_owner == 'AlexsLemonade'
     with:
