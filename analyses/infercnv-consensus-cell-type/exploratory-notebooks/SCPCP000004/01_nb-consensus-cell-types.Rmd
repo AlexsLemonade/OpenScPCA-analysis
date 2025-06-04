@@ -1,0 +1,236 @@
+---
+title: "Explore normal cell types in Neuroblastoma samples"
+author: "Stephanie J. Spielman"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+---
+
+
+## Introduction
+
+The goal of this notebook is to explore the distribution of normal consensus cell types, specifically immune and endothelial, in the Neuroblastoma tumor (i.e., _not_ the PDX) samples from `SCPCP000004`.
+
+Based on these findings, we can determine approaches to evaluate for pooling  cells to use as a normal reference for `inferCNV`.
+We can also determine whether any samples can be run with an internal (non-pooled) reference as a control.
+
+## Setup
+
+```{r}
+options(readr.show_col_types = FALSE)
+library(ggplot2)
+theme_set(theme_bw())
+```
+
+### Paths
+
+#### Base directories
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The current data directory, found within the repository base directory
+data_dir <- file.path(repository_base, "data", "current", "SCPCP000004")
+
+# The current results directory, found within the repository base directory
+result_dir <- file.path(repository_base, "data", "current", "results")
+
+# Path to cell-type-consensus results
+consensus_dir <- file.path(result_dir, "cell-type-consensus", "SCPCP000004")
+```
+
+#### Input and output files
+
+```{r paths}
+# Input consensus cell type files
+celltype_files <- list.files(
+  path = consensus_dir,
+  pattern = "_processed_consensus-cell-types\\.tsv\\.gz$",
+  recursive = TRUE,
+  full.names = TRUE
+) |>
+  # set names as library id
+  purrr::set_names(
+    \(x) {
+      stringr::str_split_i(basename(x), "_", 1)
+    }
+  )
+
+# project sample metadata file
+metadata_file <- file.path(data_dir, "single_cell_metadata.tsv")
+
+# Path to all possible immune consensus cell types
+immune_url <- "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/consensus-immune-cell-types.tsv"
+```
+
+We'll also define vectors for the consensus cell types to check for.
+
+```{r}
+immune_celltypes <- readr::read_tsv(immune_url) |>
+  dplyr::pull(consensus_annotation)
+
+# Vector of all possible endothelial cell types
+endo_celltypes <- c(
+  "endothelial cell",
+  "blood vessel endothelial cell",
+  "microvascular endothelial cell",
+  "pericyte"
+)
+```
+
+## Analysis
+
+```{r}
+# determine PDX libraries to exclude
+tumor_library_ids <- readr::read_tsv(metadata_file) |>
+  dplyr::filter(!is_xenograft) |>
+  dplyr::pull(scpca_library_id)
+
+
+# Prepare data frame of all cell types
+celltype_df <- celltype_files |>
+  # consider only non-PDX
+  purrr::keep_at(tumor_library_ids) |>
+  purrr::map(readr::read_tsv) |>
+  purrr::list_rbind() |>
+  dplyr::select(library_id, barcodes, consensus_annotation) |>
+  dplyr::mutate(
+    category = dplyr::case_when(
+      consensus_annotation %in% immune_celltypes ~ "immune",
+      consensus_annotation %in% endo_celltypes ~ "endo",
+      .default = "other"
+    )
+  )
+```
+
+The table below shows counts of endothelial, immune, and all other cells across libraries:
+
+```{r}
+category_count_df <- celltype_df |>
+  dplyr::count(library_id, category)
+
+# format for viewing
+category_count_df |>
+  tidyr::pivot_wider(
+    names_from = category,
+    values_from = n,
+    values_fill = 0
+  ) |>
+  # order columns
+  dplyr::select(library_id, endo, immune, other) |>
+  # this way we can print the full table at once; RMarkdown will only show 10 rows at once
+  knitr::kable()
+```
+
+Looks like we've got a lot of normal cells here, and plenty of libraries we can run with an internal reference. 
+Since we have a lot of immune and endothelial cells on their own, we don't need to consider a combined reference for this project.
+
+There are also some libraries with a very small number of cells which are presumably lower-quality and should not be included in any reference.
+
+
+First, we'll find any libraries that have fewer than 1000 cells and exclude them.
+
+```{r}
+discard_libraries <- category_count_df |>
+  dplyr::group_by(library_id) |>
+  dplyr::summarize(total_cells = sum(n)) |>
+  dplyr::filter(total_cells < 1000) |>
+  dplyr::pull(library_id)
+
+discard_libraries
+```
+
+
+How many cells would be in each reference for `endo` and `immune` groups?
+
+```{r}
+category_count_df <- category_count_df |>
+  dplyr::filter(
+    category != "other", # we dont need these counts anymore
+    !(library_id %in% discard_libraries)
+  )
+
+total_ref_cells_df <- category_count_df |>
+  dplyr::group_by(category) |>
+  dplyr::summarize(total_cells = sum(n))
+total_ref_cells_df
+```
+Well, that's quite a lot of cells!
+Let's visualize which libraries these cells are spread across.
+The barplot below shows the proportion of cells in the given category from each library.
+
+
+```{r}
+category_prop_df <- category_count_df |>
+  dplyr::inner_join(total_ref_cells_df) |>
+  dplyr::mutate(prop_total_ref_cells = n / total_cells)
+
+ggplot(category_prop_df) +
+  aes(x = library_id, y = prop_total_ref_cells, fill = category) +
+  geom_col(position = "dodge") +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1, size = 8))
+```
+The plurality of endothelial cells are from `SCPCL000125`, and the plurality of immune cells are from both `SCPCL000126` and `SCPCL000127`.
+These libraries dominate their respective reference cell categories, but cells are still reasonably spread across the other libraries.
+
+
+Next, let's look more closely at the counts for cell types within these broad categories of `immune` and `endo`, since we may have enough data here to narrow the reference down further:
+
+```{r}
+fine_celltype_df <- celltype_df |>
+  dplyr::filter(category != "other") |>
+  dplyr::count(consensus_annotation, category) |>
+  dplyr::arrange(category)
+
+# kable to print the full table at once
+knitr::kable(fine_celltype_df)
+```
+
+* Endothelial cells are nearly exclusively plain `endothelial cell`
+* The immune cells are pretty spread out, and we could have cell-type specific references created from anything with more than 100 cells:
+
+```{r}
+fine_celltype_df |>
+  dplyr::filter(category == "immune", n > 100) |>
+  dplyr::arrange(desc(n))
+```
+Dominant cell types are T cells (across several categories of T cell) and macrophages. 
+
+
+Finally, let's see which libraries could have an internal reference.
+Generally `inferCNV` recommends at least 100 cells in a reference, but since there are so many normal cells here we can increase this threshold since 100 is really a lower bound.
+So, for this project, we'll use 250 as a threshold to find which libraries/internal references are possible:
+
+```{r}
+category_count_df |>
+  dplyr::filter(n >= 250) |>
+  dplyr::group_by(library_id) |>
+  dplyr::mutate(reference_options = paste(category, collapse = ", ")) |>
+  dplyr::select(library_id, reference_options) |>
+  unique() |>
+  # kable to print the full table at once
+  knitr::kable()
+```
+
+Notably, we have previously observed with our analysis of `SCPCP000015` in this module that references with immune cells tend to show more total CNV overlap with tumor cells, since immune cells are funky! 
+So, it's nice to see that we enough data to be able to use a robust `endo` reference without needing to rely on `immune`, should similar CNV patterns emerge here. 
+
+## Conclusions
+
+* We can _definitely_ have `endo` and `immune` pooled references, and the references won't be _strongly_ biased towards coming from a specific library
+* Since we have such a high number of cells in each reference cell grouping in the first place, a combined reference (e.g. `endo-immune`) does not seem necessary
+* We could also consider a subset of immune cell types for a reference, particularly macrophage and T cell, but a full immune reference seems reasonable to start with
+* We have 11 libraries which we could use an internal reference with: 3 of them with `endo`, and _all_ of them with `immune`
+
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
