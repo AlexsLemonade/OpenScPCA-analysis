@@ -4,14 +4,14 @@ Ewing sarcoma	8	NA	gain	TRUE	https://doi.org/10.1158/2159-8290.CD-14-0622; https
 Ewing sarcoma	12	NA	gain	FALSE	https://doi.org/10.1158/2159-8290.CD-14-0622
 Ewing sarcoma	16	q	loss	FALSE	https://doi.org/10.1158/2159-8290.CD-14-0622
 Neuroblastoma	1	p	loss	TRUE	https://doi.org/10.1038/nrdp.2016.78; https://doi.org/10.1016/j.celrep.2024.114804; https://doi.org/10.1158/2159-8290.CD-14-0622
-Neuroblastoma	1	q	gain	TRUE	https://doi.org/10.1038/nrdp.2016.78; https://doi.org/10.18632/oncotarget.22495
+Neuroblastoma	1	q	gain	FALSE	https://doi.org/10.1038/nrdp.2016.78; https://doi.org/10.18632/oncotarget.22495
 Neuroblastoma	2	p	gain	FALSE	https://doi.org/10.1038/nrdp.2016.78; https://doi.org/10.18632/oncotarget.22495
 Neuroblastoma	3	p	loss	FALSE	https://doi.org/10.1038/nrdp.2016.78; https://doi.org/10.18632/oncotarget.22495
 Neuroblastoma	4	p	loss	FALSE	https://doi.org/10.1038/nrdp.2016.78; https://doi.org/10.18632/oncotarget.22495
 Neuroblastoma	6	q	loss	FALSE	https://doi.org/10.1038/nrdp.2016.78; https://doi.org/10.18632/oncotarget.22495
 Neuroblastoma	7	q	gain	FALSE	https://doi.org/10.18632/oncotarget.22495
 Neuroblastoma	8	p	loss	FALSE	https://doi.org/10.18632/oncotarget.22495
-Neuroblastoma	11	q	loss	FALSE	https://doi.org/10.1038/nrdp.2016.78
+Neuroblastoma	11	q	loss	TRUE	https://doi.org/10.1038/nrdp.2016.78
 Neuroblastoma	12	q	gain	FALSE	https://doi.org/10.18632/oncotarget.22495
 Neuroblastoma	14	q	loss	FALSE	https://doi.org/10.1038/nrdp.2016.78; https://doi.org/10.18632/oncotarget.22495
 Neuroblastoma	17	q	gain	TRUE	https://doi.org/10.1038/nrdp.2016.78; https://doi.org/10.1016/j.celrep.2024.114804; https://doi.org/10.1158/2159-8290.CD-14-0622
