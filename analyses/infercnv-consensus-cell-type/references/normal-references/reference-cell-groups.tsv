@@ -1,0 +1,53 @@
+consensus_annotation	reference_cell_group
+adipocyte	adipocyte
+B cell	immune
+lymphocyte of B lineage	immune
+mature B cell	immune
+naive B cell	immune
+memory B cell	immune
+chondrocyte	stromal
+dendritic cell	immune
+endothelial cell	endothelial
+blood vessel endothelial cell	endothelial
+microvascular endothelial cell	endothelial
+epithelial cell	epithelial
+ecto-epithelial cell	epithelial
+keratinocyte	epithelial
+squamous epithelial cell	epithelial
+epidermal cell	epithelial
+fibroblast	stromal
+hematopoietic precursor cell	HSPC
+hematopoietic stem cell	HSPC
+innate lymphoid cell	immune
+macrophage	immmue
+melanocyte	melanocyte
+mesangial cell	mesangial cell
+monocyte	immune
+smooth muscle cell	muscle
+muscle cell	muscle
+cell of skeletal muscle	muscle
+myeloid leukocyte	immune
+granulocyte	immune
+neutrophil	immune
+mononuclear phagocyte	immune
+erythroid lineage cell	immune
+megakaryocyte	immune
+eosinophil	immune
+natural killer cell	immune
+neuron	neuronal
+astrocyte	neuronal
+glial cell	neuronal
+macroglial cell	neuronal
+neuron associated cell	neuronal
+pericyte	endothelial
+plasma cell	immune
+somatic stem cell	stem cell
+stem cell	stem cell
+stromal cell	stromal
+extracellular matrix secreting cell	stromal
+T cell	immune
+CD4-positive, alpha-beta T cell	immune
+mature alpha-beta T cell	immune
+mature T cell	immune
+regulatory T cell	immune
+memory T cell	immune
