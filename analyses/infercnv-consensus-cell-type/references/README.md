@@ -1,10 +1,12 @@
 This directory contains reference information needed for analysis.
 
-* `cnv-validation.tsv`: Lists specific CNVs which can be used for validation for diagnoses explored in the module
-* `Homo_sapiens.GRCh38.104.gene_order.txt` gene order file for input to `inferCNV`
+* `cnv-validation.tsv`: TSV file listing specific CNVs which can be used for validation for diagnoses explored in the module
+* `Homo_sapiens.GRCh38.104.gene_order.txt`: The gene order file for input to `inferCNV`
   * This file is created with `../scripts/00-make-gene-order-file.R` when running the analysis pipeline, but it is ignored from the repository due to its large size
-* `normal-references/`: This directory contains, organized by project, RDS files containing SCE objects for use as normal references with `inferCNV`.
-More information about these files is provided below.
+* `reference-cell-groups.tsv`: TSV file mapping consensus cell types into reference cell group categories to assist in creating normal references across projects
+  * The exception to this is `SCPCP000015`, which was analyzed before this TSV file was created
+* `normal-references/`: Holds project-specific RDS files containing SCE objects for use as normal references with `inferCNV`.
+More information about these files is provided below
 
 ## Normal references
 
