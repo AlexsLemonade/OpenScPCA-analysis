@@ -1,0 +1,248 @@
+---
+title: "Explore normal cell types in Neuroblastoma samples"
+author: "Stephanie J. Spielman"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+---
+
+
+## Introduction
+
+The goal of this notebook is to explore the distribution of normal consensus cell types, specifically immune and endothelial, in the Neuroblastoma tumor (i.e., _not_ the PDX) samples from `SCPCP000004`.
+
+Based on these findings, we can determine approaches to evaluate for pooling cells to use as a normal reference for `inferCNV`.
+We can also determine whether any samples can be run with an internal (non-pooled) reference as a control.
+
+## Setup
+
+```{r}
+options(readr.show_col_types = FALSE)
+library(ggplot2)
+theme_set(theme_bw())
+```
+
+### Paths
+
+#### Base directories
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The current data directory, found within the repository base directory
+data_dir <- file.path(repository_base, "data", "current", "SCPCP000004")
+
+# The current results directory, found within the repository base directory
+result_dir <- file.path(repository_base, "data", "current", "results")
+
+# Path to cell-type-consensus results
+consensus_dir <- file.path(result_dir, "cell-type-consensus", "SCPCP000004")
+
+# Path to reference cell type groupings
+reference_dir <- file.path(repository_base, "analyses", "infercnv-consensus-cell-type", "references")
+```
+
+#### Input and output files
+
+```{r paths}
+# Input consensus cell type files
+celltype_files <- list.files(
+  path = consensus_dir,
+  pattern = "_processed_consensus-cell-types\\.tsv\\.gz$",
+  recursive = TRUE,
+  full.names = TRUE
+) |>
+  # set names as library id
+  purrr::set_names(
+    \(x) {
+      stringr::str_split_i(basename(x), "_", 1)
+    }
+  )
+
+# project sample metadata file
+metadata_file <- file.path(data_dir, "single_cell_metadata.tsv")
+
+# reference cell type groups
+reference_file <- file.path(reference_dir, "reference-cell-groups.tsv")
+```
+
+
+## Analysis
+
+```{r}
+# determine PDX libraries to exclude
+tumor_library_ids <- readr::read_tsv(metadata_file) |>
+  dplyr::filter(!is_xenograft) |>
+  dplyr::pull(scpca_library_id)
+
+# get cell groups
+cell_group_df <- readr::read_tsv(reference_file)
+
+# Prepare data frame of all cell types
+celltype_df <- celltype_files |>
+  # consider only non-PDX
+  purrr::keep_at(tumor_library_ids) |>
+  purrr::map(readr::read_tsv) |>
+  purrr::list_rbind() |>
+  dplyr::select(library_id, barcodes, consensus_annotation) |>
+  dplyr::left_join(cell_group_df, by = "consensus_annotation")
+```
+
+We'll first exclude any libraries that have fewer than 1000 cells from consideration in the reference.
+
+```{r}
+discard_libraries <- celltype_df |>
+  dplyr::count(library_id) |>
+  dplyr::filter(n < 1000) |>
+  dplyr::pull(library_id)
+
+discard_libraries
+```
+
+```{r}
+celltype_df <- celltype_df |>
+  dplyr::filter(!(library_id %in% discard_libraries))
+```
+
+These cell groupings are present in the neuroblastoma samples we're considering:
+
+```{r}
+unique(celltype_df$reference_cell_group)
+```
+
+We should remove any cell groups which might correspond to tumor cells, including `stromal`, `neuronal`, and `stem cell`.
+The `NA` values here correspond to `Unknown` cells, which we'll also remove.
+This means we'll keep groups `endothelial`, `epithelial`, `adipocyte`, and `immune`.
+
+```{r}
+# First, we want to count the total number of cells to use for later plotting
+total_cells_df <- celltype_df |>
+  dplyr::count(library_id, name = "total_cells")
+
+# Now we can remove unwanted cells
+exclude_groups <- c("stromal", "neuronal", "stem cell")
+celltype_df <- celltype_df |>
+  dplyr::filter(
+    !(reference_cell_group %in% exclude_groups),
+    consensus_annotation != "Unknown"
+  )
+```
+
+
+
+Let's begin by counting how many cells in each cell group we have per library.
+
+```{r}
+celltype_count_df <- celltype_df |>
+  dplyr::count(library_id, reference_cell_group)
+
+# format for viewing
+celltype_count_wide_df <- celltype_count_df |>
+  tidyr::pivot_wider(
+    names_from = reference_cell_group,
+    values_from = n,
+    values_fill = 0
+  ) |>
+  # add column for total normal cells
+  dplyr::mutate(
+    all_normal = rowSums(dplyr::across(where(is.numeric)))
+  ) |>
+  # arrange by total normal cells
+  dplyr::arrange(desc(all_normal))
+
+# this way we can print the full table at once; RMarkdown will only show 10 rows at once
+knitr::kable(celltype_count_wide_df)
+```
+
+Virtually all of the normal cell types are `endothelial` and `immune`, with very few `adipocyte` and literally only one `epithelial` cell.
+
+We'll look at this data in barplot form to see, per-library, the relative proportions of each normal cell type group out of _all cells_ in the library.
+The height of each bar is the total fraction of normal cells in that library to begin with; note the Y-axis only ranges from around `[0,0.3]`.
+
+
+```{r}
+celltype_prop_df <- celltype_count_wide_df |>
+  dplyr::select(-all_normal) |>
+  # long again, but keep all_normal column for calculating proportion
+  tidyr::pivot_longer(
+    -library_id,
+    names_to = "reference_cell_group",
+    values_to = "n"
+  ) |>
+  dplyr::left_join(total_cells_df) |>
+  dplyr::mutate(cell_group_prop = n / total_cells)
+
+ggplot(celltype_prop_df) +
+  aes(x = library_id, y = cell_group_prop, fill = reference_cell_group) +
+  geom_col() +
+  labs(y = "Proportion of cells in normal group") +
+  theme(
+    legend.position = "bottom",
+    axis.text.x = element_text(angle = 30, hjust = 1, size = 7)
+  )
+```
+
+Based on these numbers, we can consider three normal reference options:
+
+* All normal cells
+* All immune cells
+* All endothelial cells
+
+How many cells would be in each of those pooled references?
+
+```{r}
+# update the count data frame without categories we don't need.
+# note that this does not remove adipocyte or epithelial counts from the `all_normal` group; it just
+# removes them as standalone categories
+celltype_count_df <- celltype_count_wide_df |>
+  dplyr::select(-adipocyte, -epithelial) |>
+  tidyr::pivot_longer(
+    -library_id,
+    names_to = "reference_cell_group",
+    values_to = "n"
+  )
+
+celltype_count_df |>
+  dplyr::group_by(reference_cell_group) |>
+  dplyr::summarize(total_cells = sum(n))
+```
+
+Well, that's quite a lot of cells for these pooled references!
+A potential concern is that this many cells will incur prohibitive runtimes, so we may want to explore a subsampling strategy.
+Any subsampling strategy should aim to retain the relative cell type proportions across libraries, but we can explore that if runtime becomes a problem when we reach that stage.
+
+Finally, let's see which libraries could have an internal reference.
+`inferCNV` recommends at least 100 cells in a reference, so which combinations of library/reference are possible here?
+
+```{r}
+celltype_count_df |>
+  dplyr::filter(n >= 100) |>
+  dplyr::group_by(library_id) |>
+  dplyr::mutate(reference_options = paste(reference_cell_group, collapse = ", ")) |>
+  dplyr::ungroup() |>
+  dplyr::select(library_id, reference_options) |>
+  unique() |>
+  # add row counter so we can easily see how many libraries
+  dplyr::mutate(row_num = dplyr::row_number()) |>
+  # kable to print the full table at once
+  knitr::kable()
+```
+
+## Conclusions
+
+* To start, we can consider three references: all normal, all immune, and possibly also all endothelial
+  * We may need to consider a subsetting strategy for these references if runtimes are too long since there would be >10,000 cells in the immune-containing pooled normal references
+* There are 19 libraries we can use internal references with, all with the option for all normal cells and some with the immune-only or endothelial-only options too
+
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
