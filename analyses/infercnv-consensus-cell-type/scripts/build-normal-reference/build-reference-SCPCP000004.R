@@ -2,9 +2,9 @@
 # This script creates normal references for use with Neuroblastoma (SCPCP000004) samples.
 # References are created by pooling relevant cell types across all project samples, excluding PDX's.
 # We create three references:
-# - `all-normal`: All normal cells
+# - `all-normal`: All normal cells, which here includes immune, endothelial, epithelial, and adipocytes
 # - `immune`: All immune cells
-# - `endo`: All endothelial immune cells
+# - `endo`: All endothelial cells
 # For more information about how references were determined, see the exploratory notebook in:
 # ../../exploratory-notebooks/SCPCP000004/01_nb-consensus-cell-types.Rmd
 
