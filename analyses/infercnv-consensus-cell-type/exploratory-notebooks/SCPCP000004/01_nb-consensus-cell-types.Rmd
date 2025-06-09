@@ -117,7 +117,7 @@ unique(celltype_df$reference_cell_group)
 
 We should remove any cell groups which might correspond to tumor cells, including `stromal`, `neuronal`, and `stem cell`.
 The `NA` values here correspond to `Unknown` cells, which we'll also remove.
-This means we'll keep groups `endothelial`, `epithelial`, and `immune`.
+This means we'll keep groups `endothelial`, `epithelial`, `adipocyte`, and `immune`.
 
 ```{r}
 exclude_groups <- c("stromal", "neuronal", "stem cell")
@@ -182,7 +182,7 @@ ggplot(celltype_prop_df) +
 Based on these numbers, we can consider three normal reference options:
 
 * All normal cells
-* ALl immune cells
+* All immune cells
 * All endothelial cells
 
 How many cells would be in each of those pooled references?
