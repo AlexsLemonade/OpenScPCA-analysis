@@ -120,6 +120,11 @@ The `NA` values here correspond to `Unknown` cells, which we'll also remove.
 This means we'll keep groups `endothelial`, `epithelial`, `adipocyte`, and `immune`.
 
 ```{r}
+# First, we want to count the total number of cells to use for later plotting
+total_cells_df <- celltype_df |>
+  dplyr::count(library_id, name = "total_cells")
+
+# Now we can remove unwanted cells
 exclude_groups <- c("stromal", "neuronal", "stem cell")
 celltype_df <- celltype_df |>
   dplyr::filter(
@@ -130,7 +135,7 @@ celltype_df <- celltype_df |>
 
 
 
-Let's begin by counting how many cells in each cell group we have per library
+Let's begin by counting how many cells in each cell group we have per library.
 
 ```{r}
 celltype_count_df <- celltype_df |>
@@ -156,23 +161,26 @@ knitr::kable(celltype_count_wide_df)
 
 Virtually all of the normal cell types are `endothelial` and `immune`, with very few `adipocyte` and literally only one `epithelial` cell.
 
-We'll look at this data in barplot form to see, per-library, the relative proportions of each normal cell type group out of all normal cells in the library.
+We'll look at this data in barplot form to see, per-library, the relative proportions of each normal cell type group out of _all cells_ in the library.
+The height of each bar is the total fraction of normal cells in that library to begin with; note the Y-axis only ranges from around `[0,0.3]`.
 
 
 ```{r}
 celltype_prop_df <- celltype_count_wide_df |>
+  dplyr::select(-all_normal) |>
   # long again, but keep all_normal column for calculating proportion
   tidyr::pivot_longer(
-    -c(library_id, all_normal),
+    -library_id,
     names_to = "reference_cell_group",
     values_to = "n"
   ) |>
-  dplyr::mutate(cell_group_prop = n / all_normal)
+  dplyr::left_join(total_cells_df) |>
+  dplyr::mutate(cell_group_prop = n / total_cells)
 
 ggplot(celltype_prop_df) +
   aes(x = library_id, y = cell_group_prop, fill = reference_cell_group) +
   geom_col() +
-  labs(y = "Proportion of normal cells in group") +
+  labs(y = "Proportion of cells in normal group") +
   theme(
     legend.position = "bottom",
     axis.text.x = element_text(angle = 30, hjust = 1, size = 7)
@@ -188,7 +196,9 @@ Based on these numbers, we can consider three normal reference options:
 How many cells would be in each of those pooled references?
 
 ```{r}
-# update the count data frame without categories we don't need
+# update the count data frame without categories we don't need.
+# note that this does not remove adipocyte or epithelial counts from the `all_normal` group; it just
+# removes them as standalone categories
 celltype_count_df <- celltype_count_wide_df |>
   dplyr::select(-adipocyte, -epithelial) |>
   tidyr::pivot_longer(
