@@ -53,7 +53,7 @@ jobs:
           data: ${{ github.event_name != 'pull_request' && '--project SCPCP000004,SCPCP000015' || '--samples SCPCS000490,SCPCS000492,SCPCS000750' }}
         run: |
           ./download-results.py --module cell-type-ewings --test-data ${data}
-          ./download-results.py --module cell-type-consensus project SCPCP000004 --test-data # not needed for SCPCP000015
+          ./download-results.py --module cell-type-consensus --project SCPCP000004 --test-data # not needed for SCPCP000015
           ./download-results.py --module merge-sce --project SCPCP000004,SCPCP000015 --test-data
           ./download-data.py --test-data ${data}
           ./download-data.py --test-data --metadata-only
