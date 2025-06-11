@@ -8,25 +8,25 @@ option_list <- list(
   make_option(
     opt_str = c("--seurat_file"),
     type = "character",
-    default = "references/SeuratObj_Share_50kSubset_NBAtlas_v20240130.rds",
+    default = "",
     help = "Path to Seurat version of an NBAtlas object"
   ),
   make_option(
     opt_str = c("--tumor_cells_file"),
     type = "character",
-    default = "references/NBAtlas_tumor_cells.tsv",
+    default = "",
     help = "Path to text file listing all tumor cells in the full NBAtlas."
   ),
   make_option(
     opt_str = c("--sce_file"),
     type = "character",
-    default = "references/NBAtlas_sce.rds",
+    default = "",
     help = "Path to output RDS file to hold an SCE version of the NBAtlas object"
   ),
   make_option(
     opt_str = c("--anndata_file"),
     type = "character",
-    default = "references/NBAtlas_anndata.h5ad",
+    default = "",
     help = "Path to output H5AD file to hold an AnnData version of the NBAtlas object"
   )
 )
