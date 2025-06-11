@@ -12,10 +12,10 @@ option_list <- list(
     help = "Path to Seurat version of an NBAtlas object"
   ),
   make_option(
-    opt_str = c("--tumor_cells_file"),
+    opt_str = c("--tumor_metadata_file"),
     type = "character",
     default = "",
-    help = "Path to text file listing all tumor cells in the full NBAtlas."
+    help = "Path to RDS file with DataFrame object with NBAtlas tumor metadata."
   ),
   make_option(
     opt_str = c("--sce_file"),
@@ -28,6 +28,18 @@ option_list <- list(
     type = "character",
     default = "",
     help = "Path to output H5AD file to hold an AnnData version of the NBAtlas object"
+  ),
+  make_option(
+    opt_str = c("--testing"),
+    action = "store_true",
+    default = FALSE,
+    help = "Use this flag when running in CI to output a smaller version of NBAtlas for testing"
+  ),
+  make_option(
+    opt_str = c("--seed"),
+    type = "integer",
+    default = 2025,
+    help = "Random seed used to subset NBAtlas when --testing is specified"
   )
 )
 
@@ -36,7 +48,7 @@ opts <- parse_args(OptionParser(option_list = option_list))
 
 stopifnot(
   "seurat_file does not exist" = file.exists(opts$seurat_file),
-  "tumor_cells_file does not exist" = file.exists(opts$tumor_cells_file)
+  "tumor_metadata_file does not exist" = file.exists(opts$tumor_metadata_file)
 )
 
 # load the bigger libraries after passing checks
@@ -45,10 +57,12 @@ suppressPackageStartupMessages({
   library(SingleCellExperiment)
   library(zellkonverter)
 })
+set.seed(opts$seed)
 
 # read input files
 nbatlas_seurat <- readRDS(opts$seurat_file)
-tumor_cells <- readLines(opts$tumor_cells_file)
+tumor_cells <- readRDS(opts$tumor_metadata_file) |>
+  rownames()
 
 # convert Seurat to SCE object directly, to save space in the final object
 nbatlas_sce <- SingleCellExperiment(
@@ -66,6 +80,21 @@ colData(nbatlas_sce) <- nbatlas_seurat@meta.data |>
     )
   ) |>
   DataFrame(row.names = rownames(colData(nbatlas_sce)))
+
+# remove Seurat file to save space
+rm(nbatlas_seurat)
+gc()
+
+# if testing, subset the SCE to fewer cells: keep 5% of each label
+if (opts$testing) {
+  keep_cells <- colData(nbatlas_sce) |>
+    as.data.frame() |>
+    dplyr::group_by(NBAtlas_label) |>
+    dplyr::sample_frac(0.05) |>
+    dplyr::pull(cell_id)
+
+  nbatlas_sce <- nbatlas_sce[, keep_cells]
+}
 
 # export reformatted NBAtlas objects: SCE and AnnData
 readr::write_rds(
