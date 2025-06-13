@@ -20,13 +20,11 @@ option_list <- list(
   make_option(
     opt_str = c("--sce_file"),
     type = "character",
-    default = "",
     help = "Path to output RDS file to hold an SCE version of the NBAtlas object"
   ),
   make_option(
     opt_str = c("--anndata_file"),
     type = "character",
-    default = "",
     help = "Path to output H5AD file to hold an AnnData version of the NBAtlas object"
   ),
   make_option(
@@ -48,7 +46,9 @@ opts <- parse_args(OptionParser(option_list = option_list))
 
 stopifnot(
   "seurat_file does not exist" = file.exists(opts$seurat_file),
-  "tumor_metadata_file does not exist" = file.exists(opts$tumor_metadata_file)
+  "tumor_metadata_file does not exist" = file.exists(opts$tumor_metadata_file),
+  "sce_file was not provided" = !is.null(opts$sce_file),
+  "anndata_file was not provided" = !is.null(opts$anndata_file)
 )
 
 # load the bigger libraries after passing checks
