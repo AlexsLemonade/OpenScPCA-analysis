@@ -12,6 +12,9 @@ suppressPackageStartupMessages({
   library(optparse)
 })
 
+# source functions
+source(here::here("scripts", "build-normal-reference", "utils.R"))
+
 option_list <- list(
   make_option(
     opt_str = "--merged_sce_file",
@@ -140,39 +143,15 @@ endo_cell_ids <- consensus_df |>
 
 # Subset the SCEs to create references -------------
 
-# Define helper function to remove unneeded slots
-# from a reference SCE to save space
-clean_sce <- function(sce) {
-  logcounts(sce) <- NULL
-  assay(sce, "spliced") <- NULL
-  reducedDim(sce, "PCA") <- NULL
-  reducedDim(sce, "UMAP") <- NULL
-
-  # ensure the counts matrix is sparse
-  counts(sce) <- as(counts(sce), "CsparseMatrix")
-
-  return(sce)
-}
-
-
 # First make the combined endo+immune reference
 combined_reference <- merged_sce[, c(immune_cell_ids, endo_cell_ids)] |>
   # remove unneeded slots
   clean_sce()
 
-
 # Ensure that the consensus cell type is recorded in reference SCE if not present
 if (!("consensus_annotation" %in% colnames(colData(combined_reference)))) {
-  colData(combined_reference) <- colData(combined_reference) |>
-    as.data.frame() |>
-    # temporarily make the rownames a column so we can join consensus
-    tibble::rownames_to_column(var = "sce_cell_id") |>
-    dplyr::left_join(consensus_df, by = "sce_cell_id") |>
-    dplyr::select(-sce_cell_id) |>
-    # make it a DataFrame again
-    DataFrame(row.names = rownames(colData(combined_reference)))
+  colData(combined_reference) <- consensus_to_coldata(colData(combined_reference), consensus_df)
 }
-
 
 # Create the immune reference
 immune_reference <- combined_reference[, immune_cell_ids]
@@ -182,7 +161,6 @@ endo_reference <- combined_reference[, endo_cell_ids]
 
 
 # Export references ---------
-
 readr::write_rds(immune_reference, opts$reference_immune, compress = "gz")
 readr::write_rds(endo_reference, opts$reference_endo, compress = "gz")
 readr::write_rds(combined_reference, opts$reference_endo_immune, compress = "gz")
