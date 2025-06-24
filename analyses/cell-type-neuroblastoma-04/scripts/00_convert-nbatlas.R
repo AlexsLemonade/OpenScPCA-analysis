@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # This script exports an SCE and AnnData version of a given NBAtlas Seurat object
-# We retain only the raw counts and cell metadata in the converted objects, since normalized will not be used
+# We retain only the raw counts, normalized counts, and cell metadata in the converted objects
 
 library(optparse)
 
@@ -66,7 +66,10 @@ tumor_cells <- readRDS(opts$tumor_metadata_file) |>
 
 # convert Seurat to SCE object directly, to save space in the final object
 nbatlas_sce <- SingleCellExperiment(
-  assays = list(counts = nbatlas_seurat[["RNA"]]$counts)
+  assays = list(
+    counts = nbatlas_seurat[["RNA"]]$counts,
+    logcounts = nbatlas_seurat[["RNA"]]$data
+  )
 )
 
 # add in colData, including updated cell labels with `neuroendocrine-tumor` label for tumor cells
