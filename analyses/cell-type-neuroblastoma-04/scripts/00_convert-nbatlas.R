@@ -15,7 +15,7 @@ option_list <- list(
     opt_str = c("--tumor_metadata_file"),
     type = "character",
     default = "",
-    help = "Path to RDS file with DataFrame object with NBAtlas tumor metadata."
+    help = "Path to RDS file with data frame containing NBAtlas tumor metadata."
   ),
   make_option(
     opt_str = c("--sce_file"),
@@ -59,7 +59,7 @@ suppressPackageStartupMessages({
 })
 set.seed(opts$seed)
 
-# read input files
+# read input files and determine tumor cell ids
 nbatlas_seurat <- readRDS(opts$seurat_file)
 tumor_cells <- readRDS(opts$tumor_metadata_file) |>
   rownames()
