@@ -59,4 +59,4 @@ jobs:
       - name: Run analysis module
         run: |
           cd ${MODULE_PATH}
-          bash run-analysis.sh
+          testing=1 bash run-analysis.sh
