@@ -32,7 +32,7 @@ mkdir -p $scratch_dir
 
 # Define NBAtlas reference object files
 # Ensure local files have the same name as on Mendeley: https://data.mendeley.com/datasets/yhcf6787yp/3
-nbatlas_subset_seurat="${scratch_dir}/SeuratObj_Share_50kSubset_NBAtlas_v20240130.rds"
+nbatlas_subset_seurat="${scratch_dir}/SeuratObj_Share_50kSubset_NBAtlas_v20240130.rds"  # this is an older version so will need to be filtered to not contain cells missing from `nbatlas_full_seurat`
 nbatlas_full_seurat="${scratch_dir}/seuratObj_NBAtlas_share_v20241203.rds"
 nbatlas_tumor_metadata_file="${scratch_dir}/SeuratMeta_Share_TumorZoom_NBAtlas_v20250228.rds"
 
@@ -60,16 +60,23 @@ download_file $nbatlas_full_url $nbatlas_full_seurat
 download_file $nbatlas_tumor_url $nbatlas_tumor_metadata_file
 
 # Convert the NBAtlas object to SCE and AnnData formats, for both the full and subsetted versions
-Rscript ${script_dir}/00_convert-nbatlas.R \
-    --seurat_file "${nbatlas_subset_seurat}" \
+cell_id_file="${scratch_dir}/nbtalast-cell-ids.txt.gz"
+Rscript ${script_dir}/00a_extract-nbatlas-ids.R \
+    --nbatlas_file "${nbatlas_full_seurat}" \
+    --cell_id_file "${cell_id_file}"
+
+Rscript ${script_dir}/00b_convert-nbatlas.R \
+    --nbatlas_file "${nbatlas_subset_seurat}" \
     --tumor_metadata_file "${nbatlas_tumor_metadata_file}" \
+    --cell_id_file "${cell_id_file}" \
     --sce_file "${nbatlas_subset_sce}" \
     --anndata_file "${nbatlas_subset_anndata}" \
     ${test_flag}
 
-Rscript ${script_dir}/00_convert-nbatlas.R \
-    --seurat_file "${nbatlas_full_seurat}" \
+Rscript ${script_dir}/00b_convert-nbatlas.R \
+    --nbatlas_file "${nbatlas_full_seurat}" \
     --tumor_metadata_file "${nbatlas_tumor_metadata_file}" \
+    --cell_id_file "${cell_id_file}" \
     --sce_file "${nbatlas_full_sce}" \
     --anndata_file "${nbatlas_full_anndata}" \
     ${test_flag}
