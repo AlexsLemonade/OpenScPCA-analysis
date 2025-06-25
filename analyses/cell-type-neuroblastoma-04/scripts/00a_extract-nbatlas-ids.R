@@ -12,13 +12,13 @@ option_list <- list(
   make_option(
     opt_str = c("--nbatlas_file"),
     type = "character",
-    default = "scratch/seuratObj_NBAtlas_share_v20241203.rds",
+    default = "",
     help = "Path to Seurat version of an NBAtlas object"
   ),
   make_option(
     opt_str = c("--cell_id_file"),
     type = "character",
-    default = "scratch/nbtatlas-ids.txt.gz",
+    default = "",
     help = "Path to output file to store cell ids"
   )
 )
