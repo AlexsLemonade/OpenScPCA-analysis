@@ -74,7 +74,7 @@ nbatlas_markers_df <- sheet_names |>
     direction = ifelse(avg_log2FC > 0, "up", "down"),
     source = "NBAtlas",
     # recode NE -> Neuroendocrine
-    mutate(NBAtlas_label = ifelse(NBAtlas_label == "NE", "Neuroendocrine", NBAtlas_label))
+    NBAtlas_label = ifelse(NBAtlas_label == "NE", "Neuroendocrine", NBAtlas_label)
   )
 
 # export
