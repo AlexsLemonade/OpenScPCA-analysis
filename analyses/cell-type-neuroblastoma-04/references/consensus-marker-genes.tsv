@@ -1,0 +1,101 @@
+NBAtlas_label	ensembl_gene_id	gene_symbol	direction	source
+B cell	ENSG00000156738	MS4A1	up	cell-type-consensus
+B cell	ENSG00000105369	CD79A	up	cell-type-consensus
+B cell	ENSG00000177455	CD19	up	cell-type-consensus
+B cell	ENSG00000007312	CD79B	up	cell-type-consensus
+B cell	ENSG00000139193	CD27	up	cell-type-consensus
+B cell	ENSG00000012124	CD22	up	cell-type-consensus
+B cell	ENSG00000211592	IGKC	up	cell-type-consensus
+B cell	ENSG00000132465	JCHAIN	up	cell-type-consensus
+B cell	ENSG00000170476	MZB1	up	cell-type-consensus
+B cell	ENSG00000117322	CR2	up	cell-type-consensus
+B cell	ENSG00000104921	FCER2	up	cell-type-consensus
+Plasma	ENSG00000115884	SDC1	up	cell-type-consensus
+Plasma	ENSG00000170476	MZB1	up	cell-type-consensus
+Plasma	ENSG00000004468	CD38	up	cell-type-consensus
+Plasma	ENSG00000139193	CD27	up	cell-type-consensus
+Plasma	ENSG00000132465	JCHAIN	up	cell-type-consensus
+Plasma	ENSG00000211896	IGHG1	up	cell-type-consensus
+Plasma	ENSG00000105369	CD79A	up	cell-type-consensus
+Plasma	ENSG00000100219	XBP1	up	cell-type-consensus
+Plasma	ENSG00000211592	IGKC	up	cell-type-consensus
+Plasma	ENSG00000177455	CD19	up	cell-type-consensus
+Plasma	ENSG00000026751	SLAMF7	up	cell-type-consensus
+Plasma	ENSG00000048462	TNFRSF17	up	cell-type-consensus
+T cell	ENSG00000167286	CD3D	up	cell-type-consensus
+T cell	ENSG00000153563	CD8A	up	cell-type-consensus
+T cell	ENSG00000010610	CD4	up	cell-type-consensus
+T cell	ENSG00000198851	CD3E	up	cell-type-consensus
+T cell	ENSG00000116824	CD2	up	cell-type-consensus
+T cell	ENSG00000160654	CD3G	up	cell-type-consensus
+T cell	ENSG00000081237	PTPRC	up	cell-type-consensus
+T cell	ENSG00000110848	CD69	up	cell-type-consensus
+T cell	ENSG00000168685	IL7R	up	cell-type-consensus
+T cell	ENSG00000134460	IL2RA	up	cell-type-consensus
+pDC	ENSG00000158481	CD1C	up	cell-type-consensus
+pDC	ENSG00000112149	CD83	up	cell-type-consensus
+pDC	ENSG00000132514	CLEC10A	up	cell-type-consensus
+pDC	ENSG00000204287	HLA-DRA	up	cell-type-consensus
+pDC	ENSG00000114013	CD86	up	cell-type-consensus
+pDC	ENSG00000197992	CLEC9A	up	cell-type-consensus
+pDC	ENSG00000179639	FCER1A	up	cell-type-consensus
+pDC	ENSG00000140678	ITGAX	up	cell-type-consensus
+pDC	ENSG00000178726	THBD	up	cell-type-consensus
+pDC	ENSG00000090659	CD209	up	cell-type-consensus
+pDC	ENSG00000121594	CD80	up	cell-type-consensus
+pDC	ENSG00000185291	IL3RA	up	cell-type-consensus
+Myeloid	ENSG00000170458	CD14	up	cell-type-consensus
+Myeloid	ENSG00000090382	LYZ	up	cell-type-consensus
+Myeloid	ENSG00000129226	CD68	up	cell-type-consensus
+Myeloid	ENSG00000177575	CD163	up	cell-type-consensus
+Myeloid	ENSG00000203747	FCGR3A	up	cell-type-consensus
+Myeloid	ENSG00000158481	CD1C	up	cell-type-consensus
+Myeloid	ENSG00000105383	CD33	up	cell-type-consensus
+Myeloid	ENSG00000196371	FUT4	up	cell-type-consensus
+Myeloid	ENSG00000169896	ITGAM	up	cell-type-consensus
+Myeloid	ENSG00000081237	PTPRC	up	cell-type-consensus
+NK cell	ENSG00000149294	NCAM1	up	cell-type-consensus
+NK cell	ENSG00000134539	KLRD1	up	cell-type-consensus
+NK cell	ENSG00000115523	GNLY	up	cell-type-consensus
+NK cell	ENSG00000105374	NKG7	up	cell-type-consensus
+NK cell	ENSG00000203747	FCGR3A	up	cell-type-consensus
+NK cell	ENSG00000189430	NCR1	up	cell-type-consensus
+NK cell	ENSG00000100453	GZMB	up	cell-type-consensus
+NK cell	ENSG00000134545	KLRC1	up	cell-type-consensus
+NK cell	ENSG00000150045	KLRF1	up	cell-type-consensus
+NK cell	ENSG00000111796	KLRB1	up	cell-type-consensus
+NK cell	ENSG00000213809	KLRK1	up	cell-type-consensus
+Endothelial	ENSG00000261371	PECAM1	up	cell-type-consensus
+Endothelial	ENSG00000110799	VWF	up	cell-type-consensus
+Endothelial	ENSG00000174059	CD34	up	cell-type-consensus
+Endothelial	ENSG00000179776	CDH5	up	cell-type-consensus
+Endothelial	ENSG00000128052	KDR	up	cell-type-consensus
+Endothelial	ENSG00000184113	CLDN5	up	cell-type-consensus
+Endothelial	ENSG00000076706	MCAM	up	cell-type-consensus
+Endothelial	ENSG00000106991	ENG	up	cell-type-consensus
+Endothelial	ENSG00000102755	FLT1	up	cell-type-consensus
+Endothelial	ENSG00000081237	PTPRC	up	cell-type-consensus
+Fibroblast	ENSG00000108821	COL1A1	up	cell-type-consensus
+Fibroblast	ENSG00000011465	DCN	up	cell-type-consensus
+Fibroblast	ENSG00000107796	ACTA2	up	cell-type-consensus
+Fibroblast	ENSG00000164692	COL1A2	up	cell-type-consensus
+Fibroblast	ENSG00000154096	THY1	up	cell-type-consensus
+Fibroblast	ENSG00000134853	PDGFRA	up	cell-type-consensus
+Fibroblast	ENSG00000168542	COL3A1	up	cell-type-consensus
+Fibroblast	ENSG00000078098	FAP	up	cell-type-consensus
+Fibroblast	ENSG00000139329	LUM	up	cell-type-consensus
+Fibroblast	ENSG00000196154	S100A4	up	cell-type-consensus
+Stromal other	ENSG00000011465	DCN	up	cell-type-consensus
+Stromal other	ENSG00000261371	PECAM1	up	cell-type-consensus
+Stromal other	ENSG00000107796	ACTA2	up	cell-type-consensus
+Stromal other	ENSG00000139329	LUM	up	cell-type-consensus
+Stromal other	ENSG00000154096	THY1	up	cell-type-consensus
+Stromal other	ENSG00000174059	CD34	up	cell-type-consensus
+Stromal other	ENSG00000196549	MME	up	cell-type-consensus
+Stromal other	ENSG00000149591	TAGLN	up	cell-type-consensus
+Stromal other	ENSG00000026508	CD44	up	cell-type-consensus
+Stromal other	ENSG00000108821	COL1A1	up	cell-type-consensus
+Stromal other	ENSG00000164692	COL1A2	up	cell-type-consensus
+Stromal other	ENSG00000150093	ITGB1	up	cell-type-consensus
+Stromal other	ENSG00000113721	PDGFRB	up	cell-type-consensus
+Stromal other	ENSG00000143248	RGS5	up	cell-type-consensus
