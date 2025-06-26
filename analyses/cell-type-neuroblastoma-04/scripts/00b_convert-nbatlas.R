@@ -12,19 +12,19 @@ option_list <- list(
   make_option(
     opt_str = c("--nbatlas_file"),
     type = "character",
-    default = "scratch/SeuratObj_Share_50kSubset_NBAtlas_v20240130.rds",
+    default = "",
     help = "Path to Seurat version of an NBAtlas object"
   ),
   make_option(
     opt_str = c("--tumor_metadata_file"),
     type = "character",
-    default = "scratch/SeuratMeta_Share_TumorZoom_NBAtlas_v20250228.rds",
+    default = "s",
     help = "Path to RDS file with data frame containing NBAtlas tumor metadata."
   ),
   make_option(
     opt_str = c("--cell_id_file"),
     type = "character",
-    default = "scratch/nbtatlas-ids.txt.gz",
+    default = "",
     help = "Path to text file with cell ids present in the full atlas dated `20241203`. Any cell ids not present in this list will be excluded from the converted reference.."
   ),
   make_option(
