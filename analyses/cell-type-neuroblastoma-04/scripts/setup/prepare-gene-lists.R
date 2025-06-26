@@ -101,7 +101,6 @@ validation_df <- readr::read_tsv(opts$consensus_marker_genes_url)
 consensus_markers_df <- validation_df |>
   dplyr::filter(
     validation_group_annotation %in% names(celltype_map),
-    gene_observed_count == 1
   ) |>
   dplyr::select(
     validation_group_annotation,
