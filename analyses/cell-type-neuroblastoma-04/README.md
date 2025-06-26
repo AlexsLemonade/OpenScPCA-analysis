@@ -8,7 +8,17 @@ TBD.
 
 ## Usage
 
-TBD.
+To run this module, use the `run-analysis.sh` script as follows:
+
+```
+bash run-analysis.sh
+```
+
+To run this module with test data, run the script as:
+
+```
+testing=1 bash run-analysis.sh
+```
 
 ## Input files
 
@@ -16,7 +26,6 @@ This module requires the following input files:
 
 * The processed `SCE` and `AnnData` objects for project `SCPCP000004`
 * The merged `SCE` object for `SCPCP000004`
-* Consensus cell types for `SCPCP000004`
 
 These files can be obtained with the following code run from the root of the `OpenScPCA-analysis` repository.
 You must be logged into your AWS account to download these files.
@@ -27,9 +36,6 @@ You must be logged into your AWS account to download these files.
 
 # Download merged SCE objects
 ./download-results.py --modules merge-sce --projects SCPCP000004
-
-# Download consensus cell types
-./download-results.py --modules cell-type-consensus --projects SCPCP000004
 ```
 
 
