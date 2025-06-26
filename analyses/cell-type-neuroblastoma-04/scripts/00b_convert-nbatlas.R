@@ -18,7 +18,7 @@ option_list <- list(
   make_option(
     opt_str = c("--tumor_metadata_file"),
     type = "character",
-    default = "s",
+    default = "",
     help = "Path to RDS file with data frame containing NBAtlas tumor metadata."
   ),
   make_option(
@@ -112,14 +112,22 @@ combined_ensembl <- ifelse(
   is.na(ensembl_10x2024),
   combined_ensembl,
   ensembl_10x2024
-) # ---> sum(!is.na(combined_ensembl)) ===> 31498 genes
+)
 
+# Set any duplicates to NA since we cannot unambiguously identify them
+# make sure to not count NAs among duplicates though using `incomparables = NA`
+combined_ensembl[duplicated(combined_ensembl, incomparables = NA)] <- NA
 
-# change over the names to Ensembl with some checks
 keep_indices <- !is.na(combined_ensembl)
 ensembl_rownames <- combined_ensembl[keep_indices]
-stopifnot("New ensembl rownames are not actually ensembl ids" = all(stringr::str_detect(ensembl_rownames, "^ENSG\\d+$")))
+stopifnot(
+  "Duplicate ids are present in the new ensembl rownames" = sum(duplicated(combined_ensembl, incomparables = NA)) == 0,
+  "New ensembl rownames are not actually ensembl ids" = all(stringr::str_detect(ensembl_rownames, "^ENSG\\d+$"))
+)
+# ---> sum(!is.na(combined_ensembl)) ===> 31370 genes
 
+
+# change over the names to Ensembl and final check
 nbatlas_sce <- nbatlas_sce[keep_indices, ]
 rownames(nbatlas_sce) <- ensembl_rownames
 stopifnot("Failed to convert gene symbols to ensembl" = nrow(nbatlas_sce) == sum(keep_indices))
