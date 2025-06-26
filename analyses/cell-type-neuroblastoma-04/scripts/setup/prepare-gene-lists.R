@@ -99,16 +99,19 @@ celltype_map <- c(
 validation_df <- readr::read_tsv(opts$consensus_marker_genes_url)
 
 consensus_markers_df <- validation_df |>
-  dplyr::filter(validation_group_annotation %in% names(celltype_map)) |>
+  dplyr::filter(
+    validation_group_annotation %in% names(celltype_map),
+    gene_observed_count == 1
+  ) |>
   dplyr::select(
-    NBAtlas_label = validation_group_annotation,
+    validation_group_annotation,
     ensembl_gene_id,
     gene_symbol,
-    validation_group_annotation,
     gene_observed_count
   ) |>
   dplyr::mutate(
-    NBAtlas_label = dplyr::recode(NBAtlas_label, !!!celltype_map),
+    # recode labels
+    NBAtlas_label = dplyr::recode(validation_group_annotation, !!!celltype_map),
     # all of our genes are up-regulated in the given cell type
     direction = "up",
     source = "cell-type-consensus"
