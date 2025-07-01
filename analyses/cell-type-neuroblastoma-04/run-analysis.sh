@@ -28,6 +28,7 @@ else
 fi
 
 # Define and create directories
+data_dir="../../data/current/SCPCP000004"
 script_dir="scripts"
 ref_dir="references"
 scratch_dir="scratch"
@@ -83,11 +84,13 @@ Rscript ${script_dir}/00b_convert-nbatlas.R \
 
 
 ###################################################################
-############### SingleR annotation of NBAtlas data ################
+######################## SingleR annotation #######################
 ###################################################################
 
 # Train the SingleR model
+singler_model_file="${scratch_dir}/singler_model_NBAtlas.rds"
 Rscript ${script_dir}/01_train-singler-model.R \
     --nbatlas_sce "${nbatlas_sce}" \
-    --sce_file ../../data/test/SCPCP000004/SCPCS000101/SCPCL000118_processed.rds \
-    --singler_model_file scratch/singler_model_NBAtlas.rds
+    # arbitrary SCE; chosen because this is a very small one
+    --sce_file "${data_dir}/SCPCS000696/SCPCL001058_processed.rds" \
+    --singler_model_file "${singler_model_file}"
