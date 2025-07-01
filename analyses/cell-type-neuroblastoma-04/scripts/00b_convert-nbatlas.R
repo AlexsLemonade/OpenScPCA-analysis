@@ -23,7 +23,7 @@ option_list <- list(
     opt_str = c("--cell_id_file"),
     type = "character",
     default = "",
-    help = "Path to text file with cell ids present in the full atlas dated `20241203`. Any cell ids not present in this list will be excluded from the converted reference.."
+    help = "Path to text file with cell ids present in the full atlas dated `20241203`. Any cell ids not present in this list will be excluded from the converted reference."
   ),
   make_option(
     opt_str = c("--sce_file"),
@@ -89,11 +89,7 @@ nbatlas_sce <- SingleCellExperiment(
 colData(nbatlas_sce) <- nbatlas_seurat@meta.data |>
   dplyr::mutate(
     cell_id = rownames(colData(nbatlas_sce)),
-    NBAtlas_label = ifelse(
-      cell_id %in% tumor_cells,
-      "Neuroendocrine-tumor",
-      Cell_type
-    )
+    in_tumor_zoom = cell_id %in% tumor_cells
   ) |>
   DataFrame(row.names = rownames(colData(nbatlas_sce)))
 
@@ -105,7 +101,7 @@ gc()
 if (opts$testing) {
   keep_cells <- colData(nbatlas_sce) |>
     as.data.frame() |>
-    dplyr::group_by(NBAtlas_label) |>
+    dplyr::group_by(Cell_type) |>
     dplyr::sample_frac(0.05) |>
     dplyr::pull(cell_id)
 
