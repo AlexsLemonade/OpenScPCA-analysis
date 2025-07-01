@@ -102,7 +102,8 @@ gc()
 
 reducedDim(nbatlas_sce) <- NULL
 
-as.data.frame() |>
+colData(nbatlas_sce) <- colData(nbatlas_sce) |>
+  as.data.frame() |>
   dplyr::mutate(
     cell_id = rownames(colData(nbatlas_sce)),
     in_tumor_zoom = cell_id %in% tumor_cells
