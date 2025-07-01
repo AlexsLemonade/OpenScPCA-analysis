@@ -115,9 +115,10 @@ readr::write_rds(
   compress = "gz"
 )
 
-zellkonverter::writeH5AD(
-  nbatlas_sce,
-  opts$anndata_file,
-  X_name = "counts",
-  compression = "gzip"
-)
+# Temporary: commenting out in case this is the CI failure?
+# zellkonverter::writeH5AD(
+#  nbatlas_sce,
+#  opts$anndata_file,
+#  X_name = "counts",
+#  compression = "gzip"
+# )
