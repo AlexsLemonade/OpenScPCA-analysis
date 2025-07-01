@@ -46,6 +46,19 @@ jobs:
       - name: Set up pandoc
         uses: r-lib/actions/setup-pandoc@v2
 
+      - name: Install dependencies needed to build certain R packages
+        run: |
+          sudo apt-get update
+          # libcurl4-openssl-dev needed for curl
+          # libglpk-dev is needed for igraph
+          # libpng-dev is needed for png
+          # libx11-dev is needed for clipr
+          sudo apt-get install \
+            libcurl4-openssl-dev \
+            libglpk-dev \
+            libpng-dev \
+            libx11-dev
+
       - name: Set up renv
         uses: r-lib/actions/setup-renv@v2
         with:
