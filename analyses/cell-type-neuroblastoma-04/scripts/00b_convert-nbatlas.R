@@ -78,18 +78,20 @@ all_cell_ids <- readr::read_lines(opts$cell_id_file)
 # keep only cells that are present in in `all_ids`
 nbatlas_seurat <- subset(nbatlas_seurat, cells = all_cell_ids)
 
-print("converting nbatlas to sce")
+print("converting nbatlas to sce using as")
 # convert Seurat to SCE object directly, to save space in the final object
-nbatlas_sce <- SingleCellExperiment(
-  assays = list(
-    counts = nbatlas_seurat[["RNA"]]$counts,
-    logcounts = nbatlas_seurat[["RNA"]]$data
-  )
-)
+# nbatlas_sce <- SingleCellExperiment(
+#  assays = list(
+#    counts = nbatlas_seurat[["RNA"]]$counts,
+#    logcounts = nbatlas_seurat[["RNA"]]$data
+#  )
+# )
+nbatlas_sce <- as.SingleCellExperiment(nbatlas_seurat)
 
 print("adding in the coldata")
 # add in colData, including updated cell labels with `neuroendocrine-tumor` label for tumor cells
-colData(nbatlas_sce) <- nbatlas_seurat@meta.data |>
+colData(nbatlas_sce) <- colData(nbatlas_sce) |> # nbatlas_seurat@meta.data |>
+  as.data.frame() |>
   dplyr::mutate(
     cell_id = rownames(colData(nbatlas_sce)),
     in_tumor_zoom = cell_id %in% tumor_cells
@@ -101,17 +103,7 @@ print("cleanup")
 rm(nbatlas_seurat)
 gc()
 
-# if testing, subset the SCE to fewer cells: keep 5% of each label
-if (opts$testing) {
-  print("test bit")
-  keep_cells <- colData(nbatlas_sce) |>
-    as.data.frame() |>
-    dplyr::group_by(Cell_type) |>
-    dplyr::sample_frac(0.05) |>
-    dplyr::pull(cell_id)
 
-  nbatlas_sce <- nbatlas_sce[, keep_cells]
-}
 
 # export reformatted NBAtlas objects: SCE and AnnData
 print("export sce")
