@@ -114,6 +114,8 @@ Rscript ${script_dir}/00b_convert-nbatlas.R \
 ######################## SingleR annotation #######################
 ###################################################################
 
+echo "Training SingleR model"
+
 singler_model_file="${scratch_dir}/singler-model_nbatlas-${nbatlas_version}.rds"
 
 # Train the SingleR model with an aggregated reference
