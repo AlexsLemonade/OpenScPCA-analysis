@@ -26,6 +26,12 @@ option_list <- list(
     help = "Path to RDS file to save trained SingleR model"
   ),
   make_option(
+    opt_str = c("--aggregate_reference"),
+    action = "store_true",
+    default = FALSE,
+    help = "Whether to aggregate the reference using `SingleR::aggregateReference()` before training"
+  ),
+  make_option(
     opt_str = c("--separate_tumor"),
     action = "store_true",
     default = FALSE,
@@ -81,14 +87,23 @@ if (opts$separate_tumor) {
   celltype_label <- nbatlas_sce$Cell_type
 }
 
+
+# Set aggregation settings: If the power argument is 0, aggregation won't be performed
+if (opts$aggregate_reference) {
+  aggr_power <- 0.5
+} else {
+  aggr_power <- 1
+}
+
 # Create and export an aggregated version of the reference
 nbatlas_trained <- SingleR::trainSingleR(
   ref = nbatlas_sce,
   labels = nbatlas_sce$Cell_type,
   de.method = "wilcox",
   restrict = restrict_genes,
-  # aggregate with default settings
+  # aggregate as specified
   aggr.ref = TRUE,
+  aggr.args = list(power = aggr_power),
   BPPARAM = bp_param
 )
 readr::write_rds(nbatlas_trained, opts$singler_model_file)
