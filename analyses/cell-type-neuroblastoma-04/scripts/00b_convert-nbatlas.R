@@ -69,6 +69,7 @@ suppressPackageStartupMessages({
 set.seed(opts$seed)
 
 # read input files and determine relevant cell ids
+print("read seurat object")
 nbatlas_seurat <- readRDS(opts$nbatlas_file)
 tumor_cells <- readRDS(opts$tumor_metadata_file) |>
   rownames()
@@ -77,6 +78,7 @@ all_cell_ids <- readr::read_lines(opts$cell_id_file)
 # keep only cells that are present in in `all_ids`
 nbatlas_seurat <- subset(nbatlas_seurat, cells = all_cell_ids)
 
+print("converting nbatlas to sce")
 # convert Seurat to SCE object directly, to save space in the final object
 nbatlas_sce <- SingleCellExperiment(
   assays = list(
@@ -85,6 +87,7 @@ nbatlas_sce <- SingleCellExperiment(
   )
 )
 
+print("adding in the coldata")
 # add in colData, including updated cell labels with `neuroendocrine-tumor` label for tumor cells
 colData(nbatlas_sce) <- nbatlas_seurat@meta.data |>
   dplyr::mutate(
@@ -94,11 +97,13 @@ colData(nbatlas_sce) <- nbatlas_seurat@meta.data |>
   DataFrame(row.names = rownames(colData(nbatlas_sce)))
 
 # remove Seurat file to save space
+print("cleanup")
 rm(nbatlas_seurat)
 gc()
 
 # if testing, subset the SCE to fewer cells: keep 5% of each label
 if (opts$testing) {
+  print("test bit")
   keep_cells <- colData(nbatlas_sce) |>
     as.data.frame() |>
     dplyr::group_by(Cell_type) |>
@@ -109,6 +114,7 @@ if (opts$testing) {
 }
 
 # export reformatted NBAtlas objects: SCE and AnnData
+print("export sce")
 readr::write_rds(
   nbatlas_sce,
   opts$sce_file,
