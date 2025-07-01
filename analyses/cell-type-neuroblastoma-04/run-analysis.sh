@@ -18,6 +18,8 @@ set -euo pipefail
 module_dir=$(dirname "${BASH_SOURCE[0]}")
 cd ${module_dir}
 
+# Define the nbatlas_version
+nbatlas_version=${nbatlas_version:-"full"}
 
 # Set up the testing flag
 testing=${testing:-0}
@@ -35,13 +37,8 @@ scratch_dir="scratch"
 mkdir -p $ref_dir
 mkdir -p $scratch_dir
 
-# Atlas file names
-nbatlas_sce="${ref_dir}/NBAtlas_${nbatlas_version}_sce.rds"
-nbatlas_anndata="${ref_dir}/NBAtlas_${nbatlas_version}_anndata.h5ad"
-
 # Define URL and file names for the specified NBAtlas
 # We ensure local files have the same name as on Mendeley: https://data.mendeley.com/datasets/yhcf6787yp/3
-nbatlas_version=${nbatlas_version:-"full"}
 if [[ $nbatlas_version == "full" ]]; then
     nbatlas_url="https://data.mendeley.com/public-files/datasets/yhcf6787yp/files/f5969395-5f6e-4c5d-a61a-5894773d0fee/file_downloaded"
     nbatlas_seurat="${scratch_dir}/seuratObj_NBAtlas_share_v20241203.rds"
@@ -52,6 +49,13 @@ fi
 nbatlas_tumor_url="https://data.mendeley.com/public-files/datasets/yhcf6787yp/files/78cad1b4-7425-4073-ba09-362ef73c9ab9/file_downloaded"
 nbatlas_tumor_metadata_file="${scratch_dir}/SeuratMeta_Share_TumorZoom_NBAtlas_v20250228.rds"
 
+# Reformatted atlas file names
+nbatlas_sce="${ref_dir}/NBAtlas_${nbatlas_version}_sce.rds"
+nbatlas_anndata="${ref_dir}/NBAtlas_${nbatlas_version}_anndata.h5ad"
+
+###################################################################
+######################## Prepare NBAtlas ##########################
+###################################################################
 
 # First, download the NBAtlas Seurat objects from Mendeley with a helper function
 # This function takes two arguments in order, the URL and the filename to save to
