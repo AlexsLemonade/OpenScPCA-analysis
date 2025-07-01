@@ -28,12 +28,12 @@ option_list <- list(
   make_option(
     opt_str = c("--sce_file"),
     type = "character",
-    help = "Path to output RDS file to hold an SCE version of the NBAtlas object"
+    help = "Path to output RDS file to hold an SCE version of the NBAtlas object. If not provided, the SCE object will not be saved."
   ),
   make_option(
     opt_str = c("--anndata_file"),
     type = "character",
-    help = "Path to output H5AD file to hold an AnnData version of the NBAtlas object"
+    help = "Path to output H5AD file to hold an AnnData version of the NBAtlas object. If not provided, the AnnData object will not be saved."
   ),
   make_option(
     opt_str = c("--testing"),
@@ -55,9 +55,7 @@ opts <- parse_args(OptionParser(option_list = option_list))
 stopifnot(
   "nbatlas_file does not exist" = file.exists(opts$nbatlas_file),
   "tumor_metadata_file does not exist" = file.exists(opts$tumor_metadata_file),
-  "cell_id_file does not exist" = file.exists(opts$cell_id_file),
-  "sce_file was not provided" = !is.null(opts$sce_file),
-  "anndata_file was not provided" = !is.null(opts$anndata_file)
+  "cell_id_file does not exist" = file.exists(opts$cell_id_file)
 )
 
 # load the bigger libraries after passing checks
@@ -111,16 +109,20 @@ colData(nbatlas_sce) <- colData(nbatlas_sce) |>
   DataFrame(row.names = rownames(colData(nbatlas_sce)))
 
 
-# export reformatted NBAtlas objects, first SCE then AnnData
-readr::write_rds(
-  nbatlas_sce,
-  opts$sce_file,
-  compress = "gz"
-)
+# export reformatted NBAtlas objects if requested
+if (!is.null(opts$sce_file)) {
+  readr::write_rds(
+    nbatlas_sce,
+    opts$sce_file,
+    compress = "gz"
+  )
+}
 
-zellkonverter::writeH5AD(
-  nbatlas_sce,
-  opts$anndata_file,
-  X_name = "counts",
-  compression = "gzip"
-)
+if (!is.null(opts$anndata_file)) {
+  zellkonverter::writeH5AD(
+    nbatlas_sce,
+    opts$anndata_file,
+    X_name = "counts",
+    compression = "gzip"
+  )
+}
