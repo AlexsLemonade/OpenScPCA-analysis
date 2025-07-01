@@ -8,28 +8,40 @@ TBD.
 
 ## Usage
 
-TBD.
+You can run this module with the `run-analysis.sh` script present in this directory:
+
+```sh
+./run-analysis.sh
+```
+
+By default, the script will use the full version of `NBAtlas` that contains all cells.
+To use the subsetted version of the atlas that contains only 50K cells, use this command:
+
+```sh
+nbatlas_version="subset" ./run-analysis.sh
+```
+
+To run with test data, use this command:
+```sh
+testing=1 ./run-analysis.sh
+```
 
 ## Input files
 
 This module requires the following input files:
 
-* The processed `SCE` and `AnnData` objects for project `SCPCP000004`
+* The processed `SCE` objects for project `SCPCP000004`
 * The merged `SCE` object for `SCPCP000004`
-* Consensus cell types for `SCPCP000004`
 
 These files can be obtained with the following code run from the root of the `OpenScPCA-analysis` repository.
 You must be logged into your AWS account to download these files.
 
 ```sh
-# Download processed SCE and AnnData objects
-./download-data.py --projects SCPCP000004 --format SCE,AnnData
+# Download processed SCE objects
+./download-data.py --projects SCPCP000004 --format SCE
 
 # Download merged SCE objects
 ./download-results.py --modules merge-sce --projects SCPCP000004
-
-# Download consensus cell types
-./download-results.py --modules cell-type-consensus --projects SCPCP000004
 ```
 
 
