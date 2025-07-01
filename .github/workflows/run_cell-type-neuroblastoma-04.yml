@@ -66,7 +66,7 @@ jobs:
 
       # Update this step as needed to download the desired data
       - name: Download test data
-        run: ./download-data.py --test-data --format SCE
+        run: ./download-data.py --test-data --projects SCPCP000004 --format SCE
 
       - name: Run analysis module
         run: |
