@@ -88,13 +88,6 @@ if (opts$separate_tumor) {
 }
 
 
-# Set aggregation settings: If the power argument is 0, aggregation won't be performed
-if (opts$aggregate_reference) {
-  aggr_power <- 0.5
-} else {
-  aggr_power <- 1
-}
-
 # Create and export an aggregated version of the reference
 nbatlas_trained <- SingleR::trainSingleR(
   ref = nbatlas_sce,
@@ -102,8 +95,7 @@ nbatlas_trained <- SingleR::trainSingleR(
   de.method = "wilcox",
   restrict = restrict_genes,
   # aggregate as specified
-  aggr.ref = TRUE,
-  aggr.args = list(power = aggr_power),
+  aggr.ref = opts$aggregate_reference,
   BPPARAM = bp_param
 )
 readr::write_rds(nbatlas_trained, opts$singler_model_file)
