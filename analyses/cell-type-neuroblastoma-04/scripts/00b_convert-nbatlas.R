@@ -2,7 +2,7 @@
 #
 # This script exports an SCE and AnnData version of a given NBAtlas Seurat object
 # We retain only the raw counts, normalized counts, and cell metadata in the converted objects
-# In additon, only cells present in the provided `cell_id_file` are included in the final objects
+# In addition, only cells present in the provided `cell_id_file` are included in the final objects
 
 library(optparse)
 
@@ -69,7 +69,6 @@ suppressPackageStartupMessages({
 set.seed(opts$seed)
 
 # read input files and determine relevant cell ids
-print("read seurat object")
 nbatlas_seurat <- readRDS(opts$nbatlas_file)
 tumor_cells <- readRDS(opts$tumor_metadata_file) |>
   rownames()
@@ -78,45 +77,49 @@ all_cell_ids <- readr::read_lines(opts$cell_id_file)
 # keep only cells that are present in in `all_ids`
 nbatlas_seurat <- subset(nbatlas_seurat, cells = all_cell_ids)
 
-print("converting nbatlas to sce using as")
-# convert Seurat to SCE object directly, to save space in the final object
-# nbatlas_sce <- SingleCellExperiment(
-#  assays = list(
-#    counts = nbatlas_seurat[["RNA"]]$counts,
-#    logcounts = nbatlas_seurat[["RNA"]]$data
-#  )
-# )
+# if testing, subset to fewer cells: keep 5% of each label
+if (opts$testing) {
+  keep_cells <- nbatlas_seurat@meta.data |>
+    tibble::rownames_to_column("cell_id") |>
+    dplyr::group_by(Cell_type) |>
+    dplyr::sample_frac(0.05) |>
+    dplyr::pull(cell_id)
+
+  nbatlas_seurat <- subset(nbatlas_seurat, cells = keep_cells)
+}
+
+# convert to SCE, using `as` to avoid CI error
+# note that Seurat gives some deprecation warnings, but this works
 nbatlas_sce <- as.SingleCellExperiment(nbatlas_seurat)
 
-print("adding in the coldata")
-# add in colData, including updated cell labels with `neuroendocrine-tumor` label for tumor cells
-colData(nbatlas_sce) <- colData(nbatlas_sce) |> # nbatlas_seurat@meta.data |>
-  as.data.frame() |>
+# remove Seurat file to save space
+rm(nbatlas_seurat)
+gc()
+
+# Update SCE innards:
+# - remove reducedDim for space
+# - add `cell_id` and `in_tumor_zoom` columns to colData
+
+reducedDim(nbatlas_sce) <- NULL
+
+as.data.frame() |>
   dplyr::mutate(
     cell_id = rownames(colData(nbatlas_sce)),
     in_tumor_zoom = cell_id %in% tumor_cells
   ) |>
   DataFrame(row.names = rownames(colData(nbatlas_sce)))
 
-# remove Seurat file to save space
-print("cleanup")
-rm(nbatlas_seurat)
-gc()
 
-
-
-# export reformatted NBAtlas objects: SCE and AnnData
-print("export sce")
+# export reformatted NBAtlas objects, first SCE then AnnData
 readr::write_rds(
   nbatlas_sce,
   opts$sce_file,
   compress = "gz"
 )
 
-# Temporary: commenting out in case this is the CI failure?
-# zellkonverter::writeH5AD(
-#  nbatlas_sce,
-#  opts$anndata_file,
-#  X_name = "counts",
-#  compression = "gzip"
-# )
+zellkonverter::writeH5AD(
+  nbatlas_sce,
+  opts$anndata_file,
+  X_name = "counts",
+  compression = "gzip"
+)
