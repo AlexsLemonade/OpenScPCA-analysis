@@ -3,8 +3,10 @@
 # This script trains a SingleR model from a given NBAtlas object
 # The script additionally requires an input SCE object to determine genes to restrict to (TODO: make this a TSV?)
 
-library(optparse)
-library(SingleCellExperiment)
+suppressPackageStartupMessages({
+  library(optparse)
+  library(SingleCellExperiment)
+})
 
 option_list <- list(
   make_option(
