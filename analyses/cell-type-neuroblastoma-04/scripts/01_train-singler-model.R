@@ -94,6 +94,8 @@ if (opts$separate_tumor) {
 nbatlas_trained <- SingleR::trainSingleR(
   ref = nbatlas_sce,
   labels = nbatlas_sce$Cell_type,
+  # note the aggregated references are also fairly sparse,
+  # so this is appropriate for either type
   de.method = "wilcox",
   restrict = restrict_genes,
   # aggregate as specified
