@@ -6,28 +6,16 @@
 #
 # ./run-analysis.sh
 #
-# By default, this will run with the full NBAtlas dataset. To use the 50k subset instead, use:
-# nbatlas_version="subset" ./run-analysis.sh
 #
 # When running in CI or with test data, use:
 # testing=1 ./run-analysis.sh
+# This will also use the NBAtlas 50K subset to speed up testing.
 
 set -euo pipefail
 
 # Ensure script is being run from its directory
 module_dir=$(dirname "${BASH_SOURCE[0]}")
 cd ${module_dir}
-
-# Define the nbatlas_version
-nbatlas_version=${nbatlas_version:-"full"}
-
-# Set up the testing flag
-testing=${testing:-0}
-if [[ $testing -eq 1 ]]; then
-    test_flag="--testing"
-else
-    test_flag=""
-fi
 
 # Define and create directories
 data_dir="../../data/current/SCPCP000004"
@@ -37,26 +25,21 @@ scratch_dir="scratch"
 mkdir -p $ref_dir
 mkdir -p $scratch_dir
 
-set -euo pipefail
-
-# Ensure script is being run from its directory
-module_dir=$(dirname "${BASH_SOURCE[0]}")
-cd ${module_dir}
-
 # Set up the testing flag
+# - If we are testing, we'll use the NBAtlas 50K subset. Otherwise, we'll use the full atlas.
+# - We'll also name the NBAtlas reference object files here with the same name as on Mendeley: https://data.mendeley.com/datasets/yhcf6787yp/3
 testing=${testing:-0}
 if [[ $testing -eq 1 ]]; then
     test_flag="--testing"
+    # subset atlas
+    nbatlas_url="https://data.mendeley.com/public-files/datasets/yhcf6787yp/files/0a569381-3a0c-4eec-863a-e20544b686ed/file_downloaded"
+    nbatlas_seurat="${scratch_dir}/SeuratObj_Share_50kSubset_NBAtlas_v20240130.rds"
 else
     test_flag=""
+     # full atlas
+    nbatlas_url="https://data.mendeley.com/public-files/datasets/yhcf6787yp/files/f5969395-5f6e-4c5d-a61a-5894773d0fee/file_downloaded"
+    nbatlas_seurat="${scratch_dir}/seuratObj_NBAtlas_share_v20241203.rds"
 fi
-
-# Define and create directories
-script_dir="scripts"
-ref_dir="references"
-scratch_dir="scratch"
-mkdir -p $ref_dir
-mkdir -p $scratch_dir
 
 nbatlas_sce="${ref_dir}/NBAtlas_${nbatlas_version}_sce.rds"
 nbatlas_anndata="${ref_dir}/NBAtlas_${nbatlas_version}_anndata.h5ad"
@@ -75,35 +58,25 @@ download_file() {
   fi
 }
 
-# Define URLs; the first 2 will always be downloaded
-nbatlas_full_url="https://data.mendeley.com/public-files/datasets/yhcf6787yp/files/f5969395-5f6e-4c5d-a61a-5894773d0fee/file_downloaded"
+# define the TumorZoom files
 nbatlas_tumor_url="https://data.mendeley.com/public-files/datasets/yhcf6787yp/files/78cad1b4-7425-4073-ba09-362ef73c9ab9/file_downloaded"
-nbatlas_subset_url="https://data.mendeley.com/public-files/datasets/yhcf6787yp/files/0a569381-3a0c-4eec-863a-e20544b686ed/file_downloaded"
-
-# Define NBAtlas reference object files with the same name as on Mendeley: https://data.mendeley.com/datasets/yhcf6787yp/3
-nbatlas_full_seurat="${scratch_dir}/seuratObj_NBAtlas_share_v20241203.rds" # this is needed regardless of which nbatlas_version was specified since we need to subset ids
 nbatlas_tumor_metadata_file="${scratch_dir}/SeuratMeta_Share_TumorZoom_NBAtlas_v20250228.rds"
 
-# Define which NBAtlas version we're actually converting, and download subset if it's that one
-if [[ $nbatlas_version == "full" ]]; then
-  nbatlas_seurat=${nbatlas_full_seurat}
-else
-  nbatlas_seurat="${scratch_dir}/SeuratObj_Share_50kSubset_NBAtlas_v20240130.rds"
-  download_file $nbatlas_subset_url $nbatlas_seurat
-fi
-
-# grab remaining downloads
-download_file $nbatlas_full_url $nbatlas_full_seurat
+# Download NBAtlas files
+download_file $nbatlas_url $nbatlas_seurat
 download_file $nbatlas_tumor_url $nbatlas_tumor_metadata_file
 
-
+#########################################################
+# TODO: This will be going away.
 # Determine the ids to retain based on the *full* atlas object
 cell_id_file="${scratch_dir}/nbatlas-cell-ids.txt.gz"
 Rscript ${script_dir}/00a_extract-nbatlas-ids.R \
-    --nbatlas_file "${nbatlas_full_seurat}" \
+    --nbatlas_file "${nbatlas_seurat}" \
     --cell_id_file "${cell_id_file}"
+#########################################################
 
-# Convert the NBAtlas object to SCE (and in the future, also to AnnData)
+# Convert the NBAtlas object to SCE
+# Temporarily we do not convert to AnnData to save time in CI before we actually get to running scArches
 Rscript ${script_dir}/00b_convert-nbatlas.R \
    --nbatlas_file "${nbatlas_seurat}" \
    --tumor_metadata_file "${nbatlas_tumor_metadata_file}" \
