@@ -138,7 +138,7 @@ for sample_dir in ${data_dir}/SCPCS*; do
 
         # Run with aggregated reference
         singler_output_file="${aggr_dir}/${singler_file_basename}"
-        Rscript ${script_dir}/02_run-singler.R \
+        Rscript ${script_dir}/02_classify-singler.R \
             --sce_file "${sce_file}" \
             --singler_model_file "${singler_model_aggregated}" \
             --singler_output_file "${singler_output_file}"
@@ -149,7 +149,7 @@ for sample_dir in ${data_dir}/SCPCS*; do
             mkdir -p $nonaggr_dir
             singler_output_file="${nonaggr_dir}/${singler_file_basename}"
 
-            Rscript ${script_dir}/02_run-singler.R \
+            Rscript ${script_dir}/02_classify-singler.R \
                 --sce_file "${sce_file}" \
                 --singler_model_file "${singler_model_not_aggregated}" \
                 --singler_output_file "{$singler_output_file}"
