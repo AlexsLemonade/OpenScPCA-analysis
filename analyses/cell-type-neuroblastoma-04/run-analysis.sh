@@ -73,25 +73,23 @@ download_file $nbatlas_tumor_url $nbatlas_tumor_metadata_file
 # TODO: This will be going away.
 # See: https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/1191
 # Determine the ids to retain based on the *full* atlas object
-# cell_id_file="${scratch_dir}/nbatlas-cell-ids.txt.gz"
-# Rscript ${script_dir}/00a_extract-nbatlas-ids.R \
-#     --nbatlas_file "${nbatlas_seurat}" \
-#     --cell_id_file "${cell_id_file}"
+cell_id_file="${scratch_dir}/nbatlas-cell-ids.txt.gz"
+Rscript ${script_dir}/00a_extract-nbatlas-ids.R \
+    --nbatlas_file "${nbatlas_seurat}" \
+    --cell_id_file "${cell_id_file}"
 #########################################################
 
 # Convert the NBAtlas object to SCE
 # Temporarily we do not convert to AnnData to save time in CI before we actually get to running scArches
 # See: https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/1190
-# Rscript ${script_dir}/00b_convert-nbatlas.R \
-#    --nbatlas_file "${nbatlas_seurat}" \
-#    --tumor_metadata_file "${nbatlas_tumor_metadata_file}" \
-#    --cell_id_file "${cell_id_file}" \
-#    --sce_file "${nbatlas_sce}" \
-#    ${test_flag}
+Rscript ${script_dir}/00b_convert-nbatlas.R \
+   --nbatlas_file "${nbatlas_seurat}" \
+   --tumor_metadata_file "${nbatlas_tumor_metadata_file}" \
+   --cell_id_file "${cell_id_file}" \
+   --sce_file "${nbatlas_sce}" \
+   ${test_flag}
 #    # For now, we will not save the AnnData object
 #    #--anndata_file "${nbatlas_anndata}"
-
-
 
 ###################################################################
 ######################## SingleR annotation #######################
