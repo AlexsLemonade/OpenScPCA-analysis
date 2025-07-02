@@ -41,8 +41,8 @@ else
     nbatlas_seurat="${scratch_dir}/seuratObj_NBAtlas_share_v20241203.rds"
 fi
 
-nbatlas_sce="${ref_dir}/NBAtlas_${nbatlas_version}_sce.rds"
-nbatlas_anndata="${ref_dir}/NBAtlas_${nbatlas_version}_anndata.h5ad"
+nbatlas_sce="${ref_dir}/NBAtlas_sce.rds"
+nbatlas_anndata="${ref_dir}/NBAtlas_anndata.h5ad"
 
 ###################################################################
 ######################## Prepare NBAtlas ##########################
