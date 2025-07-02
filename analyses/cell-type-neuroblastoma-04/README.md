@@ -14,14 +14,7 @@ You can run this module with the `run-analysis.sh` script present in this direct
 ./run-analysis.sh
 ```
 
-By default, the script will use the full version of `NBAtlas` that contains all cells.
-To use the subsetted version of the atlas that contains only 50K cells, use this command:
-
-```sh
-nbatlas_version="subset" ./run-analysis.sh
-```
-
-To run with test data, use this command:
+To run with test data and a subsetted version of NBAtlas, use this command:
 ```sh
 testing=1 ./run-analysis.sh
 ```
