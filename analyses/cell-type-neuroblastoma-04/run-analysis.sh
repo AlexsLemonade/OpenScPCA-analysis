@@ -97,8 +97,8 @@ Rscript ${script_dir}/00b_convert-nbatlas.R \
 echo "Training SingleR models"
 
 # Define SingleR models
-singler_model_aggregated="${scratch_dir}/singler-model_aggregated.rds"
-singler_model_not_aggregated="${scratch_dir}/singler-model_not-aggregated.rds"
+singler_model_aggregated="${scratch_dir}/singler-model_nbtalas_aggregated.rds"
+singler_model_not_aggregated="${scratch_dir}/singler-model_nbtalas_not-aggregated.rds"
 
 # Aggregated reference
 # Note can pass in an arbitrary SCE here for sce_file; this is just the first sample in the project
@@ -113,4 +113,3 @@ Rscript ${script_dir}/01_train-singler-model.R \
     --nbatlas_sce "${nbatlas_sce}" \
     --sce_file "${data_dir}/SCPCS000101/SCPCL000118_processed.rds" \
     --singler_model_file "${singler_model_not_aggregated}"
-
