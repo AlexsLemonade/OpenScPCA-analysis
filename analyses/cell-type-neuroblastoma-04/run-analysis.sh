@@ -68,6 +68,7 @@ download_file $nbatlas_tumor_url $nbatlas_tumor_metadata_file
 
 #########################################################
 # TODO: This will be going away.
+# See: https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/1191
 # Determine the ids to retain based on the *full* atlas object
 cell_id_file="${scratch_dir}/nbatlas-cell-ids.txt.gz"
 Rscript ${script_dir}/00a_extract-nbatlas-ids.R \
@@ -77,6 +78,7 @@ Rscript ${script_dir}/00a_extract-nbatlas-ids.R \
 
 # Convert the NBAtlas object to SCE
 # Temporarily we do not convert to AnnData to save time in CI before we actually get to running scArches
+# See: https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/1190
 Rscript ${script_dir}/00b_convert-nbatlas.R \
    --nbatlas_file "${nbatlas_seurat}" \
    --tumor_metadata_file "${nbatlas_tumor_metadata_file}" \
@@ -92,14 +94,23 @@ Rscript ${script_dir}/00b_convert-nbatlas.R \
 ######################## SingleR annotation #######################
 ###################################################################
 
-echo "Training SingleR model"
+echo "Training SingleR models"
 
-# Train the SingleR model with an aggregated reference
-singler_model_file="${scratch_dir}/singler-model_aggregated_nbatlas-${nbatlas_version}.rds"
+# Define SingleR models
+singler_model_aggregated="${scratch_dir}/singler-model_aggregated.rds"
+singler_model_not_aggregated="${scratch_dir}/singler-model_not-aggregated.rds"
 
-# can pass in an arbitrary SCE here for sce_file; this is just the first sample in the project
+# Aggregated reference
+# Note can pass in an arbitrary SCE here for sce_file; this is just the first sample in the project
 Rscript ${script_dir}/01_train-singler-model.R \
     --nbatlas_sce "${nbatlas_sce}" \
     --sce_file "${data_dir}/SCPCS000101/SCPCL000118_processed.rds" \
-    --singler_model_file "${singler_model_file}" \
+    --singler_model_file "${singler_model_aggregated}" \
     --aggregate_reference
+
+# Non-aggregated reference
+Rscript ${script_dir}/01_train-singler-model.R \
+    --nbatlas_sce "${nbatlas_sce}" \
+    --sce_file "${data_dir}/SCPCS000101/SCPCL000118_processed.rds" \
+    --singler_model_file "${singler_model_not_aggregated}"
+
