@@ -64,9 +64,12 @@ jobs:
         with:
           working-directory: ${{ env.MODULE_PATH }}
 
-      # Update this step as needed to download the desired data
       - name: Download test data
-        run: ./download-data.py --test-data --projects SCPCP000004 --format SCE
+        env:
+          # Use the full project for testing unless this is triggered by a PR, in which case only use a subset of samples for faster testing
+          data: ${{ github.event_name != 'pull_request' && '--project SCPCP000004' || '--samples SCPCS000101,SCPCS000102,SCPCS000103' }}
+        run: |
+          ./download-data.py --test-data --format SCE ${data}
 
       - name: Run analysis module
         run: |
