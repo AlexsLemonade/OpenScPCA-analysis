@@ -2,7 +2,7 @@
 #
 # This script exports an SCE and AnnData version of a given NBAtlas Seurat object
 # We retain only the raw counts, normalized counts, and cell metadata in the converted objects
-# In additon, only cells present in the provided `cell_id_file` are included in the final objects
+# In addition, only cells present in the provided `cell_id_file` are included in the final objects
 
 library(optparse)
 
@@ -23,17 +23,17 @@ option_list <- list(
     opt_str = c("--cell_id_file"),
     type = "character",
     default = "",
-    help = "Path to text file with cell ids present in the full atlas dated `20241203`. Any cell ids not present in this list will be excluded from the converted reference.."
+    help = "Path to text file with cell ids present in the full atlas dated `20241203`. Any cell ids not present in this list will be excluded from the converted reference."
   ),
   make_option(
     opt_str = c("--sce_file"),
     type = "character",
-    help = "Path to output RDS file to hold an SCE version of the NBAtlas object"
+    help = "Path to output RDS file to hold an SCE version of the NBAtlas object. If not provided, the SCE object will not be saved."
   ),
   make_option(
     opt_str = c("--anndata_file"),
     type = "character",
-    help = "Path to output H5AD file to hold an AnnData version of the NBAtlas object"
+    help = "Path to output H5AD file to hold an AnnData version of the NBAtlas object. If not provided, the AnnData object will not be saved."
   ),
   make_option(
     opt_str = c("--testing"),
@@ -55,9 +55,7 @@ opts <- parse_args(OptionParser(option_list = option_list))
 stopifnot(
   "nbatlas_file does not exist" = file.exists(opts$nbatlas_file),
   "tumor_metadata_file does not exist" = file.exists(opts$tumor_metadata_file),
-  "cell_id_file does not exist" = file.exists(opts$cell_id_file),
-  "sce_file was not provided" = !is.null(opts$sce_file),
-  "anndata_file was not provided" = !is.null(opts$anndata_file)
+  "cell_id_file does not exist" = file.exists(opts$cell_id_file)
 )
 
 # load the bigger libraries after passing checks
@@ -77,51 +75,54 @@ all_cell_ids <- readr::read_lines(opts$cell_id_file)
 # keep only cells that are present in in `all_ids`
 nbatlas_seurat <- subset(nbatlas_seurat, cells = all_cell_ids)
 
-# convert Seurat to SCE object directly, to save space in the final object
-nbatlas_sce <- SingleCellExperiment(
-  assays = list(
-    counts = nbatlas_seurat[["RNA"]]$counts,
-    logcounts = nbatlas_seurat[["RNA"]]$data
-  )
-)
+# if testing, subset to fewer cells: keep 5% of each label
+if (opts$testing) {
+  keep_cells <- nbatlas_seurat@meta.data |>
+    tibble::rownames_to_column("cell_id") |>
+    dplyr::group_by(Cell_type) |>
+    dplyr::sample_frac(0.05) |>
+    dplyr::pull(cell_id)
 
-# add in colData, including updated cell labels with `neuroendocrine-tumor` label for tumor cells
-colData(nbatlas_sce) <- nbatlas_seurat@meta.data |>
-  dplyr::mutate(
-    cell_id = rownames(colData(nbatlas_sce)),
-    NBAtlas_label = ifelse(
-      cell_id %in% tumor_cells,
-      "Neuroendocrine-tumor",
-      Cell_type
-    )
-  ) |>
-  DataFrame(row.names = rownames(colData(nbatlas_sce)))
+  nbatlas_seurat <- subset(nbatlas_seurat, cells = keep_cells)
+}
+
+# convert to SCE, using `as` to avoid CI error
+# note that Seurat gives some deprecation warnings, but this works
+nbatlas_sce <- as.SingleCellExperiment(nbatlas_seurat)
 
 # remove Seurat file to save space
 rm(nbatlas_seurat)
 gc()
 
-# if testing, subset the SCE to fewer cells: keep 5% of each label
-if (opts$testing) {
-  keep_cells <- colData(nbatlas_sce) |>
-    as.data.frame() |>
-    dplyr::group_by(NBAtlas_label) |>
-    dplyr::sample_frac(0.05) |>
-    dplyr::pull(cell_id)
+# Update SCE innards:
+# - remove reducedDim for space
+# - add `cell_id` and `in_tumor_zoom` columns to colData
 
-  nbatlas_sce <- nbatlas_sce[, keep_cells]
+reducedDim(nbatlas_sce) <- NULL
+
+colData(nbatlas_sce) <- colData(nbatlas_sce) |>
+  as.data.frame() |>
+  dplyr::mutate(
+    cell_id = rownames(colData(nbatlas_sce)),
+    in_tumor_zoom = cell_id %in% tumor_cells
+  ) |>
+  DataFrame(row.names = rownames(colData(nbatlas_sce)))
+
+
+# export reformatted NBAtlas objects if requested
+if (!is.null(opts$sce_file)) {
+  readr::write_rds(
+    nbatlas_sce,
+    opts$sce_file,
+    compress = "gz"
+  )
 }
 
-# export reformatted NBAtlas objects: SCE and AnnData
-readr::write_rds(
-  nbatlas_sce,
-  opts$sce_file,
-  compress = "gz"
-)
-
-zellkonverter::writeH5AD(
-  nbatlas_sce,
-  opts$anndata_file,
-  X_name = "counts",
-  compression = "gzip"
-)
+if (!is.null(opts$anndata_file)) {
+  zellkonverter::writeH5AD(
+    nbatlas_sce,
+    opts$anndata_file,
+    X_name = "counts",
+    compression = "gzip"
+  )
+}
