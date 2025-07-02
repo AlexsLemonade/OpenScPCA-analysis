@@ -8,8 +8,8 @@ output:
     toc_depth: 3
     code_folding: hide
 params:
-  sample_id: "SCPCS000105"
-  library_id: "SCPCL000122"
+  sample_id: "SCPCS000109"
+  library_id: "SCPCL000126"
 ---
 
 This notebook does some preliminary comparisons of `SingleR` results obtained with the NBAtlas reference, where the reference was either aggregated before training or not.
@@ -153,7 +153,7 @@ plot_delta_median <- function(df, agree_barcodes, plot_title) {
 
 ### Prepare input data
 
-Read SCE object so we can get UMAP and consensus cell types:
+Read SCE object so we can get consensus cell types:
 
 ```{r}
 sce_file <- file.path(
@@ -162,14 +162,12 @@ sce_file <- file.path(
   glue::glue("{params$library_id}_processed.rds")
 )
 
-sce_df <- readRDS(sce_file) |>
-  scuttle::makePerCellDF() |>
+celltype_df <- readRDS(sce_file) |>
+  colData() |>
   tibble::as_tibble() |>
   dplyr::select(
     barcodes,
-    consensus_annotation = consensus_celltype_annotation,
-    UMAP1 = UMAP.1,
-    UMAP2 = UMAP.2
+    consensus_annotation = consensus_celltype_annotation
   )
 ```
 
@@ -212,7 +210,7 @@ singler_df <- data.frame(
   "not_aggregated" = non_aggr$pruned.labels
 )
 
-sce_df <- sce_df |>
+celltype_df <- celltype_df |>
   dplyr::left_join(singler_df, by = "barcodes") |>
   dplyr::left_join(validation_df, by = "consensus_annotation") |>
   # set validation NA -> Unknown
@@ -253,8 +251,8 @@ agree_barcodes <- singler_df |>
   dplyr::pull(barcodes)
 
 plot_delta_median(aggr, agree_barcodes, plot_title = "Aggregated delta_median") +
-  plot_delta_median(non_aggr, agree_barcodes, plot_title = "Non-aggregated delta_median") &
-  theme(legend.position = "none")
+  plot_delta_median(non_aggr, agree_barcodes, plot_title = "Non-aggregated delta_median") +
+  plot_layout(guides = "collect") & theme(legend.position = "bottom")
 ```
 
 ### Confusion matrix metrics
@@ -263,7 +261,7 @@ Here are metrics from a confusion matrix comparing these annotations:
 
 ```{r}
 calculate_confusion(
-  sce_df,
+  celltype_df,
   "aggregated",
   "not_aggregated"
 )
@@ -273,9 +271,9 @@ calculate_confusion(
 
 This heatmap compares annotations between aggregated and non-aggregated directly:
 
-```{r, fig.height = 8}
+```{r, fig.height = 8, fig.width = 8}
 make_jaccard_heatmap(
-  sce_df,
+  celltype_df,
   "aggregated",
   "not_aggregated",
   "Aggregated labels",
@@ -289,10 +287,10 @@ make_jaccard_heatmap(
 This heatmap compares annotations between `SingleR` inference using the aggregated reference and consensus cell types.
 The broader validation grouping for consensus cell types is used to keep the plot manageable.
 
-```{r, fig.height = 10}
+```{r, fig.height = 8, fig.width = 8}
 make_jaccard_heatmap(
-  sce_df,
-  "consensus_annotation",
+  celltype_df,
+  "validation_group_annotation",
   "aggregated",
   "OpenScPCA Consensus cell type validation group",
   "Aggregated labels"
@@ -307,10 +305,10 @@ make_jaccard_heatmap(
 This heatmap compares annotations between `SingleR` inference using the non-aggregated reference and consensus cell types.
 The broader validation grouping for consensus cell types is used to keep the plot manageable.
 
-```{r, fig.height = 10}
+```{r,fig.height = 8, fig.width = 8}
 make_jaccard_heatmap(
-  sce_df,
-  "consensus_annotation",
+  celltype_df,
+  "validation_group_annotation",
   "not_aggregated",
   "OpenScPCA Consensus cell type validation group",
   "Non-aggregated labels"
