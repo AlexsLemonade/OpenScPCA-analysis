@@ -22,8 +22,11 @@ data_dir="../../data/current/SCPCP000004"
 script_dir="scripts"
 ref_dir="references"
 scratch_dir="scratch"
+results_dir="results"
+singler_results_dir="${results_dir}/singler"
 mkdir -p $ref_dir
 mkdir -p $scratch_dir
+mkdir -p $singler_results_dir
 
 # Set up the testing flag
 # - If we are testing, we'll use the NBAtlas 50K subset. Otherwise, we'll use the full atlas.
@@ -70,23 +73,23 @@ download_file $nbatlas_tumor_url $nbatlas_tumor_metadata_file
 # TODO: This will be going away.
 # See: https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/1191
 # Determine the ids to retain based on the *full* atlas object
-cell_id_file="${scratch_dir}/nbatlas-cell-ids.txt.gz"
-Rscript ${script_dir}/00a_extract-nbatlas-ids.R \
-    --nbatlas_file "${nbatlas_seurat}" \
-    --cell_id_file "${cell_id_file}"
+# cell_id_file="${scratch_dir}/nbatlas-cell-ids.txt.gz"
+# Rscript ${script_dir}/00a_extract-nbatlas-ids.R \
+#     --nbatlas_file "${nbatlas_seurat}" \
+#     --cell_id_file "${cell_id_file}"
 #########################################################
 
 # Convert the NBAtlas object to SCE
 # Temporarily we do not convert to AnnData to save time in CI before we actually get to running scArches
 # See: https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/1190
-Rscript ${script_dir}/00b_convert-nbatlas.R \
-   --nbatlas_file "${nbatlas_seurat}" \
-   --tumor_metadata_file "${nbatlas_tumor_metadata_file}" \
-   --cell_id_file "${cell_id_file}" \
-   --sce_file "${nbatlas_sce}" \
-   ${test_flag}
-   # For now, we will not save the AnnData object
-   #--anndata_file "${nbatlas_anndata}"
+# Rscript ${script_dir}/00b_convert-nbatlas.R \
+#    --nbatlas_file "${nbatlas_seurat}" \
+#    --tumor_metadata_file "${nbatlas_tumor_metadata_file}" \
+#    --cell_id_file "${cell_id_file}" \
+#    --sce_file "${nbatlas_sce}" \
+#    ${test_flag}
+#    # For now, we will not save the AnnData object
+#    #--anndata_file "${nbatlas_anndata}"
 
 
 
@@ -94,13 +97,10 @@ Rscript ${script_dir}/00b_convert-nbatlas.R \
 ######################## SingleR annotation #######################
 ###################################################################
 
-echo "Training SingleR models"
 
-# Define SingleR models
-singler_model_aggregated="${scratch_dir}/singler-model_nbtalas_aggregated.rds"
-singler_model_not_aggregated="${scratch_dir}/singler-model_nbtalas_not-aggregated.rds"
+# Train the model with an aggregated NBAtlas reference
+singler_model_aggregated="${scratch_dir}/singler-model_nbatlas_aggregated.rds"
 
-# Aggregated reference
 # Note can pass in an arbitrary SCE here for sce_file; this is just the first sample in the project
 Rscript ${script_dir}/01_train-singler-model.R \
     --nbatlas_sce "${nbatlas_sce}" \
@@ -108,8 +108,52 @@ Rscript ${script_dir}/01_train-singler-model.R \
     --singler_model_file "${singler_model_aggregated}" \
     --aggregate_reference
 
-# Non-aggregated reference
-Rscript ${script_dir}/01_train-singler-model.R \
-    --nbatlas_sce "${nbatlas_sce}" \
-    --sce_file "${data_dir}/SCPCS000101/SCPCL000118_processed.rds" \
-    --singler_model_file "${singler_model_not_aggregated}"
+# If we are _not_ testing, we'll also train a model with a non-aggregated reference
+if [[ $testing == 0 ]]; then
+    singler_model_not_aggregated="${scratch_dir}/singler-model_nbatlas_not-aggregated.rds"
+
+    Rscript ${script_dir}/01_train-singler-model.R \
+        --nbatlas_sce "${nbatlas_sce}" \
+        --sce_file "${data_dir}/SCPCS000101/SCPCL000118_processed.rds" \
+        --singler_model_file "${singler_model_not_aggregated}"
+fi
+
+# Run SingleR on all samples in the project
+for sample_dir in ${data_dir}/SCPCS*; do
+
+    # grab sample id
+    sample_id=$(basename $sample_dir)
+
+    # define sample output folder
+    sample_results_dir="${singler_results_dir}/${sample_id}"
+
+    for sce_file in $sample_dir/*_processed.rds; do
+
+        # define library ID
+        library_id=$(basename $sce_file | sed 's/_processed.rds$//')
+        singler_file_basename="${library_id}_singler-annotations.tsv"
+
+        aggr_dir=${sample_results_dir}/aggregated
+        mkdir -p $aggr_dir
+
+        # Run with aggregated reference
+        singler_output_file="${aggr_dir}/${singler_file_basename}"
+        Rscript ${script_dir}/02_run-singler.R \
+            --sce_file "${sce_file}" \
+            --singler_model_file "${singler_model_aggregated}" \
+            --singler_output_file "${singler_output_file}"
+
+        # If _not_ testing, also run with non-aggregated reference
+        if [[ $testing == 0 ]]; then
+            nonaggr_dir=${sample_results_dir}/non-aggregated
+            mkdir -p $nonaggr_dir
+            singler_output_file="${nonaggr_dir}/${singler_file_basename}"
+
+            Rscript ${script_dir}/02_run-singler.R \
+                --sce_file "${sce_file}" \
+                --singler_model_file "${singler_model_not_aggregated}" \
+                --singler_output_file "{$singler_output_file}"
+        fi
+
+    done
+done
