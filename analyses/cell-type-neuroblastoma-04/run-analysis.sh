@@ -127,9 +127,8 @@ for sample_dir in ${data_dir}/SCPCS*; do
 
     for sce_file in $sample_dir/*_processed.rds; do
 
-        # define library ID
         library_id=$(basename $sce_file | sed 's/_processed.rds$//')
-        singler_file_basename="${library_id}_singler-annotations.tsv"
+        singler_file_basename="${library_id}_singler-annotations.rds"
 
         aggr_dir=${sample_results_dir}/aggregated
         mkdir -p $aggr_dir
