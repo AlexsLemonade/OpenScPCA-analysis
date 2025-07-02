@@ -1,5 +1,6 @@
-# Results directory instructions
+# Results directory
 
-Files in the results directory should not be directly committed to the repository.
+## SingleR Results
 
-Instead, copy results files to an S3 bucket and add a link to the S3 location in this README file.
+The `singler` directory contains RDS files, organized by sample, with results from running `SingleR`.
+Directories indicate whether the annotation was performed with an `aggregated` or `non-aggregated` NBAtlas reference object.
