@@ -13,13 +13,13 @@
 # - `aggregate_singler` (Default value: 1)
 #   - Use `aggregate_singler=0` to turn off reference aggregation before SingleR model training
 #   - Example usage: aggregate_singler=0 ./run-analysis.sh
-# - `threads` (Default value: 4)
-#   - Use `threads=X` to specify a different number of threads
-#   - Example usage: threads=2 ./run-analysis.sh # to request 2 threads
 # - `sample_ids` (Default value: "all")
 #   - By default, all samples in SCPCP000004 are processed. Specify a set of ids to only run a subset, which
 #     may be helpful in certain exploratory runs
 #   - Example usage: sample_ids="SCPCS000101 SCPCS000102" ./run-analysis.sh # to run only `SCPCS000101` and `SCPCS000102`
+# - `threads` (Default value: 4)
+#   - Use `threads=X` to specify a different number of threads
+#   - Example usage: threads=2 ./run-analysis.sh # to request 2 threads
 
 set -euo pipefail
 
@@ -43,10 +43,13 @@ mkdir -p $singler_results_dir
 ######################## Set up variables #########################
 ###################################################################
 
+# Define argument defaults
+testing=${testing:-0} # default is not testing
+aggregate_singler=${aggregate_singler:-1} # default is to perform aggregation
+sample_ids=${sample_ids:-"all"} # default is to run all samples
 threads=${threads:-4} # default 4 threads
-aggregate_singler=${aggregate_singler:-1} # default perform aggregation
 
-# Set up the singler aggregation accordingly
+# Set up singler aggregation
 if [[ $aggregate_singler -eq 1 ]]; then
     aggregate_flag="--aggregate_reference"
     singler_aggregate_type="aggregated" # sub-directory where results will be saved
@@ -56,11 +59,10 @@ else
 fi
 singler_model_file="${scratch_dir}/singler-model_nbatlas_${singler_aggregate_type}.rds"
 
-# Set up the testing flag:
+# Set up the testing flag and data
 # - If we are testing, we'll use the NBAtlas 50K subset. Otherwise, we'll use the full atlas.
 # - We'll also name the NBAtlas reference object files here with the same name as on Mendeley:
 #   https://data.mendeley.com/datasets/yhcf6787yp/3
-testing=${testing:-0}
 if [[ $testing -eq 1 ]]; then
     test_flag="--testing"
     # subset atlas
