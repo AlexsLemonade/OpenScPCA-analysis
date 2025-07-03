@@ -59,12 +59,29 @@ else
     nbatlas_seurat="${scratch_dir}/seuratObj_NBAtlas_share_v20241203.rds"
 fi
 
-nbatlas_sce="${ref_dir}/NBAtlas_sce.rds"
-nbatlas_anndata="${ref_dir}/NBAtlas_anndata.h5ad"
+# Set up `run_sample_ids` and check that all sample_ids exist
+sample_ids=${sample_ids:-"all"}
+if [[ $sample_ids == "all" ]]; then
+    run_sample_ids=$(basename -a ${data_dir}/SCPCS*)
+else
+    run_sample_ids=($sample_ids)
+    for sample_id in "${run_sample_ids[@]}"; do
+        if [[ ! -d ${data_dir}/$sample_id ]]; then
+            echo "Provided sample_id ${sample_id} isn't available for SCPCP000004."
+            echo "Please check for typos or download relevant samples."
+            echo "Exiting..."
+            exit 1
+        fi
+    done
+fi
 
 ###################################################################
 ######################## Prepare NBAtlas ##########################
 ###################################################################
+
+# Define the NBAtlas Seurat and AnnData files
+nbatlas_sce="${ref_dir}/NBAtlas_sce.rds"
+nbatlas_anndata="${ref_dir}/NBAtlas_anndata.h5ad"
 
 # First, download the NBAtlas Seurat objects from Mendeley with a helper function
 # This function takes two arguments in order, the URL and the filename to save to
