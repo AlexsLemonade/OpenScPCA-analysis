@@ -8,8 +8,8 @@ output:
     toc_depth: 3
     code_folding: hide
 params:
-  sample_id: "SCPCS000109"
-  library_id: "SCPCL000126"
+  sample_id: "SCPCS000105"
+  library_id: "SCPCL000122"
 ---
 
 This notebook does some preliminary comparisons of `SingleR` results obtained with the NBAtlas reference, where the reference was either aggregated before training or not.
@@ -46,7 +46,11 @@ module_dir <- file.path(repository_base, "analyses", "cell-type-neuroblastoma-04
 results_dir <- file.path(module_dir, "results", "singler")
 data_dir <- file.path(repository_base, "data", "current", "SCPCP000004")
 
+# broad consensus cell type groups
 validation_url <- "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/consensus-validation-groups.tsv"
+
+# umap colors
+palette_url <- "https://raw.githubusercontent.com/AlexsLemonade/scpca-paper-figures/refs/heads/main/palettes/validation-group-palette.tsv"
 ```
 
 ### Functions
@@ -141,6 +145,8 @@ Read cell type data frames:
 validation_df <- readr::read_tsv(validation_url) |>
   dplyr::select(consensus_annotation, validation_group_annotation)
 
+palette_df <- readr::read_tsv(palette_url) # umap plotting later
+
 aggr <- readr::read_rds(
   file.path(
     results_dir,
@@ -163,7 +169,7 @@ non_aggr <- readr::read_rds(
 ) |>
   as.data.frame() |>
   tibble::rownames_to_column("barcodes") |>
-  dplyr::mutate(ref_type = "not-aggregated")
+  dplyr::mutate(ref_type = "non-aggregated")
 ```
 
 Join and prepare data for use:
@@ -175,13 +181,13 @@ singler_df <- data.frame(
   "not_aggregated" = non_aggr$pruned.labels
 )
 
-celltype_df <- celltype_df |>
+celltype_df <- sce_df |>
   dplyr::left_join(singler_df, by = "barcodes") |>
   dplyr::left_join(validation_df, by = "consensus_annotation") |>
-  # set validation NA -> Unknown
+  # set validation NA -> unknown
   dplyr::mutate(
     validation_group_annotation =
-      ifelse(is.na(validation_group_annotation), "Unknown", validation_group_annotation)
+      ifelse(is.na(validation_group_annotation), "unknown", validation_group_annotation)
   )
 ```
 
@@ -280,6 +286,89 @@ make_jaccard_heatmap(
 )
 ```
 
+## UMAPs
+
+Below, we show the UMAPs colored by cell types for each of aggregated, non-aggregated, and consensus (again, using the validation groupings for plot visibility).
+
+Before plotting cell type labels were harmonized to the extent possible to that `NBAtlas` labels matched the corresponding consensus cell type labels (e.g., `Fibroblast` -> `fibroblast` or `Endothelial` -> `endothelial cell`).
+Cell types which not literally just spelling variants were left alone.
+
+The UMAP therefore has one overall legend for all possible cell types, so colors are directly comparable across panels.
+The specific cell types that are part of either refernce are printed below.
+
+```{r}
+# Recode NBAtlas cell types where possible so they match with colors
+celltype_recoded_df <- celltype_df |>
+  dplyr::select(-consensus_annotation) |>
+  # pivot longer for wrangling first
+  tidyr::pivot_longer(
+    c(validation_group_annotation, aggregated, not_aggregated),
+    names_to = "annotation_type",
+    values_to = "label"
+  ) |>
+  dplyr::mutate(
+    label_recoded = dplyr::case_when(
+      # nbatlas ~ consensus
+      label %in% c("Myeloid", "Fibroblast") ~ stringr::str_to_lower(label),
+      label == "Endothelial" ~ "endothelial cell",
+      label == "Plasma" ~ "plasma cell",
+      label == "NK cell" ~ "natural killer cell",
+      is.na(label) ~ "unknown",
+      .default = label
+    )
+  )
+
+# Recode some existing colors we don't need
+palette_df <- palette_df |>
+  dplyr::mutate(
+    label_recoded = dplyr::case_when(
+      validation_group_annotation == "hematopoietic precursor cell" ~ "Neuroendocrine",
+      validation_group_annotation == "muscle cell" ~ "RBCs",
+      validation_group_annotation == "adipocyte" ~ "Schwann",
+      validation_group_annotation == "pericyte" ~ "pDC",
+      validation_group_annotation == "innate lymphoid cell" ~ "Stromal other",
+      .default = validation_group_annotation
+    )
+  ) |>
+  dplyr::filter(label_recoded %in% unique(celltype_recoded_df$label_recoded))
+
+# Define palette
+pal <- palette_df$color
+names(pal) <- palette_df$label_recoded
+```
+
+
+```{r, fig.width = 12}
+ggplot(celltype_recoded_df) +
+  aes(x = UMAP1, y = UMAP2, color = label_recoded) +
+  geom_point(alpha = 0.6, size = 0.5) +
+  scale_color_manual(values = pal) +
+  facet_wrap(vars(annotation_type)) +
+  coord_equal() +
+  theme(
+    axis.ticks = element_blank(),
+    axis.text = element_blank(),
+    legend.position = "bottom"
+  ) +
+  guides(color = guide_legend(override.aes = list(size = 2, alpha = 1)))
+```
+Cell types that are part of `NBAtlas` include:
+
+```{r}
+celltype_recoded_df |>
+  dplyr::filter(annotation_type != "validation_group_annotation") |>
+  dplyr::pull(label_recoded) |>
+  unique()
+```
+
+Cell types that are part of consensus labels include:
+
+```{r}
+celltype_recoded_df |>
+  dplyr::filter(annotation_type == "validation_group_annotation") |>
+  dplyr::pull(label_recoded) |>
+  unique()
+```
 
 ## Session Info
 
