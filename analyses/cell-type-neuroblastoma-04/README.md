@@ -19,6 +19,13 @@ To run with test data and a subsetted version of NBAtlas, use this command:
 testing=1 ./run-analysis.sh
 ```
 
+By default, this script uses the following settings:
+* Performs reference aggregation before training the SingleR model
+* Runs on all samples in the project (vs a designated subset)
+* Uses 4 threads
+
+See documentation in the script for how to modify these settings.
+
 ## Input files
 
 This module requires the following input files:
