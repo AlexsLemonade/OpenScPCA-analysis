@@ -49,13 +49,12 @@ aggregate_singler=${aggregate_singler:-1} # default perform aggregation
 # Set up the singler aggregation accordingly
 if [[ $aggregate_singler -eq 1 ]]; then
     aggregate_flag="--aggregate_reference"
-    singler_model_file="${scratch_dir}/singler-model_nbatlas_aggregated.rds"
     singler_aggregate_type="aggregated" # sub-directory where results will be saved
 else
     aggregate_flag=""
-    singler_model_file="${scratch_dir}/singler-model_nbatlas_not-aggregated.rds"
     singler_aggregate_type="not-aggregated"
 fi
+singler_model_file="${scratch_dir}/singler-model_nbatlas_${singler_aggregate_type}.rds"
 
 # Set up the testing flag:
 # - If we are testing, we'll use the NBAtlas 50K subset. Otherwise, we'll use the full atlas.
