@@ -126,12 +126,13 @@ sce_file <- file.path(
   glue::glue("{params$library_id}_processed.rds")
 )
 
-celltype_df <- readRDS(sce_file) |>
-  colData() |>
-  tibble::as_tibble() |>
+sce_df <- readRDS(sce_file) |>
+  scuttle::makePerCellDF() |>
   dplyr::select(
     barcodes,
-    consensus_annotation = consensus_celltype_annotation
+    consensus_annotation = consensus_celltype_annotation,
+    UMAP1 = UMAP.1,
+    UMAP2 = UMAP.2
   )
 ```
 
@@ -145,7 +146,7 @@ aggr <- readr::read_rds(
     results_dir,
     params$sample_id,
     "aggregated",
-    glue::glue("{params$library_id}_singler-annotations.rds")
+    glue::glue("{params$library_id}_singler-result.rds")
   )
 ) |>
   as.data.frame() |>
@@ -156,13 +157,13 @@ non_aggr <- readr::read_rds(
   file.path(
     results_dir,
     params$sample_id,
-    "non-aggregated",
-    glue::glue("{params$library_id}_singler-annotations.rds")
+    "not-aggregated",
+    glue::glue("{params$library_id}_singler-result.rds")
   )
 ) |>
   as.data.frame() |>
   tibble::rownames_to_column("barcodes") |>
-  dplyr::mutate(ref_type = "non-aggregated")
+  dplyr::mutate(ref_type = "not-aggregated")
 ```
 
 Join and prepare data for use:
