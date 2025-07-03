@@ -77,42 +77,6 @@ calculate_confusion <- function(
   )
 }
 
-
-# This function calculates Jaccard similarity between two vectors and plots a heatmap
-# Code is based on this scpca-nf code:
-# https://github.com/AlexsLemonade/scpca-nf/blob/4bb82aa635b572a62f2028dbec587fcfd2155e26/templates/qc_report/celltypes_supplemental_report.rmd#L50
-#
-# df: data frame with columns of interest
-# annotation_col1: first column to compare; arg should be a string
-# annotation_col2: second column to compare; arg should be a string
-# label1: label to use in heatmap for annotation_col1 axis
-# label2: label to use in heatmap for annotation_col2 axis
-make_jaccard_heatmap <- function(
-    df,
-    annotation_col1,
-    annotation_col2,
-    label1,
-    label2) {
-  # Calculate jaccard matrix
-  jaccard_matrix <- make_jaccard_matrix(
-    df,
-    annotation_col1,
-    annotation_col2
-  )
-
-  create_single_heatmap(
-    jaccard_matrix,
-    row_title = label2,
-    column_title = label1,
-    keep_legend_name = label2,
-    col_fun = heatmap_col_fun,
-    # additional arguments
-    column_names_rot = 90
-  ) |>
-    ComplexHeatmap::draw(heatmap_legend_side = "bottom")
-}
-
-
 # This function calculates and plots delta median for two groups of barcodes: those in agree and those not
 # This code is based on this scpca-nf code:
 # https://github.com/AlexsLemonade/scpca-nf/blob/4bb82aa635b572a62f2028dbec587fcfd2155e26/templates/qc_report/celltypes_supplemental_report.rmd#L626
