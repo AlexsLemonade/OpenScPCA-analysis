@@ -28,9 +28,23 @@ mkdir -p $ref_dir
 mkdir -p $scratch_dir
 mkdir -p $singler_results_dir
 
+aggregate_singler=${aggregate_singler:-1} # default perform aggregation
+
+# Set up the singler aggregation accordingly
+if [[ $aggregate_singler -eq 1 ]]; then
+    aggregate_flag="--aggregate_reference"
+    singler_model_file="${scratch_dir}/singler-model_nbatlas_aggregated.rds"
+    singler_aggregate_type="aggregated" # sub-directory where results will be saved
+else
+    aggregate_flag=""
+    singler_model_file="${scratch_dir}/singler-model_nbatlas_not-aggregated.rds"
+    singler_aggregate_type="not-aggregated"
+fi
+
 # Set up the testing flag
 # - If we are testing, we'll use the NBAtlas 50K subset. Otherwise, we'll use the full atlas.
-# - We'll also name the NBAtlas reference object files here with the same name as on Mendeley: https://data.mendeley.com/datasets/yhcf6787yp/3
+# - We'll also name the NBAtlas reference object files here with the same name as on Mendeley:
+#   https://data.mendeley.com/datasets/yhcf6787yp/3
 testing=${testing:-0}
 if [[ $testing -eq 1 ]]; then
     test_flag="--testing"
@@ -95,26 +109,14 @@ Rscript ${script_dir}/00b_convert-nbatlas.R \
 ######################## SingleR annotation #######################
 ###################################################################
 
-
-# Train the model with an aggregated NBAtlas reference
-singler_model_aggregated="${scratch_dir}/singler-model_nbatlas_aggregated.rds"
-
 # Note can pass in an arbitrary SCE here for sce_file; this is just the first sample in the project
 Rscript ${script_dir}/01_train-singler-model.R \
     --nbatlas_sce "${nbatlas_sce}" \
     --sce_file "${data_dir}/SCPCS000101/SCPCL000118_processed.rds" \
-    --singler_model_file "${singler_model_aggregated}" \
-    --aggregate_reference
+    --singler_model_file "${singler_model_file}" \
+    --threads $threads \
+    ${aggregate_flag}
 
-# If we are _not_ testing, we'll also train a model with a non-aggregated reference
-if [[ $testing == 0 ]]; then
-    singler_model_not_aggregated="${scratch_dir}/singler-model_nbatlas_not-aggregated.rds"
-
-    Rscript ${script_dir}/01_train-singler-model.R \
-        --nbatlas_sce "${nbatlas_sce}" \
-        --sce_file "${data_dir}/SCPCS000101/SCPCL000118_processed.rds" \
-        --singler_model_file "${singler_model_not_aggregated}"
-fi
 
 # Run SingleR on all samples in the project
 for sample_dir in ${data_dir}/SCPCS*; do
@@ -123,34 +125,22 @@ for sample_dir in ${data_dir}/SCPCS*; do
     sample_id=$(basename $sample_dir)
 
     # define sample output folder
-    sample_results_dir="${singler_results_dir}/${sample_id}"
+    sample_results_dir="${singler_results_dir}/${sample_id}/${singler_aggregate_type}"
+    mkdir -p $sample_results_dir
 
     for sce_file in $sample_dir/*_processed.rds; do
 
         library_id=$(basename $sce_file | sed 's/_processed.rds$//')
         singler_file_basename="${library_id}_singler-annotations.rds"
 
-        aggr_dir=${sample_results_dir}/aggregated
-        mkdir -p $aggr_dir
+        singler_output_tsv="${sample_results_dir}/${library_id}_singler-annotations.tsv"
+        singler_output_rds="${sample_results_dir}/${library_id}_singler-result.rds"
 
-        # Run with aggregated reference
-        singler_output_file="${aggr_dir}/${singler_file_basename}"
         Rscript ${script_dir}/02_classify-singler.R \
             --sce_file "${sce_file}" \
-            --singler_model_file "${singler_model_aggregated}" \
-            --singler_output_file "${singler_output_file}"
-
-        # If _not_ testing, also run with non-aggregated reference
-        if [[ $testing == 0 ]]; then
-            nonaggr_dir=${sample_results_dir}/non-aggregated
-            mkdir -p $nonaggr_dir
-            singler_output_file="${nonaggr_dir}/${singler_file_basename}"
-
-            Rscript ${script_dir}/02_classify-singler.R \
-                --sce_file "${sce_file}" \
-                --singler_model_file "${singler_model_not_aggregated}" \
-                --singler_output_file "{$singler_output_file}"
-        fi
+            --singler_model_file "${singler_model_file}" \
+            --singler_output_tsv "${singler_output_tsv}" \
+            --singler_output_rds "${singler_output_rds}"
 
     done
 done
