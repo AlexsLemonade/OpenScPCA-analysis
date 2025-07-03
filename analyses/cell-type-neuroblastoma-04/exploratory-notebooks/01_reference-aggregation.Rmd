@@ -8,8 +8,8 @@ output:
     toc_depth: 3
     code_folding: hide
 params:
-  sample_id: "SCPCS000105"
-  library_id: "SCPCL000122"
+  sample_id: "SCPCS000115"
+  library_id: "SCPCL000133"
 ---
 
 This notebook does some preliminary comparisons of `SingleR` results obtained with the NBAtlas reference, where the reference was either aggregated before training or not.
@@ -152,7 +152,7 @@ aggr <- readr::read_rds(
     results_dir,
     params$sample_id,
     "aggregated",
-    glue::glue("{params$library_id}_singler-result.rds")
+    glue::glue("{params$library_id}_singler-results.rds")
   )
 ) |>
   as.data.frame() |>
@@ -164,7 +164,7 @@ non_aggr <- readr::read_rds(
     results_dir,
     params$sample_id,
     "not-aggregated",
-    glue::glue("{params$library_id}_singler-result.rds")
+    glue::glue("{params$library_id}_singler-results.rds")
   )
 ) |>
   as.data.frame() |>
