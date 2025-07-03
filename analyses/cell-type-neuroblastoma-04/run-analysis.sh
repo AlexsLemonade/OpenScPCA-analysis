@@ -28,6 +28,7 @@ module_dir=$(dirname "${BASH_SOURCE[0]}")
 cd ${module_dir}
 
 # Define and create directories
+# do this before flag setup since some directory names are used
 data_dir="../../data/current/SCPCP000004"
 script_dir="scripts"
 ref_dir="references"
@@ -37,6 +38,10 @@ singler_results_dir="${results_dir}/singler"
 mkdir -p $ref_dir
 mkdir -p $scratch_dir
 mkdir -p $singler_results_dir
+
+###################################################################
+######################## Set up variables #########################
+###################################################################
 
 threads=${threads:-4} # default 4 threads
 aggregate_singler=${aggregate_singler:-1} # default perform aggregation
@@ -52,7 +57,7 @@ else
     singler_aggregate_type="not-aggregated"
 fi
 
-# Set up the testing flag
+# Set up the testing flag:
 # - If we are testing, we'll use the NBAtlas 50K subset. Otherwise, we'll use the full atlas.
 # - We'll also name the NBAtlas reference object files here with the same name as on Mendeley:
 #   https://data.mendeley.com/datasets/yhcf6787yp/3
@@ -148,7 +153,6 @@ Rscript ${script_dir}/01_train-singler-model.R \
 
 # Run SingleR on all samples in the project
 for sample_id in "${run_sample_ids[@]}"; do
-
     echo "Running SingleR on $sample_id..."
 
     # define sample output folder
