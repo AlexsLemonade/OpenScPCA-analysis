@@ -28,6 +28,7 @@ mkdir -p $ref_dir
 mkdir -p $scratch_dir
 mkdir -p $singler_results_dir
 
+threads=${threads:-4} # default 4 threads
 aggregate_singler=${aggregate_singler:-1} # default perform aggregation
 
 # Set up the singler aggregation accordingly
@@ -140,7 +141,8 @@ for sample_dir in ${data_dir}/SCPCS*; do
             --sce_file "${sce_file}" \
             --singler_model_file "${singler_model_file}" \
             --singler_output_tsv "${singler_output_tsv}" \
-            --singler_output_rds "${singler_output_rds}"
+            --singler_output_rds "${singler_output_rds}" \
+            --threads $threads
 
     done
 done
