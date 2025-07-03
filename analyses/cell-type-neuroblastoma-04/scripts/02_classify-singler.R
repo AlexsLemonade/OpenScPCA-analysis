@@ -2,12 +2,12 @@
 #
 # This script performs cell type annotation on an SCE using a given SingleR model
 # The script exports an RDS file containing the full SingleR result DataFrame object
+#  and a TSV file containing only annotations and delta.next values
 
 suppressPackageStartupMessages({
   library(optparse)
   library(SingleCellExperiment)
 })
-
 
 option_list <- list(
   make_option(
@@ -23,7 +23,13 @@ option_list <- list(
     help = "Path to trained SingleR model"
   ),
   make_option(
-    opt_str = c("--singler_output_file"),
+    opt_str = c("--singler_output_tsv"),
+    type = "character",
+    default = "",
+    help = "Path to output TSV file to save lightweight SingleR annotations"
+  ),
+  make_option(
+    opt_str = c("--singler_output_rds"),
     type = "character",
     default = "",
     help = "Path to output RDS file to save SingleR result DataFrame"
@@ -65,14 +71,20 @@ sce <- readRDS(opts$sce_file) |>
   # use the gene_symbols column in the sce object for mapping
   rOpenScPCA::sce_to_symbols(reference = "sce")
 
-# Perform annotation and export RDS
+# Perform annotation
 singler_result <- SingleR::classifySingleR(
   sce,
   singler_model,
   BPPARAM = bp_param
 )
 
-readr::write_rds(
-  singler_result,
-  opts$singler_output_file
-)
+# Extract TSV to save separately
+singler_df <- singler_result |>
+  # keep only labels, delta.next, and pruned.labels
+  purrr::discard_at("scores") |>
+  as.data.frame() |>
+  tibble::rownames_to_column("barcodes")
+
+# Export RDS and TSV
+readr::write_rds(singler_result, opts$singler_output_rds)
+readr::write_tsv(singler_df, opts$singler_output_tsv)
