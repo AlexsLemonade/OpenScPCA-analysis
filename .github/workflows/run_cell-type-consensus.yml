@@ -36,11 +36,11 @@ jobs:
     container: public.ecr.aws/openscpca/cell-type-consensus:latest
 
     steps:
-      - name: Install aws-cli 
-        run: | 
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" 
-          unzip -q awscliv2.zip 
-          ./aws/install 
+      - name: Install aws-cli
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip -q awscliv2.zip
+          ./aws/install
 
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -50,7 +50,7 @@ jobs:
       - name: Download test data
         run: |
           ./download-data.py --test-data --format SCE --project SCPCP000001,SCPCP000009,SCPCP0000024
-          ./download-results.py --test-data --module cell-type-consensus --project SCPCP000001,SCPCP000009,SCPCP0000024
+          ./download-results.py --test-data --module cell-type-consensus --project SCPCP000001,SCPCP000009,SCPCP0000024 --release 2025-03-20
 
       - name: Run analysis module
         run: |
