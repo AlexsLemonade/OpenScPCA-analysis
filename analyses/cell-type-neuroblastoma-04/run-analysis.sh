@@ -137,20 +137,17 @@ Rscript ${script_dir}/01_train-singler-model.R \
 
 
 # Run SingleR on all samples in the project
-for sample_dir in ${data_dir}/SCPCS*; do
+for sample_id in "${run_sample_ids[@]}"; do
 
-    # grab sample id
-    sample_id=$(basename $sample_dir)
+    echo "Running SingleR on $sample_id..."
 
     # define sample output folder
     sample_results_dir="${singler_results_dir}/${sample_id}/${singler_aggregate_type}"
     mkdir -p $sample_results_dir
 
-    for sce_file in $sample_dir/*_processed.rds; do
+    for sce_file in ${data_dir}/${sample_id}/*_processed.rds; do
 
         library_id=$(basename $sce_file | sed 's/_processed.rds$//')
-        singler_file_basename="${library_id}_singler-annotations.rds"
-
         singler_output_tsv="${sample_results_dir}/${library_id}_singler-annotations.tsv"
         singler_output_rds="${sample_results_dir}/${library_id}_singler-result.rds"
 
