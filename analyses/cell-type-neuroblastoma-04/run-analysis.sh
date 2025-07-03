@@ -74,13 +74,12 @@ else
     nbatlas_seurat="${scratch_dir}/seuratObj_NBAtlas_share_v20241203.rds"
 fi
 
-# Set up `run_sample_ids` and check that all sample_ids exist
+# Set up `sample_ids` and check that all sample_ids exist
 sample_ids=${sample_ids:-"all"}
 if [[ $sample_ids == "all" ]]; then
-    run_sample_ids=$(basename -a ${data_dir}/SCPCS*)
+    sample_ids=$(basename -a ${data_dir}/SCPCS*)
 else
-    run_sample_ids=($sample_ids)
-    for sample_id in "${run_sample_ids[@]}"; do
+    for sample_id in ${sample_ids}; do
         if [[ ! -d ${data_dir}/$sample_id ]]; then
             echo "Provided sample_id ${sample_id} isn't available for SCPCP000004."
             echo "Please check for typos or download relevant samples."
@@ -152,16 +151,16 @@ Rscript ${script_dir}/01_train-singler-model.R \
 
 
 # Run SingleR on all samples in the project
-for sample_id in "${run_sample_ids[@]}"; do
+for sample_id in $sample_ids; do
     echo "Running SingleR on $sample_id..."
 
     # define sample output folder
     sample_results_dir="${singler_results_dir}/${sample_id}/${singler_aggregate_type}"
     mkdir -p $sample_results_dir
 
-    for sce_file in ${data_dir}/${sample_id}/*_processed.rds; do
+    for sce_file in "${data_dir}/${sample_id}"/*_processed.rds; do
 
-        library_id=$(basename $sce_file | sed 's/_processed.rds$//')
+        library_id=$(basename "$sce_file" | sed 's/_processed.rds$//')
         singler_output_tsv="${sample_results_dir}/${library_id}_singler-annotations.tsv"
         singler_output_rds="${sample_results_dir}/${library_id}_singler-result.rds"
 
