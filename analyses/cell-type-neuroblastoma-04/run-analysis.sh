@@ -6,10 +6,20 @@
 #
 # ./run-analysis.sh
 #
-#
-# When running in CI or with test data, use:
-# testing=1 ./run-analysis.sh
-# This will also use the NBAtlas 50K subset to speed up testing.
+# There are several variables that can be defined when calling this script:
+# - testing (Default value: 0)
+#   - Use `testing=1` to run with test data; this will also use the NBAtlas 50K subset for efficiency
+#   - Example usage: testing=1 ./run-analysis.sh
+# - `aggregate_singler` (Default value: 1)
+#   - Use `aggregate_singler=0` to turn off reference aggregation before SingleR model training
+#   - Example usage: aggregate_singler=0 ./run-analysis.sh
+# - `threads` (Default value: 4)
+#   - Use `threads=X` to specify a different number of threads
+#   - Example usage: threads=2 ./run-analysis.sh # to request 2 threads
+# - `sample_ids` (Default value: "all")
+#   - By default, all samples in SCPCP000004 are processed. Specify a set of ids to only run a subset, which
+#     may be helpful in certain exploratory runs
+#   - Example usage: sample_ids="SCPCS000101 SCPCS000102" ./run-analysis.sh # to run only `SCPCS000101` and `SCPCS000102`
 
 set -euo pipefail
 
