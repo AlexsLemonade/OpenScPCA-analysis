@@ -23,7 +23,7 @@ option_list <- list(
 )
 opts <- parse_args(OptionParser(option_list = option_list))
 if (opts$testing) {
-  ks.cut_param <- 0.025 # smaller value for test data
+  ks.cut_param <- 0.001 # smaller value for test data
 } else {
   ks.cut_param <- 0.1 # default
 }
