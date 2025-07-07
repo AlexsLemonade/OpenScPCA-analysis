@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 #
 # This script trains a SingleR model from a given NBAtlas object
-# The script additionally requires an input SCE object to determine genes to restrict to (TODO: make this a TSV?)
+# The script additionally requires an input SCE object to determine genes to restrict to
 
 suppressWarnings({
   suppressPackageStartupMessages({
@@ -34,13 +34,13 @@ option_list <- list(
     opt_str = c("--aggregate_reference"),
     action = "store_true",
     default = FALSE,
-    help = "Whether to aggregate the reference using `SingleR::aggregateReference()` before training"
+    help = "Whether to aggregate the reference using `SingleR::aggregateReference()` before training. Default: FALSE."
   ),
   make_option(
     opt_str = c("--separate_tumor"),
     action = "store_true",
     default = FALSE,
-    help = "Whether to use a separate `Neuroendocrine-tumor` category for cells present in the NBAtlas tumor zoom"
+    help = "Whether to use a separate `Neuroendocrine-tumor` category for cells present in the NBAtlas tumor zoom. Default: TRUE"
   ),
   make_option(
     opt_str = c("--threads"),
@@ -96,7 +96,7 @@ if (opts$separate_tumor) {
 # Create and export an aggregated version of the reference
 nbatlas_trained <- SingleR::trainSingleR(
   ref = nbatlas_sce,
-  labels = nbatlas_sce$Cell_type,
+  labels = celltype_label, # specify vector we created above
   # note the aggregated references are also fairly sparse,
   # so this is appropriate for either type
   de.method = "wilcox",
