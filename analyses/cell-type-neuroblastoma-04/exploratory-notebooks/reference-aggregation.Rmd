@@ -45,12 +45,39 @@ repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 module_dir <- file.path(repository_base, "analyses", "cell-type-neuroblastoma-04")
 results_dir <- file.path(module_dir, "results", "singler")
 data_dir <- file.path(repository_base, "data", "current", "SCPCP000004")
+```
 
+
+```{r url paths}
 # broad consensus cell type groups
 validation_url <- "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/consensus-validation-groups.tsv"
 
 # umap colors
 palette_url <- "https://raw.githubusercontent.com/AlexsLemonade/scpca-paper-figures/refs/heads/main/palettes/validation-group-palette.tsv"
+```
+
+```{r file paths}
+# SingleR results
+aggr_singler_file <- file.path(
+  results_dir,
+  params$sample_id,
+  "aggregated",
+  glue::glue("{params$library_id}_singler-results.rds")
+)
+
+non_aggr_singler_file <- file.path(
+  results_dir,
+  params$sample_id,
+  "not-aggregated",
+  glue::glue("{params$library_id}_singler-results.rds")
+)
+
+# SCE file
+sce_file <- file.path(
+  data_dir,
+  params$sample_id,
+  glue::glue("{params$library_id}_processed.rds")
+)
 ```
 
 ### Functions
@@ -124,12 +151,6 @@ plot_delta_median <- function(df, agree_barcodes, plot_title) {
 Read SCE object so we can get consensus cell types:
 
 ```{r}
-sce_file <- file.path(
-  data_dir,
-  params$sample_id,
-  glue::glue("{params$library_id}_processed.rds")
-)
-
 sce_df <- readRDS(sce_file) |>
   scuttle::makePerCellDF() |>
   dplyr::select(
@@ -147,29 +168,13 @@ validation_df <- readr::read_tsv(validation_url) |>
 
 palette_df <- readr::read_tsv(palette_url) # umap plotting later
 
-aggr <- readr::read_rds(
-  file.path(
-    results_dir,
-    params$sample_id,
-    "aggregated",
-    glue::glue("{params$library_id}_singler-results.rds")
-  )
-) |>
+aggr <- readr::read_rds(aggr_singler_file) |>
   as.data.frame() |>
-  tibble::rownames_to_column("barcodes") |>
-  dplyr::mutate(ref_type = "aggregated")
+  tibble::rownames_to_column("barcodes")
 
-non_aggr <- readr::read_rds(
-  file.path(
-    results_dir,
-    params$sample_id,
-    "not-aggregated",
-    glue::glue("{params$library_id}_singler-results.rds")
-  )
-) |>
+non_aggr <- readr::read_rds(non_aggr_singler_file) |>
   as.data.frame() |>
-  tibble::rownames_to_column("barcodes") |>
-  dplyr::mutate(ref_type = "non-aggregated")
+  tibble::rownames_to_column("barcodes")
 ```
 
 Join and prepare data for use:
@@ -252,11 +257,16 @@ make_jaccard_heatmap(
 )
 ```
 
+## Comparison with consensus cell type annotations
 
-## Heatmap: Aggregated vs. consensus annotations
+In this section, we compare aggregated & non-aggregated annotations to the consensus cell type labels.
+In these comparisons, we consider the broader validation groupings for consensus cell types in order to keep plots manageable and more easily interpreted.
+
+
+
+### Heatmap: Aggregated vs. consensus annotations
 
 This heatmap compares annotations between `SingleR` inference using the aggregated reference and consensus cell types.
-The broader validation grouping for consensus cell types is used to keep the plot manageable.
 
 ```{r, fig.height = 8, fig.width = 8}
 make_jaccard_heatmap(
@@ -270,11 +280,10 @@ make_jaccard_heatmap(
 
 
 
-## Heatmap: Non-aggregated vs. consensus annotations
+### Heatmap: Non-aggregated vs. consensus annotations
 
 
 This heatmap compares annotations between `SingleR` inference using the non-aggregated reference and consensus cell types.
-The broader validation grouping for consensus cell types is used to keep the plot manageable.
 
 ```{r,fig.height = 8, fig.width = 8}
 make_jaccard_heatmap(
@@ -291,7 +300,7 @@ make_jaccard_heatmap(
 Below, we show the UMAPs colored by cell types for each of aggregated, non-aggregated, and consensus (again, using the validation groupings for plot visibility).
 
 Before plotting cell type labels were harmonized to the extent possible to that `NBAtlas` labels matched the corresponding consensus cell type labels (e.g., `Fibroblast` -> `fibroblast` or `Endothelial` -> `endothelial cell`).
-Cell types which not literally just spelling variants were left alone.
+Cell types that were not literally just spelling variants were left alone; note that `stromal` cell types between references were also not harmonized since this group doesn't always have a clear definition.
 
 The UMAP therefore has one overall legend for all possible cell types, so colors are directly comparable across panels.
 The specific cell types that are part of either refernce are printed below.
@@ -318,9 +327,12 @@ celltype_recoded_df <- celltype_df |>
     )
   )
 
-# Recode some existing colors we don't need
+# Recode some existing colors we don't need - this is done to update the existing color
+# palette to match the cell types we need in this plot
 palette_df <- palette_df |>
   dplyr::mutate(
+    # colors associated with these original validation groups will be now used to
+    # color the given the NBAtlas cell types
     label_recoded = dplyr::case_when(
       validation_group_annotation == "hematopoietic precursor cell" ~ "Neuroendocrine",
       validation_group_annotation == "muscle cell" ~ "RBCs",
@@ -330,9 +342,11 @@ palette_df <- palette_df |>
       .default = validation_group_annotation
     )
   ) |>
+  # get rid of any cell types that won't appear in the plot so palette_df just contains
+  # colors & cell types of interest
   dplyr::filter(label_recoded %in% unique(celltype_recoded_df$label_recoded))
 
-# Define palette
+# Define palette as a vector from all remaining colors/labels
 pal <- palette_df$color
 names(pal) <- palette_df$label_recoded
 ```
