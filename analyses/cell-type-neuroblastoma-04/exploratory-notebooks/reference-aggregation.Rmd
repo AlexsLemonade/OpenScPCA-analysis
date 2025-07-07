@@ -258,10 +258,15 @@ make_jaccard_heatmap(
 ```
 
 ## Comparison with consensus cell type annotations
+
+In this section, we compare aggregated & non-aggregated annotations to the consensus cell type labels.
+In these comparisons, we consider the broader validation groupings for consensus cell types in order to keep plots manageable and more easily interpreted.
+
+
+
 ### Heatmap: Aggregated vs. consensus annotations
 
 This heatmap compares annotations between `SingleR` inference using the aggregated reference and consensus cell types.
-The broader validation grouping for consensus cell types is used to keep the plot manageable.
 
 ```{r, fig.height = 8, fig.width = 8}
 make_jaccard_heatmap(
@@ -279,7 +284,6 @@ make_jaccard_heatmap(
 
 
 This heatmap compares annotations between `SingleR` inference using the non-aggregated reference and consensus cell types.
-The broader validation grouping for consensus cell types is used to keep the plot manageable.
 
 ```{r,fig.height = 8, fig.width = 8}
 make_jaccard_heatmap(
@@ -296,7 +300,7 @@ make_jaccard_heatmap(
 Below, we show the UMAPs colored by cell types for each of aggregated, non-aggregated, and consensus (again, using the validation groupings for plot visibility).
 
 Before plotting cell type labels were harmonized to the extent possible to that `NBAtlas` labels matched the corresponding consensus cell type labels (e.g., `Fibroblast` -> `fibroblast` or `Endothelial` -> `endothelial cell`).
-Cell types that were not literally just spelling variants were left alone.
+Cell types that were not literally just spelling variants were left alone; note that `stromal` cell types between references were also not harmonized since this group doesn't always have a clear definition.
 
 The UMAP therefore has one overall legend for all possible cell types, so colors are directly comparable across panels.
 The specific cell types that are part of either refernce are printed below.
