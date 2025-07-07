@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Generate results and render the template exploratory notebook `01_reference-aggregation.Rmd`.
-# This analysis only considers a subset of samples 
+# Generate results and render the template exploratory notebook `reference-aggregation.Rmd`.
+# This analysis only considers a subset of samples.
 # They were chosen to have a range in number of cells, diversity of consensus cell type annotations, and diversity in tech/sequencing units.
 # SCPCS000104: nucleus, 10Xv2
 # SCPCS000105: cell, 10Xv2

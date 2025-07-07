@@ -327,8 +327,10 @@ celltype_recoded_df <- celltype_df |>
     )
   )
 
-# Recode some existing colors we don't need - this is done to update the existing color
-# palette to match the cell types we need in this plot
+# For a set of consensus cell types that don't appear in samples this notebook explores
+#  we'll grab their colors to use as NBAtlas labels.
+# We'll do this by recoding cell consensus types associated with a set of colors to use, and
+#  finally discard cell type labels which won't appear in the plot.
 palette_df <- palette_df |>
   dplyr::mutate(
     # colors associated with these original validation groups will be now used to
