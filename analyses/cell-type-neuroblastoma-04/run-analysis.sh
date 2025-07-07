@@ -135,8 +135,8 @@ Rscript ${script_dir}/00b_convert-nbatlas.R \
    --cell_id_file "${cell_id_file}" \
    --sce_file "${nbatlas_sce}" \
    ${test_flag}
-#    # For now, we will not save the AnnData object
-#    #--anndata_file "${nbatlas_anndata}"
+   # For now, we will not save the AnnData object
+   #--anndata_file "${nbatlas_anndata}"
 
 ###################################################################
 ######################## SingleR annotation #######################
@@ -163,7 +163,7 @@ for sample_id in $sample_ids; do
 
         library_id=$(basename "$sce_file" | sed 's/_processed.rds$//')
         singler_output_tsv="${sample_results_dir}/${library_id}_singler-annotations.tsv"
-        singler_output_rds="${sample_results_dir}/${library_id}_singler-result.rds"
+        singler_output_rds="${sample_results_dir}/${library_id}_singler-results.rds"
 
         Rscript ${script_dir}/02_classify-singler.R \
             --sce_file "${sce_file}" \
