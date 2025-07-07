@@ -1,8 +1,8 @@
 #!/bin/bash
 #
 # Generate results and render the template exploratory notebook `01_reference-aggregation.Rmd`.
-# This analysis only considers a subset of samples chosen their range in
-# number of cells, diversity of consensus cell type annotations, and diversity in tech/sequencing units.
+# This analysis only considers a subset of samples 
+# They were chosen to have a range in number of cells, diversity of consensus cell type annotations, and diversity in tech/sequencing units.
 # SCPCS000104: nucleus, 10Xv2
 # SCPCS000105: cell, 10Xv2
 # SCPCS000108: cell, 10Xv3
@@ -38,7 +38,7 @@ for sample_id in $sample_ids; do
     for tsv_file in "${singler_result_dir}/${sample_id}"/aggregated/*annotations.tsv; do
         library_id=$(basename "$tsv_file" | sed 's/_singler-annotations.tsv$//')
 
-        # Skip the SCPCS000109 we're not considering here library
+        # Skip the library from SCPCS000109 we're not considering here
         if [[ $library_id == "SCPCL000127" ]]; then
             continue
         fi
