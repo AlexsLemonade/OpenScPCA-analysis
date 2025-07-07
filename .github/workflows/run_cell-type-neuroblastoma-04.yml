@@ -4,8 +4,7 @@
 # - Manual trigger
 # - On pull requests where code in the module has changed
 # - As a reusable workflow called from a separate workflow which periodically runs all modules
-#
-# At initialization, only the manual trigger is active
+
 
 name: Run cell-type-neuroblastoma-04 analysis module
 env:
@@ -19,15 +18,15 @@ concurrency:
 
 on:
   workflow_dispatch:
-  # workflow_call:
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - analyses/cell-type-neuroblastoma-04/**
-  #     - "!analyses/cell-type-neuroblastoma-04/Dockerfile"
-  #     - "!analyses/cell-type-neuroblastoma-04/.dockerignore"
-  #     - .github/workflows/run_cell-type-neuroblastoma-04.yml
+  workflow_call:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - analyses/cell-type-neuroblastoma-04/**
+      - "!analyses/cell-type-neuroblastoma-04/Dockerfile"
+      - "!analyses/cell-type-neuroblastoma-04/.dockerignore"
+      - .github/workflows/run_cell-type-neuroblastoma-04.yml
 
 jobs:
   run-module:
@@ -47,16 +46,32 @@ jobs:
       - name: Set up pandoc
         uses: r-lib/actions/setup-pandoc@v2
 
+      - name: Install dependencies needed to build certain R packages
+        run: |
+          sudo apt-get update
+          # libcurl4-openssl-dev needed for curl
+          # libglpk-dev is needed for igraph
+          # libpng-dev is needed for png
+          # libx11-dev is needed for clipr
+          sudo apt-get install \
+            libcurl4-openssl-dev \
+            libglpk-dev \
+            libpng-dev \
+            libx11-dev
+
       - name: Set up renv
         uses: r-lib/actions/setup-renv@v2
         with:
           working-directory: ${{ env.MODULE_PATH }}
 
-      # Update this step as needed to download the desired data
       - name: Download test data
-        run: ./download-data.py --test-data --format SCE
+        env:
+          # Use the full project for testing unless this is triggered by a PR, in which case only use a subset of samples for faster testing
+          data: ${{ github.event_name != 'pull_request' && '--project SCPCP000004' || '--samples SCPCS000101,SCPCS000102,SCPCS000103' }}
+        run: |
+          ./download-data.py --test-data --format SCE ${data}
 
       - name: Run analysis module
         run: |
           cd ${MODULE_PATH}
-          # run module script(s) here
+          testing=1 bash run-analysis.sh
