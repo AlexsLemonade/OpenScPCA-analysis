@@ -2,7 +2,6 @@
 #
 # This script exports an SCE and AnnData version of a given NBAtlas Seurat object
 # We retain only the raw counts, normalized counts, and cell metadata in the converted objects
-# In addition, only cells present in the provided `cell_id_file` are included in the final objects
 
 library(optparse)
 
@@ -18,12 +17,6 @@ option_list <- list(
     type = "character",
     default = "",
     help = "Path to RDS file with data frame containing NBAtlas tumor metadata."
-  ),
-  make_option(
-    opt_str = c("--cell_id_file"),
-    type = "character",
-    default = "",
-    help = "Path to text file with cell ids present in the full atlas dated `20241203`. Any cell ids not present in this list will be excluded from the converted reference."
   ),
   make_option(
     opt_str = c("--sce_file"),
@@ -54,8 +47,7 @@ opts <- parse_args(OptionParser(option_list = option_list))
 
 stopifnot(
   "nbatlas_file does not exist" = file.exists(opts$nbatlas_file),
-  "tumor_metadata_file does not exist" = file.exists(opts$tumor_metadata_file),
-  "cell_id_file does not exist" = file.exists(opts$cell_id_file)
+  "tumor_metadata_file does not exist" = file.exists(opts$tumor_metadata_file)
 )
 
 # load the bigger libraries after passing checks
@@ -70,10 +62,6 @@ set.seed(opts$seed)
 nbatlas_seurat <- readRDS(opts$nbatlas_file)
 tumor_cells <- readRDS(opts$tumor_metadata_file) |>
   rownames()
-all_cell_ids <- readr::read_lines(opts$cell_id_file)
-
-# keep only cells that are present in in `all_ids`
-nbatlas_seurat <- subset(nbatlas_seurat, cells = all_cell_ids)
 
 # if testing, subset to fewer cells: keep 5% of each label
 if (opts$testing) {
