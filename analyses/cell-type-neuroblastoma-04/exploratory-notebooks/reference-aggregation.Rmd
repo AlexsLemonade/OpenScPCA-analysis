@@ -45,12 +45,39 @@ repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 module_dir <- file.path(repository_base, "analyses", "cell-type-neuroblastoma-04")
 results_dir <- file.path(module_dir, "results", "singler")
 data_dir <- file.path(repository_base, "data", "current", "SCPCP000004")
+```
 
+
+```{r url paths}
 # broad consensus cell type groups
 validation_url <- "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/consensus-validation-groups.tsv"
 
 # umap colors
 palette_url <- "https://raw.githubusercontent.com/AlexsLemonade/scpca-paper-figures/refs/heads/main/palettes/validation-group-palette.tsv"
+```
+
+```{r file paths}
+# SingleR results
+aggr_singler_file <- file.path(
+  results_dir,
+  params$sample_id,
+  "aggregated",
+  glue::glue("{params$library_id}_singler-results.rds")
+)
+
+non_aggr_singler_file <- file.path(
+  results_dir,
+  params$sample_id,
+  "not-aggregated",
+  glue::glue("{params$library_id}_singler-results.rds")
+)
+
+# SCE file
+sce_file <- file.path(
+  data_dir,
+  params$sample_id,
+  glue::glue("{params$library_id}_processed.rds")
+)
 ```
 
 ### Functions
@@ -124,12 +151,6 @@ plot_delta_median <- function(df, agree_barcodes, plot_title) {
 Read SCE object so we can get consensus cell types:
 
 ```{r}
-sce_file <- file.path(
-  data_dir,
-  params$sample_id,
-  glue::glue("{params$library_id}_processed.rds")
-)
-
 sce_df <- readRDS(sce_file) |>
   scuttle::makePerCellDF() |>
   dplyr::select(
@@ -147,29 +168,13 @@ validation_df <- readr::read_tsv(validation_url) |>
 
 palette_df <- readr::read_tsv(palette_url) # umap plotting later
 
-aggr <- readr::read_rds(
-  file.path(
-    results_dir,
-    params$sample_id,
-    "aggregated",
-    glue::glue("{params$library_id}_singler-results.rds")
-  )
-) |>
+aggr <- readr::read_rds(aggr_singler_file) |>
   as.data.frame() |>
-  tibble::rownames_to_column("barcodes") |>
-  dplyr::mutate(ref_type = "aggregated")
+  tibble::rownames_to_column("barcodes")
 
-non_aggr <- readr::read_rds(
-  file.path(
-    results_dir,
-    params$sample_id,
-    "not-aggregated",
-    glue::glue("{params$library_id}_singler-results.rds")
-  )
-) |>
+non_aggr <- readr::read_rds(non_aggr_singler_file) |>
   as.data.frame() |>
-  tibble::rownames_to_column("barcodes") |>
-  dplyr::mutate(ref_type = "non-aggregated")
+  tibble::rownames_to_column("barcodes")
 ```
 
 Join and prepare data for use:
