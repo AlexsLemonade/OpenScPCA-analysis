@@ -327,9 +327,12 @@ celltype_recoded_df <- celltype_df |>
     )
   )
 
-# Recode some existing colors we don't need
+# Recode some existing colors we don't need - this is done to update the existing color
+# palette to match the cell types we need in this plot
 palette_df <- palette_df |>
   dplyr::mutate(
+    # colors associated with these original validation groups will be now used to
+    # color the given the NBAtlas cell types
     label_recoded = dplyr::case_when(
       validation_group_annotation == "hematopoietic precursor cell" ~ "Neuroendocrine",
       validation_group_annotation == "muscle cell" ~ "RBCs",
@@ -339,9 +342,11 @@ palette_df <- palette_df |>
       .default = validation_group_annotation
     )
   ) |>
+  # get rid of any cell types that won't appear in the plot so palette_df just contains
+  # colors & cell types of interest
   dplyr::filter(label_recoded %in% unique(celltype_recoded_df$label_recoded))
 
-# Define palette
+# Define palette as a vector from all remaining colors/labels
 pal <- palette_df$color
 names(pal) <- palette_df$label_recoded
 ```
