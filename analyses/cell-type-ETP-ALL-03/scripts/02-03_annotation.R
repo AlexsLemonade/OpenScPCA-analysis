@@ -154,4 +154,4 @@ source(file.path(out_loc, "scripts/util/gene-set-functions.R"))
 db <- file.path(out_loc, "Azimuth_BM_level1.csv")
 tissue <- "Immune system"
 
-purrr::walk(libraryID, run_copykat, ks_cut = ks.cut_param)
+purrr::walk(libraryID, run_annot, ks_cut = ks.cut_param)
