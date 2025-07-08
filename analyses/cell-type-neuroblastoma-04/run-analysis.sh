@@ -58,7 +58,7 @@ threads=${threads:-4} # default 4 threads
 # Set up singler aggregation
 if [[ $aggregate_singler -eq 1 ]]; then
     aggregate_flag="--aggregate_reference"
-    singler_aggregate_type="aggregated" # sub-directory where results will be saved
+    singler_aggregate_type="aggregated"
 else
     aggregate_flag=""
     singler_aggregate_type="not-aggregated"
