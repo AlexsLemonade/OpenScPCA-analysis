@@ -1,0 +1,634 @@
+---
+title: "Compare NE-combined vs. NE-separated reference"
+subtitle: "`r glue::glue('Results for {params$sample_id}: {params$library_id}')`"
+author: "Stephanie J. Spielman"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+params:
+  sample_id: "SCPCS000109"
+  library_id: "SCPCL000126"
+---
+
+This notebook does some preliminary comparisons of `SingleR` results obtained with these two versions of the NBAtlas (aggregated) reference:
+
+* `NE-combined`: The reference has a single category for all Neuroendocrine (NE) cells
+* `NE-separated`: The reference has two categories, Neuroendocrine and Neuroendocrine-tumor (NE-tumor) where the latter are NE cells which are part of the paper's "tumor zoom" subset and were explicitly classified as malignant
+
+This notebook explores whether `Neuroendocrine` should be a single label or have the two separated categories.
+On one hand, these different categories might indicate different tumor states or highly-similar normal cells. 
+However, per direct correspondence with the NBAtlas authors, it is probably more likely that any different signal associated with the malignant cells vs other NE cells is driven by technical reasons such as data quality, and _not_ biological signal.
+
+The goal of this notebook is to briefly look at the difference in cell type assignments between these two reference options to determine whether to proceed with a separated or combined NE category of cells, with the null that we should use the combined reference unless there is a compelling difference between the results.
+
+## Setup
+
+```{r, warning = FALSE}
+options(readr.show_col_types = FALSE)
+
+suppressWarnings({
+  suppressPackageStartupMessages({
+    library(ggplot2)
+    library(patchwork)
+    library(SingleCellExperiment)
+  })
+})
+
+
+theme_set(theme_bw())
+
+# Define color ramp for shared use in the heatmaps
+heatmap_col_fun <- circlize::colorRamp2(c(0, 1), colors = c("white", "darkslateblue"))
+# Set heatmap padding option
+ComplexHeatmap::ht_opt(TITLE_PADDING = grid::unit(0.6, "in"))
+```
+
+
+### Paths
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+module_dir <- file.path(repository_base, "analyses", "cell-type-neuroblastoma-04")
+results_dir <- file.path(module_dir, "results", "singler")
+data_dir <- file.path(repository_base, "data", "current", "SCPCP000004")
+```
+
+
+```{r url paths}
+# broad consensus cell type groups
+validation_url <- "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/consensus-validation-groups.tsv"
+
+# umap colors
+palette_url <- "https://raw.githubusercontent.com/AlexsLemonade/scpca-paper-figures/refs/heads/main/palettes/validation-group-palette.tsv"
+```
+
+```{r file paths}
+# SingleR results
+combined_singler_file <- file.path(
+  results_dir,
+  params$sample_id,
+  "aggregated",
+  "NE-tumor-combined",
+  glue::glue("{params$library_id}_singler-results.rds")
+)
+
+separated_singler_file <- file.path(
+  results_dir,
+  params$sample_id,
+  "aggregated",
+  "NE-tumor-separated",
+  glue::glue("{params$library_id}_singler-results.rds")
+)
+
+# SingleR trained models
+model_separated_file <- file.path(
+  module_dir,
+  "scratch",
+  "singler-model_nbatlas_aggregated_NE-tumor-separated.rds"
+)
+model_combined_file <- file.path(
+  module_dir,
+  "scratch",
+  "singler-model_nbatlas_aggregated_NE-tumor-combined.rds"
+)
+
+
+# SCE file
+sce_file <- file.path(
+  data_dir,
+  params$sample_id,
+  glue::glue("{params$library_id}_processed.rds")
+)
+```
+
+
+### Functions
+
+```{r}
+# Source Jaccard and heatmap utilities functions:
+source(file.path(module_dir, "exploratory-notebooks", "jaccard-utils.R"))
+```
+
+### Prepare input data
+
+Read SCE object so we can get consensus cell types:
+
+```{r}
+sce <- readRDS(sce_file)
+sce_df <- sce |>
+  scuttle::makePerCellDF() |>
+  dplyr::select(
+    barcodes,
+    consensus_annotation = consensus_celltype_annotation,
+    UMAP1 = UMAP.1,
+    UMAP2 = UMAP.2
+  )
+```
+
+Read cell type and result data frames:
+```{r}
+validation_df <- readr::read_tsv(validation_url) |>
+  dplyr::select(consensus_annotation, validation_group_annotation)
+
+palette_df <- readr::read_tsv(palette_url) # umap plotting later
+
+singler_results_combined <- readr::read_rds(combined_singler_file)
+singler_results_separated <- readr::read_rds(separated_singler_file)
+```
+
+Join and prepare data for use:
+
+```{r}
+celltype_df <- data.frame(
+  barcodes = rownames(singler_results_combined),
+  "singler_label_combined" = as.data.frame(singler_results_combined)$pruned.labels,
+  "singler_label_separated" = as.data.frame(singler_results_separated)$pruned.labels
+) |>
+  dplyr::left_join(sce_df, by = "barcodes") |>
+  dplyr::left_join(validation_df, by = "consensus_annotation") |>
+  # set validation NA -> unknown
+  dplyr::mutate(
+    validation_group_annotation =
+      ifelse(is.na(validation_group_annotation), "unknown", validation_group_annotation)
+  )
+
+# remove sce_df for space
+rm(sce_df)
+```
+
+
+Read the SingleR models and NBAtlas cell type marker genes:
+
+```{r}
+model_separated <- readRDS(model_separated_file)
+model_combined <- readRDS(model_combined_file)
+```
+
+
+
+## Compare trained SingleR models
+
+In this section, we will compare some of the marker genes identified in the trained SingleR models directly.
+
+When training a model, SingleR performs pairwise comparisons to identify marker genes as the top 10 upregulated genes for each label compared to each other label.
+
+### Intersecting NE marker genes in the separated model
+
+We'll first look at the `NE-separated` model which has two categories for `Neuroendocrine` (NE) and `Neuroendocrine-tumor` (NE-tumor).
+We'll pull out the marker genes for each and ask how similar they are.
+In other words, we'll ask if there is overlap between:
+
+* Marker genes upregulated in NE compared to each other cell type
+* Marker genes upregulated in NE-tumor compared to each other cell type
+
+```{r}
+# markers upregulated NE compared to other cell types in the separated model
+ne_markers <- model_separated$markers$full$Neuroendocrine
+
+# markers upregulated NE-tumor compared to other cell types in the separated model
+ne.tumor_markers <- model_separated$markers$full$`Neuroendocrine-tumor`
+```
+
+
+Below we print the intersection of these two sets of marker genes for each cell type comparison:
+```{r}
+separated_cell_types <- names(ne_markers)
+non_neuro_cell_types <- separated_cell_types[!(stringr::str_detect(separated_cell_types, "Neuro"))]
+
+intersecting_marker_genes <- non_neuro_cell_types |>
+  purrr::set_names() |>
+  purrr::map(
+    \(cell_type) {
+      intersect(
+        ne_markers[[cell_type]],
+        ne.tumor_markers[[cell_type]]
+      )
+    }
+  )
+
+# Print as data frame so it doesn't print double
+intersecting_marker_genes |>
+  purrr::map(
+    \(x) data.frame(genes = paste(sort(x), collapse = ", "))
+  ) |>
+  purrr::list_rbind(names_to = "cell_type") |>
+  # add column with gene count
+  dplyr::mutate(n_genes = stringr::str_count(genes, ",") + 1) |>
+  dplyr::select(cell_type, n_genes, gene_symbols = genes)
+```
+
+Most marker genes are actually the same for the NE and NE-tumor pairwise comparisons, indeed showing us that these categories are highly similar.
+The main exception is `RBCs` for which there are apparently very different gene lists for NE and NE-tumor. 
+Moreover, the genes tend to be the same across cell types, which suggests these are probably more universal NE markers.
+
+
+
+
+### Expression of different NE marker genes in the separated model
+
+Next, we'll pull out the _distinct_ marker genes associated with `NE` and `NE-tumor` groups that are also not represented in the combined model's `NE` marker genes.
+
+We'll look at these genes' expression in cells that were annotated as `NE` and `NE-tumor` by the separated model.
+We expect that these distributions will show some difference (since `SingleR` will find genes no matter what!) between annotated cell types `NE` and `NE-tumor`.
+If the magnitude of the difference is large, it suggests that separating NE into two groups may not be unreasonable.
+If the magnitude of the difference is small, it suggests that separating NE into two groups is oversplitting.
+
+That said, note that there are likely very different numbers of cells labeled as `NE` and `NE-tumor`, which may influence how these plots are interpreted.
+```{r}
+celltype_df |>
+  dplyr::filter(stringr::str_detect(singler_label_separated, "Neuro")) |>
+  dplyr::count(singler_label_separated)
+```
+
+
+```{r}
+combined_marker_genes <- model_combined$markers$full$Neuroendocrine |>
+  purrr::reduce(c) |>
+  unique()
+
+cell_types <- names(ne_markers)
+non_neuro_cell_types <- cell_types[!(stringr::str_detect(cell_types, "Neuro"))]
+
+different_marker_genes <- non_neuro_cell_types |>
+  purrr::set_names() |>
+  purrr::map(
+    \(cell_type) {
+      # In NE but not in NE-tumor
+      diff_genes_ne <- setdiff(
+        ne_markers[[cell_type]],
+        ne.tumor_markers[[cell_type]]
+      )
+
+      # In NE-tumor but not in NE
+      diff_genes_ne.tumor <- setdiff(
+        ne.tumor_markers[[cell_type]],
+        ne_markers[[cell_type]]
+      )
+
+      return(
+        list(
+          "ne_only" = diff_genes_ne,
+          "ne.tumor_only" = diff_genes_ne.tumor
+        )
+      )
+    }
+  ) |>
+  # transpose so it is a list of two, "ne_only" and "ne.tumor_only",
+  # each of which is a named list of marker genes for each cell type
+  purrr::transpose() |>
+  # collapse each nested list to remove cell types
+  # keep only unique genes
+  # remove any genes that are also in combined_marker_genes
+  purrr::map(
+    \(gene_list) {
+      gene_vector <- gene_list |>
+        purrr::reduce(c) |>
+        unique()
+      gene_vector[!(gene_vector %in% combined_marker_genes)]
+    }
+  )
+
+# This final list are the genes uniquely upregulated in the NE and
+# NE-tumor categories in the separated model
+different_marker_genes
+```
+
+
+
+```{r, fig.width = 12}
+plot_barcodes <- celltype_df |>
+  dplyr::filter(stringr::str_detect(singler_label_separated, "Neuroendocrine")) |>
+  dplyr::pull(barcodes)
+
+# Convert rownames to symbols to match our gene lists
+sce <- rOpenScPCA::sce_to_symbols(sce, reference = "sce")
+
+# Add the separated cell types into colData as `singler_cell_type`
+colData(sce) <- colData(sce) |>
+  as.data.frame() |>
+  dplyr::inner_join(
+    celltype_df |>
+      dplyr::select(barcodes, singler_cell_type = singler_label_separated),
+    by = "barcodes"
+  ) |>
+  DataFrame(row.names = rownames(colData(sce)))
+
+# plot the NE-only genes
+plot1 <- scater::plotExpression(
+  sce[different_marker_genes$ne_only, plot_barcodes],
+  features = different_marker_genes$ne_only,
+  x = "singler_cell_type",
+  colour_by = "singler_cell_type",
+  point_size = 0.5
+) +
+  theme(legend.position = "none") +
+  ggtitle("Neuroendocrine marker genes")
+
+# plot the NE-tumor--only genes
+plot2 <- scater::plotExpression(
+  sce[different_marker_genes$ne.tumor_only, plot_barcodes],
+  features = different_marker_genes$ne.tumor_only,
+  x = "singler_cell_type",
+  colour_by = "singler_cell_type",
+  point_size = 0.5
+) +
+  theme(legend.position = "none") +
+  ggtitle("Neuroendocrine-tumor marker genes")
+
+
+plot1 + plot2
+```
+
+
+### Compare separated to combined models
+
+Next, we'll look at the NE marker genes between references.
+
+For a quick summary, we'll ask: How many of the NE markers in the combined model (out of 10 total per cell type comparison!) are _also included_ in the separated model's NE (or NE-tumor) marker gene lists?
+
+```{r}
+combined_markers <- model_combined$markers$full$Neuroendocrine
+
+combined_markers |>
+  # only comparisons to other groups of cells
+  purrr::discard_at("Neuroendocrine") |>
+  purrr::imap(
+    \(combined_marker_genes, cell_type) {
+      separated_model_markers <- c(
+        # upregulated in NE compared to cell_type
+        ne_markers[[cell_type]],
+        # upregulated in NE-tumor compared to cell-type
+        ne.tumor_markers[[cell_type]]
+      ) |> unique()
+
+      # how many combined are in that separated list?
+      sum(combined_marker_genes %in% separated_model_markers)
+    }
+  )
+```
+
+Here, we see that NE marker genes from the combined model are essentially entirely contained within the NE and/or NE-tumor categories of the separated model.
+
+### Conclusions
+
+Based on a brief comparison of marker genes in the SingleR models, we see that:
+
+* In the _separated model_, marker genes that distinguish NE from other cell types and marker genes that distinguish NE-tumor from other cell types are highly similar.
+  * These genes were identified in NBAtlas as NE marker genes as well
+  * These genes tend to overlap with marker genes that distinguish NE from other cell types in the _combined model_
+* It is additionally worth noting that SingleR inference took much longer with the separated than combined model
+
+This minimal exploration does not suggest that there are salient differences between the two NE categories in the separated model.
+
+## SingleR inference: Combined vs. separated
+
+We'll begin with a heatmap directly comparing annotations between the two SingleR models:
+
+```{r, fig.height = 8, fig.width = 8}
+make_jaccard_heatmap(
+  celltype_df,
+  "singler_label_combined",
+  "singler_label_separated",
+  "Combined model (single NE category)",
+  "Separated model (NE and NE-tumor)"
+)
+```
+
+In the next section, we'll look at the numbers a bit more closely.
+
+
+### Cells labeled as Neuroendocrine or Neuroendocrine-tumor
+
+We'll first directly compare cells that were labeled as a `Neuroendocrine` cell type with either model.
+Each row shows counts of cells that had given pairs corresponding labels from inference with either model.
+
+```{r}
+celltype_df |>
+  dplyr::filter(
+    singler_label_combined == "Neuroendocrine" | stringr::str_detect(singler_label_separated, "Neuroendocrine")
+  ) |>
+  dplyr::count(singler_label_combined, singler_label_separated) |>
+  dplyr::arrange(desc(n))
+```
+
+### Cells with different labels between models
+
+Next, we'll print a table that directly shows the counts of cells with different labels as inferred with either model.
+
+```{r}
+celltype_df |>
+  dplyr::filter(singler_label_combined != singler_label_separated) |>
+  dplyr::count(singler_label_combined, singler_label_separated) |>
+  dplyr::arrange(desc(n))
+```
+
+
+
+
+### Unlabeled cells
+
+We can also ask whether each model was able to label cells successfully, or whether more cells were ambiguous (aka `pruned.label` is `NA`) in one model or the other.
+
+How many cells were `NA` in both models?
+
+```{r}
+na_cells <- celltype_df |>
+  dplyr::filter(is.na(singler_label_combined), is.na(singler_label_separated)) |>
+  dplyr::pull(barcodes)
+
+length(na_cells)
+```
+
+
+
+#### Unlabeled cells in the separated model
+
+Excluding cells which neither model labeled...
+
+* How many cells did the separated model uniquely fail to label?
+* What did the combined model label those cells?
+
+```{r}
+# if na in separated, what was it in combined?
+unlabeled_in_separated <- singler_results_separated |>
+  as.data.frame() |>
+  tibble::rownames_to_column("barcodes") |>
+  dplyr::filter(is.na(pruned.labels), !(barcodes %in% na_cells)) |>
+  dplyr::pull(barcodes)
+length(unlabeled_in_separated)
+```
+
+
+```{r}
+celltype_df |>
+  dplyr::filter(barcodes %in% unlabeled_in_separated) |>
+  dplyr::count(singler_label_combined) |>
+  dplyr::arrange(desc(n))
+```
+
+
+
+
+#### Unlabeled cells in the combined model
+
+Excluding cells which neither model labeled...
+
+* How many cells did the combined model uniquely fail to label?
+* What did the separated model label those cells?
+
+```{r}
+# if na in combined, what was it in separated?
+unlabeled_in_combined <- singler_results_combined |>
+  as.data.frame() |>
+  tibble::rownames_to_column("barcodes") |>
+  dplyr::filter(is.na(pruned.labels), !(barcodes %in% na_cells)) |>
+  dplyr::pull(barcodes)
+length(unlabeled_in_combined)
+```
+
+```{r}
+celltype_df |>
+  dplyr::filter(barcodes %in% unlabeled_in_combined) |>
+  dplyr::count(singler_label_separated) |>
+  dplyr::arrange(desc(n))
+```
+
+
+
+### Score comparisons
+
+In the separated reference, for cells that are labeled either `NE` or `NE-tumor` (considering the `pruned.labels` specifically), which label has the _second highest score_?
+We expect that the second highest score will usually be the other `NE` label if these cell types are indeed highly similar.
+
+
+Note that there were this many total NE and NE-tumor cells identified by the separated model:
+```{r}
+separated_ne_df <- singler_results_separated |>
+  as.data.frame() |>
+  tibble::rownames_to_column("barcodes") |>
+  # keep only cells labeled with one of the NE categories
+  dplyr::filter(stringr::str_detect(pruned.labels, "Neuroendocrine"))
+nrow(separated_ne_df)
+```
+
+The table below shows counts for how many times the given label is the second-highest score:
+
+```{r}
+SingleR::plotDeltaDistribution(
+  singler_results_separated,
+  show = "delta.next",
+  size = 0.5,
+  ncol = 4
+)
+```
+
+```{r}
+# tidy the scores into long format
+scores_df <- singler_results_separated$scores |>
+  as.data.frame() |>
+  dplyr::mutate(barcodes = rownames(singler_results_separated)) |>
+  tidyr::pivot_longer(
+    -barcodes,
+    names_to = "score_label",
+    values_to = "score"
+  )
+
+
+# This dataframe grabs the labels associated with delta.next, aka the label for the 2nd highest score
+next_label_df <- scores_df |>
+  dplyr::group_by(barcodes) |>
+  # use -score to go in descending order and then keep only the SECOND rank
+  dplyr::mutate(score_rank = rank(-score)) |>
+  dplyr::filter(score_rank == 2) |>
+  dplyr::ungroup() |>
+  dplyr::select(barcodes, delta.next_label = score_label)
+
+
+# This dataframe grabs the actual scores associated with the assigned pruned.labels
+full_scores_df <- scores_df |>
+  # bring in the real labels and delta.next scores
+  dplyr::inner_join(
+    data.frame(
+      barcodes = rownames(singler_results_separated),
+      singler_label = singler_results_separated$pruned.labels,
+      delta.next = singler_results_separated$delta.next
+    ),
+    by = "barcodes"
+  ) |>
+  # the score whose label matches the assigned label is the score we want
+  dplyr::filter(score_label == singler_label) |>
+  dplyr::select(barcodes, singler_label_score = score, singler_label, delta.next) |>
+  # bring in the delta.next_label
+  dplyr::inner_join(
+    next_label_df,
+    by = "barcodes"
+  ) |>
+  unique() |>
+  # Finally, add a column for the delta.next / singler_label_score
+  dplyr::mutate(delta.next_rel_difference = (delta.next / singler_label_score))
+full_scores_df |>
+  dplyr::filter(delta.next_fraction > 1)
+
+ggplot(full_scores_df) +
+  aes(x = singler_label, y = delta.next_fraction) +
+  geom_boxplot() +
+  theme(axis.text = element_text(angle = 45))
+```
+
+```{r}
+# [, "Neuroendocrine"]
+
+
+next_label_df
+
+next_label_barcodes <- next_label_df$barcodes
+
+
+singler_results_separated |>
+  as.data.frame() |>
+  tibble::rownames_to_column("barcodes") |>
+  dplyr::select(barcodes, pruned.labels, delta.next) |>
+  ggplot() +
+  aes(x = pruned.labels, y = delta.next) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 90))
+
+dplyr::add_count(delta.next_label)
+# format for printing
+dplyr::mutate(second_highest_delta_label = stringr::str_remove(cell_type, "scores\\.")) |>
+  dplyr::arrange(desc(n)) |>
+  dplyr::select(
+    assigned_label = pruned.labels,
+    second_highest_delta_label,
+  )
+```
+
+
+Next we'll look at the score heatmaps to see the overall support for labels as inferred with both models.
+
+#### Separated model SingleR score heatmap
+
+```{r, fig.width = 10}
+SingleR::plotScoreHeatmap(singler_results_separated)
+```
+
+
+#### Combined model SingleR score heatmap
+
+
+```{r, fig.width = 10}
+SingleR::plotScoreHeatmap(singler_results_combined)
+```
+
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
