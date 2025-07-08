@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# This script is used to create an html notebook summarizing the expression of cell type specific marker genes in the assigned consensus cell types
+# This script is used to create an html notebook summarizing the expression of cell type specific marker genes in the assigned consensus cell types 
 # One notebook will pe produced for each project
-# The input consensus cell types are obtained from running the cell-type-consensus module in OpenScPCA-nf
-# and can be downloaded using the download script in the root directory of the repo using the following command:
+# The input consensus cell types are obtained from running the cell-type-consensus module in OpenScPCA-nf 
+# and can be downloaded using the download script in the root directory of the repo using the following command: 
 
-# ./download-results.py --module cell-type-consensus --release 2025-03-20
+# ./download-results.py --module cell-type-consensus 
 
 # To use this script run:
 
@@ -20,11 +20,11 @@ cd $(dirname "$0")
 # directory with results from cell-type-consensus
 consensus_results_dir="../../data/current/results/cell-type-consensus"
 
-# directory to store rendered notebooks
-output_notebook_dir="exploratory-notebooks/cell-type-validation-notebooks"
+# directory to store rendered notebooks 
+output_notebook_dir="exploratory-notebooks/cell-type-validation-notebooks" 
 mkdir -p ${output_notebook_dir}
 
-# render one notebook for each project
+# render one notebook for each project 
 for project_id in $(basename ${consensus_results_dir}/SCPCP*); do
 
     echo "Rendering notebook for $project_id"
