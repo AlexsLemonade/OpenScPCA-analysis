@@ -2,8 +2,6 @@
 #
 # Docker modules are run on pull requests when code for files that affect the Docker image have changed.
 # If other files are used during the Docker build, they should be added to `paths`
-#
-# At module initialization, this workflow is inactive, and needs to be activated manually
 
 name: Build docker image for cell-type-neuroblastoma-04
 
@@ -13,22 +11,22 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - "analyses/cell-type-neuroblastoma-04/Dockerfile"
-  #     - "analyses/cell-type-neuroblastoma-04/.dockerignore"
-  #     - "analyses/cell-type-neuroblastoma-04/renv.lock"
-  #     - "analyses/cell-type-neuroblastoma-04/conda-lock.yml"
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - "analyses/cell-type-neuroblastoma-04/Dockerfile"
-  #     - "analyses/cell-type-neuroblastoma-04/.dockerignore"
-  #     - "analyses/cell-type-neuroblastoma-04/renv.lock"
-  #     - "analyses/cell-type-neuroblastoma-04/conda-lock.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "analyses/cell-type-neuroblastoma-04/Dockerfile"
+      - "analyses/cell-type-neuroblastoma-04/.dockerignore"
+      - "analyses/cell-type-neuroblastoma-04/renv.lock"
+      - "analyses/cell-type-neuroblastoma-04/conda-lock.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "analyses/cell-type-neuroblastoma-04/Dockerfile"
+      - "analyses/cell-type-neuroblastoma-04/.dockerignore"
+      - "analyses/cell-type-neuroblastoma-04/renv.lock"
+      - "analyses/cell-type-neuroblastoma-04/conda-lock.yml"
   workflow_dispatch:
     inputs:
       push-ecr:
