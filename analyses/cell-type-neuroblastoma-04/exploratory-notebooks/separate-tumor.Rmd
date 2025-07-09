@@ -197,7 +197,7 @@ ne.tumor_markers <- model_separated$markers$full$`Neuroendocrine-tumor`
 Below we print the intersection of these two sets of marker genes for each cell type comparison:
 ```{r}
 separated_cell_types <- names(ne_markers)
-non_neuro_cell_types <- separated_cell_types[!(stringr::str_detect(separated_cell_types, "Neuro"))]
+non_neuro_cell_types <- separated_cell_types[!(stringr::str_detect(separated_cell_types, "Neuroendocrine"))]
 
 intersecting_marker_genes <- non_neuro_cell_types |>
   purrr::set_names() |>
@@ -242,16 +242,22 @@ In the plot, each point represents gene expression in a given cell, and the blac
 That said, note that there are likely very different numbers of cells labeled as `NE` and `NE-tumor`, which may influence how these plots are interpreted.
 ```{r}
 celltype_df |>
-  dplyr::filter(stringr::str_detect(singler_label_separated, "Neuro")) |>
+  dplyr::filter(stringr::str_detect(singler_label_separated, "Neuroendocrine")) |>
   dplyr::count(singler_label_separated)
 ```
 
 
 ```{r}
-combined_marker_genes <- model_combined$markers$full$Neuroendocrine |>
+ne_marker_genes <- model_separated$markers$full$Neuroendocrine |>
+  purrr::reduce(c) |>
+  unique()
+  
+ ne.tumor_marker_genes <- model_separated$markers$full$`Neuroendocrine-tumor` |>
   purrr::reduce(c) |>
   unique()
 
+ne_only <- setdiff(ne_marker_genes, ne.tumor_marker_genes)
+ne.tumor_only <- setdiff(ne.tumor_marker_genes, ne_marker_genes) 
 cell_types <- names(ne_markers)
 non_neuro_cell_types <- cell_types[!(stringr::str_detect(cell_types, "Neuro"))]
 
@@ -415,23 +421,10 @@ Each row shows counts of cells that had given pairs corresponding labels from in
 
 ```{r}
 celltype_df |>
-  dplyr::filter(
-    singler_label_combined == "Neuroendocrine" | stringr::str_detect(singler_label_separated, "Neuroendocrine")
-  ) |>
   dplyr::count(singler_label_combined, singler_label_separated) |>
   dplyr::arrange(desc(n))
 ```
 
-### Cells with different labels between models
-
-Next, we'll print a table that directly shows the counts of cells with different labels as inferred with either model.
-
-```{r}
-celltype_df |>
-  dplyr::filter(singler_label_combined != singler_label_separated) |>
-  dplyr::count(singler_label_combined, singler_label_separated) |>
-  dplyr::arrange(desc(n))
-```
 
 
 ### Unlabeled cells
