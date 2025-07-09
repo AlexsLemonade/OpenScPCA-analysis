@@ -4,9 +4,11 @@
 # The script exports an RDS file containing the full SingleR result DataFrame object
 #  and a TSV file containing only annotations and delta.next values
 
-suppressPackageStartupMessages({
-  library(optparse)
-  library(SingleCellExperiment)
+suppressWarnings({
+  suppressPackageStartupMessages({
+    library(optparse)
+    library(SingleCellExperiment)
+  })
 })
 
 option_list <- list(

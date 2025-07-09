@@ -5,3 +5,7 @@
 # Ignore the scratch directory (but keep it present)
 /scratch/*
 !/scratch/.gitkeep
+
+# Ignore certain exploratory notebook htmls
+exploratory-notebooks/reference-aggregation.nb.html
+exploratory-notebooks/separate-tumor.nb.html

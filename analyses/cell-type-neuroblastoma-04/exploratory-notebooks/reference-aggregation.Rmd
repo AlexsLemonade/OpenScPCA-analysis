@@ -62,6 +62,7 @@ aggr_singler_file <- file.path(
   results_dir,
   params$sample_id,
   "aggregated",
+  "NE-tumor-combined",
   glue::glue("{params$library_id}_singler-results.rds")
 )
 
@@ -69,6 +70,7 @@ non_aggr_singler_file <- file.path(
   results_dir,
   params$sample_id,
   "not-aggregated",
+  "NE-tumor-combined",
   glue::glue("{params$library_id}_singler-results.rds")
 )
 
