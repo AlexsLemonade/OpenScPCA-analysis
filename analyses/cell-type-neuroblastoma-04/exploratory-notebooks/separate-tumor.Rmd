@@ -174,8 +174,7 @@ model_combined <- readRDS(model_combined_file)
 ## Compare trained SingleR models
 
 In this section, we will compare some of the marker genes identified in the trained SingleR models directly.
-
-When training a model, SingleR performs pairwise comparisons to identify marker genes as the top 10 upregulated genes for each label compared to each other label.
+When training a model as we have done here, SingleR performs pairwise comparisons to identify marker genes as the top 10 upregulated genes for each label compared to each other label.
 
 ### Intersecting NE marker genes in the separated model
 
@@ -183,8 +182,8 @@ We'll first look at the `NE-separated` model which has two categories for `Neuro
 We'll pull out the marker genes for each and ask how similar they are.
 In other words, we'll ask if there is overlap between:
 
-* Marker genes upregulated in NE compared to each other cell type
-* Marker genes upregulated in NE-tumor compared to each other cell type
+* Marker genes upregulated in `NE` compared to each other cell type
+* Marker genes upregulated in `NE-tumor` compared to each other cell type
 
 ```{r}
 # markers upregulated NE compared to other cell types in the separated model
@@ -237,6 +236,8 @@ We'll look at these genes' expression in cells that were annotated as `NE` and `
 We expect that these distributions will show some difference (since `SingleR` will find genes no matter what!) between annotated cell types `NE` and `NE-tumor`.
 If the magnitude of the difference is large, it suggests that separating NE into two groups may not be unreasonable.
 If the magnitude of the difference is small, it suggests that separating NE into two groups is oversplitting.
+
+In the plot, each point represents gene expression in a given cell, and the black diamonds are the mean expression for that gene.
 
 That said, note that there are likely very different numbers of cells labeled as `NE` and `NE-tumor`, which may influence how these plots are interpreted.
 ```{r}
@@ -300,7 +301,7 @@ different_marker_genes
 
 
 
-```{r, fig.width = 12}
+```{r, message=F}
 plot_barcodes <- celltype_df |>
   dplyr::filter(stringr::str_detect(singler_label_separated, "Neuroendocrine")) |>
   dplyr::pull(barcodes)
@@ -317,15 +318,19 @@ colData(sce) <- colData(sce) |>
     by = "barcodes"
   ) |>
   DataFrame(row.names = rownames(colData(sce)))
+```
 
+
+```{r, fig.width = 12, message=F, warning=F}
 # plot the NE-only genes
 plot1 <- scater::plotExpression(
   sce[different_marker_genes$ne_only, plot_barcodes],
   features = different_marker_genes$ne_only,
   x = "singler_cell_type",
   colour_by = "singler_cell_type",
-  point_size = 0.5
+  point_size = 0.5,
 ) +
+  stat_summary(shape = 18) +
   theme(legend.position = "none") +
   ggtitle("Neuroendocrine marker genes")
 
@@ -337,6 +342,7 @@ plot2 <- scater::plotExpression(
   colour_by = "singler_cell_type",
   point_size = 0.5
 ) +
+  stat_summary(shape = 18) +
   theme(legend.position = "none") +
   ggtitle("Neuroendocrine-tumor marker genes")
 
@@ -347,9 +353,9 @@ plot1 + plot2
 
 ### Compare separated to combined models
 
-Next, we'll look at the NE marker genes between references.
+Next, we'll look at the NE marker genes between references and ask for a quick summary:
 
-For a quick summary, we'll ask: How many of the NE markers in the combined model (out of 10 total per cell type comparison!) are _also included_ in the separated model's NE (or NE-tumor) marker gene lists?
+How many of the `NE` markers in the combined model (again, out of 10 total per cell type comparison!) are _also included_ in the separated model's `NE` (or `NE-tumor`) marker gene lists?
 
 ```{r}
 combined_markers <- model_combined$markers$full$Neuroendocrine
@@ -369,10 +375,12 @@ combined_markers |>
       # how many combined are in that separated list?
       sum(combined_marker_genes %in% separated_model_markers)
     }
-  )
+  ) |>
+  as.data.frame() |>
+  t()
 ```
 
-Here, we see that NE marker genes from the combined model are essentially entirely contained within the NE and/or NE-tumor categories of the separated model.
+Here, we see that `NE` marker genes from the combined model are essentially entirely contained within the `NE` and/or `NE-tumor` categories of the separated model.
 
 ### Conclusions
 
@@ -383,7 +391,6 @@ Based on a brief comparison of marker genes in the SingleR models, we see that:
   * These genes tend to overlap with marker genes that distinguish NE from other cell types in the _combined model_
 * It is additionally worth noting that SingleR inference took much longer with the separated than combined model
 
-This minimal exploration does not suggest that there are salient differences between the two NE categories in the separated model.
 
 ## SingleR inference: Combined vs. separated
 
@@ -399,8 +406,7 @@ make_jaccard_heatmap(
 )
 ```
 
-In the next section, we'll look at the numbers a bit more closely.
-
+In the subsections below, we'll look at the numbers behind the heatmap a bit more closely.
 
 ### Cells labeled as Neuroendocrine or Neuroendocrine-tumor
 
@@ -428,8 +434,6 @@ celltype_df |>
 ```
 
 
-
-
 ### Unlabeled cells
 
 We can also ask whether each model was able to label cells successfully, or whether more cells were ambiguous (aka `pruned.label` is `NA`) in one model or the other.
@@ -443,7 +447,6 @@ na_cells <- celltype_df |>
 
 length(na_cells)
 ```
-
 
 
 #### Unlabeled cells in the separated model
@@ -472,8 +475,6 @@ celltype_df |>
 ```
 
 
-
-
 #### Unlabeled cells in the combined model
 
 Excluding cells which neither model labeled...
@@ -500,131 +501,35 @@ celltype_df |>
 
 
 
-### Score comparisons
-
-In the separated reference, for cells that are labeled either `NE` or `NE-tumor` (considering the `pruned.labels` specifically), which label has the _second highest score_?
-We expect that the second highest score will usually be the other `NE` label if these cell types are indeed highly similar.
-
-
-Note that there were this many total NE and NE-tumor cells identified by the separated model:
-```{r}
-separated_ne_df <- singler_results_separated |>
-  as.data.frame() |>
-  tibble::rownames_to_column("barcodes") |>
-  # keep only cells labeled with one of the NE categories
-  dplyr::filter(stringr::str_detect(pruned.labels, "Neuroendocrine"))
-nrow(separated_ne_df)
-```
-
-The table below shows counts for how many times the given label is the second-highest score:
-
-```{r}
-SingleR::plotDeltaDistribution(
-  singler_results_separated,
-  show = "delta.next",
-  size = 0.5,
-  ncol = 4
-)
-```
-
-```{r}
-# tidy the scores into long format
-scores_df <- singler_results_separated$scores |>
-  as.data.frame() |>
-  dplyr::mutate(barcodes = rownames(singler_results_separated)) |>
-  tidyr::pivot_longer(
-    -barcodes,
-    names_to = "score_label",
-    values_to = "score"
-  )
-
-
-# This dataframe grabs the labels associated with delta.next, aka the label for the 2nd highest score
-next_label_df <- scores_df |>
-  dplyr::group_by(barcodes) |>
-  # use -score to go in descending order and then keep only the SECOND rank
-  dplyr::mutate(score_rank = rank(-score)) |>
-  dplyr::filter(score_rank == 2) |>
-  dplyr::ungroup() |>
-  dplyr::select(barcodes, delta.next_label = score_label)
-
-
-# This dataframe grabs the actual scores associated with the assigned pruned.labels
-full_scores_df <- scores_df |>
-  # bring in the real labels and delta.next scores
-  dplyr::inner_join(
-    data.frame(
-      barcodes = rownames(singler_results_separated),
-      singler_label = singler_results_separated$pruned.labels,
-      delta.next = singler_results_separated$delta.next
-    ),
-    by = "barcodes"
-  ) |>
-  # the score whose label matches the assigned label is the score we want
-  dplyr::filter(score_label == singler_label) |>
-  dplyr::select(barcodes, singler_label_score = score, singler_label, delta.next) |>
-  # bring in the delta.next_label
-  dplyr::inner_join(
-    next_label_df,
-    by = "barcodes"
-  ) |>
-  unique() |>
-  # Finally, add a column for the delta.next / singler_label_score
-  dplyr::mutate(delta.next_rel_difference = (delta.next / singler_label_score))
-full_scores_df |>
-  dplyr::filter(delta.next_fraction > 1)
-
-ggplot(full_scores_df) +
-  aes(x = singler_label, y = delta.next_fraction) +
-  geom_boxplot() +
-  theme(axis.text = element_text(angle = 45))
-```
-
-```{r}
-# [, "Neuroendocrine"]
-
-
-next_label_df
-
-next_label_barcodes <- next_label_df$barcodes
-
-
-singler_results_separated |>
-  as.data.frame() |>
-  tibble::rownames_to_column("barcodes") |>
-  dplyr::select(barcodes, pruned.labels, delta.next) |>
-  ggplot() +
-  aes(x = pruned.labels, y = delta.next) +
-  geom_boxplot() +
-  theme(axis.text.x = element_text(angle = 90))
-
-dplyr::add_count(delta.next_label)
-# format for printing
-dplyr::mutate(second_highest_delta_label = stringr::str_remove(cell_type, "scores\\.")) |>
-  dplyr::arrange(desc(n)) |>
-  dplyr::select(
-    assigned_label = pruned.labels,
-    second_highest_delta_label,
-  )
-```
-
-
+#### Score heatmaps
 Next we'll look at the score heatmaps to see the overall support for labels as inferred with both models.
 
-#### Separated model SingleR score heatmap
+
+##### Separated model SingleR score heatmap
 
 ```{r, fig.width = 10}
 SingleR::plotScoreHeatmap(singler_results_separated)
 ```
 
 
-#### Combined model SingleR score heatmap
+##### Combined model SingleR score heatmap
 
 
 ```{r, fig.width = 10}
 SingleR::plotScoreHeatmap(singler_results_combined)
 ```
 
+#### Delta median distributions
+
+Finally, we'll look at the distribution of delta.median scores in the separated model specifically for the `NE` categories.
+
+```{r, fig.width = 6}
+SingleR::plotDeltaDistribution(
+  singler_results_separated,
+  labels.use = c("Neuroendocrine", "Neuroendocrine-tumor"),
+  size = 1
+)
+```
 
 ## Session Info
 
@@ -632,3 +537,7 @@ SingleR::plotScoreHeatmap(singler_results_combined)
 # record the versions of the packages used in this analysis and other environment information
 sessionInfo()
 ```
+
+
+
+
