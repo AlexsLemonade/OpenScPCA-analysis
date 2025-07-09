@@ -141,11 +141,11 @@ download_file $nbatlas_tumor_url $nbatlas_tumor_metadata_file
 # Convert the NBAtlas object to SCE
 # Temporarily we do not convert to AnnData to save time in CI before we actually get to running scArches
 # See: https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/1190
-#Rscript ${script_dir}/00_convert-nbatlas.R \
-#   --nbatlas_file "${nbatlas_seurat}" \
-#   --tumor_metadata_file "${nbatlas_tumor_metadata_file}" \
-#   --sce_file "${nbatlas_sce}" \
-#   ${test_flag}
+Rscript ${script_dir}/00_convert-nbatlas.R \
+  --nbatlas_file "${nbatlas_seurat}" \
+  --tumor_metadata_file "${nbatlas_tumor_metadata_file}" \
+  --sce_file "${nbatlas_sce}" \
+  ${test_flag}
    # For now, we will not save the AnnData object
    #--anndata_file "${nbatlas_anndata}"
 
@@ -156,13 +156,13 @@ download_file $nbatlas_tumor_url $nbatlas_tumor_metadata_file
 echo "Training SingleR model..."
 
 # Note can pass in an arbitrary SCE here for sce_file; this is just the first sample in the project
-# Rscript ${script_dir}/01_train-singler-model.R \
-#     --nbatlas_sce "${nbatlas_sce}" \
-#     --sce_file "${data_dir}/SCPCS000101/SCPCL000118_processed.rds" \
-#     --singler_model_file "${singler_model_file}" \
-#     --threads $threads \
-#     ${aggregate_flag} \
-#     ${separate_tumor_flag}
+Rscript ${script_dir}/01_train-singler-model.R \
+    --nbatlas_sce "${nbatlas_sce}" \
+    --sce_file "${data_dir}/SCPCS000101/SCPCL000118_processed.rds" \
+    --singler_model_file "${singler_model_file}" \
+    --threads $threads \
+    ${aggregate_flag} \
+    ${separate_tumor_flag}
 
 
 # Run SingleR on all samples in the project
