@@ -147,7 +147,7 @@ model_combined <- readRDS(model_combined_file)
 
 ## SingleR inference: Combined vs. separated
 
-### UMAP
+### UMAPs
 
 
 ```{r}
@@ -178,7 +178,8 @@ singler_long_df <- singler_df |>
 ```
 
 
-First, we'll show all cell types:
+First, we'll show a UMAP of all cell types for both the combined and separated models:
+
 ```{r}
 # remove NAs before plotting
 ggplot(tidyr::drop_na(singler_long_df)) +
@@ -191,7 +192,9 @@ ggplot(tidyr::drop_na(singler_long_df)) +
 ```
 
 
-Next, we'll show this faceted only for the `NE` cell types
+Next, we'll show this UMAP in a faceted view for _only_ the `NE` cell types.
+This will help us see to what extent `NE` and `NE-tumor` cells are overlapping in the separated model, and how they are laid out compared to the combined model.
+
 ```{r}
 singler_ne_df <- singler_long_df |>
   dplyr::filter(stringr::str_detect(singler_label, "Neuroendocrine"))
@@ -227,12 +230,14 @@ In the subsections below, we'll look at the numbers behind the heatmap a bit mor
 
 #### All labels
 
-The follow table shows relationship between model annotations:
+The follow table shows relationship between model annotations.
+The separated model is shown in rows, and the combined model in columns.
+Each value is the count of cells with the given combination of labels.
 
 ```{r}
 table(
-  singler_df$singler_label_combined,
-  singler_df$singler_label_separated
+  singler_df$singler_label_separated,
+  singler_df$singler_label_combined
 )
 ```
 
@@ -413,14 +418,13 @@ singler_df |>
 ```
 
 
-
 ```{r}
 # Define the marker genes
-ne_marker_genes <- model_separated$markers$full$Neuroendocrine |>
+ne_marker_genes <- ne_markers |>
   purrr::reduce(c) |>
   unique()
 
-ne.tumor_marker_genes <- model_separated$markers$full$`Neuroendocrine-tumor` |>
+ne.tumor_marker_genes <- ne.tumor_markers |>
   purrr::reduce(c) |>
   unique()
 
@@ -450,7 +454,7 @@ colData(sce) <- colData(sce) |>
 ```
 
 
-```{r, fig.width = 14, message=F, warning=F}
+```{r, fig.width = 12, fig.height = 14, message=F, warning=F}
 # plot the NE-only genes
 plot1 <- scater::plotExpression(
   sce[ne_only, neuro_barcodes],
@@ -461,7 +465,10 @@ plot1 <- scater::plotExpression(
   ncol = 6 # facet cols
 ) +
   stat_summary(shape = 18) +
-  theme(legend.position = "none") +
+  theme(
+    legend.position = "none",
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  ) +
   ggtitle("Neuroendocrine marker genes")
 
 # plot the NE-tumor--only genes
@@ -474,7 +481,10 @@ plot2 <- scater::plotExpression(
   ncol = 6 # facet cols
 ) +
   stat_summary(shape = 18) +
-  theme(legend.position = "none") +
+  theme(
+    legend.position = "none",
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  ) +
   ggtitle("Neuroendocrine-tumor marker genes")
 
 
@@ -486,7 +496,8 @@ plot1 / plot2
 
 Next, we'll look at the NE marker genes between references and ask for a quick summary:
 
-How many of the `NE` markers in the combined model (again, out of 10 total per cell type comparison!) are _also included_ in the separated model's `NE` (or `NE-tumor`) marker gene lists?
+How many of the `NE` markers in the combined model (again, out of 10 total per cell type comparison!) are _also included_ in the separated model's `NE` or `NE-tumor` marker gene lists?
+The table below shows the counts for how many of the combined markers appear in the given separated model's marker gene lists.
 
 ```{r}
 combined_markers <- model_combined$markers$full$Neuroendocrine
@@ -496,19 +507,13 @@ combined_markers |>
   purrr::discard_at("Neuroendocrine") |>
   purrr::imap(
     \(combined_marker_genes, cell_type) {
-      separated_model_markers <- c(
-        # upregulated in NE compared to cell_type
-        ne_markers[[cell_type]],
-        # upregulated in NE-tumor compared to cell-type
-        ne.tumor_markers[[cell_type]]
-      ) |> unique()
-
-      # how many combined are in that separated list?
-      sum(combined_marker_genes %in% separated_model_markers)
+      data.frame(
+        n_markers_in_NE = sum(combined_marker_genes %in% ne_markers[[cell_type]]),
+        n_markers_in_NE_tumor = sum(combined_marker_genes %in% ne.tumor_markers[[cell_type]])
+      )
     }
   ) |>
-  as.data.frame() |>
-  t()
+  purrr::list_rbind(names_to = "cell_type")
 ```
 
 Here, we see that `NE` marker genes from the combined model are essentially entirely contained within the `NE` and/or `NE-tumor` categories of the separated model.
