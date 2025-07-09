@@ -7,7 +7,7 @@
 # SCPCS000105: cell, 10Xv2
 # SCPCS000108: cell, 10Xv3
 # SCPCS000109: cell, 10Xv3
-### note that SCPCS000109 has two libraries but we only consider one of them (skip SCPCL000127)
+### note that SCPCS000109 has two libraries
 # SCPCS000111: nucleus, 10Xv3.1
 # SCPCS000115: nucleus, 10Xv3.1
 
@@ -28,10 +28,10 @@ mkdir -p ${html_dir}
 sample_ids="SCPCS000104 SCPCS000105 SCPCS000108 SCPCS000109 SCPCS000111 SCPCS000115"
 
 # Process with reference that has a separate tumor category for Neuroendocrine cells in the tumor zoom
-#sample_ids=$sample_ids separate_tumor_singler=1 bash run-analysis.sh
+sample_ids=$sample_ids separate_tumor_singler=1 bash run-analysis.sh
 
 # Process with reference that has a single category for all Neuroendocrine cells (default)
-#sample_ids=$sample_ids separate_tumor_singler=0 bash run-analysis.sh
+sample_ids=$sample_ids separate_tumor_singler=0 bash run-analysis.sh
 
 # Render the exploratory notebook for these samples
 for sample_id in $sample_ids; do
@@ -41,10 +41,10 @@ for sample_id in $sample_ids; do
 
         echo "Rendering exploratory notebook for sample ${sample_id} and library ${library_id}"
 
-       Rscript -e "rmarkdown::render('${notebook_dir}/separate-tumor.Rmd',
-                                  output_file = '${library_id}_separate-tumor.nb.html',
-                                  output_dir = '${html_dir}',
-                                  params = list(sample_id  = '${sample_id}',
-                                                library_id = '${library_id}') )"
+        Rscript -e "rmarkdown::render('${notebook_dir}/separate-tumor.Rmd',
+                                    output_file = '${library_id}_separate-tumor.nb.html',
+                                    output_dir = '${html_dir}',
+                                    params = list(sample_id  = '${sample_id}',
+                                                    library_id = '${library_id}') )"
     done
 done
