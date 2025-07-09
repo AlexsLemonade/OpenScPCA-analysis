@@ -147,7 +147,71 @@ model_combined <- readRDS(model_combined_file)
 
 ## SingleR inference: Combined vs. separated
 
-We'll begin with a heatmap directly comparing annotations between the two SingleR models:
+### UMAP
+
+
+```{r}
+# colors adapted from:
+# https://github.com/AlexsLemonade/scpca-paper-figures/blob/a457408323495b6ecee0c63ccdd74b41e88ab703/palettes/validation-group-palette.tsv
+nbatlas_colors <- c(
+  "B cell" = "#AA0DFE",
+  "Endothelial" = "#FC1CBF",
+  "Fibroblast" = "#B10DA1",
+  "Myeloid" = "#90AD1C",
+  "Neuroendocrine" = "#FEAF16",
+  "Neuroendocrine-tumor" = "#B17A0F",
+  "NK cell" = "#FBE426",
+  "pDC" = "#16FF32",
+  "Plasma" = "#782AB6",
+  "RBCs" = "#F6222E",
+  "Schwann" = "#1CFFCE",
+  "Stromal other" = "#C4451C",
+  "T cell" = "#3283FE"
+)
+singler_long_df <- singler_df |>
+  tidyr::pivot_longer(
+    contains("singler_label"),
+    names_to = "model",
+    values_to = "singler_label"
+  ) |>
+  dplyr::mutate(model = stringr::str_remove(model, "singler_label_"))
+```
+
+
+First, we'll show all cell types:
+```{r}
+# remove NAs before plotting
+ggplot(tidyr::drop_na(singler_long_df)) +
+  aes(x = UMAP1, y = UMAP2, color = singler_label) +
+  geom_point(size = 0.5, alpha = 0.5) +
+  scale_color_manual(values = nbatlas_colors) +
+  facet_wrap(vars(model)) +
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(override.aes = list(size = 1, alpha = 1)))
+```
+
+
+Next, we'll show this faceted only for the `NE` cell types
+```{r}
+singler_ne_df <- singler_long_df |>
+  dplyr::filter(stringr::str_detect(singler_label, "Neuroendocrine"))
+
+# remove NAs before plotting
+ggplot(singler_ne_df) +
+  aes(x = UMAP1, y = UMAP2, color = singler_label) +
+  geom_point(size = 0.75, alpha = 0.5) +
+  scale_color_manual(values = nbatlas_colors) +
+  facet_grid(
+    rows = vars(model),
+    cols = vars(singler_label)
+  ) +
+  theme(legend.position = "none")
+```
+
+
+### Jaccard similarity heatmap
+
+Next we'll show a heatmap directly comparing annotations between the two SingleR models colored by Jaccard similarity.
 
 ```{r, fig.height = 8, fig.width = 8}
 make_jaccard_heatmap(
@@ -161,20 +225,19 @@ make_jaccard_heatmap(
 
 In the subsections below, we'll look at the numbers behind the heatmap a bit more closely.
 
-### Cells labeled as Neuroendocrine or Neuroendocrine-tumor
+#### All labels
 
-We'll first directly compare cells that were labeled as a `Neuroendocrine` cell type with either model.
-Each row shows counts of cells that had given pairs corresponding labels from inference with either model.
+The follow table shows relationship between model annotations:
 
 ```{r}
-singler_df |>
-  dplyr::count(singler_label_combined, singler_label_separated) |>
-  dplyr::arrange(desc(n))
+table(
+  singler_df$singler_label_combined,
+  singler_df$singler_label_separated
+)
 ```
 
 
-
-### Unlabeled cells
+#### Unlabeled cells
 
 We can also ask whether each model was able to label cells successfully, or whether more cells were ambiguous (aka `pruned.label` is `NA`) in one model or the other.
 
@@ -333,7 +396,7 @@ Moreover, the genes tend to be the same across cell types, which suggests these 
 
 ### Expression of different NE marker genes in the separated model
 
-Next, we'll pull out the _distinct_ marker genes associated with `NE` and `NE-tumor` groups that are also not represented in the combined model's `NE` marker genes.
+Next, we'll pull out the _distinct_ marker genes associated with `NE` and `NE-tumor` groups.
 
 We'll look at these genes' expression in cells that were annotated as `NE` and `NE-tumor` by the separated model.
 We expect that these distributions will show some difference (since `SingleR` will find genes no matter what!) between annotated cell types `NE` and `NE-tumor`.
@@ -350,7 +413,9 @@ singler_df |>
 ```
 
 
+
 ```{r}
+# Define the marker genes
 ne_marker_genes <- model_separated$markers$full$Neuroendocrine |>
   purrr::reduce(c) |>
   unique()
@@ -361,57 +426,12 @@ ne.tumor_marker_genes <- model_separated$markers$full$`Neuroendocrine-tumor` |>
 
 ne_only <- setdiff(ne_marker_genes, ne.tumor_marker_genes)
 ne.tumor_only <- setdiff(ne.tumor_marker_genes, ne_marker_genes)
-cell_types <- names(ne_markers)
-non_neuro_cell_types <- cell_types[!(stringr::str_detect(cell_types, "Neuro"))]
-
-different_marker_genes <- non_neuro_cell_types |>
-  purrr::set_names() |>
-  purrr::map(
-    \(cell_type) {
-      # In NE but not in NE-tumor
-      diff_genes_ne <- setdiff(
-        ne_markers[[cell_type]],
-        ne.tumor_markers[[cell_type]]
-      )
-
-      # In NE-tumor but not in NE
-      diff_genes_ne.tumor <- setdiff(
-        ne.tumor_markers[[cell_type]],
-        ne_markers[[cell_type]]
-      )
-
-      return(
-        list(
-          "ne_only" = diff_genes_ne,
-          "ne.tumor_only" = diff_genes_ne.tumor
-        )
-      )
-    }
-  ) |>
-  # transpose so it is a list of two, "ne_only" and "ne.tumor_only",
-  # each of which is a named list of marker genes for each cell type
-  purrr::transpose() |>
-  # collapse each nested list to remove cell types
-  # keep only unique genes
-  # remove any genes that are also in combined_marker_genes
-  purrr::map(
-    \(gene_list) {
-      gene_vector <- gene_list |>
-        purrr::reduce(c) |>
-        unique()
-      gene_vector[!(gene_vector %in% combined_marker_genes)]
-    }
-  )
-
-# This final list are the genes uniquely upregulated in the NE and
-# NE-tumor categories in the separated model
-different_marker_genes
 ```
 
 
 
 ```{r, message=F}
-plot_barcodes <- singler_df |>
+neuro_barcodes <- singler_df |>
   dplyr::filter(stringr::str_detect(singler_label_separated, "Neuroendocrine")) |>
   dplyr::pull(barcodes)
 
@@ -430,14 +450,15 @@ colData(sce) <- colData(sce) |>
 ```
 
 
-```{r, fig.width = 12, message=F, warning=F}
+```{r, fig.width = 14, message=F, warning=F}
 # plot the NE-only genes
 plot1 <- scater::plotExpression(
-  sce[different_marker_genes$ne_only, plot_barcodes],
-  features = different_marker_genes$ne_only,
+  sce[ne_only, neuro_barcodes],
+  features = ne_only,
   x = "singler_cell_type",
   colour_by = "singler_cell_type",
   point_size = 0.5,
+  ncol = 6 # facet cols
 ) +
   stat_summary(shape = 18) +
   theme(legend.position = "none") +
@@ -445,18 +466,19 @@ plot1 <- scater::plotExpression(
 
 # plot the NE-tumor--only genes
 plot2 <- scater::plotExpression(
-  sce[different_marker_genes$ne.tumor_only, plot_barcodes],
-  features = different_marker_genes$ne.tumor_only,
+  sce[ne.tumor_only, neuro_barcodes],
+  features = ne.tumor_only,
   x = "singler_cell_type",
   colour_by = "singler_cell_type",
-  point_size = 0.5
+  point_size = 0.5,
+  ncol = 6 # facet cols
 ) +
   stat_summary(shape = 18) +
   theme(legend.position = "none") +
   ggtitle("Neuroendocrine-tumor marker genes")
 
 
-plot1 + plot2
+plot1 / plot2
 ```
 
 
