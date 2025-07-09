@@ -1,0 +1,357 @@
+---
+title: "Explore the SingleR results"
+author: "Stephanie J. Spielman"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+---
+
+
+## Setup
+
+```{r, warning = FALSE}
+options(readr.show_col_types = FALSE)
+suppressPackageStartupMessages({
+  library(ggplot2)
+  library(patchwork)
+  library(SingleCellExperiment)
+})
+
+theme_set(theme_bw())
+
+# Define color ramp for shared use in the heatmaps
+heatmap_col_fun <- circlize::colorRamp2(c(0, 1), colors = c("white", "darkslateblue"))
+# Set heatmap padding option
+ComplexHeatmap::ht_opt(TITLE_PADDING = grid::unit(0.6, "in"))
+```
+
+
+### Paths
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+module_dir <- file.path(repository_base, "analyses", "cell-type-neuroblastoma-04")
+results_dir <- file.path(module_dir, "results", "singler") # sample_id/aggregated/NE-tumor-combined/
+data_dir <- file.path(repository_base, "data", "current", "SCPCP000004")
+```
+
+
+```{r url paths}
+# broad consensus cell type groups
+validation_url <- "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/consensus-validation-groups.tsv"
+```
+
+```{r file paths}
+# SingleR files
+singler_files <- list.files(
+  path = results_dir,
+  pattern = "_singler-annotations\\.tsv",
+  recursive = TRUE,
+  full.names = TRUE
+) |>
+  # keep only those nested in the directories `aggregated/NE-tumor-combined/`
+  purrr::keep(
+    \(x) {
+      stringr::str_detect(x, "/aggregated/NE-tumor-combined/")
+    }
+  ) |>
+  # add names as library id
+  purrr::set_names(
+    \(x) {
+      stringr::str_remove(basename(x), "_singler-annotations.tsv")
+    }
+  )
+
+# merged SCE file
+# OBTAINED FROM PORTAL DIRECTLY on 2025-07-09
+sce_file <- file.path(
+  data_dir,
+  "SCPCP000004_merged.rds"
+)
+```
+
+### Functions
+
+```{r}
+# Source Jaccard and heatmap utilities functions:
+source(file.path(module_dir, "exploratory-notebooks", "jaccard-utils.R"))
+
+# This function calculates and plots delta median for two groups of barcodes: those in agree and those not
+# This code is based on this scpca-nf code:
+# https://github.com/AlexsLemonade/scpca-nf/blob/4bb82aa635b572a62f2028dbec587fcfd2155e26/templates/qc_report/celltypes_supplemental_report.rmd#L626
+#
+# df: SingleR data frame with `scores.` columns
+# agree_barcodes: Vector of barcodes that have agreeing labels between aggregated and not
+# plot_title: Title for plot
+plot_delta_median <- function(df, agree_barcodes, plot_title) {
+  # extract scores into matrix
+  scores_mat <- df |>
+    dplyr::select(starts_with("scores.")) |>
+    as.matrix()
+  rownames(scores_mat) <- df$barcodes
+
+  # Create data frame for plotting with delta median and the full *non-pruned* cell labels
+  delta_median_df <- tibble::tibble(
+    delta_median = rowMaxs(scores_mat) - rowMedians(scores_mat),
+    # Need to grab the non-pruned label for this plot
+    full_labels = aggr$labels,
+    # if pruned.labels are NA ==> low confidence
+    # so, negate for this variable:
+    confident = !is.na(df$pruned.labels)
+  ) |>
+    dplyr::mutate(
+      confident = ifelse(confident, "High-quality", "Low-quality"),
+      barcodes = df$barcodes,
+      annotations_agree = barcodes %in% agree_barcodes
+    )
+
+  ggplot(delta_median_df) +
+    aes(x = annotations_agree, y = delta_median, color = confident) +
+    # don't jitter the height
+    geom_jitter(height = 0, alpha = 0.7) +
+    theme(legend.position = "bottom") +
+    ggtitle(plot_title)
+}
+```
+
+### Prepare input data
+
+Read SCE object to get consensus cell types and UMAP coordinates:
+
+```{r}
+merged_sce <- readRDS(sce_file)
+# remove assays we don't need immediately for space
+assay(merged_sce, "spliced") <- NULL
+assay(merged_sce, "counts") <- NULL
+gc()
+```
+
+Read cell type data frames:
+```{r}
+singler_df <- singler_files |>
+  purrr::map(readr::read_tsv) |>
+  purrr::list_rbind(names_to = "library_id") |>
+  dplyr::select(-delta.next, -labels) |>
+  dplyr::mutate(
+    # add cell id column for unique rows & joining
+    cell_id = glue::glue("{library_id}-{barcodes}"),
+    # recode NA -> "unknown_singler"
+    pruned.labels = ifelse(
+      is.na(pruned.labels),
+      "unknown_singler",
+      pruned.labels
+    )
+  )
+
+validation_df <- readr::read_tsv(validation_url) |>
+  dplyr::select(consensus_annotation, validation_group_annotation)
+```
+
+Join and prepare data for use:
+
+```{r}
+celltype_df <- scuttle::makePerCellDF(
+  merged_sce,
+  use.coldata = c("barcodes", "sample_id", "library_id", "consensus_celltype_annotation"),
+  use.dimred = c("UMAP")
+) |>
+  # there are repeated barcodes so we need to keep cell_id around
+  tibble::rownames_to_column("cell_id") |>
+  dplyr::rename(
+    UMAP1 = UMAP.1,
+    UMAP2 = UMAP.2,
+    consensus_annotation = consensus_celltype_annotation
+  ) |>
+  dplyr::left_join(validation_df, by = "consensus_annotation") |>
+  # recode NAs to "unknown_consensus" and remove full consensus labels
+  dplyr::mutate(validation_group_annotation = ifelse(
+    is.na(validation_group_annotation),
+    "unknown_consensus",
+    validation_group_annotation
+  )) |>
+  dplyr::select(-consensus_annotation) |>
+  dplyr::left_join(singler_df, by = c("cell_id", "barcodes", "library_id"))
+```
+
+
+
+```{r}
+unify_celltypes <- function(df, label_column, recoded_column) {
+  df |>
+    dplyr::mutate(
+      {{ recoded_column }} := dplyr::case_when(
+        # nbatlas ~ consensus
+        {{ label_column }} %in% c("Myeloid", "Fibroblast") ~ stringr::str_to_lower(label),
+        {{ label_column }} == "Endothelial" ~ "endothelial cell",
+        {{ label_column }} == "Plasma" ~ "plasma cell",
+        {{ label_column }} == "NK cell" ~ "natural killer cell",
+        # make the difference stromal labels more clearly distinguishable
+        {{ label_column }} == "stromal cell" ~ "stromal cell (consensus)",
+        {{ label_column }} == "Stromal other" ~ "Stromal other (NBAtlas)",
+        .default = {{ label_column }}
+      )
+    )
+}
+
+# Recode NBAtlas cell types where possible so they match with colors
+celltype_recoded_df <- celltype_df |>
+  # rename to make annotation sources more clear
+  dplyr::rename(
+    "consensus_validation" = validation_group_annotation,
+    "singler" = pruned.labels
+  ) |>
+  # pivot longer for wrangling
+  tidyr::pivot_longer(
+    c(consensus_validation, singler),
+    names_to = "annotation_type",
+    values_to = "label"
+  ) |>
+  unify_celltypes(label, label_recoded) |>
+  dplyr::select(-label)
+
+
+palette_df <- readr::read_tsv("../unified-cell-type-palette.tsv")
+setdiff(unique(celltype_recoded_df$label_recoded), palette_df$unified_label)
+```
+
+```{r, fig.height = 10, fig.width = 10} 
+# Pivot wider for heatmap functions
+celltype_recoded_wide_df <- celltype_recoded_df |>
+  tidyr::pivot_wider(
+    names_from = annotation_type,
+    values_from = label_recoded
+  )
+
+heatmap_col_fun <- circlize::colorRamp2(c(0, 1), colors = c("white", "darkslateblue"))
+
+make_jaccard_heatmap(
+  celltype_recoded_wide_df,
+  "consensus_validation",
+  "singler",
+  "Consensus validation label",
+  "SingleR NBAtlas label"
+)
+```
+
+
+```{r, fig.width = 12, fig.height = 8}
+celltype_pal <- palette_df$hex_color
+names(celltype_pal) <- palette_df$unified_label
+
+ggplot(celltype_recoded_df) +
+  aes(x = UMAP1, y = UMAP2, color = label_recoded) +
+  geom_point(size = 0.25, alpha = 0.5) +
+  scale_color_manual(
+    values = celltype_pal,
+    name = "Harmonized cell types"
+  ) +
+  facet_wrap(vars(annotation_type)) +
+  coord_equal() +
+  theme(
+    legend.position = "bottom",
+    axis.ticks = element_blank(),
+    axis.text = element_blank()
+  ) +
+  guides(color = guide_legend(override.aes = list(size = 2, alpha = 1)))
+```
+
+
+Let's facet just the SingleR annotations:
+
+
+
+```{r}
+# Adapted from scpca-nf
+# https://github.com/AlexsLemonade/scpca-nf/blob/4bb82aa635b572a62f2028dbec587fcfd2155e26/templates/qc_report/celltypes_qc.rmd#L134-L221
+
+#' Create a faceted UMAP panel where each panel has only one cell type colored
+#'
+#' @param umap_df Data frame with UMAP1 and UMAP2 columns
+#' @param annotation_column Column containing broad cell type annotation
+#' @param celltype_colors Named vector of colors to use for each broader validation group
+#' @param point_size Point size. Default is 1
+#'
+#' @return ggplot object containing a faceted UMAP where each cell type is a facet.
+#'   In each panel, the cell type of interest is colored red and all other cells are grey.
+faceted_umap <- function(umap_df,
+                         annotation_column,
+                         celltype_colors,
+                         point_size = 1) {
+  # color by the annotation column but only color one cell type at a time
+  faceted_umap <- ggplot(
+    umap_df,
+    aes(x = UMAP1, y = UMAP2, color = {{ annotation_column }})
+  ) +
+    # set points for all "other" points
+    geom_point(
+      data = dplyr::select(
+        umap_df, -{{ annotation_column }}
+      ),
+      color = "gray90",
+      alpha = 0.5,
+      size = point_size
+    ) +
+    scale_color_manual(values = celltype_colors) +
+    # set points for desired cell type
+    geom_point(size = point_size, alpha = 0.5) +
+    facet_wrap(
+      vars({{ annotation_column }}),
+      ncol = 5
+    ) +
+    # remove axis numbers and background grid
+    scale_x_continuous(labels = NULL, breaks = NULL) +
+    scale_y_continuous(labels = NULL, breaks = NULL) +
+    theme_bw() +
+    theme(
+      legend.position = "none",
+      aspect.ratio = 1,
+      strip.background = element_rect(fill = "transparent")
+    )
+
+
+  return(faceted_umap)
+}
+```
+
+
+
+```{r fig.width = 20}
+singler_recoded_df <- celltype_recoded_df |>
+  dplyr::filter(annotation_type == "singler")
+
+faceted_umap(
+  singler_recoded_df,
+  label_recoded,
+  celltype_pal
+)
+```
+
+
+For cells that directly match up with consensus:
+
+```{r}
+direct_celltype_matches <- c(
+  "B cell",
+  "T cell",
+  "myeloid",
+  "fibroblast",
+  "endothelial cell",
+  "plasma cell",
+  "natural killer cell",
+  "unknown_consensus" # _for this plot_, we'll recode the Neuroendocrine --> "unknown consensus" for the purposes of comparison
+)
+```
+
+
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
