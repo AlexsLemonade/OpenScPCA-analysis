@@ -10,6 +10,11 @@
 # - testing (Default value: 0)
 #   - Use `testing=1` to run with test data; this will also use the NBAtlas 50K subset for efficiency
 #   - Example usage: testing=1 ./run-analysis.sh
+# - `singler_results_dir` (Default value: "results/singler/")
+#   - By default, SingleR results are saved into `results/singler/` in a folder for each sample id.
+#     Use this argument to customize the output result directory.
+#     The provided value should be _relative_ to the directory this script is stored in.
+#   - Example usage: singler_results_dir=relative/other/result/path ./run-analysis.sh
 # - `aggregate_singler` (Default value: 1)
 #   - Use `aggregate_singler=0` to turn off reference aggregation before SingleR model training
 #   - Example usage: aggregate_singler=0 ./run-analysis.sh
@@ -39,10 +44,8 @@ script_dir="scripts"
 ref_dir="references"
 scratch_dir="scratch"
 results_dir="results"
-singler_results_dir="${results_dir}/singler"
 mkdir -p $ref_dir
 mkdir -p $scratch_dir
-mkdir -p $singler_results_dir
 
 ###################################################################
 ######################## Set up variables #########################
@@ -50,6 +53,7 @@ mkdir -p $singler_results_dir
 
 # Define argument defaults
 testing=${testing:-0} # default is not testing
+singler_results_dir=${singler_results_dir:-"${results_dir}/singler"} # default singler results directory is results/singler
 aggregate_singler=${aggregate_singler:-1} # default is to perform aggregation
 separate_tumor_singler=${separate_tumor_singler:-0} # default is to _not_ separate tumor cells
 sample_ids=${sample_ids:-"all"} # default is to run all samples
@@ -58,26 +62,16 @@ threads=${threads:-4} # default 4 threads
 # Set up singler aggregation
 if [[ $aggregate_singler -eq 1 ]]; then
     aggregate_flag="--aggregate_reference"
-    singler_aggregate_type="aggregated"
 else
     aggregate_flag=""
-    singler_aggregate_type="not-aggregated"
 fi
-singler_model_file="${scratch_dir}/singler-model_nbatlas_${singler_aggregate_type}.rds"
 
 # Set up tumor separation setting
 if [[ $separate_tumor_singler -eq 1 ]]; then
     separate_tumor_flag="--separate_tumor"
-    separate_tumor_type="NE-tumor-separated"
 else
     separate_tumor_flag=""
-    separate_tumor_type="NE-tumor-combined"
 fi
-
-# Define SingleR paths based on the above parsed input
-singler_results_subdir="${singler_aggregate_type}/${separate_tumor_type}" # sub-directory where results will be saved
-singler_model_file="${scratch_dir}/singler-model_nbatlas_${singler_aggregate_type}_${separate_tumor_type}.rds"
-
 
 # Set up the testing flag and data
 # - If we are testing, we'll use the NBAtlas 50K subset. Otherwise, we'll use the full atlas.
@@ -149,11 +143,15 @@ Rscript ${script_dir}/00_convert-nbatlas.R \
    # For now, we will not save the AnnData object
    #--anndata_file "${nbatlas_anndata}"
 
+
 ###################################################################
 ######################## SingleR annotation #######################
 ###################################################################
 
 echo "Training SingleR model..."
+
+# Define SingleR model file
+singler_model_file="${scratch_dir}/singler-model_nbatlas.rds"
 
 # Note can pass in an arbitrary SCE here for sce_file; this is just the first sample in the project
 Rscript ${script_dir}/01_train-singler-model.R \
@@ -170,7 +168,7 @@ for sample_id in $sample_ids; do
     echo "Running SingleR on $sample_id..."
 
     # define sample output folder
-    sample_results_dir="${singler_results_dir}/${sample_id}/${singler_results_subdir}"
+    sample_results_dir="${singler_results_dir}/${sample_id}"
     mkdir -p $sample_results_dir
 
     for sce_file in "${data_dir}/${sample_id}"/*_processed.rds; do
