@@ -75,7 +75,7 @@ threads=${threads:-4} # default 4 threads
 # singler arguments:
 
 singler_results_dir=${singler_results_dir:-"${results_dir}/singler"} # default singler results directory is results/singler
-singler_model_file=${singler_results_dir:-"${scratch_dir}/singler-model_nbatlas.rds"} # default singler model file is scratch/singler-model_nbatlas.rds
+singler_model_file=${singler_model_file:-"${scratch_dir}/singler-model_nbatlas.rds"} # default singler model file is scratch/singler-model_nbatlas.rds
 aggregate_singler=${aggregate_singler:-1} # default is to perform aggregation
 separate_tumor_singler=${separate_tumor_singler:-0} # default is to _not_ separate tumor cells
 filter_genes_singler=${filter_genes_singler:-0} # default is to _not_ filter out genes from NBAtlas
@@ -190,6 +190,7 @@ Rscript ${script_dir}/01_train-singler-model.R \
     ${aggregate_flag} \
     ${separate_tumor_flag} \
     ${filter_genes_flag}
+
 
 # Run SingleR on all samples in the project
 for sample_id in $sample_ids; do
