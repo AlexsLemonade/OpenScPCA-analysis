@@ -31,13 +31,13 @@ sample_ids="SCPCS000104 SCPCS000105 SCPCS000108 SCPCS000109 SCPCS000111 SCPCS000
 # Process with reference that has a separate tumor category for Neuroendocrine cells in the tumor zoom
 singler_dir="${results_dir}/singler-test_separated-tumor-ne"
 singler_model="${scratch_dir}/singler-model_nbatlas_separated.rds"
-sample_ids=$sample_ids singler_results_dir="${singler_dir}"  singler_model_file=${singler_model} separate_tumor_singler=1 bash run-analysis.sh
+sample_ids=$sample_ids singler_results_dir="${singler_dir}" singler_model_file="${singler_model}" separate_tumor_singler=1 bash run-analysis.sh
 
 
 # Process with reference that has a single category for all Neuroendocrine cells (default)
 singler_dir="${results_dir}/singler-test_combined-tumor-ne"
 singler_model="${scratch_dir}/singler-model_nbatlas_combined.rds"
-sample_ids=$sample_ids singler_results_dir="${singler_dir}" singler_model_file=${singler_model} separate_tumor_singler=0 bash run-analysis.sh
+sample_ids=$sample_ids singler_results_dir="${singler_dir}" singler_model_file="${singler_model}" separate_tumor_singler=0 bash run-analysis.sh
 
 
 # Render the exploratory notebook for these samples

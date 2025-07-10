@@ -30,12 +30,12 @@ sample_ids="SCPCS000104 SCPCS000105 SCPCS000108 SCPCS000109 SCPCS000111 SCPCS000
 # Process with aggregated reference (default)
 singler_dir="${results_dir}/singler-test_aggregated"
 singler_model="${scratch_dir}/singler-model_nbatlas_aggregated.rds"
-sample_ids=$sample_ids singler_results_dir="${singler_dir}" singler_model_file=${singler_model} aggregate_singler=1 bash run-analysis.sh
+sample_ids=$sample_ids singler_results_dir="${singler_dir}" singler_model_file="${singler_model}" aggregate_singler=1 bash run-analysis.sh
 
 # Process with non-aggregated reference
 singler_dir="${results_dir}/singler-test_not-aggregated"
 singler_model="${scratch_dir}/singler-model_nbatlas_not-aggregated.rds"
-sample_ids=$sample_ids singler_results_dir="${singler_dir}" singler_model_file=${singler_model} aggregate_singler=0 bash run-analysis.sh
+sample_ids=$sample_ids singler_results_dir="${singler_dir}" singler_model_file="${singler_model}" aggregate_singler=0 bash run-analysis.sh
 
 # Render the exploratory notebook for these samples
 for sample_id in $sample_ids; do
