@@ -9,3 +9,4 @@
 # Ignore certain exploratory notebook htmls
 exploratory-notebooks/reference-aggregation.nb.html
 exploratory-notebooks/separate-tumor.nb.html
+exploratory-notebooks/filter-genes.nb.html
