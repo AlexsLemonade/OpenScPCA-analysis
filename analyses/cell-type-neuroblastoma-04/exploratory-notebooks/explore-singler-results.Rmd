@@ -36,7 +36,7 @@ ComplexHeatmap::ht_opt(TITLE_PADDING = grid::unit(0.6, "in"))
 repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 
 module_dir <- file.path(repository_base, "analyses", "cell-type-neuroblastoma-04")
-results_dir <- file.path(module_dir, "results", "singler-filtered-genes")
+results_dir <- file.path(module_dir, "results", "singler")
 data_dir <- file.path(repository_base, "data", "current", "SCPCP000004")
 ```
 
