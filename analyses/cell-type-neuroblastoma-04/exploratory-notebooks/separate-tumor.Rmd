@@ -79,12 +79,12 @@ separated_singler_file <- file.path(
 model_separated_file <- file.path(
   module_dir,
   "scratch",
-  "singler-model_nbatlas_aggregated_NE-tumor-separated.rds"
+  "singler-model_nbatlas_separated.rds"
 )
 model_combined_file <- file.path(
   module_dir,
   "scratch",
-  "singler-model_nbatlas_aggregated_NE-tumor-combined.rds"
+  "singler-model_nbatlas_combined.rds"
 )
 
 
