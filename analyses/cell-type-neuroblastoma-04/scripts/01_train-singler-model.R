@@ -92,7 +92,7 @@ restrict_genes <- intersect(
 if (opts$filter_genes) {
   remove_genes <- c(
     grep("^MT-", restrict_genes, value = TRUE),
-    grep("^RP[SL]\\d+", restrict_genes, value = TRUE)
+    grep("^RP[SL]", restrict_genes, value = TRUE)
   )
   restrict_genes <- restrict_genes[!(restrict_genes %in% remove_genes)]
 }
