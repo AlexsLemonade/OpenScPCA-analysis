@@ -6,4 +6,3 @@ This directory contains exploratory notebooks that are not specifically run in t
   * Rendered notebooks are stored in `separate-tumor_htmls` and were generated with the script `generate_separate-tumor.sh`
 * `filter-genes.Rmd` is a template notebook that performs a cursory comparison of SingleR inferences made with a reference where mitochondrial and ribosomal genes were filtered out of the reference vs. not filtered
   * Rendered notebooks are stored in `filter-genes_htmls` and were generated with the script `generate_filter-genes.sh`
-* `jaccard-utils.R` contains utility functions to build heatmaps colored by Jaccard similarity

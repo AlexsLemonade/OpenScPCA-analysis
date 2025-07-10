@@ -90,7 +90,7 @@ validation_url <- "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-ana
 
 ```{r}
 # Source Jaccard and heatmap utilities functions:
-source(file.path(module_dir, "exploratory-notebooks", "jaccard-utils.R"))
+source(file.path(module_dir, "scripts", "utils", "jaccard-utils.R"))
 ```
 
 ### Prepare input data

@@ -101,7 +101,7 @@ sce_file <- file.path(
 
 ```{r}
 # Source Jaccard and heatmap utilities functions:
-source(file.path(module_dir, "exploratory-notebooks", "jaccard-utils.R"))
+source(file.path(module_dir, "scripts", "utils", "jaccard-utils.R"))
 ```
 
 ### Prepare input data
