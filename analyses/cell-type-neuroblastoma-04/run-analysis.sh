@@ -23,6 +23,11 @@
 #     Neuroendocrine cells during SingleR annotation.
 #     By defaut, all Neuroendocrine cells are considered together.
 #   - Example usage: separate_tumor_singler=1 ./run-analysis.sh
+# - `force_convert_nbatlas` (Default value: 0)
+#   - This script begins by converting the NBAtlas object to SCE and AnnData formats.
+#     By default, if these files exist, the conversion will not be redone.
+#     Use this flag to force conversion even if the files already exist.
+#   - Example usage: force_convert_nbatlas=1 ./run-analysis.sh
 # - `sample_ids` (Default value: "all")
 #   - By default, all samples in SCPCP000004 are processed. Specify a set of ids to only run a subset, which
 #     may be helpful in certain exploratory runs
@@ -56,6 +61,7 @@ testing=${testing:-0} # default is not testing
 singler_results_dir=${singler_results_dir:-"${results_dir}/singler"} # default singler results directory is results/singler
 aggregate_singler=${aggregate_singler:-1} # default is to perform aggregation
 separate_tumor_singler=${separate_tumor_singler:-0} # default is to _not_ separate tumor cells
+force_convert_nbatlas=${force_convert_nbatlas:-0} # do not force convert if it already exists
 sample_ids=${sample_ids:-"all"} # default is to run all samples
 threads=${threads:-4} # default 4 threads
 
@@ -135,14 +141,15 @@ download_file $nbatlas_tumor_url $nbatlas_tumor_metadata_file
 # Convert the NBAtlas object to SCE
 # Temporarily we do not convert to AnnData to save time in CI before we actually get to running scArches
 # See: https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/1190
-Rscript ${script_dir}/00_convert-nbatlas.R \
-  --nbatlas_file "${nbatlas_seurat}" \
-  --tumor_metadata_file "${nbatlas_tumor_metadata_file}" \
-  --sce_file "${nbatlas_sce}" \
-  ${test_flag}
-   # For now, we will not save the AnnData object
-   #--anndata_file "${nbatlas_anndata}"
-
+if [[ ! -f ${nbatlas_sce} || ${force_convert_nbatlas} -eq 1 ]]; then # TODO: add AnnData into this if
+    Rscript ${script_dir}/00_convert-nbatlas.R \
+      --nbatlas_file "${nbatlas_seurat}" \
+      --tumor_metadata_file "${nbatlas_tumor_metadata_file}" \
+      --sce_file "${nbatlas_sce}" \
+      ${test_flag}
+      # For now, we will not save the AnnData object
+      #--anndata_file "${nbatlas_anndata}"
+fi
 
 ###################################################################
 ######################## SingleR annotation #######################
