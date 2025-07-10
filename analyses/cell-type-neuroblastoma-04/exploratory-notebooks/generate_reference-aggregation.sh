@@ -19,6 +19,7 @@ set -euo pipefail
 module_dir=$(dirname "${BASH_SOURCE[0]}")
 cd ${module_dir}/..
 
+scratch_dir="scratch"
 results_dir="results"
 notebook_dir="exploratory-notebooks"
 html_dir="${notebook_dir}/reference-aggregation_htmls"
@@ -28,11 +29,13 @@ sample_ids="SCPCS000104 SCPCS000105 SCPCS000108 SCPCS000109 SCPCS000111 SCPCS000
 
 # Process with aggregated reference (default)
 singler_dir="${results_dir}/singler-test_aggregated"
-sample_ids=$sample_ids singler_results_dir="${singler_dir}" aggregate_singler=1 bash run-analysis.sh
+singler_model="${scratch_dir}/singler-model_nbatlas_aggregated.rds"
+sample_ids=$sample_ids singler_results_dir="${singler_dir}" singler_model_file=${singler_model} aggregate_singler=1 bash run-analysis.sh
 
 # Process with non-aggregated reference
 singler_dir="${results_dir}/singler-test_not-aggregated"
-sample_ids=$sample_ids singler_results_dir="${singler_dir}" aggregate_singler=0 bash run-analysis.sh
+singler_model="${scratch_dir}/singler-model_nbatlas_not-aggregated.rds"
+sample_ids=$sample_ids singler_results_dir="${singler_dir}" singler_model_file=${singler_model} aggregate_singler=0 bash run-analysis.sh
 
 # Render the exploratory notebook for these samples
 for sample_id in $sample_ids; do
