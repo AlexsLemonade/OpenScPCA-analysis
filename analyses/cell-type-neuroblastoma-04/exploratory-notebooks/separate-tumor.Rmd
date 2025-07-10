@@ -54,27 +54,26 @@ ComplexHeatmap::ht_opt(TITLE_PADDING = grid::unit(0.6, "in"))
 repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 
 module_dir <- file.path(repository_base, "analyses", "cell-type-neuroblastoma-04")
-results_dir <- file.path(module_dir, "results", "singler")
+results_dir <- file.path(module_dir, "results")
+combined_results_dir <- file.path(results_dir, "singler-test_combined-tumor-ne")
+separated_results_dir <- file.path(results_dir, "singler-test_separated-tumor-ne")
 data_dir <- file.path(repository_base, "data", "current", "SCPCP000004")
 ```
 
 ```{r file paths}
 # SingleR results
 combined_singler_file <- file.path(
-  results_dir,
+  combined_results_dir,
   params$sample_id,
-  "aggregated",
-  "NE-tumor-combined",
   glue::glue("{params$library_id}_singler-results.rds")
 )
 
 separated_singler_file <- file.path(
-  results_dir,
+  separated_results_dir,
   params$sample_id,
-  "aggregated",
-  "NE-tumor-separated",
   glue::glue("{params$library_id}_singler-results.rds")
 )
+
 
 # SingleR trained models
 model_separated_file <- file.path(
