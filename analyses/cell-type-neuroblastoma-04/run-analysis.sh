@@ -23,6 +23,11 @@
 #     Neuroendocrine cells during SingleR annotation.
 #     By defaut, all Neuroendocrine cells are considered together.
 #   - Example usage: separate_tumor_singler=1 ./run-analysis.sh
+# - `filter_genes_singler` (Default value: 0)
+#   - Use `filter_genes_singler=1` to specify that mitochondrial and ribosomal genes should be removed from NBAtlas
+#     before training the SingleR model.
+#     By defaut, these genes are not explicitly removed.
+#   - Example usage: filter_genes_singler=1 ./run-analysis.sh
 # - `force_convert_nbatlas` (Default value: 0)
 #   - This script begins by converting the NBAtlas object to SCE and AnnData formats.
 #     By default, if these files exist, the conversion will not be redone.
@@ -58,13 +63,18 @@ mkdir -p $scratch_dir
 
 # Define argument defaults
 testing=${testing:-0} # default is not testing
-singler_results_dir=${singler_results_dir:-"${results_dir}/singler"} # default singler results directory is results/singler
-aggregate_singler=${aggregate_singler:-1} # default is to perform aggregation
-separate_tumor_singler=${separate_tumor_singler:-0} # default is to _not_ separate tumor cells
 force_convert_nbatlas=${force_convert_nbatlas:-0} # do not force convert if it already exists
 sample_ids=${sample_ids:-"all"} # default is to run all samples
 threads=${threads:-4} # default 4 threads
 
+# singler arguments:
+singler_results_dir=${singler_results_dir:-"${results_dir}/singler"} # default singler results directory is results/singler
+aggregate_singler=${aggregate_singler:-1} # default is to perform aggregation
+separate_tumor_singler=${separate_tumor_singler:-0} # default is to _not_ separate tumor cells
+filter_genes_singler=${filter_genes_singler:-0} # default is to _not_ filter out genes from NBAtlas
+
+
+######## Set up singler flags ###########
 # Set up singler aggregation
 if [[ $aggregate_singler -eq 1 ]]; then
     aggregate_flag="--aggregate_reference"
@@ -79,7 +89,14 @@ else
     separate_tumor_flag=""
 fi
 
-# Set up the testing flag and data
+# Set up singler gene filtering
+if [[ filter_genes_singler -eq 1 ]]; then
+    filter_genes_flag="--filter_genes"
+else
+    filter_genes_flag=""
+fi
+
+####### Set up the testing flag and data ########
 # - If we are testing, we'll use the NBAtlas 50K subset. Otherwise, we'll use the full atlas.
 # - We'll also name the NBAtlas reference object files here with the same name as on Mendeley:
 #   https://data.mendeley.com/datasets/yhcf6787yp/3
@@ -95,7 +112,7 @@ else
     nbatlas_seurat="${scratch_dir}/seuratObj_NBAtlas_share_v20241203.rds"
 fi
 
-# Set up `sample_ids` and check that all sample_ids exist
+####### Set up `sample_ids` and check that all sample_ids exist #########
 sample_ids=${sample_ids:-"all"}
 if [[ $sample_ids == "all" ]]; then
     sample_ids=$(basename -a ${data_dir}/SCPCS*)
@@ -167,8 +184,8 @@ Rscript ${script_dir}/01_train-singler-model.R \
     --singler_model_file "${singler_model_file}" \
     --threads $threads \
     ${aggregate_flag} \
-    ${separate_tumor_flag}
-
+    ${separate_tumor_flag} \
+    ${filter_genes_flag}
 
 # Run SingleR on all samples in the project
 for sample_id in $sample_ids; do
