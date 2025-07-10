@@ -49,17 +49,11 @@ validation_url <- "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-ana
 ```{r file paths}
 # SingleR files
 singler_files <- list.files(
-  path = results_dir,
+  path = "/Users/sjspielman/ALSF/open-scpca/OpenScPCA-analysis/analyses/cell-type-neuroblastoma-04/results/singler-test_aggregated",
   pattern = "_singler-annotations\\.tsv",
   recursive = TRUE,
   full.names = TRUE
 ) |>
-  # keep only those nested in the directories `aggregated/NE-tumor-combined/`
-  purrr::keep(
-    \(x) {
-      stringr::str_detect(x, "/aggregated/NE-tumor-combined/")
-    }
-  ) |>
   # add names as library id
   purrr::set_names(
     \(x) {
@@ -125,7 +119,7 @@ Read SCE object to get consensus cell types and UMAP coordinates:
 
 ```{r}
 merged_sce <- readRDS(sce_file)
-# remove assays we don't need immediately for space
+# immediately remove assays we don't need for space
 assay(merged_sce, "spliced") <- NULL
 assay(merged_sce, "counts") <- NULL
 gc()
@@ -150,6 +144,11 @@ singler_df <- singler_files |>
 
 validation_df <- readr::read_tsv(validation_url) |>
   dplyr::select(consensus_annotation, validation_group_annotation)
+
+
+####### TEMPORARY!
+merged_sce <- merged_sce[, singler_df$cell_id]
+merged_sce
 ```
 
 Join and prepare data for use:
@@ -181,7 +180,7 @@ celltype_df <- scuttle::makePerCellDF(
 
 
 ```{r}
-unify_celltypes <- function(df, label_column, recoded_column) {
+harmonize_celltypes <- function(df, label_column, recoded_column) {
   df |>
     dplyr::mutate(
       {{ recoded_column }} := dplyr::case_when(
@@ -211,12 +210,13 @@ celltype_recoded_df <- celltype_df |>
     names_to = "annotation_type",
     values_to = "label"
   ) |>
-  unify_celltypes(label, label_recoded) |>
+  harmonize_celltypes(label, label_recoded) |>
   dplyr::select(-label)
 
 
-palette_df <- readr::read_tsv("../unified-cell-type-palette.tsv")
-setdiff(unique(celltype_recoded_df$label_recoded), palette_df$unified_label)
+palette_df <- readr::read_tsv("../harmonized-cell-type-palette.tsv")
+celltype_pal <- palette_df$hex_color
+names(celltype_pal) <- palette_df$harmonized_label
 ```
 
 ```{r, fig.height = 10, fig.width = 10} 
@@ -240,8 +240,7 @@ make_jaccard_heatmap(
 
 
 ```{r, fig.width = 12, fig.height = 8}
-celltype_pal <- palette_df$hex_color
-names(celltype_pal) <- palette_df$unified_label
+
 
 ggplot(celltype_recoded_df) +
   aes(x = UMAP1, y = UMAP2, color = label_recoded) +
@@ -274,17 +273,29 @@ Let's facet just the SingleR annotations:
 #' @param umap_df Data frame with UMAP1 and UMAP2 columns
 #' @param annotation_column Column containing broad cell type annotation
 #' @param celltype_colors Named vector of colors to use for each broader validation group
-#' @param point_size Point size. Default is 1
 #'
 #' @return ggplot object containing a faceted UMAP where each cell type is a facet.
 #'   In each panel, the cell type of interest is colored red and all other cells are grey.
 faceted_umap <- function(umap_df,
                          annotation_column,
+                         facet_column,
                          celltype_colors,
-                         point_size = 1) {
+                         facet_ncol = 4, 
+                         single_celltype = NULL) {
+  
+  
+  if (!(is.null(single_celltype))) {
+    first_df <- umap_df |>
+      dplyr::filter({{annotation_column}} == single_celltype)
+    plot_title <- single_celltype
+  } else {
+    first_df <- umap_df
+    plot_title <- ""
+  }
+  
   # color by the annotation column but only color one cell type at a time
   faceted_umap <- ggplot(
-    umap_df,
+    first_df,
     aes(x = UMAP1, y = UMAP2, color = {{ annotation_column }})
   ) +
     # set points for all "other" points
@@ -294,25 +305,23 @@ faceted_umap <- function(umap_df,
       ),
       color = "gray90",
       alpha = 0.5,
-      size = point_size
+      size = 1
     ) +
     scale_color_manual(values = celltype_colors) +
     # set points for desired cell type
-    geom_point(size = point_size, alpha = 0.5) +
+    geom_point(size = 1, alpha = 0.5) +
     facet_wrap(
-      vars({{ annotation_column }}),
-      ncol = 5
+      vars({{ facet_column }}),
+      ncol = facet_ncol
     ) +
-    # remove axis numbers and background grid
-    scale_x_continuous(labels = NULL, breaks = NULL) +
-    scale_y_continuous(labels = NULL, breaks = NULL) +
+    coord_equal() +
     theme_bw() +
     theme(
       legend.position = "none",
-      aspect.ratio = 1,
-      strip.background = element_rect(fill = "transparent")
-    )
-
+      axis.ticks = element_blank(), 
+      axis.text = element_blank()
+    ) +
+    ggtitle(plot_title)
 
   return(faceted_umap)
 }
@@ -320,21 +329,20 @@ faceted_umap <- function(umap_df,
 
 
 
-```{r fig.width = 20}
-singler_recoded_df <- celltype_recoded_df |>
-  dplyr::filter(annotation_type == "singler")
-
-faceted_umap(
-  singler_recoded_df,
-  label_recoded,
-  celltype_pal
-)
+```{r fig.width = 14}
+celltype_recoded_df |>
+  dplyr::filter(annotation_type == "singler") |>
+  faceted_umap(
+    annotation_column = label_recoded,
+    facet_column = label_recoded,
+    celltype_colors = celltype_pal
+  )
 ```
 
 
 For cells that directly match up with consensus:
 
-```{r}
+```{r, fig.width = 30, fig.asp = 1}
 direct_celltype_matches <- c(
   "B cell",
   "T cell",
@@ -343,9 +351,161 @@ direct_celltype_matches <- c(
   "endothelial cell",
   "plasma cell",
   "natural killer cell",
-  "unknown_consensus" # _for this plot_, we'll recode the Neuroendocrine --> "unknown consensus" for the purposes of comparison
+  # we'll use this label to be able to directly compare unknown_consensus to Neuroendocrine
+  "putative-tumor" 
 )
+
+celltype_facet_df <- celltype_recoded_df |>
+  # recode so Neuroendocrine matches with unknown_consensus in the plot
+  dplyr::mutate(
+    label_recoded = ifelse(
+      label_recoded %in% c("Neuroendocrine", "unknown_consensus"),
+      "putative-tumor",
+      label_recoded
+    )
+  ) |>
+  dplyr::filter(label_recoded %in% direct_celltype_matches)
+
+unique(celltype_facet_df$label_recoded) |>
+  purrr::map(
+    \(cell_type) {
+      faceted_umap(
+        celltype_facet_df,
+        annotation_column = label_recoded, 
+        celltype_colors = celltype_pal,
+        facet_column = annotation_type,
+        facet_ncol = 2, 
+        single_celltype = cell_type
+      )
+  }) |>
+  patchwork::wrap_plots(ncol = 1)
+
 ```
+
+
+
+## Dotplot time
+
+
+This is copied from Ally's code and is NOT YET ADAPTED TO THIS NOTEBOOK.
+```{r}
+  # prep for plots
+  # get total number of cells per final annotation group
+  total_cells_df <- consensus_df |>
+    dplyr::select(unique_id, barcodes, broad_celltype_group) |>
+    dplyr::distinct() |>
+    dplyr::count(broad_celltype_group, name = "total_cells")
+
+  # table with one row per unique broad cell type/ marker gene combination
+  # first all cells in with the same broad_celltype_group (determined based on consensus_annotation) are grouped together
+  # then get the mean gene expression and total percentage of cells that express each marker gene across all cells in that group
+  # do this for every possible marker gene/ validation group assignment
+  # second we calculate the mean expression and mean percentage of all marker genes in a given validation group (this value is used only in the second section of the report)
+  group_stats_df <- consensus_df |>
+    # for each assigned cell type/marker gene combo get total detected and mean expression
+    # group by both broad group and validation group to account for genes that are expressed in more than one cell type
+    dplyr::summarize(
+      .by = c("broad_celltype_group", "ensembl_gene_id", "validation_group_annotation"),
+      detected_count = sum(detected),
+      mean_exp = mean(logcounts)
+    ) |>
+    # add in validation group for marker genes
+    # this includes all possible marker genes and all possible validation group assignments
+    dplyr::left_join(markers_df, by = c("ensembl_gene_id", "validation_group_annotation"), relationship = "many-to-many") |> # add total cells
+    dplyr::left_join(total_cells_df, by = c("broad_celltype_group")) |>
+    # only show cells that have above the minimum total number
+    dplyr::filter(total_cells > min_cells) |>
+    dplyr::mutate(
+      # get total percent expressed
+      percent_exp = (detected_count / total_cells) * 100,
+      # account for NA/unknowns and set axes order
+      broad_celltype_group = factor(broad_celltype_group, levels = c(names(celltype_colors)))
+    )
+
+  # get list of celltypes to keep and assign colors
+  celltype_groups <- group_stats_df |>
+    dplyr::pull(broad_celltype_group) |>
+    unique() |>
+    as.character()
+
+  # filter markers to those that are actually relevant
+  # we will only plot the marker genes for cell types that are part of the assigned broad validation group for this group of samples
+  # we don't care about plotting marker genes for cell types that aren't present here
+  filtered_markers_df <- markers_df |>
+    dplyr::filter(
+      validation_group_annotation %in% celltype_groups,
+      gene_symbol %in% group_stats_df$gene_symbol
+    ) |>
+    # ensure order matches the order of the legend
+    dplyr::mutate(
+      validation_group_annotation = factor(validation_group_annotation, levels = names(celltype_colors))
+    ) |>
+    dplyr::arrange(validation_group_annotation)
+
+  # specify x axis order for dotplot
+  marker_gene_order <- filtered_markers_df |>
+    dplyr::pull(gene_symbol)
+
+  # set order for cell types
+  celltype_order <- unique(filtered_markers_df$validation_group_annotation)
+
+  # filter out low expressed genes
+  dotplot_df <- group_stats_df |>
+    dplyr::filter(mean_exp > 0, percent_exp > 10) |>
+    dplyr::arrange(broad_celltype_group) |>
+    # add a label for the plot
+    dplyr::mutate(y_label = glue::glue("{broad_celltype_group} ({total_cells})")) |>
+    # remove marker genes that aren't present in final annotations and set x axis order
+    dplyr::filter(gene_symbol %in% marker_gene_order) |>
+    dplyr::mutate(
+      # set orders of gene symbol and validation groups
+      y_label = factor(y_label, levels = rev(unique(y_label))),
+      gene_symbol = factor(gene_symbol, levels = marker_gene_order),
+      validation_group_annotation = factor(validation_group_annotation, levels = celltype_order)
+    )
+
+
+  # make dotplot with marker gene exp
+  dotplot <- ggplot(dotplot_df, aes(y = y_label, x = gene_symbol, color = mean_exp, size = percent_exp)) +
+    geom_point() +
+    scale_color_viridis_c(option = "magma") +
+    facet_grid(cols = vars(validation_group_annotation), scales = "free", space = "free") +
+    theme_classic() +
+    theme(
+      strip.background = element_rect(fill = "transparent", color = NA),
+      strip.placement = "outside",
+      strip.text.x = element_blank(),
+      axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+      axis.ticks.x = element_blank(),
+      text = element_text(size = 14),
+      panel.spacing = unit(0.5, "lines") # adjust spacing and match with annotation bar
+    ) +
+    labs(
+      x = "",
+      y = "Broad cell type annotation",
+      color = "Mean gene expression",
+      size = "Percent cells expressed"
+    )
+
+
+  # add annotation bar aligning marker genes with validation group
+  color_bar <- ggplot(dotplot_df, aes(x = gene_symbol, y = 1, fill = validation_group_annotation)) +
+    geom_tile() +
+    facet_grid(cols = vars(validation_group_annotation), scales = "free", space = "free") +
+    scale_fill_manual(values = celltype_colors, breaks = levels(dotplot_df$validation_group_annotation)) +
+    ggmap::theme_nothing() +
+    theme(
+      strip.background = element_rect(fill = "transparent", color = NA),
+      strip.text.x = element_text(angle = 90, hjust = 0, vjust = 0.5, size = 12),
+      strip.placement = "outside",
+      legend.position = "none",
+      panel.spacing = unit(0.5, "lines"),
+      strip.clip = "off"
+    ) +
+    labs(fill = "")
+
+  combined_plot <- color_bar / dotplot +
+    patchwork::plot_layout(ncol = 1, heights = c(0.1, 4))
 
 
 
