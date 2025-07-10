@@ -21,7 +21,10 @@ We can also determine whether any samples can be run with an internal (non-poole
 
 ```{r}
 options(readr.show_col_types = FALSE)
-library(ggplot2)
+suppressPackageStartupMessages({
+  library(ggplot2)
+  library(SingleCellExperiment)
+})
 theme_set(theme_bw())
 ```
 
@@ -37,12 +40,6 @@ repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 # The current data directory, found within the repository base directory
 data_dir <- file.path(repository_base, "data", "current", "SCPCP000004")
 
-# The current results directory, found within the repository base directory
-result_dir <- file.path(repository_base, "data", "current", "results")
-
-# Path to cell-type-consensus results
-consensus_dir <- file.path(result_dir, "cell-type-consensus", "SCPCP000004")
-
 # Path to reference cell type groupings
 reference_dir <- file.path(repository_base, "analyses", "infercnv-consensus-cell-type", "references")
 ```
@@ -50,10 +47,10 @@ reference_dir <- file.path(repository_base, "analyses", "infercnv-consensus-cell
 #### Input and output files
 
 ```{r paths}
-# Input consensus cell type files
-celltype_files <- list.files(
-  path = consensus_dir,
-  pattern = "_processed_consensus-cell-types\\.tsv\\.gz$",
+# Input sce files to get consensus cell types
+sce_files <- list.files(
+  path = data_dir,
+  pattern = "_processed\\.rds$",
   recursive = TRUE,
   full.names = TRUE
 ) |>
@@ -84,12 +81,20 @@ tumor_library_ids <- readr::read_tsv(metadata_file) |>
 cell_group_df <- readr::read_tsv(reference_file)
 
 # Prepare data frame of all cell types
-celltype_df <- celltype_files |>
+celltype_df <- sce_files |>
   # consider only non-PDX
   purrr::keep_at(tumor_library_ids) |>
-  purrr::map(readr::read_tsv) |>
-  purrr::list_rbind() |>
-  dplyr::select(library_id, barcodes, consensus_annotation) |>
+  purrr::map(
+    \(sce_file) {
+      readRDS(sce_file) |>
+        colData() |>
+        as.data.frame() |>
+        dplyr::select(
+          barcodes, 
+          consensus_annotation = consensus_celltype_annotation
+        )
+  }) |>
+  purrr::list_rbind(names_to = "library_id") |>
   dplyr::left_join(cell_group_df, by = "consensus_annotation")
 ```
 
