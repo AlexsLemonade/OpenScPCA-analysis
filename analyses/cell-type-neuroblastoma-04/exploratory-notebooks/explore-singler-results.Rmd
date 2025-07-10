@@ -352,18 +352,15 @@ faceted_umap(
 
 
 ```{r}
-# get top 7 upregulated marker genes per cell type
+# get top 10??? upregulated marker genes per cell type
 nbatlas_markers_df <- readr::read_tsv("../references/nbatlas-marker-genes.tsv") |>
   dplyr::filter(direction == "up") |>
   dplyr::group_by(NBAtlas_label) |>
   dplyr::mutate(rank_lfc = rank(-avg_log2FC)) |>
   dplyr::ungroup() |>
-  dplyr::filter(rank_lfc <= 5) |>
-  harmonize_celltypes(NBAtlas_label, label_recoded) |>
-  dplyr::select(label_recoded, gene_symbol, ensembl_gene_id, avg_log2FC)
-nbatlas_markers_df
-
-all_markers
+  dplyr::filter(rank_lfc <= 10) |>
+  harmonize_celltypes(NBAtlas_label, NBAtlas_label_recoded) |>
+  dplyr::select(NBAtlas_label_recoded, gene_symbol, ensembl_gene_id, avg_log2FC)
 ```
 
 
@@ -385,7 +382,6 @@ expressed_genes <- names(gene_sums)[gene_sums > 0]
 
 # get markers that are expressed
 expressed_markers <- intersect(all_markers, expressed_genes)
-expressed_markers
 ```
 
 
@@ -403,38 +399,48 @@ gene_exp_df <- scuttle::makePerCellDF(
 
 # Join with cell type results and marker gene info
 all_info_df <- celltype_recoded_df |>
-  dplyr::filter(annotation_type == "singler") |>
+  dplyr::filter(
+    annotation_type == "singler",
+    # we don't consider the NAs here
+    label_recoded != "singler_unknown"
+  ) |>
   dplyr::select(cell_id, label_recoded) |>
   dplyr::left_join(gene_exp_df, by = "cell_id") |>
   # account for the same gene being present in multiple cell types
-  dplyr::left_join(nbatlas_markers_df, by = c("label_recoded", "ensembl_gene_id"), relationship = "many-to-many")
+  dplyr::left_join(nbatlas_markers_df, by = "ensembl_gene_id", relationship = "many-to-many")
 ```
   
-  
-```{r}
-marker_gene_dotplot(
-  all_info_df,
-  markers_df = nbatlas_markers_df,
-  celltype_colors = celltype_pal
-)
-```
-
-
-CODE WORKS, NEEDS HELP THOUGH!
-what I need to do when I come back to this update my names to match allys code
-- broad_celltype_group is her singler
-- validation_group_annotation is her nbatlas marker gene df label
-
-Then i can use the same code to make a consensus dotplot.
-
 ```{r}
 min_cells <- 0
+
 # prep for plots
 # get total number of cells per final annotation group
 total_cells_df <- all_info_df |>
   dplyr::select(cell_id, label_recoded) |>
   dplyr::distinct() |>
-  dplyr::count(label_recoded, name = "total_cells")
+  dplyr::count(label_recoded, name = "total_cells") |>
+  dplyr::arrange(desc(total_cells)) |>
+  dplyr::mutate(y_label = glue::glue("{label_recoded} ({total_cells})"))
+
+# y axis - singler
+y_label_order <- rev(total_cells_df$y_label)
+
+# bar order - NBAtlas
+nbatlas_order <- total_cells_df$label_recoded
+
+# x axis marker genes - nbatlas
+nbatlas_markers_df <- nbatlas_markers_df |>
+  dplyr::filter(ensembl_gene_id %in% expressed_markers) |>
+  dplyr::mutate(
+    NBAtlas_label_recoded = factor(NBAtlas_label_recoded, levels = nbatlas_order)
+  ) |>
+  dplyr::arrange(NBAtlas_label_recoded)
+
+marker_gene_order <- nbatlas_markers_df |>
+  dplyr::pull(gene_symbol) |>
+  unique()
+
+
 
 # table with one row per unique broad cell type/ marker gene combination
 # first all cells in with the same broad_celltype_group (determined based on consensus_annotation) are grouped together
@@ -444,54 +450,51 @@ total_cells_df <- all_info_df |>
 group_stats_df <- all_info_df |>
   # for each assigned cell type/marker gene combo get total detected and mean expression
   # group by both broad group and validation group to account for genes that are expressed in more than one cell type
+  # remove genes that aren't present in final annotations
+  dplyr::filter(gene_symbol %in% marker_gene_order) |>
+  dplyr::group_by(label_recoded, NBAtlas_label_recoded, ensembl_gene_id) |>
   dplyr::summarize(
-    .by = c("label_recoded", "ensembl_gene_id"),
     detected_count = sum(detected),
     mean_exp = mean(logcounts)
   ) |>
+  dplyr::ungroup() |>
+  # add total cells
+  dplyr::left_join(total_cells_df, by = "label_recoded") |>
+  # get total percent expressed
+  dplyr::mutate(percent_exp = (detected_count / total_cells) * 100) |>
+  # remove lowly expressed marker genes and any that aren't present in final annotations
+  dplyr::filter(
+    mean_exp > 0,
+    percent_exp > 10,
+    # only show cells that have above the minimum total number
+    total_cells > min_cells
+  ) |>
   # add in validation group for marker genes
   # this includes all possible marker genes and all possible validation group assignments
-  dplyr::left_join(nbatlas_markers_df, by = c("ensembl_gene_id", "label_recoded"), relationship = "many-to-many") |> # add total cells
-  dplyr::left_join(total_cells_df, by = c("label_recoded")) |>
-  # only show cells that have above the minimum total number
-  dplyr::filter(total_cells > min_cells) |>
-  dplyr::mutate(
-    # get total percent expressed
-    percent_exp = (detected_count / total_cells) * 100,
-    # account for NA/unknowns and set axes order
-    broad_celltype_group = factor(label_recoded, levels = c(names(celltype_pal)))
+  dplyr::left_join(
+    nbatlas_markers_df,
+    by = c("ensembl_gene_id", "NBAtlas_label_recoded"),
+    relationship = "many-to-many"
   )
 
-
-# specify x axis order for dotplot
-marker_gene_order <- nbatlas_markers_df |>
-  dplyr::pull(gene_symbol) |>
-  unique()
-
-# set order for cell types
-celltype_order <- unique(nbatlas_markers_df$label_recoded)
-
-# filter out low expressed genes
 dotplot_df <- group_stats_df |>
-  dplyr::filter(mean_exp > 0, percent_exp > 10) |>
-  dplyr::arrange(label_recoded) |>
-  # add a label for the plot
-  dplyr::mutate(y_label = glue::glue("{label_recoded} ({total_cells})")) |>
-  # remove marker genes that aren't present in final annotations and set x axis order
-  dplyr::filter(gene_symbol %in% marker_gene_order) |>
   dplyr::mutate(
     # set orders of gene symbol and validation groups
-    y_label = factor(y_label, levels = rev(unique(y_label))),
+    y_label = factor(y_label, y_label_order),
     gene_symbol = factor(gene_symbol, levels = marker_gene_order),
-    label_recoded = factor(label_recoded, levels = celltype_order)
+    NBAtlas_label_recoded = factor(NBAtlas_label_recoded, levels = nbatlas_order)
   )
+```
 
 
+
+
+```{r}
 # make dotplot with marker gene exp
 dotplot <- ggplot(dotplot_df, aes(y = y_label, x = gene_symbol, color = mean_exp, size = percent_exp)) +
   geom_point() +
   scale_color_viridis_c(option = "magma") +
-  facet_grid(cols = vars(label_recoded), scales = "free", space = "free") +
+  facet_grid(cols = vars(NBAtlas_label_recoded), scales = "free", space = "free") +
   theme_classic() +
   theme(
     strip.background = element_rect(fill = "transparent", color = NA),
@@ -503,18 +506,18 @@ dotplot <- ggplot(dotplot_df, aes(y = y_label, x = gene_symbol, color = mean_exp
     panel.spacing = unit(0.5, "lines") # adjust spacing and match with annotation bar
   ) +
   labs(
-    x = "",
-    y = "label_recoded",
+    x = "NBAtlas cell type marker genes",
+    y = "SingleR label",
     color = "Mean gene expression",
     size = "Percent cells expressed"
   )
 
 
 # add annotation bar aligning marker genes with validation group
-color_bar <- ggplot(dotplot_df, aes(x = gene_symbol, y = 1, fill = label_recoded)) +
+color_bar <- ggplot(dotplot_df, aes(x = gene_symbol, y = 1, fill = NBAtlas_label_recoded)) +
   geom_tile() +
-  facet_grid(cols = vars(label_recoded), scales = "free", space = "free") +
-  scale_fill_manual(values = celltype_pal, breaks = levels(dotplot_df$label_recoded)) +
+  facet_grid(cols = vars(NBAtlas_label_recoded), scales = "free", space = "free") +
+  scale_fill_manual(values = celltype_pal, breaks = levels(dotplot_df$NBAtlas_label_recoded)) +
   ggmap::theme_nothing() +
   theme(
     strip.background = element_rect(fill = "transparent", color = NA),
