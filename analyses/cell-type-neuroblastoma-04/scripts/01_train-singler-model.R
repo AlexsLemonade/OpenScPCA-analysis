@@ -15,13 +15,13 @@ option_list <- list(
   make_option(
     opt_str = c("--nbatlas_sce"),
     type = "character",
-    default = "references/NBAtlas_sce.rds",
+    default = "",
     help = "Path to an NBAtlas object in SCE format"
   ),
   make_option(
     opt_str = c("--sce_file"),
     type = "character",
-    default = "../../data/current/SCPCP000004/SCPCS000101/SCPCL000118_processed.rds",
+    default = "",
     help = "Path to an ScPCA SCE object for determining genes to restrict to"
   ),
   make_option(
@@ -64,7 +64,6 @@ option_list <- list(
 
 # Parse options and check arguments
 opts <- parse_args(OptionParser(option_list = option_list))
-opts$filter_genes <- TRUE
 stopifnot(
   "nbatlas_sce does not exist" = file.exists(opts$nbatlas_sce),
   "sce_file does not exist" = file.exists(opts$sce_file)
@@ -83,7 +82,6 @@ nbatlas_sce <- readRDS(opts$nbatlas_sce)
 # Define restrict vector for model training
 sce_rowdata <- readRDS(opts$sce_file) |>
   rowData()
-
 restrict_genes <- intersect(
   sce_rowdata$gene_symbol,
   rownames(nbatlas_sce)
@@ -99,7 +97,6 @@ if (opts$filter_genes) {
   restrict_genes <- restrict_genes[!(restrict_genes %in% remove_genes)]
 }
 
-
 # Define vector of cell labels, considering "tumor" if opts$separate_tumor is TRUE
 if (opts$separate_tumor) {
   celltype_label <- ifelse(
@@ -110,7 +107,6 @@ if (opts$separate_tumor) {
 } else {
   celltype_label <- nbatlas_sce$Cell_type
 }
-
 
 # Create and export an aggregated version of the reference
 nbatlas_trained <- SingleR::trainSingleR(
