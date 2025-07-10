@@ -19,7 +19,7 @@ set -euo pipefail
 module_dir=$(dirname "${BASH_SOURCE[0]}")
 cd ${module_dir}/..
 
-singler_result_dir="results/singler"
+results_dir="results"
 notebook_dir="exploratory-notebooks"
 html_dir="${notebook_dir}/reference-aggregation_htmls"
 
@@ -27,15 +27,17 @@ html_dir="${notebook_dir}/reference-aggregation_htmls"
 sample_ids="SCPCS000104 SCPCS000105 SCPCS000108 SCPCS000109 SCPCS000111 SCPCS000115"
 
 # Process with aggregated reference (default)
-sample_ids=$sample_ids bash run-analysis.sh
+singler_dir="${results_dir}/singler-test_aggregated"
+sample_ids=$sample_ids singler_results_dir="${singler_dir}" aggregate_singler=1 bash run-analysis.sh
 
 # Process with non-aggregated reference
-sample_ids=$sample_ids aggregate_singler=0 bash run-analysis.sh
+singler_dir="${results_dir}/singler-test_not-aggregated"
+sample_ids=$sample_ids singler_results_dir="${singler_dir}" aggregate_singler=0 bash run-analysis.sh
 
 # Render the exploratory notebook for these samples
 for sample_id in $sample_ids; do
-    # Loop over each sample's aggregated annotation just so we can grab the library_id
-    for tsv_file in "${singler_result_dir}/${sample_id}"/aggregated/*annotations.tsv; do
+    # Loop over each sample's non-aggregated annotation just so we can grab the library_id
+    for tsv_file in "${singler_dir}/${sample_id}"/*annotations.tsv; do
         library_id=$(basename "$tsv_file" | sed 's/_singler-annotations.tsv$//')
 
         # Skip the library from SCPCS000109 we're not considering here
