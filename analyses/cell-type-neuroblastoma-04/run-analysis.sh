@@ -15,6 +15,11 @@
 #     Use this argument to customize the output result directory.
 #     The provided value should be _relative_ to the directory this script is stored in.
 #   - Example usage: singler_results_dir=relative/other/result/path ./run-analysis.sh
+# - `singler_model_file` (Default value: "scratch/singler-model_nbatlas.rds")
+#   - By default, the SingleR trained model is saved as `scratch/singler-model_nbatlas.rds`.
+#     Use this argument to customize the path/file name which should have an rds file extension.
+#     The provided path should be _relative_ to the directory this script is stored in.
+#   - Example usage: singler_model_file=path/to/model/file.rds ./run-analysis.sh
 # - `aggregate_singler` (Default value: 1)
 #   - Use `aggregate_singler=0` to turn off reference aggregation before SingleR model training
 #   - Example usage: aggregate_singler=0 ./run-analysis.sh
@@ -68,7 +73,9 @@ sample_ids=${sample_ids:-"all"} # default is to run all samples
 threads=${threads:-4} # default 4 threads
 
 # singler arguments:
+
 singler_results_dir=${singler_results_dir:-"${results_dir}/singler"} # default singler results directory is results/singler
+singler_model_file=${singler_results_dir:-"${scratch_dir}/singler-model_nbatlas.rds"} # default singler model file is scratch/singler-model_nbatlas.rds
 aggregate_singler=${aggregate_singler:-1} # default is to perform aggregation
 separate_tumor_singler=${separate_tumor_singler:-0} # default is to _not_ separate tumor cells
 filter_genes_singler=${filter_genes_singler:-0} # default is to _not_ filter out genes from NBAtlas
@@ -173,9 +180,6 @@ fi
 ###################################################################
 
 echo "Training SingleR model..."
-
-# Define SingleR model file
-singler_model_file="${scratch_dir}/singler-model_nbatlas.rds"
 
 # Note can pass in an arbitrary SCE here for sce_file; this is just the first sample in the project
 Rscript ${script_dir}/01_train-singler-model.R \
