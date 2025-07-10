@@ -31,7 +31,7 @@
 # - `filter_genes_singler` (Default value: 0)
 #   - Use `filter_genes_singler=1` to specify that mitochondrial and ribosomal genes should be removed from NBAtlas
 #     before training the SingleR model.
-#     By defaut, these genes are not explicitly removed.
+#     By default, these genes are not explicitly removed.
 #   - Example usage: filter_genes_singler=1 ./run-analysis.sh
 # - `force_convert_nbatlas` (Default value: 0)
 #   - This script begins by converting the NBAtlas object to SCE and AnnData formats.
