@@ -4154,6 +4154,52 @@
       "Maintainer": "Erik Clarke <erikclarke@gmail.com>",
       "Repository": "RSPM"
     },
+    "ggmap": {
+      "Package": "ggmap",
+      "Version": "4.0.1",
+      "Source": "Repository",
+      "Title": "Spatial Visualization with ggplot2",
+      "Description": "A collection of functions to visualize spatial data and models on top of static maps from various online sources (e.g Google Maps and Stamen Maps). It includes tools common to those tasks, including functions for geolocation and routing.",
+      "URL": "https://github.com/dkahle/ggmap",
+      "BugReports": "https://github.com/dkahle/ggmap/issues",
+      "Authors@R": "c(person(\"David\", \"Kahle\", email = \"david@kahle.io\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0002-9999-1558\")), person(\"Hadley\", \"Wickham\", email = \"h.wickham@gmail.com\", role = \"aut\", comment = c(ORCID = \"0000-0003-4757-117X\")), person(\"Scott\", \"Jackson\", email = \"scottmmjackson@gmail.com\", role = \"aut\"), person(\"Mikko\", \"Korpela\", email = \"mvkorpel@iki.fi\", role = \"ctb\"))",
+      "Depends": [
+        "R (>= 3.1.0)",
+        "ggplot2 (>= 2.2.0)"
+      ],
+      "Imports": [
+        "png",
+        "plyr",
+        "jpeg",
+        "digest",
+        "scales",
+        "dplyr",
+        "bitops",
+        "grid",
+        "glue",
+        "httr",
+        "stringr",
+        "purrr",
+        "magrittr",
+        "tibble",
+        "tidyr",
+        "rlang",
+        "cli"
+      ],
+      "Suggests": [
+        "MASS",
+        "hexbin",
+        "testthat"
+      ],
+      "License": "GPL-2",
+      "LazyData": "true",
+      "RoxygenNote": "7.3.2",
+      "Encoding": "UTF-8",
+      "NeedsCompilation": "no",
+      "Author": "David Kahle [aut, cre] (<https://orcid.org/0000-0002-9999-1558>), Hadley Wickham [aut] (<https://orcid.org/0000-0003-4757-117X>), Scott Jackson [aut], Mikko Korpela [ctb]",
+      "Maintainer": "David Kahle <david@kahle.io>",
+      "Repository": "CRAN"
+    },
     "ggplot2": {
       "Package": "ggplot2",
       "Version": "3.5.2",
@@ -5105,6 +5151,26 @@
       "NeedsCompilation": "no",
       "Author": "Folashade Daniel [cre], Revolution Analytics [aut, cph], Steve Weston [aut]",
       "Maintainer": "Folashade Daniel <fdaniel@microsoft.com>",
+      "Repository": "CRAN",
+      "Encoding": "UTF-8"
+    },
+    "jpeg": {
+      "Package": "jpeg",
+      "Version": "0.1-11",
+      "Source": "Repository",
+      "Title": "Read and write JPEG images",
+      "Author": "Simon Urbanek [aut, cre, cph] (https://urbanek.org, <https://orcid.org/0000-0003-2297-1732>)",
+      "Authors@R": "person(\"Simon\", \"Urbanek\", role=c(\"aut\",\"cre\",\"cph\"), email=\"Simon.Urbanek@r-project.org\", comment=c(\"https://urbanek.org\", ORCID=\"0000-0003-2297-1732\"))",
+      "Maintainer": "Simon Urbanek <Simon.Urbanek@r-project.org>",
+      "Depends": [
+        "R (>= 2.9.0)"
+      ],
+      "Description": "This package provides an easy and simple way to read, write and display bitmap images stored in the JPEG format. It can read and write both files and in-memory raw vectors.",
+      "License": "GPL-2 | GPL-3",
+      "SystemRequirements": "libjpeg",
+      "URL": "https://www.rforge.net/jpeg/",
+      "BugReports": "https://github.com/s-u/jpeg/issues",
+      "NeedsCompilation": "yes",
       "Repository": "CRAN",
       "Encoding": "UTF-8"
     },
