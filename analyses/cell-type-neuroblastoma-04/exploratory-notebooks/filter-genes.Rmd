@@ -233,6 +233,7 @@ Note that some cell type names have been abbreviated in this output to make it m
 * Endothelial --> Endo
 * Fibroblasts --> Fibro
 * Neuroendocrine --> NE
+* Stromal other --> stromal
 
 
 ```{r}
@@ -243,6 +244,7 @@ singler_long_df <- singler_long_df |>
       singler_label == "Endothelial" ~ "Endo",
       singler_label == "Fibroblast" ~ "Fibro",
       singler_label == "Neuroendocrine" ~ "NE",
+      singler_label == "Stromal other" ~ "stromal",
       .default = singler_label
     )
   )
