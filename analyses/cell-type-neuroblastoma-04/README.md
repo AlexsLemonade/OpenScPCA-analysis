@@ -4,7 +4,9 @@ The goal of this analysis module is to perform cell type annotation on samples f
 
 ## Description
 
-TBD.
+This module annotates cell types across samples in `SCPCP000004` using the [`NBAtlas` reference](https://doi.org/10.1016/j.celrep.2024.114804) (Bonine et al. 2024).
+
+* First, the module performs cell type annotation using [`SingleR`](https://doi.org/10.1016/j.celrep.2024.114804) (Aran et al. 2019)
 
 ## Usage
 
@@ -24,7 +26,7 @@ By default, this script uses the following settings:
 * Runs on all samples in the project (vs a designated subset)
 * Uses 4 threads
 
-See documentation in the script for how to modify these settings.
+See documentation in the script for how to modify these or other settings.
 
 ## Input files
 
@@ -44,10 +46,10 @@ You must be logged into your AWS account to download these files.
 ./download-results.py --modules merge-sce --projects SCPCP000004
 ```
 
-
 ## Output files
 
-TBD.
+The module outputs results to the `results` directory.
+Please see `results/README.md` for additional details.
 
 ## Software requirements
 
@@ -55,4 +57,4 @@ This module uses both `renv` and `conda` to manage R and Python software environ
 
 ## Computational resources
 
-TBD.
+This module requires at least 16 GB available RAM for the `SingleR` portion of the analysis.
