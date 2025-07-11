@@ -15,13 +15,13 @@
 set -euo pipefail
 
 # Ensure script is being run from module root
-# which is one directory up from this script's location
+# which is two directories up from this script's location
 module_dir=$(dirname "${BASH_SOURCE[0]}")
-cd ${module_dir}/..
+cd ${module_dir}/../..
 
 scratch_dir="scratch"
 results_dir="results"
-notebook_dir="exploratory-notebooks"
+notebook_dir="exploratory-notebooks/singler-testing"
 html_dir="${notebook_dir}/reference-aggregation_htmls"
 
 # Define sample ids to process as a single string
