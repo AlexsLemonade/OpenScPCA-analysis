@@ -9,6 +9,11 @@ output:
     code_folding: hide
 ---
 
+This notebooks explores the results from running cell type annotation with `SingleR` using the NBAtlas.
+The NBAtlas reference was aggregated with `SingelR` prior to model training.
+
+In this notebook, we visualize inferred cell type annotations directly, compare them to normal consensus cell types, and validate cell type assignments with marker genes.
+
 
 ## Setup
 
@@ -545,9 +550,7 @@ In this section we'll validate annotations using two sets of marker genes:
 * Marker genes identified in NBAtlas corresponding to the atlas cell types
   * This will tell us if we are picking up comparable signal in our data that plays well with NBAtlas
 * Consensus cell type marker genes
-  * This will provide an independent assessment of the SingleR normal cell type labels 
-
-
+  * This will provide an independent assessment of the reliability of SingleR normal cell type assignments 
 
 ```{r}
 # Prepare the expressed_genes vector
