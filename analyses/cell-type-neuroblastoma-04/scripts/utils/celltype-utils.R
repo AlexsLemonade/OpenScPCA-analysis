@@ -12,21 +12,36 @@
 #'
 #' @returns Data frame with new column as specified containing recoded labels
 harmonize_celltypes <- function(df, label_column, recoded_column) {
+
+  # groups of NBAtlas cell type labels to collapse to a broader label
+  t_cells <- c("CD8+ T cell", "CD4+ T cell", "Treg", "NKT cell")
+  dendritic_cells <- c("cDC2/DC3", "Migratory cDC", "cDC1")
+  nk_cells <- c("Circulating NK cell", "TOX2+/KIT+ NK cell", "Resident NK cell")
+  monocyte_cells <- c("Classical monocyte", "Patrolling monocyte")
+
+
   df |>
     dplyr::mutate(
       {{ recoded_column }} := dplyr::case_when(
-        # nbatlas ~ consensus
-        {{ label_column }} %in% c("Myeloid", "Fibroblast") ~ stringr::str_to_lower({{ label_column }}),
+        # nbatlas ~ consensus _broad_ annotation label
+        {{ label_column }} == "Fibroblast" ~ "fibroblast",
+        {{ label_column }} == "Macrophage" ~ "macrophage",
+        {{ label_column }} == "Neutrophil" ~ "myeloid", # this is the only NBAtlas category that maps to our myeloid group
         {{ label_column }} == "Endothelial" ~ "endothelial cell",
         {{ label_column }} == "Plasma" ~ "plasma cell",
-        {{ label_column }} == "NK cell" ~ "natural killer cell",
-        # also make the different stromal labels more clearly distinguishable
+        {{ label_column }} %in% t_cells ~ "T cell",
+        {{ label_column }} %in% dendritic_cells ~ "dendritic cell",
+        {{ label_column }} %in% nk_cells ~ "natural killer cell",
+        {{ label_column }} %in% monocyte_cells ~ "monocyte",
+        # Update these labels for clarity, including making the stromal labels more distinguishable
         {{ label_column }} == "stromal cell" ~ "stromal cell (consensus)",
         {{ label_column }} == "Stromal other" ~ "Stromal other (NBAtlas)",
+        {{ label_column }} == "NE" ~ "Neuroendocrine",
         .default = {{ label_column }}
       )
     )
 }
+
 
 
 #' Create a faceted UMAP panel where each panel has only one cell type colored
