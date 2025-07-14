@@ -16,3 +16,5 @@ These scripts are not included in `../run-analysis.sh`; usage information is pro
 This directory contains files with utility functions used in code throughout the module.
 
 * `jaccard-utils.R` contains utility functions to build heatmaps colored by Jaccard similarity
+* `celltype-utils.R` contains additional utility functions to plot and wrangle cell type results
+
