@@ -98,14 +98,15 @@ if (opts$filter_genes) {
 }
 
 # Define vector of cell labels, considering "tumor" if opts$separate_tumor is TRUE
+# we use the `Cell_type_wImmuneZoomAnnot` column which has finer-grained immune annotations
 if (opts$separate_tumor) {
   celltype_label <- ifelse(
     nbatlas_sce$in_tumor_zoom,
     "Neuroendocrine-tumor",
-    nbatlas_sce$Cell_type
+    nbatlas_sce$Cell_type_wImmuneZoomAnnot
   )
 } else {
-  celltype_label <- nbatlas_sce$Cell_type
+  celltype_label <- nbatlas_sce$Cell_type_wImmuneZoomAnnot
 }
 
 # Create and export an aggregated version of the reference
