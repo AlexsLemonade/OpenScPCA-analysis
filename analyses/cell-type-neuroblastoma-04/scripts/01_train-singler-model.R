@@ -49,6 +49,12 @@ option_list <- list(
     help = "Whether to remove mitochondrial and ribosomal genes from the reference before training the model. Default: FALSE"
   ),
   make_option(
+    opt_str = c("--testing"),
+    action = "store_true",
+    default = FALSE,
+    help = "Whether this script is being run on test data. If TRUE, the `Cell_type` column is used for annotation."
+  ),
+  make_option(
     opt_str = c("--threads"),
     type = "integer",
     default = 4,
@@ -97,16 +103,23 @@ if (opts$filter_genes) {
   restrict_genes <- restrict_genes[!(restrict_genes %in% remove_genes)]
 }
 
+# In testing, we use the `Cell_type` column
+# Otherwise, we use the `Cell_type_wImmuneZoomAnnot` column which has finer-grained immune annotations
+if (opts$testing) {
+  celltype_column <- "Cell_type"
+} else {
+  celltype_column <- "Cell_type_wImmuneZoomAnnot"
+}
+
 # Define vector of cell labels, considering "tumor" if opts$separate_tumor is TRUE
-# we use the `Cell_type_wImmuneZoomAnnot` column which has finer-grained immune annotations
 if (opts$separate_tumor) {
   celltype_label <- ifelse(
     nbatlas_sce$in_tumor_zoom,
     "Neuroendocrine-tumor",
-    nbatlas_sce$Cell_type_wImmuneZoomAnnot
+    colData(nbatlas_sce)[[celltype_column]]
   )
 } else {
-  celltype_label <- nbatlas_sce$Cell_type_wImmuneZoomAnnot
+  celltype_label <- colData(nbatlas_sce)[[celltype_column]]
 }
 
 # Create and export an aggregated version of the reference

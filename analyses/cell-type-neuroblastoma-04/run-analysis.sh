@@ -188,7 +188,8 @@ Rscript ${script_dir}/01_train-singler-model.R \
     --threads $threads \
     ${aggregate_flag} \
     ${separate_tumor_flag} \
-    ${filter_genes_flag}
+    ${filter_genes_flag} \
+    ${test_flag}
 
 # Run SingleR on all samples in the project
 for sample_id in $sample_ids; do
