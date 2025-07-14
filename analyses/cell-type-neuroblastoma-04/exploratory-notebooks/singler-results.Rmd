@@ -182,7 +182,7 @@ celltype_recoded_df <- celltype_df |>
     c(consensus_validation, singler),
     names_to = "annotation_type",
     values_to = "label"
-  ) |>
+  ) |> 
   harmonize_celltypes(label, label_recoded) |>
   dplyr::select(-label)
 ```
@@ -425,6 +425,99 @@ generate_dotplot(
   expressed_genes,
   consensus_bar_order
 )
+```
+
+```{r}
+# this time we are not considering putative tumor
+direct_celltype_matches <- c(
+  "B cell",
+  "T cell",
+  # note that we need to collapse the consensus to compare
+  "myeloid",
+  "fibroblast",
+  "endothelial cell",
+  "plasma cell",
+  "natural killer cell", 
+  "unknown_consensus" # we do want to keep these for this analysis
+)
+
+# Define the different myeloid types in consensus annotations
+consensus_myeloid <- c("myeloid", "dendritic cell", "monocyte", "macrophage")
+
+
+situation_df <- celltype_recoded_df |>
+  # recode labels for comparison
+  dplyr::mutate(
+    label_recoded = ifelse(
+      label_recoded %in% consensus_myeloid,
+      "myeloid",
+      label_recoded
+  )) |>
+  dplyr::filter(label_recoded %in% direct_celltype_matches) |>
+  dplyr::select(cell_id, annotation_type, label_recoded) |>
+  # make it wider to label the situation
+  tidyr::pivot_wider(
+    names_from = "annotation_type",
+    values_from = "label_recoded"
+  ) |>
+  # remove NAs:
+  # - consensus NAs are those with other cell types not to include here
+  # - singler NAs were unclassified cells
+  tidyr::drop_na() |>
+  dplyr::mutate(
+    annotation_situation = dplyr::case_when(
+      consensus_validation == "unknown_consensus" ~ "consensus not classified", 
+      consensus_validation == singler ~ "matching annotations",
+      consensus_validation != singler ~ "different annotations"
+    )
+  ) |>
+  # make it long again
+  tidyr::pivot_longer(
+    c(consensus_validation, singler),
+    names_to = "annotation_type", 
+    values_to = "label_recoded"
+  ) 
+
+cells <- unique(situation_df$cell_id)
+genes <- unique(consensus_markers_df$ensembl_gene_id)
+```
+
+
+```{r}
+scuttle::makePerCellDF(
+    merged_sce[genes, cells],
+    features = genes,
+    assay.type = "logcounts",
+    use.coldata = "cell_id",
+    use.dimred = FALSE
+  ) |>
+    tidyr::pivot_longer(starts_with("ENSG"), names_to = "ensembl_gene_id", values_to = "logcounts") |>
+  dplyr::left_join(situation_df, by = "cell_id") |>
+  dplyr::group_by(label_recoded, marker_gene_label, ensembl_gene_id) |>
+  dplyr::summarize(
+    detected_count = sum(detected),
+    mean_exp = mean(logcounts)
+  ) |>
+  dplyr::ungroup() 
+
+
+ggplot(situation_df) + 
+  aes(x = singler, y = )
+
+
+
+  group_stats_df <- all_info_df |>
+    # remove genes that aren't present in final annotations
+    dplyr::filter(gene_symbol %in% marker_gene_order) |>
+    # for each assigned cell type/marker gene combo get total detected and mean expression
+    dplyr::group_by(label_recoded, marker_gene_label, ensembl_gene_id) |>
+    dplyr::summarize(
+      detected_count = sum(detected),
+      mean_exp = mean(logcounts)
+    ) |>
+    
+    
+
 ```
 
 ## Session Info
