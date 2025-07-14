@@ -43,7 +43,9 @@ ComplexHeatmap::ht_opt(TITLE_PADDING = grid::unit(0.6, "in"))
 repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 
 module_dir <- file.path(repository_base, "analyses", "cell-type-neuroblastoma-04")
-results_dir <- file.path(module_dir, "results", "singler")
+results_dir <- file.path(module_dir, "results")
+aggr_results_dir <- file.path(results_dir, "singler-test_aggregated")
+non_aggr_results_dir <- file.path(results_dir, "singler-test_not-aggregated")
 data_dir <- file.path(repository_base, "data", "current", "SCPCP000004")
 ```
 
@@ -59,16 +61,14 @@ palette_url <- "https://raw.githubusercontent.com/AlexsLemonade/scpca-paper-figu
 ```{r file paths}
 # SingleR results
 aggr_singler_file <- file.path(
-  results_dir,
+  aggr_results_dir,
   params$sample_id,
-  "aggregated",
   glue::glue("{params$library_id}_singler-results.rds")
 )
 
 non_aggr_singler_file <- file.path(
-  results_dir,
+  non_aggr_results_dir,
   params$sample_id,
-  "not-aggregated",
   glue::glue("{params$library_id}_singler-results.rds")
 )
 

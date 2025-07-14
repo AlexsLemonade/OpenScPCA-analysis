@@ -1,0 +1,539 @@
+---
+title: "Compare NE-combined vs. NE-separated reference"
+subtitle: "`r glue::glue('Results for {params$sample_id}: {params$library_id}')`"
+author: "Stephanie J. Spielman"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+params:
+  sample_id: "SCPCS000109"
+  library_id: "SCPCL000126"
+---
+
+This notebook does some preliminary comparisons of `SingleR` results obtained with these two versions of the NBAtlas (aggregated) reference:
+
+* `NE-combined`: The reference has a single category for all Neuroendocrine (NE) cells
+* `NE-separated`: The reference has two categories, Neuroendocrine and Neuroendocrine-tumor (NE-tumor) where the latter are NE cells which are part of the paper's "tumor zoom" subset and were explicitly classified as malignant
+
+This notebook explores whether `Neuroendocrine` should be a single label or have the two separated categories.
+On one hand, these different categories might indicate different tumor states or highly-similar normal cells. 
+However, per direct correspondence with the NBAtlas authors, it is probably more likely that any different signal associated with the malignant cells vs other NE cells is driven by technical reasons such as data quality, and _not_ biological signal.
+
+The goal of this notebook is to briefly look at the difference in cell type assignments between these two reference options to determine whether to proceed with a separated or combined NE category of cells, with the null that we should use the combined reference unless there is a compelling difference between the results.
+
+## Setup
+
+```{r, warning = FALSE}
+options(readr.show_col_types = FALSE)
+
+suppressWarnings({
+  suppressPackageStartupMessages({
+    library(ggplot2)
+    library(patchwork)
+    library(SingleCellExperiment)
+  })
+})
+
+
+theme_set(theme_bw())
+
+# Define color ramp for shared use in the heatmaps
+heatmap_col_fun <- circlize::colorRamp2(c(0, 1), colors = c("white", "darkslateblue"))
+# Set heatmap padding option
+ComplexHeatmap::ht_opt(TITLE_PADDING = grid::unit(0.6, "in"))
+```
+
+
+### Paths
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+module_dir <- file.path(repository_base, "analyses", "cell-type-neuroblastoma-04")
+results_dir <- file.path(module_dir, "results")
+combined_results_dir <- file.path(results_dir, "singler-test_combined-tumor-ne")
+separated_results_dir <- file.path(results_dir, "singler-test_separated-tumor-ne")
+data_dir <- file.path(repository_base, "data", "current", "SCPCP000004")
+```
+
+```{r file paths}
+# SingleR results
+combined_singler_file <- file.path(
+  combined_results_dir,
+  params$sample_id,
+  glue::glue("{params$library_id}_singler-results.rds")
+)
+
+separated_singler_file <- file.path(
+  separated_results_dir,
+  params$sample_id,
+  glue::glue("{params$library_id}_singler-results.rds")
+)
+
+
+# SingleR trained models
+model_separated_file <- file.path(
+  module_dir,
+  "scratch",
+  "singler-model_nbatlas_separated.rds"
+)
+model_combined_file <- file.path(
+  module_dir,
+  "scratch",
+  "singler-model_nbatlas_combined.rds"
+)
+
+
+# SCE file
+sce_file <- file.path(
+  data_dir,
+  params$sample_id,
+  glue::glue("{params$library_id}_processed.rds")
+)
+```
+
+
+### Functions
+
+```{r}
+# Source Jaccard and heatmap utilities functions:
+source(file.path(module_dir, "exploratory-notebooks", "jaccard-utils.R"))
+```
+
+### Prepare input data
+
+Read SCE object and define data frame of UMAP coordinates.
+
+```{r}
+sce <- readRDS(sce_file)
+
+umap_df <- reducedDim(sce, "UMAP") |>
+  as.data.frame() |>
+  tibble::rownames_to_column("barcodes")
+```
+
+Read SingleR result objects:
+
+```{r}
+singler_results_combined <- readr::read_rds(combined_singler_file)
+singler_results_separated <- readr::read_rds(separated_singler_file)
+```
+
+Join and prepare data for use:
+
+```{r}
+singler_df <- data.frame(
+  barcodes = rownames(singler_results_combined),
+  "singler_label_combined" = as.data.frame(singler_results_combined)$pruned.labels,
+  "singler_label_separated" = as.data.frame(singler_results_separated)$pruned.labels
+) |>
+  dplyr::left_join(umap_df, by = "barcodes")
+```
+
+
+Read the SingleR models and NBAtlas cell type marker genes:
+
+```{r}
+model_separated <- readRDS(model_separated_file)
+model_combined <- readRDS(model_combined_file)
+```
+
+
+
+## SingleR inference: Combined vs. separated
+
+### UMAPs
+
+
+```{r}
+# colors adapted from:
+# https://github.com/AlexsLemonade/scpca-paper-figures/blob/a457408323495b6ecee0c63ccdd74b41e88ab703/palettes/validation-group-palette.tsv
+nbatlas_colors <- c(
+  "B cell" = "#AA0DFE",
+  "Endothelial" = "#FC1CBF",
+  "Fibroblast" = "#B10DA1",
+  "Myeloid" = "#90AD1C",
+  "Neuroendocrine" = "#FEAF16",
+  "Neuroendocrine-tumor" = "#B17A0F",
+  "NK cell" = "#FBE426",
+  "pDC" = "#16FF32",
+  "Plasma" = "#782AB6",
+  "RBCs" = "#F6222E",
+  "Schwann" = "#1CFFCE",
+  "Stromal other" = "#C4451C",
+  "T cell" = "#3283FE"
+)
+singler_long_df <- singler_df |>
+  tidyr::pivot_longer(
+    contains("singler_label"),
+    names_to = "model",
+    values_to = "singler_label"
+  ) |>
+  dplyr::mutate(model = stringr::str_remove(model, "singler_label_"))
+```
+
+
+First, we'll show a UMAP of all cell types for both the combined and separated models:
+
+```{r}
+# remove NAs before plotting
+ggplot(tidyr::drop_na(singler_long_df)) +
+  aes(x = UMAP1, y = UMAP2, color = singler_label) +
+  geom_point(size = 0.5, alpha = 0.5) +
+  scale_color_manual(values = nbatlas_colors) +
+  facet_wrap(vars(model)) +
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(override.aes = list(size = 1, alpha = 1)))
+```
+
+
+Next, we'll show this UMAP in a faceted view for _only_ the `NE` cell types.
+This will help us see to what extent `NE` and `NE-tumor` cells are overlapping in the separated model, and how they are laid out compared to the combined model.
+
+```{r}
+singler_ne_df <- singler_long_df |>
+  dplyr::filter(stringr::str_detect(singler_label, "Neuroendocrine"))
+
+# remove NAs before plotting
+ggplot(singler_ne_df) +
+  aes(x = UMAP1, y = UMAP2, color = singler_label) +
+  geom_point(size = 0.75, alpha = 0.5) +
+  scale_color_manual(values = nbatlas_colors) +
+  facet_grid(
+    rows = vars(model),
+    cols = vars(singler_label)
+  ) +
+  theme(legend.position = "none")
+```
+
+
+### Jaccard similarity heatmap
+
+Next we'll show a heatmap directly comparing annotations between the two SingleR models colored by Jaccard similarity.
+
+```{r, fig.height = 8, fig.width = 8}
+make_jaccard_heatmap(
+  singler_df,
+  "singler_label_combined",
+  "singler_label_separated",
+  "Combined model (single NE category)",
+  "Separated model (NE and NE-tumor)"
+)
+```
+
+In the subsections below, we'll look at the numbers behind the heatmap a bit more closely.
+
+#### All labels
+
+The follow table shows relationship between model annotations.
+The separated model is shown in rows, and the combined model in columns.
+Each value is the count of cells with the given combination of labels.
+
+```{r}
+table(
+  singler_df$singler_label_separated,
+  singler_df$singler_label_combined
+)
+```
+
+
+#### Unlabeled cells
+
+We can also ask whether each model was able to label cells successfully, or whether more cells were ambiguous (aka `pruned.label` is `NA`) in one model or the other.
+
+How many cells were `NA` in both models?
+
+```{r}
+na_cells <- singler_df |>
+  dplyr::filter(is.na(singler_label_combined), is.na(singler_label_separated)) |>
+  dplyr::pull(barcodes)
+
+length(na_cells)
+```
+
+
+#### Unlabeled cells in the separated model
+
+Excluding cells which neither model labeled...
+
+* How many cells did the separated model uniquely fail to label?
+* What did the combined model label those cells?
+
+```{r}
+# if na in separated, what was it in combined?
+unlabeled_in_separated <- singler_results_separated |>
+  as.data.frame() |>
+  tibble::rownames_to_column("barcodes") |>
+  dplyr::filter(is.na(pruned.labels), !(barcodes %in% na_cells)) |>
+  dplyr::pull(barcodes)
+length(unlabeled_in_separated)
+```
+
+
+```{r}
+singler_df |>
+  dplyr::filter(barcodes %in% unlabeled_in_separated) |>
+  dplyr::count(singler_label_combined) |>
+  dplyr::arrange(desc(n))
+```
+
+
+#### Unlabeled cells in the combined model
+
+Excluding cells which neither model labeled...
+
+* How many cells did the combined model uniquely fail to label?
+* What did the separated model label those cells?
+
+```{r}
+# if na in combined, what was it in separated?
+unlabeled_in_combined <- singler_results_combined |>
+  as.data.frame() |>
+  tibble::rownames_to_column("barcodes") |>
+  dplyr::filter(is.na(pruned.labels), !(barcodes %in% na_cells)) |>
+  dplyr::pull(barcodes)
+length(unlabeled_in_combined)
+```
+
+```{r}
+singler_df |>
+  dplyr::filter(barcodes %in% unlabeled_in_combined) |>
+  dplyr::count(singler_label_separated) |>
+  dplyr::arrange(desc(n))
+```
+
+
+
+#### Score heatmaps
+Next we'll look at the score heatmaps to see the overall support for labels as inferred with both models.
+
+
+##### Separated model SingleR score heatmap
+
+```{r, fig.width = 10}
+SingleR::plotScoreHeatmap(singler_results_separated)
+```
+
+
+##### Combined model SingleR score heatmap
+
+
+```{r, fig.width = 10}
+SingleR::plotScoreHeatmap(singler_results_combined)
+```
+
+#### Delta median distributions
+
+Finally, we'll look at the distribution of delta.median scores in the separated model specifically for the `NE` categories.
+
+```{r, fig.width = 6}
+SingleR::plotDeltaDistribution(
+  singler_results_separated,
+  labels.use = c("Neuroendocrine", "Neuroendocrine-tumor"),
+  size = 1
+)
+```
+
+
+
+
+## Compare trained SingleR models
+
+In this section, we will compare some of the marker genes identified in the trained SingleR models directly.
+When training a model as we have done here, SingleR performs pairwise comparisons to identify marker genes as the top 10 upregulated genes for each label compared to each other label.
+
+### Intersecting NE marker genes in the separated model
+
+We'll first look at the `NE-separated` model which has two categories for `Neuroendocrine` (NE) and `Neuroendocrine-tumor` (NE-tumor).
+We'll pull out the marker genes for each and ask how similar they are.
+In other words, we'll ask if there is overlap between:
+
+* Marker genes upregulated in `NE` compared to each other cell type
+* Marker genes upregulated in `NE-tumor` compared to each other cell type
+
+```{r}
+# markers upregulated NE compared to other cell types in the separated model
+ne_markers <- model_separated$markers$full$Neuroendocrine
+
+# markers upregulated NE-tumor compared to other cell types in the separated model
+ne.tumor_markers <- model_separated$markers$full$`Neuroendocrine-tumor`
+```
+
+
+Below we print the intersection of these two sets of marker genes for each cell type comparison:
+```{r}
+separated_cell_types <- names(ne_markers)
+non_neuro_cell_types <- separated_cell_types[!(stringr::str_detect(separated_cell_types, "Neuroendocrine"))]
+
+intersecting_marker_genes <- non_neuro_cell_types |>
+  purrr::set_names() |>
+  purrr::map(
+    \(cell_type) {
+      intersect(
+        ne_markers[[cell_type]],
+        ne.tumor_markers[[cell_type]]
+      )
+    }
+  )
+
+# Print as data frame so it doesn't print double
+intersecting_marker_genes |>
+  purrr::map(
+    \(x) data.frame(genes = paste(sort(x), collapse = ", "))
+  ) |>
+  purrr::list_rbind(names_to = "cell_type") |>
+  # add column with gene count
+  dplyr::mutate(n_genes = stringr::str_count(genes, ",") + 1) |>
+  dplyr::select(cell_type, n_genes, gene_symbols = genes)
+```
+
+Most marker genes are actually the same for the NE and NE-tumor pairwise comparisons, indeed showing us that these categories are highly similar.
+The main exception is `RBCs` for which there are apparently very different gene lists for NE and NE-tumor. 
+Moreover, the genes tend to be the same across cell types, which suggests these are probably more universal NE markers.
+
+
+
+
+### Expression of different NE marker genes in the separated model
+
+Next, we'll pull out the _distinct_ marker genes associated with `NE` and `NE-tumor` groups.
+
+We'll look at these genes' expression in cells that were annotated as `NE` and `NE-tumor` by the separated model.
+We expect that these distributions will show some difference (since `SingleR` will find genes no matter what!) between annotated cell types `NE` and `NE-tumor`.
+If the magnitude of the difference is large, it suggests that separating NE into two groups may not be unreasonable.
+If the magnitude of the difference is small, it suggests that separating NE into two groups is oversplitting.
+
+In the plot, each point represents gene expression in a given cell, and the black diamonds are the mean expression for that gene.
+
+That said, note that there are likely very different numbers of cells labeled as `NE` and `NE-tumor`, which may influence how these plots are interpreted.
+```{r}
+singler_df |>
+  dplyr::filter(stringr::str_detect(singler_label_separated, "Neuroendocrine")) |>
+  dplyr::count(singler_label_separated)
+```
+
+
+```{r}
+# Define the marker genes
+ne_marker_genes <- ne_markers |>
+  purrr::reduce(c) |>
+  unique()
+
+ne.tumor_marker_genes <- ne.tumor_markers |>
+  purrr::reduce(c) |>
+  unique()
+
+ne_only <- setdiff(ne_marker_genes, ne.tumor_marker_genes)
+ne.tumor_only <- setdiff(ne.tumor_marker_genes, ne_marker_genes)
+```
+
+
+
+```{r, message=F}
+neuro_barcodes <- singler_df |>
+  dplyr::filter(stringr::str_detect(singler_label_separated, "Neuroendocrine")) |>
+  dplyr::pull(barcodes)
+
+# Convert rownames to symbols to match our gene lists
+sce <- rOpenScPCA::sce_to_symbols(sce, reference = "sce")
+
+# Add the separated cell types into colData as `singler_cell_type`
+colData(sce) <- colData(sce) |>
+  as.data.frame() |>
+  dplyr::inner_join(
+    singler_df |>
+      dplyr::select(barcodes, singler_cell_type = singler_label_separated),
+    by = "barcodes"
+  ) |>
+  DataFrame(row.names = rownames(colData(sce)))
+```
+
+
+```{r, fig.width = 12, fig.height = 14, message=F, warning=F}
+# plot the NE-only genes
+plot1 <- scater::plotExpression(
+  sce[ne_only, neuro_barcodes],
+  features = ne_only,
+  x = "singler_cell_type",
+  colour_by = "singler_cell_type",
+  point_size = 0.5,
+  ncol = 6 # facet cols
+) +
+  stat_summary(shape = 18) +
+  theme(
+    legend.position = "none",
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  ) +
+  ggtitle("Neuroendocrine marker genes")
+
+# plot the NE-tumor--only genes
+plot2 <- scater::plotExpression(
+  sce[ne.tumor_only, neuro_barcodes],
+  features = ne.tumor_only,
+  x = "singler_cell_type",
+  colour_by = "singler_cell_type",
+  point_size = 0.5,
+  ncol = 6 # facet cols
+) +
+  stat_summary(shape = 18) +
+  theme(
+    legend.position = "none",
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  ) +
+  ggtitle("Neuroendocrine-tumor marker genes")
+
+
+plot1 / plot2
+```
+
+
+### Compare separated to combined models
+
+Next, we'll look at the NE marker genes between references and ask for a quick summary:
+
+How many of the `NE` markers in the combined model (again, out of 10 total per cell type comparison!) are _also included_ in the separated model's `NE` or `NE-tumor` marker gene lists?
+The table below shows the counts for how many of the combined markers appear in the given separated model's marker gene lists.
+
+```{r}
+combined_markers <- model_combined$markers$full$Neuroendocrine
+
+combined_markers |>
+  # only comparisons to other groups of cells
+  purrr::discard_at("Neuroendocrine") |>
+  purrr::imap(
+    \(combined_marker_genes, cell_type) {
+      data.frame(
+        n_markers_in_NE = sum(combined_marker_genes %in% ne_markers[[cell_type]]),
+        n_markers_in_NE_tumor = sum(combined_marker_genes %in% ne.tumor_markers[[cell_type]])
+      )
+    }
+  ) |>
+  purrr::list_rbind(names_to = "cell_type")
+```
+
+Here, we see that `NE` marker genes from the combined model are essentially entirely contained within the `NE` and/or `NE-tumor` categories of the separated model.
+
+### Conclusions
+
+Based on a brief comparison of marker genes in the SingleR models, we see that:
+
+* In the _separated model_, marker genes that distinguish NE from other cell types and marker genes that distinguish NE-tumor from other cell types are highly similar.
+  * These genes were identified in NBAtlas as NE marker genes as well
+  * These genes tend to overlap with marker genes that distinguish NE from other cell types in the _combined model_
+* It is additionally worth noting that SingleR inference took much longer with the separated than combined model
+
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
+
+
+
+
