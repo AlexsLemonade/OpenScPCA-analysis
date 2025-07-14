@@ -271,8 +271,11 @@ While these categories are not necessarily directly comparable, they are each mo
 direct_celltype_matches <- c(
   "B cell",
   "T cell",
-  # note that we need to collapse the consensus to compare
   "myeloid",
+  "macrophage",
+  "monocyte",
+  "dendritic cell",
+  "natural killer cell",
   "fibroblast",
   "endothelial cell",
   "plasma cell",
@@ -280,9 +283,6 @@ direct_celltype_matches <- c(
   # we'll use this label to be able to directly compare unknown_consensus to Neuroendocrine
   "putative-tumor"
 )
-
-# Define the different myeloid types in consensus annotations
-consensus_myeloid <- c("myeloid", "dendritic cell", "monocyte", "macrophage")
 
 
 celltype_facet_df <- celltype_recoded_df |>
@@ -292,14 +292,7 @@ celltype_facet_df <- celltype_recoded_df |>
       label_recoded %in% c("Neuroendocrine", "unknown_consensus"),
       "putative-tumor",
       label_recoded
-    ), 
-    # recode all myeloid types, since NBAtlas has one group but we have several categories
-    label_recoded = ifelse(
-      label_recoded %in% consensus_myeloid,
-      "myeloid",
-      label_recoded
-    )
-  ) |>
+    )) |>
   dplyr::filter(label_recoded %in% direct_celltype_matches)
 
 faceted_umap(
