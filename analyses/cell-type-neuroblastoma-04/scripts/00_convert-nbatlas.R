@@ -64,10 +64,13 @@ tumor_cells <- readRDS(opts$tumor_metadata_file) |>
   rownames()
 
 # if testing, subset to fewer cells: keep 5% of each label
+# Note that we use the `Cell_type_wImmuneZoomAnnot` for annotation but the
+#  `Cell_type` label here to subset, since `Cell_type_wImmuneZoomAnnot` isn't in
+#  the NBAtlas subset which is used in testing
 if (opts$testing) {
   keep_cells <- nbatlas_seurat@meta.data |>
     tibble::rownames_to_column("cell_id") |>
-    dplyr::group_by(Cell_type_wImmuneZoomAnnot) |>
+    dplyr::group_by(Cell_type) |>
     dplyr::sample_frac(0.05) |>
     dplyr::pull(cell_id)
 
