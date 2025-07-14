@@ -271,6 +271,7 @@ While these categories are not necessarily directly comparable, they are each mo
 direct_celltype_matches <- c(
   "B cell",
   "T cell",
+  # note that we need to collapse the consensus to compare
   "myeloid",
   "fibroblast",
   "endothelial cell",
@@ -280,13 +281,22 @@ direct_celltype_matches <- c(
   "putative-tumor"
 )
 
+# Define the different myeloid types in consensus annotations
+consensus_myeloid <- c("myeloid", "dendritic cell", "monocyte", "macrophage")
+
 
 celltype_facet_df <- celltype_recoded_df |>
-  # recode so Neuroendocrine matches with unknown_consensus in the plot
   dplyr::mutate(
+    # recode so Neuroendocrine matches with unknown_consensus in the plot
     label_recoded = ifelse(
       label_recoded %in% c("Neuroendocrine", "unknown_consensus"),
       "putative-tumor",
+      label_recoded
+    ), 
+    # recode all myeloid types, since NBAtlas has one group but we have several categories
+    label_recoded = ifelse(
+      label_recoded %in% consensus_myeloid,
+      "myeloid",
       label_recoded
     )
   ) |>
