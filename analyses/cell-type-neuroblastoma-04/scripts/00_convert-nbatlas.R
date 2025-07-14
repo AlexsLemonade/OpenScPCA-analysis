@@ -67,7 +67,7 @@ tumor_cells <- readRDS(opts$tumor_metadata_file) |>
 if (opts$testing) {
   keep_cells <- nbatlas_seurat@meta.data |>
     tibble::rownames_to_column("cell_id") |>
-    dplyr::group_by(Cell_type) |>
+    dplyr::group_by(Cell_type_wImmuneZoomAnnot) |>
     dplyr::sample_frac(0.05) |>
     dplyr::pull(cell_id)
 
