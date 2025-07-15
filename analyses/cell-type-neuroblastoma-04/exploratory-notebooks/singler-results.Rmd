@@ -202,10 +202,10 @@ celltype_recoded_df <- celltype_df |>
 ```
 
 
-## Cell type comparisons
+## Cell types in NBAtlas
 
 Throughout this notebook, we compare the cell type labels from `SingleR` with the consensus cell type labels.
-To facilitate this, the `SingleR` labels from `NBAtlas` were grouped together to both a) mirror (where possible) the broad consensus labels, and b) to make some visualizations more manageable.
+To facilitate this, the resulting `SingleR` labels from `NBAtlas` were grouped together to both a) mirror (where possible) the broad consensus labels, and b) to make some visualizations more manageable.
 
 The table below shows the `NBAtlas` cell types and how they are represented in visualizations, unless otherwise stated.
 
@@ -235,7 +235,6 @@ Cells labeled `singler_unknown` are those for which `SingleR` could not reliably
 This section compares SingleR annotations to consensus cell type annotations using a heatmap.
 The heatmap is colored by Jaccard similarity index.
 
-
 ```{r, fig.height = 10, fig.width = 10} 
 # Pivot wider for heatmap functions
 celltype_recoded_wide_df <- celltype_recoded_df |>
@@ -254,6 +253,9 @@ make_jaccard_heatmap(
   "SingleR NBAtlas label"
 )
 ```
+
+We broadly see high compatibility between SingleR and consensus labels.
+In addition, SingleR mostly classifies the unknown consensus cells as Neuroendocrine, which is consistent with our expectation that these are mostly tumor cells.
 
 ## UMAPs
 
@@ -350,6 +352,9 @@ faceted_umap(
 )
 ```
 
+There appears to be a reasonable correspondence between consensus- and SingleR-colored UMAPS for each cell type.
+We see that SingleR classified more cells compared to consensus, which we expected, and we also see that the additional cells that SingleR labeled are roughly in the same neighborhood as their corresponding consensus labels.
+
 
 ## Marker gene expression dotplots
 
@@ -375,7 +380,10 @@ expressed_genes <- names(gene_sums)[gene_sums > 0]
 
 ### NBAtlas marker genes
 
-We'll show the top-5 highest log2FC marker genes per cell type for validation.
+This dotplot shows the top-5 highest log2FC marker genes per NBAtlas cell type for validation.
+Marker genes are taken directly from the NBAtlas paper where they were identified with `Seurat::FindMarkers()`. 
+
+This plot does not show the recoded SingleR labels but rather all labels that have associated marker genes; therefore, there are more cell type categories in this plot than in other plots in this report.
 
 ```{r}
 # number of marker genes to consider per validation group
@@ -435,13 +443,15 @@ generate_dotplot(
   min_cells = 0
 )
 ```
-
-
+For validation, we expect to see high marker gene expression along the diagonal of the dotplot where cell type labels match with their marker genes.
+We do broadly see high expression along the diagonal, which means our labeled cells have some amount of similar signal to those in NBAtlas.
+Some sets of marker genes show high expression across multiple cell type categories in particular for closely related cell types (e.g. monocyte, macrophage, myeloid, dendritic, or T-cells and NK-cells), but there do not appear to be any strongly unexpected gene expression patterns.
 
 
 
 ### Consensus validation marker genes
 
+This dotplot shows expression of consensus validation marker genes across matching cell types labeled with SingleR.
 
 ```{r}
 # Prepare data frame with singler labels to plot
@@ -500,6 +510,9 @@ generate_dotplot(
   min_cells = 0
 )
 ```
+
+Again, marker gene expression tends to be high in the matching cell type categories, with the possible exception of `B cell` which has somewhat lower gene expression of fewer genes; but, there is still some expected expression there.
+We also see some "promiscuity" where marker genes for closely-related cell types show high expression. 
 
 
 ## Compare expression when SingleR and consensus annotations match
@@ -590,7 +603,7 @@ compare_annotations_expr_df <- scuttle::makePerCellDF(
 ```
 
 
-```{r}
+```{r, fig.width = 10, fig.height = 20}
 unique(compare_annotations_expr_df$singler) |>
   purrr::map(
     \(celltype) {
@@ -607,7 +620,7 @@ unique(compare_annotations_expr_df$singler) |>
   patchwork::wrap_plots(ncol = 1) + patchwork::plot_layout(guides = "collect")
 ```
 
-
+In most cases, gene expression for cells with matching consensus/SingleR annotations is higher or about the same as is gene expression for cells with different annotations.
 
 ## Session Info
 
