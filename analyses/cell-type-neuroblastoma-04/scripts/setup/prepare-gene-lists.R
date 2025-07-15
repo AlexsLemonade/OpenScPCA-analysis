@@ -15,10 +15,16 @@ renv::load(module_dir)
 
 option_list <- list(
   make_option(
-    opt_str = c("--excel_file"),
+    opt_str = c("--table_s2_excel_file"),
     type = "character",
-    default = "",
+    default = "scratch/table_S2.xlsx",
     help = "Path to Table S2 excel spreadsheet downloaded from <https://doi.org/10.1016/j.celrep.2024.114804>"
+  ),
+  make_option(
+    opt_str = c("--table_s5_excel_file"),
+    type = "character",
+    default = "scratch/table_S5.xlsx",
+    help = "Path to Table S5 excel spreadsheet downloaded from <https://doi.org/10.1016/j.celrep.2024.114804>"
   ),
   make_option(
     opt_str = c("--consensus_marker_genes_url"),
@@ -43,38 +49,77 @@ option_list <- list(
 # Parse options and check arguments
 opts <- parse_args(OptionParser(option_list = option_list))
 stopifnot(
-  "excel_file does not exist" = file.exists(opts$excel_file),
+  "table_s2_excel_file does not exist" = file.exists(opts$table_s2_excel_file),
+  "table_s5_excel_file does not exist" = file.exists(opts$table_s5_excel_file),
   "nbatlas_marker_gene_file was not provided" = !is.null(opts$nbatlas_marker_gene_file),
   "consensus_marker_gene_file was not provided" = !is.null(opts$consensus_marker_gene_file)
 )
 
 #### NBAtlas marker genes -----------------------------------
 
-# Find all sheet names; each sheet name is a cell type
-sheet_names <- readxl::excel_sheets(opts$excel_file)
-names(sheet_names) <- sheet_names
+
+s2_keep_sheets <- c("Endothelial", "Fibroblast", "NE", "RBCs", "Schwann", "Stromal other") # only keep non-immune cells
+s5_discard_sheets <- c("Doublets") # remove the Doublets genes
+
+
+# Find all sheet names and limit to those we want; each sheet name is a cell type
+s2_sheet_names <- readxl::excel_sheets(opts$table_s2_excel_file) |>
+  purrr::set_names()
+s2_sheet_names <- s2_sheet_names[s2_keep_sheets]
+
+s5_sheet_names <- readxl::excel_sheets(opts$table_s5_excel_file) |>
+  purrr::set_names()
+s5_sheet_names <- s5_sheet_names[!(s5_sheet_names %in% s5_discard_sheets)]
+
 
 scpca_gene_table <- rOpenScPCA::scpca_gene_reference |>
   dplyr::select(gene_ids, gene_symbol_scpca)
 
-# Map over sheets to get genes, keeping only those we have in ScPCA
-nbatlas_markers_df <- sheet_names |>
+
+# Map over relevant sheets in both spreadsheet to get genes
+
+
+# First, define a helper function to prepare an excel sheet for joining
+# sheet_name: The name of the sheet to read in
+# excel_file_path: Path to excel file with the given sheet
+prepare_excel_sheet <- function(sheet_name, excel_file_path) {
+  readxl::read_excel(excel_file_path, sheet = sheet_name) |>
+    # keep only genes we have
+    dplyr::inner_join(scpca_gene_table, by = c("gene" = "gene_symbol_scpca")) |>
+    # keep pval and LFC so we can rank/subset later as needed
+    dplyr::select(ensembl_gene_id = gene_ids, gene_symbol = gene, p_val_adj, avg_log2FC)
+}
+
+
+s2_df <- s2_sheet_names |>
   purrr::map(
-    \(x) {
-      readxl::read_excel(opts$excel_file, sheet = x) |>
-        # keep only genes we have
-        dplyr::inner_join(scpca_gene_table, by = c("gene" = "gene_symbol_scpca")) |>
-        # keeping pval and LFC will allow us to rank/subset later as needed
-        dplyr::select(ensembl_gene_id = gene_ids, gene_symbol = gene, p_val_adj, avg_log2FC)
-    }
+    prepare_excel_sheet,
+    opts$table_s2_excel_file
   ) |>
-  purrr::list_rbind(names_to = "NBAtlas_label") |>
+  purrr::list_rbind(names_to = "NBAtlas_label")
+
+s5_df <- s5_sheet_names |>
+  purrr::map(
+    prepare_excel_sheet,
+    opts$table_s5_excel_file
+  ) |>
+  purrr::list_rbind(names_to = "NBAtlas_label")
+
+# Combine data frames and finalize processing
+
+
+nbatlas_markers_df <- s2_df |>
+  dplyr::bind_rows(s5_df) |>
   dplyr::mutate(
     # indicate if up or down-regulated, since there are positive and negative LFCs
     direction = ifelse(avg_log2FC > 0, "up", "down"),
     source = "NBAtlas",
-    # recode NE -> Neuroendocrine
-    NBAtlas_label = ifelse(NBAtlas_label == "NE", "Neuroendocrine", NBAtlas_label)
+    # recode some labels to match what is in the objects
+    NBAtlas_label = dplyr::case_when(
+      NBAtlas_label == "NE" ~ "Neuroendocrine",
+      NBAtlas_label == "Cycling" ~ "Immune cycling",
+      NBAtlas_label == "TOX-KIT NK cell" ~ "TOX2+/KIT+ NK cell",
+      .default = NBAtlas_label)
   )
 
 # export
