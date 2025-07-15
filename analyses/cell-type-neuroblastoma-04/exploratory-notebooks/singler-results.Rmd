@@ -80,7 +80,7 @@ palette_file <- file.path(
 )
 
 # marker genes for validation
-consensus_markers_file <- file.path(ref_dir, "consensus-marker-genes.tsv")
+consensus_markers_file <- "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/validation-markers.tsv"
 nbatlas_markers_file <- file.path(ref_dir, "nbatlas-marker-genes.tsv")
 ```
 
@@ -186,6 +186,35 @@ celltype_recoded_df <- celltype_df |>
   harmonize_celltypes(label, label_recoded) |>
   dplyr::select(-label)
 ```
+
+
+## Cell type comparisons
+
+Throughout this notebook, we compare the cell type labels from `SingleR` with the consensus cell type labels.
+To facilitate this, the `SingleR` labels from `NBAtlas` were grouped together to both a) mirror (where possible) the broad consensus labels, and b) to make some visualizations more manageable.
+
+The table below shows the `NBAtlas` cell types and how they are represented in visualizations, unless otherwise stated.
+
+| Broad label shown in figures | Associated NBAtlas labels                                       |
+| ---------------------------- | --------------------------------------------------------------- |
+| `T cell`                     | `CD4+ T cell`, `CD8+ T cell`, `Treg`, `NKT cell`                |
+| `dendritic cell`             | `cDC1`, `cDC2/DC3`, `Migratory cDC`                             |
+| `natural killer cell cell`   | `Circulating NK cell`, `TOX2+/KIT+ NK cell`, `Resident NK cell` |
+| `monocyte`                   | `CD4+ T cell`, `Classical monocyte`, `Patrolling monocyte`      |
+| `myeloid`                    | `Neutrophil`                                                    |
+| `Neuroendocrine`             | `Neuroendocrine`                                                |
+| `fibroblast`                 | `Fibroblast`                                                    |
+| `macrophage`                 | `Macrophage`                                                    |
+| `B cell`                     | `B cell`                                                        |
+| `plasma cell`                | `Plasma`                                                        |
+| `endothelial`                | `Endothelial`                                                   |
+| `Stromal other (NBAtlas)`    | `Stromal other`                                                 |
+| `Schwann`                    | `Schwann`                                                       |
+| `RBCs`                       | `RBCs`                                                          |
+| `Immune cycling`             | `Immune cycling`                                                |
+| `pDC`                        | `pDC`                                                           |
+
+Cells labeled `singler_unknown` are those for which `SingleR` could not reliably assign an annotation.
 
 ## Heatmap
 
@@ -349,11 +378,11 @@ total_cells_df$y_label <- factor(total_cells_df$y_label, levels = singler_order)
 
 ### NBAtlas marker genes
 
-We'll show the top-seven highest logFC marker genes per cell type for validation.
+We'll show the top-5 highest log2FC marker genes per cell type for validation.
 
 ```{r}
 # number of marker genes to consider per validation group
-n_marker_genes <- 7
+n_marker_genes <- 5
 
 nbatlas_markers_df <- nbatlas_markers_df |>
   # keep only the top `n_marker_genes`
