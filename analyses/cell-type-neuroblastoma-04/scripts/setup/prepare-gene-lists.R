@@ -1,9 +1,7 @@
 #!/usr/bin/env Rscript
 #
-# This script was used to prepare several TSVs with marker genes to use to validation cell type annotations:
-# - A TSV of marker genes from NBAtlas (Bonine et al (2024))
-#   - Only gene symbols for which we have known corresponding Ensembl IDs in ScPCA objects are retained
-# - A TSV of marker genes from the `cell-type-consensus` module validation genes
+# This script was used to prepare a TSV of marker genes from NBAtlas (Bonine et al (2024) to use for validation
+# Only gene symbols for which we have known corresponding Ensembl IDs in ScPCA objects are retained
 #
 # To run this script, manually download the Table S2 and Table S5 excel spreadsheets from <https://doi.org/10.1016/j.celrep.2024.114804>.
 # Run the script from this directory as follows:
@@ -27,22 +25,10 @@ option_list <- list(
     help = "Path to Table S5 excel spreadsheet downloaded from <https://doi.org/10.1016/j.celrep.2024.114804>"
   ),
   make_option(
-    opt_str = c("--consensus_marker_genes_url"),
-    type = "character",
-    default = "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/validation-markers.tsv",
-    help = "URL to cell-type-consensus validation markers"
-  ),
-  make_option(
     opt_str = c("--nbatlas_marker_gene_file"),
     type = "character",
     default = file.path(module_dir, "references", "nbatlas-marker-genes.tsv"),
     help = "Path to output TSV file to store NBAtlas marker genes"
-  ),
-  make_option(
-    opt_str = c("--consensus_marker_gene_file"),
-    type = "character",
-    default = file.path(module_dir, "references", "consensus-marker-genes.tsv"),
-    help = "Path to output TSV file to store marker genes taken from cell-type-consensus validation markers"
   )
 )
 
@@ -51,16 +37,11 @@ opts <- parse_args(OptionParser(option_list = option_list))
 stopifnot(
   "table_s2_excel_file does not exist" = file.exists(opts$table_s2_excel_file),
   "table_s5_excel_file does not exist" = file.exists(opts$table_s5_excel_file),
-  "nbatlas_marker_gene_file was not provided" = !is.null(opts$nbatlas_marker_gene_file),
-  "consensus_marker_gene_file was not provided" = !is.null(opts$consensus_marker_gene_file)
+  "nbatlas_marker_gene_file was not provided" = !is.null(opts$nbatlas_marker_gene_file)
 )
-
-#### NBAtlas marker genes -----------------------------------
-
 
 s2_keep_sheets <- c("Endothelial", "Fibroblast", "NE", "RBCs", "Schwann", "Stromal other") # only keep non-immune cells
 s5_discard_sheets <- c("Doublets") # remove the Doublets genes
-
 
 # Find all sheet names and limit to those we want; each sheet name is a cell type
 s2_sheet_names <- readxl::excel_sheets(opts$table_s2_excel_file) |>
@@ -106,8 +87,6 @@ s5_df <- s5_sheet_names |>
   purrr::list_rbind(names_to = "NBAtlas_label")
 
 # Combine data frames and finalize processing
-
-
 nbatlas_markers_df <- s2_df |>
   dplyr::bind_rows(s5_df) |>
   dplyr::mutate(
@@ -124,24 +103,3 @@ nbatlas_markers_df <- s2_df |>
 
 # export
 readr::write_tsv(nbatlas_markers_df, opts$nbatlas_marker_gene_file)
-
-#### cell-type-consensus marker genes --------------------------
-
-validation_df <- readr::read_tsv(opts$consensus_marker_genes_url)
-
-consensus_markers_df <- validation_df |>
-  # keep all annotations and decide which to use for validation once results are in
-  dplyr::select(
-    validation_group_annotation,
-    ensembl_gene_id,
-    gene_symbol,
-    gene_observed_count
-  ) |>
-  dplyr::mutate(
-    # all of our genes are up-regulated in the given cell type
-    direction = "up",
-    source = "cell-type-consensus"
-  )
-
-# export
-readr::write_tsv(consensus_markers_df, opts$consensus_marker_gene_file)
