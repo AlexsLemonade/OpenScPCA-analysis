@@ -5,9 +5,9 @@
 #   - Only gene symbols for which we have known corresponding Ensembl IDs in ScPCA objects are retained
 # - A TSV of marker genes from the `cell-type-consensus` module validation genes
 #
-# To run this script, manually download the Table S2 excel spreadsheet from <https://doi.org/10.1016/j.celrep.2024.114804>.
+# To run this script, manually download the Table S2 and Table S5 excel spreadsheets from <https://doi.org/10.1016/j.celrep.2024.114804>.
 # Run the script from this directory as follows:
-# Rscript prepare-gene-lists.R --excel_file <path to excel file>
+# Rscript prepare-gene-lists.R --table_s2_excel_file <path to Table S2 excel file> --table_s5_excel_file <path to Table S5 excel file>
 
 library(optparse)
 module_dir <- here::here()
