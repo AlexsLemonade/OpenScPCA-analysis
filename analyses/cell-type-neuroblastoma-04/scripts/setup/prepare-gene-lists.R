@@ -17,13 +17,13 @@ option_list <- list(
   make_option(
     opt_str = c("--table_s2_excel_file"),
     type = "character",
-    default = "scratch/table_S2.xlsx",
+    default = "",
     help = "Path to Table S2 excel spreadsheet downloaded from <https://doi.org/10.1016/j.celrep.2024.114804>"
   ),
   make_option(
     opt_str = c("--table_s5_excel_file"),
     type = "character",
-    default = "scratch/table_S5.xlsx",
+    default = "",
     help = "Path to Table S5 excel spreadsheet downloaded from <https://doi.org/10.1016/j.celrep.2024.114804>"
   ),
   make_option(
