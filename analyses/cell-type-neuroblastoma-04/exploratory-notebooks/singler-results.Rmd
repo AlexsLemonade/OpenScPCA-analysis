@@ -311,7 +311,7 @@ Each row displays a cell type where the left column shows the consensus version 
 In addition, we include a category below `putative-tumor` to directly compare the unknown consensus labels with the `Neuroendocrine` cells labeled by SingleR. 
 While these categories are not necessarily directly comparable, they are each most likely to contain tumor cells.
 
-Also, note that the `myeloid`-labeled SingleR cells are _only_ neutrophils, but the consensus myeloid cagetory contains additonal cell types.
+Also, note that the `myeloid`-labeled SingleR cells are _only_ neutrophils, but the consensus myeloid grouping contains additional cell types.
 
 ```{r, fig.width=7, fig.height=28}
 direct_celltype_matches <- c(
@@ -349,7 +349,6 @@ faceted_umap(
   annotation_type_column = annotation_type
 )
 ```
-
 
 
 ## Marker gene expression dotplots
@@ -502,6 +501,19 @@ generate_dotplot(
 )
 ```
 
+
+## Compare expression when SingleR and consensus annotations match
+
+Next, we look at expression of consensus validation marker genes for each normal/harmonized cell type label.
+We compare expression across groups of cells:
+
+* `matching annotations`: Cells whose consensus annotation matches the SingleR annotation
+* `different annotations`: Cells whose consensus annotation differs from the SingleR annotation
+* `consensus not classified`: Cells where the consensus annotation is unknown
+
+Each panel contains only cells that SingleR annotated with the given label, and shows only marker genes associated with that given cell type. 
+We expect that cells whose consensus and SingleR annotations agree may show higher gene expression for the given marker.
+
 ```{r}
 # this time we are not considering putative tumor
 direct_celltype_matches <- c(
@@ -520,7 +532,9 @@ direct_celltype_matches <- c(
 consensus_myeloid <- c("myeloid", "dendritic cell", "monocyte", "macrophage")
 
 
-situation_df <- celltype_recoded_df |>
+# Data frame with column `compare_annotations` that indicates
+# if consensus and singler (roughly) match
+compare_annotations_df <- celltype_recoded_df |>
   # recode labels for comparison
   dplyr::mutate(
     label_recoded = ifelse(
@@ -540,60 +554,60 @@ situation_df <- celltype_recoded_df |>
   # - singler NAs were unclassified cells
   tidyr::drop_na() |>
   dplyr::mutate(
-    annotation_situation = dplyr::case_when(
+    compare_annotations = dplyr::case_when(
       consensus_validation == "unknown_consensus" ~ "consensus not classified", 
       consensus_validation == singler ~ "matching annotations",
       consensus_validation != singler ~ "different annotations"
-    )
+    ), 
+    compare_annotations = forcats::fct_relevel(compare_annotations, "matching annotations", "different annotations", "consensus not classified")
   ) |>
-  # make it long again
-  tidyr::pivot_longer(
-    c(consensus_validation, singler),
-    names_to = "annotation_type", 
-    values_to = "label_recoded"
-  ) 
+  # we can remove the consensus annotation now
+  dplyr::select(cell_id, singler, compare_annotations)
 
-cells <- unique(situation_df$cell_id)
-genes <- unique(consensus_markers_df$ensembl_gene_id)
+
+direct_markers_df <- consensus_markers_df |>
+  dplyr::filter(validation_group_annotation %in% direct_celltype_matches) |>
+  dplyr::select(marker_gene_label = validation_group_annotation, ensembl_gene_id, gene_symbol)
+cells <- unique(compare_annotations_df$cell_id)
+genes <- unique(direct_markers_df$ensembl_gene_id)
 ```
 
 
 ```{r}
-scuttle::makePerCellDF(
-    merged_sce[genes, cells],
-    features = genes,
-    assay.type = "logcounts",
-    use.coldata = "cell_id",
-    use.dimred = FALSE
-  ) |>
-    tidyr::pivot_longer(starts_with("ENSG"), names_to = "ensembl_gene_id", values_to = "logcounts") |>
-  dplyr::left_join(situation_df, by = "cell_id") |>
-  dplyr::group_by(label_recoded, marker_gene_label, ensembl_gene_id) |>
-  dplyr::summarize(
-    detected_count = sum(detected),
-    mean_exp = mean(logcounts)
-  ) |>
-  dplyr::ungroup() 
-
-
-ggplot(situation_df) + 
-  aes(x = singler, y = )
-
-
-
-  group_stats_df <- all_info_df |>
-    # remove genes that aren't present in final annotations
-    dplyr::filter(gene_symbol %in% marker_gene_order) |>
-    # for each assigned cell type/marker gene combo get total detected and mean expression
-    dplyr::group_by(label_recoded, marker_gene_label, ensembl_gene_id) |>
-    dplyr::summarize(
-      detected_count = sum(detected),
-      mean_exp = mean(logcounts)
-    ) |>
-    
-    
-
+compare_annotations_expr_df <- scuttle::makePerCellDF(
+  merged_sce[genes, cells],
+  features = genes,
+  assay.type = "logcounts",
+  use.coldata = "cell_id",
+  use.dimred = FALSE
+) |>
+  tidyr::pivot_longer(starts_with("ENSG"), names_to = "ensembl_gene_id", values_to = "logcounts") |>
+  # filter to only cells with expression
+  dplyr::filter(logcounts > 0) |>
+  # join other data frames
+  dplyr::left_join(compare_annotations_df, by = "cell_id") |>
+  dplyr::left_join(direct_markers_df, by = "ensembl_gene_id", relationship = "many-to-many")
 ```
+
+
+```{r}
+unique(compare_annotations_expr_df$singler) |>
+  purrr::map(
+    \(celltype) {
+      
+      plot_df <- compare_annotations_expr_df |>
+        dplyr::filter(singler == celltype, marker_gene_label == celltype) 
+      
+      ggplot(plot_df) + 
+        aes(x = gene_symbol, y = logcounts, fill = compare_annotations) +
+        geom_boxplot(outlier.size = 0.25) + 
+        ggtitle(glue::glue("cells annotated as: {celltype}"))
+        
+  }) |>
+  patchwork::wrap_plots(ncol = 1) + patchwork::plot_layout(guides = "collect")
+```
+
+
 
 ## Session Info
 
