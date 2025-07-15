@@ -127,26 +127,10 @@ readr::write_tsv(nbatlas_markers_df, opts$nbatlas_marker_gene_file)
 
 #### cell-type-consensus marker genes --------------------------
 
-# map of names to match NBAtlas labels with our consensus labels (excluding NE)
-# consensus = nbatlas
-celltype_map <- c(
-  "B cell" = "B cell",
-  "endothelial cell" = "Endothelial",
-  "fibroblast" = "Fibroblast",
-  "myeloid" = "Myeloid",
-  "natural killer cell" = "NK cell",
-  "dendritic cell" = "pDC",
-  "plasma cell" = "Plasma",
-  "stromal cell" = "Stromal other", # may not be a great match, but can't hurt
-  "T cell" = "T cell"
-)
-
 validation_df <- readr::read_tsv(opts$consensus_marker_genes_url)
 
 consensus_markers_df <- validation_df |>
-  dplyr::filter(
-    validation_group_annotation %in% names(celltype_map),
-  ) |>
+  # keep all annotations and decide which to use for validation once results are in
   dplyr::select(
     validation_group_annotation,
     ensembl_gene_id,
@@ -154,8 +138,6 @@ consensus_markers_df <- validation_df |>
     gene_observed_count
   ) |>
   dplyr::mutate(
-    # recode labels
-    NBAtlas_label = dplyr::recode(validation_group_annotation, !!!celltype_map),
     # all of our genes are up-regulated in the given cell type
     direction = "up",
     source = "cell-type-consensus"
