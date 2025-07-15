@@ -72,11 +72,17 @@ sce_file <- file.path(
 # broad consensus cell type groups
 validation_url <- "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/consensus-validation-groups.tsv"
 
-# palette file
-palette_file <- file.path(
+# palette files
+recoded_palette_file <- file.path(
   module_dir,
   "palettes",
   "harmonized-cell-type-palette.tsv"
+)
+
+nbatlas_palette_file <- file.path(
+  module_dir,
+  "palettes",
+  "nbatlas-marker-genes-palette.tsv"
 )
 
 # marker genes for validation
@@ -139,10 +145,18 @@ consensus_markers_df <- readr::read_tsv(consensus_markers_file)
 nbatlas_markers_df <- readr::read_tsv(nbatlas_markers_file)
 
 
-# set up palette for umaps
-palette_df <- readr::read_tsv(palette_file)
-celltype_pal <- palette_df$hex_color
-names(celltype_pal) <- palette_df$harmonized_label
+# set up palettes
+
+# recoded to shared colors
+recoded_palette_df <- readr::read_tsv(recoded_palette_file)
+recoded_celltype_pal <- recoded_palette_df$hex_color
+names(recoded_celltype_pal) <- recoded_palette_df$harmonized_label
+
+# only the NBAtlas labels - use for validation dotplot
+nbatlas_palette_df <- readr::read_tsv(nbatlas_palette_file)
+nbatlas_celltype_pal <- nbatlas_palette_df$hex_color
+names(nbatlas_celltype_pal) <- nbatlas_palette_df$NBAtlas_label
+
 ```
 
 Join and prepare data for use:
@@ -259,7 +273,7 @@ ggplot(celltype_recoded_df) +
   aes(x = UMAP1, y = UMAP2, color = label_recoded) +
   geom_point(size = 0.25, alpha = 0.5) +
   scale_color_manual(
-    values = celltype_pal,
+    values = recoded_celltype_pal,
     name = "Harmonized cell types"
   ) +
   facet_wrap(vars(annotation_type)) +
@@ -282,7 +296,7 @@ celltype_recoded_df |>
   dplyr::filter(annotation_type == "singler") |>
   faceted_umap(
     annotation_column = label_recoded,
-    celltype_colors = celltype_pal
+    celltype_colors = recoded_celltype_pal
   )
 ```
 
@@ -293,8 +307,11 @@ Below, we display faceted UMAPs highlighting a single cell type but considering 
 This allows us to see if the normal cells that SingleR is labeling correspond well to the normal cells identified by consensus labels.
 Each row displays a cell type where the left column shows the consensus version and the right column shows the SingleR version.
 
+
 In addition, we include a category below `putative-tumor` to directly compare the unknown consensus labels with the `Neuroendocrine` cells labeled by SingleR. 
 While these categories are not necessarily directly comparable, they are each most likely to contain tumor cells.
+
+Also, note that the `myeloid`-labeled SingleR cells are _only_ neutrophils, but the consensus myeloid cagetory contains additonal cell types.
 
 ```{r, fig.width=7, fig.height=28}
 direct_celltype_matches <- c(
@@ -327,7 +344,7 @@ celltype_facet_df <- celltype_recoded_df |>
 faceted_umap(
   celltype_facet_df,
   annotation_column = label_recoded,
-  celltype_colors = celltype_pal,
+  celltype_colors = recoded_celltype_pal,
   facet_type = "grid",
   annotation_type_column = annotation_type
 )
@@ -353,15 +370,86 @@ gene_sums <- rowData(merged_sce) |>
   as.matrix() |>
   rowSums()
 expressed_genes <- names(gene_sums)[gene_sums > 0]
+```
 
-# Prepare data frame with singler labels to plot
-singler_recoded_df <- celltype_recoded_df |>
-  dplyr::filter(
-    annotation_type == "singler",
-    # we don't consider the NAs here
-    label_recoded != "unknown_singler"
+
+
+### NBAtlas marker genes
+
+We'll show the top-5 highest log2FC marker genes per cell type for validation.
+
+```{r}
+# number of marker genes to consider per validation group
+n_marker_genes <- 5
+
+top_nbatlas_markers_df <- nbatlas_markers_df |>
+  # keep only the top `n_marker_genes`
+  dplyr::filter(direction == "up") |>
+  dplyr::group_by(NBAtlas_label) |>
+  dplyr::mutate(rank_lfc = rank(-avg_log2FC)) |>
+  dplyr::ungroup() |>
+  dplyr::filter(rank_lfc <= n_marker_genes) |>
+  dplyr::select(marker_gene_label = NBAtlas_label, gene_symbol, ensembl_gene_id)
+```
+
+
+```{r, fig.width = 24, fig.height = 12}
+# we want to plot the literal labels here
+full_celltype_df <- celltype_df |>
+  dplyr::select(
+    cell_id, 
+    # the dotplot function expects this column name
+    label_recoded = pruned.labels
   ) |>
-  dplyr::select(cell_id, label_recoded)
+  dplyr::mutate(
+    label_recoded = dplyr::case_when(
+      # collapse the dendritic cells & monocytes to match what's in the marker genes
+      stringr::str_detect(label_recoded, "cDC") ~ "cDC", 
+      stringr::str_detect(label_recoded, "monocyte") ~ "Monocyte",
+      label_recoded == "NE" ~ "Neuroendocrine",
+      .default = label_recoded
+  )) |>
+  dplyr::filter(label_recoded != "unknown_singler")
+
+
+# get total number of cells per final annotation group and set up y_label
+total_cells_df <- full_celltype_df |>
+  dplyr::count(label_recoded, name = "total_cells") |>
+  dplyr::arrange(desc(total_cells)) |>
+  dplyr::mutate(y_label = glue::glue("{label_recoded} ({total_cells})"))
+
+singler_order <- total_cells_df$y_label
+total_cells_df$y_label <- factor(total_cells_df$y_label, levels = singler_order)
+nbatlas_bar_order <- total_cells_df$label_recoded
+```
+
+
+```{r, fig.width = 32, fig.height = 16}
+generate_dotplot(
+  merged_sce = merged_sce,
+  markers_df = top_nbatlas_markers_df,
+  singler_df = full_celltype_df,
+  total_cells_df = total_cells_df,
+  expressed_genes = expressed_genes,
+  bar_order = nbatlas_bar_order, 
+  celltype_palette = nbatlas_celltype_pal, 
+  min_cells = 0
+)
+```
+
+
+
+
+
+### Consensus validation marker genes
+
+
+```{r}
+# Prepare data frame with singler labels to plot
+singler_recoded_df <- celltype_recoded_wide_df |>
+  # we don't consider the NAs here
+  dplyr::filter(singler != "unknown_singler") |>
+  dplyr::select(cell_id, label_recoded = singler)
 
 
 # get total number of cells per final annotation group and set up y_label
@@ -376,76 +464,41 @@ total_cells_df$y_label <- factor(total_cells_df$y_label, levels = singler_order)
 
 
 
-### NBAtlas marker genes
-
-We'll show the top-5 highest log2FC marker genes per cell type for validation.
-
 ```{r}
-# number of marker genes to consider per validation group
-n_marker_genes <- 5
-
-nbatlas_markers_df <- nbatlas_markers_df |>
-  # keep only the top `n_marker_genes`
-  dplyr::filter(direction == "up") |>
-  dplyr::group_by(NBAtlas_label) |>
-  dplyr::mutate(rank_lfc = rank(-avg_log2FC)) |>
-  dplyr::ungroup() |>
-  dplyr::filter(rank_lfc <= n_marker_genes) |>
-  harmonize_celltypes(NBAtlas_label, marker_gene_label) |>
-  dplyr::select(marker_gene_label, gene_symbol, ensembl_gene_id)
-
-nbatlas_bar_order <- total_cells_df$label_recoded
-```
-
-
-```{r, fig.width = 24, fig.height = 12}
-generate_dotplot(
-  merged_sce,
-  nbatlas_markers_df,
-  singler_recoded_df,
-  total_cells_df,
-  expressed_genes,
-  nbatlas_bar_order
-)
-```
-
-
-
-### Consensus validation marker genes
-
-
-```{r}
-# prepare for dotplot
-
-consensus_markers_df <- consensus_markers_df |>
-  # we'll use this to help determine the bar order
-  harmonize_celltypes(NBAtlas_label, NBAtlas_label_recoded) |>
+# prepare markers for dotplot
+dotplot_consensus_markers_df <- consensus_markers_df |>
+  # consider only matching labels
+  dplyr::filter(validation_group_annotation %in% singler_recoded_df$label_recoded) |>
   dplyr::select(
     marker_gene_label = validation_group_annotation,
     ensembl_gene_id,
-    gene_symbol,
-    NBAtlas_label_recoded
+    gene_symbol
   )
 
 # get the bar order
 consensus_bar_order <- total_cells_df |>
   dplyr::select(label_recoded, y_label) |>
   # inner!!!!
-  dplyr::inner_join(consensus_markers_df, by = c("label_recoded" = "NBAtlas_label_recoded")) |>
+  dplyr::inner_join(
+    dotplot_consensus_markers_df, 
+    by = c("label_recoded" = "marker_gene_label")
+  ) |>
   dplyr::arrange(y_label) |>
-  dplyr::pull(marker_gene_label) |>
+  dplyr::pull(label_recoded) |>
   unique()
 ```
 
 
-```{r, fig.width = 22, fig.height = 12}
+```{r, fig.width = 26, fig.height = 12}
 generate_dotplot(
-  merged_sce,
-  consensus_markers_df,
-  singler_recoded_df,
-  total_cells_df,
-  expressed_genes,
-  consensus_bar_order
+  merged_sce = merged_sce,
+  markers_df = dotplot_consensus_markers_df,
+  singler_df = singler_recoded_df,
+  total_cells_df = total_cells_df,
+  expressed_genes = expressed_genes,
+  bar_order = consensus_bar_order, 
+  celltype_palette = recoded_celltype_pal, 
+  min_cells = 0
 )
 ```
 
