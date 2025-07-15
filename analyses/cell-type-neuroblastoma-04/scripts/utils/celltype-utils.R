@@ -123,6 +123,7 @@ faceted_umap <- function(umap_df,
 #' This function expects columns called `label_recoded` (cell types), `y_label` (cell types with (total cells) as factor for plot order), and `total_cells`
 #' @param expressed_genes Vector of genes that are expressed in the merged_sce
 #' @param bar_order Vector for the annotation bar order
+#' @param celltype_palette Named vector of colors for the annotation bar
 #' @param min_cells Only include genes present in at least this many cells
 #'
 #' @returns Dotplot object
@@ -133,6 +134,7 @@ generate_dotplot <- function(
     total_cells_df,
     expressed_genes,
     bar_order,
+    celltype_palette,
     min_cells = 0) {
   all_markers <- markers_df |>
     dplyr::pull(ensembl_gene_id) |>
@@ -244,7 +246,7 @@ generate_dotplot <- function(
   color_bar <- ggplot(dotplot_df, aes(x = gene_symbol, y = 1, fill = marker_gene_label)) +
     geom_tile() +
     facet_grid(cols = vars(marker_gene_label), scales = "free", space = "free") +
-    scale_fill_manual(values = celltype_pal, breaks = levels(dotplot_df$marker_gene_label)) +
+    scale_fill_manual(values = celltype_palette, breaks = levels(dotplot_df$marker_gene_label)) +
     ggmap::theme_nothing() +
     theme(
       strip.background = element_rect(fill = "transparent", color = NA),
