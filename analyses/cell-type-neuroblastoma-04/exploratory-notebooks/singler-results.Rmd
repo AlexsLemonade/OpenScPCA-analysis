@@ -181,7 +181,11 @@ celltype_df <- scuttle::makePerCellDF(
     validation_group_annotation
   )) |>
   dplyr::select(-consensus_annotation) |>
-  dplyr::left_join(singler_df, by = c("cell_id", "barcodes", "library_id"))
+  dplyr::left_join(singler_df, by = c("cell_id", "barcodes", "library_id")) |>
+  # we do specifically need to change pruned.labels from NE -> Neuroendocrine
+  dplyr::mutate(
+    pruned.labels = ifelse(pruned.labels == "NE", "Neuroendocrine", pruned.labels)
+  )
 
 # Recode NBAtlas cell types where possible so they match with colors
 celltype_recoded_df <- celltype_df |>
@@ -197,6 +201,7 @@ celltype_recoded_df <- celltype_df |>
     values_to = "label"
   ) |> 
   harmonize_celltypes(label, label_recoded)
+  
 ```
 
 
@@ -210,10 +215,12 @@ Cells labeled `singler_unknown` are those for which `SingleR` could not reliably
 
 
 ```{r}
-celltype_recoded_df |>
-  dplyr::filter(annotation_type == "singler") |>
+label_map_df <- celltype_recoded_df |>
+  dplyr::filter(annotation_type == "singler", label != "unknown_singler") |>
   dplyr::select(label, label_recoded) |>
-  dplyr::distinct() |>
+  dplyr::distinct()
+
+label_map_df |>
   dplyr::group_by(label_recoded) |>
   dplyr::summarize(all_labels = paste(label, collapse = ", ")) |>
   dplyr::arrange(label_recoded) |>
@@ -399,30 +406,52 @@ top_nbatlas_markers_df <- nbatlas_markers_df |>
 ```{r, fig.width = 24, fig.height = 12}
 # we want to plot the literal labels here
 full_celltype_df <- celltype_df |>
-  dplyr::select(
-    cell_id, 
-    # the dotplot function expects this column name
-    label_recoded = pruned.labels
-  ) |>
+  dplyr::filter(pruned.labels != "unknown_singler") |>
+  dplyr::select(cell_id, label = pruned.labels) |>
+  # collapse certain labels that are grouped in the marker genes
   dplyr::mutate(
-    label_recoded = dplyr::case_when(
-      # collapse the dendritic cells & monocytes to match what's in the marker genes
-      stringr::str_detect(label_recoded, "cDC") ~ "cDC", 
-      stringr::str_detect(label_recoded, "monocyte") ~ "Monocyte",
-      label_recoded == "NE" ~ "Neuroendocrine",
-      .default = label_recoded
-  )) |>
-  dplyr::filter(label_recoded != "unknown_singler")
+   label = dplyr::case_when(
+     stringr::str_detect(label, "cDC") ~ "cDC",
+     stringr::str_detect(label, "monocyte") ~ "Monocyte",
+     .default = label
+  ))
 
+
+# Also update label_map_df to collapse those labels
+label_map_df <- label_map_df |>
+  dplyr::mutate(
+   label = dplyr::case_when(
+     stringr::str_detect(label, "cDC") ~ "cDC",
+     stringr::str_detect(label, "monocyte") ~ "Monocyte",
+     .default = label)
+  ) |>
+  unique()
+
+# Prepare an order of label_recoded to help set the order for the literal underlying labels
+label_coded_factor <- celltype_recoded_df |>
+  dplyr::filter(annotation_type == "singler", label_recoded != "unknown_singler") |>
+  dplyr::count(label_recoded, name = "total_cells") |>
+  dplyr::arrange(desc(total_cells)) |>
+  dplyr::pull(label_recoded)
+label_recoded_factor <- factor(label_coded_factor, levels = label_coded_factor)
 
 # get total number of cells per final annotation group and set up y_label
 total_cells_df <- full_celltype_df |>
-  dplyr::count(label_recoded, name = "total_cells") |>
-  dplyr::arrange(desc(total_cells)) |>
-  dplyr::mutate(y_label = glue::glue("{label_recoded} ({total_cells})"))
+  dplyr::count(label, name = "total_cells") |>
+  # order so cell types are grouped
+  dplyr::inner_join(label_map_df, by = "label" ) |>
+  dplyr::mutate(
+    label_recoded = as.factor(label_recoded),
+    label_recoded = forcats::fct_relevel(label_recoded, levels(label_recoded_factor))
+  ) |>
+  dplyr::arrange(label_recoded) |>
+  dplyr::mutate(y_label = glue::glue("{label} ({total_cells})")) |>
+  # rename as expected for dotplot function - label_recoded needs to be the main column
+  dplyr::select(-label_recoded) |>
+  dplyr::rename(label_recoded = label)
 
-singler_order <- total_cells_df$y_label
-total_cells_df$y_label <- factor(total_cells_df$y_label, levels = singler_order)
+
+total_cells_df$y_label <- factor(total_cells_df$y_label, levels =  total_cells_df$y_label)
 nbatlas_bar_order <- total_cells_df$label_recoded
 ```
 
@@ -431,7 +460,8 @@ nbatlas_bar_order <- total_cells_df$label_recoded
 generate_dotplot(
   merged_sce = merged_sce,
   markers_df = top_nbatlas_markers_df,
-  singler_df = full_celltype_df,
+  # rename this after we've done all the wrangling
+  singler_df = full_celltype_df |> dplyr::rename(label_recoded = label),
   total_cells_df = total_cells_df,
   expressed_genes = expressed_genes,
   bar_order = nbatlas_bar_order, 
@@ -455,7 +485,6 @@ singler_recoded_df <- celltype_recoded_wide_df |>
   # we don't consider the NAs here
   dplyr::filter(singler != "unknown_singler") |>
   dplyr::select(cell_id, label_recoded = singler)
-
 
 # get total number of cells per final annotation group and set up y_label
 total_cells_df <- singler_recoded_df |>
