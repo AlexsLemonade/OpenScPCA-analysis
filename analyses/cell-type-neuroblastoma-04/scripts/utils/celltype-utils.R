@@ -163,7 +163,7 @@ generate_dotplot <- function(
   # define y- and x- axis orders
 
   # y axis - singler
-  y_label_order <- rev(total_cells_df$y_label)
+  y_label_order <- levels(total_cells_df$y_label)
 
   # x axis - marker genes. this uses the passed in bar_order
   markers_df <- markers_df |>

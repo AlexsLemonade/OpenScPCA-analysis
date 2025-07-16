@@ -451,7 +451,7 @@ total_cells_df <- full_celltype_df |>
   dplyr::rename(label_recoded = label)
 
 
-total_cells_df$y_label <- factor(total_cells_df$y_label, levels =  total_cells_df$y_label)
+total_cells_df$y_label <- factor(total_cells_df$y_label, levels = rev(total_cells_df$y_label))
 nbatlas_bar_order <- total_cells_df$label_recoded
 ```
 
@@ -473,11 +473,13 @@ For validation, we expect to see high marker gene expression along the diagonal 
 We do broadly see high expression along the diagonal, which means our labeled cells have some amount of similar signal to those in NBAtlas.
 Some sets of marker genes show high expression across multiple cell type categories in particular for closely related cell types (e.g. monocyte, macrophage, myeloid, dendritic, or T-cells and NK-cells), but there do not appear to be any strongly unexpected gene expression patterns.
 
-
+Importantly, these marker genes are not necessarily canonical marker genes for the normal/immune cell types present, but were empirically-determined based on the `NBAtlas` expression patterns.
+There may therefore be overlapping marker genes between categories, and the given marker genes may not be the "most" precise for the cell types if analyzed independently.
 
 ### Consensus validation marker genes
 
 This dotplot shows expression of consensus validation marker genes across matching cell types labeled with `SingleR`.
+Harmonized `SingleR` labels with direct matches are shown on the top of the y-axis (`endothelial cell` through `plasma cell`), and the remaining `SingleR` labels are below.
 
 ```{r}
 # Prepare data frame with singler labels to plot
@@ -486,14 +488,35 @@ singler_recoded_df <- celltype_recoded_wide_df |>
   dplyr::filter(singler != "unknown_singler") |>
   dplyr::select(cell_id, label_recoded = singler)
 
-# get total number of cells per final annotation group and set up y_label
+# to match up consensus and NBAtlas for ordering
+direct_celltype_matches <- c(
+  "B cell",
+  "T cell",
+  "myeloid",
+  "macrophage", 
+  "monocyte",
+  "fibroblast",
+  "dendritic cell",
+  "endothelial cell",
+  "plasma cell",
+  "natural killer cell"
+)
+
 total_cells_df <- singler_recoded_df |>
   dplyr::count(label_recoded, name = "total_cells") |>
-  dplyr::arrange(desc(total_cells)) |>
+  # labels that appear in both consensus+nbatlas should appear first
+  dplyr::mutate(in_both = label_recoded %in% direct_celltype_matches) |>
+  dplyr::group_by(in_both) |>
+  dplyr::arrange(total_cells, .by_group = TRUE) |>
+  dplyr::ungroup() |>
   dplyr::mutate(y_label = glue::glue("{label_recoded} ({total_cells})"))
+total_cells_df$y_label <- factor(total_cells_df$y_label, levels = total_cells_df$y_label)
 
-singler_order <- total_cells_df$y_label
-total_cells_df$y_label <- factor(total_cells_df$y_label, levels = singler_order)
+# get the annotation bar order
+consensus_bar_order <- total_cells_df |>
+  dplyr::filter(in_both) |>
+  dplyr::pull(label_recoded) |>
+  rev()
 ```
 
 
@@ -508,18 +531,6 @@ dotplot_consensus_markers_df <- consensus_markers_df |>
     ensembl_gene_id,
     gene_symbol
   )
-
-# get the bar order
-consensus_bar_order <- total_cells_df |>
-  dplyr::select(label_recoded, y_label) |>
-  # inner!!!!
-  dplyr::inner_join(
-    dotplot_consensus_markers_df, 
-    by = c("label_recoded" = "marker_gene_label")
-  ) |>
-  dplyr::arrange(y_label) |>
-  dplyr::pull(label_recoded) |>
-  unique()
 ```
 
 
