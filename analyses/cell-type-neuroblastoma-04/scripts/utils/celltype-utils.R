@@ -1,7 +1,33 @@
 # This file contains the following functions:
+# - select_nbatlas_markers()
 # - harmonize_celltypes()
 # - faceted_umap()
 # - generate_dotplot()
+
+
+
+#' Helper function to prepare the NBAtlas marker data frame
+#'
+#' @param nbatlas_markers_df Unmanipulated data frame of NBAtlas markers
+#' @param n_genes Number of marker genes to keep per cell type
+#' @param directon Whether up or downregulated genes should be considered; default is "up"
+#'
+#' @returns Data frame with columns `marker_gene_label`, `gene_symbol`, and `ensembl_gene_id`
+subset_nbatlas_markers <- function(nbatlas_markers_df, n_genes, direction = c("up", "down")) {
+
+  direction <- match.arg(direction)
+
+  nbatlas_markers_df |>
+    # keep only the top `n_marker_genes`
+    dplyr::filter(direction == "up") |>
+    dplyr::group_by(NBAtlas_label) |>
+    dplyr::mutate(rank_lfc = rank(-avg_log2FC)) |>
+    dplyr::ungroup() |>
+    dplyr::filter(rank_lfc <= n_genes) |>
+    dplyr::select(marker_gene_label = NBAtlas_label, gene_symbol, ensembl_gene_id)
+}
+
+
 
 #' Function to update NBAtlas labels
 #' This function matches NBAtlas labels to consensus labels where appropriate to facilitate plots

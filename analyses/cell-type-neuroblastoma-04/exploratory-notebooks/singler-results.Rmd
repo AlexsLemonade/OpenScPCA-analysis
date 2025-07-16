@@ -97,12 +97,12 @@ nbatlas_markers_file <- file.path(ref_dir, "nbatlas-marker-genes.tsv")
 source(file.path(module_dir, "scripts", "utils", "jaccard-utils.R"))
 
 # Source additional utilities functions:
+# - select_nbatlas_markers()
 # - harmonize_celltypes()
 # - faceted_umap()
 # - generate_dotplot()
 source(file.path(module_dir, "scripts", "utils", "celltype-utils.R"))
 ```
-
 
 
 ### Prepare input data
@@ -227,8 +227,7 @@ label_map_df |>
   dplyr::rename(
     "Label shown in figures" = label_recoded,
     "Underlying NBAltas label(s)" = all_labels
-  ) |>
-  knitr::kable()
+  )
 ```
 
 
@@ -238,9 +237,10 @@ label_map_df |>
 This section compares `SingleR` annotations to consensus cell type annotations using a heatmap.
 The heatmap is colored by Jaccard similarity index.
 
-```{r, fig.height = 10, fig.width = 10} 
+```{r, fig.height = 8, fig.width = 8} 
 # Pivot wider for heatmap functions
 celltype_recoded_wide_df <- celltype_recoded_df |>
+  dplyr::select(-label) |>
   tidyr::pivot_wider(
     names_from = annotation_type,
     values_from = label_recoded
@@ -389,17 +389,8 @@ Marker genes are taken directly from the NBAtlas paper where they were identifie
 This plot does not show the recoded `SingleR` labels but rather all labels that have associated marker genes; therefore, there are more cell type categories in this plot than in other plots in this report.
 
 ```{r}
-# number of marker genes to consider per validation group
-n_marker_genes <- 5
-
-top_nbatlas_markers_df <- nbatlas_markers_df |>
-  # keep only the top `n_marker_genes`
-  dplyr::filter(direction == "up") |>
-  dplyr::group_by(NBAtlas_label) |>
-  dplyr::mutate(rank_lfc = rank(-avg_log2FC)) |>
-  dplyr::ungroup() |>
-  dplyr::filter(rank_lfc <= n_marker_genes) |>
-  dplyr::select(marker_gene_label = NBAtlas_label, gene_symbol, ensembl_gene_id)
+# data frame of top 5 upregulated genes per cell type
+top_nbatlas_markers_df <- subset_nbatlas_markers(nbatlas_markers_df, 5, "up")
 ```
 
 
@@ -554,78 +545,39 @@ We also see some "promiscuity" where marker genes for closely-related cell types
 ## Compare expression when SingleR and consensus annotations match
 
 Next, we look at expression of consensus validation marker genes for each normal/harmonized cell type label.
-We compare expression across groups of cells:
+We're specifically interested in the marker gene expression for cells that were classified by `SingleR` but have an unknown consensus cell type.
+We assume the unknown consensus cells may be more likely to be tumor because they could not be robustly classified otherwise, but since some of those cells were called "normal" by `SingleR` we'd like to get a sense of whether they really are normal.
 
-* `matching annotations`: Cells whose consensus annotation matches the `SingleR` annotation
-* `different annotations`: Cells whose consensus annotation differs from the `SingleR` annotation
-* `consensus not classified`: Cells where the consensus annotation is unknown
+We have two groups:
 
-Each panel contains only cells that `SingleR` annotated with the given label, and shows only marker genes associated with that given cell type. 
-We expect that cells whose consensus and `SingleR` annotations agree may show higher gene expression for the given marker.
+* `SingleR` cells classified as `Neuroendocrine`; these are putatively tumor cells
+  * We expect that these will have higher `Neuroendocrine` marker gene expression and lower normal gene expression
+* `SingleR` cells not classified as `Neuroendocrine`; these are more likely to be normal cells
+  * We expect that these will have higher normal marker gene expression
 
-```{r}
-# this time we are not considering putative tumor
-direct_celltype_matches <- c(
-  "B cell",
-  "T cell",
-  # note that we need to collapse the consensus to compare
-  "myeloid",
-  "fibroblast",
-  "endothelial cell",
-  "plasma cell",
-  "natural killer cell", 
-  "unknown_consensus" # we do want to keep these for this analysis
-)
-
-# Define the different myeloid types in consensus annotations
-consensus_myeloid <- c("myeloid", "dendritic cell", "monocyte", "macrophage")
-
-
-# Data frame with column `compare_annotations` that indicates
-# if consensus and singler (roughly) match
-compare_annotations_df <- celltype_recoded_df |>
-  # recode labels for comparison
-  dplyr::mutate(
-    label_recoded = ifelse(
-      label_recoded %in% consensus_myeloid,
-      "myeloid",
-      label_recoded
-  )) |>
-  dplyr::filter(label_recoded %in% direct_celltype_matches) |>
-  dplyr::select(cell_id, annotation_type, label_recoded) |>
-  # make it wider to label the situation
-  tidyr::pivot_wider(
-    names_from = "annotation_type",
-    values_from = "label_recoded"
-  ) |>
-  # remove NAs:
-  # - consensus NAs are those with other cell types not to include here
-  # - singler NAs were unclassified cells
-  tidyr::drop_na() |>
-  dplyr::mutate(
-    compare_annotations = dplyr::case_when(
-      consensus_validation == "unknown_consensus" ~ "consensus not classified", 
-      consensus_validation == singler ~ "matching annotations",
-      consensus_validation != singler ~ "different annotations"
-    ), 
-    compare_annotations = forcats::fct_relevel(compare_annotations, "matching annotations", "different annotations", "consensus not classified")
-  ) |>
-  # we can remove the consensus annotation now
-  dplyr::select(cell_id, singler, compare_annotations)
-
-
-direct_markers_df <- consensus_markers_df |>
-  dplyr::filter(validation_group_annotation %in% direct_celltype_matches) |>
-  dplyr::select(marker_gene_label = validation_group_annotation, ensembl_gene_id, gene_symbol)
-cells <- unique(compare_annotations_df$cell_id)
-genes <- unique(direct_markers_df$ensembl_gene_id)
-```
-
+For this, we'll consider the average gene expression among the top 20 NBAtlas marker genes for each cell type.
 
 ```{r}
+# data frame of top 20 upregulated genes per cell type
+top_nbatlas_markers_df <- subset_nbatlas_markers(nbatlas_markers_df, 20, "up")
+
+unknown_consensus_ids <- celltype_recoded_wide_df |>
+  dplyr::filter(consensus_validation == "unknown_consensus") |>
+  dplyr::pull(cell_id) 
+
+unknown_consensus_celltype_df <- full_celltype_df |>
+  dplyr::filter(cell_id %in% unknown_consensus_ids) |>
+  dplyr::mutate(
+    singler = ifelse(
+      label == "Neuroendocrine", "NE (likely tumor)", "Non-NE (likely normal)")
+  ) |>
+  dplyr::select(-label)
+  
+goi <- unique(top_nbatlas_markers_df$ensembl_gene_id)
+
 compare_annotations_expr_df <- scuttle::makePerCellDF(
-  merged_sce[genes, cells],
-  features = genes,
+  merged_sce[goi, unknown_consensus_ids],
+  features = goi,
   assay.type = "logcounts",
   use.coldata = "cell_id",
   use.dimred = FALSE
@@ -633,30 +585,33 @@ compare_annotations_expr_df <- scuttle::makePerCellDF(
   tidyr::pivot_longer(starts_with("ENSG"), names_to = "ensembl_gene_id", values_to = "logcounts") |>
   # filter to only cells with expression
   dplyr::filter(logcounts > 0) |>
-  # join other data frames
-  dplyr::left_join(compare_annotations_df, by = "cell_id") |>
-  dplyr::left_join(direct_markers_df, by = "ensembl_gene_id", relationship = "many-to-many")
+  # join the annotations and marker gene data frame; use inner since we've filtered already
+  dplyr::inner_join(unknown_consensus_celltype_df, by = "cell_id") |>
+  dplyr::left_join(top_nbatlas_markers_df, by = "ensembl_gene_id", relationship = "many-to-many") |>
+  # average by marker_gene_label
+  dplyr::group_by(singler, marker_gene_label, ensembl_gene_id) |>
+  dplyr::summarize(mean_exp = mean(logcounts)) |>
+  dplyr::ungroup() |>
+  dplyr::mutate(marker_gene_label = factor(marker_gene_label), 
+                marker_gene_label = forcats::fct_relevel(marker_gene_label, nbatlas_bar_order))
+
 ```
 
-
-```{r, fig.width = 10, fig.height = 20}
-unique(compare_annotations_expr_df$singler) |>
-  purrr::map(
-    \(celltype) {
-      
-      plot_df <- compare_annotations_expr_df |>
-        dplyr::filter(singler == celltype, marker_gene_label == celltype) 
-      
-      ggplot(plot_df) + 
-        aes(x = gene_symbol, y = logcounts, fill = compare_annotations) +
-        geom_boxplot(outlier.size = 0.25) + 
-        ggtitle(glue::glue("cells annotated as: {celltype}"))
-        
-  }) |>
-  patchwork::wrap_plots(ncol = 1) + patchwork::plot_layout(guides = "collect")
+```{r, fig.width = 12, fig.height = 5}
+ggplot(compare_annotations_expr_df) + 
+  aes(x = marker_gene_label, y = mean_exp, color = singler) + 
+  ggforce::geom_sina(position = position_dodge(width = 0.7)) + 
+  labs(
+    x = "NBAtlas marker gene label", 
+    y = "Mean expression across marker genes",
+    color = "SingleR annotation"
+  ) + 
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
 ```
-
-In most cases, gene expression for cells with matching consensus/`SingleR` annotations is higher or about the same as is gene expression for cells with different annotations.
+The left-most gene set on the x-axis is `Neuroendocrine`, and normal cell types follow.
+This plot suggests that the normal cells `SingleR` is picking up are likely to be normal cells: normal gene expression for non-NE cells is higher compared to NE cells, and we see the opposite trend for the `Neuroendocrine` marker genes.
 
 ## Session Info
 
