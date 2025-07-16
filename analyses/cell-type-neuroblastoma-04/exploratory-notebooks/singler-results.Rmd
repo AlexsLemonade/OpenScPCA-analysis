@@ -10,7 +10,7 @@ output:
 ---
 
 This notebooks explores the results from running cell type annotation with `SingleR` using the NBAtlas.
-The NBAtlas reference was aggregated with `SingelR` prior to model training.
+The NBAtlas reference was aggregated with `SingleR` prior to model training.
 
 In this notebook, we visualize inferred cell type annotations directly, compare them to normal consensus cell types, and validate cell type assignments with marker genes.
 
@@ -65,7 +65,7 @@ singler_files <- list.files(
 
 # merged SCE file
 sce_file <- file.path(
-  merged_dir,
+  data_dir,
   "SCPCP000004_merged.rds"
 )
 
@@ -196,8 +196,7 @@ celltype_recoded_df <- celltype_df |>
     names_to = "annotation_type",
     values_to = "label"
   ) |> 
-  harmonize_celltypes(label, label_recoded) |>
-  dplyr::select(-label)
+  harmonize_celltypes(label, label_recoded)
 ```
 
 
@@ -207,31 +206,29 @@ Throughout this notebook, we compare the cell type labels from `SingleR` with th
 To facilitate this, the resulting `SingleR` labels from `NBAtlas` were grouped together to both a) mirror (where possible) the broad consensus labels, and b) to make some visualizations more manageable.
 
 The table below shows the `NBAtlas` cell types and how they are represented in visualizations, unless otherwise stated.
-
-| Broad label shown in figures | Associated NBAtlas labels                                       |
-| ---------------------------- | --------------------------------------------------------------- |
-| `T cell`                     | `CD4+ T cell`, `CD8+ T cell`, `Treg`, `NKT cell`                |
-| `dendritic cell`             | `cDC1`, `cDC2/DC3`, `Migratory cDC`                             |
-| `natural killer cell cell`   | `Circulating NK cell`, `TOX2+/KIT+ NK cell`, `Resident NK cell` |
-| `monocyte`                   | `CD4+ T cell`, `Classical monocyte`, `Patrolling monocyte`      |
-| `myeloid`                    | `Neutrophil`                                                    |
-| `Neuroendocrine`             | `Neuroendocrine`                                                |
-| `fibroblast`                 | `Fibroblast`                                                    |
-| `macrophage`                 | `Macrophage`                                                    |
-| `B cell`                     | `B cell`                                                        |
-| `plasma cell`                | `Plasma`                                                        |
-| `endothelial`                | `Endothelial`                                                   |
-| `Stromal other (NBAtlas)`    | `Stromal other`                                                 |
-| `Schwann`                    | `Schwann`                                                       |
-| `RBCs`                       | `RBCs`                                                          |
-| `Immune cycling`             | `Immune cycling`                                                |
-| `pDC`                        | `pDC`                                                           |
-
 Cells labeled `singler_unknown` are those for which `SingleR` could not reliably assign an annotation.
+
+
+```{r}
+celltype_recoded_df |>
+  dplyr::filter(annotation_type == "singler") |>
+  dplyr::select(label, label_recoded) |>
+  dplyr::distinct() |>
+  dplyr::group_by(label_recoded) |>
+  dplyr::summarize(all_labels = paste(label, collapse = ", ")) |>
+  dplyr::arrange(label_recoded) |>
+  dplyr::rename(
+    "Label shown in figures" = label_recoded,
+    "Underlying NBAltas label(s)" = all_labels
+  ) |>
+  knitr::kable()
+```
+
+
 
 ## Heatmap
 
-This section compares SingleR annotations to consensus cell type annotations using a heatmap.
+This section compares `SingleR` annotations to consensus cell type annotations using a heatmap.
 The heatmap is colored by Jaccard similarity index.
 
 ```{r, fig.height = 10, fig.width = 10} 
@@ -253,21 +250,21 @@ make_jaccard_heatmap(
 )
 ```
 
-We broadly see high compatibility between SingleR and consensus labels.
+We broadly see high compatibility between `SingleR` and consensus labels.
 In addition, SingleR mostly classifies the unknown consensus cells as Neuroendocrine, which is consistent with our expectation that these are mostly tumor cells.
 
 ## UMAPs
 
-This section visualizes and compares SingleR annotations to consensus cell type annotations using UMAPs.
+This section visualizes and compares `SingleR` annotations to consensus cell type annotations using UMAPs.
 Note that the displayed UMAP is from a merged object that has _not been batch-corrected._
 
 Cell type labels have been harmonized between sources wherever possible.
 Note that each set of labels has its own "stromal" category which the labels distinguish.
-In addition, cells labeled `unknown_consensus` are those with no assigned consensus label, and cells labeled `unknown_singler` are those where SingleR could not confidently assign a label.
+In addition, cells labeled `unknown_consensus` are those with no assigned consensus label, and cells labeled `unknown_singler` are those where `SingleR` could not confidently assign a label.
 
 ### Complete UMAP
 
-First, we display the consensus and SingleR annotations for all cells.
+First, we display the consensus and `SingleR` annotations for all cells.
 
 ```{r, fig.width = 14, fig.height = 7}
 ggplot(celltype_recoded_df) +
@@ -289,7 +286,7 @@ ggplot(celltype_recoded_df) +
 
 ### SingleR annotations only
 
-Below we display a faceted UMAP to highlight the SingleR annotations.
+Below we display a faceted UMAP to highlight the `SingleR` annotations.
 Light gray cells in each panel represent all other cell types.
 
 ```{r fig.width = 16, fig.height = 16}
@@ -304,15 +301,15 @@ celltype_recoded_df |>
 
 ### Faceted comparison to consensus cell types
 
-Below, we display faceted UMAPs highlighting a single cell type but considering only cell types that have direct correspondence between SingleR and consensus cell types.
-This allows us to see if the normal cells that SingleR is labeling correspond well to the normal cells identified by consensus labels.
-Each row displays a cell type where the left column shows the consensus version and the right column shows the SingleR version.
+Below, we display faceted UMAPs highlighting a single cell type but considering only cell types that have direct correspondence between `SingleR` and consensus cell types.
+This allows us to see if the normal cells that `SingleR` is labeling correspond well to the normal cells identified by consensus labels.
+Each row displays a cell type where the left column shows the consensus version and the right column shows the `SingleR` version.
 
 
-In addition, we include a category below `putative-tumor` to directly compare the unknown consensus labels with the `Neuroendocrine` cells labeled by SingleR. 
+In addition, we include a category below `putative-tumor` to directly compare the unknown consensus labels with the `Neuroendocrine` cells labeled by `SingleR.` 
 While these categories are not necessarily directly comparable, they are each most likely to contain tumor cells.
 
-Also, note that the `myeloid`-labeled SingleR cells are _only_ neutrophils, but the consensus myeloid grouping contains additional cell types.
+Also, note that the `myeloid`-labeled `SingleR` cells are _only_ neutrophils, but the consensus myeloid grouping contains additional cell types.
 
 ```{r, fig.width=7, fig.height=28}
 direct_celltype_matches <- c(
@@ -351,8 +348,8 @@ faceted_umap(
 )
 ```
 
-There appears to be a reasonable correspondence between consensus- and SingleR-colored UMAPS for each cell type.
-We see that SingleR classified more cells compared to consensus, which we expected, and we also see that the additional cells that SingleR labeled are roughly in the same neighborhood as their corresponding consensus labels.
+There appears to be a reasonable correspondence between consensus- and `SingleR`-colored UMAPS for each cell type.
+We see that `SingleR` classified more cells compared to consensus, which we expected, and we also see that the additional cells that `SingleR` labeled are roughly in the same neighborhood as their corresponding consensus labels.
 
 
 ## Marker gene expression dotplots
@@ -362,7 +359,7 @@ In this section we'll validate annotations using two sets of marker genes:
 * Marker genes identified in NBAtlas corresponding to the atlas cell types
   * This will tell us if we are picking up comparable signal in our data that plays well with NBAtlas
 * Consensus cell type marker genes
-  * This will provide an independent assessment of the reliability of SingleR normal cell type assignments 
+  * This will provide an independent assessment of the reliability of `SingleR` normal cell type assignments 
 
 ```{r}
 # Prepare the expressed_genes vector
@@ -382,7 +379,7 @@ expressed_genes <- names(gene_sums)[gene_sums > 0]
 This dotplot shows the top-5 highest log2FC marker genes per NBAtlas cell type for validation.
 Marker genes are taken directly from the NBAtlas paper where they were identified with `Seurat::FindMarkers()`. 
 
-This plot does not show the recoded SingleR labels but rather all labels that have associated marker genes; therefore, there are more cell type categories in this plot than in other plots in this report.
+This plot does not show the recoded `SingleR` labels but rather all labels that have associated marker genes; therefore, there are more cell type categories in this plot than in other plots in this report.
 
 ```{r}
 # number of marker genes to consider per validation group
@@ -450,7 +447,7 @@ Some sets of marker genes show high expression across multiple cell type categor
 
 ### Consensus validation marker genes
 
-This dotplot shows expression of consensus validation marker genes across matching cell types labeled with SingleR.
+This dotplot shows expression of consensus validation marker genes across matching cell types labeled with `SingleR`.
 
 ```{r}
 # Prepare data frame with singler labels to plot
@@ -519,12 +516,12 @@ We also see some "promiscuity" where marker genes for closely-related cell types
 Next, we look at expression of consensus validation marker genes for each normal/harmonized cell type label.
 We compare expression across groups of cells:
 
-* `matching annotations`: Cells whose consensus annotation matches the SingleR annotation
-* `different annotations`: Cells whose consensus annotation differs from the SingleR annotation
+* `matching annotations`: Cells whose consensus annotation matches the `SingleR` annotation
+* `different annotations`: Cells whose consensus annotation differs from the `SingleR` annotation
 * `consensus not classified`: Cells where the consensus annotation is unknown
 
-Each panel contains only cells that SingleR annotated with the given label, and shows only marker genes associated with that given cell type. 
-We expect that cells whose consensus and SingleR annotations agree may show higher gene expression for the given marker.
+Each panel contains only cells that `SingleR` annotated with the given label, and shows only marker genes associated with that given cell type. 
+We expect that cells whose consensus and `SingleR` annotations agree may show higher gene expression for the given marker.
 
 ```{r}
 # this time we are not considering putative tumor
@@ -619,7 +616,7 @@ unique(compare_annotations_expr_df$singler) |>
   patchwork::wrap_plots(ncol = 1) + patchwork::plot_layout(guides = "collect")
 ```
 
-In most cases, gene expression for cells with matching consensus/SingleR annotations is higher or about the same as is gene expression for cells with different annotations.
+In most cases, gene expression for cells with matching consensus/`SingleR` annotations is higher or about the same as is gene expression for cells with different annotations.
 
 ## Session Info
 
