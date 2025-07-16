@@ -44,6 +44,7 @@ module_dir <- file.path(repository_base, "analyses", "cell-type-neuroblastoma-04
 ref_dir <- file.path(module_dir, "references")
 results_dir <- file.path(module_dir, "results", "singler")
 data_dir <- file.path(repository_base, "data", "current", "SCPCP000004")
+merged_dir <- file.path(repository_base, "data", "current", "results", "merge-sce", "SCPCP000004")
 ```
 
 
@@ -63,9 +64,8 @@ singler_files <- list.files(
   )
 
 # merged SCE file
-# OBTAINED FROM PORTAL DIRECTLY on 2025-07-09
 sce_file <- file.path(
-  data_dir,
+  merged_dir,
   "SCPCP000004_merged.rds"
 )
 
@@ -115,8 +115,7 @@ merged_sce <- readRDS(sce_file)
 assay(merged_sce, "spliced") <- NULL
 assay(merged_sce, "counts") <- NULL
 
-# RUH ROH!!!
-# https://github.com/AlexsLemonade/scpcaTools/issues/298
+# Ensure cell_id is correct
 merged_sce$cell_id <- colnames(merged_sce)
 ```
 
