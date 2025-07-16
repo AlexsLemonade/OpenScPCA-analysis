@@ -1,17 +1,13 @@
-# Template analysis module
-
-This is a template analysis module.
-It is intended to be used as a starting point for new analysis modules.
-Please fill in the content below with information specific to this analysis module.
-
 ## Description
 
-Please provide a description of your module, including:
+This analysis module will -
 
-- What type of analysis is included?
-- What methods or tools are used?
-
-If there are multiple steps in the module, please include an outline of the analysis steps and scripts used.
+- Read one of the 52 samples in Group ID SCPCAB0027, Project SCPCP000023 (Sample ID: SCPCS000758)
+- Run InferCNV on the selected sample -
+  - Using the Gene order file from Gencode Release 48 (GRCh38.p14)
+  - Using the latest consensus cell type annotation, and the validation groups to construct normal references
+  - Use KMeans clustering algorithm to computationally cluster cells based on CNV score into "tumor" and "normal"
+  - Update the dataset with this annotation for each sample
 
 ## Usage
 
