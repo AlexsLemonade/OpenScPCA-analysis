@@ -120,7 +120,7 @@ faceted_umap <- function(umap_df,
 #' This function expects columns called `label_recoded` (cell types) and `cell_id`.
 #' The `cell_id` values should match the `cell_id` colData in the merged_sce
 #' @param total_cells_df Data frame of cell counts and plot order.
-#' This function expects columns called `label_recoded` (cell types), `y_label` (cell types with (total cells) as factor for plot order), and `total_cells`
+#' This function expects columns called `label_recoded` (cell types), `y_label` (cell types with (total cells) ordered for plot order), and `total_cells`
 #' @param expressed_genes Vector of genes that are expressed in the merged_sce
 #' @param bar_order Vector for the annotation bar order
 #' @param celltype_palette Named vector of colors for the annotation bar
