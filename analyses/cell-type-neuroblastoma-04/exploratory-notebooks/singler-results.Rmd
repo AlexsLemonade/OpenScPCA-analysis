@@ -31,6 +31,12 @@ theme_set(theme_bw())
 heatmap_col_fun <- circlize::colorRamp2(c(0, 1), colors = c("white", "darkslateblue"))
 # Set heatmap padding option
 ComplexHeatmap::ht_opt(TITLE_PADDING = grid::unit(0.6, "in"))
+
+# settings
+options(
+  dplyr.summarise.inform = FALSE, 
+  readr.show_col_types = FALSE
+)
 ```
 
 
@@ -65,7 +71,7 @@ singler_files <- list.files(
 
 # merged SCE file
 sce_file <- file.path(
-  data_dir,
+  merged_dir,
   "SCPCP000004_merged.rds"
 )
 
@@ -542,7 +548,7 @@ Again, marker gene expression tends to be high in the matching cell type categor
 We also see some "promiscuity" where marker genes for closely-related cell types show high expression. 
 
 
-## Compare expression when SingleR and consensus annotations match
+## Gene expression of unclassified consensus cells 
 
 Next, we look at expression of consensus validation marker genes for each normal/harmonized cell type label.
 We're specifically interested in the marker gene expression for cells that were classified by `SingleR` but have an unknown consensus cell type.
@@ -574,6 +580,7 @@ unknown_consensus_celltype_df <- full_celltype_df |>
   dplyr::select(-label)
   
 goi <- unique(top_nbatlas_markers_df$ensembl_gene_id)
+
 
 compare_annotations_expr_df <- scuttle::makePerCellDF(
   merged_sce[goi, unknown_consensus_ids],
