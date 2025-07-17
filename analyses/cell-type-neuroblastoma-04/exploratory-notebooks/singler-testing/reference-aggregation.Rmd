@@ -303,7 +303,7 @@ Before plotting cell type labels were harmonized to the extent possible to that 
 Cell types that were not literally just spelling variants were left alone; note that `stromal` cell types between references were also not harmonized since this group doesn't always have a clear definition.
 
 The UMAP therefore has one overall legend for all possible cell types, so colors are directly comparable across panels.
-The specific cell types that are part of either refernce are printed below.
+The specific cell types that are part of either reference are printed below.
 
 ```{r}
 # Recode NBAtlas cell types where possible so they match with colors
