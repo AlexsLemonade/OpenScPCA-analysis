@@ -1,0 +1,628 @@
+---
+title: "Explore the SingleR results"
+author: "Stephanie J. Spielman"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+---
+
+This notebooks explores the results from running cell type annotation with `SingleR` using the NBAtlas.
+The NBAtlas reference was aggregated with `SingleR` prior to model training.
+
+In this notebook, we visualize inferred cell type annotations directly, compare them to normal consensus cell types, and validate cell type assignments with marker genes.
+
+
+## Setup
+
+```{r, warning = FALSE}
+options(readr.show_col_types = FALSE)
+suppressPackageStartupMessages({
+  library(ggplot2)
+  library(patchwork)
+  library(SingleCellExperiment)
+})
+
+theme_set(theme_bw())
+
+# Define color ramp for shared use in the heatmaps
+heatmap_col_fun <- circlize::colorRamp2(c(0, 1), colors = c("white", "darkslateblue"))
+# Set heatmap padding option
+ComplexHeatmap::ht_opt(TITLE_PADDING = grid::unit(0.6, "in"))
+
+# settings
+options(
+  dplyr.summarise.inform = FALSE, 
+  readr.show_col_types = FALSE
+)
+```
+
+
+### Paths
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+module_dir <- file.path(repository_base, "analyses", "cell-type-neuroblastoma-04")
+ref_dir <- file.path(module_dir, "references")
+results_dir <- file.path(module_dir, "results", "singler")
+data_dir <- file.path(repository_base, "data", "current", "SCPCP000004")
+merged_dir <- file.path(repository_base, "data", "current", "results", "merge-sce", "SCPCP000004")
+```
+
+
+```{r file paths}
+# SingleR files
+singler_files <- list.files(
+  path = results_dir,
+  pattern = "_singler-annotations\\.tsv",
+  recursive = TRUE,
+  full.names = TRUE
+) |>
+  # add names as library id
+  purrr::set_names(
+    \(x) {
+      stringr::str_remove(basename(x), "_singler-annotations.tsv")
+    }
+  )
+
+# merged SCE file
+sce_file <- file.path(
+  merged_dir,
+  "SCPCP000004_merged.rds"
+)
+
+# broad consensus cell type groups
+validation_url <- "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/consensus-validation-groups.tsv"
+
+# palette files
+recoded_palette_file <- file.path(
+  module_dir,
+  "palettes",
+  "harmonized-cell-type-palette.tsv"
+)
+
+nbatlas_palette_file <- file.path(
+  module_dir,
+  "palettes",
+  "nbatlas-marker-genes-palette.tsv"
+)
+
+# marker genes for validation
+consensus_markers_file <- "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/validation-markers.tsv"
+nbatlas_markers_file <- file.path(ref_dir, "nbatlas-marker-genes.tsv")
+```
+
+### Functions
+
+```{r}
+# Source Jaccard and heatmap utilities functions
+source(file.path(module_dir, "scripts", "utils", "jaccard-utils.R"))
+
+# Source additional utilities functions:
+# - select_nbatlas_markers()
+# - harmonize_celltypes()
+# - faceted_umap()
+# - generate_dotplot()
+source(file.path(module_dir, "scripts", "utils", "celltype-utils.R"))
+```
+
+
+### Prepare input data
+
+Read SCE object to get consensus cell types and UMAP coordinates:
+
+```{r}
+merged_sce <- readRDS(sce_file)
+# immediately remove assays we don't need for space
+assay(merged_sce, "spliced") <- NULL
+assay(merged_sce, "counts") <- NULL
+
+# Ensure cell_id is correct
+merged_sce$cell_id <- colnames(merged_sce)
+```
+
+Read cell type data frames:
+
+```{r}
+singler_df <- singler_files |>
+  purrr::map(readr::read_tsv) |>
+  purrr::list_rbind(names_to = "library_id") |>
+  dplyr::select(-delta.next, -labels) |>
+  dplyr::mutate(
+    # add cell id column for unique rows & joining
+    cell_id = glue::glue("{library_id}-{barcodes}"),
+    # recode NA -> "unknown_singler"
+    pruned.labels = ifelse(
+      is.na(pruned.labels),
+      "unknown_singler",
+      pruned.labels
+    )
+  )
+
+# validation data frames
+validation_df <- readr::read_tsv(validation_url) |>
+  dplyr::select(consensus_annotation, validation_group_annotation)
+consensus_markers_df <- readr::read_tsv(consensus_markers_file)
+nbatlas_markers_df <- readr::read_tsv(nbatlas_markers_file)
+
+
+# set up palettes
+
+# recoded to shared colors
+recoded_palette_df <- readr::read_tsv(recoded_palette_file)
+recoded_celltype_pal <- recoded_palette_df$hex_color
+names(recoded_celltype_pal) <- recoded_palette_df$harmonized_label
+
+# only the NBAtlas labels - use for validation dotplot
+nbatlas_palette_df <- readr::read_tsv(nbatlas_palette_file)
+nbatlas_celltype_pal <- nbatlas_palette_df$hex_color
+names(nbatlas_celltype_pal) <- nbatlas_palette_df$NBAtlas_label
+
+```
+
+Join and prepare data for use:
+
+```{r}
+celltype_df <- scuttle::makePerCellDF(
+  merged_sce,
+  use.coldata = c("barcodes", "sample_id", "library_id", "consensus_celltype_annotation"),
+  use.dimred = c("UMAP")
+) |>
+  # there are repeated barcodes so we need to keep cell_id around
+  tibble::rownames_to_column("cell_id") |>
+  dplyr::rename(
+    UMAP1 = UMAP.1,
+    UMAP2 = UMAP.2,
+    consensus_annotation = consensus_celltype_annotation
+  ) |>
+  dplyr::left_join(validation_df, by = "consensus_annotation") |>
+  # recode NAs to "unknown_consensus" and remove full consensus labels
+  dplyr::mutate(validation_group_annotation = ifelse(
+    is.na(validation_group_annotation),
+    "unknown_consensus",
+    validation_group_annotation
+  )) |>
+  dplyr::select(-consensus_annotation) |>
+  dplyr::left_join(singler_df, by = c("cell_id", "barcodes", "library_id")) |>
+  # we do specifically need to change pruned.labels from NE -> Neuroendocrine
+  dplyr::mutate(
+    pruned.labels = ifelse(pruned.labels == "NE", "Neuroendocrine", pruned.labels)
+  )
+
+# Recode NBAtlas cell types where possible so they match with colors
+celltype_recoded_df <- celltype_df |>
+  # rename to make annotation sources more clear
+  dplyr::rename(
+    "consensus_validation" = validation_group_annotation,
+    "singler" = pruned.labels
+  ) |>
+  # pivot longer for wrangling
+  tidyr::pivot_longer(
+    c(consensus_validation, singler),
+    names_to = "annotation_type",
+    values_to = "label"
+  ) |> 
+  harmonize_celltypes(label, label_recoded)
+  
+```
+
+
+## Cell types in NBAtlas
+
+Throughout this notebook, we compare the cell type labels from `SingleR` with the consensus cell type labels.
+To facilitate this, the resulting `SingleR` labels from `NBAtlas` were grouped together to both a) mirror (where possible) the broad consensus labels, and b) to make some visualizations more manageable.
+
+The table below shows the `NBAtlas` cell types and how they are represented in visualizations, unless otherwise stated.
+Cells labeled `singler_unknown` are those for which `SingleR` could not reliably assign an annotation.
+
+
+```{r}
+label_map_df <- celltype_recoded_df |>
+  dplyr::filter(annotation_type == "singler", label != "unknown_singler") |>
+  dplyr::select(label, label_recoded) |>
+  dplyr::distinct()
+
+label_map_df |>
+  dplyr::group_by(label_recoded) |>
+  dplyr::summarize(all_labels = paste(label, collapse = ", ")) |>
+  dplyr::arrange(label_recoded) |>
+  dplyr::rename(
+    "Label shown in figures" = label_recoded,
+    "Underlying NBAltas label(s)" = all_labels
+  )
+```
+
+
+
+## Heatmap
+
+This section compares `SingleR` annotations to consensus cell type annotations using a heatmap.
+The heatmap is colored by Jaccard similarity index.
+
+```{r, fig.height = 8, fig.width = 8} 
+# Pivot wider for heatmap functions
+celltype_recoded_wide_df <- celltype_recoded_df |>
+  dplyr::select(-label) |>
+  tidyr::pivot_wider(
+    names_from = annotation_type,
+    values_from = label_recoded
+  )
+
+heatmap_col_fun <- circlize::colorRamp2(c(0, 1), colors = c("white", "darkslateblue"))
+
+make_jaccard_heatmap(
+  celltype_recoded_wide_df,
+  "consensus_validation",
+  "singler",
+  "Consensus validation label",
+  "SingleR NBAtlas label"
+)
+```
+
+We broadly see high compatibility between `SingleR` and consensus labels.
+In addition, SingleR mostly classifies the unknown consensus cells as Neuroendocrine, which is consistent with our expectation that these are mostly tumor cells.
+
+## UMAPs
+
+This section visualizes and compares `SingleR` annotations to consensus cell type annotations using UMAPs.
+Note that the displayed UMAP is from a merged object that has _not been batch-corrected._
+
+Cell type labels have been harmonized between sources wherever possible.
+Note that each set of labels has its own "stromal" category which the labels distinguish.
+In addition, cells labeled `unknown_consensus` are those with no assigned consensus label, and cells labeled `unknown_singler` are those where `SingleR` could not confidently assign a label.
+
+### Complete UMAP
+
+First, we display the consensus and `SingleR` annotations for all cells.
+
+```{r, fig.width = 14, fig.height = 7}
+ggplot(celltype_recoded_df) +
+  aes(x = UMAP1, y = UMAP2, color = label_recoded) +
+  geom_point(size = 0.25, alpha = 0.5) +
+  scale_color_manual(
+    values = recoded_celltype_pal,
+    name = "Harmonized cell types"
+  ) +
+  facet_wrap(vars(annotation_type)) +
+  coord_equal() +
+  theme(
+    legend.position = "bottom",
+    axis.ticks = element_blank(),
+    axis.text = element_blank()
+  ) +
+  guides(color = guide_legend(override.aes = list(size = 2, alpha = 1)))
+```
+
+### SingleR annotations only
+
+Below we display a faceted UMAP to highlight the `SingleR` annotations.
+Light gray cells in each panel represent all other cell types.
+
+```{r fig.width = 16, fig.height = 16}
+celltype_recoded_df |>
+  dplyr::filter(annotation_type == "singler") |>
+  faceted_umap(
+    annotation_column = label_recoded,
+    celltype_colors = recoded_celltype_pal
+  )
+```
+
+
+### Faceted comparison to consensus cell types
+
+Below, we display faceted UMAPs highlighting a single cell type but considering only cell types that have direct correspondence between `SingleR` and consensus cell types.
+This allows us to see if the normal cells that `SingleR` is labeling correspond well to the normal cells identified by consensus labels.
+Each row displays a cell type where the left column shows the consensus version and the right column shows the `SingleR` version.
+
+
+In addition, we include a category below `putative-tumor` to directly compare the unknown consensus labels with the `Neuroendocrine` cells labeled by `SingleR.` 
+While these categories are not necessarily directly comparable, they are each most likely to contain tumor cells.
+
+Also, note that the `myeloid`-labeled `SingleR` cells are _only_ neutrophils, but the consensus myeloid grouping contains additional cell types.
+
+```{r, fig.width=7, fig.height=28}
+direct_celltype_matches <- c(
+  "B cell",
+  "T cell",
+  "myeloid",
+  "macrophage",
+  "monocyte",
+  "dendritic cell",
+  "natural killer cell",
+  "fibroblast",
+  "endothelial cell",
+  "plasma cell",
+  "natural killer cell",
+  # we'll use this label to be able to directly compare unknown_consensus to Neuroendocrine
+  "putative-tumor"
+)
+
+
+celltype_facet_df <- celltype_recoded_df |>
+  dplyr::mutate(
+    # recode so Neuroendocrine matches with unknown_consensus in the plot
+    label_recoded = ifelse(
+      label_recoded %in% c("Neuroendocrine", "unknown_consensus"),
+      "putative-tumor",
+      label_recoded
+    )) |>
+  dplyr::filter(label_recoded %in% direct_celltype_matches)
+
+faceted_umap(
+  celltype_facet_df,
+  annotation_column = label_recoded,
+  celltype_colors = recoded_celltype_pal,
+  facet_type = "grid",
+  annotation_type_column = annotation_type
+)
+```
+
+There appears to be a reasonable correspondence between consensus- and `SingleR`-colored UMAPS for each cell type.
+We see that `SingleR` classified more cells compared to consensus, which we expected, and we also see that the additional cells that `SingleR` labeled are roughly in the same neighborhood as their corresponding consensus labels.
+
+
+## Marker gene expression dotplots
+
+In this section we'll validate annotations using two sets of marker genes:
+
+* Marker genes identified in NBAtlas corresponding to the atlas cell types
+  * This will tell us if we are picking up comparable signal in our data that plays well with NBAtlas
+* Consensus cell type marker genes
+  * This will provide an independent assessment of the reliability of `SingleR` normal cell type assignments 
+
+```{r}
+# Prepare the expressed_genes vector
+# we only care about if that gene is expressed otherwise we won't waste memory and include it
+gene_sums <- rowData(merged_sce) |>
+  as.data.frame() |>
+  dplyr::select(contains("detected")) |>
+  as.matrix() |>
+  rowSums()
+expressed_genes <- names(gene_sums)[gene_sums > 0]
+```
+
+
+
+### NBAtlas marker genes
+
+This dotplot shows the top-5 highest log2FC marker genes per NBAtlas cell type for validation.
+Marker genes are taken directly from the NBAtlas paper where they were identified with `Seurat::FindMarkers()`. 
+
+This plot does not show the recoded `SingleR` labels but rather all labels that have associated marker genes; therefore, there are more cell type categories in this plot than in other plots in this report.
+
+```{r}
+# data frame of top 5 upregulated genes per cell type
+top_nbatlas_markers_df <- subset_nbatlas_markers(nbatlas_markers_df, 5, "up")
+```
+
+
+```{r, fig.width = 24, fig.height = 12}
+# we want to plot the literal labels here
+full_celltype_df <- celltype_df |>
+  dplyr::filter(pruned.labels != "unknown_singler") |>
+  dplyr::select(cell_id, label = pruned.labels) |>
+  # collapse certain labels that are grouped in the marker genes
+  dplyr::mutate(
+   label = dplyr::case_when(
+     stringr::str_detect(label, "cDC") ~ "cDC",
+     stringr::str_detect(label, "monocyte") ~ "Monocyte",
+     .default = label
+  ))
+
+
+# Also update label_map_df to collapse those labels
+label_map_df <- label_map_df |>
+  dplyr::mutate(
+   label = dplyr::case_when(
+     stringr::str_detect(label, "cDC") ~ "cDC",
+     stringr::str_detect(label, "monocyte") ~ "Monocyte",
+     .default = label)
+  ) |>
+  unique()
+
+# Prepare an order of label_recoded to help set the order for the literal underlying labels
+label_coded_factor <- celltype_recoded_df |>
+  dplyr::filter(annotation_type == "singler", label_recoded != "unknown_singler") |>
+  dplyr::count(label_recoded, name = "total_cells") |>
+  dplyr::arrange(desc(total_cells)) |>
+  dplyr::pull(label_recoded)
+label_recoded_factor <- factor(label_coded_factor, levels = label_coded_factor)
+
+# get total number of cells per final annotation group and set up y_label
+total_cells_df <- full_celltype_df |>
+  dplyr::count(label, name = "total_cells") |>
+  # order so cell types are grouped
+  dplyr::inner_join(label_map_df, by = "label" ) |>
+  dplyr::mutate(
+    label_recoded = as.factor(label_recoded),
+    label_recoded = forcats::fct_relevel(label_recoded, levels(label_recoded_factor))
+  ) |>
+  dplyr::arrange(label_recoded) |>
+  dplyr::mutate(y_label = glue::glue("{label} ({total_cells})")) |>
+  # rename as expected for dotplot function - label_recoded needs to be the main column
+  dplyr::select(-label_recoded) |>
+  dplyr::rename(label_recoded = label)
+
+
+total_cells_df$y_label <- factor(total_cells_df$y_label, levels = rev(total_cells_df$y_label))
+nbatlas_bar_order <- total_cells_df$label_recoded
+```
+
+
+```{r, fig.width = 32, fig.height = 16}
+generate_dotplot(
+  merged_sce = merged_sce,
+  markers_df = top_nbatlas_markers_df,
+  # rename this after we've done all the wrangling
+  singler_df = full_celltype_df |> dplyr::rename(label_recoded = label),
+  total_cells_df = total_cells_df,
+  expressed_genes = expressed_genes,
+  bar_order = nbatlas_bar_order, 
+  celltype_palette = nbatlas_celltype_pal, 
+  min_cells = 0
+)
+```
+For validation, we expect to see high marker gene expression along the diagonal of the dotplot where cell type labels match with their marker genes.
+We do broadly see high expression along the diagonal, which means our labeled cells have some amount of similar signal to those in NBAtlas.
+Some sets of marker genes show high expression across multiple cell type categories in particular for closely related cell types (e.g. monocyte, macrophage, myeloid, dendritic, or T-cells and NK-cells), but there do not appear to be any strongly unexpected gene expression patterns.
+
+Importantly, these marker genes are not necessarily canonical marker genes for the normal/immune cell types present, but were empirically-determined based on the `NBAtlas` expression patterns.
+There may therefore be overlapping marker genes between categories, and the given marker genes may not be the "most" precise for the cell types if analyzed independently.
+
+### Consensus validation marker genes
+
+This dotplot shows expression of consensus validation marker genes across matching cell types labeled with `SingleR`.
+Harmonized `SingleR` labels with direct matches are shown on the top of the y-axis (`endothelial cell` through `plasma cell`), and the remaining `SingleR` labels are below.
+
+```{r}
+# Prepare data frame with singler labels to plot
+singler_recoded_df <- celltype_recoded_wide_df |>
+  # we don't consider the NAs here
+  dplyr::filter(singler != "unknown_singler") |>
+  dplyr::select(cell_id, label_recoded = singler)
+
+# to match up consensus and NBAtlas for ordering
+direct_celltype_matches <- c(
+  "B cell",
+  "T cell",
+  "myeloid",
+  "macrophage", 
+  "monocyte",
+  "fibroblast",
+  "dendritic cell",
+  "endothelial cell",
+  "plasma cell",
+  "natural killer cell"
+)
+
+total_cells_df <- singler_recoded_df |>
+  dplyr::count(label_recoded, name = "total_cells") |>
+  # labels that appear in both consensus+nbatlas should appear first
+  dplyr::mutate(in_both = label_recoded %in% direct_celltype_matches) |>
+  dplyr::group_by(in_both) |>
+  dplyr::arrange(total_cells, .by_group = TRUE) |>
+  dplyr::ungroup() |>
+  dplyr::mutate(y_label = glue::glue("{label_recoded} ({total_cells})"))
+total_cells_df$y_label <- factor(total_cells_df$y_label, levels = total_cells_df$y_label)
+
+# get the annotation bar order
+consensus_bar_order <- total_cells_df |>
+  dplyr::filter(in_both) |>
+  dplyr::pull(label_recoded) |>
+  rev()
+```
+
+
+
+```{r}
+# prepare markers for dotplot
+dotplot_consensus_markers_df <- consensus_markers_df |>
+  # consider only matching labels
+  dplyr::filter(validation_group_annotation %in% singler_recoded_df$label_recoded) |>
+  dplyr::select(
+    marker_gene_label = validation_group_annotation,
+    ensembl_gene_id,
+    gene_symbol
+  )
+```
+
+
+```{r, fig.width = 26, fig.height = 12}
+generate_dotplot(
+  merged_sce = merged_sce,
+  markers_df = dotplot_consensus_markers_df,
+  singler_df = singler_recoded_df,
+  total_cells_df = total_cells_df,
+  expressed_genes = expressed_genes,
+  bar_order = consensus_bar_order, 
+  celltype_palette = recoded_celltype_pal, 
+  min_cells = 0
+)
+```
+
+Again, marker gene expression tends to be high in the matching cell type categories, with the possible exception of `B cell` which has somewhat lower gene expression of fewer genes; but, there is still some expected expression there.
+We also see some "promiscuity" where marker genes for closely-related cell types show high expression. 
+
+
+## Gene expression of unclassified consensus cells 
+
+Next, we look at expression of consensus validation marker genes for each normal/harmonized cell type label.
+We're specifically interested in the marker gene expression for cells that were classified by `SingleR` but have an unknown consensus cell type.
+We assume the unknown consensus cells may be more likely to be tumor because they could not be robustly classified otherwise, but since some of those cells were called "normal" by `SingleR` we'd like to get a sense of whether they really are normal.
+
+We have two groups:
+
+* `SingleR` cells classified as `Neuroendocrine`; these are putatively tumor cells
+  * We expect that these will have higher `Neuroendocrine` marker gene expression and lower normal gene expression
+* `SingleR` cells not classified as `Neuroendocrine`; these are more likely to be normal cells
+  * We expect that these will have higher normal marker gene expression
+
+For this, we'll consider the average gene expression among the top 20 NBAtlas marker genes for each cell type.
+
+```{r}
+# data frame of top 20 upregulated genes per cell type
+top_nbatlas_markers_df <- subset_nbatlas_markers(nbatlas_markers_df, 20, "up")
+
+unknown_consensus_ids <- celltype_recoded_wide_df |>
+  dplyr::filter(consensus_validation == "unknown_consensus") |>
+  dplyr::pull(cell_id) 
+
+unknown_consensus_celltype_df <- full_celltype_df |>
+  dplyr::filter(cell_id %in% unknown_consensus_ids) |>
+  dplyr::mutate(
+    singler = ifelse(
+      label == "Neuroendocrine", "NE (likely tumor)", "Non-NE (likely normal)")
+  ) |>
+  dplyr::select(-label)
+  
+goi <- unique(top_nbatlas_markers_df$ensembl_gene_id)
+
+
+compare_annotations_expr_df <- scuttle::makePerCellDF(
+  merged_sce[goi, unknown_consensus_ids],
+  features = goi,
+  assay.type = "logcounts",
+  use.coldata = "cell_id",
+  use.dimred = FALSE
+) |>
+  tidyr::pivot_longer(starts_with("ENSG"), names_to = "ensembl_gene_id", values_to = "logcounts") |>
+  # filter to only cells with expression
+  dplyr::filter(logcounts > 0) |>
+  # join the annotations and marker gene data frame; use inner since we've filtered already
+  dplyr::inner_join(unknown_consensus_celltype_df, by = "cell_id") |>
+  dplyr::left_join(top_nbatlas_markers_df, by = "ensembl_gene_id", relationship = "many-to-many") |>
+  # average by marker_gene_label
+  dplyr::group_by(singler, marker_gene_label, ensembl_gene_id) |>
+  dplyr::summarize(mean_exp = mean(logcounts)) |>
+  dplyr::ungroup() |>
+  dplyr::mutate(marker_gene_label = factor(marker_gene_label), 
+                marker_gene_label = forcats::fct_relevel(marker_gene_label, nbatlas_bar_order))
+
+```
+
+```{r, fig.width = 12, fig.height = 5}
+ggplot(compare_annotations_expr_df) + 
+  aes(x = marker_gene_label, y = mean_exp, color = singler) + 
+  ggforce::geom_sina(position = position_dodge(width = 0.7)) + 
+  labs(
+    x = "NBAtlas marker gene label", 
+    y = "Mean expression across marker genes",
+    color = "SingleR annotation"
+  ) + 
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+```
+The left-most gene set on the x-axis is `Neuroendocrine`, and normal cell types follow.
+This plot suggests that the normal cells `SingleR` is picking up are likely to be normal cells: normal gene expression for non-NE cells is higher compared to NE cells, and we see the opposite trend for the `Neuroendocrine` marker genes.
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```

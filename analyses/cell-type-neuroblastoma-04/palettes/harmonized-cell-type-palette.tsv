@@ -1,0 +1,25 @@
+harmonized_label	hex_color
+B cell	#AA0DFE
+plasma cell	#782AB6
+T cell	#3283FE
+Stromal other (NBAtlas)	#895129
+dendritic cell	#16FF32
+macrophage	#1C8356
+monocyte	#1CBE4F
+myeloid	#90AD1C
+natural killer cell	#FBE426
+Neuroendocrine	#FEAF16
+chondrocyte	#B00068
+endothelial cell	#FC1CBF
+epithelial cell	#C075A6
+fibroblast	#B10DA1
+RBCs	#F6222E
+pericyte	#F8A19F
+stromal cell (consensus)	#C4451C
+neuron	#1CFFCE
+adipocyte  	 #FA0087
+Schwann 	#325A9B
+pDC 	#2ED9FF
+Immune cycling	#FA0087
+unknown_consensus	#B7B7B7
+unknown_singler	#B7B7B7
