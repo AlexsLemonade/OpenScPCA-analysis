@@ -230,10 +230,10 @@ Annotations from the unfiltered genes model are shown as "Reference," and annota
 
 Note that some cell type names have been abbreviated in this output to make it more clearly visible:
 
-* Endothelial --> Endo
-* Fibroblasts --> Fibro
-* Neuroendocrine --> NE
-* Stromal other --> stromal
+* `Endothelial` --> `Endo`
+* `Fibroblasts` --> `Fibro`
+* `Neuroendocrine` --> `NE`
+* `Stromal other` --> `stromal`
 
 
 ```{r}

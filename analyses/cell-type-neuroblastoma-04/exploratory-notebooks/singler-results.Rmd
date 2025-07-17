@@ -157,7 +157,7 @@ recoded_palette_df <- readr::read_tsv(recoded_palette_file)
 recoded_celltype_pal <- recoded_palette_df$hex_color
 names(recoded_celltype_pal) <- recoded_palette_df$harmonized_label
 
-# only the NBAtlas labels - use for validation dotplot
+# only the NBAtlas labels - use for validation dot plot
 nbatlas_palette_df <- readr::read_tsv(nbatlas_palette_file)
 nbatlas_celltype_pal <- nbatlas_palette_df$hex_color
 names(nbatlas_celltype_pal) <- nbatlas_palette_df$NBAtlas_label
@@ -365,7 +365,7 @@ There appears to be a reasonable correspondence between consensus- and `SingleR`
 We see that `SingleR` classified more cells compared to consensus, which we expected, and we also see that the additional cells that `SingleR` labeled are roughly in the same neighborhood as their corresponding consensus labels.
 
 
-## Marker gene expression dotplots
+## Marker gene expression dot plots
 
 In this section we'll validate annotations using two sets of marker genes:
 
@@ -389,7 +389,7 @@ expressed_genes <- names(gene_sums)[gene_sums > 0]
 
 ### NBAtlas marker genes
 
-This dotplot shows the top-5 highest log2FC marker genes per NBAtlas cell type for validation.
+This dot plot shows the top-5 highest `log2FC` marker genes per NBAtlas cell type for validation.
 Marker genes are taken directly from the NBAtlas paper where they were identified with `Seurat::FindMarkers()`. 
 
 This plot does not show the recoded `SingleR` labels but rather all labels that have associated marker genes; therefore, there are more cell type categories in this plot than in other plots in this report.
@@ -466,7 +466,7 @@ generate_dotplot(
   min_cells = 0
 )
 ```
-For validation, we expect to see high marker gene expression along the diagonal of the dotplot where cell type labels match with their marker genes.
+For validation, we expect to see high marker gene expression along the diagonal of the dot plot where cell type labels match with their marker genes.
 We do broadly see high expression along the diagonal, which means our labeled cells have some amount of similar signal to those in NBAtlas.
 Some sets of marker genes show high expression across multiple cell type categories in particular for closely related cell types (e.g. monocyte, macrophage, myeloid, dendritic, or T-cells and NK-cells), but there do not appear to be any strongly unexpected gene expression patterns.
 
@@ -475,7 +475,7 @@ There may therefore be overlapping marker genes between categories, and the give
 
 ### Consensus validation marker genes
 
-This dotplot shows expression of consensus validation marker genes across matching cell types labeled with `SingleR`.
+This dot plot shows expression of consensus validation marker genes across matching cell types labeled with `SingleR`.
 Harmonized `SingleR` labels with direct matches are shown on the top of the y-axis (`endothelial cell` through `plasma cell`), and the remaining `SingleR` labels are below.
 
 ```{r}

@@ -11,6 +11,7 @@ aneuploidy
 AnnData
 anonymize
 anonymized
+Aran
 ARI
 astrocyte
 astrocytes
@@ -32,6 +33,7 @@ Biostars
 blastema
 blastemal
 Bleijs
+Bonine
 Cao
 Carpentries
 CellAssign
@@ -61,6 +63,7 @@ cytoband
 cxds
 demultiplexing
 dendogram
+dendritic
 derangements
 designee
 Desmoplastic
@@ -188,11 +191,13 @@ multifactor
 multinucleated
 myeloid
 natively
+NBAtlas
 NCAM
 Nextflow
 nephroblastoma
 nephron
 neuroblastoma
+neuroendocrine
 neutrophil
 NK
 nonconsensual
@@ -209,16 +214,21 @@ osteoclasts
 osteosarcoma
 outsized
 overclustered
+oversplitting
 Panglao
 PanglaoDB
+pDC
+pDCs
 PDX
 peritubular
 perivascular
 pilocytic
+plasmacytoid
 ploidy
 pluripotent
 programmatically
 proliferative
+putatively
 PMID
 PNG
 podman
@@ -234,6 +244,7 @@ PRs
 pseudobulk
 PTPRC
 README
+recoded
 redistribution
 redistributions
 renv
@@ -298,6 +309,7 @@ UCell
 UMAP
 uncomment
 unhide
+upregulated
 ureteric
 uteric
 vCPU
