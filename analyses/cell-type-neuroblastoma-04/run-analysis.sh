@@ -161,17 +161,14 @@ nbatlas_tumor_metadata_file="${scratch_dir}/SeuratMeta_Share_TumorZoom_NBAtlas_v
 download_file $nbatlas_url $nbatlas_seurat
 download_file $nbatlas_tumor_url $nbatlas_tumor_metadata_file
 
-# Convert the NBAtlas object to SCE
-# Temporarily we do not convert to AnnData to save time in CI before we actually get to running scArches
-# See: https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/1190
-if [[ ! -f ${nbatlas_sce} || ${force_convert_nbatlas} -eq 1 ]]; then # TODO: add AnnData into this if
-    Rscript ${script_dir}/00_convert-nbatlas.R \
-      --nbatlas_file "${nbatlas_seurat}" \
-      --tumor_metadata_file "${nbatlas_tumor_metadata_file}" \
-      --sce_file "${nbatlas_sce}" \
-      ${test_flag}
-      # For now, we will not save the AnnData object
-      #--anndata_file "${nbatlas_anndata}"
+# Convert the NBAtlas object to SCE and AnnData formats if needed
+if [ ! -f ${nbatlas_sce} ] || [ ! -f ${nbatlas_anndata} ] || [[ ${force_convert_nbatlas} -eq 1 ]]; then
+   Rscript ${script_dir}/00_convert-nbatlas.R \
+       --nbatlas_file "${nbatlas_seurat}" \
+       --tumor_metadata_file "${nbatlas_tumor_metadata_file}" \
+       --sce_file "${nbatlas_sce}" \
+       --anndata_file "${nbatlas_anndata}" \
+       ${test_flag}
 fi
 
 ###################################################################
