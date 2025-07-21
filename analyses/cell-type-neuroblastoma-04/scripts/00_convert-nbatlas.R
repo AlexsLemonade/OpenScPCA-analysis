@@ -4,6 +4,7 @@
 # The SCE object retains the raw counts, normalized counts, and cell metadata
 # The AnnData object retains only the raw counts for the top 2000 high-variance genes, and cell metadata
 #  This allows for a smaller object export and lower memory usage during SCVI/SCANVI training
+# In addition, a text file with the top 2000 high-variance genes is exported
 
 library(optparse)
 
@@ -29,6 +30,11 @@ option_list <- list(
     opt_str = c("--anndata_file"),
     type = "character",
     help = "Path to output H5AD file to hold an AnnData version of the NBAtlas object. If not provided, the AnnData object will not be saved."
+  ),
+  make_option(
+    opt_str = c("--nbatlas_hvg_file"),
+    type = "character",
+    help = "Path to output text file to save top 2000 HVGs of the NBAtlas object. This is only exported if the anndata_file is provided."
   ),
   make_option(
     opt_str = c("--testing"),
@@ -91,7 +97,7 @@ gc()
 # - remove reducedDim for space
 # - add `cell_id` and `in_tumor_zoom` columns to colData
 
-reducedDim(nbatlas_sce) <- NULL
+reducedDims(nbatlas_sce) <- NULL
 
 colData(nbatlas_sce) <- colData(nbatlas_sce) |>
   as.data.frame() |>
@@ -125,10 +131,14 @@ if (!is.null(opts$anndata_file)) {
   nbatlas_sce <- nbatlas_sce[hv_genes,]
   logcounts(nbatlas_sce) <- NULL
 
+  # export the AnnData object
   zellkonverter::writeH5AD(
     nbatlas_sce,
     opts$anndata_file,
     X_name = "counts",
     compression = "gzip"
   )
+
+  # export text file with the HVGs
+  readr::write_lines(hv_genes, opts$nbatlas_hvg_file)
 }
