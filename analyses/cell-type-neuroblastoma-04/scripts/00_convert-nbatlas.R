@@ -110,6 +110,10 @@ if (!is.null(opts$sce_file)) {
 }
 
 if (!is.null(opts$anndata_file)) {
+  # We'll only need the counts matrix here
+  # remove logcounts to save space
+  logcounts(nbatlas_sce) <- NULL
+
   zellkonverter::writeH5AD(
     nbatlas_sce,
     opts$anndata_file,
