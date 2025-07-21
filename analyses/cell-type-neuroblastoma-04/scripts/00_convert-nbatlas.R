@@ -1,7 +1,9 @@
 #!/usr/bin/env Rscript
 #
 # This script exports an SCE and AnnData version of a given NBAtlas Seurat object
-# We retain only the raw counts, normalized counts, and cell metadata in the converted objects
+# The SCE object retains the raw counts, normalized counts, and cell metadata
+# The AnnData object retains only the raw counts for the top 2000 high-variance genes, and cell metadata
+#  This allows for a smaller object export and lower memory usage during SCVI/SCANVI training
 
 library(optparse)
 
@@ -101,17 +103,26 @@ colData(nbatlas_sce) <- colData(nbatlas_sce) |>
 
 
 # export reformatted NBAtlas objects if requested
-if (!is.null(opts$sce_file)) {
-  readr::write_rds(
-    nbatlas_sce,
-    opts$sce_file,
-    compress = "gz"
-  )
-}
+# if (!is.null(opts$sce_file)) {
+#   readr::write_rds(
+#     nbatlas_sce,
+#     opts$sce_file,
+#     compress = "gz"
+#   )
+# }
 
 if (!is.null(opts$anndata_file)) {
-  # We'll only need the counts matrix here
-  # remove logcounts to save space
+  # We can pare this object down substantially to save space:
+  # - subset to top 2000 HVGs (batch-aware)
+  # - remove logcounts
+
+  gene_var <- scran::modelGeneVar(
+    nbatlas_sce,
+    block = nbatlas_sce$Sample
+  )
+  hv_genes <- scran::getTopHVGs(gene_var, n = 2000)
+
+  nbatlas_sce <- nbatlas_sce[hv_genes,]
   logcounts(nbatlas_sce) <- NULL
 
   zellkonverter::writeH5AD(
