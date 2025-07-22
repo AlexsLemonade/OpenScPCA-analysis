@@ -55,7 +55,7 @@ cd ${module_dir}
 # Define and create directories
 # do this before flag setup since some directory names are used
 data_dir="../../data/current/SCPCP000004"
-merged_dir="../../data/current/results/merged-sce/SCPCP000004"
+merged_dir="../../data/current/results/merge-sce/SCPCP000004"
 script_dir="scripts"
 ref_dir="references"
 scratch_dir="scratch"
