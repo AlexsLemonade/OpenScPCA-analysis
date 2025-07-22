@@ -220,12 +220,11 @@ done
 #################### scANVI/scArches annotation ###################
 ###################################################################
 
-# Prepare the query merged SCE object for scANVI/scArches
-
 merged_sce_file="${merged_dir}/SCPCP000004_merged.rds"
 prepared_anndata_file="${scratch_dir}/SCPCP000004_merged_prepared.h5ad"
 
+# Prepare the query merged SCE object for scANVI/scArches
 Rscript ${script_dir}/03a_prepare-scanvi-query.R \
-    --merged_sce_file "${merged_sce_file} \
+    --merged_sce_file "${merged_sce_file}" \
     --nbatlas_hvg_file "${nbatlas_hvg_file}" \
     --prepared_anndata_file "${prepared_anndata_file}"
