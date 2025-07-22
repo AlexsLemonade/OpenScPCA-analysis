@@ -142,6 +142,7 @@ echo "Preparing the NBAtlas reference..."
 # Define the NBAtlas Seurat and AnnData files
 nbatlas_sce="${ref_dir}/NBAtlas_sce.rds"
 nbatlas_anndata="${ref_dir}/NBAtlas_anndata.h5ad"
+nbatlas_hvg_file="${ref_dir}/NBAtlas_hvgs.txt"
 
 # First, download the NBAtlas Seurat objects from Mendeley with a helper function
 # This function takes two arguments in order, the URL and the filename to save to
@@ -168,6 +169,7 @@ if [ ! -f ${nbatlas_sce} ] || [ ! -f ${nbatlas_anndata} ] || [[ ${force_convert_
        --tumor_metadata_file "${nbatlas_tumor_metadata_file}" \
        --sce_file "${nbatlas_sce}" \
        --anndata_file "${nbatlas_anndata}" \
+       --nbatlas_hvg_file "${nbatlas_hvg_file}" \
        ${test_flag}
 fi
 
