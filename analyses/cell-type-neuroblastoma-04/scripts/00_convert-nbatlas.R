@@ -109,13 +109,13 @@ colData(nbatlas_sce) <- colData(nbatlas_sce) |>
 
 
 # export reformatted NBAtlas objects if requested
-# if (!is.null(opts$sce_file)) {
-#   readr::write_rds(
-#     nbatlas_sce,
-#     opts$sce_file,
-#     compress = "gz"
-#   )
-# }
+if (!is.null(opts$sce_file)) {
+  readr::write_rds(
+    nbatlas_sce,
+    opts$sce_file,
+    compress = "gz"
+  )
+}
 
 if (!is.null(opts$anndata_file)) {
   # We can pare this object down substantially to save space:
