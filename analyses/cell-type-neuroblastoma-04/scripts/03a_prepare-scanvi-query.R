@@ -65,7 +65,7 @@ merged_sce <- rOpenScPCA::sce_to_symbols(merged_sce, reference = "sce")
 # note that only 1975 genes are present out of 2000, which is 98-99%
 # scanvi warns if there is less than 80% overlap, so this is fine. sources:
 # https://github.com/scverse/scvi-tools/blob/70564c397b789943230b900500c557f31905d91b/src/scvi/model/base/_archesmixin.py#L40
-# https://github.com/scverse/scvi-tools/blob/70564c397b789943230b900500c557f31905d91b/src/scvi/model/base/_archesmixin.py#L479 intersecting_genes <- intersect(rownames(merged_sce), hv_gene_symbols) # 1975 genes; 99% present which is fine per scanvi
+# https://github.com/scverse/scvi-tools/blob/70564c397b789943230b900500c557f31905d91b/src/scvi/model/base/_archesmixin.py#L479
 intersecting_genes <- intersect(rownames(merged_sce), hv_gene_symbols) # 1975 genes
 merged_sce <- merged_sce[intersecting_genes, ]
 
