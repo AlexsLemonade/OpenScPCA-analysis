@@ -53,6 +53,7 @@ jobs:
           data: ${{ github.event_name != 'pull_request' && '--project SCPCP000004' || '--samples SCPCS000101,SCPCS000102,SCPCS000103' }}
         run: |
           ./download-data.py --test-data --format SCE ${data}
+          ./download-results.py --test-data --modules merge-sce --projects SCPCP000004
 
       - name: Run analysis module
         run: |
