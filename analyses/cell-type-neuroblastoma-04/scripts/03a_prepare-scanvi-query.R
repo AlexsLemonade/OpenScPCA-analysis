@@ -76,8 +76,8 @@ colData(merged_sce) <- colData(merged_sce) |>
   dplyr::mutate(
     Sample = library_id,
     Assay = ifelse(suspension_type == "cell", "single-cell", "single-nucleus"),
-    Platform = ifelse(stringr::str_detect(tech_version, "10Xv3"), "10X_v3", "10X_v2")
-  ) |>
+    Platform = stringr::str_replace(tech_version, "v", "_v")
+  )|>
   # recode NAs to support anndata conversion
   # source: https://github.com/AlexsLemonade/scpcaTools/blob/d0fe377284aaa1b4b0647374060e5c699b4c3a48/R/sce_to_anndata.R#L78
   dplyr::mutate(
