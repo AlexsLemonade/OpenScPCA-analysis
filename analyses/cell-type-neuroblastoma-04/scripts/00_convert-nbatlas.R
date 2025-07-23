@@ -5,6 +5,11 @@
 # The AnnData object retains only the raw counts for the top 2000 high-variance genes, and cell metadata
 #  This allows for a smaller object export and lower memory usage during SCVI/SCANVI training
 # In addition, a text file with the top 2000 high-variance genes is exported
+#
+# During processing, one piece of metadata in the object is further updated:
+# The `Platform` value for the Costa2022 Study should be `10x_v3.1` and not `10x_v3`
+# See this issue discussion for context:
+# https://github.com/AlexsLemonade/OpenScPCA-analysis/pull/1231#discussion_r2226070913
 
 library(optparse)
 
@@ -96,6 +101,7 @@ gc()
 # Update SCE innards:
 # - remove reducedDim for space
 # - add `cell_id` and `in_tumor_zoom` columns to colData
+# - update Costa2022 Platform to 10X_v3.1
 
 reducedDims(nbatlas_sce) <- NULL
 
@@ -103,7 +109,11 @@ colData(nbatlas_sce) <- colData(nbatlas_sce) |>
   as.data.frame() |>
   dplyr::mutate(
     cell_id = rownames(colData(nbatlas_sce)),
-    in_tumor_zoom = cell_id %in% tumor_cells
+    in_tumor_zoom = cell_id %in% tumor_cells,
+    Platform = ifelse(
+      Study == "Costa2022",
+      "10X_v3.1",
+      Platform)
   ) |>
   DataFrame(row.names = rownames(colData(nbatlas_sce)))
 
