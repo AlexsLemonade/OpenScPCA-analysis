@@ -120,15 +120,28 @@ merged_sce <- readRDS(sce_file)
 # immediately remove assays we don't need for space
 assay(merged_sce, "spliced") <- NULL
 assay(merged_sce, "counts") <- NULL
+reducedDim(merged_sce, "PCA") <- NULL
 
-# Ensure cell_id is correct
-merged_sce$cell_id <- colnames(merged_sce)
+# Define libraries to remove
+# See: https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/1234#issuecomment-3113966395
+remove_libraries <- c("SCPCL000124", "SCPCL001058")
+keep_cells <- grep(
+  paste(remove_libraries, collapse="|"), 
+  colnames(merged_sce), 
+  invert = TRUE,
+  value = TRUE
+)
+
+merged_sce <- merged_sce[, keep_cells]
+rm(keep_cells)
 ```
 
 Read cell type data frames:
 
 ```{r}
 singler_df <- singler_files |>
+  # remove libraries
+  purrr::discard_at(remove_libraries) |>
   purrr::map(readr::read_tsv) |>
   purrr::list_rbind(names_to = "library_id") |>
   dplyr::select(-delta.next, -labels) |>
