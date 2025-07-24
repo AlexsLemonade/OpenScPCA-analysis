@@ -265,8 +265,6 @@ celltype_recoded_wide_df <- celltype_recoded_df |>
     values_from = label_recoded
   )
 
-heatmap_col_fun <- circlize::colorRamp2(c(0, 1), colors = c("white", "darkslateblue"))
-
 make_jaccard_heatmap(
   celltype_recoded_wide_df,
   "consensus_validation",
@@ -632,6 +630,63 @@ ggplot(compare_annotations_expr_df) +
 ```
 The left-most gene set on the x-axis is `Neuroendocrine`, and normal cell types follow.
 This plot suggests that the normal cells `SingleR` is picking up are likely to be normal cells: normal gene expression for non-NE cells is higher compared to NE cells, and we see the opposite trend for the `Neuroendocrine` marker genes.
+
+
+## Inferences from libraries with lower cell counts
+
+In this section, we briefly look at annotation results for libraries with fewer than 1000 cells which may be lower quality than other libraries.
+
+Those libraries are:
+
+```{r}
+libraries_low_cells <- celltype_recoded_df |>
+  dplyr::filter(annotation_type == "singler") |>
+  dplyr::select(-annotation_type) |>
+  dplyr::count(library_id, name = "total_cells") |>
+  dplyr::filter(total_cells < 1000) 
+libraries_low_cells
+```
+
+### Heatmap
+
+This section shows a heatmap comparing annotations from these libraries only to the consensus annotations.
+
+```{r, fig.width = 8, fig.height = 8}
+make_jaccard_heatmap(
+  celltype_recoded_wide_df |> dplyr::filter(library_id %in% libraries_low_cells$library_id),
+  "consensus_validation",
+  "singler",
+  "Consensus validation label",
+  "SingleR NBAtlas label"
+)
+```
+
+The heatmap comparison to consensus cell types for these libraries looks reasonable; corresponding cell types tend to match up.
+Note that because this heatmap includes fewer libraries, there are fewer cell types to display overall.
+
+### Percent of unclassified cells
+
+Next, we'll ask whether the percent of unclassified cells (aka, `unknown_singler`) is much higher in these libraries compared to larger libraries.
+
+```{r}
+unknown_singler_df <- celltype_recoded_wide_df |>
+  dplyr::group_by(library_id) |>
+  dplyr::summarize(unknown_cells= sum(singler == "unknown_singler"))
+
+celltype_recoded_wide_df |>
+  dplyr::add_count(library_id, name = "total_cells") |>
+  dplyr::inner_join(unknown_singler_df, by = "library_id") |>
+  dplyr::select(library_id, total_cells, unknown_cells) |>
+  dplyr::distinct() |>
+  dplyr::mutate(percent_singler_unclassified = round(unknown_cells/total_cells, 2)) |>
+  dplyr::arrange(total_cells)
+```
+
+
+Most cells in the relatively smaller libraries are classified, and the percentage of unclassified cells (when non-0) is fully in line with the larger libraries.
+
+
+
 
 ## Session Info
 
