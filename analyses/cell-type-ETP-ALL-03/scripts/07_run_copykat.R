@@ -7,7 +7,7 @@ run_copykat <- function(ind.lib){
   seu <- readRDS(file.path(out_loc,"results/rds",paste0(ind.lib,".rds")))
   annot.file <- file.path(out_loc,"results",paste0(ind.lib,"_newB-normal-annotation.txt"))
   if (file.exists(annot.file)){  #the sample has new B cells annotated
-    annot.df <- read.table(annot.file, header=F, row.names=1, sep="\t", stringsAsFactors=FALSE, 
+    annot.df <- read.table(annot.file, header=F, row.names=1, sep="\t", stringsAsFactors=FALSE,
                            colClasses = c('character', 'character'))
     norm.cells <- rownames(annot.df)[which(annot.df$V2=="new B")]
     n_cores <- parallel::detectCores() - 1
@@ -32,4 +32,11 @@ metadata <- metadata[which(metadata$scpca_project_id == projectID &
                              metadata$diagnosis == "Early T-cell precursor T-cell acute lymphoblastic leukemia"), ]
 libraryID <- metadata$scpca_library_id
 
-purrr::walk(libraryID, run_copykat)
+for (ind.lib in libraryID) {
+  print("==============================================================")
+  print(ind.lib)
+  print("==============================================================")
+  run_copykat(ind.lib)
+
+}
+#purrr::walk(libraryID, run_copykat)
