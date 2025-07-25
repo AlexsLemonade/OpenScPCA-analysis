@@ -8,6 +8,8 @@ regexes = [
     # skip base64 encoded images, which might have substrings that look like tokens
     '''(?i)<img src="data:image\/.+;base64,.+?".+\/>''',
     '''(?i)<img role="img" src="data:image\/.+;base64,.+?".+\/>''',
+    # skip certain html lines in Rmds
+    '''(?i)rnb-output-begin.+?''',
     # skip jQuery definition function
     '''^!function\(.+?jQuery'''
 ]
