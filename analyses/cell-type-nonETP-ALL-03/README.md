@@ -85,6 +85,9 @@ The renv.lock file contains all packages and version information. All python lib
 conda-lock install --name openscpca-cell-type-nonETP-ALL-03 conda-lock.yml
 ```
 
+A Docker image is also available for this module here: <https://gallery.ecr.aws/openscpca/cell-type-nonetp-all-03>.
+
+
 ## Computational resources
 
 All the commands above are currently executed in the standard 4XL virtual machine via AWS Lightsail for Research.
