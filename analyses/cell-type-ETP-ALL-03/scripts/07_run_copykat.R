@@ -24,7 +24,7 @@ run_copykat <- function(ind.lib){
 project_root  <- rprojroot::find_root(rprojroot::is_git_root)
 projectID <- "SCPCP000003"
 out_loc <- file.path(project_root, "analyses/cell-type-ETP-ALL-03")
-data_loc <- file.path(project_root, "data/current",projectID)
+data_loc <- file.path(project_root, "data/2025-06-30",projectID)
 setwd(file.path(out_loc,"results/copykat_output"))
 
 metadata <- read.table(file.path(data_loc,"single_cell_metadata.tsv"), sep = "\t", header = T)
@@ -32,11 +32,18 @@ metadata <- metadata[which(metadata$scpca_project_id == projectID &
                              metadata$diagnosis == "Early T-cell precursor T-cell acute lymphoblastic leukemia"), ]
 libraryID <- metadata$scpca_library_id
 
-for (ind.lib in libraryID) {
+for (library_id in libraryID) {
   print("==============================================================")
-  print(ind.lib)
+  print(library_id)
   print("==============================================================")
-  run_copykat(ind.lib)
 
+tryCatch(
+    run_copykat(library_id),
+      error = function(e){
+        print("===========================ERROR HERE===========================")
+        print(library_id)
+    }
+  )
 }
+
 #purrr::walk(libraryID, run_copykat)
