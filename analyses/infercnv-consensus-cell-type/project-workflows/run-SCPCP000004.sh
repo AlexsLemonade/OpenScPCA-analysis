@@ -30,31 +30,25 @@ script_dir="scripts"
 notebook_dir="template-notebooks"
 results_dir="results/${project_id}"
 merged_sce_file="${top_data_dir}/results/merge-sce/${project_id}/${project_id}_merged.rds"
-consensus_dir="${top_data_dir}/results/cell-type-consensus/${project_id}"
 
 normal_ref_dir="references/normal-references/${project_id}"
 mkdir -p ${normal_ref_dir}
 
 # additional input files, again relative to `../`
-metadata_file="${data_dir}/single_cell_metadata.tsv"
 celltype_reference_group_file="references/reference-cell-groups.tsv"
 
-# Define pooled normal reference files
-normal_ref_file="${normal_ref_dir}/all-normal.rds"
-immune_ref_file="${normal_ref_dir}/immune.rds"
-endo_ref_file="${normal_ref_dir}/endo.rds"
-
-# Define array of references to run across based on $testing
-# Use reference names (not file names) since these will be used to create directories below
+# Define references to run across based on $testing:
+# use only the normal reference for testing, and all references for full analysis
 if [[ $testing -eq 1 ]]; then
-    # Use only the all-normal references for testing
-    normal_refs=("all-normal")
+    normal_refs="normal"
     test_flag="--testing"
 else
-    # Use all references for full analysis
-    normal_refs=("immune" "endo" "all-normal")
+    normal_refs="immune,endo,normal"
     test_flag=""
 fi
+
+# Define groups to include in the `normal` reference
+normal_groups="adipocyte,endothelial,epithelial,immune"
 
 # Define all sample ids
 sample_ids=$(basename -a ${data_dir}/SCPCS*)
@@ -62,11 +56,9 @@ sample_ids=$(basename -a ${data_dir}/SCPCS*)
 ### Perform the analysis ###
 
 # Build the SCPCP000004 normal references
-Rscript ${script_dir}/build-normal-reference/build-reference-SCPCP000004.R \
+Rscript ${script_dir}/build-normal-references.R \
     --merged_sce_file ${merged_sce_file} \
-    --celltype_dir ${consensus_dir} \
-    --metadata_file ${metadata_file} \
-    --celltype_group_file ${celltype_reference_group_file} \
-    --reference_normal_rds ${normal_ref_file} \
-    --reference_endo_rds ${endo_ref_file} \
-    --reference_immune_rds ${immune_ref_file}
+    --reference_groups ${normal_refs} \
+    --normal_reference_groups ${normal_groups} \
+    --reference_celltype_group_file ${celltype_reference_group_file} \
+    --reference_output_dir ${normal_ref_dir}
