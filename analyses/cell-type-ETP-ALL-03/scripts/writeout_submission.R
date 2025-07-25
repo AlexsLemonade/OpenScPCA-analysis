@@ -40,7 +40,7 @@ writeout <- function(ind.lib, sample.ID, ct.colors, n.row = 1){
 
 projectID <- "SCPCP000003"
 out_loc <- rprojroot::find_root(rprojroot::is_renv_project)
-project_root <- file.path(out_loc, "..", ".."))
+project_root <- file.path(out_loc, "..", "..")
 data_loc <- file.path(project_root, "data/current",projectID)
 dir.create(file.path(out_loc, "results/submission_table"), showWarnings = FALSE)
 
