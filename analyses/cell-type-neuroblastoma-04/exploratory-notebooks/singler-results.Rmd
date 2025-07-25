@@ -673,8 +673,11 @@ Although there are only four libraries with <1000 cells so it is challenging to 
 This section shows a heatmap comparing annotations from these libraries only to the consensus annotations.
 
 ```{r, fig.width = 8, fig.height = 8}
+low_cells_df <- celltype_recoded_wide_df |> 
+  dplyr::filter(library_id %in% libraries_low_cells$library_id)
+
 make_jaccard_heatmap(
-  celltype_recoded_wide_df |> dplyr::filter(library_id %in% libraries_low_cells$library_id),
+  low_cells_df,
   "consensus_validation",
   "singler",
   "Consensus validation label",
