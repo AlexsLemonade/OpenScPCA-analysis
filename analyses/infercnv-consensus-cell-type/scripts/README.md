@@ -7,8 +7,10 @@ This directory contains scripts used in the analysis.
 
 ## Normal references
 
-The directory `build-normal-reference/` contains scripts that prepare pooled normal SCE references for use with `inferCNV` for individual projects and are named `build-reference-{project id}.R`.
-Normal reference files should be stored in `../references/normal-references/` and named as `{reference name}.rds`.
+The script `build-normal-references.R` can be used to build a normal reference for a given project.
+Note that this was developed after processing `SCPCP000015`, whose references were built with `build-reference-SCPCP000015.R`.
+
+Normal reference files should be stored in `../references/normal-references/{project id}` and named as `{reference cell group}.rds`.
 These SCE objects should contain at least:
 
 * A raw counts matrix
