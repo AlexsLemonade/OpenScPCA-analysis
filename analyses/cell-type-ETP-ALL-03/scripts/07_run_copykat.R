@@ -21,9 +21,9 @@ run_copykat <- function(ind.lib){
   }
 }
 
-project_root  <- rprojroot::find_root(rprojroot::is_git_root)
 projectID <- "SCPCP000003"
-out_loc <- file.path(project_root, "analyses/cell-type-ETP-ALL-03")
+out_loc <- rprojroot::find_root(rprojroot::is_renv_project)
+project_root <- file.path(out_loc, "..", "..")
 data_loc <- file.path(project_root, "data/current",projectID)
 setwd(file.path(out_loc,"results/copykat_output"))
 
