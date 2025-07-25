@@ -120,15 +120,28 @@ merged_sce <- readRDS(sce_file)
 # immediately remove assays we don't need for space
 assay(merged_sce, "spliced") <- NULL
 assay(merged_sce, "counts") <- NULL
+reducedDim(merged_sce, "PCA") <- NULL
 
-# Ensure cell_id is correct
-merged_sce$cell_id <- colnames(merged_sce)
+# Define libraries to remove
+# See: https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/1234#issuecomment-3113966395
+remove_libraries <- c("SCPCL000124", "SCPCL001058")
+keep_cells <- grep(
+  paste(remove_libraries, collapse="|"), 
+  colnames(merged_sce), 
+  invert = TRUE,
+  value = TRUE
+)
+
+merged_sce <- merged_sce[, keep_cells]
+rm(keep_cells)
 ```
 
 Read cell type data frames:
 
 ```{r}
 singler_df <- singler_files |>
+  # remove libraries
+  purrr::discard_at(remove_libraries) |>
   purrr::map(readr::read_tsv) |>
   purrr::list_rbind(names_to = "library_id") |>
   dplyr::select(-delta.next, -labels) |>
@@ -251,8 +264,6 @@ celltype_recoded_wide_df <- celltype_recoded_df |>
     names_from = annotation_type,
     values_from = label_recoded
   )
-
-heatmap_col_fun <- circlize::colorRamp2(c(0, 1), colors = c("white", "darkslateblue"))
 
 make_jaccard_heatmap(
   celltype_recoded_wide_df,
@@ -619,6 +630,156 @@ ggplot(compare_annotations_expr_df) +
 ```
 The left-most gene set on the x-axis is `Neuroendocrine`, and normal cell types follow.
 This plot suggests that the normal cells `SingleR` is picking up are likely to be normal cells: normal gene expression for non-NE cells is higher compared to NE cells, and we see the opposite trend for the `Neuroendocrine` marker genes.
+
+
+## Inferences from smaller vs. larger libraries 
+
+In this section, we briefly look at annotation results for libraries with fewer than 1000 cells which may be lower quality than other libraries.
+
+Those libraries are:
+
+```{r}
+libraries_low_cells <- celltype_recoded_df |>
+  dplyr::filter(annotation_type == "singler") |>
+  dplyr::select(-annotation_type) |>
+  dplyr::count(library_id, name = "total_cells") |>
+  dplyr::filter(total_cells < 1000) 
+libraries_low_cells
+```
+
+### Distirbution of cell types
+
+
+```{r, fig.width = 10, fig.height = 4}
+celltype_recoded_wide_df |>
+  dplyr::mutate(
+    library_size = ifelse(library_id %in% libraries_low_cells$library_id, "<1000 cells", ">1000 cells")
+  ) |>
+  ggplot() + 
+  aes(x = library_id, fill = singler) + 
+  geom_bar(position = "fill") + 
+  scale_fill_manual(values = recoded_celltype_pal) + 
+  facet_wrap(vars(library_size), scales = "free_x") + 
+  scale_y_continuous(expand = c(0,0)) +
+  theme(
+    legend.position = "bottom",
+    axis.text.x = element_blank()
+  )
+```
+Although there are only four libraries with <1000 cells so it is challenging to make definitive conclusions, it does not seem like the overall cell type distributions are very different between smaller and larger libraries.
+
+### Heatmap
+
+This section shows a heatmap comparing annotations from these libraries only to the consensus annotations.
+
+```{r, fig.width = 8, fig.height = 8}
+low_cells_df <- celltype_recoded_wide_df |> 
+  dplyr::filter(library_id %in% libraries_low_cells$library_id)
+
+make_jaccard_heatmap(
+  low_cells_df,
+  "consensus_validation",
+  "singler",
+  "Consensus validation label",
+  "SingleR NBAtlas label"
+)
+```
+
+The heatmap comparison to consensus cell types for these libraries looks reasonable; corresponding cell types tend to match up.
+Note that because this heatmap includes fewer libraries, there are fewer cell types to display overall.
+
+### Percent of unclassified cells
+
+Next, we'll ask whether the percent of unclassified cells (aka, `unknown_singler`) can be explained by library size.
+Below, we plot the relationship between total cells and fraction of cells that SingleR failed to confidently classify.
+
+```{r}
+unknown_singler_df <- celltype_recoded_wide_df |>
+  dplyr::group_by(library_id) |>
+  dplyr::summarize(unknown_cells= sum(singler == "unknown_singler"))
+
+percent_unclassified_df <- celltype_recoded_wide_df |>
+  dplyr::add_count(library_id, name = "total_cells") |>
+  dplyr::inner_join(unknown_singler_df, by = "library_id") |>
+  dplyr::select(library_id, total_cells, unknown_cells) |>
+  dplyr::distinct() |>
+  dplyr::mutate(frac_singler_unclassified = unknown_cells/total_cells)
+
+ggplot(percent_unclassified_df) + 
+  aes(x = total_cells, y = frac_singler_unclassified) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+```
+
+There doesn't appear to be a relationship here, and further the percent of unclassified cells are all under 7\% with most below around 4\%. 
+
+## Inferences from PDX libraries
+
+In this section, we briefly look at annotation results for libraries from PDX samples, which may show distinct trends.
+Here is the breakdown of the number of PDX vs tissue libraries: 
+
+```{r}
+# This was being developed while this bug was present, so we have to check the type first
+# https://github.com/AlexsLemonade/scpcaTools/issues/302
+pdx_class <- class(colData(merged_sce)$is_xenograft)
+if (pdx_class == "character") {
+  pdx_val <- "TRUE"
+} else {
+  pdx_val <- TRUE
+}
+
+pdx_libraries <- colData(merged_sce) |>
+  as.data.frame() |>
+  dplyr::filter(is_xenograft == pdx_val) |>
+  dplyr::pull(library_id) |>
+  unique()
+
+celltype_recoded_wide_df <- celltype_recoded_wide_df |>
+  dplyr::mutate(sample_type = ifelse(library_id %in% pdx_libraries, "pdx", "tissue"))
+
+celltype_recoded_wide_df |>
+  dplyr::select(library_id, sample_type) |>
+  dplyr::distinct() |>
+  dplyr::count(sample_type)
+```
+
+### Distribution of cell types
+
+We'll first look at the cell type distributions for each library between sample types:
+
+```{r, fig.width = 14, fig.height = 6}
+ggplot(celltype_recoded_wide_df) + 
+  aes(x = library_id, fill = singler) + 
+  geom_bar(position = "fill") + 
+  scale_fill_manual(values = recoded_celltype_pal) + 
+  facet_wrap(vars(sample_type), scales = "free_x") + 
+  scale_y_continuous(expand = c(0,0)) +
+  theme(
+    legend.position = "bottom",
+    axis.text.x = element_blank()
+  )
+```
+
+PDX samples have, not unexpectedly, much less cell type diversity overall with most cells being tumor or similar and immune cells rarely present.
+This is consistent with expectations in general for the biology of PDX's.
+
+
+### Heatmap
+
+This section shows a heatmap compaing SingleR annotations to consensus cell types, for PDX samples only.
+
+```{r, fig.width = 8, fig.height = 8}
+make_jaccard_heatmap(
+  celltype_recoded_wide_df |> dplyr::filter(sample_type == "pdx"),
+  "consensus_validation",
+  "singler",
+  "Consensus validation label",
+  "SingleR NBAtlas label"
+)
+```
+This heatmap comparison seems reasonable, again taking into consideration that there are relatively fewer cell types in the PDX samples, and corresponding cell types tend to match up.
+
+
 
 ## Session Info
 
