@@ -50,8 +50,9 @@ fi
 # Define groups to include in the `normal` reference
 normal_groups="adipocyte,endothelial,epithelial,immune"
 
-# Define all sample ids
-sample_ids=$(basename -a ${data_dir}/SCPCS*)
+# Define low-quality libraries to exclude from references
+# context: https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/1234#issuecomment-3113966395
+exclude_libraries="SCPCL000124,SCPCL001058"
 
 ### Perform the analysis ###
 
