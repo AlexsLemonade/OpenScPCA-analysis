@@ -172,11 +172,11 @@ caret_df <- classification_df |>
 
 # get the cell types in both
 # these should be tumor normal but sometimes that's not the case
-singler_cell_types <- unique(caret_df$singler_tumor_normal) |> as.character() |> sort()
-aucell_cell_types <- unique(caret_df$aucell_annotation) |> as.character() |> sort()
+singler_cell_types <- unique(caret_df$singler_tumor_normal) |> as.character()
+aucell_cell_types <- unique(caret_df$aucell_annotation) |> as.character()
 
 # only calculate confusion matrix if all cell types are the same
-if (all(singler_cell_types == aucell_cell_types) & length(singler_cell_types) > 1) {
+if (setequal(singler_cell_types, aucell_cell_types) & length(singler_cell_types) > 1) {
   caret::confusionMatrix(
     table(
       caret_df$aucell_annotation,
