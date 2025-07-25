@@ -13,7 +13,7 @@ suppressPackageStartupMessages({
 })
 
 # source functions
-source(here::here("scripts", "build-normal-reference", "utils.R"))
+source(here::here("scripts", "utils.R"))
 
 option_list <- list(
   make_option(
