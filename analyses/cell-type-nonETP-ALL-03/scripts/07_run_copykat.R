@@ -32,16 +32,12 @@ metadata <- metadata[which(metadata$scpca_project_id == projectID &
                              metadata$diagnosis == "Non-early T-cell precursor T-cell acute lymphoblastic leukemia"), ]
 
 
+# use a for loop instead of purrr so we can capture errors
 for (library_id in metadata$scpca_library_id) {
-  print("==============================================================")
-  print(library_id)
-  print("==============================================================")
-
-tryCatch(
+  tryCatch(
     run_copykat(library_id),
       error = function(e){
-        print("===========================ERROR HERE===========================")
-        print(library_id)
+        print(glue::glue("Error running {library_id} through copyKAT."))
     }
   )
 }
