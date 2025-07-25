@@ -16,7 +16,7 @@ suppressPackageStartupMessages({
 # source functions
 module_dir <- here::here()
 source(
-  file.path(module_dir, "scripts", "build-normal-reference", "utils.R")
+  file.path(module_dir, "scripts", "utils.R")
 )
 
 # Define a helper function to split strings
