@@ -26,9 +26,9 @@ multiplot <- function(annot.obj, library.id, ct.colors, n.row = 2,
   ggsave(file.path(out_loc,"plots",paste0("multipanels_",library.id,".png")), width = 12, height = 12, bg = "white", dpi = 150)
 }
 
-project_root  <- rprojroot::find_root(rprojroot::is_git_root)
 projectID <- "SCPCP000003"
-out_loc <- file.path(project_root, "analyses/cell-type-nonETP-ALL-03")
+out_loc <- rprojroot::find_root(rprojroot::is_renv_project)
+project_root <- file.path(out_loc, "..", "..")
 data_loc <- file.path(project_root, "data/current",projectID)
 
 metadata <- read.table(file.path(data_loc,"single_cell_metadata.tsv"), sep = "\t", header = T)
