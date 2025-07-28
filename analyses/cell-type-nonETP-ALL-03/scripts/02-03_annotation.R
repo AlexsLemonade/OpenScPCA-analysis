@@ -104,10 +104,9 @@ run_annot <- function(ind.lib){
 }
 
 
+project_root  <- rprojroot::find_root(rprojroot::is_git_root)
 projectID <- "SCPCP000003"
-out_loc <- rprojroot::find_root(rprojroot::is_renv_project)
-project_root <- file.path(out_loc, "..", "..")
-
+out_loc <- file.path(project_root, "analyses/cell-type-nonETP-ALL-03")
 data_loc <- file.path(project_root, "data/current",projectID)
 dir.create(file.path(out_loc, "results/copykat_output"), showWarnings = FALSE)
 setwd(file.path(out_loc, "results/copykat_output"))
