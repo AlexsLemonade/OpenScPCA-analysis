@@ -2,6 +2,12 @@
 
 # This script runs the analysis module
 
+set -euo pipefail
+
+# Ensure script is being run from its directory
+module_dir=$(dirname "${BASH_SOURCE[0]}")
+cd ${module_dir}
+
 echo "Running 00-01_processing_rds.R"
 Rscript scripts/00-01_processing_rds.R
 
