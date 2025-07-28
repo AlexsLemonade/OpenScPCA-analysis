@@ -47,6 +47,12 @@ option_list <- list(
     type = "integer",
     default = 1,
     help = "Number of multiprocessing threads to use."
+  ),
+  make_option(
+    opt_str = c("--seed"),
+    type = "integer",
+    default = 2024,
+    help = "A random seed for reproducibility."
   )
 )
 
@@ -54,6 +60,9 @@ option_list <- list(
 opt <- parse_args(OptionParser(option_list = option_list))
 
 # Set up -----------------------------------------------------------------------
+
+# set seed
+set.seed(opt$seed)
 
 # make sure input files exist
 stopifnot(
