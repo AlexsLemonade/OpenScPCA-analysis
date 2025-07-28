@@ -1,5 +1,5 @@
 #!/usr/bin/env Rscript
-# This script creates normal references for on specified reference cell groups
+# This script creates normal references for specified reference cell groups
 # References are created by pooling relevant cell types across all project samples, excluding PDX's.
 # We create three references:
 # - `all-normal`: All normal cells, which here includes immune, endothelial, epithelial, and adipocytes
@@ -112,18 +112,16 @@ reference_groups |>
         opts$reference_output_dir,
         glue::glue("{ref_group}.rds")
       )
-      
-      # define cell groups to consider
+       # define cell groups to consider
+      all_groups <- ref_group
       if (ref_group == "normal") {
         # use just provided normal types, or use all normal types
         if (length(normal_reference_groups) == 0) {
-          all_groups <- uniue(cell_df$reference_cell_group)
+          all_groups <- unique(cell_df$reference_cell_group)
         } else {
           all_groups <- normal_reference_groups
         }
-      } else {
-        all_groups <- ref_group
-      }
+      } 
       
       cell_ids <- cell_df |>
         dplyr::filter(reference_cell_group %in% all_groups) |>
