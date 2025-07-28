@@ -19,7 +19,7 @@ writeout <- function(ind.lib, sample.ID, ct.colors, n.row = 1){
                          CL_ontology_id=gene.df$ontologyID[match(voi_df$cell_type_assignment,gene.df$cellName)])
   write.table(final.df, sep = "\t", quote = F, row.names = F,
               file = file.path(out_loc,"results/submission_table",paste0(ind.lib,"_metadata.tsv")))
-
+  
   ## plotting the variables
   plot.list <- list()
   for (plot.type in voi){
@@ -29,18 +29,18 @@ writeout <- function(ind.lib, sample.ID, ct.colors, n.row = 1){
       clrs <- NULL
     }
     tryCatch({
-      plot.list[[plot.type]] <- DimPlot(seu, reduction = "Xumap_", group.by = plot.type,
-                                        label = T, cols = clrs, repel = T)
+      plot.list[[plot.type]] <- DimPlot(seu, reduction = "Xumap_", group.by = plot.type, 
+                                        label = T, cols = clrs, repel = T) 
     }, error=function(e){})
   }
-  cowplot::plot_grid(plotlist = plot.list, nrow = n.row) + patchwork::plot_annotation(title = ind.lib) &
-    theme(plot.title = element_text(hjust = 0.5, size = 18, face="bold"))
+  cowplot::plot_grid(plotlist = plot.list, nrow = n.row) + patchwork::plot_annotation(title = ind.lib) &  
+    theme(plot.title = element_text(hjust = 0.5, size = 18, face="bold")) 
   ggsave(file.path(out_loc,"results/submission_table",paste0("multipanels_",ind.lib,".png")), width = 12, height = 5, bg = "white", dpi = 150)
 }
 
+project_root  <- rprojroot::find_root(rprojroot::is_git_root)
 projectID <- "SCPCP000003"
-out_loc <- rprojroot::find_root(rprojroot::is_renv_project)
-project_root <- file.path(out_loc, "..", "..")
+out_loc <- file.path(project_root, "analyses/cell-type-nonETP-ALL-03")
 data_loc <- file.path(project_root, "data/current",projectID)
 dir.create(file.path(out_loc, "results/submission_table"), showWarnings = FALSE)
 
