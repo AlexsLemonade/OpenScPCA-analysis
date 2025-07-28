@@ -4,7 +4,7 @@
 
 projectID <- "SCPCP000003"
 out_loc <- rprojroot::find_root(rprojroot::is_renv_project)
-project_root <- file.path(out_loc, "..", "..")
+project_root <- file.path(out_loc, "..", ".."))
 
 all_sources <- c("https://azimuth.hubmapconsortium.org/references/#Human%20-%20Bone%20Marrow",
                  "doi:10.1038/s41598-023-39152-z","https://sctype.app/database.php")
