@@ -36,6 +36,13 @@ RUN ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh \
 RUN conda install --channel=conda-forge --name=base conda-lock \
   && conda clean --all --yes
 
+# Install git
+RUN apt-get -y update &&  \
+  DEBIAN_FRONTEND=noninteractive \
+  apt-get install --no-install-recommends -y \
+  git \
+  && rm -rf /var/lib/apt/lists/*
+
 # Install renv
 RUN Rscript -e "install.packages('renv')"
 
