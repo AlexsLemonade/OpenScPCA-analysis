@@ -2,6 +2,8 @@
 
 # This script creates normal references for specified reference cell groups from a merged SCE file
 # PDX and cell line libraries are excluded from reference objects
+# For full script usage, use: Rscript build-normal-references.R --help
+
 
 suppressPackageStartupMessages({
   library(SingleCellExperiment)
