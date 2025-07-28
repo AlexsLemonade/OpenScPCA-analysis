@@ -33,16 +33,11 @@ metadata <- metadata[which(metadata$scpca_project_id == projectID &
 
 
 # use a for loop instead of purrr so we can capture errors
-# for (library_id in metadata$scpca_library_id) {
-#   tryCatch(
-#     run_copykat(library_id),
-#       error = function(e){
-#         print(glue::glue("Error running {library_id} through copyKAT."))
-#     }
-#   )
-# }
-
-purrr::walk(
-  metadata$scpca_library_id,
-  \(library_id) {purrr::safely(run_copykat(library_id))}
-)
+for (library_id in metadata$scpca_library_id) {
+  tryCatch(
+    run_copykat(library_id),
+      error = function(e){
+        print(glue::glue("Error running {library_id} through copyKAT."))
+    }
+  )
+}
