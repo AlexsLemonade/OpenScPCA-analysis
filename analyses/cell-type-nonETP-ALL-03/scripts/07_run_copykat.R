@@ -31,14 +31,13 @@ metadata <- read.table(file.path(data_loc,"single_cell_metadata.tsv"), sep = "\t
 metadata <- metadata[which(metadata$scpca_project_id == projectID &
                              metadata$diagnosis == "Non-early T-cell precursor T-cell acute lymphoblastic leukemia"), ]
 
-metadata$scpca_library_id |> purrr::walk(\(library_id){
-  # copyKAT can fail stochastically in testing, so we catch a specific error and continue
+# use a for loop instead of purrr so we can capture errors with tryCatch:
+# copyKAT can fail stochastically in testing, so we catch a specific error and continue
+for (library_id in metadata$scpca_library_id) {
   tryCatch(
     run_copykat(library_id),
-    error = \(e) if (e$message == "NA/NaN/Inf in foreign function call (arg 10)"){
-      print(paste0("Error in ", library_id, ": ", e$message))
-    } else {
-      stop(e)
+      error = function(e){
+        print(glue::glue("Error running {library_id} through copyKAT."))
     }
   )
-})
+}
