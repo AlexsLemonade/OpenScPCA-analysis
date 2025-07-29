@@ -5,7 +5,7 @@
 
 import argparse
 import os
-import pathlib
+from pathlib import Path
 import re
 import subprocess
 import sys
@@ -13,27 +13,7 @@ import anndata
 import scvi
 import torch
 from scipy.sparse import csr_matrix
-scvi.settings.batch_size = 1024
 
-# Helper function to make extra sure the seed is set for reproducibility
-def set_seed(seed, accelerator):
-    """
-    Set the random seed for reproducibility.
-    This function was adapted from an analagous function used by NBAtlas:
-    https://github.com/VIBTOBIlab/NBAtlas_manuscript/blob/90bba8a6ca023f34ba5dffb7875e9ebdaac2bdd5/scArches_SCANVI_NBAtlas_v2_manuscript.ipynb
-
-    """
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    scvi.settings.seed = seed
-    os.environ["PYTHONHASHSEED"] = str(seed)
-
-    if accelerator == "gpu":
-        torch.cuda.manual_seed(seed)
-        torch.cuda.manual_seed_all(seed)
-        torch.backends.cudnn.deterministic = True
-        torch.backends.cudnn.benchmark = False
 
 # Define variables to use in the objects
 BATCH_KEY = "Sample"
@@ -42,7 +22,6 @@ SCANVI_LABELS_KEY = "labels_scanvi"
 UNLABELED_VALUE = "Unknown"
 SCANVI_PREDICTIONS_KEY = "predictions_scanvi"
 SCANVI_LATENT_KEY = "X_scANVI"
-
 
 
 def main() -> None:
@@ -61,11 +40,11 @@ def main() -> None:
         required=True,
         help="Path to the input prepared ScPCA merged AnnData file",
     )
-     parser.add_argument(
+    parser.add_argument(
         "--reference_celltype_column",
         type=str,
         required=True,
-        default = "Cell_type_wImmuneZoomAnnot",
+        default = "Cell_type",
         help="Column in the reference AnnData object that contains cell type annotations. Default is 'Cell_type_wImmuneZoomAnnot'.",
     )
     parser.add_argument(
@@ -73,12 +52,6 @@ def main() -> None:
         type=Path,
         required=True,
         help="Path to the save the SCVI model prepared on the reference object",
-    )
-    parser.add_argument(
-        "--reference_scanvi_model_file",
-        type=Path,
-        required=True,
-        help="Path to the save the scANVI/scArches model prepared on the reference object",
     )
     parser.add_argument(
         "--full_scanvi_model_file",
@@ -101,8 +74,8 @@ def main() -> None:
     parser.add_argument(
         "--accelerator",
         type=str,
-        default="gpu",
-        help="Use 'gpu' for GPU acceleration or 'cpu' for CPU only. Default is 'gpu'.",
+        default="cpu",
+        help="Use 'gpu' for GPU acceleration or 'cpu' for CPU only. Default is 'cpu'.",
     )
     args = parser.parse_args()
 
@@ -141,7 +114,7 @@ def main() -> None:
 
 
     # Define lists of expected columns in the reference and query objects
-    expected_covariate_columns = BATCH_KEY + COVARIATE_KEYS
+    expected_covariate_columns = [BATCH_KEY] + COVARIATE_KEYS
     reference_expected_columns = expected_covariate_columns + [args.reference_celltype_column]
 
     # Read the reference and query objects and check that expected columns are present
@@ -168,7 +141,10 @@ def main() -> None:
         sys.exit(1)
 
     # Set seed for reproducibility
-    set_seed(args.seed, args.accelerator)
+    # torch commands are ignored if GPU not present
+    scvi.settings.seed = args.seed # inherited by numpy and torch
+    torch.cuda.manual_seed(args.seed)
+    torch.cuda.manual_seed_all(args.seed)
 
     ################################################
     ######## SCVI reference model training #########
@@ -180,8 +156,8 @@ def main() -> None:
 
     scvi.model.SCVI.setup_anndata(
         reference,
-        batch_key="Sample",
-        categorical_covariate_keys=["Assay", "Platform"] # control for cell/nucleus and 10x2/3
+        batch_key = BATCH_KEY,
+        categorical_covariate_keys = COVARIATE_KEYS # control for cell/nucleus and 10x2/3
     )
 
     scvi_model = scvi.model.SCVI(
@@ -201,23 +177,20 @@ def main() -> None:
     )
 
     # Export the trained SCVI model
-    scvi_model.save(args.reference_scvi_model_file)
+    scvi_model.save(args.reference_scvi_model_file, save_anndata = True, overwrite=True)
 
 
     ################################################
     ####### scANVI reference model training ########
     ################################################
 
-    reference.obs[SCANVI_LABELS_KEY] = reference.obs[arg.reference_celltype_column].values
+    reference.obs[SCANVI_LABELS_KEY] = reference.obs[args.reference_celltype_column].values
 
     scanvi_model = scvi.model.SCANVI.from_scvi_model(
         scvi_model,
         unlabeled_category = UNLABELED_VALUE,
         labels_key = SCANVI_LABELS_KEY,
     )
-
-    # Export the trained SCVI model
-    scanvi_model.save(args.reference_scanvi_model_file)
 
     # Incorporate query data into the scANVI model
     scvi.model.SCANVI.prepare_query_anndata(query, scanvi_model)
@@ -235,8 +208,12 @@ def main() -> None:
     query.obs[SCANVI_PREDICTIONS_KEY] = scanvi_query.predict()
 
     # Save the full scANVI model with integrated query data
-    scanvi_query.save(args.full_scanvi_model_file)
+    scanvi_query.save(args.full_scanvi_model_file, save_anndata = True, overwrite=True)
 
     # Save TSV of the predictions
     scanvi_df = query.obs[['cell_id', SCANVI_PREDICTIONS_KEY]]
     scanvi_df.to_csv(args.output_tsv_file, sep='\t', index=True)
+
+
+if __name__ == "__main__":
+    main()
