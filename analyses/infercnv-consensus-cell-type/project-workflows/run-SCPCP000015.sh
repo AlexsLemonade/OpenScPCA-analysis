@@ -63,7 +63,7 @@ sample_ids=$(basename -a ${data_dir}/SCPCS*)
 ### Perform the analysis ###
 
 # Build the SCPCP000015 reference files
-Rscript ${script_dir}/build-normal-reference/build-reference-SCPCP000015.R \
+Rscript ${script_dir}/build-reference-SCPCP000015.R \
     --merged_sce_file ${merged_sce_file} \
     --cell_type_ewings_dir ${cell_type_ewings_dir} \
     --metadata_file ${metadata_file} \

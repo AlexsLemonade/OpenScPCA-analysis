@@ -71,7 +71,8 @@ umap_theme <- list(
 
 ```{r base paths}
 # repo and analysis base dirs
-repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+module_base <- rprojroot::find_root(rprojroot::is_renv_project)
+repository_base <- file.path(module_base, "..", "..") # we can't use `rprojroot::is_git_root` in Docker, so back up to OpenScPCA base
 analysis_dir <- file.path(repository_base, "analyses", "infercnv-consensus-cell-type")
 
 # OpenScpCA data and results directories

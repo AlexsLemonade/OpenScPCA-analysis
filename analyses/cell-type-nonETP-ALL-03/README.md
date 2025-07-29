@@ -37,6 +37,11 @@ sudo apt-get install libxml2-dev libfontconfig1-dev libharfbuzz-dev  libfribidi-
 conda-lock install --name openscpca-cell-type-nonETP-ALL-03 conda-lock.yml
 Rscript -e "renv::restore()"
 ```
+To run the module, use the provided bash script:
+
+```sh
+bash run-module.sh
+```
 
 ## Input files
 
@@ -80,6 +85,10 @@ The renv.lock file contains all packages and version information. All python lib
 conda-lock install --name openscpca-cell-type-nonETP-ALL-03 conda-lock.yml
 ```
 
+A Docker image is also available for this module here: <https://gallery.ecr.aws/openscpca/cell-type-nonetp-all-03>.
+
+
 ## Computational resources
 
 All the commands above are currently executed in the standard 4XL virtual machine via AWS Lightsail for Research.
+This module has not been tested on other operating systems.

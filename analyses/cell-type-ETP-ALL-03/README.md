@@ -39,6 +39,12 @@ conda-lock install --name openscpca-cell-type-ETP-ALL-03 conda-lock.yml
 Rscript -e "renv::restore()"
 ```
 
+To run the module, use the provided bash script:
+
+```sh
+bash run-module.sh
+```
+
 ## Input files
 
 The `scripts/00-01_processing_rds.R` requires the processed `SingleCellExperiment` objects (`_processed.rds`) and doublet-detection results (`_processed_scdblfinder.tsv`) from SCPCP000003. These files could be obtained from running the following codes:
@@ -81,6 +87,9 @@ The renv.lock file contains all packages and version information. All python lib
 conda-lock install --name openscpca-cell-type-ETP-ALL-03 conda-lock.yml
 ```
 
+A Docker image is also available for this module here: <https://gallery.ecr.aws/openscpca/cell-type-etp-all-03>.
+
 ## Computational resources
 
 All the commands above are currently executed in the standard 4XL virtual machine via AWS Lightsail for Research, but it runs pretty slow for `CopyKAT` with one computational core.
+This module has not been tested on other operating systems.
