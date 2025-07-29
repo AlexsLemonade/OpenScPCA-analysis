@@ -51,13 +51,19 @@ def main() -> None:
         "--reference_scvi_model_file",
         type=Path,
         required=True,
-        help="Path to the save the SCVI model prepared on the reference object",
+        help="Path to the save the SCVI model trained on the reference object",
+    )
+    parser.add_argument(
+        "--reference_scanvi_model_file",
+        type=Path,
+        required=True,
+        help="Path to the save the scANVI model trained on the reference object",
     )
     parser.add_argument(
         "--full_scanvi_model_file",
         type=Path,
         required=True,
-        help="Path to the save the full scANVI/scArches model with integrated query data",
+        help="Path to the save the full scANVI/scArches model trained with integrated query data",
     )
     parser.add_argument(
         "--output_tsv_file",
@@ -191,6 +197,18 @@ def main() -> None:
         unlabeled_category = UNLABELED_VALUE,
         labels_key = SCANVI_LABELS_KEY,
     )
+    scanvi_model.train(
+        accelerator = args.accelerator,
+        early_stopping = True,
+        early_stopping_patience = 3
+    )
+    # Export the trained scANVI model
+    scanvi_model.save(args.reference_scanvi_model_file, save_anndata = True, overwrite=True)
+
+
+    ################################################
+    # Incorporate query data into the scANVI model #
+    ################################################
 
     # Incorporate query data into the scANVI model
     scvi.model.SCANVI.prepare_query_anndata(query, scanvi_model)
