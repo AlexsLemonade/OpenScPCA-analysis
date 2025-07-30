@@ -18,6 +18,10 @@ ENV RENV_CONFIG_CACHE_ENABLED=FALSE
 # set a name for the conda environment
 ARG ENV_NAME=openscpca-cell-type-neuroblastoma-04
 
+# set environment variables to install conda
+ENV PATH="/opt/conda/bin:${PATH}"
+
+
 # Install dependencies for renv libraries
 RUN apt-get -y update &&  \
   DEBIAN_FRONTEND=noninteractive \
@@ -26,7 +30,6 @@ RUN apt-get -y update &&  \
   libcurl4-openssl-dev \
   lzma-dev \
   && rm -rf /var/lib/apt/lists/*
-
 
 ### Setup the Python environment ###
 
