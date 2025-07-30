@@ -3,26 +3,26 @@
 # Script to perform cell type annotation on SCPCP000004 using scANVI/scArches label transfer with the NBAtlas reference
 # This scANVI/scArches tutorial was used to help structure this script: https://docs.scvi-tools.org/en/1.3.2/tutorials/notebooks/multimodal/scarches_scvi_tools.html
 
-import argparse
 import os
-from pathlib import Path
-import re
-import subprocess
 import sys
+from pathlib import Path
+import argparse
 import anndata
 import scvi
 import torch
+import pandas as pd
 from scipy.sparse import csr_matrix
-
 
 # Define variables to use in the objects
 BATCH_KEY = "Sample"
 COVARIATE_KEYS = ["Assay", "Platform"]
+SCVI_LATENT_KEY = "X_scVI"
+SCANVI_LATENT_KEY = "X_scANVI"
 SCANVI_LABELS_KEY = "labels_scanvi"
 UNLABELED_VALUE = "Unknown"
 SCANVI_PREDICTIONS_KEY = "predictions_scanvi"
-SCANVI_LATENT_KEY = "X_scANVI"
-
+MAXIMUM_EPOCHS = 50 # this is appropriate for our dataset size and will work well in CI as well
+EARLY_STOPPING_PATIENCE = 5 # stop after 5 epochs if no improvement
 
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -60,22 +60,29 @@ def main() -> None:
         help="Path to the save the scANVI model trained on the reference object",
     )
     parser.add_argument(
-        "--full_scanvi_model_file",
+        "--query_scanvi_model_file",
         type=Path,
         required=True,
-        help="Path to the save the full scANVI/scArches model trained with integrated query data",
+        help="Path to the save the scANVI/scArches model trained with integrated query data",
+    )
+    parser.add_argument(
+        "--integrated_scanvi_anndata",
+        type=Path,
+        required=True,
+        help="Path to the save the integrated AnnData object with predictions and scANVI latent representation",
+    )
+    parser.add_argument(
+        "--predictions_tsv",
+        type=Path,
+        required=True,
+        help="Path to the save TSV file of scANVI/scArches results, including predictions and the scANVI latent representation for reference and query",
     )
     parser.add_argument(
         "--exclude_libraries",
         type=str,
         required=False,
+        default="",
         help="Optionally, a comma-separated list of ScPCA libraries to exclude from analysis",
-    )
-    parser.add_argument(
-        "--output_tsv_file",
-        type=Path,
-        required=True,
-        help="Path to the save a TSV with scANVI/scArches cell type annotations",
     )
     parser.add_argument(
         "--seed",
@@ -89,7 +96,7 @@ def main() -> None:
         default="cpu",
         help="Use 'gpu' for GPU acceleration or 'cpu' for CPU only. Default is 'cpu'.",
     )
-    args = parser.parse_args()
+    arg = parser.parse_args()
 
     ################################################
     ########### Input argument checks ##############
@@ -150,7 +157,7 @@ def main() -> None:
         arg_error = True
 
     # Prepare and check library ids to exclude
-    exclude_libraries = [library_id.strip() for library_id in arg.exclude_libraries.split(',')]
+    exclude_libraries = [id.strip() for id in arg.exclude_libraries.split(",")] if arg.exclude_libraries else []
     if len(exclude_libraries) > 0:
         if not all(exclude_libraries in query.obs["library_id"]):
             print(
@@ -181,7 +188,6 @@ def main() -> None:
         query_mask = ~query.obs["library_id"].isin(exclude_libraries)
         query = query[query_mask, :]
 
-
     scvi.model.SCVI.setup_anndata(
         reference,
         batch_key = BATCH_KEY,
@@ -193,20 +199,18 @@ def main() -> None:
         # scArches parameters
         use_layer_norm="both",
         use_batch_norm="none",
-        encode_covariates=True,
+        encode_covariates=True, # essential for scArches
         dropout_rate=0.2,
         n_layers=2,
     )
 
     scvi_model.train(
         accelerator = arg.accelerator,
+        max_epochs = MAXIMUM_EPOCHS,
         early_stopping = True,
-        early_stopping_patience = 3, # stop after 3 epochs without improvement; the max_epochs for this data is 22
+        early_stopping_patience = EARLY_STOPPING_PATIENCE
     )
-
-    # Export the trained SCVI model
-    scvi_model.save(arg.reference_scvi_model_file, save_anndata = True, overwrite=True)
-
+    reference.obsm[SCVI_LATENT_KEY] = scvi_model.get_latent_representation()
 
     ################################################
     ####### scANVI reference model training ########
@@ -221,12 +225,11 @@ def main() -> None:
     )
     scanvi_model.train(
         accelerator = arg.accelerator,
+        max_epochs = MAXIMUM_EPOCHS,
         early_stopping = True,
-        early_stopping_patience = 3
+        early_stopping_patience = EARLY_STOPPING_PATIENCE
     )
-    # Export the trained scANVI model
-    scanvi_model.save(arg.reference_scanvi_model_file, save_anndata = True, overwrite=True)
-
+    reference.obsm[SCANVI_LATENT_KEY] = scanvi_model.get_latent_representation()
 
     ################################################
     # Incorporate query data into the scANVI model #
@@ -239,20 +242,45 @@ def main() -> None:
     # https://docs.scvi-tools.org/en/1.3.2/tutorials/notebooks/multimodal/scarches_scvi_tools.html#id2
     scanvi_query.train(
         accelerator = arg.accelerator,
+        max_epochs = MAXIMUM_EPOCHS,
+        early_stopping = True,
+        early_stopping_patience = EARLY_STOPPING_PATIENCE,
         # scArches parameters
         plan_kwargs={"weight_decay": 0.0},
-        check_val_every_n_epoch=10,
+        check_val_every_n_epoch=5,
     )
-
     query.obsm[SCANVI_LATENT_KEY] = scanvi_query.get_latent_representation()
     query.obs[SCANVI_PREDICTIONS_KEY] = scanvi_query.predict()
 
-    # Save the full scANVI model with integrated query data
-    scanvi_query.save(arg.full_scanvi_model_file, save_anndata = True, overwrite=True)
+    ################################################
+    ################ Export objects ################
+    ################################################
 
-    # Save TSV of the predictions
-    scanvi_df = query.obs[['cell_id', SCANVI_PREDICTIONS_KEY]]
-    scanvi_df.to_csv(arg.output_tsv_file, sep='\t', index=True)
+    # Combine objects in preparation for exporting the integrated object with predictions
+    adata_integrated = anndata.concat([reference, query], label="batch")
+    adata_integrated.obs["batch"] = adata_integrated.obs["batch"].cat.rename_categories(
+        ["NBAtlas", "ScPCA"]
+    )
+
+    # Export the NBAtlas-trained SCVI model
+    scvi_model.save(arg.reference_scvi_model_file, save_anndata = True, overwrite=True)
+
+    # Export the NBAtlas-trained scANVI model
+    scanvi_model.save(arg.reference_scanvi_model_file, save_anndata = True, overwrite=True)
+
+    # Export the query-trained scANVI model with integrated query data
+    scanvi_query.save(arg.query_scanvi_model_file, save_anndata = True, overwrite=True)
+
+    # Save the full integrated object with labels and latent representation
+    adata_integrated.write(arg.integrated_scanvi_anndata)
+
+    # Save TSV of the full latent representation, covariates, and predictions
+    latent_df = pd.DataFrame(adata_integrated.obsm[SCANVI_LATENT_KEY])
+    latent_df = latent_df.rename(columns = lambda x: SCANVI_LATENT_KEY + "_" +str(x))
+    latent_df.index = adata_integrated.obs.index
+
+    combined_df = latent_df.join(adata_integrated.obs)
+    combined_df.to_csv(arg.predictions_tsv, sep='\t', index_label = "cell_id")
 
 
 if __name__ == "__main__":
