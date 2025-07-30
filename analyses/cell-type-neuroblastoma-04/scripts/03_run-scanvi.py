@@ -44,7 +44,7 @@ def main() -> None:
         "--reference_celltype_column",
         type=str,
         required=True,
-        default = "Cell_type",
+        default = "Cell_type_wImmuneZoomAnnot",
         help="Column in the reference AnnData object that contains cell type annotations. Default is 'Cell_type_wImmuneZoomAnnot'.",
     )
     parser.add_argument(
@@ -64,6 +64,12 @@ def main() -> None:
         type=Path,
         required=True,
         help="Path to the save the full scANVI/scArches model trained with integrated query data",
+    )
+    parser.add_argument(
+        "--exclude_libraries",
+        type=str,
+        required=False,
+        help="Optionally, a comma-separated list of ScPCA libraries to exclude from analysis",
     )
     parser.add_argument(
         "--output_tsv_file",
@@ -91,27 +97,27 @@ def main() -> None:
     arg_error = False
 
     # Check that input files exist
-    if not os.path.isfile(args.reference_file):
+    if not os.path.isfile(arg.reference_file):
         print(
-            f"The provided input reference file could not be found at: {args.reference_file}.",
+            f"The provided input reference file could not be found at: {arg.reference_file}.",
             file=sys.stderr,
         )
         arg_error = True
-    if not os.path.isfile(args.query_file):
+    if not os.path.isfile(arg.query_file):
         print(
-            f"The provided input query file could not be found at: {args.query_file}.",
+            f"The provided input query file could not be found at: {arg.query_file}.",
             file=sys.stderr,
         )
         arg_error = True
 
     # Check that the accelerator is valid and that GPU is available is specified
-    if args.accelerator not in ["gpu", "cpu"]:
+    if arg.accelerator not in ["gpu", "cpu"]:
         print(
-            f"The provided accelerator '{args.accelerator}' is not valid. Use 'gpu' for GPU acceleration or 'cpu' for CPU only.",
+            f"The provided accelerator '{arg.accelerator}' is not valid. Use 'gpu' for GPU acceleration or 'cpu' for CPU only.",
             file=sys.stderr,
         )
         arg_error = True
-    if args.accelerator == "gpu" and not torch.cuda.is_available():
+    if arg.accelerator == "gpu" and not torch.cuda.is_available():
         print(
             "The specified accelerator is 'gpu', but no GPU is available. Please use 'cpu' instead or ensure a GPU is available.",
             file=sys.stderr,
@@ -121,10 +127,10 @@ def main() -> None:
 
     # Define lists of expected columns in the reference and query objects
     expected_covariate_columns = [BATCH_KEY] + COVARIATE_KEYS
-    reference_expected_columns = expected_covariate_columns + [args.reference_celltype_column]
+    reference_expected_columns = expected_covariate_columns + [arg.reference_celltype_column]
 
     # Read the reference and query objects and check that expected columns are present
-    reference = anndata.read_h5ad(args.reference_file)
+    reference = anndata.read_h5ad(arg.reference_file)
 
     all_present_reference = all(col in reference.obs.columns for col in reference_expected_columns)
     if not all_present_reference:
@@ -134,7 +140,7 @@ def main() -> None:
         )
         arg_error = True
 
-    query = anndata.read_h5ad(args.query_file)
+    query = anndata.read_h5ad(arg.query_file)
     all_present_query = all(col in query.obs.columns for col in expected_covariate_columns)
     if not all_present_query:
         print(
@@ -143,14 +149,24 @@ def main() -> None:
         )
         arg_error = True
 
-    if arg_error:
-        sys.exit(1)
+    # Prepare and check library ids to exclude
+    exclude_libraries = [library_id.strip() for library_id in arg.exclude_libraries.split(',')]
+    if len(exclude_libraries) > 0:
+        if not all(exclude_libraries in query.obs["library_id"]):
+            print(
+                f"Not all libraries in `exclude_libraries` are present in the query object. Please check ids: {arg.exclude_libraries}.",
+                file=sys.stderr,
+            )
+            arg_error = True
+
+        if arg_error:
+            sys.exit(1)
 
     # Set seed for reproducibility
     # torch commands are ignored if GPU not present
-    scvi.settings.seed = args.seed # inherited by numpy and torch
-    torch.cuda.manual_seed(args.seed)
-    torch.cuda.manual_seed_all(args.seed)
+    scvi.settings.seed = arg.seed # inherited by numpy and torch
+    torch.cuda.manual_seed(arg.seed)
+    torch.cuda.manual_seed_all(arg.seed)
 
     ################################################
     ######## SCVI reference model training #########
@@ -159,6 +175,12 @@ def main() -> None:
     # Ensure anndata objects are using sparse matries for faster scvi processing
     reference.X = csr_matrix(reference.X)
     query.X = csr_matrix(query.X)
+
+    # remove libraries from the query if specified
+    if len(exclude_libraries) > 0:
+        query_mask = ~query.obs["library_id"].isin(exclude_libraries)
+        query = query[query_mask, :]
+
 
     scvi.model.SCVI.setup_anndata(
         reference,
@@ -177,20 +199,20 @@ def main() -> None:
     )
 
     scvi_model.train(
-        accelerator = args.accelerator,
+        accelerator = arg.accelerator,
         early_stopping = True,
         early_stopping_patience = 3, # stop after 3 epochs without improvement; the max_epochs for this data is 22
     )
 
     # Export the trained SCVI model
-    scvi_model.save(args.reference_scvi_model_file, save_anndata = True, overwrite=True)
+    scvi_model.save(arg.reference_scvi_model_file, save_anndata = True, overwrite=True)
 
 
     ################################################
     ####### scANVI reference model training ########
     ################################################
 
-    reference.obs[SCANVI_LABELS_KEY] = reference.obs[args.reference_celltype_column].values
+    reference.obs[SCANVI_LABELS_KEY] = reference.obs[arg.reference_celltype_column].values
 
     scanvi_model = scvi.model.SCANVI.from_scvi_model(
         scvi_model,
@@ -198,12 +220,12 @@ def main() -> None:
         labels_key = SCANVI_LABELS_KEY,
     )
     scanvi_model.train(
-        accelerator = args.accelerator,
+        accelerator = arg.accelerator,
         early_stopping = True,
         early_stopping_patience = 3
     )
     # Export the trained scANVI model
-    scanvi_model.save(args.reference_scanvi_model_file, save_anndata = True, overwrite=True)
+    scanvi_model.save(arg.reference_scanvi_model_file, save_anndata = True, overwrite=True)
 
 
     ################################################
@@ -216,7 +238,7 @@ def main() -> None:
 
     # https://docs.scvi-tools.org/en/1.3.2/tutorials/notebooks/multimodal/scarches_scvi_tools.html#id2
     scanvi_query.train(
-        accelerator = args.accelerator,
+        accelerator = arg.accelerator,
         # scArches parameters
         plan_kwargs={"weight_decay": 0.0},
         check_val_every_n_epoch=10,
@@ -226,11 +248,11 @@ def main() -> None:
     query.obs[SCANVI_PREDICTIONS_KEY] = scanvi_query.predict()
 
     # Save the full scANVI model with integrated query data
-    scanvi_query.save(args.full_scanvi_model_file, save_anndata = True, overwrite=True)
+    scanvi_query.save(arg.full_scanvi_model_file, save_anndata = True, overwrite=True)
 
     # Save TSV of the predictions
     scanvi_df = query.obs[['cell_id', SCANVI_PREDICTIONS_KEY]]
-    scanvi_df.to_csv(args.output_tsv_file, sep='\t', index=True)
+    scanvi_df.to_csv(arg.output_tsv_file, sep='\t', index=True)
 
 
 if __name__ == "__main__":
