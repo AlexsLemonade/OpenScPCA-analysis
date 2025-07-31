@@ -42,7 +42,8 @@ def main() -> None:
         "--reference_celltype_column",
         type=str,
         default = "Cell_type_wImmuneZoomAnnot",
-        help="Column in the reference AnnData object that contains cell type annotations. Default is 'Cell_type_wImmuneZoomAnnot'.",
+        help="Column in the reference AnnData object that contains cell type annotations.
+        " Default is 'Cell_type_wImmuneZoomAnnot', unless --testing is specified in which case `Cell_type` is the default",
     )
     parser.add_argument(
         "--reference_scvi_model_dir",
@@ -96,7 +97,8 @@ def main() -> None:
         "--accelerator",
         type=str,
         default="cpu",
-        help="Use 'gpu' for GPU acceleration or 'cpu' for CPU only. Default is 'cpu'. Will be overridden to 'cpu' if --testing is specified",
+        help="Use 'gpu' for GPU acceleration or 'cpu' for CPU only. Default is 'cpu'.
+        " Will be overridden to 'cpu' if --testing is specified",
     )
     arg = parser.parse_args()
 
@@ -169,26 +171,36 @@ def main() -> None:
             )
             arg_error = True
 
-        if arg_error:
-            sys.exit(1)
-
-    # Set seed for reproducibility
-    # torch commands are ignored if GPU not present
-    scvi.settings.seed = arg.seed # inherited by numpy and torch
-    torch.cuda.manual_seed(arg.seed)
-    torch.cuda.manual_seed_all(arg.seed)
-
-    # Set up training arguments based on testing
+    # Set up values for testing
     if arg.testing:
         # limit max_epochs for faster runtime and ensure CPU
         common_train_kwargs = {
             "accelerator": "cpu",
             "max_epochs": 5
         }
+        cell_type_label = "Cell_type"
     else:
         # don't use max_epochs; let scvi pick the heuristic
         common_train_kwargs = {"accelerator": arg.accelerator}
+        cell_type_label = arg.reference_celltype_column
 
+    # Check cell_type_label
+    if not cell_type_label in reference.obs.columns:
+        print(
+            f"The provided reference cell type label is not present in the reference object:: {arg.reference_celltype_column}.",
+                file=sys.stderr,
+        )
+        arg_error = True
+
+    if arg_error:
+        sys.exit(1)
+
+
+    # Set seed for reproducibility
+    # torch commands are ignored if GPU not present
+    scvi.settings.seed = arg.seed # inherited by numpy and torch
+    torch.cuda.manual_seed(arg.seed)
+    torch.cuda.manual_seed_all(arg.seed)
     ################################################
     ######## SCVI reference model training #########
     ################################################
@@ -225,7 +237,7 @@ def main() -> None:
     ####### scANVI reference model training ########
     ################################################
 
-    reference.obs[SCANVI_LABELS_KEY] = reference.obs[arg.reference_celltype_column].values
+    reference.obs[SCANVI_LABELS_KEY] = reference.obs[cell_type_label].values
 
     scanvi_model = scvi.model.SCANVI.from_scvi_model(
         scvi_model,
