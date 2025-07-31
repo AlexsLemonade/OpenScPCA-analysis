@@ -21,8 +21,6 @@ SCANVI_LATENT_KEY = "X_scANVI"
 SCANVI_LABELS_KEY = "labels_scanvi"
 UNLABELED_VALUE = "Unknown"
 SCANVI_PREDICTIONS_KEY = "predictions_scanvi"
-MAXIMUM_EPOCHS = 50 # this is appropriate for our dataset size and will work well in CI as well
-EARLY_STOPPING_PATIENCE = 5 # stop after 5 epochs if no improvement
 
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -43,24 +41,23 @@ def main() -> None:
     parser.add_argument(
         "--reference_celltype_column",
         type=str,
-        required=True,
         default = "Cell_type_wImmuneZoomAnnot",
         help="Column in the reference AnnData object that contains cell type annotations. Default is 'Cell_type_wImmuneZoomAnnot'.",
     )
     parser.add_argument(
-        "--reference_scvi_model_file",
+        "--reference_scvi_model_dir",
         type=Path,
         required=True,
         help="Path to the save the SCVI model trained on the reference object",
     )
     parser.add_argument(
-        "--reference_scanvi_model_file",
+        "--reference_scanvi_model_dir",
         type=Path,
         required=True,
         help="Path to the save the scANVI model trained on the reference object",
     )
     parser.add_argument(
-        "--query_scanvi_model_file",
+        "--query_scanvi_model_dir",
         type=Path,
         required=True,
         help="Path to the save the scANVI/scArches model trained with integrated query data",
@@ -80,9 +77,14 @@ def main() -> None:
     parser.add_argument(
         "--exclude_libraries",
         type=str,
-        required=False,
         default="",
         help="Optionally, a comma-separated list of ScPCA libraries to exclude from analysis",
+    )
+    parser.add_argument(
+        "--testing",
+        action="store_true",
+        default=False,
+        help="Flag to use if running on test data and/oror in CI",
     )
     parser.add_argument(
         "--seed",
@@ -94,7 +96,7 @@ def main() -> None:
         "--accelerator",
         type=str,
         default="cpu",
-        help="Use 'gpu' for GPU acceleration or 'cpu' for CPU only. Default is 'cpu'.",
+        help="Use 'gpu' for GPU acceleration or 'cpu' for CPU only. Default is 'cpu'. Will be overridden to 'cpu' if --testing is specified",
     )
     arg = parser.parse_args()
 
@@ -159,7 +161,8 @@ def main() -> None:
     # Prepare and check library ids to exclude
     exclude_libraries = [id.strip() for id in arg.exclude_libraries.split(",")] if arg.exclude_libraries else []
     if len(exclude_libraries) > 0:
-        if not all(exclude_libraries in query.obs["library_id"]):
+        all_present = all([id in query.obs["library_id"].cat.categories for id in exclude_libraries])
+        if not all_present:
             print(
                 f"Not all libraries in `exclude_libraries` are present in the query object. Please check ids: {arg.exclude_libraries}.",
                 file=sys.stderr,
@@ -174,6 +177,17 @@ def main() -> None:
     scvi.settings.seed = arg.seed # inherited by numpy and torch
     torch.cuda.manual_seed(arg.seed)
     torch.cuda.manual_seed_all(arg.seed)
+
+    # Set up training arguments based on testing
+    if arg.testing:
+        # limit max_epochs for faster runtime and ensure CPU
+        common_train_kwargs = {
+            "accelerator": "cpu",
+            "max_epochs": 10
+        }
+    else:
+        # don't use max_epochs; let scvi pick the heuristic
+        common_train_kwargs = {"accelerator": arg.accelerator}
 
     ################################################
     ######## SCVI reference model training #########
@@ -204,12 +218,7 @@ def main() -> None:
         n_layers=2,
     )
 
-    scvi_model.train(
-        accelerator = arg.accelerator,
-        max_epochs = MAXIMUM_EPOCHS,
-        early_stopping = True,
-        early_stopping_patience = EARLY_STOPPING_PATIENCE
-    )
+    scvi_model.train(**common_train_kwargs)
     reference.obsm[SCVI_LATENT_KEY] = scvi_model.get_latent_representation()
 
     ################################################
@@ -223,12 +232,7 @@ def main() -> None:
         unlabeled_category = UNLABELED_VALUE,
         labels_key = SCANVI_LABELS_KEY,
     )
-    scanvi_model.train(
-        accelerator = arg.accelerator,
-        max_epochs = MAXIMUM_EPOCHS,
-        early_stopping = True,
-        early_stopping_patience = EARLY_STOPPING_PATIENCE
-    )
+    scanvi_model.train(**common_train_kwargs)
     reference.obsm[SCANVI_LATENT_KEY] = scanvi_model.get_latent_representation()
 
     ################################################
@@ -241,11 +245,8 @@ def main() -> None:
 
     # https://docs.scvi-tools.org/en/1.3.2/tutorials/notebooks/multimodal/scarches_scvi_tools.html#id2
     scanvi_query.train(
-        accelerator = arg.accelerator,
-        max_epochs = MAXIMUM_EPOCHS,
-        early_stopping = True,
-        early_stopping_patience = EARLY_STOPPING_PATIENCE,
-        # scArches parameters
+        **common_train_kwargs,
+        # additional scArches parameters
         plan_kwargs={"weight_decay": 0.0},
         check_val_every_n_epoch=5,
     )
@@ -263,13 +264,13 @@ def main() -> None:
     )
 
     # Export the NBAtlas-trained SCVI model
-    scvi_model.save(arg.reference_scvi_model_file, save_anndata = True, overwrite=True)
+    scvi_model.save(arg.reference_scvi_model_dir, save_anndata = True, overwrite=True)
 
     # Export the NBAtlas-trained scANVI model
-    scanvi_model.save(arg.reference_scanvi_model_file, save_anndata = True, overwrite=True)
+    scanvi_model.save(arg.reference_scanvi_model_dir, save_anndata = True, overwrite=True)
 
     # Export the query-trained scANVI model with integrated query data
-    scanvi_query.save(arg.query_scanvi_model_file, save_anndata = True, overwrite=True)
+    scanvi_query.save(arg.query_scanvi_model_dir, save_anndata = True, overwrite=True)
 
     # Save the full integrated object with labels and latent representation
     adata_integrated.write(arg.integrated_scanvi_anndata)
