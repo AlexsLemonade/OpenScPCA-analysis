@@ -7,6 +7,7 @@ The goal of this analysis module is to perform cell type annotation on samples f
 This module annotates cell types across samples in `SCPCP000004` using the [`NBAtlas` reference](https://doi.org/10.1016/j.celrep.2024.114804) (Bonine et al. 2024).
 
 * First, the module performs cell type annotation using [`SingleR`](https://doi.org/10.1016/j.celrep.2024.114804) (Aran et al. 2019)
+* [In progress] Second, the module performs cell type annotation using [`scANVI/scArches`](https://doi.org/10.1038/s41587-021-01001-7) (Lotfollahi et al. 2022)
 
 ## Usage
 
@@ -55,6 +56,25 @@ Please see `results/README.md` for additional details.
 
 This module uses both `renv` and `conda` to manage R and Python software environments, respectively.
 
+To set up the `renv` environment, launch `R` from the module directory and run:
+
+```
+renv::restore()
+```
+
+To set up and activate the `conda` environment, run the following from the module directory:
+
+```
+conda-lock install --name openscpca-cell-type-neuroblastoma-04 conda-lock.yml
+conda activate openscpca-cell-type-neuroblastoma-04
+```
+
+Running this requires that `conda-lock` is available in the current environment, e.g. from within the [`openscpca` environment](https://openscpca.readthedocs.io/en/latest/technical-setup/environment-setup/setup-conda/#create-an-openscpca-conda-environment).
+
+
+Alternatively, a Docker image is available from: <https://gallery.ecr.aws/openscpca/cell-type-neuroblastoma-04>.
+
+
 ## Computational resources
 
-This module requires at least 16 GB available RAM for the `SingleR` portion of the analysis.
+This module requires at least 16 GB available RAM and can be run on a laptop.
