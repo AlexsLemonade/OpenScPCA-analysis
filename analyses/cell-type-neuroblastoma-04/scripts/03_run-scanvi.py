@@ -97,13 +97,6 @@ def main() -> None:
         default=2025,
         help="Random seed to ensure reproducibility",
     )
-    parser.add_argument(
-        "--accelerator",
-        type=str,
-        default="cpu",
-        help="Use 'gpu' for GPU acceleration or 'cpu' for CPU only. Default is 'cpu'."
-        " Will be overridden to 'cpu' if --testing is specified",
-    )
     arg = parser.parse_args()
 
     ################################################
@@ -126,31 +119,16 @@ def main() -> None:
         arg_error = True
 
     # Set up testing and accelerator settings
-    # If we're not testing, check that the accelerator is valid and that GPU is available if specified
     # Note we do this here so `cell_type_label` can be used to check the reference object next
     if arg.testing:
         cell_type_label = "Cell_type"
         # limit max_epochs for faster runtime and ensure CPU
         common_train_kwargs = {"max_epochs": 5, "accelerator": "cpu"}
     else:
-        arg.accelerator = arg.accelerator.lower()
-        if arg.accelerator not in ["gpu", "cpu"]:
-            print(
-                f"The provided accelerator '{arg.accelerator}' is not valid.",
-                "Use 'gpu' for GPU acceleration or 'cpu' for CPU only.",
-                file=sys.stderr,
-            )
-            arg_error = True
-        if arg.accelerator == "gpu" and not torch.cuda.is_available():
-            print(
-                "The specified accelerator is 'gpu', but no GPU is available.",
-                "Please use 'cpu' instead or ensure a GPU is available.",
-                file=sys.stderr,
-            )
-            arg_error = True
         cell_type_label = arg.reference_celltype_column
+        accelerator = "gpu" if torch.cuda.is_available() else "cpu"
         # don't use max_epochs; let scvi pick the heuristic
-        common_train_kwargs = {"accelerator": arg.accelerator}
+        common_train_kwargs = {"accelerator": accelerator}
 
     # Define lists of expected columns in the reference and query objects
     expected_covariate_columns = [BATCH_KEY] + COVARIATE_KEYS
