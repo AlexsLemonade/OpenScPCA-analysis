@@ -40,11 +40,13 @@ RUN apt-get -y update &&  \
   pandoc \
   && rm -rf /var/lib/apt/lists/*
 
-# Install renv
-RUN Rscript -e "install.packages('renv')"
-
 # Disable the renv cache to install packages directly into the R library
 ENV RENV_CONFIG_CACHE_ENABLED=FALSE
+# Install Basilisk python packages in the system library
+ARG BASILISK_USE_SYSTEM_DIR=1
+
+# Install renv
+RUN Rscript -e "install.packages('renv')"
 
 # Copy conda lock file to image
 COPY conda-lock.yml conda-lock.yml
@@ -67,12 +69,6 @@ RUN Rscript -e 'renv::restore()' \
   && rm -rf ~/.cache/R/renv \
   && rm -rf /tmp/downloaded_packages \
   && rm -rf /tmp/Rtmp*
-
-# Complete installation of zellkonverter conda env
-ENV BASILISK_EXTERNAL_DIR=/usr/local/renv/basilisk
-RUN Rscript -e "proc <- basilisk::basiliskStart(env = zellkonverter::zellkonverterAnnDataEnv(), testload = 'anndata'); \
-  basilisk::basiliskStop(proc); \
-  basilisk.utils::cleanConda()"
 
 # Set CMD to bash to activate the environment when launching
 CMD ["/bin/bash"]
