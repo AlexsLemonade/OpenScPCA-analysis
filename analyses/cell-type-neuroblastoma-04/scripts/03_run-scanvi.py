@@ -183,7 +183,7 @@ def main() -> None:
         # limit max_epochs for faster runtime and ensure CPU
         common_train_kwargs = {
             "accelerator": "cpu",
-            "max_epochs": 10
+            "max_epochs": 5
         }
     else:
         # don't use max_epochs; let scvi pick the heuristic
@@ -262,6 +262,8 @@ def main() -> None:
     adata_integrated.obs["batch"] = adata_integrated.obs["batch"].cat.rename_categories(
         ["NBAtlas", "ScPCA"]
     )
+    # add the final predictions into the integrated data object
+    adata_integrated.obs[SCANVI_PREDICTIONS_KEY] = scanvi_query.predict(adata_integrated)
 
     # Export the NBAtlas-trained SCVI model
     scvi_model.save(arg.reference_scvi_model_dir, save_anndata = True, overwrite=True)
