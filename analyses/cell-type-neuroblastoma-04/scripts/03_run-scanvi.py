@@ -244,11 +244,10 @@ def main() -> None:
     # Incorporate query data into the scANVI model #
     ################################################
 
-    # Incorporate query data into the scANVI model
+    # prepare query data for training
     scvi.model.SCANVI.prepare_query_anndata(query, scanvi_model)
     scanvi_query = scvi.model.SCANVI.load_query_data(query, scanvi_model)
 
-    # https://docs.scvi-tools.org/en/1.3.2/tutorials/notebooks/multimodal/scarches_scvi_tools.html#id2
     scanvi_query.train(
         **common_train_kwargs,
         # additional scArches parameters
@@ -276,13 +275,13 @@ def main() -> None:
     # Export the NBAtlas-trained scANVI model
     scanvi_model.save(arg.reference_scanvi_model_dir, save_anndata = True, overwrite = True)
 
-    # Export the query-trained scANVI model with integrated query data
+    # Export the query-trained scANVI model
     scanvi_query.save(arg.query_scanvi_model_dir, save_anndata = True, overwrite = True)
 
-    # Save the full integrated object with labels and latent representation
+    # Save the full integrated object with labels and scANVI latent representations
     adata_integrated.write(arg.integrated_scanvi_anndata)
 
-    # Save TSV of the full latent representation, covariates, and predictions
+    # Save TSV of the full scANVI latent representation, covariates, and predictions
     latent_df = pd.DataFrame(adata_integrated.obsm[SCANVI_LATENT_KEY])
     latent_df = latent_df.rename(columns = lambda x: SCANVI_LATENT_KEY + "_" +str(x))
     latent_df.index = adata_integrated.obs.index
