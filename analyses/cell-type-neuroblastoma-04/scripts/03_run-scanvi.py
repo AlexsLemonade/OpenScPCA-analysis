@@ -15,7 +15,7 @@ from scipy.sparse import csr_matrix
 
 # Define variables to use in the objects
 BATCH_KEY = "Sample"
-COVARIATE_KEYS = ["Assay", "Platform"]
+COVARIATE_KEYS = ["Assay", "Platform"] # TODO: make this a script option to compare with/without?
 SCVI_LATENT_KEY = "X_scVI"
 SCANVI_LATENT_KEY = "X_scANVI"
 SCANVI_LABELS_KEY = "labels_scanvi"
@@ -42,7 +42,7 @@ def main() -> None:
         "--reference_celltype_column",
         type=str,
         default = "Cell_type_wImmuneZoomAnnot",
-        help="Column in the reference AnnData object that contains cell type annotations.
+        help="Column in the reference AnnData object that contains cell type annotations."
         " Default is 'Cell_type_wImmuneZoomAnnot', unless --testing is specified in which case `Cell_type` is the default",
     )
     parser.add_argument(
@@ -85,7 +85,7 @@ def main() -> None:
         "--testing",
         action="store_true",
         default=False,
-        help="Flag to use if running on test data and/oror in CI",
+        help="Flag to use if running on test data and/or in CI",
     )
     parser.add_argument(
         "--seed",
@@ -97,7 +97,7 @@ def main() -> None:
         "--accelerator",
         type=str,
         default="cpu",
-        help="Use 'gpu' for GPU acceleration or 'cpu' for CPU only. Default is 'cpu'.
+        help="Use 'gpu' for GPU acceleration or 'cpu' for CPU only. Default is 'cpu'."
         " Will be overridden to 'cpu' if --testing is specified",
     )
     arg = parser.parse_args()
@@ -135,10 +135,23 @@ def main() -> None:
         )
         arg_error = True
 
+    # Set up values for testing
+    if arg.testing:
+        # limit max_epochs for faster runtime and ensure CPU
+        common_train_kwargs = {
+            "accelerator": "cpu",
+            "max_epochs": 5
+        }
+        cell_type_label = "Cell_type"
+    else:
+        # don't use max_epochs; let scvi pick the heuristic
+        common_train_kwargs = {"accelerator": arg.accelerator}
+        cell_type_label = arg.reference_celltype_column
+
 
     # Define lists of expected columns in the reference and query objects
     expected_covariate_columns = [BATCH_KEY] + COVARIATE_KEYS
-    reference_expected_columns = expected_covariate_columns + [arg.reference_celltype_column]
+    reference_expected_columns = expected_covariate_columns + [cell_type_label]
 
     # Read the reference and query objects and check that expected columns are present
     reference = anndata.read_h5ad(arg.reference_file)
@@ -171,26 +184,6 @@ def main() -> None:
             )
             arg_error = True
 
-    # Set up values for testing
-    if arg.testing:
-        # limit max_epochs for faster runtime and ensure CPU
-        common_train_kwargs = {
-            "accelerator": "cpu",
-            "max_epochs": 5
-        }
-        cell_type_label = "Cell_type"
-    else:
-        # don't use max_epochs; let scvi pick the heuristic
-        common_train_kwargs = {"accelerator": arg.accelerator}
-        cell_type_label = arg.reference_celltype_column
-
-    # Check cell_type_label
-    if not cell_type_label in reference.obs.columns:
-        print(
-            f"The provided reference cell type label is not present in the reference object:: {arg.reference_celltype_column}.",
-                file=sys.stderr,
-        )
-        arg_error = True
 
     if arg_error:
         sys.exit(1)
