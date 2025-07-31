@@ -132,15 +132,18 @@ def main() -> None:
             "accelerator": "cpu"
         }
     else:
+        arg.accelerator = arg.accelerator.lower()
         if arg.accelerator not in ["gpu", "cpu"]:
             print(
-                f"The provided accelerator '{arg.accelerator}' is not valid. Use 'gpu' for GPU acceleration or 'cpu' for CPU only.",
+                f"The provided accelerator '{arg.accelerator}' is not valid.",
+                "Use 'gpu' for GPU acceleration or 'cpu' for CPU only.",
                 file=sys.stderr,
             )
             arg_error = True
         if arg.accelerator == "gpu" and not torch.cuda.is_available():
             print(
-                "The specified accelerator is 'gpu', but no GPU is available. Please use 'cpu' instead or ensure a GPU is available.",
+                "The specified accelerator is 'gpu', but no GPU is available.
+                "Please use 'cpu' instead or ensure a GPU is available.",
                 file=sys.stderr,
             )
             arg_error = True
