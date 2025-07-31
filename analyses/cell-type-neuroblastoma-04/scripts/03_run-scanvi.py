@@ -288,7 +288,7 @@ def main() -> None:
     latent_df.index = adata_integrated.obs.index
 
     combined_df = latent_df.join(adata_integrated.obs)
-    combined_df.to_csv(arg.predictions_tsv, sep='\t', index_label = "cell_id")
+    combined_df.to_csv(arg.predictions_tsv, sep='\t', index = False)
 
 
 if __name__ == "__main__":
