@@ -1,0 +1,61 @@
+reference_name	consensus_celltype
+immune	hematopoietic stem cell
+immune	T cell
+immune	granulocyte
+immune	mononuclear phagocyte
+immune	macrophage
+immune	B cell
+immune	dendritic cell
+immune	megakaryocyte
+immune	monocyte
+immune	natural killer cell
+immune	CD4-positive, alpha-beta T cell
+immune	erythroid lineage cell
+immune	myeloid leukocyte
+immune	eosinophil
+immune	neutrophil
+immune	mature B cell
+immune	plasma cell
+immune	memory B cell
+immune	naive B cell
+immune	mature alpha-beta T cell
+immune	memory T cell
+immune	regulatory T cell
+immune	lymphocyte of B lineage
+immune	innate lymphoid cell
+immune	mature T cell
+immune	hematopoietic precursor cell
+endo	endothelial cell
+endo	blood vessel endothelial cell
+endo	microvascular endothelial cell
+endo	pericyte
+endo-immune	endothelial cell
+endo-immune	blood vessel endothelial cell
+endo-immune	microvascular endothelial cell
+endo-immune	pericyte
+endo-immune	hematopoietic stem cell
+endo-immune	T cell
+endo-immune	granulocyte
+endo-immune	mononuclear phagocyte
+endo-immune	macrophage
+endo-immune	B cell
+endo-immune	dendritic cell
+endo-immune	megakaryocyte
+endo-immune	monocyte
+endo-immune	natural killer cell
+endo-immune	CD4-positive, alpha-beta T cell
+endo-immune	erythroid lineage cell
+endo-immune	myeloid leukocyte
+endo-immune	eosinophil
+endo-immune	neutrophil
+endo-immune	mature B cell
+endo-immune	plasma cell
+endo-immune	memory B cell
+endo-immune	naive B cell
+endo-immune	mature alpha-beta T cell
+endo-immune	memory T cell
+endo-immune	regulatory T cell
+endo-immune	lymphocyte of B lineage
+endo-immune	innate lymphoid cell
+endo-immune	mature T cell
+endo-immune	hematopoietic precursor cell

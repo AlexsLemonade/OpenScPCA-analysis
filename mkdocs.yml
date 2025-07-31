@@ -56,6 +56,9 @@ extra:
     - icon: fontawesome/brands/linkedin
       link: https://www.linkedin.com/showcase/childhood-cancer-data-lab/
       name: Follow us on LinkedIn
+    - icon: fontawesome/brands/bluesky
+      link: https://bsky.app/profile/cancerdatalab.bsky.social
+      name: Follow us on Bluesky
 
 copyright: Copyright &copy; 2024 OpenScPCA Project Maintainers & Contributors | CC-BY 4.0 License
 

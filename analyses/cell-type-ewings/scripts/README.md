@@ -2,118 +2,19 @@
 
 This directory contains all scripts used for cell typing Ewing sarcoma samples from SCPCP000015.
 
-## Scripts used in the CNV annotation workflow
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents** 
 
-The scripts in the `cnv-workflow` folder are implemented in `cnv-annotation.sh`:
+- [Scripts used to annotate tumor cells with `AUCell` and `SingleR`](#scripts-used-to-annotate-tumor-cells-with-aucell-and-singler)
+- [Scripts used to annotate tumor cells with `SingleR`](#scripts-used-to-annotate-tumor-cells-with-singler)
+- [Scripts used in the clustering workflow](#scripts-used-in-the-clustering-workflow)
+- [Scripts used for running `AUCell` with `EWS-FLI` gene signatures](#scripts-used-for-running-aucell-with-ews-fli-gene-signatures)
+- [Scripts used in the CNV annotation workflow](#scripts-used-in-the-cnv-annotation-workflow)
+- [Utils](#utils)
 
-1. `00-generate-cellassign-refs.R`: This script is used to generate the binary marker gene reference matrices required to run `CellAssign` in `cnv-annotation.sh`.
-   Running this script creates three different references found in `references/cellassign_refs`.
-   See [references/README.md](../references/README.md#cellassign-references) for a full description of all references that are created.
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-To run this script use the following command:
-
-```sh
-Rscript 00-generate-cellassign-refs.R
-```
-
-2. `00-make-gene-order-file.R`: This script is used to generate the [gene order file](https://github.com/broadinstitute/inferCNV/wiki/File-Definitions#gene-ordering-file) needed for running `InferCNV` with `04-run-infercnv.R`.
-   This script downloads the GTF file used to create the original index used in `scpca-nf` (Ensembl v104) from the public bucket `s3://scpca-references`.
-   This file is then converted to the required gene order formatted file for `InferCNV` and saved to `references/infercnv_refs`.
-
-To run this script use the following command:
-
-```sh
-Rscript 00-make-gene-order-file.R
-```
-
-3. `01-select-cell-types.R`: This script is used to generate a table of normal and tumor cells to use as references for downstream analysis and copy number inference methods.
-   The output table contains the following columns:
-
-|                                  |                                                                                                |
-| -------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `barcodes`                       | Cell barcode                                                                                   |
-| `reference_cell_class`           | Indicates if the cell should be uses as a Normal or Tumor cell reference                       |
-| `cellassign_celltype_annotation` | Original annotation as obtained by `CellAssign` in the processed `SingleCellExperiment` object |
-| `singler_celltype_annotation`    | Original annotation as obtained by `SingleR` in the processed `SingleCellExperiment` object    |
-
-To create a table of cells use the `--normal_cells` and/or `--tumor_cells` arguments.
-Any cells that have the same annotation as the annotation provided with the `--normal_cells` argument will be labeled as "Normal".
-Any cells that have the same annotation as the annotation provided with the `--tumor_cells` argument will be labeled as "Tumor".
-
-In addition to providing a list of cell types, you must also provide an input `SingleCellExperiment` object with columns containing cell type annotations and a `output_filename` with the full path to save the reference file.
-
-The following command specifies using cells annotated as endothelial cells as the normal reference and muscle cells as the tumor reference:
-
-```sh
-Rscript 01-select-normal-cells.R \
-  --sce_file <path to processed sce file> \
-  --normal_cells "endothelial cell" \
-  --tumor_cells "smooth-muscle-cell" \
-  --output_filename <full path to TSV file to save output table>
-```
-
-4. `02-run-cellassign.py`: This script runs [`CellAssign`](https://docs.scvi-tools.org/en/stable/user_guide/models/cellassign.html) on a processed `AnnData` object, requiring an `AnnData` object and a binary reference matrix with cell types as columns and genes as rows as input.
-   The output will be a TSV file containing a predictions matrix with all cells in the input `AnnData` object as rows and all possible cell types as columns.
-   The values in the predictions matrix represent the likelihood of each cell being assigned to the respective cell type.
-
-Run this script with the following command:
-
-```sh
-python 02-run-cellassign.py \
-  --anndata_file <path to anndata file> \
-  --output_predictions <path to output tsv file> \
-  --reference <path to marker gene reference>
-```
-
-5. `03-run-copykat.R`: This script is used to run [`CopyKAT`](https://github.com/navinlabcode/copykat) on a processed `SingleCellExperiment` object.
-   `CopyKAT` is run on the object using the default parameters specified in `copykat::copykat()` other than the `id.type`, which is set to `E` to account for Ensembl IDs used in the objects available on the Portal.
-
-To run the script with the default parameters, use the following command:
-
-```sh
-Rscript run-copykat.R \
-  --sce_file <path to processed sce file> \
-  --results_dir <name of folder to save results> \
-  --threads 4
-```
-
-`CopyKAT` can also accept a table output from `01-select-cell-types.R` that contains the `barcodes` and `reference_cell_class` columns using the `--reference_cell_file` argument.
-Any cells where `reference_cell_class` is `Normal` will be used as the baseline reference for assigning cells as diploid or aneuploid.
-
-The following command runs `CopyKAT` with a reference table indicating cells to use as the normal cell reference:
-
-```sh
-Rscript run-copykat.R \
-  --sce_file <path to processed sce file> \
-  --reference_cell_file <path to file with table of normal cell barcodes> \
-  --results_dir <name of folder to save results> \
-  --threads 4
-```
-
-6. `04-run-infercnv.R`: This script is used to run [`InferCNV`](https://github.com/broadinstitute/inferCNV/wiki) on a processed `SingleCellExperiment` object.
-   `InferCNV` is run with a gene cutoff of 0.1 and all other default settings.
-   The heatmap (saved as `.png`), full object from running `InferCNV` and a table with cell by CNV information are saved to a `output_dir` specified at the command line.
-
-All other intermediate files are saved to a `scratch_dir`, which by default is `scratch/infercnv/{library_id}`.
-
-To run `InferCNV`, an [annotations file](https://github.com/broadinstitute/inferCNV/wiki/File-Definitions#sample-annotation-file) containing all cell barcodes and associated annotations must be created.
-This file is created as part of this script and saved to the specified path using `--annotations_file`.
-
-A table containing normal cell barcodes can be provided using the `--reference_cell_file` argument (output from `01-select-normal-cells.R`).
-If this is the case, all normal cells will be annotated as "reference" and all other cells will be denoted as "unknown".
-If no normal cells are provided, then all cells will be labeled as "unknown" and `InferCNV` will be run with `ref_group_names = NULL`.
-
-This script also requires a gene order file (created by `00-make-gene-order-file.R`).
-
-To run this script use the following command:
-
-```sh
-Rscript 04-run-infercnv.Rmd \
-  --annotations_file <path to save annotations file> \
-  --reference_cell_file <path to file with table of normal cell barcodes> \
-  --output_dir <full path to folder to save results> \
-  --threads 4
-```
 
 ## Scripts used to annotate tumor cells with `AUCell` and `SingleR`
 
@@ -271,6 +172,151 @@ Rscript 01-clustering.R \
   --threads 4 \
   --seed 2024
 ```
+
+## Scripts used for running `AUCell` with `EWS-FLI` gene signatures 
+
+1. `01-aucell.R`: This script is used to run `AUCell` with a set of custom gene signatures on a single processed object. 
+By default, all gene signatures in [references/gene_signatures](../references/gene_signatures/) are used alongside a set of gene signatures from `MSigDB` associated with high and low EWS-FLI1 expression. 
+The full list of gene signatures used can be found in [the references `README.md`](../references/README.md#gene-signatures). 
+
+`AUCell` is run for each gene signature and AUC values along with the AUC threshold reported by `AUCell` are saved to a TSV file. 
+`AUCell` is run with an `aucMaxRank` value equal to 1% of the detected genes in the processed object. 
+This can be changed using the `--max_rank_threshold` parameter. 
+
+By default, this script uses 4 CPUs. 
+
+To run this script on a single library use the default parameters use the following command: 
+
+```sh
+Rscript 01-aucell.R \
+  --sce_file <path to processed SCE file> \
+  --output_file <path to TSV file to save AUC results>
+```
+
+To run this script with a merged object use the following command: 
+
+```sh
+Rscript 01-aucell.R \
+  --sce_file <path to processed SCE file> \
+  --output_file <path to TSV file to save AUC results> \
+  --is_merged
+```
+
+## Scripts used in the CNV annotation workflow
+
+**NOTE:** This workflow is no longer used in the cell type annotation analysis, has been removed from CI, and is no longer maintained! 
+
+The scripts in the `cnv-workflow` folder are implemented in `cnv-annotation.sh`:
+
+1. `00-generate-cellassign-refs.R`: This script is used to generate the binary marker gene reference matrices required to run `CellAssign` in `cnv-annotation.sh`.
+   Running this script creates three different references found in `references/cellassign_refs`.
+   See [references/README.md](../references/README.md#cellassign-references) for a full description of all references that are created.
+
+To run this script use the following command:
+
+```sh
+Rscript 00-generate-cellassign-refs.R
+```
+
+2. `00-make-gene-order-file.R`: This script is used to generate the [gene order file](https://github.com/broadinstitute/inferCNV/wiki/File-Definitions#gene-ordering-file) needed for running `InferCNV` with `04-run-infercnv.R`.
+   This script downloads the GTF file used to create the original index used in `scpca-nf` (Ensembl v104) from the public bucket `s3://scpca-references`.
+   This file is then converted to the required gene order formatted file for `InferCNV` and saved to `references/infercnv_refs`.
+
+To run this script use the following command:
+
+```sh
+Rscript 00-make-gene-order-file.R
+```
+
+3. `01-select-cell-types.R`: This script is used to generate a table of normal and tumor cells to use as references for downstream analysis and copy number inference methods.
+   The output table contains the following columns:
+
+|                                  |                                                                                                |
+| -------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `barcodes`                       | Cell barcode                                                                                   |
+| `reference_cell_class`           | Indicates if the cell should be uses as a Normal or Tumor cell reference                       |
+| `cellassign_celltype_annotation` | Original annotation as obtained by `CellAssign` in the processed `SingleCellExperiment` object |
+| `singler_celltype_annotation`    | Original annotation as obtained by `SingleR` in the processed `SingleCellExperiment` object    |
+
+To create a table of cells use the `--normal_cells` and/or `--tumor_cells` arguments.
+Any cells that have the same annotation as the annotation provided with the `--normal_cells` argument will be labeled as "Normal".
+Any cells that have the same annotation as the annotation provided with the `--tumor_cells` argument will be labeled as "Tumor".
+
+In addition to providing a list of cell types, you must also provide an input `SingleCellExperiment` object with columns containing cell type annotations and a `output_filename` with the full path to save the reference file.
+
+The following command specifies using cells annotated as endothelial cells as the normal reference and muscle cells as the tumor reference:
+
+```sh
+Rscript 01-select-normal-cells.R \
+  --sce_file <path to processed sce file> \
+  --normal_cells "endothelial cell" \
+  --tumor_cells "smooth-muscle-cell" \
+  --output_filename <full path to TSV file to save output table>
+```
+
+4. `02-run-cellassign.py`: This script runs [`CellAssign`](https://docs.scvi-tools.org/en/stable/user_guide/models/cellassign.html) on a processed `AnnData` object, requiring an `AnnData` object and a binary reference matrix with cell types as columns and genes as rows as input.
+   The output will be a TSV file containing a predictions matrix with all cells in the input `AnnData` object as rows and all possible cell types as columns.
+   The values in the predictions matrix represent the likelihood of each cell being assigned to the respective cell type.
+
+Run this script with the following command:
+
+```sh
+python 02-run-cellassign.py \
+  --anndata_file <path to anndata file> \
+  --output_predictions <path to output tsv file> \
+  --reference <path to marker gene reference>
+```
+
+5. `03-run-copykat.R`: This script is used to run [`CopyKAT`](https://github.com/navinlabcode/copykat) on a processed `SingleCellExperiment` object.
+   `CopyKAT` is run on the object using the default parameters specified in `copykat::copykat()` other than the `id.type`, which is set to `E` to account for Ensembl IDs used in the objects available on the Portal.
+
+To run the script with the default parameters, use the following command:
+
+```sh
+Rscript run-copykat.R \
+  --sce_file <path to processed sce file> \
+  --results_dir <name of folder to save results> \
+  --threads 4
+```
+
+`CopyKAT` can also accept a table output from `01-select-cell-types.R` that contains the `barcodes` and `reference_cell_class` columns using the `--reference_cell_file` argument.
+Any cells where `reference_cell_class` is `Normal` will be used as the baseline reference for assigning cells as diploid or aneuploid.
+
+The following command runs `CopyKAT` with a reference table indicating cells to use as the normal cell reference:
+
+```sh
+Rscript run-copykat.R \
+  --sce_file <path to processed sce file> \
+  --reference_cell_file <path to file with table of normal cell barcodes> \
+  --results_dir <name of folder to save results> \
+  --threads 4
+```
+
+6. `04-run-infercnv.R`: This script is used to run [`InferCNV`](https://github.com/broadinstitute/inferCNV/wiki) on a processed `SingleCellExperiment` object.
+   `InferCNV` is run with a gene cutoff of 0.1 and all other default settings.
+   The heatmap (saved as `.png`), full object from running `InferCNV` and a table with cell by CNV information are saved to a `output_dir` specified at the command line.
+
+All other intermediate files are saved to a `scratch_dir`, which by default is `scratch/infercnv/{library_id}`.
+
+To run `InferCNV`, an [annotations file](https://github.com/broadinstitute/inferCNV/wiki/File-Definitions#sample-annotation-file) containing all cell barcodes and associated annotations must be created.
+This file is created as part of this script and saved to the specified path using `--annotations_file`.
+
+A table containing normal cell barcodes can be provided using the `--reference_cell_file` argument (output from `01-select-normal-cells.R`).
+If this is the case, all normal cells will be annotated as "reference" and all other cells will be denoted as "unknown".
+If no normal cells are provided, then all cells will be labeled as "unknown" and `InferCNV` will be run with `ref_group_names = NULL`.
+
+This script also requires a gene order file (created by `00-make-gene-order-file.R`).
+
+To run this script use the following command:
+
+```sh
+Rscript 04-run-infercnv.R \
+  --annotations_file <path to save annotations file> \
+  --reference_cell_file <path to file with table of normal cell barcodes> \
+  --output_dir <full path to folder to save results> \
+  --threads 4
+```
+
 
 ## Utils
 

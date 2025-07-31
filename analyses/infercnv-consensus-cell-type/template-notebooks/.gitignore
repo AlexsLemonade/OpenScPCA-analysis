@@ -1,0 +1,2 @@
+# Ignore all rendered HTMLs in this directory
+*.nb.html

@@ -30,7 +30,7 @@ option_list <- list(
   make_option(
     opt_str = c("-s", "--sample_id"),
     type = "character",
-    default = "SCPCS000179",
+    default = "SCPCS000194",
     help = "The sample_id of the sample to be used for inference of genomic copy number using infercnv "
   ),
   make_option(
@@ -59,8 +59,8 @@ option_list <- list(
   ),
   make_option(
     opt_str = c("--seed"),
-    type = "character",
-    default = "12345",
+    type = "integer",
+    default = 12345,
     help = "Random seed to set"
   )
 )
@@ -179,7 +179,7 @@ if (opts$HMM == "no") {
 dir.create(output_dir, recursive = TRUE)
 
 # retrieve the gene order file created in `06a_build-geneposition.R`
-gene_order_file <- file.path(module_base, "results", "references", "gencode_v19_gene_pos.txt")
+gene_arm_order_file <- file.path(module_base, "results", "references", "gencode_v38_gene_pos_arm.txt")
 
 # Run infercnv ------------------------------------------------------------------
 # create inferCNV object and run method
@@ -191,7 +191,7 @@ infercnv_obj <- infercnv::CreateInfercnvObject(
   raw_counts_matrix = as.matrix(counts),
   annotations_file = annot_df,
   ref_group_names = normal_cells,
-  gene_order_file = gene_order_file,
+  gene_order_file = gene_arm_order_file,
   # ensure all cells are included
   min_max_counts_per_cell = c(-Inf, +Inf)
 )

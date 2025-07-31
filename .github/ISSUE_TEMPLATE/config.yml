@@ -1,5 +1,8 @@
 blank_issues_enabled: true
 contact_links:
+  - name: Submit a cell type annotation protocol
+    url: https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=submit-a-detailed-protocol
+    about: Submit a detailed protocol for how to label cell types in a set of samples.
   - name: Propose an analysis
     url: https://github.com/AlexsLemonade/OpenScPCA-analysis/discussions/new?category=propose-a-new-analysis
     about: Discuss your idea for a new analysis.

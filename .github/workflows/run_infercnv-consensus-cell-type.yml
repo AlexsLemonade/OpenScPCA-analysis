@@ -1,0 +1,69 @@
+# This is a workflow to run the infercnv-consensus-cell-type module
+#
+# Analysis modules are run based on three triggers:
+# - Manual trigger
+# - On pull requests where code in the module has changed
+# - As a reusable workflow called from a separate workflow which periodically runs all modules
+
+
+name: Run infercnv-consensus-cell-type analysis module
+env:
+  MODULE_PATH: analyses/infercnv-consensus-cell-type
+  AWS_DEFAULT_REGION: us-east-2
+
+concurrency:
+  # only one run per branch at a time
+  group: "run_infercnv-consensus-cell-type_${{ github.ref }}"
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  workflow_call:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - analyses/infercnv-consensus-cell-type/**
+      - "!analyses/infercnv-consensus-cell-type/Dockerfile"
+      - "!analyses/infercnv-consensus-cell-type/.dockerignore"
+      - .github/workflows/run_infercnv-consensus-cell-type.yml
+
+jobs:
+  run-module:
+    if: github.repository_owner == 'AlexsLemonade'
+    runs-on: ubuntu-latest
+    container: public.ecr.aws/openscpca/infercnv-consensus-cell-type:latest
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install aws-cli
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          ./aws/install
+
+      - name: Download test data and results
+        env:
+          # Use the full project for testing unless this is triggered by a PR, in which case only use a subset of samples for faster testing
+          data: ${{ github.event_name != 'pull_request' && '--project SCPCP000004,SCPCP000015' || '--samples SCPCS000490,SCPCS000492,SCPCS000750,SCPCL000118,SCPCL000119,SCPCL000120' }}
+        run: |
+          ./download-results.py --module cell-type-ewings --test-data ${data}
+          ./download-results.py --module merge-sce --project SCPCP000004,SCPCP000015 --test-data
+          ./download-data.py --test-data ${data}
+          ./download-data.py --test-data --metadata-only
+
+      - name: Run analysis module
+        env:
+          # To save cycles, when running this from a PR we run with a subset of normal references only.
+          # The full set of normal references is used otherwise.
+          # `testing=1` will run a subset of normal references and `testing=0` will run with all normal references
+          testing: ${{ github.event_name == 'pull_request' && 1 || 0 }}
+
+        run: |
+          cd ${MODULE_PATH}
+          testing=${testing} bash run-analysis.sh

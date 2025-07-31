@@ -7,7 +7,7 @@ run_copykat <- function(ind.lib){
   seu <- readRDS(file.path(out_loc,"results/rds",paste0(ind.lib,".rds")))
   annot.file <- file.path(out_loc,"results",paste0(ind.lib,"_newB-normal-annotation.txt"))
   if (file.exists(annot.file)){  #the sample has new B cells annotated
-    annot.df <- read.table(annot.file, header=F, row.names=1, sep="\t", stringsAsFactors=FALSE, 
+    annot.df <- read.table(annot.file, header=F, row.names=1, sep="\t", stringsAsFactors=FALSE,
                            colClasses = c('character', 'character'))
     norm.cells <- rownames(annot.df)[which(annot.df$V2=="new B")]
     n_cores <- parallel::detectCores() - 1
@@ -30,6 +30,14 @@ setwd(file.path(out_loc,"results/copykat_output"))
 metadata <- read.table(file.path(data_loc,"single_cell_metadata.tsv"), sep = "\t", header = T)
 metadata <- metadata[which(metadata$scpca_project_id == projectID &
                              metadata$diagnosis == "Early T-cell precursor T-cell acute lymphoblastic leukemia"), ]
-libraryID <- metadata$scpca_library_id
 
-purrr::walk(libraryID, run_copykat)
+# use a for loop instead of purrr so we can capture errors with tryCatch:
+# copyKAT can fail stochastically in testing, so we catch a specific error and continue
+for (library_id in metadata$scpca_library_id) {
+  tryCatch(
+    run_copykat(library_id),
+      error = function(e){
+        print(glue::glue("Error running {library_id} through copyKAT."))
+    }
+  )
+}

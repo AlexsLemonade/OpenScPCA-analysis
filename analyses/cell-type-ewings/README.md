@@ -5,6 +5,8 @@ This module will include code to annotate cell types in the Ewing sarcoma sample
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+- [Cell type annotation overview](#cell-type-annotation-overview)
+  - [Annotation results](#annotation-results)
 - [`AUCell` and `SingleR` annotation workflow](#aucell-and-singler-annotation-workflow)
   - [Usage](#usage)
   - [Input files](#input-files)
@@ -15,17 +17,78 @@ This module will include code to annotate cell types in the Ewing sarcoma sample
   - [Input files](#input-files-1)
   - [Output files](#output-files-1)
   - [Computational resources](#computational-resources-1)
-- [CNV annotation workflow](#cnv-annotation-workflow)
+- [Using `AUCell` to calculate gene set signatures](#using-aucell-to-calculate-gene-set-signatures)
   - [Usage](#usage-2)
-  - [Sample metadata](#sample-metadata)
   - [Input files](#input-files-2)
   - [Output files](#output-files-2)
-  - [Annotation files](#annotation-files)
   - [Computational resources](#computational-resources-2)
+- [CNV annotation workflow](#cnv-annotation-workflow)
+  - [Usage](#usage-3)
+  - [Sample metadata](#sample-metadata)
+  - [Input files](#input-files-3)
+  - [Output files](#output-files-3)
+  - [Annotation files](#annotation-files)
+  - [Computational resources](#computational-resources-3)
 - [Exploratory analyses](#exploratory-analyses)
 - [Software requirements](#software-requirements)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+## Cell type annotation overview 
+
+This module contains code and analysis used to annotate cell types in all Ewing sarcoma samples found on the ScPCA Portal in `SCPCP000015` that are part of the 2024-11-24 data release. 
+
+The following steps were taken to assign cell types. 
+
+Defining tumor cells: [`AUCell`](https://bioconductor.org/packages/release/bioc/html/AUCell.html) was run on the merged object containing all libraries with a set of MSigDB and custom gene sets specific to Ewing sarcoma using the `run-aucell-ews-signatures.sh` workflow.
+See [below for detailed instructions on running this workflow](#using-aucell-to-calculate-gene-set-signatures). 
+
+Tumor cells were classified as those that met the following criteria: 
+
+- `tumor EWS-high`: 
+  - AUC > 0.04 for [`aynaud-ews-targets`](./references/gene_signatures/aynaud-ews-targets.tsv)
+  - AUC > 0.01 for [`STAEGE_EWING_FAMILY_TUMOR`](https://www.gsea-msigdb.org/gsea/msigdb/human/geneset/STAEGE_EWING_FAMILY_TUMOR.html)
+- `tumor EWS-low`: 
+  - AUC > 0.1 for [`wrenn-nt5e-genes`](./references/gene_signatures/wrenn-nt5e-genes.tsv)
+  - AUC > 0.05 for [`HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION`](https://www.gsea-msigdb.org/gsea/msigdb/human/geneset/HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION.html)
+- `tumor EWS-high proliferative`:
+  - Cells that met the criteria for `tumor EWS-high` and had mean expression of marker genes for proliferative tumor cells (see [`references/tumor-cell-state-markers.tsv`](./references/tumor-cell-state-markers.tsv)) > 0  
+
+Defining normal cell types: Consensus cell type labels were obtained by running the [`assign-consensus-celltypes.sh` workflow available in the `cell-type-consensus` module](../cell-type-consensus/assign-consensus-celltypes.sh). 
+The consensus cell type label was used for all cells that did not meet the criteria for tumor cells mentioned above. 
+If no consensus cell type is identified and the cell is not a tumor cell, it will have "Unknown" as the label. 
+
+This script requires the processed `SingleCellExperiment` objects for all samples in `SCPCP000015` as input and was run using the following command: 
+
+```sh
+./assign-consensus-celltypes.sh "SCPCP000015"
+```
+
+Note that an alternative approach we used was to build a custom reference containing both tumor cells and normal cell types for use with `SingleR` to assign cell types. 
+The results from this approach was concordant with the above outlined approach and is included in the TSV file with the final annotations (see the [results section below](#annotation-results)). 
+See the [full instructions for the `SingleR` workflow below](#aucell-and-singler-annotation-workflow). 
+
+### Annotation results 
+
+See this [notebook](http://htmlpreview.github.io/?https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/cell-type-ewings/exploratory_analysis/08-merged-celltypes.nb.html) for a summary of how the final cell type annotations were assigned and plots that validate these assignments. 
+
+A TSV file containing the final annotations is stored in S3 at: 
+`s3://researcher-211125375652-us-east-2/cell-type-ewings/results/final-annotations/SCPCP000015_celltype-annotations.tsv.gz`
+
+The TSV file contains the following columns: 
+
+| | | 
+|--|--|
+| `barcodes` | Unique cell barcode |
+| `library_id` | ScPCA library id|
+| `sample_id` | ScPCA sample id | 
+| `sample_type` | Type of sample, either `patient tissue` or `patient-derived xenograft` |
+| `singler_annotation` | The human readable term associated with the ontology term identifier for the associated cell type or `tumor-<library_id>`, output by `aucell-singer-annotation.sh` | 
+| `singler_ontology` | The cell ontology identifier associated with the cell type or `tumor-<library_id>`, output by `aucell-singer-annotation.sh`  | 
+| `consensus_annotation` | The human readable term associated with consensus cell type, output by `cell-type-consensus` | 
+| `consensus_ontology` | The cell ontology identifier associated with the consensus cell type, output by `cell-type-consensus` | 
+| `final_annotation` | The human readable term associated with the final annotation assigned using a combination of consensus cell types and `AUCell` results, output by `exploratory_analysis/08-merged-celltypes.Rmd` |
+| `final_ontology` |The cell ontology identifier associated with the final annotation assigned using a combination of consensus cell types and `AUCell` results, output by `exploratory_analysis/08-merged-celltypes.Rmd`, if the `final_annotation` contains `tumor`, this column will match the `final_annotation` column instead of containing the ontology term | 
 
 ## `AUCell` and `SingleR` annotation workflow
 
@@ -198,7 +261,73 @@ The `cluster-results.tsv` file contains the following columns:
 
 The `evaluate-clusters.sh` uses 4 CPUs and can be run locally on a laptop or on a virtual computer on Lightsail for Research.
 
+
+## Using `AUCell` to calculate gene set signatures 
+
+The script, `run-aucell-ews-signatures.sh`, is used to run `AUCell` with a set of custom gene signatures on all samples in SCPCP000015. 
+By default, AUC values are calculated for all gene signatures in [references/gene_signatures](references/gene_signatures/) and a set of `MSigDB` signatures associated with high and low EWS-FLI1 expression. 
+The full list of gene signatures used can be found in [the references `README.md`](references/README.md#gene-signatures). 
+
+`AUCell` is run for each gene signature, and AUC values along with the AUC threshold reported by `AUCell` are saved to a TSV file. 
+By default, `AUCell` is run with an `aucMaxRank` value equal to 1% of the detected genes in the processed object. 
+Results from `AUCell` will be generated for each library and for the merged object containing all samples in `SCPCP000015`. 
+
+### Usage
+
+The `run-aucell-ews-signatures.sh` script can be run using the following command:
+
+```sh
+./run-aucell-ews-gene-signatures.sh
+```
+
+To a different percentage of detected genes to determine `aucMaxRank` use the following command, specifying a max_rank_threshold between 0-1: 
+
+```sh
+max_rank_threshold=.05 ./run-aucell-ews-signatures.sh
+```
+
+### Input files
+
+The `run-aucell-ews-signatures.sh` workflow requires the processed `SingleCellExperiment` objects (`_processed.rds`) from SCPCP0000015 and the merged object for SCPCP000015.
+These files were obtained using the following commands:
+
+```sh
+# download SCE objects
+./download-data.py --projects SCPCP000015
+
+# download merged object
+./download-results.py --projects SCPCP000015 --module merge-sce
+```
+
+The workflow also requires the custom marker gene sets present in [`references/gene_signatures`](./references/gene_signatures/). 
+
+### Output files
+
+Running the `run-aucell-ews-signatures.sh` script will generate the following output files in `results/aucell-ews-signatures` for each sample/library combination.
+
+```
+aucell-ews-signatures
+├── <sample_id>
+    ├── <library_id>_auc-ews-gene-signatures.tsv
+```
+
+The `auc-ews-gene-signatures.tsv` file contains the following columns:
+
+|                      |                                                                                                                                                      |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `barcodes`           | Unique cell barcode                                                                                                                                  |
+| `gene_set`           | The name associated with the gene set used for calculating AUC values                                                                                |
+| `auc`                | AUC value reported by running `AUCell`                                                                                                               |
+| `auc_threshold` | The threshold AUC value used to classify cells as having high expression of genes in the gene signature as reported by `AUCell` |
+
+
+### Computational resources 
+
+`run-aucell-ews-signatures.sh` uses 4 CPUs and can be run locally on a laptop or on a virtual computer on Lightsail for Research.
+
 ## CNV annotation workflow
+
+**NOTE:** This workflow is no longer used in the cell type annotation analysis, has been removed from CI, and is no longer maintained! 
 
 The CNV annotation workflow (`cnv-annotation.sh`) can be used to identify potential tumor cells in a given sample.
 Annotations are obtained by running the following methods within the workflow:

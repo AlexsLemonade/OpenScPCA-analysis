@@ -1,0 +1,493 @@
+---
+title: "Explore gene filtering strategy"
+subtitle: "`r glue::glue('Results for {params$sample_id}: {params$library_id}')`"
+author: "Stephanie J. Spielman"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+params:
+  sample_id: "SCPCS000109"
+  library_id: "SCPCL000127"
+---
+
+The goal of this notebook is to assess `SingleR` results inferred with two different models constructed from NBAtlas:
+
+- A model where ribosomal and mitochondrial genes were filtered out of the reference before building the model
+  - This means those genes will not come up as marker genes for cell type annotation
+- A models where no genes are filtered out
+  - There means there is potential for those genes to come up as marker genes for cell type annotation
+  
+This notebook compares inferences made with either model to determine whether this filtering makes an empirical difference.
+It also compares marker genes in the underlying models directly to get a sense of how much the filtering influenced model training.
+
+
+## Setup
+
+```{r, warning = FALSE}
+options(readr.show_col_types = FALSE)
+
+suppressWarnings({
+  suppressPackageStartupMessages({
+    library(ggplot2)
+    library(patchwork)
+    library(SingleCellExperiment)
+  })
+})
+
+
+theme_set(theme_bw())
+
+# Define color ramp for shared use in the heatmaps
+heatmap_col_fun <- circlize::colorRamp2(c(0, 1), colors = c("white", "darkslateblue"))
+# Set heatmap padding option
+ComplexHeatmap::ht_opt(TITLE_PADDING = grid::unit(0.6, "in"))
+```
+
+
+### Paths
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+module_dir <- file.path(repository_base, "analyses", "cell-type-neuroblastoma-04")
+results_dir <- file.path(module_dir, "results")
+filtered_results_dir <- file.path(results_dir, "singler-test_filter-genes-TRUE")
+unfiltered_results_dir <- file.path(results_dir, "singler-test_filter-genes-FALSE")
+data_dir <- file.path(repository_base, "data", "current", "SCPCP000004")
+```
+
+```{r file paths}
+# SingleR results
+filtered_singler_file <- file.path(
+  filtered_results_dir,
+  params$sample_id,
+  glue::glue("{params$library_id}_singler-results.rds")
+)
+
+unfiltered_singler_file <- file.path(
+  unfiltered_results_dir,
+  params$sample_id,
+  glue::glue("{params$library_id}_singler-results.rds")
+)
+
+# SCE file
+sce_file <- file.path(
+  data_dir,
+  params$sample_id,
+  glue::glue("{params$library_id}_processed.rds")
+)
+
+# broad consensus cell type groups
+validation_url <- "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/consensus-validation-groups.tsv"
+```
+
+
+### Functions
+
+```{r}
+# Source Jaccard and heatmap utilities functions:
+source(file.path(module_dir, "scripts", "utils", "jaccard-utils.R"))
+```
+
+### Prepare input data
+
+Read SCE object and define data frame of UMAP coordinates.
+
+```{r}
+validation_df <- readr::read_tsv(validation_url) |>
+  dplyr::select(consensus_annotation, validation_group_annotation)
+
+sce <- readRDS(sce_file)
+
+sce_df <- sce |>
+  scuttle::makePerCellDF(
+    use.coldata = c("barcodes", "consensus_celltype_annotation"),
+    use.dimred = c("UMAP")
+  ) |>
+  dplyr::rename(
+    UMAP1 = UMAP.1,
+    UMAP2 = UMAP.2,
+    consensus_annotation = consensus_celltype_annotation
+  )
+```
+
+Read SingleR result objects:
+
+```{r}
+singler_results_filtered <- readr::read_rds(filtered_singler_file)
+singler_results_unfiltered <- readr::read_rds(unfiltered_singler_file)
+```
+
+Read SingleR models:
+
+```{r}
+model_filtered <- readRDS(
+  file.path(
+    module_dir,
+    "scratch",
+    "singler-model_nbatlas_filter-genes-TRUE.rds"
+  )
+)
+model_unfiltered <- readRDS(
+  file.path(
+    module_dir,
+    "scratch",
+    "singler-model_nbatlas_filter-genes-FALSE.rds"
+  )
+)
+```
+
+Join and prepare data for use:
+
+```{r}
+singler_df <- data.frame(
+  barcodes = rownames(singler_results_filtered),
+  "singler_label_filtered" = as.data.frame(singler_results_filtered)$pruned.labels,
+  "singler_label_unfiltered" = as.data.frame(singler_results_unfiltered)$pruned.labels
+) |>
+  dplyr::left_join(sce_df, by = "barcodes") |>
+  dplyr::left_join(validation_df, by = "consensus_annotation") |>
+  dplyr::mutate(
+    validation_group_annotation = ifelse(
+      is.na(validation_group_annotation),
+      "unknown",
+      validation_group_annotation
+    )
+  )
+```
+
+
+## Filtered vs unfiltered models
+
+
+### UMAP
+
+We'll display their annotations side-by-side as a UMAP.
+Cells labeled `NA` are those that SingleR could not confidently label.
+
+```{r}
+# colors adapted from:
+# https://github.com/AlexsLemonade/scpca-paper-figures/blob/a457408323495b6ecee0c63ccdd74b41e88ab703/palettes/validation-group-palette.tsv
+nbatlas_colors <- c(
+  "B cell" = "#AA0DFE",
+  "Endothelial" = "#FC1CBF",
+  "Fibroblast" = "#B10DA1",
+  "Myeloid" = "#90AD1C",
+  "Neuroendocrine" = "#FEAF16",
+  "Neuroendocrine-tumor" = "#B17A0F",
+  "NK cell" = "#FBE426",
+  "pDC" = "#16FF32",
+  "Plasma" = "#782AB6",
+  "RBCs" = "#F6222E",
+  "Schwann" = "#1CFFCE",
+  "Stromal other" = "#C4451C",
+  "T cell" = "#3283FE"
+)
+singler_long_df <- singler_df |>
+  tidyr::pivot_longer(
+    contains("singler_label"),
+    names_to = "model",
+    values_to = "singler_label"
+  ) |>
+  dplyr::mutate(model = stringr::str_remove(model, "singler_label_"))
+
+ggplot(singler_long_df) +
+  aes(x = UMAP1, y = UMAP2, color = singler_label) +
+  geom_point(size = 0.5, alpha = 0.5) +
+  scale_color_manual(values = nbatlas_colors) +
+  facet_wrap(vars(model)) +
+  theme(legend.position = "bottom") +
+  guides(color = guide_legend(override.aes = list(size = 1, alpha = 1)))
+```
+
+
+
+### Heatmap
+
+We'll display the relationship between annotations as a heatmap colored by Jaccard similarity:
+
+
+```{r, fig.height = 8, fig.width = 8}
+make_jaccard_heatmap(
+  singler_df,
+  "singler_label_filtered",
+  "singler_label_unfiltered",
+  "Gene filtering ON",
+  "Gene filtering OFF"
+)
+```
+
+
+
+### Confusion matrix
+
+Below we display the confusion matrix and associated statistics comparing these annotations.
+Annotations from the unfiltered genes model are shown as "Reference," and annotations from the filtered genes model are shown as "Prediction."
+
+Note that some cell type names have been abbreviated in this output to make it more clearly visible:
+
+* `Endothelial` --> `Endo`
+* `Fibroblasts` --> `Fibro`
+* `Neuroendocrine` --> `NE`
+* `Stromal other` --> `stromal`
+
+
+```{r}
+singler_long_df <- singler_long_df |>
+  # shorten labels
+  dplyr::mutate(
+    short_label = dplyr::case_when(
+      singler_label == "Endothelial" ~ "Endo",
+      singler_label == "Fibroblast" ~ "Fibro",
+      singler_label == "Neuroendocrine" ~ "NE",
+      singler_label == "Stromal other" ~ "stromal",
+      .default = singler_label
+    )
+  )
+
+caret::confusionMatrix(
+  factor(singler_long_df$short_label[singler_long_df$model == "filtered"]), # data
+  factor(singler_long_df$short_label[singler_long_df$model == "unfiltered"]), # reference
+  mode = "sens_spec"
+)
+```
+
+
+### Unlabeled cells
+
+We can also ask whether each model was able to label cells successfully, or whether more cells were ambiguous (aka `pruned.label` is `NA`) in one model or the other.
+
+How many cells were `NA` in both models?
+
+
+```{r}
+na_cells <- singler_df |>
+  dplyr::filter(is.na(singler_label_filtered), is.na(singler_label_unfiltered)) |>
+  dplyr::pull(barcodes)
+
+length(na_cells)
+```
+
+
+#### Unlabeled cells in the filtered genes model
+
+Excluding cells which neither model labeled...
+
+* How many cells did the filtered genes model uniquely fail to label?
+* What did the unfiltered genes model label those cells?
+
+```{r}
+# if na in separated, what was it in combined?
+unlabeled_in_filtered <- singler_results_filtered |>
+  as.data.frame() |>
+  tibble::rownames_to_column("barcodes") |>
+  dplyr::filter(is.na(pruned.labels), !(barcodes %in% na_cells)) |>
+  dplyr::pull(barcodes)
+length(unlabeled_in_filtered)
+```
+
+
+```{r}
+singler_df |>
+  dplyr::filter(barcodes %in% unlabeled_in_filtered) |>
+  dplyr::count(singler_label_unfiltered) |>
+  dplyr::arrange(desc(n))
+```
+
+
+#### Unlabeled cells in the unfiltered model
+
+Excluding cells which neither model labeled...
+
+* How many cells did the unfiltered model uniquely fail to label?
+* What did the filtered model label those cells?
+
+```{r}
+# if na in unfiltered, what was it in separated?
+unlabeled_in_unfiltered <- singler_results_unfiltered |>
+  as.data.frame() |>
+  tibble::rownames_to_column("barcodes") |>
+  dplyr::filter(is.na(pruned.labels), !(barcodes %in% na_cells)) |>
+  dplyr::pull(barcodes)
+length(unlabeled_in_unfiltered)
+```
+
+```{r}
+singler_df |>
+  dplyr::filter(barcodes %in% unlabeled_in_unfiltered) |>
+  dplyr::count(singler_label_filtered) |>
+  dplyr::arrange(desc(n))
+```
+
+
+
+## Comparison with consensus cell type annotations
+
+In this section, we compare filtered & unfiltered annotations to the consensus cell type labels.
+In these comparisons, we consider the broader validation groupings for consensus cell types in order to keep plots manageable and more easily interpreted.
+
+
+### Heatmap: Filtered vs. consensus annotations
+
+This heatmap compares annotations between `SingleR` inference using the filtered reference and consensus cell types.
+
+```{r, fig.height = 8, fig.width = 8}
+make_jaccard_heatmap(
+  singler_df,
+  "validation_group_annotation",
+  "singler_label_filtered",
+  "OpenScPCA Consensus cell type validation group",
+  "Gene filtering ON"
+)
+```
+
+
+
+### Heatmap: Unfiltered vs. consensus annotations
+
+This heatmap compares annotations between `SingleR` inference using the unfiltered reference and consensus cell types.
+
+```{r, fig.height = 8, fig.width = 8}
+make_jaccard_heatmap(
+  singler_df,
+  "validation_group_annotation",
+  "singler_label_unfiltered",
+  "OpenScPCA Consensus cell type validation group",
+  "Gene filtering OFF"
+)
+```
+
+
+## Compare trained SingleR models
+
+In this section, we will compare the marker genes between filtered and unfiltered models.
+Output from this section will be same in all rendered notebooks since it is data-agnostic and focuses only on the trained SingleR models.
+
+
+```{r}
+filtered_markers <- model_filtered$markers$unique
+unfiltered_markers <- model_unfiltered$markers$unique
+```
+
+
+First, are there any mitochondrial or ribosomal marker genes in the unfiltered model, and if so what are they?
+
+
+```{r}
+ribo_mito <- union(
+  grep("^MT-", unfiltered_markers, value = TRUE),
+  grep("^RP[SL]", unfiltered_markers, value = TRUE)
+)
+length(ribo_mito)
+ribo_mito
+```
+There are quite a few ribosomal genes, but no mitochondrial genes.
+
+Which cell types do these marker genes come up for?
+
+```{r}
+model_unfiltered$markers$full |>
+  purrr::map(
+    \(inner_list) {
+      purrr::reduce(inner_list, c)
+    }
+  ) |>
+  purrr::map(
+    \(all_marker_genes) {
+      if (any(ribo_mito %in% all_marker_genes)) {
+        intersect(ribo_mito, all_marker_genes)
+      }
+    }
+  ) |>
+  # remove all the NULLs
+  purrr::compact()
+```
+
+These marker genes are _only_ associated with the following cell types, and of these predominantly B-cells and T-cells.
+
+* B cells
+* Fibroblasts
+* Natural killer cells
+* Plasmacytoid dendritic cells (pDCs)
+* T cells
+
+What genes do these models have in common, out of the total number of marker genes in each model?
+
+* Total filtered markers:
+```{r}
+length(filtered_markers)
+```
+
+* Total unfiltered markers:
+```{r}
+length(unfiltered_markers)
+```
+
+* Number of intersecting markers:
+```{r}
+intersect(
+  filtered_markers,
+  unfiltered_markers
+) |> length()
+```
+* Non-intersecting markers _aside from_ ribosomal genes:
+```{r}
+diff_markers <- c(
+  setdiff(filtered_markers, unfiltered_markers),
+  setdiff(unfiltered_markers, filtered_markers)
+)
+diff_markers <- diff_markers[!(diff_markers %in% ribo_mito)]
+diff_markers
+```
+
+There are nine different markers here. 
+So, now that the ribosomal genes weren't present to serve as markers, these genes were apparently picked up.
+
+```{r}
+any(diff_markers %in% filtered_markers)
+any(diff_markers %in% unfiltered_markers)
+```
+
+They are _all_ part of the `filtered_markers` reference.
+Which cell type do those come up for?
+
+
+```{r}
+model_filtered$markers$full |>
+  purrr::map(
+    \(inner_list) {
+      purrr::reduce(inner_list, c)
+    }
+  ) |>
+  purrr::map(
+    \(all_marker_genes) {
+      if (any(diff_markers %in% all_marker_genes)) {
+        intersect(diff_markers, all_marker_genes)
+      }
+    }
+  ) |> # remove all the NULLs
+  purrr::compact()
+```
+
+They are in B-cells, Fibroblasts, and T-cells, all of which were cell types with ribosomal marker genes coming up in the unfiltered model.
+
+### Conclusions from marker gene comparisons
+
+* Filtering genes leads to ribosomal genes no longer being selected as marker genes in the trained model
+* Ribosomal genes were most commonly observed as B-cell and T-cell marker genes
+* Those ribosomal genes aside, the two models identified essentially the same overall marker genes
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
+
+
+
+

@@ -46,10 +46,19 @@ jobs:
         uses: actions/checkout@v4
 
       # Update this step as needed to download the desired data
+      # regular single cell, multiplexed, and cell line projects for testing
       - name: Download test data
-        run: ./download-data.py --test-data --format SCE
+        run: |
+          ./download-data.py --test-data --format SCE --project SCPCP000001,SCPCP000009,SCPCP0000024
+          ./download-results.py --test-data --module cell-type-consensus --project SCPCP000001,SCPCP000009,SCPCP0000024
 
       - name: Run analysis module
         run: |
+          projects=$(basename -a data/current/SCPCP*)
+
           cd ${MODULE_PATH}
-          # run module script(s) here
+          for project in $projects; do
+              ./assign-consensus-celltypes.sh $project
+          done
+
+          ./render-validation-notebooks.sh

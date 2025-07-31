@@ -1,0 +1,61 @@
+# This is a workflow to run the cell-type-neuroblastoma-04 module
+#
+# Analysis modules are run based on three triggers:
+# - Manual trigger
+# - On pull requests where code in the module has changed
+# - As a reusable workflow called from a separate workflow which periodically runs all modules
+
+
+name: Run cell-type-neuroblastoma-04 analysis module
+env:
+  MODULE_PATH: analyses/cell-type-neuroblastoma-04
+  AWS_DEFAULT_REGION: us-east-2
+
+concurrency:
+  # only one run per branch at a time
+  group: "run_cell-type-neuroblastoma-04_${{ github.ref }}"
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  workflow_call:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - analyses/cell-type-neuroblastoma-04/**
+      - "!analyses/cell-type-neuroblastoma-04/Dockerfile"
+      - "!analyses/cell-type-neuroblastoma-04/.dockerignore"
+      - .github/workflows/run_cell-type-neuroblastoma-04.yml
+
+jobs:
+  run-module:
+    if: github.repository_owner == 'AlexsLemonade'
+    runs-on: ubuntu-latest
+    container: public.ecr.aws/openscpca/cell-type-neuroblastoma-04:latest
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install aws-cli
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          ./aws/install
+
+      - name: Download test data
+        env:
+          # Use the full project for testing unless this is triggered by a PR, in which case only use a subset of samples for faster testing
+          data: ${{ github.event_name != 'pull_request' && '--project SCPCP000004' || '--samples SCPCS000101,SCPCS000102,SCPCS000103' }}
+        run: |
+          ./download-data.py --test-data --format SCE ${data}
+          ./download-results.py --test-data --modules merge-sce --projects SCPCP000004
+
+      - name: Run analysis module
+        run: |
+          cd ${MODULE_PATH}
+          testing=1 bash run-analysis.sh

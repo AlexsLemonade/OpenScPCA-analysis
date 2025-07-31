@@ -1,0 +1,632 @@
+---
+title: "Explore expression of marker genes for tumor cell states"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    code_folding: "hide"
+---
+
+In this notebook we look at expression of potential markers for tumor cell states in two libraries from `SCPCP000015`: `SCPCL000822` and `SCPCL000824`. 
+The expression of specific marker genes are then used to classify tumor cells into three different tumor cell states: `EWS-low`, `EWS-mid`, `EWS-high`, and `EWS-high-proliferative`. 
+
+We did this by: 
+
+- Evaluating marker gene expression for different tumor cell states across all cells. 
+- Identifying tumor cells and getting new cluster assignments for just tumor cells.
+- Looking at expression of tumor cell state marker genes across clusters and individual cells.
+
+## Setup
+
+```{r packages}
+suppressPackageStartupMessages({
+  # load required packages
+  library(SingleCellExperiment)
+  library(ggplot2)
+})
+
+# Set default ggplot theme
+theme_set(
+  theme_classic()
+)
+
+# set seed
+set.seed(2024)
+```
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The current data directory, found within the repository base directory
+data_dir <- file.path(repository_base, "data", "current", "SCPCP000015")
+
+# The path to this module
+module_base <- file.path(repository_base, "analyses", "cell-type-ewings")
+
+# path to marker genes file
+marker_genes_file <- file.path(module_base, "references", "tumor-cell-state-markers.tsv")
+
+# gene signatures
+aynaud_file <- file.path(module_base, "references", "gene_signatures", "aynaud-ews-targets.tsv")
+wrenn_file <- file.path(module_base, "references","gene_signatures", "wrenn-nt5e-genes.tsv")
+
+# path to save annotations tsv in results 
+results_dir <- file.path(module_base, "results", "tumor-cell-state-classifications")
+fs::dir_create(results_dir)
+```
+
+```{r}
+# source in helper functions: plot_density() and calculate_sum_markers()
+validation_functions <- file.path(module_base, "scripts", "utils", "tumor-validation-helpers.R")
+source(validation_functions)
+```
+
+## Prepare data 
+
+```{r}
+# sample and library ids
+sample_ids <- c("SCPCS000490", "SCPCS000492")
+library_ids <- c("SCPCL000822", "SCPCL000824")
+
+# define input sce files
+sce_file_names <- glue::glue("{library_ids}_processed.rds")
+sce_files <- file.path(data_dir, sample_ids, sce_file_names) |>
+  purrr::set_names(library_ids)
+
+# path to cell type classification files
+singler_results_dir <- file.path(module_base, "results", "aucell_singler_annotation")
+classification_file_names <- glue::glue("{library_ids}_singler-classifications.tsv")
+classification_files <- file.path(singler_results_dir, sample_ids, classification_file_names) |>
+  purrr::set_names(library_ids)
+
+# path to clustering results files
+cluster_results_dir <- file.path(module_base, "results", "clustering", sample_ids)
+cluster_file_names <- glue::glue("{library_ids}_cluster-results.tsv")
+cluster_files <- file.path(cluster_results_dir, cluster_file_names) |>
+  purrr::set_names(library_ids)
+```
+
+Below we set up the data for plotting throughout this notebook. 
+
+1. The output from `aucell-singler-annotation.sh` is read in and annotations are lumped so that we can easily plot the top cell types. 
+2. Clustering results from `evaluate-clusters.sh` is read in and subset to the desired parameters we would like to use for assigning clusters (leiden, modularity, resolution 0.5, nearest neighbors 20). 
+3. The marker genes for tumor cell states and custom gene signatures are used to calculate the mean of all marker genes in each gene set for each library. 
+4. UMAP embeddings for each library are pulled out into a data frame and combined with `SingleR` annotations, cluster assignments, and marker gene expression for all marker gene sets.
+
+```{r, message=FALSE}
+# read in both SCEs
+sce_list <- sce_files |>
+  purrr::map(readr::read_rds)
+
+# read in classification data frame with SingleR results and combine into one
+classification_df <- classification_files |>
+  purrr::map(readr::read_tsv) |>
+  dplyr::bind_rows(.id = "library_id") |> 
+  dplyr::mutate(
+    # first grab anything that is tumor and label it tumor
+    # NA should be unknown
+    singler_annotation = dplyr::case_when(
+      stringr::str_detect(singler_annotation, "tumor") ~ "tumor",
+      is.na(singler_annotation) ~ "unknown", # make sure to separate out unknown labels
+      .default = singler_annotation
+    ) |>
+      forcats::fct_relevel("tumor", after = 0),
+    # get the top cell types for plotting later
+    singler_lumped = singler_annotation |>
+      forcats::fct_lump_n(7, other_level = "All remaining cell types", ties.method = "first") |>
+      forcats::fct_infreq() |>
+      forcats::fct_relevel("All remaining cell types", after = Inf)
+  )
+
+# read in clustering results and select cluster assignments of interest 
+# here we keep leiden-mod, 0.5 res, 20 nn for both libraries 
+cluster_df <- cluster_files |> 
+  purrr::map(readr::read_tsv) |> 
+  dplyr::bind_rows(.id = "library_id") |> 
+  dplyr::filter(
+    cluster_method == "leiden_mod",
+    nn == 20,
+    resolution == 0.5
+  ) |> 
+  dplyr::select(
+    barcodes = cell_id,
+    library_id, 
+    cluster
+  )
+```
+
+```{r, message=FALSE}
+# read in marker genes table
+marker_genes_df <- readr::read_tsv(marker_genes_file, show_col_types = FALSE) |>
+  dplyr::select(cell_state, ensembl_gene_id, gene_symbol) 
+
+# get individual gene signatures
+aynaud_genes <- readr::read_tsv(aynaud_file) |> 
+  dplyr::mutate(cell_state = "aynaud-ews-high") |>
+  tidyr::drop_na()
+
+wrenn_genes <- readr::read_tsv(wrenn_file) |> 
+  dplyr::mutate(cell_state = "wrenn-ews-low") |>
+  tidyr::drop_na()
+
+# combine all genes into a single df 
+all_markers_df <- dplyr::bind_rows(list(marker_genes_df, aynaud_genes, wrenn_genes))
+
+# get list of all cell states/ gene lists 
+cell_states <- unique(all_markers_df$cell_state)
+
+# get the mean expression of all genes for each cell state
+gene_exp_df <- sce_list |>
+  purrr::map(\(sce) {
+    cell_states |>
+      purrr::map(\(state){
+        calculate_mean_markers(all_markers_df, sce, state, cell_state)
+      }) |>
+      purrr::reduce(dplyr::inner_join, by = "barcodes")
+  }) |>
+  dplyr::bind_rows(.id = "library_id")
+
+# get umap embeddings and combine into a data frame with gene exp, cluster, and cell type assignments 
+umap_df <- sce_list |>
+  purrr::map(\(sce){
+    df <- sce |>
+      scuttle::makePerCellDF(use.dimred = "UMAP") |>
+      # replace UMAP.1 with UMAP1 and get rid of excess columns
+      dplyr::select(barcodes, UMAP1 = UMAP.1, UMAP2 = UMAP.2)
+  }) |>
+  dplyr::bind_rows(.id = "library_id") |>
+  # add in classifications 
+  dplyr::left_join(classification_df, by = c("library_id", "barcodes")) |> 
+  dplyr::left_join(gene_exp_df, by = c("barcodes", "library_id")) |> 
+  # add in cluster assignments 
+  dplyr::left_join(cluster_df, by = c("barcodes", "library_id"))
+```
+
+## Identify tumor cells
+
+To label tumor cell states, we first want to pull out the cells that are tumor cells and then look at the expression of marker genes for each tumor cell state in those cells. 
+We have used a variety of methods to identify tumor cells so we will look at the output from two orthogonal approaches to identify the group of tumor cells we want to further classify into cell states. 
+Let's start by looking at the intersection of tumor cells assigned by the `aucell-singler-annotation.sh` workflow and the clusters obtained from the `evaluate-clusters.sh` workflow that have high expression of tumor marker genes. 
+
+Below are two plots that we generated as part of the `evaluate-clusters.sh` workflow that tells us which clusters express tumor marker genes for each of these libraries. 
+We can use this information to help identify tumor cells to classify. 
+
+![SCPCL000822](../plots/SCPCL000822_cluster-marker-gene-exp.png)
+
+![SCPCL000824](../plots/SCPCL000824_cluster-marker-gene-exp.png)
+
+
+```{r, fig.height=10}
+library_ids |>
+  purrr::map(\(id){
+    
+    p1 <- umap_df |>
+      dplyr::filter(library_id == id) |>
+      ggplot(aes(x = UMAP1, y = UMAP2, color = singler_lumped)) +
+      geom_point(alpha = 0.5, size = 0.1) +
+      theme(
+        aspect.ratio = 1
+      ) +
+      scale_color_brewer(palette = "Dark2") +
+      labs(title = id) +
+      guides(color = guide_legend(override.aes = list(alpha = 1, size = 1.5)))
+    
+    p2 <- umap_df |>
+      dplyr::filter(library_id == id) |>
+      ggplot(aes(x = UMAP1, y = UMAP2, color = as.factor(cluster))) +
+      geom_point(alpha = 0.5, size = 0.1) +
+      theme(
+        aspect.ratio = 1
+      ) +
+      #scale_color_brewer(palette = "Dark2") +
+      labs(title = id, color = "cluster") +
+      guides(color = guide_legend(override.aes = list(alpha = 1, size = 1.5)))
+    
+    patchwork::wrap_plots(p1, p2, nrow = 2)
+  })
+```
+
+Looking at the above plots, we can assign some general cell types using clusters. 
+This is the same approach we took in `05-cluster-exploration.Rmd` but with slightly different parameters. 
+Based on the UMAPs and the density plots we see that tumor cells are in cluster 1, 3, and 4 for `SCPCL000822` and cluster 2, 3, 4, 5, 6, and 7 for `SCPCL000824`. 
+
+```{r}
+cluster_classification_df <- umap_df |> 
+  dplyr::mutate(
+    cluster_classification = dplyr::case_when(
+      ############## Library SCPCL000822 ###############
+      library_id == "SCPCL000822" & cluster %in% c(1, 3, 4) ~ "tumor",
+      library_id == "SCPCL000822" & cluster == 6 ~ "endothelial cell",
+      # cluster 2 has predominantly chondrocytes and has MSC marker gene expression
+      library_id == "SCPCL000822" & cluster == 2 ~ "chondrocyte",
+      # clusters with high "immune" marker gene expression are macrophage
+      library_id == "SCPCL000822" & cluster == 5 ~ "macrophage",
+      # cluster 8 has high MSC marker gene expression and a mix of MSC like cell types
+      library_id == "SCPCL000822" & cluster == 7 ~ "mesenchymal-like cell",
+      ############## Library SCPCL000824 ###############
+      library_id == "SCPCL000824" & cluster %in% c(2, 3, 4, 5, 6, 7) ~ "tumor", 
+      library_id == "SCPCL000824" & cluster == 8 ~ "endothelial cell",
+      # cluster 9 has high immune markers and is mostly macrohpages
+      library_id == "SCPCL000824" & cluster == 9 ~ "macrophage",
+      # cluster 1 has high MSC marker gene expression and a mix of MSC like cell types
+      library_id == "SCPCL000824" & cluster == 1 ~ "mesenchymal-like cell",
+      # if they didn't have high expression of any markers, we label them as unknown
+      .default = "unknown"
+    )
+  )
+```
+
+```{r}
+library_ids |>
+  purrr::map(\(id){
+    cluster_classification_df |>
+      dplyr::filter(library_id == id) |>
+      ggplot(aes(x = UMAP1, y = UMAP2, color = cluster_classification)) +
+      geom_point(alpha = 0.5, size = 0.1) +
+      theme(
+        aspect.ratio = 1
+      ) +
+      labs(title = id) +
+      scale_color_brewer(palette = "Dark2") +
+      guides(color = guide_legend(override.aes = list(alpha = 1, size = 1.5)))
+  })
+```
+
+Looking at this I think the cells that are classified as tumor cells using the cluster assignments mostly line up with the `SingleR` annotations. 
+So we can label any cells from clusters that have high tumor marker gene expression as tumor cells. 
+
+### Look at marker gene expression for tumor cell states in all cells
+
+Below we look at the expression of genes for the tumor cell states across all cells. 
+This will show us how the expression of these gene sets varies across cells in each library and help ensure we have the correct population of tumor cells.
+
+The value for each of the marker gene sets corresponds to the mean of the expression of all genes in the given gene list. 
+
+The gene sets that we use are: 
+
+- `EWS-low`: Marker genes from `tumor-cell-state-markers.tsv` that correspond to the `EWS-low` cell state. 
+- `EWS-high`: Marker genes from `tumor-cell-state-markers.tsv` that correspond to the `EWS-high` cell state. 
+- `proliferative` : Marker genes from `tumor-cell-state-markers.tsv` that correspond to the `proliferative` cell state. 
+Note that a lot of the Ewing sarcoma literature argues that `EWS-FLI1` high cells are proliferative. 
+- `aynaud-ews-high`: Marker genes from `gene_signatures/aynaud-ews-targets.tsv` that correspond to genes activated by `EWS-FLI1`. 
+- `wrenn-ews-low`: Marker genes from `gene_signatures/wrenn-nt5e-genes.tsv` that correspond to genes repressed by `EWS-FLI1`. 
+
+```{r}
+# pull out columns that have sum of marker gene expression 
+marker_gene_cols <- colnames(cluster_classification_df)[stringr::str_detect(colnames(cluster_classification_df), "_mean$")]
+
+# look at the expression of all gene sets across both libraries 
+marker_gene_cols |>
+  purrr::map(\(geneset){
+    cluster_classification_df |>
+      ggplot(aes(x = UMAP1, y = UMAP2, color = !!sym(geneset))) +
+      geom_point(alpha = 0.5, size = 0.1) +
+      facet_wrap(vars(library_id)) +
+      scale_color_viridis_c() +
+      theme(
+        aspect.ratio = 1
+      )
+  })
+```
+
+It looks like there's a cluster of cells in both libraries that have expression of the `EWS-low` and `wrenn-ews-low` signatures. 
+Those cells correspond to the cells that we are labeling as "chondrocyte" in `SCPCL000822` and "mesenchymal-like" in `SCPCL000824`. 
+The chondrocytes also express high markers of mesenchymal-like genes and the literature talks about tumor cells with low `EWS-FLI1` expression being "MSC-like". 
+I think there's a possibility that these are tumor cells, so let's relabel them. 
+
+```{r}
+# create a new tumor classification that takes all tumor clusters plus the clusters with EWS-FLI1 low expression 
+cluster_classification_df <- cluster_classification_df |> 
+  dplyr::mutate(
+    tumor_classification = dplyr::case_when(
+      cluster_classification == "tumor" ~ "tumor",
+      library_id == "SCPCL000822" & cluster_classification == "chondrocyte" ~ "tumor",
+      library_id == "SCPCL000824" & cluster_classification == "mesenchymal-like cell" ~ "tumor",
+      .default = cluster_classification
+    )
+  )
+```
+
+
+## Classify tumor cell states 
+
+Now that we have identified a subset of cells that are tumor cells, we can attempt to group them into various cell states. 
+The main thing that we are interested in is grouping cells into levels of `EWS-FLI1` expression. 
+Let's start by looking at the expression of the gene sets across all tumor cells. 
+
+To do this, we will make a density plot that looks at gene set expression by cluster using the cluster assignments calculated using all cells. 
+
+```{r}
+tumor_cells_df <- cluster_classification_df |> 
+  dplyr::filter(tumor_classification == "tumor")
+```
+
+```{r, fig.height=10}
+# density plot showing expression of each gene set by cluster
+library_ids |> 
+  purrr::map(\(id){
+    
+    density_df <- tumor_cells_df |> 
+      dplyr::filter(library_id == id)
+    
+    marker_gene_cols |>
+    purrr::map(\(column){
+      plot_density(
+        density_df,
+        column,
+        "cluster"
+      ) 
+    }) |>
+    patchwork::wrap_plots(ncol = 1) +
+      patchwork::plot_annotation(id)
+    
+  })
+```
+
+A few notes from this: 
+
+- It doesn't look like very many cells express proliferative markers in `SCPCL000822`, but cluster 2 has high expression in `SCPCL000824`. 
+It looks like that might coincide with high `EWS-FLI` seen in that same cluster, but we have to dive deeper to know for sure. 
+- There are some very obvious `EWS-FLI1` low groups of cells. 
+- The `EWS-high` and `aynaud-EWS-high` show clusters that have high expression of `EWS-FLI1` targets, but the `aynaud-EWS-high` appears to have some more separation across clusters. 
+That tells me that gene signature might be more helpful in classifying cells across the `EWS-FLI1` continuum. 
+
+### Sub cluster tumor cells 
+
+We would expect that tumor cells that are in similar cell states would cluster together. 
+So here I am going to take just the tumor cells and re-assign clusters. 
+I'm using the same parameters we use for the whole sample, leiden, modularity, resolution of 0.5, and nearest neighbors of 20. 
+I think if we really wanted to be stringent we would evaluate clusters here and find the best parameters to use, but I think starting with these is good. 
+
+
+```{r}
+# get a data frame of all tumor cells and re assigned clusters 
+subcluster_df <- sce_list |>
+  purrr::imap(\(sce, id){
+    
+    # pull out the barcodes that are from tumor cells
+    tumor_cells <- tumor_cells_df |> 
+      dplyr::filter(library_id == id) |> 
+      dplyr::pull(barcodes)
+    
+    # filter the sce to only those barcodes
+    tumor_sce <- sce[ , tumor_cells]
+    
+    # grab pcs for clustering
+    pcs <- reducedDim(tumor_sce)
+    
+    # get the clusters 
+    clusters <- bluster::clusterRows(
+      pcs,
+      bluster::NNGraphParam(
+        k = 20,
+        type = "jaccard",
+        cluster.fun = "leiden",
+        cluster.args = list(objective_function = "modularity",
+                            resolution = 0.5)
+      )
+    )
+    
+    # combine into a data frame with barcodes
+    cluster_df <- data.frame(
+      barcodes = rownames(pcs),
+      sub_cluster = clusters
+    )
+  }) |> 
+  # get clusters for both samples in one data frame
+  dplyr::bind_rows(.id = "library_id")
+
+# add clusters to tumor cells df for plotting
+tumor_cells_df <- tumor_cells_df |> 
+  dplyr::left_join(subcluster_df, by = c("library_id", "barcodes"))
+```
+
+The first thing we will do is plot the cluster assignments on the UMAP. 
+
+```{r}
+library_ids |>
+  purrr::map(\(id){
+    tumor_cells_df |>
+      dplyr::filter(library_id == id) |>
+      ggplot(aes(x = UMAP1, y = UMAP2, color = sub_cluster)) +
+      geom_point(alpha = 0.5, size = 0.1) +
+      theme(
+        aspect.ratio = 1
+      ) +
+      labs(title = id) +
+      scale_color_brewer(palette = "Dark2") +
+      guides(color = guide_legend(override.aes = list(alpha = 1, size = 1.5)))
+  })
+```
+
+Now we will look at the marker gene expression across all clusters for each sample, first using a density plot and then heatmaps. 
+
+```{r, fig.height=10}
+library_ids |> 
+  purrr::map(\(id){
+    
+    density_df <- tumor_cells_df |> 
+      dplyr::filter(library_id == id)
+    
+    marker_gene_cols |>
+    purrr::map(\(column){
+      plot_density(
+        density_df,
+        column,
+        "sub_cluster"
+      ) 
+    }) |>
+    patchwork::wrap_plots(ncol = 1) +
+      patchwork::plot_annotation(id)
+    
+  })
+```
+
+In all of the heatmaps below, the `annotation` column is the `sub_cluster`. 
+
+```{r}
+library_ids |> 
+  purrr::map(\(id){
+    
+    filtered_df <- tumor_cells_df |> 
+      dplyr::filter(library_id == id)
+    
+    full_celltype_heatmap(filtered_df, marker_gene_cols, "sub_cluster")
+    
+  })
+
+```
+
+Let's make the same heatmap, but remove the column clustering.  
+
+```{r}
+library_ids |> 
+  purrr::map(\(id){
+    
+    filtered_df <- tumor_cells_df |> 
+      dplyr::filter(library_id == id) |> 
+      dplyr::arrange(sub_cluster)
+    
+    full_celltype_heatmap(filtered_df, marker_gene_cols, "sub_cluster", cluster_columns = FALSE)
+    
+  })
+```
+
+It looks like for both samples we have some clear division between EWS high and EWS low cells. 
+Additionally, there are some cells with really strong expression of the EWS high markers and others that look like the genes are expressed but to a lesser degree. 
+This fits with the findings from the literature that `EWS-FLI1` expression lies on a continuum. 
+
+Between these two plots I think we can try and group cells into EWS low, EWS middle, and EWS high cells. 
+
+The last thing we'll do is look at any cells that could be marked as "proliferative". 
+`SCPCL000822` doesn't appear to have very much expression of the proliferative markers, but `SCPCL000824` does seem to have one cluster, cluster 2, that has expression of the proliferative cells. 
+Perhaps we should label those cells separately as `EWS-high-proliferative`. 
+
+Based on this I would make the following assignments: 
+
+`SCPCL000822`: 
+
+- `EWS-FLI1` low  - 2
+- `EWS-FLI1` middle - 1 & 4
+- `EWS-FLI1` high - 3 
+
+`SCPCL000824` : 
+
+- `EWS-FLI1` low - 1
+- `EWS-FLI1` middle - 6 
+- `EWS-FLI1` high - 3, 4, 5, 7
+- `EWS-FLI1` high proliferative - 2
+
+```{r}
+# categorize tumor cells based on EWS expression 
+tumor_cells_df <- tumor_cells_df |> 
+  dplyr::mutate(
+    cell_state = dplyr::case_when(
+      library_id == "SCPCL000822" & sub_cluster == 2 ~ "EWS-low",
+      library_id == "SCPCL000822" & sub_cluster %in% c(1, 4) ~ "EWS-mid",
+      library_id == "SCPCL000822" & sub_cluster == 3 ~ "EWS-high",
+      library_id == "SCPCL000824" & sub_cluster == 1 ~ "EWS-low",
+      library_id == "SCPCL000824" & sub_cluster == 6 ~ "EWS-mid",
+      library_id == "SCPCL000824" & sub_cluster == 2 ~ "EWS-high-proliferative",
+      library_id == "SCPCL000824" & sub_cluster %in% c(3, 4, 5, 7) ~ "EWS-high",
+    )
+  )
+```
+
+Let's re-plot the heatmap but label by tumor cell state rather than cluster. 
+In this heatmap the annotation column is `cell_state`. 
+
+```{r}
+library_ids |> 
+  purrr::map(\(id){
+    
+    filtered_df <- tumor_cells_df |> 
+      dplyr::filter(library_id == id)|> 
+      dplyr::arrange(cell_state)
+    
+    full_celltype_heatmap(filtered_df, marker_gene_cols, "cell_state", cluster_columns = FALSE)
+    
+  })
+```
+
+I think that looks pretty reasonable. 
+I'm not sure we can really make more definitive calls given the gene lists that we have, unless we use fancier approaches. 
+We could try something like `AUCell`, but without a nice bimodal distribution, I don't think we would get anything but low/high cells. 
+
+## Combined classifications
+
+As a final step, we'll add the tumor cell states back into the full object and look at them on the UMAP. 
+Here I am plotting the classification of cells based on the cluster because otherwise the normal cells get a little wild with colors and I want to be able to see visualize the tumor cells.  
+
+
+```{r}
+# select the columns we want to join back into the main classification df 
+cell_state_classifications <- tumor_cells_df |> 
+  dplyr::select(library_id, barcodes, cell_state, sub_cluster)
+
+# add cell states to classification 
+final_classification_df <- cluster_classification_df |> 
+  dplyr::left_join(cell_state_classifications, by = c("library_id", "barcodes")) |> 
+  dplyr::mutate(full_classification = dplyr::if_else(is.na(cell_state), singler_lumped, cell_state),
+                cluster_classification = dplyr::if_else(is.na(cell_state), cluster_classification, cell_state))
+
+# make some umaps 
+library_ids |>
+  purrr::map(\(id){
+    final_classification_df |>
+      dplyr::filter(library_id == id) |>
+      ggplot(aes(x = UMAP1, y = UMAP2, color = cluster_classification)) +
+      geom_point(alpha = 0.5, size = 0.1) +
+      theme(
+        aspect.ratio = 1
+      ) +
+      labs(title = id) +
+      scale_color_brewer(palette = "Dark2") +
+      guides(color = guide_legend(override.aes = list(alpha = 1, size = 1.5)))
+  })
+```
+
+```{r}
+# export the final classifications in case we want to use them in the future 
+# save all classification columns 
+final_classification_df |> 
+  split(final_classification_df$library_id) |> 
+  purrr::iwalk(\(df, id){
+    
+    filename <- glue::glue("{id}_tumor-cell-state-annotations.tsv")
+    
+    df |> 
+      dplyr::select(
+        library_id,
+        barcodes,
+        singler_annotation,
+        aucell_annotation, 
+        cluster, 
+        cluster_classification, 
+        tumor_sub_cluster = sub_cluster, 
+        tumor_cell_state = cell_state,
+        full_classification 
+      ) |> 
+      readr::write_tsv(file.path(results_dir, filename))
+    
+  })
+```
+
+## Conclusions 
+
+- There is a clear division between cells that are `EWS-FLI` high and `EWS-FLI1` low. 
+  - We also see a set of cells that are both "proliferative" and `EWS-FLI` high. 
+- Most tumor cells in both samples are `EWS-FLI` high, which is consistent with the literature. 
+- There may be a class of cells that live in between high and low, but if we want to define those we probably need to be more stringent with our approach and identify a mechanism to bin cells based on expression of both `EWS-FLI1` activated and repressed genes, which is outside the scope of this notebook. 
+
+## Session info 
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
+

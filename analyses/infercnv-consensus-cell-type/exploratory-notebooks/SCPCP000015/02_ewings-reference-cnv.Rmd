@@ -1,0 +1,225 @@
+---
+title: "Explore CNV distributions of reference cells: SCPCP000015"
+author: "Stephanie J. Spielman"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+---
+  
+  
+## Introduction
+  
+We have previously observed that the reference cell CNV distributions in pooled references may overlap with tumor CNV distributions.
+This notebook aims to explore the extent of this trend for `SCPCP000015`, as well as compare CNV distributions among cell groups for all libraries. 
+
+## Setup
+
+```{r}
+options(readr.show_col_types = FALSE)
+suppressPackageStartupMessages({
+  library(ggplot2)
+  library(SingleCellExperiment)
+})
+
+theme_set(theme_bw())
+```
+
+### Functions
+
+This function prepares a table of `inferCNV` results by creating a `total_cnv_per_cell` column to summarize CNVs per cell. 
+
+```{r}
+prepare_cnv_df <- function(infercnv_tsv) {
+  infercnv_df <- readr::read_tsv(infercnv_tsv)
+
+  infercnv_metadata_df <- infercnv_df |>
+    dplyr::select(
+      -starts_with("has_"),
+      -starts_with("proportion_"),
+      -starts_with("top_")
+    ) |>
+    dplyr::mutate(cell_group = stringr::str_split_i(subcluster, "_", 1))
+
+  infercnv_df |>
+    tidyr::pivot_longer(
+      starts_with("has_cnv_"),
+      names_to = "chr",
+      values_to = "cnv"
+    ) |>
+    # sum all values for each
+    dplyr::group_by(cell_id) |>
+    dplyr::summarize(total_cnv_per_cell = sum(cnv)) |>
+    dplyr::ungroup() |>
+    # bring back metadata
+    dplyr::inner_join(
+      infercnv_metadata_df,
+      by = "cell_id"
+    )
+}
+```
+
+
+This function plots ridge plots of total CNV values across cell groupings for a given normal reference.
+
+```{r}
+plot_cnv_distributions <- function(reference_name, df) {
+  filtered_df <- df |>
+    dplyr::filter(normal_reference == reference_name)
+
+  ggplot(filtered_df) +
+    aes(x = total_cnv_per_cell, y = label, fill = label) +
+    ggridges::geom_density_ridges2(scale = 0.9) +
+    facet_wrap(vars(infercnv_library_id)) +
+    theme(legend.position = "none") +
+    ggtitle(reference_name)
+}
+```
+
+
+### Paths
+
+#### Base directories
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+module_dir <- file.path(repository_base, "analyses", "infercnv-consensus-cell-type")
+result_dir <- file.path(module_dir, "results", "SCPCP000015") # organized as sample/reference/infercnv results
+ewings_dir <- file.path(repository_base, "data", "current", "results", "cell-type-ewings", "SCPCP000015")
+```
+
+#### Input files
+
+```{r}
+# inferCNV output files
+infercnv_files <- list.files(
+  path = result_dir,
+  pattern = "_cnv-metadata\\.tsv",
+  recursive = TRUE,
+  full.names = TRUE
+) |>
+  # remove any containing "internal"; we only want pooled
+  purrr::discard(\(x) {
+    stringr::str_detect(x, "internal")
+  }) |>
+  # name by "library-reference"
+  purrr::set_names(\(x) {
+    library_id <- stringr::str_split_i(basename(x), "_", 1)
+  })
+
+
+# ewing module cell types
+celltype_files <- list.files(
+  ewings_dir,
+  pattern = "_ewing-celltype-assignments\\.tsv",
+  recursive = TRUE,
+  full.names = TRUE
+) |>
+  # name by library id
+  purrr::set_names(\(x) {
+    stringr::str_split_i(basename(x), "_", 1)
+  })
+```
+
+
+### Read input files
+
+
+We'll first read in the cell type annotations:
+```{r}
+celltype_df <- celltype_files |>
+  purrr::map(readr::read_tsv) |>
+  purrr::list_rbind(names_to = "library_id") |>
+  dplyr::mutate(cell_id = glue::glue("{library_id}-{barcodes}")) |>
+  dplyr::select(cell_id, consensus_annotation, ewing_annotation)
+```
+
+
+Now, we'll read in the `inferCNV` results:
+```{r}
+infercnv_df <- infercnv_files |>
+  purrr::map(prepare_cnv_df) |>
+  purrr::list_rbind(names_to = "infercnv_library_id") |>
+  dplyr::inner_join(celltype_df, by = "cell_id") |>
+  # condense labels for cell type groupings
+  dplyr::mutate(
+    label = ifelse(
+      stringr::str_detect(ewing_annotation, "tumor"),
+      "tumor",
+      cell_group
+    ),
+    label = forcats::fct_relevel(label, "unknown", "tumor", "reference")
+  )
+```
+
+
+## Analysis
+
+We'll first visualize the total CNV distributions for each inference for each grouping of cells:
+
+- `unknown`: query cells
+- `tumor`: query cells labeled "tumor" by `cell-type-ewings`
+- `reference`: cells in the normal reference
+
+We show a plot faceted by library `inferCNV` was run on for each of the three pooled references explored.
+
+```{r, fig.width = 10, fig.height = 8, message = FALSE}
+unique(infercnv_df$normal_reference) |>
+  purrr::map(plot_cnv_distributions, infercnv_df)
+```
+
+
+* The `endo` reference cell CNV distributions generally do not overlap with tumor cell CNV distributions.
+* The `endo-immune` and `immune` reference cell CNV distributions do have a wider spread but do not _substantially_ overlap with the tumor cell CNV distributions. 
+
+
+Let's look more closely at the `immune_pooled` reference to see if any particular libraries might be driving a (minor) trend.
+For each inference with the `immune_pooled` reference, we'll find the 25\% top reference cells with the highest CNVs.
+Do these cells tend to be from a particular library?
+
+The barplot below shows for each `inferCNV` inference with the `immune_pooled` reference, the proportion of reference cells contributed by each of the five given libraries.
+
+```{r, fig.width = 8}
+top25_df <- infercnv_df |>
+  dplyr::filter(
+    normal_reference == "immune_pooled",
+    cell_group == "reference"
+  ) |>
+  tidyr::separate(cell_id, into = c("reference_library_id", "barcode"), sep = "-") |>
+  # keep only the top 25% of cells
+  dplyr::group_by(infercnv_library_id) |>
+  dplyr::slice_max(total_cnv_per_cell, prop = 0.25) |>
+  dplyr::ungroup()
+
+ggplot(top25_df) +
+  aes(x = infercnv_library_id, fill = reference_library_id) +
+  geom_bar(position = "fill") +
+  labs(
+    x = "Library that inferCNV was run on",
+    y = "Proportion of cells in the top 25% CNV\nfrom the given reference library"
+  ) +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+
+
+
+We see a generally consistent trend across inferences; cells in the top 25\% are similarly distributed across libraries that contributed to the reference. 
+No particular library seems to be biasing higher CNV values in the reference cells.
+
+
+## Conclusions
+
+It does not seem that reference cell CNV distributions are problematically overlapping with tumor CNV distributions now that references were updated to generate these re-processed results.
+Overall, the `endo_pooled` reference appears to give the most distinct CNV distributions between reference and tumor cells.
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```

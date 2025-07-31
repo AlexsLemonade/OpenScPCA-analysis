@@ -1,0 +1,12 @@
+# Results should not be committed
+/results/*
+!/results/README.md
+
+# Ignore the scratch directory (but keep it present)
+/scratch/*
+!/scratch/.gitkeep
+
+# Ignore any large reference files
+references/Homo_sapiens.GRCh38.104.gene_order.txt
+references/normal-references/SCPCP000015/*
+!references/normal-references/SCPCP000015/reference-celltypes.tsv

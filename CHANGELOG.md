@@ -9,6 +9,30 @@ Add new release notes in reverse numerical order (newest first) below this comme
 You may want to add temporary notes here for tracking as features are added, before a new release is ready.
 -->
 
+## v0.2.2
+
+This release includes minor updates to the following modules: 
+
+- `cell-type-consensus`
+- `cell-type-ewings`
+- `cell-type-wilms-06`
+
+Within the `cell-type-consensus` module, the [reference used to assign consensus cell types](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/cell-type-consensus/references/consensus-cell-type-reference.tsv) has been updated to now include `neuron` as a possible cell type. 
+
+## v0.2.1
+
+This release includes minor updates to the following modules: 
+
+- `cell-type-ewings`
+- `cell-type-consensus`
+
+In particular, the workflow for assigning consensus cell types has been created in `cell-type-consensus` module. 
+This workflow is now present in `OpenScPCA-nf`, and results will be made available to all contributors. 
+
+New FAQs covering how to work with ScPCA data as `Seurat` objects and using gene symbols instead of Ensembl IDs have been added to the [OpenScPCA documentation](https://openscpca.readthedocs.io/en/latest/troubleshooting-faq/faq/). 
+
+`Rcpp` package versions within modules were updated for compatibility. 
+
 ## v0.2.0
 
 This release adds the first set of community-contributed analyses to the repository.

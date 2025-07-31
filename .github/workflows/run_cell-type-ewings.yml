@@ -42,11 +42,12 @@ jobs:
         run: |
           conda activate openscpca-cell-type-ewings
           ./download-data.py --test-data --format "sce,anndata" --project SCPCP000015
+          ./download-results.py --test-data --modules merge-sce --projects SCPCP000015
 
       - name: Run analysis
         run: |
           conda activate openscpca-cell-type-ewings
           cd $MODULE_PATH
-          bash cnv-annotation.sh
           bash aucell-singler-annotation.sh
           bash evaluate-clusters.sh
+          bash run-aucell-ews-signatures.sh
