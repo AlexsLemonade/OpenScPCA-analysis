@@ -121,32 +121,32 @@ def main() -> None:
         )
         arg_error = True
 
-    # Check that the accelerator is valid and that GPU is available is specified
-    if arg.accelerator not in ["gpu", "cpu"]:
-        print(
-            f"The provided accelerator '{arg.accelerator}' is not valid. Use 'gpu' for GPU acceleration or 'cpu' for CPU only.",
-            file=sys.stderr,
-        )
-        arg_error = True
-    if arg.accelerator == "gpu" and not torch.cuda.is_available():
-        print(
-            "The specified accelerator is 'gpu', but no GPU is available. Please use 'cpu' instead or ensure a GPU is available.",
-            file=sys.stderr,
-        )
-        arg_error = True
-
-    # Set up values for testing
+    # Set up testing and accelerator settings
+    # If we're not testing, check that the accelerator is valid and that GPU is available if specified
+    # Note we do this here so `cell_type_label` can be used to check the reference object next
     if arg.testing:
+        cell_type_label = "Cell_type"
         # limit max_epochs for faster runtime and ensure CPU
         common_train_kwargs = {
-            "accelerator": "cpu",
-            "max_epochs": 5
+            "max_epochs": 5,
+            "accelerator": "cpu"
         }
-        cell_type_label = "Cell_type"
     else:
+        if arg.accelerator not in ["gpu", "cpu"]:
+            print(
+                f"The provided accelerator '{arg.accelerator}' is not valid. Use 'gpu' for GPU acceleration or 'cpu' for CPU only.",
+                file=sys.stderr,
+            )
+            arg_error = True
+        if arg.accelerator == "gpu" and not torch.cuda.is_available():
+            print(
+                "The specified accelerator is 'gpu', but no GPU is available. Please use 'cpu' instead or ensure a GPU is available.",
+                file=sys.stderr,
+            )
+            arg_error = True
+        cell_type_label = arg.reference_celltype_column
         # don't use max_epochs; let scvi pick the heuristic
         common_train_kwargs = {"accelerator": arg.accelerator}
-        cell_type_label = arg.reference_celltype_column
 
 
     # Define lists of expected columns in the reference and query objects
@@ -155,7 +155,6 @@ def main() -> None:
 
     # Read the reference and query objects and check that expected columns are present
     reference = anndata.read_h5ad(arg.reference_file)
-
     all_present_reference = all(col in reference.obs.columns for col in reference_expected_columns)
     if not all_present_reference:
         print(
@@ -173,7 +172,7 @@ def main() -> None:
         )
         arg_error = True
 
-    # Prepare and check library ids to exclude
+    # Prepare and check library ids to exclude_libraries if specified
     exclude_libraries = [id.strip() for id in arg.exclude_libraries.split(",")] if arg.exclude_libraries else []
     if len(exclude_libraries) > 0:
         all_present = all([id in query.obs["library_id"].cat.categories for id in exclude_libraries])
@@ -194,6 +193,7 @@ def main() -> None:
     scvi.settings.seed = arg.seed # inherited by numpy and torch
     torch.cuda.manual_seed(arg.seed)
     torch.cuda.manual_seed_all(arg.seed)
+
     ################################################
     ######## SCVI reference model training #########
     ################################################
@@ -271,13 +271,13 @@ def main() -> None:
     adata_integrated.obs[SCANVI_PREDICTIONS_KEY] = scanvi_query.predict(adata_integrated)
 
     # Export the NBAtlas-trained SCVI model
-    scvi_model.save(arg.reference_scvi_model_dir, save_anndata = True, overwrite=True)
+    scvi_model.save(arg.reference_scvi_model_dir, save_anndata = True, overwrite = True)
 
     # Export the NBAtlas-trained scANVI model
-    scanvi_model.save(arg.reference_scanvi_model_dir, save_anndata = True, overwrite=True)
+    scanvi_model.save(arg.reference_scanvi_model_dir, save_anndata = True, overwrite = True)
 
     # Export the query-trained scANVI model with integrated query data
-    scanvi_query.save(arg.query_scanvi_model_dir, save_anndata = True, overwrite=True)
+    scanvi_query.save(arg.query_scanvi_model_dir, save_anndata = True, overwrite = True)
 
     # Save the full integrated object with labels and latent representation
     adata_integrated.write(arg.integrated_scanvi_anndata)
