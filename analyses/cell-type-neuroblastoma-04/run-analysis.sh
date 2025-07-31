@@ -233,7 +233,7 @@ merged_sce_file="${merged_dir}/SCPCP000004_merged.rds"
 prepared_anndata_file="${scratch_dir}/SCPCP000004_merged_prepared.h5ad"
 
 # define output files
-scanvi_dir=${result_dir}/scanvi
+scanvi_dir=${results_dir}/scanvi
 scvi_output=${scanvi_dir}/scvi_model
 scanvi_ref_output=${scanvi_dir}/scanvi_reference_model
 scanvi_query_output=${scanvi_dir}/scanvi_query_model
