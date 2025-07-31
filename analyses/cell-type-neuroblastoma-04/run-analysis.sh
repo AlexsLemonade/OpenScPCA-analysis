@@ -33,6 +33,10 @@
 #     before training the SingleR model.
 #     By default, these genes are not explicitly removed.
 #   - Example usage: filter_genes_singler=1 ./run-analysis.sh
+# - `accelerator_scanvi` (Default value: 'cpu')
+#   - Use `accelerator_scanvi=gpu` (or other value accepted by `scvi-tools`) to specify to use GPU for scANVI/scArches label transfer
+#     By default, CPU is used.
+#   - Example usage: accelerator_scanvi=gpu ./run-analysis.sh
 # - `force_convert_nbatlas` (Default value: 0)
 #   - This script begins by converting the NBAtlas object to SCE and AnnData formats.
 #     By default, if these files exist, the conversion will not be redone.
@@ -80,6 +84,8 @@ aggregate_singler=${aggregate_singler:-1} # default is to perform aggregation
 separate_tumor_singler=${separate_tumor_singler:-0} # default is to _not_ separate tumor cells
 filter_genes_singler=${filter_genes_singler:-0} # default is to _not_ filter out genes from NBAtlas
 
+# scanvi arguments:
+accelerator_scanvi=${accelerator_scanvi:-"cpu"}
 
 ######## Set up singler flags ###########
 # Set up singler aggregation
@@ -220,11 +226,33 @@ done
 #################### scANVI/scArches annotation ###################
 ###################################################################
 
+echo "Performing label transfer with scANVI/scArches..."
+
+# define input files
 merged_sce_file="${merged_dir}/SCPCP000004_merged.rds"
 prepared_anndata_file="${scratch_dir}/SCPCP000004_merged_prepared.h5ad"
+
+# define output files
+scanvi_dir=${result_dir}/scanvi
+scvi_output=${scanvi_dir}/scvi_model
+scanvi_ref_output=${scanvi_dir}/scanvi_reference_model
+scanvi_query_output=${scanvi_dir}/scanvi_query_model
+scanvi_tsv=${scanvi_dir}/scanvi_predictions.tsv
+integrated_anndata=${scanvi_dir}/scanvi_integrated_anndata.h5ad
 
 # Prepare the query merged SCE object for scANVI/scArches
 Rscript ${script_dir}/03a_prepare-scanvi-query.R \
     --merged_sce_file "${merged_sce_file}" \
     --nbatlas_hvg_file "${nbatlas_hvg_file}" \
     --prepared_anndata_file "${prepared_anndata_file}"
+
+# Run scANVI/scArches with specified accelerator
+python ${script_dir}/03_run-scanvi.py \
+  --reference_file "${nbatlas_anndata}" \
+  --query_file "${prepared_anndata_file}" \
+  --reference_scvi_model_dir "${scvi_output}" \
+  --reference_scanvi_model_dir "${scanvi_ref_output}" \
+  --query_scanvi_model_dir "${scanvi_query_output}" \
+  --integrated_scanvi_anndata "${integrated_anndata}" \
+  --predictions_tsv "${scanvi_tsv}" \
+  --accelerator "${accelerator_scanvi}"
