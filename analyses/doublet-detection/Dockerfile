@@ -11,8 +11,20 @@ ARG ENV_NAME=openscpca-doublet-detection
 # Set an environment variable to allow checking if we are in an OpenScPCA container
 ENV OPENSCPCA_DOCKER=TRUE
 
+# Disable the renv cache to install packages directly into the R library
+ENV RENV_CONFIG_CACHE_ENABLED=FALSE
+# Install Basilisk python packages in the system library
+ARG BASILISK_USE_SYSTEM_DIR=1
+
 # set environment variables to install conda
 ENV PATH="/opt/conda/bin:${PATH}"
+
+# Install pandoc dependency
+RUN apt-get -y update &&  \
+  DEBIAN_FRONTEND=noninteractive \
+  apt-get install --no-install-recommends -y \
+  pandoc \
+  && rm -rf /var/lib/apt/lists/*
 
 # Install conda via miniforge
 # adapted from https://github.com/conda-forge/miniforge-images/blob/master/ubuntu/Dockerfile
@@ -32,18 +44,6 @@ RUN ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh \
 # Install conda-lock
 RUN conda install --channel=conda-forge --name=base conda-lock \
   && conda clean --all --yes
-
-# Install pandoc dependency
-RUN apt-get -y update &&  \
-  DEBIAN_FRONTEND=noninteractive \
-  apt-get install --no-install-recommends -y \
-  pandoc \
-  && rm -rf /var/lib/apt/lists/*
-
-# Disable the renv cache to install packages directly into the R library
-ENV RENV_CONFIG_CACHE_ENABLED=FALSE
-# Install Basilisk python packages in the system library
-ARG BASILISK_USE_SYSTEM_DIR=1
 
 # Install renv
 RUN Rscript -e "install.packages('renv')"
