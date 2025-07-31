@@ -255,4 +255,4 @@ python ${script_dir}/03_run-scanvi.py \
   --query_scanvi_model_dir "${scanvi_query_output}" \
   --integrated_scanvi_anndata "${integrated_anndata}" \
   --predictions_tsv "${scanvi_tsv}" \
-  --accelerator "${accelerator_scanvi}"
+  ${test_flag}
