@@ -170,7 +170,7 @@ def main() -> None:
     scanvi_model.save(arg.reference_scanvi_model_dir, save_anndata=True, overwrite=True)
 
     # Export standalone TSV of NBAtlas scANVI latent representation & labels if specified
-    if arg.scanvi_latent_tsv is not None:
+    if arg.scanvi_latent_tsv:
         latent_df = pd.DataFrame(reference.obsm[SCANVI_LATENT_KEY])
         latent_df = latent_df.rename(columns=lambda x: SCANVI_LATENT_KEY + "_" + str(x))
         latent_df.index = reference.obs.index # set index for joining
