@@ -3,15 +3,15 @@
 # Script to train a scANVI/scArches model from the NBAtlas reference
 # This scANVI/scArches tutorial was used to help structure this script: https://docs.scvi-tools.org/en/1.3.2/tutorials/notebooks/multimodal/scarches_scvi_tools.html
 
-import sys
 import argparse
+import sys
 from pathlib import Path
-import torch
+
 import anndata
-import scvi
 import pandas as pd
 from scipy.sparse import csr_matrix
-
+import scvi
+import torch
 
 # Define constants
 BATCH_KEY = "Sample"
