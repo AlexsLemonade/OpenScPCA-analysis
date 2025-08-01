@@ -33,7 +33,7 @@ option_list <- list(
     action = "store_true",
     default = FALSE,
     help = "Flag to specify that the input SCE is a merged object"
-  ),
+  )
 )
 
 # Parse options and check arguments

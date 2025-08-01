@@ -57,5 +57,6 @@ jobs:
 
       - name: Run analysis module
         run: |
+          conda activate openscpca-cell-type-neuroblastoma-04
           cd ${MODULE_PATH}
           testing=1 bash run-analysis.sh
