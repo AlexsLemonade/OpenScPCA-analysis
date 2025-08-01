@@ -233,7 +233,7 @@ scanvi_ref_output="${scanvi_dir}/scanvi_reference_model"
 scanvi_nbatlas_tsv="${scanvi_dir}/nbatlas_scanvi_latent.tsv"
 
 # Train the scANVI model
-python  ${script_dir}/03a_train-scanvi-model.py \
+python ${script_dir}/03a_train-scanvi-model.py \
   --reference_file "${nbatlas_anndata}" \
   --reference_scvi_model_dir "${scvi_output}" \
   --reference_scanvi_model_dir "${scanvi_ref_output}" \
