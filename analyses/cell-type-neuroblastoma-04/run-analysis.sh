@@ -220,11 +220,29 @@ done
 #################### scANVI/scArches annotation ###################
 ###################################################################
 
+echo "Performing label transfer with scANVI/scArches on the merged SCPCP000004 object..."
+
+# define data files
 merged_sce_file="${merged_dir}/SCPCP000004_merged.rds"
 prepared_anndata_file="${scratch_dir}/SCPCP000004_merged_prepared.h5ad"
 
+# define scANVI files
+scanvi_dir="${results_dir}/scanvi"
+scvi_output="${scanvi_dir}/scvi_model"
+scanvi_ref_output="${scanvi_dir}/scanvi_reference_model"
+scanvi_nbatlas_tsv="${scanvi_dir}/nbatlas_scanvi_latent.tsv"
+
+# Train the scANVI model
+python  ${script_dir}/03a_train-scanvi-model.py \
+  --reference_file "${nbatlas_anndata}" \
+  --reference_scvi_model_dir "${scvi_output}" \
+  --reference_scanvi_model_dir "${scanvi_ref_output}" \
+  --scanvi_latent_tsv "${scanvi_nbatlas_tsv}" \
+  ${test_flag}
+
 # Prepare the query merged SCE object for scANVI/scArches
-Rscript ${script_dir}/03a_prepare-scanvi-query.R \
-    --merged_sce_file "${merged_sce_file}" \
+Rscript ${script_dir}/03b_prepare-scanvi-query.R \
+    --sce_file "${merged_sce_file}" \
     --nbatlas_hvg_file "${nbatlas_hvg_file}" \
-    --prepared_anndata_file "${prepared_anndata_file}"
+    --prepared_anndata_file "${prepared_anndata_file}" \
+    --merged
