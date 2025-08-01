@@ -3,15 +3,15 @@
 # Script to train a scANVI/scArches model from the NBAtlas reference
 # This scANVI/scArches tutorial was used to help structure this script: https://docs.scvi-tools.org/en/1.3.2/tutorials/notebooks/multimodal/scarches_scvi_tools.html
 
-import os
 import sys
-from pathlib import Path
 import argparse
+from pathlib import Path
+import torch
 import anndata
 import scvi
-import torch
 import pandas as pd
 from scipy.sparse import csr_matrix
+
 
 # Define constants
 BATCH_KEY = "Sample"
@@ -100,7 +100,7 @@ def main() -> None:
     # Read and check that the reference object has expected columns
     reference = anndata.read_h5ad(arg.reference_file)
     expected_columns = [BATCH_KEY, CELL_ID_KEY, cell_type_column] + COVARIATE_KEYS
-    
+
     if not set(expected_columns).issubset(reference.obs.columns):
         print(
             f"The reference AnnData object is missing one or more expected columns: {set(expected_columns).difference(reference.obs.columns)}.",
