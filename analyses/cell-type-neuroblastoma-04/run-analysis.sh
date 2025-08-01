@@ -231,6 +231,8 @@ scanvi_dir="${results_dir}/scanvi"
 scvi_output="${scanvi_dir}/scvi_model"
 scanvi_ref_output="${scanvi_dir}/scanvi_reference_model"
 scanvi_nbatlas_tsv="${scanvi_dir}/nbatlas_scanvi_latent.tsv"
+scanvi_query_output="${scanvi_dir}/scanvi_query_model"
+scanvi_predictions_tsv="${scanvi_dir}/scpca_scanvi_predictions.tsv"
 
 # Train the scANVI model
 python ${script_dir}/03a_train-scanvi-model.py \
@@ -246,3 +248,11 @@ Rscript ${script_dir}/03b_prepare-scanvi-query.R \
     --nbatlas_hvg_file "${nbatlas_hvg_file}" \
     --prepared_anndata_file "${prepared_anndata_file}" \
     --merged
+
+# Perform label transfer
+python ${script_dir}/03c_run-scanvi-label-transfer.py \
+  --query_file "${prepared_anndata_file}" \
+  --reference_scanvi_model_dir "${scanvi_ref_output}" \
+  --query_scanvi_model_dir "${scanvi_query_output}" \
+  --predictions_tsv "${scanvi_predictions_tsv}" \
+  ${test_flag}
