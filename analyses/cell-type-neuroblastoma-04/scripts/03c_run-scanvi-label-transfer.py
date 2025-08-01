@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
 
-# Script to perform label transfer using scANVI/scArches using the scANVI NBAtlas model on an ScPCA query object
+# Script to perform label transfer using scANVI/scArches using the scANVI NBAtlas model on an ScPCA query object prepared with ./03b_prepare-scanvi-query.R
 # This scANVI/scArches tutorial was used to help structure this script: https://docs.scvi-tools.org/en/1.3.2/tutorials/notebooks/multimodal/scarches_scvi_tools.html
 
-import os
+import argparse
 import sys
 from pathlib import Path
-import argparse
+
 import anndata
-import scvi
-import torch
 import pandas as pd
 from scipy.sparse import csr_matrix
+import scvi
+import torch
 
 # Define constants
-
 BATCH_KEY = "Sample"
 COVARIATE_KEYS = [
     "Assay",
@@ -33,7 +32,7 @@ def main() -> None:
         "--query_file",
         type=Path,
         required=True,
-        help="Path to the input ScPCA AnnData file which has been prepared with scripts/03a_prepare-scanvi-query.R",
+        help="Path to the input AnnData file which has been prepared with scripts/03a_prepare-scanvi-query.R",
     )
     parser.add_argument(
         "--reference_scanvi_model_dir",
@@ -45,13 +44,14 @@ def main() -> None:
         "--query_scanvi_model_dir",
         type=Path,
         required=True,
-        help="Path to save the scANVI/scArches model trained with integrated query data",
+        help="Path to directory where the scANVI/scArches model trained with integrated query data will be saved."
+        " This directory will be created at export."
     )
     parser.add_argument(
         "--predictions_tsv",
         type=Path,
         required=True,
-        help="Path to the save TSV file of scANVI/scArches results on the query object, including predictions and the scANVI latent representation",
+        help="Path to the save TSV file of query scANVI/scArches model results including predictions and the scANVI latent representation",
     )
     parser.add_argument(
         "--testing",
@@ -73,13 +73,13 @@ def main() -> None:
     arg_error = False
 
     # Check that input files exist
-    if not os.path.isfile(arg.query_file):
+    if not arg.query_file.is_file():
         print(
             f"The provided input query file could not be found at: {arg.query_file}.",
             file=sys.stderr,
         )
         arg_error = True
-    if not os.path.isdir(arg.reference_scanvi_model_dir):
+    if not arg.reference_scanvi_model_dir.is_file():
         print(
             f"The provided reference scANVI model could not be found at: {arg.reference_scanvi_model_dir}.",
             file=sys.stderr,
@@ -98,10 +98,10 @@ def main() -> None:
     # Read and check that query object has expected columns
     query = anndata.read_h5ad(arg.query_file)
     expected_columns = [BATCH_KEY, CELL_ID_KEY] + COVARIATE_KEYS
-    all_present_query = all(col in query.obs.columns for col in expected_columns)
-    if not all_present_query:
+
+    if not set(expected_columns).issubset(query.obs.columns):
         print(
-            f"The query AnnData object is missing one or more expected columns: {expected_columns}.",
+            f"The query AnnData object is missing one or more expected columns: {set(expected_columns).difference(query.obs.columns)}.",
             file=sys.stderr,
         )
         arg_error = True
