@@ -79,7 +79,7 @@ def main() -> None:
             file=sys.stderr,
         )
         arg_error = True
-    if not arg.reference_scanvi_model_dir.is_file():
+    if not arg.reference_scanvi_model_dir.is_dir():
         print(
             f"The provided reference scANVI model could not be found at: {arg.reference_scanvi_model_dir}.",
             file=sys.stderr,
