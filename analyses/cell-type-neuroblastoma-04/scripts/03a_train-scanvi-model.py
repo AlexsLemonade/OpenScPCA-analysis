@@ -44,19 +44,21 @@ def main() -> None:
         "--reference_scvi_model_dir",
         type=Path,
         required=True,
-        help="Path to save the intermediate SCVI model trained on the reference object",
+        help="Path to directory where the intermediate SCVI model trained on the reference object will be saved."
+        " This directory will be created at export."
     )
     parser.add_argument(
         "--reference_scanvi_model_dir",
         type=Path,
         required=True,
-        help="Path to save the scANVI model trained on the reference object",
+        help="Path to directory where the scANVI model trained on the reference object will be saved."
+        " This directory will be created at export."
     )
     parser.add_argument(
         "--scanvi_latent_tsv",
         type=Path,
-        required=True,
-        help="Path to save a standalone TSV of the scANVI model latent representation on the reference object",
+        help="Optionally, path to save a standalone TSV of the scANVI model latent representation on the reference object."
+        " If not provided, no TSV is exported.",
     )
     parser.add_argument(
         "--testing",
@@ -77,7 +79,7 @@ def main() -> None:
     ################################################
     arg_error = False
 
-    # Check that input files exist
+    # Check that the input file exists
     if not arg.reference_file.is_file():
         print(
             f"The provided input reference file could not be found at: {arg.reference_file}.",
@@ -134,6 +136,7 @@ def main() -> None:
     scvi_model = scvi.model.SCVI(
         reference,
         # scArches parameters
+        # from: https://docs.scvi-tools.org/en/1.3.2/tutorials/notebooks/multimodal/scarches_scvi_tools.html#train-reference
         use_layer_norm="both",
         use_batch_norm="none",
         encode_covariates=True,  # essential for scArches
@@ -166,13 +169,13 @@ def main() -> None:
     # Export the NBAtlas-trained scANVI model
     scanvi_model.save(arg.reference_scanvi_model_dir, save_anndata=True, overwrite=True)
 
-    # Export standalone TSV of NBAtlas scANVI latent representation & labels
-    obs_cols = expected_columns + ["cell_id", SCANVI_LATENT_KEY, cell_type_column]
-    latent_df = pd.DataFrame(reference.obsm[SCANVI_LATENT_KEY])
-    latent_df = latent_df.rename(columns=lambda x: SCANVI_LATENT_KEY + "_" + str(x))
-    latent_df.index = reference.obs.index # set index for joining
-    combined_df = latent_df.join(reference.obs[expected_columns]) # only save relevant columns here
-    combined_df.to_csv(arg.scanvi_latent_tsv, sep="\t", index=False)
+    # Export standalone TSV of NBAtlas scANVI latent representation & labels if specified
+    if arg.scanvi_latent_tsv is not None:
+        latent_df = pd.DataFrame(reference.obsm[SCANVI_LATENT_KEY])
+        latent_df = latent_df.rename(columns=lambda x: SCANVI_LATENT_KEY + "_" + str(x))
+        latent_df.index = reference.obs.index # set index for joining
+        combined_df = latent_df.join(reference.obs[expected_columns]) # only save relevant columns here
+        combined_df.to_csv(arg.scanvi_latent_tsv, sep="\t", index=False)
 
 if __name__ == "__main__":
     main()
