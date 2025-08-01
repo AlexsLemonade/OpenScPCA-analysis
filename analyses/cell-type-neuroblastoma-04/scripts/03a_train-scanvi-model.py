@@ -78,7 +78,7 @@ def main() -> None:
     arg_error = False
 
     # Check that input files exist
-    if not os.path.isfile(arg.reference_file):
+    if not arg.reference_file.is_file():
         print(
             f"The provided input reference file could not be found at: {arg.reference_file}.",
             file=sys.stderr,
@@ -98,12 +98,12 @@ def main() -> None:
         cell_type_column = arg.reference_celltype_column
 
     # Read and check that the reference object has expected columns
-    expected_columns = [BATCH_KEY, CELL_ID_KEY, cell_type_column] + COVARIATE_KEYS
     reference = anndata.read_h5ad(arg.reference_file)
-    all_present_reference = all(col in reference.obs.columns for col in expected_columns)
-    if not all_present_reference:
+    expected_columns = [BATCH_KEY, CELL_ID_KEY, cell_type_column] + COVARIATE_KEYS
+    
+    if not set(expected_columns).issubset(reference.obs.columns):
         print(
-            f"The reference AnnData object is missing one or more expected columns: {expected_columns}.",
+            f"The reference AnnData object is missing one or more expected columns: {set(expected_columns).difference(reference.obs.columns)}.",
             file=sys.stderr,
         )
         arg_error = True
