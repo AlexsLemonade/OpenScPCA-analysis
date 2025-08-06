@@ -149,7 +149,7 @@ def main() -> None:
 
     # Extract data frame of latent representation and predictions
     latent_df = pd.DataFrame(query.obsm[SCANVI_LATENT_KEY])
-    latent_df = latent_df.rename(columns=lambda x: SCANVI_LATENT_KEY + "_" + str(x))
+    latent_df = latent_df.rename(columns=lambda x: f"{SCANVI_LATENT_KEY}_{x}")
     latent_df.index = query.obs.index # set index for joining
     combined_df = latent_df.join(
         query.obs[ expected_columns + [SCANVI_PREDICTIONS_KEY] ]
