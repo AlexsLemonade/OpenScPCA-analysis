@@ -14,7 +14,7 @@ import scvi
 import torch
 
 # Define constants
-BATCH_KEY = "Sample"
+BATCH_KEY = "Sample" # noting this corresponds to the `library_id` information (not `sample_id`!) from the ScPCA object
 COVARIATE_KEYS = [
     "Assay",
     "Platform",
@@ -46,12 +46,22 @@ def main() -> None:
         required=True,
         help="Path to directory where the scANVI/scArches model trained with integrated query data will be saved."
         " This directory will be created at export."
+        " Note that this will be ignored if --slim-export is specified.",
     )
     parser.add_argument(
         "--predictions_tsv",
         type=Path,
         required=True,
-        help="Path to the save TSV file of query scANVI/scArches model results including predictions and the scANVI latent representation",
+        help="Path to the save TSV file of query scANVI/scArches model results."
+        " By default, this includes predictions and the scANVI latent representation."
+        " To export predictions only, use --slim-export.",
+    )
+    parser.add_argument(
+        "--slim-export",
+        action="store_true",
+        default=False,
+        help="When used, only a TSV file with query predictions will be exported."
+        " By default, the fitted scANVI model will also be exported, and the TSV export will also include the scANVI latent representation.",
     )
     parser.add_argument(
         "--testing",
@@ -144,8 +154,16 @@ def main() -> None:
     ################ Export objects ################
     ################################################
 
-    # Export the query-trained scANVI model
-    scanvi_query.save(arg.query_scanvi_model_dir, save_anndata=True, overwrite=True)
+    if arg.slim_export:
+        # Export only the predictions TSV
+        query.obs.to_csv(query.obs[expected_columns], sep="\t", index=True)
+    else:
+        # Export the query-trained scANVI model
+        scanvi_query.save(arg.query_scanvi_model_dir, anndata=True, overwrite=True)
+
+
+
+
 
     # Extract data frame of latent representation and predictions
     latent_df = pd.DataFrame(query.obsm[SCANVI_LATENT_KEY])

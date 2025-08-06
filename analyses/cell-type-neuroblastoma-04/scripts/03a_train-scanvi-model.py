@@ -43,9 +43,9 @@ def main() -> None:
     parser.add_argument(
         "--reference_scvi_model_dir",
         type=Path,
-        required=True,
-        help="Path to directory where the intermediate SCVI model trained on the reference object will be saved."
+        help="Optionally, path to directory where the intermediate SCVI model trained on the reference object will be saved."
         " This directory will be created at export."
+        " If not provided, the model will not be exported.",
     )
     parser.add_argument(
         "--reference_scanvi_model_dir",
@@ -163,11 +163,11 @@ def main() -> None:
     ################ Export objects ################
     ################################################
 
-    # Export the NBAtlas-trained SCVI model
-    scvi_model.save(arg.reference_scvi_model_dir, save_anndata=True, overwrite=True)
+    # Export the NBAtlas-trained SCVI model if specified
+    scvi_model.save(arg.reference_scvi_model_dir, overwrite=True)
 
     # Export the NBAtlas-trained scANVI model
-    scanvi_model.save(arg.reference_scanvi_model_dir, save_anndata=True, overwrite=True)
+    scanvi_model.save(arg.reference_scanvi_model_dir, overwrite=True)
 
     # Export standalone TSV of NBAtlas scANVI latent representation & labels if specified
     if arg.scanvi_latent_tsv:
