@@ -41,13 +41,6 @@ def main() -> None:
         " Default is 'Cell_type_wImmuneZoomAnnot', unless --testing is specified in which case `Cell_type` is the default",
     )
     parser.add_argument(
-        "--reference_scvi_model_dir",
-        type=Path,
-        help="Optionally, path to directory where the intermediate SCVI model trained on the reference object will be saved."
-        " This directory will be created at export."
-        " If not provided, the model will not be exported.",
-    )
-    parser.add_argument(
         "--reference_scanvi_model_dir",
         type=Path,
         required=True,
@@ -162,9 +155,6 @@ def main() -> None:
     ################################################
     ################ Export objects ################
     ################################################
-
-    # Export the NBAtlas-trained SCVI model if specified
-    scvi_model.save(arg.reference_scvi_model_dir, overwrite=True, save_anndata=True)
 
     # Export the NBAtlas-trained scANVI model
     scanvi_model.save(arg.reference_scanvi_model_dir, overwrite=True, save_anndata=True)

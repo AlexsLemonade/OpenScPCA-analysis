@@ -228,7 +228,6 @@ prepared_anndata_file="${scratch_dir}/SCPCP000004_merged_prepared.h5ad"
 
 # define scANVI files
 scanvi_dir="${results_dir}/scanvi"
-scvi_output="${scanvi_dir}/scvi_model"
 scanvi_ref_output="${scanvi_dir}/scanvi_reference_model"
 scanvi_nbatlas_tsv="${scanvi_dir}/nbatlas_scanvi_latent.tsv"
 scanvi_query_output="${scanvi_dir}/scanvi_query_model"
@@ -237,7 +236,6 @@ scanvi_predictions_tsv="${scanvi_dir}/scpca_scanvi_predictions.tsv"
 # Train the scANVI model
 python ${script_dir}/03a_train-scanvi-model.py \
   --reference_file "${nbatlas_anndata}" \
-  --reference_scvi_model_dir "${scvi_output}" \
   --reference_scanvi_model_dir "${scanvi_ref_output}" \
   --scanvi_latent_tsv "${scanvi_nbatlas_tsv}" \
   ${test_flag}
