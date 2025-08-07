@@ -33,6 +33,10 @@
 #     before training the SingleR model.
 #     By default, these genes are not explicitly removed.
 #   - Example usage: filter_genes_singler=1 ./run-analysis.sh
+# - `slim_export_scanvi` (Default value: 0)
+#   - Use `slim_export_scanvi=1` to only export a TSV with predictions from scANVI.
+#     The full model and history TSV will not be exported.
+#   - Example usage: slim_export_scanvi=1 ./run-analysis.sh
 # - `force_convert_nbatlas` (Default value: 0)
 #   - This script begins by converting the NBAtlas object to SCE and AnnData formats.
 #     By default, if these files exist, the conversion will not be redone.
@@ -80,6 +84,8 @@ aggregate_singler=${aggregate_singler:-1} # default is to perform aggregation
 separate_tumor_singler=${separate_tumor_singler:-0} # default is to _not_ separate tumor cells
 filter_genes_singler=${filter_genes_singler:-0} # default is to _not_ filter out genes from NBAtlas
 
+# scanvi arguments:
+slim_export_scanvi=${slim_export_scanvi:-0} # default is to export full scanvi model and all TSVs
 
 ######## Set up singler flags ###########
 # Set up singler aggregation
@@ -97,10 +103,18 @@ else
 fi
 
 # Set up singler gene filtering
-if [[ filter_genes_singler -eq 1 ]]; then
+if [[ $filter_genes_singler -eq 1 ]]; then
     filter_genes_flag="--filter_genes"
 else
     filter_genes_flag=""
+fi
+
+######## Set up scanvi flags ###########
+# Set up scanvi export aggregation
+if [[ $slim_export_scanvi -eq 1 ]]; then
+    slim_export_flag="--slim-export"
+else
+    slim_export_flag=""
 fi
 
 ####### Set up the testing flag and data ########
@@ -253,4 +267,5 @@ python ${script_dir}/03c_run-scanvi-label-transfer.py \
   --reference_scanvi_model_dir "${scanvi_ref_output}" \
   --query_scanvi_model_dir "${scanvi_query_output}" \
   --predictions_tsv "${scanvi_predictions_tsv}" \
+  ${slim_export_flag} \
   ${test_flag}
