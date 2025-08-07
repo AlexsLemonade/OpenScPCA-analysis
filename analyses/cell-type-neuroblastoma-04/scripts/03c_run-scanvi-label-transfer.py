@@ -2,6 +2,11 @@
 
 # Script to perform label transfer using scANVI/scArches using the scANVI NBAtlas model on an ScPCA query object prepared with ./03b_prepare-scanvi-query.R
 # This scANVI/scArches tutorial was used to help structure this script: https://docs.scvi-tools.org/en/1.3.2/tutorials/notebooks/multimodal/scarches_scvi_tools.html
+# By default, this script will export:
+# 1. A TSV with predictions, posterior probabilities, and the scANVI latent representation
+# 2. A TSV with scANVI model history metrics
+# 3. A scANVI model trained on the query object
+# If --slim-export is used, only the TSV with predictions and posterior probabilities will be exported, and the scANVI model will not be saved.
 
 import argparse
 import sys
