@@ -245,7 +245,8 @@ scanvi_dir="${results_dir}/scanvi"
 scanvi_ref_output="${scanvi_dir}/scanvi_reference_model"
 scanvi_nbatlas_tsv="${scanvi_dir}/nbatlas_scanvi_latent.tsv"
 scanvi_query_output="${scanvi_dir}/scanvi_query_model"
-scanvi_predictions_tsv="${scanvi_dir}/scpca_scanvi_predictions.tsv"
+scanvi_predictions_tsv="${scanvi_dir}/scanvi_predictions.tsv"
+scanvi_history_tsv="${scanvi_dir}/scanvi_model_history.tsv"
 
 # Train the scANVI model
 python ${script_dir}/03a_train-scanvi-model.py \
@@ -267,5 +268,6 @@ python ${script_dir}/03c_run-scanvi-label-transfer.py \
   --reference_scanvi_model_dir "${scanvi_ref_output}" \
   --query_scanvi_model_dir "${scanvi_query_output}" \
   --predictions_tsv "${scanvi_predictions_tsv}" \
+  --history_tsv "${scanvi_history_tsv}" \
   ${slim_export_flag} \
   ${test_flag}
