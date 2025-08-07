@@ -164,10 +164,10 @@ def main() -> None:
     ################################################
 
     # Export the NBAtlas-trained SCVI model if specified
-    scvi_model.save(arg.reference_scvi_model_dir, overwrite=True)
+    scvi_model.save(arg.reference_scvi_model_dir, overwrite=True, save_anndata=True)
 
     # Export the NBAtlas-trained scANVI model
-    scanvi_model.save(arg.reference_scanvi_model_dir, overwrite=True)
+    scanvi_model.save(arg.reference_scanvi_model_dir, overwrite=True, save_anndata=True)
 
     # Export standalone TSV of NBAtlas scANVI latent representation & labels if specified
     if arg.scanvi_latent_tsv:
