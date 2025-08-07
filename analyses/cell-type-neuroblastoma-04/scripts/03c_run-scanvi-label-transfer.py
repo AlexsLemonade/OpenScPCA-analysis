@@ -46,22 +46,27 @@ def main() -> None:
         required=True,
         help="Path to directory where the scANVI/scArches model trained with integrated query data will be saved."
         " This directory will be created at export."
-        " Note that this will be ignored if --slim-export is specified.",
+        " If --slim-export is used, the model will not be exported.",
     )
     parser.add_argument(
         "--predictions_tsv",
         type=Path,
         required=True,
         help="Path to the save TSV file of query scANVI/scArches model results."
-        " By default, this includes predictions and the scANVI latent representation."
-        " To export predictions only, use --slim-export.",
+        " By default, this includes predictions, associated posterior probabilities, and the scANVI latent representation."
+        " If --slim-export is used, this will only include predictions and posterior probabilities.",
+    )
+    parser.add_argument(
+        "--history_tsv",
+        type=Path,
+        help="Optionally, path to the save TSV file of scANVI model history metrics which can be used to assess convergence."
+        " If --slim-export is used, this file will not be exported.",
     )
     parser.add_argument(
         "--slim-export",
         action="store_true",
         default=False,
-        help="When used, only a TSV file with query predictions will be exported."
-        " By default, the fitted scANVI model will also be exported, and the TSV export will also include the scANVI latent representation.",
+        help="When used, only a TSV file with query predictions and posterior probabilites will be exported."
     )
     parser.add_argument(
         "--testing",
@@ -145,7 +150,7 @@ def main() -> None:
         **common_train_kwargs,
         # additional scArches parameters
         plan_kwargs={"weight_decay": 0.0},
-        check_val_every_n_epoch=5,
+        check_val_every_n_epoch=1,
     )
     query.obsm[SCANVI_LATENT_KEY] = scanvi_query.get_latent_representation()
     query.obs[SCANVI_PREDICTIONS_KEY] = scanvi_query.predict()
@@ -154,25 +159,41 @@ def main() -> None:
     ################ Export objects ################
     ################################################
 
+    # prepare the primary TSV for export
+    predictions_df = query.obs[ expected_columns + [SCANVI_PREDICTIONS_KEY] ]
+
+    # extract posterior probabilities for each cell type and join with predictions
+    posterior_df = scanvi_query.predict(soft=True)
+    posterior_df.rename(columns=lambda x: f"pp_{x}", inplace=True)
+    predictions_df = predictions_df.join(posterior_df)
+
+    # prepare data frame of model history metrics
+    # set up data frame with index and loop over dictionary to join each metric in
+    history_df = pd.DataFrame(index=scanvi_query.history["train_loss_step"].index)
+    for item in scanvi_query.history:
+        history_df=history_df.join(scanvi_query.history[item])
+
     if arg.slim_export:
-        # Export only the predictions TSV
-        query.obs.to_csv(query.obs[expected_columns], sep="\t", index=True)
+        # Export TSV with predictions and posterior only
+        predictions_df.to_csv(arg.predictions_tsv, sep="\t", index=False)
     else:
         # Export the query-trained scANVI model
         scanvi_query.save(arg.query_scanvi_model_dir, anndata=True, overwrite=True)
 
+        # Add latent representation to predictions DataFrame
+        latent_df = pd.DataFrame(query.obsm[SCANVI_LATENT_KEY])
+        latent_df.rename(columns=lambda x: f"{SCANVI_LATENT_KEY}_{x}", inplace=True)
+        latent_df.index = query.obs.index # set index for joining
+        predictions_df = predictions_df.join(latent_df)
 
+        # Export the predictions and latent representation to a TSV file
+        # don't need index; cell_id column is already present
+        predictions_df.to_csv(arg.predictions_tsv, sep="\t", index=False)
 
+        # Export the model history metrics to a TSV file
+        # keep the index which identifies the epoch
+        history_df.to_csv(arg.history_tsv, sep="\t", index=True)
 
-
-    # Extract data frame of latent representation and predictions
-    latent_df = pd.DataFrame(query.obsm[SCANVI_LATENT_KEY])
-    latent_df = latent_df.rename(columns=lambda x: f"{SCANVI_LATENT_KEY}_{x}")
-    latent_df.index = query.obs.index # set index for joining
-    combined_df = latent_df.join(
-        query.obs[ expected_columns + [SCANVI_PREDICTIONS_KEY] ]
-    )
-    combined_df.to_csv(arg.predictions_tsv, sep="\t", index=False)
 
 if __name__ == "__main__":
     main()
