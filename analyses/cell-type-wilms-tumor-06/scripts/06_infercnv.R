@@ -55,7 +55,7 @@ option_list <- list(
     opt_str = c("--testing"),
     action = "store_true",
     default = FALSE,
-    help = "This flag should be specified when test data is being used to override the reference option to not use a reference, due to test data limitations."
+    help = "This flag should be specified when test data is being used to override certain options to avoid test data failures."
   ),
   make_option(
     opt_str = c("--seed"),
@@ -125,7 +125,15 @@ normal_label <- "normal" # label normal cells to use as normal
 # If we are testing, do not use normal cells regardless of specified reference
 if (opts$testing) {
   normal_cells <- NULL
+
+  # Override default settings for these inferCNV parameters to avoid test data failures
+  infercnv_BayesMaxPNormal <- 0
+  infercnv_reassignCNVs <- FALSE
 } else {
+  # Keep these parameters at their inferCNV defaults if not testing
+  infercnv_BayesMaxPNormal <- 0.5
+  infercnv_reassignCNVs <- TRUE
+
   if (opts$reference %in% c("both", "endothelium", "immune")) {
     if (opts$reference == "both") {
       normal_cells <- c("endothelium", "immune")
@@ -201,13 +209,16 @@ infercnv_obj <- infercnv::run(
   cutoff = 0.1, # cutoff=1 works well for Smart-seq2, and cutoff=0.1 works well for 10x Genomics
   out_dir = output_dir,
   analysis_mode = "subclusters",
-  cluster_by_groups = T,
+  cluster_by_groups = TRUE,
   denoise = TRUE,
   HMM = HMM_logical,
   HMM_type = HMM_type,
   save_rds = TRUE,
-  save_final_rds = TRUE
+  save_final_rds = TRUE,
+  BayesMaxPNormal = infercnv_BayesMaxPNormal,
+  reassignCNVs = infercnv_reassignCNVs
 )
+
 
 if (HMM_logical) {
   # Add `infercnv` data to the `Seurat` object
