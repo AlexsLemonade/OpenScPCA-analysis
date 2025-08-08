@@ -33,6 +33,10 @@
 #     before training the SingleR model.
 #     By default, these genes are not explicitly removed.
 #   - Example usage: filter_genes_singler=1 ./run-analysis.sh
+# - `slim_export_scanvi` (Default value: 0)
+#   - Use `slim_export_scanvi=1` to only export a TSV with predictions from scANVI.
+#     The full model and history TSV will not be exported.
+#   - Example usage: slim_export_scanvi=1 ./run-analysis.sh
 # - `force_convert_nbatlas` (Default value: 0)
 #   - This script begins by converting the NBAtlas object to SCE and AnnData formats.
 #     By default, if these files exist, the conversion will not be redone.
@@ -80,6 +84,8 @@ aggregate_singler=${aggregate_singler:-1} # default is to perform aggregation
 separate_tumor_singler=${separate_tumor_singler:-0} # default is to _not_ separate tumor cells
 filter_genes_singler=${filter_genes_singler:-0} # default is to _not_ filter out genes from NBAtlas
 
+# scanvi arguments:
+slim_export_scanvi=${slim_export_scanvi:-0} # default is to export full scanvi model and all TSVs
 
 ######## Set up singler flags ###########
 # Set up singler aggregation
@@ -97,10 +103,18 @@ else
 fi
 
 # Set up singler gene filtering
-if [[ filter_genes_singler -eq 1 ]]; then
+if [[ $filter_genes_singler -eq 1 ]]; then
     filter_genes_flag="--filter_genes"
 else
     filter_genes_flag=""
+fi
+
+######## Set up scanvi flags ###########
+# Set up scanvi export aggregation
+if [[ $slim_export_scanvi -eq 1 ]]; then
+    slim_export_flag="--slim-export"
+else
+    slim_export_flag=""
 fi
 
 ####### Set up the testing flag and data ########
@@ -228,14 +242,15 @@ prepared_anndata_file="${scratch_dir}/SCPCP000004_merged_prepared.h5ad"
 
 # define scANVI files
 scanvi_dir="${results_dir}/scanvi"
-scvi_output="${scanvi_dir}/scvi_model"
 scanvi_ref_output="${scanvi_dir}/scanvi_reference_model"
 scanvi_nbatlas_tsv="${scanvi_dir}/nbatlas_scanvi_latent.tsv"
+scanvi_query_output="${scanvi_dir}/scanvi_query_model"
+scanvi_predictions_tsv="${scanvi_dir}/scanvi_predictions.tsv"
+scanvi_history_tsv="${scanvi_dir}/scanvi_model_history.tsv"
 
 # Train the scANVI model
 python ${script_dir}/03a_train-scanvi-model.py \
   --reference_file "${nbatlas_anndata}" \
-  --reference_scvi_model_dir "${scvi_output}" \
   --reference_scanvi_model_dir "${scanvi_ref_output}" \
   --scanvi_latent_tsv "${scanvi_nbatlas_tsv}" \
   ${test_flag}
@@ -246,3 +261,13 @@ Rscript ${script_dir}/03b_prepare-scanvi-query.R \
     --nbatlas_hvg_file "${nbatlas_hvg_file}" \
     --prepared_anndata_file "${prepared_anndata_file}" \
     --merged
+
+# Perform label transfer
+python ${script_dir}/03c_run-scanvi-label-transfer.py \
+  --query_file "${prepared_anndata_file}" \
+  --reference_scanvi_model_dir "${scanvi_ref_output}" \
+  --query_scanvi_model_dir "${scanvi_query_output}" \
+  --predictions_tsv "${scanvi_predictions_tsv}" \
+  --history_tsv "${scanvi_history_tsv}" \
+  ${slim_export_flag} \
+  ${test_flag}
