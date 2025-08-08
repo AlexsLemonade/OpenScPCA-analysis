@@ -216,8 +216,9 @@ infercnv_obj <- infercnv::run(
   save_rds = TRUE,
   save_final_rds = TRUE,
   BayesMaxPNormal = infercnv_BayesMaxPNormal,
-  reassignCNVs = infercnv_reassignCNVsFALSE
+  reassignCNVs = infercnv_reassignCNVs
 )
+
 
 if (HMM_logical) {
   # Add `infercnv` data to the `Seurat` object
