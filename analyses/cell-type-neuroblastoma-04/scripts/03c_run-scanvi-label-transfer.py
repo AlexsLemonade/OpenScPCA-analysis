@@ -34,7 +34,7 @@ def main() -> None:
         "--query_file",
         type=Path,
         required=True,
-        help="Path to the input AnnData file which has been prepared with scripts/03a_prepare-scanvi-query.R",
+        help="Path to the input AnnData file which has been prepared with scripts/03b_prepare-scanvi-query.R",
     )
     parser.add_argument(
         "--reference_scanvi_model_dir",
@@ -53,7 +53,7 @@ def main() -> None:
         "--predictions_tsv",
         type=Path,
         required=True,
-        help="Path to the save TSV file of query scANVI/scArches model results."
+        help="Path to the save TSV file of query scANVI/scArches results."
         " This includes predictions and associated posterior probabilities.",
     )
     parser.add_argument(
