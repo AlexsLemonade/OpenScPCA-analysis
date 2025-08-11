@@ -35,7 +35,6 @@
 #   - Example usage: filter_genes_singler=1 ./run-analysis.sh
 # - `slim_export_scanvi` (Default value: 0)
 #   - Use `slim_export_scanvi=1` to only export a TSV with predictions from scANVI.
-#     The full model and history TSV will not be exported.
 #   - Example usage: slim_export_scanvi=1 ./run-analysis.sh
 # - `force_convert_nbatlas` (Default value: 0)
 #   - This script begins by converting the NBAtlas object to SCE and AnnData formats.
@@ -246,7 +245,6 @@ scanvi_ref_output="${scanvi_dir}/scanvi_reference_model"
 scanvi_nbatlas_tsv="${scanvi_dir}/nbatlas_scanvi_latent.tsv"
 scanvi_query_output="${scanvi_dir}/scanvi_query_model"
 scanvi_predictions_tsv="${scanvi_dir}/scanvi_predictions.tsv"
-scanvi_history_tsv="${scanvi_dir}/scanvi_model_history.tsv"
 
 # Train the scANVI model
 python ${script_dir}/03a_train-scanvi-model.py \
@@ -268,6 +266,5 @@ python ${script_dir}/03c_run-scanvi-label-transfer.py \
   --reference_scanvi_model_dir "${scanvi_ref_output}" \
   --query_scanvi_model_dir "${scanvi_query_output}" \
   --predictions_tsv "${scanvi_predictions_tsv}" \
-  --history_tsv "${scanvi_history_tsv}" \
   ${slim_export_flag} \
   ${test_flag}

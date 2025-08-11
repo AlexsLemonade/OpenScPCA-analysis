@@ -4,8 +4,7 @@
 # This scANVI/scArches tutorial was used to help structure this script: https://docs.scvi-tools.org/en/1.3.2/tutorials/notebooks/multimodal/scarches_scvi_tools.html
 # By default, this script will export:
 # 1. A TSV with predictions, posterior probabilities, and the scANVI latent representation
-# 2. A TSV with scANVI model history metrics
-# 3. A scANVI model trained on the query object
+# 2. A scANVI model trained on the query object
 # If --slim-export is used, only the TSV with predictions and posterior probabilities will be exported, and the scANVI model will not be saved.
 
 import argparse
@@ -60,12 +59,6 @@ def main() -> None:
         help="Path to the save TSV file of query scANVI/scArches model results."
         " By default, this includes predictions, associated posterior probabilities, and the scANVI latent representation."
         " If --slim-export is used, this will only include predictions and posterior probabilities.",
-    )
-    parser.add_argument(
-        "--history_tsv",
-        type=Path,
-        help="Optionally, path to the save TSV file of scANVI model history metrics which can be used to assess convergence."
-        " If --slim-export is used, this file will not be exported.",
     )
     parser.add_argument(
         "--slim-export",
@@ -172,12 +165,6 @@ def main() -> None:
     posterior_df.rename(columns=lambda x: f"pp_{x}", inplace=True)
     predictions_df = predictions_df.join(posterior_df)
 
-    # prepare data frame of model history metrics
-    # set up data frame with index and loop over dictionary to join each metric in
-    history_df = pd.DataFrame(index=scanvi_query.history["train_loss_step"].index)
-    for item in scanvi_query.history:
-        history_df=history_df.join(scanvi_query.history[item])
-
     if arg.slim_export:
         # Export TSV with predictions and posterior only
         predictions_df.to_csv(arg.predictions_tsv, sep="\t", index=False)
@@ -194,10 +181,6 @@ def main() -> None:
         # Export the predictions and latent representation to a TSV file
         # don't need index; cell_id column is already present
         predictions_df.to_csv(arg.predictions_tsv, sep="\t", index=False)
-
-        # Export the model history metrics to a TSV file
-        # keep the index which identifies the epoch
-        history_df.to_csv(arg.history_tsv, sep="\t", index=True)
 
 
 if __name__ == "__main__":
