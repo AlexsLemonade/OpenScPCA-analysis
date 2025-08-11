@@ -2,10 +2,8 @@
 
 # Script to perform label transfer using scANVI/scArches using the scANVI NBAtlas model on an ScPCA query object prepared with ./03b_prepare-scanvi-query.R
 # This scANVI/scArches tutorial was used to help structure this script: https://docs.scvi-tools.org/en/1.3.2/tutorials/notebooks/multimodal/scarches_scvi_tools.html
-# By default, this script will export:
-# 1. A TSV with predictions, posterior probabilities, and the scANVI latent representation
-# 2. A scANVI model trained on the query object
-# If --slim-export is used, only the TSV with predictions and posterior probabilities will be exported, and the scANVI model will not be saved.
+# By default, this script will export a TSV with predictions, posterior probabilities, and the scANVI latent representation
+# If specified, the scANVI model trained on the query object will also be exported
 
 import argparse
 import sys
@@ -47,24 +45,16 @@ def main() -> None:
     parser.add_argument(
         "--query_scanvi_model_dir",
         type=Path,
-        required=True,
-        help="Path to directory where the scANVI/scArches model trained with integrated query data will be saved."
+        help="Optionally, path to directory where the scANVI/scArches model trained with integrated query data will be saved."
         " This directory will be created at export."
-        " If --slim-export is used, the model will not be exported.",
+        " If not provided, the model will not be saved."
     )
     parser.add_argument(
         "--predictions_tsv",
         type=Path,
         required=True,
         help="Path to the save TSV file of query scANVI/scArches model results."
-        " By default, this includes predictions, associated posterior probabilities, and the scANVI latent representation."
-        " If --slim-export is used, this will only include predictions and posterior probabilities.",
-    )
-    parser.add_argument(
-        "--slim-export",
-        action="store_true",
-        default=False,
-        help="When used, only a TSV file with query predictions and posterior probabilites will be exported."
+        " This includes predictions and associated posterior probabilities.",
     )
     parser.add_argument(
         "--testing",
@@ -157,30 +147,18 @@ def main() -> None:
     ################ Export objects ################
     ################################################
 
-    # prepare the primary TSV for export
+    # prepare the predictions with posterior probabilities for export
     predictions_df = query.obs[ expected_columns + [SCANVI_PREDICTIONS_KEY] ]
-
-    # extract posterior probabilities for each cell type and join with predictions
     posterior_df = scanvi_query.predict(soft=True)
     posterior_df.rename(columns=lambda x: f"pp_{x}", inplace=True)
     predictions_df = predictions_df.join(posterior_df)
 
-    if arg.slim_export:
-        # Export TSV with predictions and posterior only
-        predictions_df.to_csv(arg.predictions_tsv, sep="\t", index=False)
-    else:
-        # Export the query-trained scANVI model
+    # export TSV
+    predictions_df.to_csv(arg.predictions_tsv, sep="\t", index=False)
+
+    # export the query-trained scANVI model if specified
+    if arg.query_scanvi_model_dir:
         scanvi_query.save(arg.query_scanvi_model_dir, anndata=True, overwrite=True)
-
-        # Add latent representation to predictions DataFrame
-        latent_df = pd.DataFrame(query.obsm[SCANVI_LATENT_KEY])
-        latent_df.rename(columns=lambda x: f"{SCANVI_LATENT_KEY}_{x}", inplace=True)
-        latent_df.index = query.obs.index # set index for joining
-        predictions_df = predictions_df.join(latent_df)
-
-        # Export the predictions and latent representation to a TSV file
-        # don't need index; cell_id column is already present
-        predictions_df.to_csv(arg.predictions_tsv, sep="\t", index=False)
 
 
 if __name__ == "__main__":
