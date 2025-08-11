@@ -26,7 +26,7 @@ COVARIATE_KEYS = [
 ]
 CELL_ID_KEY = "cell_id"
 SCANVI_LATENT_KEY = "X_scANVI"
-SCANVI_PREDICTIONS_KEY = "scanvi_predicton"
+SCANVI_PREDICTIONS_KEY = "scanvi_prediction"
 
 
 def main() -> None:
