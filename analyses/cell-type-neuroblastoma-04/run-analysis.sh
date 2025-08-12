@@ -80,7 +80,6 @@ aggregate_singler=${aggregate_singler:-1} # default is to perform aggregation
 separate_tumor_singler=${separate_tumor_singler:-0} # default is to _not_ separate tumor cells
 filter_genes_singler=${filter_genes_singler:-0} # default is to _not_ filter out genes from NBAtlas
 
-
 ######## Set up singler flags ###########
 # Set up singler aggregation
 if [[ $aggregate_singler -eq 1 ]]; then
@@ -97,11 +96,12 @@ else
 fi
 
 # Set up singler gene filtering
-if [[ filter_genes_singler -eq 1 ]]; then
+if [[ $filter_genes_singler -eq 1 ]]; then
     filter_genes_flag="--filter_genes"
 else
     filter_genes_flag=""
 fi
+
 
 ####### Set up the testing flag and data ########
 # - If we are testing, we'll use the NBAtlas 50K subset. Otherwise, we'll use the full atlas.
@@ -228,16 +228,13 @@ prepared_anndata_file="${scratch_dir}/SCPCP000004_merged_prepared.h5ad"
 
 # define scANVI files
 scanvi_dir="${results_dir}/scanvi"
-scvi_output="${scanvi_dir}/scvi_model"
 scanvi_ref_output="${scanvi_dir}/scanvi_reference_model"
-scanvi_nbatlas_tsv="${scanvi_dir}/nbatlas_scanvi_latent.tsv"
+scanvi_predictions_tsv="${scanvi_dir}/scanvi_predictions.tsv"
 
 # Train the scANVI model
 python ${script_dir}/03a_train-scanvi-model.py \
   --reference_file "${nbatlas_anndata}" \
-  --reference_scvi_model_dir "${scvi_output}" \
   --reference_scanvi_model_dir "${scanvi_ref_output}" \
-  --scanvi_latent_tsv "${scanvi_nbatlas_tsv}" \
   ${test_flag}
 
 # Prepare the query merged SCE object for scANVI/scArches
@@ -246,3 +243,10 @@ Rscript ${script_dir}/03b_prepare-scanvi-query.R \
     --nbatlas_hvg_file "${nbatlas_hvg_file}" \
     --prepared_anndata_file "${prepared_anndata_file}" \
     --merged
+
+# Perform label transfer
+python ${script_dir}/03c_run-scanvi-label-transfer.py \
+  --query_file "${prepared_anndata_file}" \
+  --reference_scanvi_model_dir "${scanvi_ref_output}" \
+  --predictions_tsv "${scanvi_predictions_tsv}" \
+  ${test_flag}
