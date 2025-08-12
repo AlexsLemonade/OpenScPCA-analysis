@@ -16,16 +16,16 @@ calc_jaccard <- function(vec1, vec2) {
 # Wrapper function to calculate jaccard similarity matrix for two categorical variables
 #'
 #' @param celltype_df The celltype_df data frame which must contain these columns:
-#'   `colname1`, `colname2`, and `barcodes`
+#'   `colname1`, `colname2`, and `cell_id`
 #' @param colname1 Column name, as a string, of first categorical variable of interest
 #' @param colname2 Column name, as a string, of second categorical variable of interest
 #'
 #' @return Jaccard similarity matrix for the two columns. `colname1` values will
 #'   be row names and `colname2` values will be column names in the final matrix
 make_jaccard_matrix <- function(celltype_df, colname1, colname2) {
-  # make lists of barcodes for each category, named by the category
-  id1_list <- split(celltype_df$barcodes, celltype_df[[colname1]])
-  id2_list <- split(celltype_df$barcodes, celltype_df[[colname2]])
+  # make lists of cell_id for each category, named by the category
+  id1_list <- split(celltype_df$cell_id, celltype_df[[colname1]])
+  id2_list <- split(celltype_df$cell_id, celltype_df[[colname2]])
 
   # create the grid of comparisons
   cross_df <- tidyr::expand_grid(id1 = names(id1_list), id2 = names(id2_list))

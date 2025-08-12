@@ -4,7 +4,8 @@ This directory contains scripts used in the `cell-type-neuroblastoma-04` module.
 * `01_train-singler-model.R` trains a `SingleR` model from an `NBAtlas` reference object, which may or may not be aggregated first
 * `02_classify-singler.R` performs cell type annotation with `SingleR` using a given trained `SingleR` model on a given `SCE` object
 * `03a_train-scanvi-model.py` trains a `scANVI` model on the `NBAtlas` reference
-* `03b_prepare-scanvi-query.R` subsets and prepares a given SCPCP000004 `SCE` object for input to `scANVI`
+* `03b_prepare-scanvi-query.R` subsets and prepares a given SCPCP000004 `SCE` object for input to `03c-run-scanvi-label-transfer.py`
+* `03c-run-scanvi-label-transfer.py` performs cell type annotation using label transfer using the `NBAtlas` `scANVI` model on a query AnnData object prepared by `03b_prepare-scanvi-query.R`
 
 ## utils directory
 
