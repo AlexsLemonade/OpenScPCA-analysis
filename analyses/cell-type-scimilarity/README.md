@@ -4,9 +4,15 @@
 
 This module will be used to annotate cell types in all ScPCA libraries using [`SCimilarity`](https://genentech.github.io/scimilarity/index.html). 
 
+For cell type annotation, we use the model available on [Zenodo](https://zenodo.org/records/10685499). 
+
 ## Usage
 
-TBD
+You can run this module with the `run-analysis.sh` script present in this directory:
+
+```sh
+./run-analysis.sh
+```
 
 ## Input files
 
