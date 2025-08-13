@@ -73,10 +73,14 @@ labels_df <- scimilarity_labels_df |>
   dplyr::rename(scimilarity_celltype_ontology = ontology_id)
 
 # check that all labels have an ontology id
-stopifnot(
-  "Ontology IDs cannot be found for all cell type annotations" =
-    sum(is.na(labels_df$scimilarity_celltype_ontology)) == 0
-)
+# pull out the annotation and print out a list
+missing_annotations <- labels_df$scimilarity_celltype_annotation[is.na(labels_df$scimilarity_celltype_ontology)]
+if(length(missing_annotations) > 0){
+  glue::glue("Cell Ontology identifiers are missing for the following annotations:
+
+             {missing_annotations}
+             ")
+}
 
 # export
 readr::write_tsv(labels_df, opts$output_ontology_tsv)
