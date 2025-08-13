@@ -57,4 +57,3 @@ Rscript ${scripts_dir}/01-assign-ontology-ids.R \
   --model_dir $scimilarity_model_dir \
   --missing_ontology_tsv $missing_ontology_file \
   --output_ontology_tsv $scimlarity_ontology_file
-  
