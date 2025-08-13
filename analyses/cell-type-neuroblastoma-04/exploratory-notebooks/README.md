@@ -1,7 +1,8 @@
 This directory contains exploratory notebooks that are not specifically run in the analysis pipeline.
 
 
-* `singler-results.Rmd` explores SingleR annotation results and compares them to consensus cell types
+* `singler-results.Rmd` explores `SingleR` annotation results and compares them to consensus cell types
+* `scanvi-singler-comparison.Rmd` compares `scANVI` and `SingleR` annotation results to one another, including a brief comparison to consensus cell types
 
 
 ## `singler-testing`
