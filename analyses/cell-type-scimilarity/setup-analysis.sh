@@ -1,9 +1,10 @@
 #!/bin/bash
 
-# This script runs the SCimilarity cell type annotation module.
-#
+# This script is used to set up files needed to run SCimilarity 
+
 # Step 1: The SCimilarity model is downloaded from zenodo (https://zenodo.org/records/10685499) and saved to models/model_v1.1
-#
+# Step 2: A reference TSV file is created that includes all possible SCimilarity annotations and associated ontology IDs
+
 # Usage:
 #
 # ./run-analysis.sh

@@ -61,4 +61,4 @@ jobs:
           cd ${MODULE_PATH}
           # run module script(s) here
           # TODO: Create a test mode of this script to avoid downloading the full ~30 GB model 
-          # bash run-analysis.sh
+          # bash setup-analysis.sh
