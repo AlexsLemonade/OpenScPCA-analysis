@@ -50,10 +50,11 @@ fi
 ################## Create cell type reference TSV #################
 ###################################################################
 
+model_annotations_file="${scimilarity_model_dir}/annotation/reference_labels.tsv"
 missing_ontology_file="${ref_dir}/scimilarity-missing-ontology-assignments.tsv"
 scimlarity_ontology_file="${ref_dir}/scimilarity-mapped-ontologies.tsv"
 
 Rscript ${scripts_dir}/01-assign-ontology-ids.R \
-  --model_dir $scimilarity_model_dir \
+  --model_annotations_file $model_annotations_file \
   --missing_ontology_tsv $missing_ontology_file \
   --output_ontology_tsv $scimlarity_ontology_file

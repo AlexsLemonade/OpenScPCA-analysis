@@ -8,20 +8,20 @@
 # default is `models/model_v1.1`
 
 library(optparse)
-project_root <- here::here() 
+project_root <- here::here()
 
 option_list <- list(
   make_option(
-    opt_str = c("--model_dir"),
+    opt_str = c("--model_annotations_file"),
     type = "character",
-    default = file.path(project_root, "models", "model_v1.1"),
-    help = "Path to directory containing unzipped SCimilarity model"
+    default = file.path(project_root, "models", "model_v1.1", "annotation", "reference_labels.tsv"),
+    help = "Path to file containing annotations for a SCimilarity model"
   ),
   make_option(
     opt_str = c("--missing_ontology_tsv"),
     type = "character",
     default = file.path(project_root, "references", "scimilarity-missing-ontology-assignments.tsv"),
-    help = "Path to TSV file with the human readable value for any scimilarity cell type annotations that 
+    help = "Path to TSV file with the human readable value for any scimilarity cell type annotations that
       do not directly match to cell ontology IDs"
   ),
   make_option(
@@ -35,20 +35,17 @@ option_list <- list(
 opts <- parse_args(OptionParser(option_list = option_list))
 # Set up -----------------------------------------------------------------------
 
-# annotation label inputs
-scimilarity_labels_file <- file.path(opts$model_dir, "annotation", "reference_labels.tsv")
-
 # check that annotations exist
 stopifnot(
-  "--model_dir is missing annotation/reference_labels.tsv" = file.exists(scimilarity_labels_file),
+  "--model_dir is missing annotation/reference_labels.tsv" = file.exists(opts$model_annotations_file),
   "--missing_ontology_tsv does not exist" = file.exists(opts$missing_ontology_tsv)
 )
 
 # read in labels
-scimilarity_labels_df <- readr::read_tsv(scimilarity_labels_file, col_names = "scimilarity_celltype_annotation") |>
+scimilarity_labels_df <- readr::read_tsv(opts$model_annotations_file, col_names = "scimilarity_celltype_annotation") |>
   unique()
 
-# read in missing values 
+# read in missing values
 missing_df <- readr::read_tsv(opts$missing_ontology_tsv)
 
 # Prep ontology terms ----------------------------------------------------------
@@ -68,19 +65,19 @@ ontology_labels_df <- data.frame(
 # Add ontology IDs to annotation labels ----------------------------------------
 
 labels_df <- scimilarity_labels_df |>
-  dplyr::left_join(missing_df, by = "scimilarity_celltype_annotation") |> 
-  dplyr::mutate(human_readable_value = dplyr::if_else(is.na(human_readable_value), 
+  dplyr::left_join(missing_df, by = "scimilarity_celltype_annotation") |>
+  dplyr::mutate(human_readable_value = dplyr::if_else(is.na(human_readable_value),
                                                       scimilarity_celltype_annotation,
-                                                      human_readable_value)) |> 
-  dplyr::left_join(ontology_labels_df, by = "human_readable_value") |> 
-  dplyr::rename(scimilarity_celltype_ontology = ontology_id) 
+                                                      human_readable_value)) |>
+  dplyr::left_join(ontology_labels_df, by = "human_readable_value") |>
+  dplyr::rename(scimilarity_celltype_ontology = ontology_id)
 
-# check that all labels have an ontology id 
+# check that all labels have an ontology id
 stopifnot(
-  "Ontology IDs cannot be found for all cell type annotations" = 
-    sum(is.na(labels_df$scimilarity_celltype_ontology)) == 0 
+  "Ontology IDs cannot be found for all cell type annotations" =
+    sum(is.na(labels_df$scimilarity_celltype_ontology)) == 0
 )
 
-# export 
+# export
 readr::write_tsv(labels_df, opts$output_ontology_tsv)
 
