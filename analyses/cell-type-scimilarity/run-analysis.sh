@@ -36,7 +36,7 @@ scimilarity_model_dir="${model_dir}/model_v1.1"
 
 if [[ ! -d $scimilarity_model_dir ]]; then
   echo "Downloading the SCimilarity model..."
-  curl -L -o $compressed_scimilarity_model $url
+  curl -L -o $compressed_scimilarity_model $scimilarity_model_url
   echo "Unzipping the model..."
   tar -xzvf $compressed_scimilarity_model -C $scimilarity_model_dir
   rm $compressed_scimilarity_model
