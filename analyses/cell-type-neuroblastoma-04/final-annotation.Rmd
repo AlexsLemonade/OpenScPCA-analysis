@@ -9,20 +9,20 @@ output:
     code_folding: hide
 params:
   scanvi_pp_threshold: 0.75    
-  annotations_tsv: "results/SCPCP000004-annotations.tsv"
+  annotations_tsv: "../results/SCPCP000004-annotations.tsv"
 ---
 
 In this analysis module, we have annotated cell types in `SCPCP000004` samples using two methods: `SingleR` and `scANVI/scArches`, both using the `NBAtlas` dataset as a reference.
 In this notebook, we derive the final annotations using information from the `SingleR` labels, the `scANVI/scArches` labels, and existing consensus cell type annotations.
 All final annotations use labels present in the `NBAtlas` dataset.
 
-We use the following approach to determine the final annotation.
+We use the following approach to determine the final annotation:
 
 First, we prioritize inferences with `SingleR` and `scANVI/scArches`.
 If these methods returned the exact same label, we assign this label.
 
-Next, we compare labels across all three methods: if _two out of three_ methods agree, we assign the agreeing label.
-Note that this requires mapping consensus cell types to NBAtlas labels, which is only possible for these cell types: endothelial cells, fibroblasts, and immune cell types except for the `NBAtlas` labels `RBCs` and `pDC` which do not have corresponding consensus labels.
+Next, we compare labels across all three methods: if only _two out of three_ methods agree, we assign the agreeing label.
+Note that this requires mapping consensus cell types to NBAtlas labels, which is only possible for these cell types: endothelial cells, fibroblasts, B cells, and immune cell types except for the `NBAtlas` labels `RBCs` and `pDC` which do not have corresponding consensus labels.
 
 In this approach, there are two ways that cell type annotations can agree, and we treat them as follows:
 
@@ -100,8 +100,8 @@ get_unified_label <- function(
 ### Paths
 
 ```{r base paths}
-# The base path for the OpenScPCA repository, found by its (hidden) .git directory
-repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+module_dir <- rprojroot::find_root(rprojroot::is_renv_project)
+repository_base <- file.path(module_dir, "..", "..")
 
 data_dir <- file.path(repository_base, "data", "current", "SCPCP000004")
 merged_dir <- file.path(repository_base, "data", "current", "results", "merge-sce", "SCPCP000004")
@@ -445,12 +445,12 @@ Note that in the UMAP below, cell types in the same "family" each share a color:
 * Conventional dendritic cells: `cDC`, `cDC1`, `cDC2/DC3`, `Migratory cDC`
 * Monocytes: `Monocyte`, `Classical monocyte`, `Patrolling monocyte`
 
-```{r fig.width = 10, fig.height = 10}
+```{r fig.width = 8, fig.height = 8}
 ggplot(umap_df) +
   aes(x = UMAP1, y = UMAP2, color = cell_type_assignment) +
   geom_point(alpha = 0.2, size = 0.3) +
   scale_color_manual(values = celltype_pal) +
-  guides(color = guide_legend(override.aes = list(size = 2, alpha = 1), ncol=4))
+  guides(color = guide_legend(override.aes = list(size = 2, alpha = 1)))
 ```
 
 #### Colored by tumor classification
