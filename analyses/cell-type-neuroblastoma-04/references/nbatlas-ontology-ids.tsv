@@ -1,0 +1,28 @@
+NBAtlas_label	CL_ontology_id
+B cell	CL:0000236
+Endothelial	CL:0000115
+Fibroblast	CL:0000057
+Immune cycling	NA
+cDC1	CL:0002059
+cDC2/DC3	CL:0002399
+Migratory cDC	CL:4033045
+Classical monocyte	CL:0000860
+Patrolling monocyte	CL:0002051
+Macrophage	CL:0000235
+Neutrophil	CL:0000775
+NE	CL:0001064
+NK cell	CL:0000623
+Circulating NK cell	NA
+Resident NK cell	NA
+TOX2+/KIT+ NK cell	NA
+pDC	CL:0001058
+Plasma	CL:0000786
+RBCs	CL:0000232
+Schwann	CL:0002573
+Stromal other	NA
+T cell	CL:0000084
+CD4+ T cell	CL:0000492
+CD8+ T cell	CL:0000625
+NKT cell	CL:0000914
+Treg	CL:0000815
+Myeloid	CL:0000763
