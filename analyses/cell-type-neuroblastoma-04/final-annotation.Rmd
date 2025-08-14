@@ -143,7 +143,7 @@ scanvi_file <- file.path(
 palette_file <- file.path(
   module_dir,
   "palettes",
-  "submission-palette.tsv"
+  "nbatlas-cell-type-palette.tsv"
 )
 
 # label map file
