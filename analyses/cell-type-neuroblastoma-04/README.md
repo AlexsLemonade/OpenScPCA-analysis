@@ -7,7 +7,8 @@ The goal of this analysis module is to perform cell type annotation on samples f
 This module annotates cell types across samples in `SCPCP000004` using the [`NBAtlas` reference](https://doi.org/10.1016/j.celrep.2024.114804) (Bonine et al. 2024).
 
 * First, the module performs cell type annotation using [`SingleR`](https://doi.org/10.1016/j.celrep.2024.114804) (Aran et al. 2019)
-* [In progress] Second, the module performs cell type annotation using [`scANVI/scArches`](https://doi.org/10.1038/s41587-021-01001-7) (Lotfollahi et al. 2022)
+* Second, the module performs cell type annotation using [`scANVI/scArches`](https://doi.org/10.1038/s41587-021-01001-7) (Lotfollahi et al. 2022)
+* Third, the module uses these inferences, along with consensus cell types, to derive final annotations based on the NBAtlas reference
 
 ## Usage
 
@@ -49,8 +50,8 @@ You must be logged into your AWS account to download these files.
 
 ## Output files
 
-The module outputs results to the `results` directory.
-Please see `results/README.md` for additional details.
+The module outputs results to the `results` directory, including the final annotations which are saved in `results/SCPCP000004-annotations.tsv`
+Please see `results/README.md` for additional details about all results.
 
 ## Software requirements
 
