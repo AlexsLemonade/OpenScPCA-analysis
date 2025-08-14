@@ -8,6 +8,8 @@ platforms:
   - osx-arm64
 dependencies:
   - python=3.11
+  - awscli>=2.15
+  - conda-lock>=2.5
   - anndata
   - numba
   - llvmlite
