@@ -5,3 +5,7 @@
 # Ignore the scratch directory (but keep it present)
 /scratch/*
 !/scratch/.gitkeep
+
+# Ignore the models directory (but keep it present)
+/models/*
+!/models/.gitkeep

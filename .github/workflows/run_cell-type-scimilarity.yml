@@ -19,15 +19,15 @@ concurrency:
 
 on:
   workflow_dispatch:
-  # workflow_call:
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - analyses/cell-type-scimilarity/**
-  #     - "!analyses/cell-type-scimilarity/Dockerfile"
-  #     - "!analyses/cell-type-scimilarity/.dockerignore"
-  #     - .github/workflows/run_cell-type-scimilarity.yml
+  workflow_call:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - analyses/cell-type-scimilarity/**
+      - "!analyses/cell-type-scimilarity/Dockerfile"
+      - "!analyses/cell-type-scimilarity/.dockerignore"
+      - .github/workflows/run_cell-type-scimilarity.yml
 
 jobs:
   run-module:
@@ -53,10 +53,12 @@ jobs:
           working-directory: ${{ env.MODULE_PATH }}
 
       # Update this step as needed to download the desired data
-      - name: Download test data
-        run: ./download-data.py --test-data --format SCE
+      # - name: Download test data
+      #   run: ./download-data.py --test-data --format AnnData
 
       - name: Run analysis module
         run: |
           cd ${MODULE_PATH}
           # run module script(s) here
+          # TODO: Create a test mode of this script to avoid downloading the full ~30 GB model 
+          # bash setup-analysis.sh
