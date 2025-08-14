@@ -91,7 +91,7 @@ recoded_palette_file <- file.path(
 nbatlas_palette_file <- file.path(
   module_dir,
   "palettes",
-  "nbatlas-plus-cell-type-palette.tsv"
+  "nbatlas-cell-type-palette.tsv"
 )
 
 # label mapping
@@ -199,7 +199,7 @@ We'll make a histogram below using a very visible color to ensure the plot is le
 
 ```{r fig.height=12, fig.width=15}
 scanvi_df |>
-  tidyr::separate(cell_id, into = c("library_id", "barcode"), remove = FALSE) |>
+  tidyr::separate(cell_id, into = c("library_id", "barcode")) |>
   dplyr::add_count(library_id) |>
   dplyr::mutate(
     library_id = glue::glue("{library_id} (N={n})"),
@@ -312,7 +312,8 @@ celltype_df <- scuttle::makePerCellDF(
     values_to = "label"
   ) |>
   harmonize_celltypes(label, label_recoded) |>
-  dplyr::mutate(label = ifelse(label == "NE", "Neuroendocrine", label))
+  dplyr::mutate(label = ifelse(label == "NE", "Neuroendocrine", label)) |>
+  tidyr::separate(cell_id, into = c("library_id", "barcode"), remove = FALSE)
 ```
 
 
@@ -355,6 +356,9 @@ nbatlas_monocyte_celltypes <- nbatlas_label_map |>
   dplyr::filter(NBAtlas_label == "Monocyte") |>
   dplyr::pull(NBAtlas_label_immune_zoom)
 
+nbatlas_myeloid_celltypes <- nbatlas_label_map |>
+  dplyr::filter(NBAtlas_label == "Myeloid") |>
+  dplyr::pull(NBAtlas_label_immune_zoom)
 
 umap_direct_df <- celltype_df |>
   dplyr::filter(celltype_method != "validation_group_annotation") |>
@@ -432,6 +436,7 @@ celltype_wide_df <- celltype_df |>
     names_from = celltype_method,
     values_from = label
   )
+
 make_jaccard_heatmap(
   celltype_wide_df,
   "scanvi",
@@ -500,38 +505,106 @@ Note that this analysis does not consider similar labels (e.g. two types of T ce
 We'll also highlight the PDX samples here to see if there was any associated bias.
 
 
-```{r, fig.width = 10, fig.height = 4}
-frac_agree_df <- celltype_wide_df |>
-  tidyr::separate(cell_id, into = c("library_id", "barcode")) |>
+
+> I think it would be helpful to get a table in here that shows you % of each library that has exact agreement between SingleR and scANVI, % of each library where cells are in the same family (e.g., the same cell is labeled as two different T cell types), and % of each library that disagrees and is not in the same family.
+
+
+In this case, we consider these families specifically:
+
+* T cells: `T cell`, `Treg`, `CD4+ T cell`, `CD8+ T cell`
+* Natural killer cells: `NK cell`, `Circulating NK cell`, `Resident NK cell`, `TOX2+/KIT+ NK cell`
+* Conventional dendritic cells (cDC): `cDC`, `cDC1`, `cDC2/DC3`, `Migratory cDC`
+* Monocytes: `Monocyte`, `Classical monocyte`, `Patrolling monocyte`
+* Myeloid: `Neutrophil` and `Macrophage`
+
+```{r}
+# celltype_wide_df uses the original labels
+identical_agree_df <- celltype_wide_df |>
   dplyr::group_by(library_id) |>
   dplyr::summarize(
-    frac_agree = sum(scanvi == singler)/dplyr::n(), 
+    frac_identical = sum(scanvi == singler)/dplyr::n(), 
     library_size = dplyr::n()
   )
-frac_agree_df <- colData(merged_sce) |> 
-  as.data.frame() |> 
-  dplyr::select(library_id, is_xenograft) |> 
-  unique() |>
-  dplyr::right_join(frac_agree_df, by = "library_id")
 
+# create a wide data frame with "family" labels where possible
+celltype_family_df <- celltype_df |>
+  dplyr::filter(celltype_method != "validation_group_annotation") |>
+  # create label_family grouping
+  dplyr::mutate(
+    label_family = dplyr::case_when(
+      label %in% nbatlas_t_celltypes ~ "T cell",
+      label %in% nbatlas_nk_celltypes ~ "NK cell",
+      label %in% nbatlas_cdc_celltypes ~ "cDC",
+      label %in% nbatlas_monocyte_celltypes ~ "Monocyte",
+      label %in% nbatlas_myeloid_celltypes ~ "Myeloid", 
+      .default = label
+    )
+  ) |>
+  dplyr::select(-label_recoded, -label) |>
+  tidyr::pivot_wider(
+    names_from = celltype_method,
+    values_from = label_family
+  )
 
-p1 <- ggplot(frac_agree_df) + 
-  aes(x = frac_agree) + 
-  geom_histogram() + 
-  xlab("Fraction of SingleR and scANVI cells\nthat agree, per library")
+family_agree_df <- celltype_family_df |>
+  dplyr::group_by(library_id) |>
+  dplyr::summarize(frac_same_family = sum(scanvi == singler)/dplyr::n())
 
-p2 <- ggplot(frac_agree_df) + 
-  aes(x = library_size, y = frac_agree, color = is_xenograft) + 
-  geom_point() +
-  labs(
-    x = "Library size (n cells)",
-    y = "Fraction of SingleR and scANVI\ncells that agree"
-  ) +
-  theme(legend.position = "bottom")
-
-p1 + p2
-
+# if families disagree, then there is no agreement at all
+disagree_df <- celltype_family_df |>
+  dplyr::group_by(library_id) |>
+  dplyr::summarize(frac_disagree = sum(scanvi != singler)/dplyr::n())
 ```
+
+
+```{r}
+# combine into a single table for display & viz
+frac_df <- identical_agree_df |>
+  dplyr::left_join(family_agree_df) |>
+  dplyr::left_join(disagree_df) |>
+  # round to 4 decimals
+  dplyr::mutate(dplyr::across(contains("frac_"), round, 4)) |>
+  dplyr::select(
+    library_id, 
+    library_size, 
+    frac_identical, 
+    frac_same_family, 
+    frac_disagree
+  ) |>
+  dplyr::arrange(library_size)
+
+# use DT for improved exploration ability
+DT::datatable(frac_df, rownames = FALSE)
+```
+
+```{r}
+# add PDX column for plotting
+frac_df <- celltype_df |> 
+  dplyr::select(library_id, is_xenograft) |>
+  unique() |>
+  dplyr::right_join(frac_df)
+
+ggplot(frac_df) + 
+  aes(x = library_size, y = frac_same_family) + 
+  geom_point(aes(color = is_xenograft)) + 
+  geom_smooth(method = "lm") +
+  labs(
+    x = "Library size",
+    y = "Fraction of SingleR/scANVI labels from same family"
+  ) +
+  # stop going above 1
+  scale_y_continuous(limits = c(0, 1))
+```
+
+Most cells have agreeing annotations in the majority of libraries.
+There appears to be a slight trend (not signficant) that larger libraries have more agreement between methods, but this also seems driven by the libraries with low correspondence.
+
+### Libraries with high levels of disagreement 
+
+There are four libraries (2 PDX and 2 tissue) which show less than 50% agreement, so we should look at these a bit more closely.
+Notably, these do _not_ correspond to the four smallest libraries.
+
+
 
 ## Conclusions
 
