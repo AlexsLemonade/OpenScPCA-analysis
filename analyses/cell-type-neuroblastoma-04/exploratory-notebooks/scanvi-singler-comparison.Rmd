@@ -43,6 +43,7 @@ options(
 # The base path for the OpenScPCA repository, found by its (hidden) .git directory
 repository_base <- rprojroot::find_root(rprojroot::is_git_root)
 
+data_dir <- file.path(repository_base, "data", "current", "SCPCP000004")
 merged_dir <- file.path(repository_base, "data", "current", "results", "merge-sce", "SCPCP000004")
 module_dir <- file.path(repository_base, "analyses", "cell-type-neuroblastoma-04")
 ref_dir <- file.path(module_dir, "references")
@@ -96,6 +97,9 @@ nbatlas_palette_file <- file.path(
 
 # label mapping
 nbatlas_label_map_file <- file.path(ref_dir, "nbatlas-label-map.tsv")
+
+# sample metadata
+sample_metadata_file <- file.path(data_dir, "single_cell_metadata.tsv")
 ```
 
 ### Functions
@@ -186,6 +190,9 @@ recoded_celltype_pal["unknown_consensus"] <- NULL
 nbatlas_palette_df <- readr::read_tsv(nbatlas_palette_file)
 nbatlas_celltype_pal <- nbatlas_palette_df$hex_color
 names(nbatlas_celltype_pal) <- nbatlas_palette_df$NBAtlas_label
+
+# sample metadata
+sample_metadata <- readr::read_tsv(sample_metadata_file)
 ```
 
 
@@ -501,21 +508,19 @@ Again, we see excellent correspondence among all three methods.
 ## Cross-library comparison
 
 Across libraries, what fraction of `SingleR` and `scANVI` labels exactly agree?
-Note that this analysis does not consider similar labels (e.g. two types of T cells) but only does a quick look at identical labels.
-We'll also highlight the PDX samples here to see if there was any associated bias.
+For this, we'll compare among:
 
+* Fraction of identical labels
+* Fraction of labels that agree at least on the level of their cell type "family," where we define these families based on groups of NBAtlas annotations:
+  * T cells: `T cell`, `Treg`, `CD4+ T cell`, `CD8+ T cell`
+  * Natural killer cells: `NK cell`, `Circulating NK cell`, `Resident NK cell`, `TOX2+/KIT+ NK cell`
+  * Conventional dendritic cells (cDC): `cDC`, `cDC1`, `cDC2/DC3`, `Migratory cDC`
+  * Monocytes: `Monocyte`, `Classical monocyte`, `Patrolling monocyte`
+  * Myeloid: `Neutrophil` and `Macrophage`
+* Fraction of labels that entirely disagree
 
-
-> I think it would be helpful to get a table in here that shows you % of each library that has exact agreement between SingleR and scANVI, % of each library where cells are in the same family (e.g., the same cell is labeled as two different T cell types), and % of each library that disagrees and is not in the same family.
-
-
-In this case, we consider these families specifically:
-
-* T cells: `T cell`, `Treg`, `CD4+ T cell`, `CD8+ T cell`
-* Natural killer cells: `NK cell`, `Circulating NK cell`, `Resident NK cell`, `TOX2+/KIT+ NK cell`
-* Conventional dendritic cells (cDC): `cDC`, `cDC1`, `cDC2/DC3`, `Migratory cDC`
-* Monocytes: `Monocyte`, `Classical monocyte`, `Patrolling monocyte`
-* Myeloid: `Neutrophil` and `Macrophage`
+The table below shows these fractions for each library along with the library size.
+We also visualize the relationship between library size and family-based agreement.
 
 ```{r}
 # celltype_wide_df uses the original labels
@@ -557,13 +562,13 @@ disagree_df <- celltype_family_df |>
 ```
 
 
-```{r}
+```{r, message = FALSE}
 # combine into a single table for display & viz
 frac_df <- identical_agree_df |>
   dplyr::left_join(family_agree_df) |>
   dplyr::left_join(disagree_df) |>
   # round to 4 decimals
-  dplyr::mutate(dplyr::across(contains("frac_"), round, 4)) |>
+  dplyr::mutate(dplyr::across(contains("frac_"), \(x) round(x, 4))) |>
   dplyr::select(
     library_id, 
     library_size, 
@@ -577,7 +582,7 @@ frac_df <- identical_agree_df |>
 DT::datatable(frac_df, rownames = FALSE)
 ```
 
-```{r}
+```{r, message = FALSE, fig.width = 5, fig.height = 3}
 # add PDX column for plotting
 frac_df <- celltype_df |> 
   dplyr::select(library_id, is_xenograft) |>
@@ -590,20 +595,81 @@ ggplot(frac_df) +
   geom_smooth(method = "lm") +
   labs(
     x = "Library size",
-    y = "Fraction of SingleR/scANVI labels from same family"
+    y = "Fraction of SingleR/scANVI labels\nfrom the same family"
   ) +
   # stop going above 1
   scale_y_continuous(limits = c(0, 1))
 ```
 
 Most cells have agreeing annotations in the majority of libraries.
-There appears to be a slight trend (not signficant) that larger libraries have more agreement between methods, but this also seems driven by the libraries with low correspondence.
+Considering closely-related cells in the same family usually provides a couple more cells to be annotated, but not a large percentage.
+There appears to be a slight trend (not significant) that larger libraries have more agreement between methods, but this also seems driven by the libraries with low correspondence.
 
 ### Libraries with high levels of disagreement 
 
 There are four libraries (2 PDX and 2 tissue) which show less than 50% agreement, so we should look at these a bit more closely.
 Notably, these do _not_ correspond to the four smallest libraries.
 
+Here is the sample metadata for these four samples:
+
+```{r}
+disagree_ids <- frac_df |>
+  dplyr::filter(frac_disagree >= 0.5) |>
+  dplyr::pull(library_id)
+
+disagree_metadata <- sample_metadata |>
+  dplyr::filter(scpca_library_id %in% disagree_ids)
+```
+
+Looking closely here, we can see that these samples were in fact derived from two participants where one sample is a xenograft and the other is tissue.
+
+```{r}
+disagree_metadata |>
+  dplyr::select(scpca_library_id, sample_type, participant_id) |>
+  dplyr::arrange(participant_id)
+```
+
+These participant IDs are not associated with any other samples:
+
+```{r}
+sample_metadata |>
+  dplyr::filter(participant_id %in% disagree_metadata$participant_id) |>
+  dplyr::filter(!(scpca_library_id) %in% disagree_ids)
+```
+
+It's possible that patient-specific biology explains the discrepancies we see for these samples' cell types.
+
+We'll look more closely at their disagreements as well with heatmaps:
+
+```{r, fig.height = 8, fig.width = 8} 
+disagree_ids |>
+  # walk to only print the heatmaps once
+  purrr::walk(
+    \(id) {
+      library_df <- celltype_wide_df |>
+        dplyr::filter(library_id == id)
+      
+     frac_disagree <- frac_df |>
+       dplyr::filter(library_id == id) |>
+       dplyr::pull(frac_disagree)
+       
+     
+     heatmap_title <- glue::glue("{id} (fraction disagree = {frac_disagree})")
+      
+      make_jaccard_heatmap(
+        library_df,
+        "scanvi",
+        "singler",
+        glue::glue("{heatmap_title}\n\nscANVI label"),
+        "SingleR label"
+      )
+  })
+```
+
+
+For these libraries, the main source of disagreement is `scANVI` applying more homogeneous labeling of `Neuroendocrine` compared to `SingleR` which is assigning more varied cell types.
+Note that the two libraries where `scANVI` is _only_ detecting `Neuroendocrine` cells are the PDX libraries, for which we expect lower cell type diversity in general.
+It's not unlikely that a lot of what `SingleR` has labeled `Stromal other` or `Schwann` may be tumor.
 
 
 ## Conclusions
