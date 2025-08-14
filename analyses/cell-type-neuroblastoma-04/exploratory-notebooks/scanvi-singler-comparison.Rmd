@@ -78,7 +78,6 @@ scanvi_file <- file.path(
   "scanvi-predictions.tsv"
 )
 
-
 # broad consensus cell type groups
 validation_url <- "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/consensus-validation-groups.tsv"
 
@@ -87,6 +86,11 @@ recoded_palette_file <- file.path(
   module_dir,
   "palettes",
   "harmonized-cell-type-palette.tsv"
+)
+nbatlas_palette_file <- file.path(
+  module_dir,
+  "palettes",
+  "nbatlas-plus-cell-type-palette.tsv"
 )
 ```
 
@@ -164,10 +168,13 @@ validation_df <- readr::read_tsv(validation_url) |>
   dplyr::select(consensus_annotation, validation_group_annotation)
 
 # set up palettes
-# recoded to shared colors
 recoded_palette_df <- readr::read_tsv(recoded_palette_file)
 recoded_celltype_pal <- recoded_palette_df$hex_color
 names(recoded_celltype_pal) <- recoded_palette_df$harmonized_label
+
+nbatlas_palette_df <- readr::read_tsv(nbatlas_palette_file)
+nbatlas_celltype_pal <- nbatlas_palette_df$hex_color
+names(nbatlas_celltype_pal) <- nbatlas_palette_df$NBAtlas_label
 ```
 
 
@@ -177,54 +184,62 @@ Before comparing to `SingleR`, we should get a sense of reliability for the `scA
 `scANVI` returns a cell-specific posterior probability for each label, so we'll begin by looking at these distributions.
 
 First, what is the distribution of posterior probabilities for assigned labels?
-We'll look at this on a per-library basis to see if any libraries may have less confident annotations in general.
+We'll look at the minimum, maximum, and median posterior probabilities across libraries in a table.
 
-```{r fig.height=12, fig.width=15}
+```{r}
 scanvi_df |>
   tidyr::separate(cell_id, into = c("library_id", "barcode"), remove = FALSE) |>
-  dplyr::add_count(library_id) |>
-  dplyr::mutate(library_id = glue::glue("{library_id} (N={n})")) |>
-  ############ into ggplot ################
-  ggplot() + 
-  aes(x = scanvi_posterior) + 
-  # ugly but _very visible_ color
-  geom_histogram(bins = 100, fill = "magenta", color = "magenta") + 
-  facet_wrap(vars(library_id), scales = "free_y", ncol = 7)
+  dplyr::group_by(library_id) |>
+  dplyr::summarize(
+    library_size = dplyr::n(), 
+    min_posterior = min(scanvi_posterior), 
+    median_posterior = median(scanvi_posterior), 
+    max_posterior = max(scanvi_posterior)
+  ) |>
+  dplyr::arrange(library_size)
 ```
 
+Across libraries, the median posterior probability is always exceptionally high at >=0.99, which suggests `scANVI` confidence is roughly the same across libraries.
 
-The posterior probabilities here are all _exceptionally_ high, consistently across all libraries, which tells us that on the whole, `scANVI` is confident in assignments.
 
-Let's instead look at these probabilities on a per-cell type basis:
+Let's instead look at these probabilities on a per-cell type basis, this time with a ridge plot including a line for the median value for each distribution:
 
-```{r fig.height=8, fig.width=12}
-ggplot(scanvi_df) + 
-  aes(x = scanvi_posterior) + 
-  # ugly but _very visible_ color
-  geom_histogram(bins = 100, fill = "magenta", color = "magenta") + 
-  facet_wrap(vars(scanvi), scales = "free_y", ncol = 5) 
+```{r fig.height=8, fig.width=8}
+scanvi_df |>
+  dplyr::group_by(scanvi) |>
+  dplyr::mutate(scanvi = glue::glue("{scanvi} (n={dplyr::n()})")) |>
+  ########### into ggplot ############
+  ggplot() + 
+    aes(y = forcats::fct_infreq(scanvi), x = scanvi_posterior) + 
+    # show the median
+    ggridges::stat_density_ridges(quantile_lines = TRUE, quantiles = 2, alpha = 0.7) +
+    labs(x = "posterior probability", y = "scANVI label (number of cells)") 
 ```
 
 While annotation reliability is about the same on a per-library basis, it seems that certain cell types may be much easier to classify than others which may be a factor of how well represented they are in the `NBAtlas` reference.
-We'll look at the median value for each as well as the number of cells that were annotated for each label:
+There are very few cells in general associated with the cell types that have very low median posterior probabilities (`NKT cell`, `Migratory cDC`, `Circulating NK cell`).
+
+A `0.75` threshold seems like it may be a good middle-ground for preserving labels while removing low-confidence annotations. 
+What effect will this have?
+
+```{r}
+sum(scanvi_df$scanvi_posterior < 0.75) / nrow(scanvi_df)
+```
+
+This will throw out a bit under 2% of cells:
 
 ```{r}
 scanvi_df |>
-  dplyr::group_by(scanvi) |>
-  dplyr::summarize(
-    median_pp = median(scanvi_posterior), 
-    total_cells = dplyr::n()
-  ) |>
-  dplyr::arrange(median_pp)
+  dplyr::filter(scanvi_posterior < 0.75) |>
+  dplyr::count(scanvi) |>
+  dplyr::arrange(desc(n))
 ```
 
-There are very few cells in general associated with the cell types that have very low median posterior probabilities (`NKT cell` and `Migratory cDC`), which is comforting.
 
-A `0.9` threshold for the posterior probability here seems reasonable given how high these values are in general. 
-We'll therefore recode cells with posterior probabilities below 0.9 to `unknown_scanvi`.
+We'll therefore recode cells with posterior probabilities below 0.75 to `unknown_scanvi`.
 
 ```{r}
-pp_threshold <- 0.9
+pp_threshold <- 0.75
 scanvi_df <- scanvi_df |>
   dplyr::mutate(scanvi = ifelse(
     scanvi_posterior < pp_threshold, 
@@ -235,7 +250,7 @@ scanvi_df <- scanvi_df |>
 
 ## Compare labels
 
-We'll create a single data frame with UMAP coordinates and all cell types (consensus, `SingleR`, and `scANVI`):
+We'll create a single data frame with UMAP coordinates and all cell types (consensus, `SingleR`, and `scANVI`). 
 
 ```{r}
 celltype_df <- scuttle::makePerCellDF(
