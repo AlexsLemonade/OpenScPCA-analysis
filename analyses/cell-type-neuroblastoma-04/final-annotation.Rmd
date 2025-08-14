@@ -1,0 +1,490 @@
+---
+title: "Derive final annotations based on NBAtlas reference"
+author: "Stephanie J. Spielman"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+params:
+  scanvi_pp_threshold: 0.75    
+  annotations_tsv: "../results/SCPCP000004-annotations.tsv"
+---
+
+In this analysis module, we have annotated cell types in `SCPCP000004` samples using two methods: `SingleR` and `scANVI/scArches`, both using the `NBAtlas` dataset as a reference.
+In this notebook, we derive the final annotations using information from the `SingleR` labels, the `scANVI/scArches` labels, and existing consensus cell type annotations.
+All final annotations use labels present in the `NBAtlas` dataset.
+
+We use the following approach to determine the final annotation.
+
+First, we prioritize inferences with `SingleR` and `scANVI/scArches`.
+If these methods returned the exact same label, we assign this label.
+
+Next, we compare labels across all three methods: if _two out of three_ methods agree, we assign the agreeing label.
+Note that this requires mapping consensus cell types to NBAtlas labels, which is only possible for these cell types: endothelial cells, fibroblasts, and immune cell types except for the `NBAtlas` labels `RBCs` and `pDC` which do not have corresponding consensus labels.
+
+In this approach, there are two ways that cell type annotations can agree, and we treat them as follows:
+
+* Cell type annotations can have directly corresponding labels. For example:
+  * If the consensus cell type is `endothelial cell` and at least one of the `NBAtlas`-derived annotations is `Endothelial`, we assign the label `Endothelial`.
+* Cell type annotations can differ but be in the same "family" of cell types. For example:
+  * If the consensus cell type is `mature T cell` and at least one of the `NBAtlas`-derived annotations is `CD4+ T cell`, we assign the broader label `T cell`.
+  * If one `NBAtlas`-derived annotation is `Patrolling monocyte` and the other is `Classical monocyte`, we assign the broader label `Monocyte`.
+
+Finally, to the extent possible, we assign CL ontology IDs to the final annotations before export.
+
+## Setup
+
+```{r, warning = FALSE}
+suppressPackageStartupMessages({
+  library(ggplot2)
+  library(patchwork)
+  library(SingleCellExperiment)
+})
+
+theme_set(
+  theme_bw() +
+  theme(
+    axis.text = element_blank(), 
+    axis.ticks = element_blank(), 
+    legend.position = "bottom", 
+    aspect.ratio = 1
+  )
+)
+
+# settings
+options(
+  dplyr.summarise.inform = FALSE, 
+  readr.show_col_types = FALSE
+)
+```
+
+### Functions
+
+
+The function `get_unified_label()` defined in the chunk below determines a final label based on correspondence between at least two out of three labels, out of `SingleR`, `scANVI/scArches`, and the consensus label.
+
+
+```{r}
+#' Get unified cell type label
+#'
+#' @param annotation_df Data frame to annotate with columns `consensus`, `singler`, `scanvi`, and `cell_type_assignment`
+#' @param consensus_options Vector of consensus cell types that match the final label, used for `consensus`
+#' @param nbatlas_options Vector of NBAtlas cell types that match the final label, used for `singler` and `scanvi`
+#' @param final_label Final label to apply if at least two methods have labels present in their respective vectors
+#'
+#' @returns Updated annotation_df with `cell_type_assignment` filled in with the `final_label` value where appropriate
+get_unified_label <- function(
+    annotation_df, 
+    consensus_options, 
+    nbatlas_options, 
+    final_label) {
+  
+  annotation_df |>
+    dplyr::mutate(
+      # count how many annotations are in agreement
+      n = consensus %in% consensus_options +
+        singler %in% nbatlas_options + 
+        scanvi %in% nbatlas_options, 
+      # if >=2 agree, use this annotation
+      cell_type_assignment = ifelse(
+        is.na(cell_type_assignment) & n >= 2, 
+        final_label, 
+        cell_type_assignment
+    )) |>
+    dplyr::select(-n)
+}
+```
+
+### Paths
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+data_dir <- file.path(repository_base, "data", "current", "SCPCP000004")
+merged_dir <- file.path(repository_base, "data", "current", "results", "merge-sce", "SCPCP000004")
+module_dir <- file.path(repository_base, "analyses", "cell-type-neuroblastoma-04")
+ref_dir <- file.path(module_dir, "references")
+results_dir <- file.path(module_dir, "results")
+singler_dir <- file.path(results_dir, "singler")
+scanvi_dir <- file.path(results_dir, "scanvi")
+```
+
+
+```{r file paths}
+# merged SCE file
+sce_file <- file.path(
+  merged_dir,
+  "SCPCP000004_merged.rds"
+)
+
+# SingleR files
+singler_files <- list.files(
+  path = singler_dir,
+  pattern = "_singler-annotations\\.tsv",
+  recursive = TRUE,
+  full.names = TRUE
+) |>
+  # add names as library id
+  purrr::set_names(
+    \(x) {
+      stringr::str_remove(basename(x), "_singler-annotations.tsv")
+    }
+  )
+
+# scanvi predictions
+scanvi_file <- file.path(
+  scanvi_dir, 
+  "scanvi-predictions.tsv"
+)
+
+# palette file
+palette_file <- file.path(
+  module_dir,
+  "palettes",
+  "submission-palette.tsv"
+)
+
+# label map file
+nbatlas_label_map_file <- file.path(
+  ref_dir, 
+  "nbatlas-label-map.tsv"
+)
+
+# label ontologies file
+nbatlas_ontology_file <- file.path(
+  ref_dir, 
+  "nbatlas-ontology-ids.tsv"
+)
+
+validation_url <- "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/consensus-validation-groups.tsv"
+```
+
+
+### Read and prepare input data
+
+Read merged SCE object:
+
+```{r}
+merged_sce <- readRDS(sce_file)
+# immediately remove assays we don't need for space
+assay(merged_sce, "spliced") <- NULL
+assay(merged_sce, "counts") <- NULL
+reducedDim(merged_sce, "PCA") <- NULL
+```
+
+Read SingleR results:
+
+```{r}
+singler_df <- singler_files |>
+  purrr::map(readr::read_tsv) |>
+  purrr::list_rbind(names_to = "library_id") |>
+  dplyr::mutate(
+    # add cell id column for unique rows & joining
+    cell_id = glue::glue("{library_id}-{barcodes}"),
+    # recode NA -> "Unknown"
+    singler = ifelse(is.na(pruned.labels), "Unknown", pruned.labels)
+  ) |>
+  dplyr::select(cell_id, singler)
+```
+
+Read scANVI results:
+
+```{r}
+scanvi_df <- readr::read_tsv(
+  file.path(scanvi_dir, "scanvi_predictions.tsv")
+) |>
+  dplyr::select(
+    cell_id, 
+    scanvi = scanvi_prediction, 
+    starts_with("pp_")
+  ) |>
+  tidyr::pivot_longer(
+    starts_with("pp_"), 
+    names_to = "posterior_celltype", 
+    values_to = "posterior"
+  ) |>
+  dplyr::mutate(posterior_celltype = stringr::str_remove(posterior_celltype, "^pp_")) |>
+  dplyr::filter(scanvi == posterior_celltype) |>
+  # recode to Unknown if below the threshold
+  dplyr::mutate(scanvi = ifelse(posterior < params$scanvi_pp_threshold, "Unknown", scanvi)) |>
+  dplyr::select(cell_id, scanvi)
+```
+
+Read additional helper files:
+
+```{r}
+validation_df <- readr::read_tsv(validation_url)
+
+palette_df <- readr::read_tsv(palette_file)
+celltype_pal <- palette_df$hex_color
+names(celltype_pal) <- palette_df$NBAtlas_label
+
+nbatlas_label_map <- readr::read_tsv(nbatlas_label_map_file)
+nbatlas_ontology_ids <- readr::read_tsv(nbatlas_ontology_file)
+```
+
+
+Combine annotations into a single data frame:
+
+```{r}
+celltype_df <- scuttle::makePerCellDF(
+  merged_sce,
+  use.coldata = c("sample_id", "is_xenograft", "consensus_celltype_annotation")
+) |>
+  tibble::rownames_to_column("cell_id") |>
+  tidyr::separate(cell_id, into = c("library_id", "cell_barcode"), remove = FALSE) |>
+  # keep UMAP for eventual viz
+  dplyr::rename(
+    consensus = consensus_celltype_annotation, 
+    UMAP1 = UMAP.1, 
+    UMAP2 = UMAP.2
+  ) |>
+  dplyr::left_join(singler_df, by = "cell_id") |>
+  dplyr::left_join(scanvi_df, by = "cell_id") 
+
+
+# Pull out metadata we'll want later
+sample_metadata <- celltype_df |>
+  dplyr::select(sample_id, library_id, is_xenograft) |>
+  unique()
+
+# We can remove the merged_sce now
+rm(merged_sce)
+```
+
+
+Define closely-related groups of cell types that will be used for resolving annotations:
+
+```{r}
+#### Vectors of closely-related NBAtlas immune cell types
+nbatlas_t_celltypes <- nbatlas_label_map |>
+  dplyr::filter(NBAtlas_label == "T cell") |>
+  dplyr::pull(NBAtlas_label_immune_zoom)
+
+nbatlas_nk_celltypes <- nbatlas_label_map |>
+  dplyr::filter(NBAtlas_label == "NK cell") |>
+  dplyr::pull(NBAtlas_label_immune_zoom)
+
+nbatlas_myeloid_celltypes <- nbatlas_label_map |>
+  dplyr::filter(NBAtlas_label == "Myeloid") |>
+  dplyr::pull(NBAtlas_label_immune_zoom)
+
+# Note that cDC and Monocyte are not direct labels in the disseminated NBAtlas object,
+# but these groupings are used in the paper's marker gene analysis.
+nbatlas_cdc_celltypes <- nbatlas_label_map |>
+  dplyr::filter(NBAtlas_label == "cDC") |>
+  dplyr::pull(NBAtlas_label_immune_zoom)
+
+nbatlas_monocyte_celltypes <- nbatlas_label_map |>
+  dplyr::filter(NBAtlas_label == "Monocyte") |>
+  dplyr::pull(NBAtlas_label_immune_zoom)
+
+#### Vectors of closely-related consensus cell types
+consensus_t_celltypes <- validation_df |> 
+  dplyr::filter(validation_group_annotation == "T cell") |>
+  dplyr::pull(consensus_annotation)
+
+consensus_endo_celltypes <- validation_df |> 
+  dplyr::filter(validation_group_annotation == "endothelial cell") |>
+  dplyr::pull(consensus_annotation)
+
+consensus_myeloid_celltypes <- validation_df |> 
+  dplyr::filter(
+    # consider only groups corresponding to what NBAtlas breaks up 
+    # the Myeloid group into in the tumor zoom
+    validation_group_annotation %in% c("myeloid", "monocyte", "macrophage")
+  )|>
+  dplyr::pull(consensus_annotation)
+```
+
+
+## Annotate
+
+In this section, we'll derive the final annotations.
+
+First, we'll label any cells that have exactly matching `scANVI` and `SingleR` labels.
+
+```{r}
+annotation_df <- celltype_df |>
+  dplyr::select(cell_id, consensus, singler, scanvi) |>
+  dplyr::mutate(
+    cell_type_assignment = ifelse(
+      scanvi == singler, scanvi, NA
+    )
+  )
+```
+
+
+Next, we'll get unified labels for any cells where at least two of three methods agree.
+
+```{r}
+annotation_df <- annotation_df |>
+  get_unified_label("fibroblast", "Fibroblast", "Fibroblast") |>
+  get_unified_label("macrophage", "Macrophage", "Macrophage") |>
+  get_unified_label("neutrophil", "Neutrophil", "Neutrophil") |>
+  get_unified_label("plasma cell", "Plasma", "Plasma") |>
+  get_unified_label(consensus_endo_celltypes, "Endothelial", "Endothelial") |>
+  get_unified_label("natural killer cell", nbatlas_nk_celltypes, "NK cell") |>
+  get_unified_label("monocyte", nbatlas_monocyte_celltypes, "Monocyte") |>
+  get_unified_label("dendritic cell", nbatlas_cdc_celltypes, "cDC") |>
+  get_unified_label(consensus_t_celltypes, nbatlas_t_celltypes, "T cell") |>
+  # This must be last since it is the broadest category
+  get_unified_label(consensus_myeloid_celltypes, nbatlas_myeloid_celltypes, "Myeloid")
+```
+
+
+
+
+
+## Explore final annotations
+
+What fraction of cells have been annotated?
+
+```{r}
+sum(!is.na(annotation_df$cell_type_assignment)) / nrow(annotation_df)
+```
+
+What fraction of cells have been annotated per library?
+
+```{r, fig.width = 8, fig.height = 4}
+frac_labeled_df <- annotation_df |>
+  tidyr::separate(cell_id, into = c("library_id", "barcode"), remove = FALSE) |>
+  dplyr::group_by(library_id) |>
+  dplyr::summarize(
+    frac_labeled = sum(!is.na(cell_type_assignment))/dplyr::n(), 
+    library_size = dplyr::n()
+  ) |>
+  # get PDX logical for coloring
+  dplyr::inner_join(sample_metadata, by = "library_id")
+
+
+p1 <- ggplot(frac_labeled_df) + 
+  aes(x = frac_labeled) + 
+  geom_histogram(bins = 40) +
+  labs(x = "Fraction of library labeled") +
+  theme_bw()
+
+
+p2 <- ggplot(frac_labeled_df) + 
+  aes(x = library_size, y = frac_labeled, color = is_xenograft) + 
+  geom_point() + 
+  labs(
+    x = "Total cells in library",
+    y = "Fraction of library labeled"
+  ) +
+  theme_bw() +
+  theme(legend.position = "bottom")
+
+
+p1 + p2
+```
+
+### UMAPs
+
+In this section, we show the UMAP from the merged (not batch-corrected!) `SCPCP000004` object colored by cell type annotations and other potentially relevant metadata.
+
+
+```{r}
+# Finalize the annotations
+submission_df <- annotation_df |>
+  # add ontology ids
+  dplyr::left_join(
+    nbatlas_ontology_ids, 
+    by = c("cell_type_assignment" = "NBAtlas_label")
+  ) |>
+  # recode labels
+  dplyr::mutate(
+    cell_type_assignment = dplyr::case_when(
+      is.na(cell_type_assignment) ~ "Unknown", 
+      cell_type_assignment == "NE" ~ "Neuroendocrine/tumor",
+      .default = cell_type_assignment
+   ),
+    tumor_cell_classification = dplyr::case_when(
+      cell_type_assignment == "Unknown" ~ "Unknown", 
+      cell_type_assignment == "Neuroendocrine/tumor" ~ "tumor", 
+      .default = "normal"
+    )
+  ) |>
+  tidyr::separate(cell_id, into = c("library_id", "cell_barcode"), remove = FALSE) |>
+  dplyr::select(
+    cell_id, library_id, cell_barcode, cell_type_assignment, tumor_cell_classification, CL_ontology_id
+  )
+```
+
+
+
+```{r}
+# prepare data frame for plotting
+umap_df <- celltype_df |>
+  dplyr::select(cell_id, sample_id, library_id, is_xenograft, UMAP1, UMAP2) |>
+  dplyr::left_join(submission_df, by = "cell_id") |>
+  # group "same family" cell types in the factor for cleaner legend
+  # note this will give warnings if any of those cells aren't in the final annotation, but that's fine
+  dplyr::mutate(
+    cell_type_assignment = factor(cell_type_assignment), 
+    cell_type_assignment = forcats::fct_relevel(
+      cell_type_assignment, 
+      "T cell", nbatlas_t_celltypes, 
+      "NK cell", nbatlas_nk_celltypes,
+      "cDC", nbatlas_cdc_celltypes, 
+      "Monocyte", nbatlas_monocyte_celltypes
+    )
+  )
+```
+
+
+#### Colored by cell type assignment
+
+Note that in the UMAP below, cell types in the same "family" each share a color:
+
+* T cells: `T cell`, `Treg`, `CD4+ T cell`, `CD8+ T cell`
+* Natural killer cells: `NK cell`, `Circulating NK cell`, `Resident NK cell`, `TOX2+/KIT+ NK cell`
+* Conventional dendritic cells: `cDC`, `cDC1`, `cDC2/DC3`, `Migratory cDC`
+* Monocytes: `Monocyte`, `Classical monocyte`, `Patrolling monocyte`
+
+```{r fig.width = 10, fig.height = 10}
+ggplot(umap_df) +
+  aes(x = UMAP1, y = UMAP2, color = cell_type_assignment) +
+  geom_point(alpha = 0.2, size = 0.3) +
+  scale_color_manual(values = celltype_pal) +
+  guides(color = guide_legend(override.aes = list(size = 2, alpha = 1), ncol=4))
+```
+
+#### Colored by tumor classification
+
+
+```{r fig.width = 8, fig.height = 8}
+ggplot(umap_df) +
+  aes(x = UMAP1, y = UMAP2, color = tumor_cell_classification) +
+  geom_point(alpha = 0.2, size = 0.3) +
+  scale_color_brewer(palette = "Set2") +
+  guides(color = guide_legend(override.aes = list(size = 2, alpha = 1)))
+```
+
+#### Colored by PDX status
+
+```{r fig.width = 8, fig.height = 8}
+ggplot(umap_df) +
+  aes(x = UMAP1, y = UMAP2, color = is_xenograft) +
+  geom_point(alpha = 0.2, size = 0.3) +
+  scale_color_brewer(palette = "Set1") +
+  guides(color = guide_legend(override.aes = list(size = 2, alpha = 1)))
+```
+
+## Export
+
+```{r}
+readr::write_tsv(
+  submission_df,
+  params$annotations_tsv
+)
+```
+
+## Session Info
+
+```{r}
+sessionInfo()
+```
