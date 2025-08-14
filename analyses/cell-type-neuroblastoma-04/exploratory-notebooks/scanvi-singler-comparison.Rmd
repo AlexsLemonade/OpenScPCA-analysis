@@ -221,7 +221,7 @@ scanvi_df |>
 ```
 
 
-Across libraries, the median posterior probability is always exceptionally high at which suggests `scANVI` confidence is roughly the same across libraries.
+Across libraries, the median posterior probability is always exceptionally high which suggests `scANVI` confidence is roughly the same across libraries.
 
 Let's instead look at these probabilities on a per-cell type basis, this time with a ridge plot including a line for the median value for each distribution:
 
