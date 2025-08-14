@@ -5,7 +5,6 @@ channels:
   - pytorch
 platforms:
   - linux-64
-  - osx-64
   - osx-arm64
 dependencies:
   - python=3.11
