@@ -1,0 +1,676 @@
+---
+title: "Compare scANVI and SingleR annotations"
+author: "Stephanie J. Spielman"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+---
+
+We have used `SingleR` and `scANVI/scArches` to perform cell type annotation on `SCPCP000004` samples using the `NBAtlas` reference.
+The goal of this notebook is to compare these two sets of inferences to determine if they generally agree.
+   
+## Setup
+
+```{r, warning = FALSE}
+suppressPackageStartupMessages({
+  library(ggplot2)
+  library(patchwork)
+  library(SingleCellExperiment)
+})
+
+theme_set(theme_bw())
+set.seed(2025) # used for some viz
+
+# Define color ramp for shared use in the heatmaps
+heatmap_col_fun <- circlize::colorRamp2(c(0, 1), colors = c("white", "darkslateblue"))
+# Set heatmap padding option
+ComplexHeatmap::ht_opt(TITLE_PADDING = grid::unit(0.6, "in"))
+
+# settings
+options(
+  dplyr.summarise.inform = FALSE, 
+  readr.show_col_types = FALSE
+)
+```
+
+
+### Paths
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+data_dir <- file.path(repository_base, "data", "current", "SCPCP000004")
+merged_dir <- file.path(repository_base, "data", "current", "results", "merge-sce", "SCPCP000004")
+module_dir <- file.path(repository_base, "analyses", "cell-type-neuroblastoma-04")
+ref_dir <- file.path(module_dir, "references")
+results_dir <- file.path(module_dir, "results")
+singler_dir <- file.path(results_dir, "singler")
+scanvi_dir <- file.path(results_dir, "scanvi")
+```
+
+
+```{r file paths}
+# merged SCE file
+sce_file <- file.path(
+  merged_dir,
+  "SCPCP000004_merged.rds"
+)
+
+# SingleR files
+singler_files <- list.files(
+  path = singler_dir,
+  pattern = "_singler-annotations\\.tsv",
+  recursive = TRUE,
+  full.names = TRUE
+) |>
+  # add names as library id
+  purrr::set_names(
+    \(x) {
+      stringr::str_remove(basename(x), "_singler-annotations.tsv")
+    }
+  )
+
+# scanvi predictions
+scanvi_file <- file.path(
+  scanvi_dir, 
+  "scanvi-predictions.tsv"
+)
+
+# broad consensus cell type groups
+validation_url <- "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/consensus-validation-groups.tsv"
+
+# palette files
+recoded_palette_file <- file.path(
+  module_dir,
+  "palettes",
+  "harmonized-cell-type-palette.tsv"
+)
+nbatlas_palette_file <- file.path(
+  module_dir,
+  "palettes",
+  "nbatlas-cell-type-palette.tsv"
+)
+
+# label mapping
+nbatlas_label_map_file <- file.path(ref_dir, "nbatlas-label-map.tsv")
+
+# sample metadata
+sample_metadata_file <- file.path(data_dir, "single_cell_metadata.tsv")
+```
+
+### Functions
+
+```{r}
+# Source Jaccard and heatmap utilities functions
+source(file.path(module_dir, "scripts", "utils", "jaccard-utils.R"))
+
+# Source additional utilities functions:
+# - select_nbatlas_markers()
+# - harmonize_celltypes()
+# - faceted_umap()
+# - generate_dotplot()
+source(file.path(module_dir, "scripts", "utils", "celltype-utils.R"))
+```
+
+### Read and prepare input data
+
+Read merged SCE object:
+
+```{r}
+merged_sce <- readRDS(sce_file)
+# immediately remove assays we don't need for space
+assay(merged_sce, "spliced") <- NULL
+assay(merged_sce, "counts") <- NULL
+reducedDim(merged_sce, "PCA") <- NULL
+```
+
+Read SingleR results:
+
+```{r}
+singler_df <- singler_files |>
+  purrr::map(readr::read_tsv) |>
+  purrr::list_rbind(names_to = "library_id") |>
+  dplyr::mutate(
+    # add cell id column for unique rows & joining
+    cell_id = glue::glue("{library_id}-{barcodes}"),
+    # recode NA -> "unknown_singler"
+    singler = ifelse(is.na(pruned.labels),"Unknown", pruned.labels)
+  ) |>
+  dplyr::select(cell_id, singler, singler_delta_next = delta.next)
+```
+
+Read and prepare scanvi results:
+
+```{r}
+scanvi_full_df <- readr::read_tsv(
+  file.path(scanvi_dir, "scanvi_predictions.tsv")
+) |>
+  dplyr::select(
+    cell_id, 
+    scanvi = scanvi_prediction, 
+    starts_with("pp_")
+  ) |>
+  tidyr::pivot_longer(
+    starts_with("pp_"), 
+    names_to = "posterior_celltype", 
+    values_to = "posterior"
+  ) |>
+  dplyr::mutate(posterior_celltype = stringr::str_remove(posterior_celltype, "^pp_"))
+
+# create dedicated column for the posterior associated with the label
+scanvi_df <- scanvi_full_df |>
+  dplyr::filter(scanvi == posterior_celltype) |>
+  dplyr::select(cell_id, scanvi, scanvi_posterior = posterior)
+```
+
+
+Read and prepare additional helper files for viz:
+
+```{r}
+# validation groups data frame
+validation_df <- readr::read_tsv(validation_url) |>
+  dplyr::select(consensus_annotation, validation_group_annotation)
+
+# label mapping
+nbatlas_label_map <- readr::read_tsv(nbatlas_label_map_file)
+
+# set up palettes
+recoded_palette_df <- readr::read_tsv(recoded_palette_file)
+recoded_celltype_pal <- recoded_palette_df$hex_color
+names(recoded_celltype_pal) <- recoded_palette_df$harmonized_label
+# for this notebook, we want just a single Unknown
+recoded_celltype_pal["Unknown"] <- recoded_celltype_pal["unknown_singler"]
+
+nbatlas_palette_df <- readr::read_tsv(nbatlas_palette_file)
+nbatlas_celltype_pal <- nbatlas_palette_df$hex_color
+names(nbatlas_celltype_pal) <- nbatlas_palette_df$NBAtlas_label
+
+# sample metadata
+sample_metadata <- readr::read_tsv(sample_metadata_file)
+```
+
+
+## scANVI posterior probabilities
+
+Before comparing to `SingleR`, we should get a sense of reliability for the `scANVI` results.
+`scANVI` returns a cell-specific posterior probability for each label, so we'll begin by looking at these distributions.
+
+First, what is the distribution of posterior probabilities for assigned labels?
+We'll make a histogram below using a very visible color to ensure the plot is legible, where each panel is a library, and libraries are ordered by size.
+
+```{r fig.height=12, fig.width=15}
+scanvi_df |>
+  tidyr::separate(cell_id, into = c("library_id", "barcode")) |>
+  dplyr::add_count(library_id) |>
+  dplyr::mutate(
+    library_id = glue::glue("{library_id} (N={n})"),
+    library_id = factor(library_id), 
+    library_id = forcats::fct_infreq(library_id), 
+    library_id = forcats::fct_rev(library_id)
+  ) |>
+  ############ into ggplot ################
+  ggplot() + 
+  aes(x = scanvi_posterior) + 
+  # ugly but _very visible_ color
+  geom_histogram(bins = 100, fill = "magenta", color = "magenta") + 
+  facet_wrap(vars(library_id), scales = "free_y", ncol = 7)
+```
+
+
+Across libraries, the median posterior probability is always exceptionally high which suggests `scANVI` confidence is roughly the same across libraries.
+
+Let's instead look at these probabilities on a per-cell type basis, this time with a ridge plot including a line for the median value for each distribution:
+
+```{r fig.height=8, fig.width=8}
+scanvi_ridgeplot <- scanvi_df |>
+  dplyr::group_by(scanvi) |>
+  dplyr::mutate(scanvi = glue::glue("{scanvi} (n={dplyr::n()})")) |>
+  ########### into ggplot ############
+  ggplot() + 
+    aes(y = forcats::fct_infreq(scanvi), x = scanvi_posterior) + 
+    # show the median
+    ggridges::stat_density_ridges(quantile_lines = TRUE, quantiles = 2, alpha = 0.7) +
+    labs(x = "posterior probability", y = "scANVI label (number of cells)") 
+scanvi_ridgeplot
+```
+
+While annotation reliability is about the same on a per-library basis, it seems that certain cell types may be much easier to classify than others which may be a factor of how well represented they are in the `NBAtlas` reference.
+There are very few cells in general associated with the cell types that have very low median posterior probabilities (`NKT cell`, `Migratory cDC`, `Circulating NK cell`).
+
+A `0.75` threshold seems like it may be a good middle-ground for preserving labels while removing low-confidence annotations.
+What fraction of cells will this remove?
+
+```{r}
+sum(scanvi_df$scanvi_posterior < 0.75) / nrow(scanvi_df)
+```
+
+What are those cell types?
+
+```{r}
+scanvi_df |>
+  dplyr::filter(scanvi_posterior < 0.75) |>
+  dplyr::count(scanvi) |>
+  dplyr::arrange(desc(n))
+```
+Notably, none are Neuroendocrine (the tumor type).
+
+We'll apply the 0.75 threshold below by recoding these cells to `Unknown`.
+
+```{r}
+pp_threshold <- 0.75
+scanvi_df <- scanvi_df |>
+  dplyr::mutate(scanvi = ifelse(
+    scanvi_posterior < pp_threshold, 
+    "Unknown",
+    scanvi
+  ))
+```
+
+## Compare labels
+
+We'll create a single data frame with UMAP coordinates and all cell types (consensus, `SingleR`, and `scANVI`). 
+We'll do this at two levels of organization:
+
+- One with harmonized labels to be able to compare to consensus
+- One with original NBAtlas labels to just compare `SingleR` to `scANVI`
+
+
+```{r}
+celltype_df <- scuttle::makePerCellDF(
+  merged_sce,
+  use.coldata = c("sample_id", "is_xenograft", "consensus_celltype_annotation"),
+  use.dimred = c("UMAP")
+) |>
+  # there ARE repeated barcodes so we need to keep cell_id around
+  tibble::rownames_to_column("cell_id") |>
+  dplyr::rename(
+    UMAP1 = UMAP.1,
+    UMAP2 = UMAP.2,
+    consensus_annotation = consensus_celltype_annotation
+  ) |>
+  dplyr::left_join(validation_df, by = "consensus_annotation") |>
+  # recode consensus NAs to "Unknown"
+  dplyr::mutate(
+    validation_group_annotation = ifelse(
+      is.na(validation_group_annotation), "Unknown", validation_group_annotation
+    )
+  ) |>
+  dplyr::select(-consensus_annotation) |>
+  # merge in the annotations
+  dplyr::left_join(singler_df, by = "cell_id") |>
+  dplyr::left_join(scanvi_df, by = "cell_id") |>
+  # make it tidy
+  tidyr::pivot_longer(
+    c(validation_group_annotation, singler, scanvi), 
+    names_to = "celltype_method", 
+    values_to = "label"
+  ) |>
+  harmonize_celltypes(label, label_recoded) |>
+  dplyr::mutate(label = ifelse(label == "NE", "Neuroendocrine", label)) |>
+  tidyr::separate(cell_id, into = c("library_id", "barcode"), remove = FALSE)
+
+# can remove now for space
+rm(merged_sce)
+```
+
+
+## UMAP
+
+This section displays the UMAP for the _merged object_ (not integrated) with cell type labels across methods.
+We show a panel for each cell type method.
+
+### SingleR vs scANVI
+
+This set of UMAPs shows annotation results from `SingleR` and `scANVI`.
+
+Since there are many cell types in this plot, it has been colored so that cell types in the same "family" each share a color:
+
+* T cells: `T cell`, `Treg`, `CD4+ T cell`, `CD8+ T cell`
+* Natural killer cells: `NK cell`, `Circulating NK cell`, `Resident NK cell`, `TOX2+/KIT+ NK cell`
+* Conventional dendritic cells: `cDC`, `cDC1`, `cDC2/DC3`, `Migratory cDC`
+* Monocytes: `Monocyte`, `Classical monocyte`, `Patrolling monocyte`
+
+```{r, fig.width = 12, fig.height = 8}
+# define families using the provided map
+nbatlas_t_celltypes <- nbatlas_label_map |>
+  dplyr::filter(NBAtlas_label == "T cell") |>
+  dplyr::pull(NBAtlas_label_immune_zoom)
+
+nbatlas_nk_celltypes <- nbatlas_label_map |>
+  dplyr::filter(NBAtlas_label == "NK cell") |>
+  dplyr::pull(NBAtlas_label_immune_zoom)
+
+# Note that cDC and Monocyte are not direct labels in the disseminated NBAtlas object,
+# but these groupings are used in the paper's marker gene analysis.
+nbatlas_cdc_celltypes <- nbatlas_label_map |>
+  dplyr::filter(NBAtlas_label == "cDC") |>
+  dplyr::pull(NBAtlas_label_immune_zoom)
+
+nbatlas_monocyte_celltypes <- nbatlas_label_map |>
+  dplyr::filter(NBAtlas_label == "Monocyte") |>
+  dplyr::pull(NBAtlas_label_immune_zoom)
+
+# we'll use these later but not for this plot
+nbatlas_myeloid_celltypes <- nbatlas_label_map |>
+  dplyr::filter(NBAtlas_label == "Myeloid") |>
+  dplyr::pull(NBAtlas_label_immune_zoom)
+
+umap_direct_df <- celltype_df |>
+  dplyr::filter(celltype_method != "validation_group_annotation") |>
+  # shuffle points to ensure order they are plotted is random
+  dplyr::sample_frac(1) |> 
+  # order celltypes so that families are grouped together for a cleaner legend
+  # note this will give warnings if any of those cells aren't in the annotation, but that's fine
+  dplyr::mutate(
+    label = factor(label), 
+    label = forcats::fct_relevel(
+      label, 
+      "T cell", nbatlas_t_celltypes, 
+      "NK cell", nbatlas_nk_celltypes,
+      "cDC", nbatlas_cdc_celltypes, 
+      "Monocyte", nbatlas_monocyte_celltypes
+    )
+  )
+  
+  
+ggplot(umap_direct_df) +
+  aes(x = UMAP1, y = UMAP2, color = label) +
+  geom_point(alpha = 0.5, size = 0.2) +
+  scale_color_manual(values = nbatlas_celltype_pal) +
+  facet_wrap(vars(celltype_method)) +
+  coord_equal() + 
+  theme(
+    legend.position = "bottom", 
+    axis.text = element_blank(), 
+    axis.ticks = element_blank()
+  ) +
+  guides(color = guide_legend(override.aes = list(size = 2, alpha = 1)))
+```
+
+Cell type annotations look broadly consistent between these methods, although `SingleR` appears to assign more heterogeneity within the "clumps" of cells (which likely correspond to individual libraries in this merged object).
+
+
+### Harmonized labels for consensus comparison
+
+This set of UMAPs harmonizes cell type labels into broader groupings to enable a comparison with consensus annotations.
+Note that the `Unknown` cell type refers to cells uncategorized by `SingleR` or `scANVI`.
+
+```{r, fig.width = 12, fig.height = 8}
+ggplot(celltype_df) +
+  aes(x = UMAP1, y = UMAP2, color = label_recoded) +
+  geom_point(alpha = 0.5, size = 0.2) +
+  scale_color_manual(values = recoded_celltype_pal) +
+  facet_wrap(vars(celltype_method)) +
+  coord_equal() +
+  theme(
+    legend.position = "bottom", 
+    axis.text = element_blank(), 
+    axis.ticks = element_blank()
+  ) +
+  guides(color = guide_legend(override.aes = list(size = 2, alpha = 1)))
+```
+We see broad compatibility among all three approaches, and the Unknown consensus indeed appear to be mostly tumor cells (here, Neuroendocrine).
+This is reassuring that we have some robust cell type identifications here!
+
+
+## Heatmap
+
+This section shows heatmaps comparing annotations to one another.
+
+
+### SingleR vs scANVI
+
+This heatmap directly compares `SingleR` and `scANVI` annotations.
+
+```{r, fig.height = 9, fig.width = 9} 
+# make a wide version for the heatmap
+celltype_wide_df <- celltype_df |>
+  dplyr::filter(celltype_method != "validation_group_annotation") |>
+  dplyr::select(-label_recoded) |>
+  tidyr::pivot_wider(
+    names_from = celltype_method,
+    values_from = label
+  )
+
+make_jaccard_heatmap(
+  celltype_wide_df,
+  "scanvi",
+  "singler",
+  "scANVI label",
+  "SingleR label"
+)
+```
+
+This heatmap shows excellent correspondence between `SingleR` and `scANVI` annotations with most of the weight along the diagonal.
+
+We'll nail this down a bit further with some confusion matrix metrics:
+
+```{r, message=FALSE}
+# ensure factors are compatible for caret
+all_levels <- c(
+  celltype_wide_df$scanvi, 
+  celltype_wide_df$singler
+) |> unique()
+
+caret::confusionMatrix(
+  factor(celltype_wide_df$scanvi, levels = all_levels),  
+  factor(celltype_wide_df$singler, levels = all_levels)
+)$overall
+
+```
+
+### Harmonized labels for consensus comparison
+
+This stacked heatmap compares all three methods to one another, using broader cell type groupings to enable a more direct comparison with consensus annotations.
+
+```{r, fig.height = 13, fig.width = 12} 
+# make a wide version for the heatmap
+celltype_recoded_wide_df <- celltype_df |>
+  dplyr::select(-label) |>
+  tidyr::pivot_wider(
+    names_from = celltype_method,
+    values_from = label_recoded
+  )
+
+list(
+  "SingleR annotations" = make_jaccard_matrix(celltype_recoded_wide_df, "validation_group_annotation", "singler"),
+  "scANVI annotations" = make_jaccard_matrix(celltype_recoded_wide_df, "validation_group_annotation", "scanvi")
+) |>
+  purrr::imap(
+    \(jaccard_mat, name) create_single_heatmap(
+        mat = jaccard_mat,
+        row_title = name,
+        column_title = "Consensus validation groups",
+        keep_legend_name = "SingleR annotations" # arbitrary for labeling
+    )
+  ) |>
+  # concatenate vertically into HeatmapList object
+  purrr::reduce(ComplexHeatmap::`%v%`) |>
+  ComplexHeatmap::draw(heatmap_legend_side = "right")
+```
+
+Again, we see excellent correspondence among all three methods.
+
+
+
+## Cross-library comparison
+
+Across libraries, what fraction of `SingleR` and `scANVI` labels exactly agree?
+For this, we'll compare among:
+
+* Fraction of identical labels
+* Fraction of labels that agree at least on the level of their cell type "family," where we define these families based on groups of NBAtlas annotations:
+  * T cells: `T cell`, `Treg`, `CD4+ T cell`, `CD8+ T cell`
+  * Natural killer cells: `NK cell`, `Circulating NK cell`, `Resident NK cell`, `TOX2+/KIT+ NK cell`
+  * Conventional dendritic cells (cDC): `cDC`, `cDC1`, `cDC2/DC3`, `Migratory cDC`
+  * Monocytes: `Monocyte`, `Classical monocyte`, `Patrolling monocyte`
+  * Myeloid: `Neutrophil` and `Macrophage`
+* Fraction of labels that entirely disagree
+
+The table below shows these fractions for each library along with the library size.
+We also visualize the relationship between library size and family-based agreement.
+
+```{r}
+# celltype_wide_df uses the original labels
+identical_agree_df <- celltype_wide_df |>
+  dplyr::group_by(library_id) |>
+  dplyr::summarize(
+    frac_identical = sum(scanvi == singler)/dplyr::n(), 
+    library_size = dplyr::n()
+  )
+
+# create a wide data frame with "family" labels where possible
+celltype_family_df <- celltype_df |>
+  dplyr::filter(celltype_method != "validation_group_annotation") |>
+  # create label_family grouping
+  dplyr::mutate(
+    label_family = dplyr::case_when(
+      label %in% nbatlas_t_celltypes ~ "T cell",
+      label %in% nbatlas_nk_celltypes ~ "NK cell",
+      label %in% nbatlas_cdc_celltypes ~ "cDC",
+      label %in% nbatlas_monocyte_celltypes ~ "Monocyte",
+      label %in% nbatlas_myeloid_celltypes ~ "Myeloid", 
+      .default = label
+    )
+  ) |>
+  dplyr::select(-label_recoded, -label) |>
+  tidyr::pivot_wider(
+    names_from = celltype_method,
+    values_from = label_family
+  )
+
+family_agree_df <- celltype_family_df |>
+  dplyr::group_by(library_id) |>
+  dplyr::summarize(frac_same_family = sum(scanvi == singler)/dplyr::n())
+
+# if families disagree, then there is no agreement at all
+disagree_df <- celltype_family_df |>
+  dplyr::group_by(library_id) |>
+  dplyr::summarize(frac_disagree = sum(scanvi != singler)/dplyr::n())
+```
+
+
+```{r, message = FALSE}
+# combine into a single table for display & viz
+frac_df <- identical_agree_df |>
+  dplyr::left_join(family_agree_df) |>
+  dplyr::left_join(disagree_df) |>
+  # round to 4 decimals
+  dplyr::mutate(dplyr::across(contains("frac_"), \(x) round(x, 4))) |>
+  dplyr::select(
+    library_id, 
+    library_size, 
+    frac_identical, 
+    frac_same_family, 
+    frac_disagree
+  ) |>
+  dplyr::arrange(library_size)
+
+# use DT for improved exploration ability
+DT::datatable(frac_df, rownames = FALSE)
+```
+
+```{r, message = FALSE, fig.width = 5, fig.height = 3}
+# add PDX column for plotting
+frac_df <- celltype_df |> 
+  dplyr::select(library_id, is_xenograft) |>
+  unique() |>
+  dplyr::right_join(frac_df)
+
+ggplot(frac_df) + 
+  aes(x = library_size, y = frac_same_family) + 
+  geom_point(aes(color = is_xenograft)) + 
+  geom_smooth(method = "lm") +
+  labs(
+    x = "Library size",
+    y = "Fraction of SingleR/scANVI labels\nfrom the same family"
+  ) +
+  # stop going above 1
+  scale_y_continuous(limits = c(0, 1))
+```
+
+Most cells have agreeing annotations in the majority of libraries.
+Considering closely-related cells in the same family usually provides a couple more cells to be annotated, but not a large percentage.
+There appears to be a slight trend (not significant) that larger libraries have more agreement between methods, but this also seems driven by the libraries with low correspondence.
+
+### Libraries with high levels of disagreement 
+
+There are four libraries (2 PDX and 2 tissue) which show less than 50% agreement, so we should look at these a bit more closely.
+Notably, these do _not_ correspond to the four smallest libraries.
+
+Here is the sample metadata for these four samples:
+
+```{r}
+disagree_ids <- frac_df |>
+  dplyr::filter(frac_disagree >= 0.5) |>
+  dplyr::pull(library_id)
+
+disagree_metadata <- sample_metadata |>
+  dplyr::filter(scpca_library_id %in% disagree_ids)
+```
+
+Looking closely here, we can see that these samples were in fact derived from two participants where one sample is a xenograft and the other is tissue.
+
+```{r}
+disagree_metadata |>
+  dplyr::select(scpca_library_id, sample_type, participant_id) |>
+  dplyr::arrange(participant_id)
+```
+
+These participant IDs are not associated with any other samples:
+
+```{r}
+sample_metadata |>
+  dplyr::filter(participant_id %in% disagree_metadata$participant_id) |>
+  dplyr::filter(!(scpca_library_id) %in% disagree_ids)
+```
+
+It's possible that patient-specific biology explains the discrepancies we see for these samples' cell types.
+
+We'll look more closely at their disagreements as well with heatmaps:
+
+```{r, fig.height = 8, fig.width = 8} 
+disagree_ids |>
+  # walk to only print the heatmaps once
+  purrr::walk(
+    \(id) {
+      library_df <- celltype_wide_df |>
+        dplyr::filter(library_id == id)
+      
+     frac_disagree <- frac_df |>
+       dplyr::filter(library_id == id) |>
+       dplyr::pull(frac_disagree)
+       
+     
+     heatmap_title <- glue::glue("{id} (fraction disagree = {frac_disagree})")
+      
+      make_jaccard_heatmap(
+        library_df,
+        "scanvi",
+        "singler",
+        glue::glue("{heatmap_title}\n\nscANVI label"),
+        "SingleR label"
+      )
+  })
+```
+
+
+For these libraries, the main source of disagreement is `scANVI` applying more homogeneous labeling of `Neuroendocrine` compared to `SingleR` which is assigning more varied cell types.
+Note that the two libraries where `scANVI` is _only_ detecting `Neuroendocrine` cells are the PDX libraries, for which we expect lower cell type diversity in general.
+It's not unlikely that a lot of what `SingleR` has labeled `Stromal other` or `Schwann` may be tumor.
+
+
+## Conclusions
+
+Overall `SingleR` and `scANVI` appear to have made highly similar predictions for the vast majority of libraries.
+These cell types are also fairly similar to our existing consensus cell types.
+Therefore, we can use agreement between `SingleR` and `scANVI` to derive final annotations for this analysis module.
+
+
+```{r}
+sessionInfo()
+```

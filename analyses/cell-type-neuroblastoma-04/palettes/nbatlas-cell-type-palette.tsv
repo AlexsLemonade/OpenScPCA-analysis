@@ -1,0 +1,31 @@
+NBAtlas_label	hex_color
+Neuroendocrine	#FEAF16
+Stromal other	#895129
+Schwann	#325A9B
+Endothelial	#FC1CBF
+cDC	#16FF32
+cDC1	#16FF32
+cDC2/DC3	#16FF32
+Migratory cDC	#16FF32
+Fibroblast	#B10DA1
+T cell	#3283FE
+CD8+ T cell	#3283FE
+CD4+ T cell	#3283FE
+Treg	#3283FE
+NKT cell	#3283FE
+Monocyte	#1CBE4F
+Patrolling monocyte	#1CBE4F
+Classical monocyte	#1CBE4F
+Myeloid	#90AD1C
+Neutrophil	#657916ff
+Macrophage	#1C8356
+RBCs	#F6222E
+NK cell	#FDF07F
+Circulating NK cell	#FDF07F
+Resident NK cell	#FDF07F
+TOX2+/KIT+ NK cell	#FDF07F
+B cell	#AA0DFE
+Immune cycling	#FA0087
+pDC	#2ED9FF
+Plasma	#782AB6
+Unknown	#B7B7B7
