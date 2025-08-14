@@ -241,13 +241,7 @@ scanvi_ridgeplot
 While annotation reliability is about the same on a per-library basis, it seems that certain cell types may be much easier to classify than others which may be a factor of how well represented they are in the `NBAtlas` reference.
 There are very few cells in general associated with the cell types that have very low median posterior probabilities (`NKT cell`, `Migratory cDC`, `Circulating NK cell`).
 
-A `0.75` threshold seems like it may be a good middle-ground for preserving labels while removing low-confidence annotations:
-
-```{r fig.height=8, fig.width=8}
-scanvi_ridgeplot +
-  geom_vline(xintercept = 0.75, color = "firebrick")
-```
-
+A `0.75` threshold seems like it may be a good middle-ground for preserving labels while removing low-confidence annotations.
 What fraction of cells will this remove?
 
 ```{r}
