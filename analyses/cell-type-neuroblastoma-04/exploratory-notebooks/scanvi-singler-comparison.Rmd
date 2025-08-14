@@ -184,28 +184,33 @@ Before comparing to `SingleR`, we should get a sense of reliability for the `scA
 `scANVI` returns a cell-specific posterior probability for each label, so we'll begin by looking at these distributions.
 
 First, what is the distribution of posterior probabilities for assigned labels?
-We'll look at the minimum, maximum, and median posterior probabilities across libraries in a table.
+We'll make a histogram below using a very visible color to ensure the plot is legible, where each panel is a library, and libraries are ordered by size.
 
-```{r}
+```{r fig.height=12, fig.width=15}
 scanvi_df |>
   tidyr::separate(cell_id, into = c("library_id", "barcode"), remove = FALSE) |>
-  dplyr::group_by(library_id) |>
-  dplyr::summarize(
-    library_size = dplyr::n(), 
-    min_posterior = min(scanvi_posterior), 
-    median_posterior = median(scanvi_posterior), 
-    max_posterior = max(scanvi_posterior)
+  dplyr::add_count(library_id) |>
+  dplyr::mutate(
+    library_id = glue::glue("{library_id} (N={n})"),
+    library_id = factor(library_id), 
+    library_id = forcats::fct_infreq(library_id), 
+    library_id = forcats::fct_rev(library_id)
   ) |>
-  dplyr::arrange(library_size)
+  ############ into ggplot ################
+  ggplot() + 
+  aes(x = scanvi_posterior) + 
+  # ugly but _very visible_ color
+  geom_histogram(bins = 100, fill = "magenta", color = "magenta") + 
+  facet_wrap(vars(library_id), scales = "free_y", ncol = 7)
 ```
 
-Across libraries, the median posterior probability is always exceptionally high at >=0.99, which suggests `scANVI` confidence is roughly the same across libraries.
 
+Across libraries, the median posterior probability is always exceptionally high at which suggests `scANVI` confidence is roughly the same across libraries.
 
 Let's instead look at these probabilities on a per-cell type basis, this time with a ridge plot including a line for the median value for each distribution:
 
 ```{r fig.height=8, fig.width=8}
-scanvi_df |>
+scanvi_ridgeplot <- scanvi_df |>
   dplyr::group_by(scanvi) |>
   dplyr::mutate(scanvi = glue::glue("{scanvi} (n={dplyr::n()})")) |>
   ########### into ggplot ############
@@ -214,19 +219,27 @@ scanvi_df |>
     # show the median
     ggridges::stat_density_ridges(quantile_lines = TRUE, quantiles = 2, alpha = 0.7) +
     labs(x = "posterior probability", y = "scANVI label (number of cells)") 
+scanvi_ridgeplot
 ```
 
 While annotation reliability is about the same on a per-library basis, it seems that certain cell types may be much easier to classify than others which may be a factor of how well represented they are in the `NBAtlas` reference.
 There are very few cells in general associated with the cell types that have very low median posterior probabilities (`NKT cell`, `Migratory cDC`, `Circulating NK cell`).
 
-A `0.75` threshold seems like it may be a good middle-ground for preserving labels while removing low-confidence annotations. 
-What effect will this have?
+A `0.75` threshold seems like it may be a good middle-ground for preserving labels while removing low-confidence annotations:
+
+```{r fig.height=8, fig.width=8}
+scanvi_ridgeplot +
+  geom_vline(xintercept = 0.75, color = "firebrick")
+```
+
+
+How many cells will this remove?
 
 ```{r}
 sum(scanvi_df$scanvi_posterior < 0.75) / nrow(scanvi_df)
 ```
 
-This will throw out a bit under 2% of cells:
+What are those cell types?
 
 ```{r}
 scanvi_df |>
