@@ -411,6 +411,8 @@ submission_df <- annotation_df |>
   dplyr::select(
     cell_id, library_id, cell_barcode, cell_type_assignment, tumor_cell_classification, CL_ontology_id
   )
+# update palette label as well
+names(celltype_pal)[names(celltype_pal) == "Neuroendocrine"] <- "Neuroendocrine/tumor"
 ```
 
 
