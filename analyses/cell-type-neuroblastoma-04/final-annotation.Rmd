@@ -9,7 +9,7 @@ output:
     code_folding: hide
 params:
   scanvi_pp_threshold: 0.75    
-  annotations_tsv: "../results/SCPCP000004-annotations.tsv"
+  annotations_tsv: "results/SCPCP000004-annotations.tsv"
 ---
 
 In this analysis module, we have annotated cell types in `SCPCP000004` samples using two methods: `SingleR` and `scANVI/scArches`, both using the `NBAtlas` dataset as a reference.
