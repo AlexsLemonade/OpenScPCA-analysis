@@ -36,6 +36,21 @@ TBD
 
 This module uses both `renv` and `conda` to manage R and Python software environments, respectively.
 
+To set up and activate the `conda` environment, run the following from the module directory:
+
+```
+conda-lock install --name openscpca-cell-type-scimilarity conda-lock.yml
+conda activate openscpca-cell-type-scimilarity
+```
+
+Running this requires that `conda-lock` is available in the current environment, e.g. from within the [`openscpca` environment](https://openscpca.readthedocs.io/en/latest/technical-setup/environment-setup/setup-conda/#create-an-openscpca-conda-environment).
+
+To set up the `renv` environment, launch `R` from the module directory and run:
+
+```
+renv::restore()
+```
+
 ## Computational resources
 
 Running `SCimilarity` requires at least 64 GB of RAM.  

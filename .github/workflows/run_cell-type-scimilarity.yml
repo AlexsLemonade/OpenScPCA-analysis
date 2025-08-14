@@ -33,6 +33,9 @@ jobs:
   run-module:
     if: github.repository_owner == 'AlexsLemonade'
     runs-on: ubuntu-latest
+    defaults:
+      run: 
+        shell: bash -el {0}
 
     steps:
       - name: Checkout repo
@@ -51,6 +54,14 @@ jobs:
         uses: r-lib/actions/setup-renv@v2
         with:
           working-directory: ${{ env.MODULE_PATH }}
+          
+      - name: Set up conda 
+        uses: conda-incubator/setup-miniconda@v3
+        
+      - name: Install and activate locked conda environment 
+        run: |
+          conda install conda-lock
+          conda-lock install --name test ${MODULE_PATH}/conda-lock.yml
 
       # Update this step as needed to download the desired data
       # - name: Download test data

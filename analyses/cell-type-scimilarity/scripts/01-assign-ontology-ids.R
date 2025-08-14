@@ -4,8 +4,8 @@
 # The output is a TSV file that contains `scimilarity_celltype_ontology`, `scimilarity_celltype_annotation`, and `human_readable_value`
 
 # running this script requires downloading and unzipping the model from zenodo (https://zenodo.org/records/10685499)
-# the path to the unzipped model directory should be provided with the `--model_dir` argument.
-# default is `models/model_v1.1`
+# the path to the annotation/reference_labels.tsv inside the unzipped model directory should be provided with the `--model_annotations_file` argument.
+# default is `models/model_v1.1/annotation/reference_labels.tsv`
 
 library(optparse)
 project_root <- here::here()
