@@ -1,0 +1,25 @@
+NBAtlas_label_immune_zoom	NBAtlas_label
+B cell	B cell
+Endothelial	Endothelial
+Fibroblast	Fibroblast
+Immune cycling	Immune cycling
+cDC1	cDC
+cDC2/DC3	cDC
+Migratory cDC	cDC
+Classical monocyte	Monocyte
+Patrolling monocyte	Monocyte
+Macrophage	Myeloid
+Neutrophil	Myeloid
+NE	NE
+Circulating NK cell	NK cell
+Resident NK cell	NK cell
+TOX2+/KIT+ NK cell	NK cell
+pDC	pDC
+Plasma	Plasma
+RBCs	RBCs
+Schwann	Schwann
+Stromal other	Stromal other
+CD4+ T cell	T cell
+CD8+ T cell	T cell
+NKT cell	T cell
+Treg	T cell
