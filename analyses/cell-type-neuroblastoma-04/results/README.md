@@ -1,5 +1,7 @@
 # Results directory
 
+Final annotations are provided in `SCPCP000004-annotations.tsv`.
+
 ## SingleR Results
 
 The `singler` directory contains RDS and TSV files, organized by sample id, with results from running `SingleR` from `../run-analysis.sh` with default arguments.
@@ -7,6 +9,14 @@ Each library has two inference files:
 
 * `{library_id}_singler-annotations.tsv`: A TSV of pruned labels
 * `{library_id}_singler-results.rds`: The full `SingleR` output
+
+
+## scANVI Results
+
+The `scanvi` directory results from running `scANVI/scArches`:
+
+* `scanvi_predictions.tsv`: A TSV of predicted labels and associated posterior probabilities
+* `scanvi_reference_model`: Directory containing the reference (NBAtlas)-trained `scANVI` model including its `AnnData` object
 
 ## Results from exploratory analyses
 
