@@ -36,13 +36,14 @@ Bleijs
 Bonine
 Cao
 Carpentries
+cDC
+CDH
 CellAssign
 CELLxGENE
 chemotherapies
 chondrocyte
 chondrocytes
 chr
-CDH
 CLI
 Cmd
 CNA
@@ -117,6 +118,7 @@ glioblastoma
 glioma
 Goodspeed
 GPUs
+GRCh
 GTF
 Hafemeister
 Halbritter
@@ -138,11 +140,13 @@ indicia
 inferCNV
 InferCNV
 intra
+iteratively
 Jaccard
 Jitter
 JSON
 Jupyter
 karyotyping
+KMeans
 LCA
 leiden
 leptomeningeal
@@ -160,6 +164,7 @@ linters
 lockfile
 LOH
 Looney
+Lotfollahi
 louvain
 LSfR
 LTL
@@ -245,6 +250,7 @@ pseudobulk
 PTPRC
 README
 recoded
+recoding
 redistribution
 redistributions
 renv
@@ -260,9 +266,11 @@ RStudio
 RStudio's
 Rtools
 SaaS
+scANVI
 scDblFinder
 SCE
 ScPCA
+SCPCAB
 SCPCL
 SCPCP
 SCPCS
@@ -307,6 +315,7 @@ triphasic
 TSV
 UCell
 UMAP
+uncategorized
 uncomment
 unhide
 upregulated
