@@ -1,5 +1,5 @@
 # This file contains the following functions:
-# - select_nbatlas_markers()
+# - subset_nbatlas_markers()
 # - harmonize_celltypes()
 # - faceted_umap()
 # - generate_dotplot()
@@ -142,7 +142,7 @@ faceted_umap <- function(umap_df,
 #' @param merged_sce Merged SCE object to plot with a `cell_id` column in the colData
 #' @param markers_df Data frame of marker genes for validation.
 #' This function expects columns `marker_gene_label` (cell types), `ensembl_gene_id`, and `gene_symbol`
-#' @param singler_df Data frame of singler annotations to plot.
+#' @param celltype_df Data frame of annotations to plot.
 #' This function expects columns called `label_recoded` (cell types) and `cell_id`.
 #' The `cell_id` values should match the `cell_id` colData in the merged_sce
 #' @param total_cells_df Data frame of cell counts and plot order.
@@ -156,7 +156,7 @@ faceted_umap <- function(umap_df,
 generate_dotplot <- function(
     merged_sce,
     markers_df,
-    singler_df,
+    celltype_df,
     total_cells_df,
     expressed_genes,
     bar_order,
@@ -181,7 +181,7 @@ generate_dotplot <- function(
     dplyr::mutate(detected = logcounts > 0)
 
   # Join with cell type results and marker gene info
-  all_info_df <- singler_df |>
+  all_info_df <- celltype_df |>
     dplyr::left_join(gene_exp_df, by = "cell_id") |>
     # account for the same gene being present in multiple cell types
     dplyr::left_join(markers_df, by = "ensembl_gene_id", relationship = "many-to-many")
@@ -248,7 +248,11 @@ generate_dotplot <- function(
       size = percent_exp
     ) +
     geom_point() +
-    scale_color_viridis_c(option = "magma") +
+    scale_color_viridis_c(
+      limits = c(0, 6),
+      oob = scales::squish,
+      option = "magma"
+    ) +
     facet_grid(cols = vars(marker_gene_label), scales = "free", space = "free") +
     theme_classic() +
     theme(
@@ -262,7 +266,7 @@ generate_dotplot <- function(
     ) +
     labs(
       x = "Validation marker genes",
-      y = "SingleR label",
+      y = "Cell type label",
       color = "Mean gene expression",
       size = "Percent cells expressed"
     )
