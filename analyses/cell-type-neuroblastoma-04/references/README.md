@@ -21,5 +21,5 @@ This section desccribes certain decisions made while creating `nbatlas-ontology-
   * `cDC2/DC3`: `cDC2` and `DC3` cells belong to different developmental lineages, so we did not label this grouping (source: <https://doi.org/10.1016/j.immuni.2023.07.001>)
 * We made the following choices for these ids in particular which did not always have unambiguous `CL` id equivalents:
   * We assigned all natural killer cell types the same id `CL:0000623`, which corresponds to `natural killer cell`
-  * We assigned `NKT cell` the id `CL:0000814` which corresponds to `mature NK T cell`
-  * We assigned, respectively, `CD4+ T cell` and `CD8+ T cell` to `CL:0000624` and `CL:0000625` which correspond to `CD4-positive, alpha-beta T cell` and `CD8-positive, alpha-beta T cell`; as such, we assumed these are `alpha-beta` (not `gamma`) CD4/8+ T cells
+  * We assigned `NKT cell` the id `CL:0000814`, which corresponds specifically to `mature NK T cell`
+  * We assigned, respectively, `CD4+ T cell` and `CD8+ T cell` to `CL:0000624` and `CL:0000625` which correspond specifically to `CD4-positive, alpha-beta T cell` and `CD8-positive, alpha-beta T cell`; as such, we assumed these are `alpha-beta` (not `gamma`) CD4/8+ T cells
