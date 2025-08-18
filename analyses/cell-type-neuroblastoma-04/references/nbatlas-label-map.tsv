@@ -3,14 +3,17 @@ B cell	B cell
 Endothelial	Endothelial
 Fibroblast	Fibroblast
 Immune cycling	Immune cycling
+cDC	cDC
 cDC1	cDC
 cDC2/DC3	cDC
 Migratory cDC	cDC
+Monocyte	Monocyte
 Classical monocyte	Monocyte
 Patrolling monocyte	Monocyte
 Macrophage	Macrophage
 Neutrophil	Neutrophil
 NE	NE
+NK cell	NK cell
 Circulating NK cell	NK cell
 Resident NK cell	NK cell
 TOX2+/KIT+ NK cell	NK cell
@@ -19,6 +22,7 @@ Plasma	Plasma
 RBCs	RBCs
 Schwann	Schwann
 Stromal other	Stromal other
+T cell	T cell
 CD4+ T cell	T cell
 CD8+ T cell	T cell
 NKT cell	T cell
