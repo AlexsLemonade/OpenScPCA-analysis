@@ -211,7 +211,7 @@ celltypes_to_explore |>
         dplyr::filter(cl_annotation == {{celltype}}) |> 
         dplyr::select(id1_annotation, id2_annotation, total_lca, cl_annotation) |> 
         unique() |> 
-        DT::datatable(rownames = FALSE)
+        kable()
     }
   )
 ```
@@ -370,9 +370,9 @@ Using the above exploration, we should update our rules for labeling the pairs w
 filtered_lca_df <- lca_df |> 
   # first set criteria to keep cell types, > 170, celltypes of interest 
   dplyr::filter(total_descendants <= 170 & !(cl_annotation %in% celltypes_to_exclude) 
-                | (cl_annotation == "neuron"
+                | cl_annotation %in% c("neuron","columnar/cuboidal epithelial cell", "endo-epithelial cell")
                    # only keep epithelial if not keratinocyte
-                | (cl_annotation == "epithelial cell" & id1_annotation != "keratinocyte" & id2_annotation != "keratinocyte"))) |> 
+                | (cl_annotation == "epithelial cell" & id1_annotation != "keratinocyte" & id2_annotation != "keratinocyte")) |> 
   dplyr::group_by(id1, id2) |> 
   # after filtering, see how many LCAs are left
   dplyr::mutate(new_lca_pair = length(lca)) |> 
