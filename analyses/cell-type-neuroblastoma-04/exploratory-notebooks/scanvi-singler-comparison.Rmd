@@ -109,7 +109,7 @@ sample_metadata_file <- file.path(data_dir, "single_cell_metadata.tsv")
 source(file.path(module_dir, "scripts", "utils", "jaccard-utils.R"))
 
 # Source additional utilities functions:
-# - select_nbatlas_markers()
+# - subset_nbatlas_markers()
 # - harmonize_celltypes()
 # - faceted_umap()
 # - generate_dotplot()
@@ -175,9 +175,6 @@ Read and prepare additional helper files for viz:
 validation_df <- readr::read_tsv(validation_url) |>
   dplyr::select(consensus_annotation, validation_group_annotation)
 
-# label mapping
-nbatlas_label_map <- readr::read_tsv(nbatlas_label_map_file)
-
 # set up palettes
 recoded_palette_df <- readr::read_tsv(recoded_palette_file)
 recoded_celltype_pal <- recoded_palette_df$hex_color
@@ -185,12 +182,16 @@ names(recoded_celltype_pal) <- recoded_palette_df$harmonized_label
 # for this notebook, we want just a single Unknown
 recoded_celltype_pal["Unknown"] <- recoded_celltype_pal["unknown_singler"]
 
+
 nbatlas_palette_df <- readr::read_tsv(nbatlas_palette_file)
 nbatlas_celltype_pal <- nbatlas_palette_df$hex_color
 names(nbatlas_celltype_pal) <- nbatlas_palette_df$NBAtlas_label
 
 # sample metadata
 sample_metadata <- readr::read_tsv(sample_metadata_file)
+
+# label mapping
+nbatlas_label_map <- readr::read_tsv(nbatlas_label_map_file)
 ```
 
 
@@ -312,9 +313,6 @@ celltype_df <- scuttle::makePerCellDF(
   harmonize_celltypes(label, label_recoded) |>
   dplyr::mutate(label = ifelse(label == "NE", "Neuroendocrine", label)) |>
   tidyr::separate(cell_id, into = c("library_id", "barcode"), remove = FALSE)
-
-# can remove now for space
-rm(merged_sce)
 ```
 
 
@@ -335,29 +333,11 @@ Since there are many cell types in this plot, it has been colored so that cell t
 * Monocytes: `Monocyte`, `Classical monocyte`, `Patrolling monocyte`
 
 ```{r, fig.width = 12, fig.height = 8}
-# define families using the provided map
-nbatlas_t_celltypes <- nbatlas_label_map |>
-  dplyr::filter(NBAtlas_label == "T cell") |>
-  dplyr::pull(NBAtlas_label_immune_zoom)
+label_order <- nbatlas_label_map |>
+  dplyr::add_count(NBAtlas_family) |>
+  dplyr::arrange(desc(n), NBAtlas_family) |>
+  dplyr::pull(NBAtlas_label)
 
-nbatlas_nk_celltypes <- nbatlas_label_map |>
-  dplyr::filter(NBAtlas_label == "NK cell") |>
-  dplyr::pull(NBAtlas_label_immune_zoom)
-
-# Note that cDC and Monocyte are not direct labels in the disseminated NBAtlas object,
-# but these groupings are used in the paper's marker gene analysis.
-nbatlas_cdc_celltypes <- nbatlas_label_map |>
-  dplyr::filter(NBAtlas_label == "cDC") |>
-  dplyr::pull(NBAtlas_label_immune_zoom)
-
-nbatlas_monocyte_celltypes <- nbatlas_label_map |>
-  dplyr::filter(NBAtlas_label == "Monocyte") |>
-  dplyr::pull(NBAtlas_label_immune_zoom)
-
-# we'll use these later but not for this plot
-nbatlas_myeloid_celltypes <- nbatlas_label_map |>
-  dplyr::filter(NBAtlas_label == "Myeloid") |>
-  dplyr::pull(NBAtlas_label_immune_zoom)
 
 umap_direct_df <- celltype_df |>
   dplyr::filter(celltype_method != "validation_group_annotation") |>
@@ -365,17 +345,7 @@ umap_direct_df <- celltype_df |>
   dplyr::sample_frac(1) |> 
   # order celltypes so that families are grouped together for a cleaner legend
   # note this will give warnings if any of those cells aren't in the annotation, but that's fine
-  dplyr::mutate(
-    label = factor(label), 
-    label = forcats::fct_relevel(
-      label, 
-      "T cell", nbatlas_t_celltypes, 
-      "NK cell", nbatlas_nk_celltypes,
-      "cDC", nbatlas_cdc_celltypes, 
-      "Monocyte", nbatlas_monocyte_celltypes
-    )
-  )
-  
+  dplyr::mutate(label = factor(label, levels = label_order))
   
 ggplot(umap_direct_df) +
   aes(x = UMAP1, y = UMAP2, color = label) +
@@ -508,7 +478,6 @@ For this, we'll compare among:
   * Natural killer cells: `NK cell`, `Circulating NK cell`, `Resident NK cell`, `TOX2+/KIT+ NK cell`
   * Conventional dendritic cells (cDC): `cDC`, `cDC1`, `cDC2/DC3`, `Migratory cDC`
   * Monocytes: `Monocyte`, `Classical monocyte`, `Patrolling monocyte`
-  * Myeloid: `Neutrophil` and `Macrophage`
 * Fraction of labels that entirely disagree
 
 The table below shows these fractions for each library along with the library size.
@@ -526,21 +495,13 @@ identical_agree_df <- celltype_wide_df |>
 # create a wide data frame with "family" labels where possible
 celltype_family_df <- celltype_df |>
   dplyr::filter(celltype_method != "validation_group_annotation") |>
-  # create label_family grouping
-  dplyr::mutate(
-    label_family = dplyr::case_when(
-      label %in% nbatlas_t_celltypes ~ "T cell",
-      label %in% nbatlas_nk_celltypes ~ "NK cell",
-      label %in% nbatlas_cdc_celltypes ~ "cDC",
-      label %in% nbatlas_monocyte_celltypes ~ "Monocyte",
-      label %in% nbatlas_myeloid_celltypes ~ "Myeloid", 
-      .default = label
-    )
+  dplyr::left_join(
+    nbatlas_label_map, by = c("label" = "NBAtlas_label")
   ) |>
-  dplyr::select(-label_recoded, -label) |>
+  dplyr::select(cell_id, library_id, celltype_method, label) |>
   tidyr::pivot_wider(
     names_from = celltype_method,
-    values_from = label_family
+    values_from = label
   )
 
 family_agree_df <- celltype_family_df |>
