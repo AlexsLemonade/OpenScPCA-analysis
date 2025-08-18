@@ -14,8 +14,9 @@ This section desccribes certain decisions made while creating `nbatlas-ontology-
 * The following cell types were not assigned ontology ids but labeled `NA`:
   * `Immune cycling`: There is no equivalent in `CL`
   * `Stromal other` : The `NBAtlas` manuscript describes these cells as a small subset of stromal cells expressing adrenal cortex markers, which is a much more narrow definition than the broader `CL` ontology [`stromal cell`](http://purl.obolibrary.org/obo/CL_0000499).
-  * `cDC2/DC3`: `cDC2` and `DC3` cells belong to different developmental lineages, so we did not label this grouping (source: <https://doi.org/10.1016/j.immuni.2023.07.001>)
 * We made the following choices for these ids in particular which did not always have unambiguous `CL` id equivalents:
+  * We assigned `cDC2/DC3` the id `CL:0000451`, which corresponds to `dendritic cell`.
+  Because `cDC2` and `DC3` come from different developmental lineages in spite of their transcriptional similarity, we use this id to represent this cell type at a very broad level. (Sources: <https://doi.org/10.1016/j.celrep.2024.114804>; <https://doi.org/10.1016/j.immuni.2023.07.001>; <https://doi.org/10.1016/j.immuni.2024.05.007>)
   * We assigned all natural killer cell types the same id `CL:0000623`, which corresponds to `natural killer cell`
   * We assigned `NKT cell` the id `CL:0000814`, which corresponds specifically to `mature NK T cell`
   * We assigned, respectively, `CD4+ T cell` and `CD8+ T cell` to `CL:0000624` and `CL:0000625` which correspond specifically to `CD4-positive, alpha-beta T cell` and `CD8-positive, alpha-beta T cell`; as such, we assumed these are `alpha-beta` (not `gamma`) CD4/8+ T cells
