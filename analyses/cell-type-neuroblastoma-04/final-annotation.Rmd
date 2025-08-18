@@ -111,6 +111,15 @@ singler_dir <- file.path(results_dir, "singler")
 scanvi_dir <- file.path(results_dir, "scanvi")
 ```
 
+```{r}
+# Source additional utilities functions:
+# - subset_nbatlas_markers()
+# - harmonize_celltypes()
+# - faceted_umap()
+# - generate_dotplot()
+source(file.path(module_dir, "scripts", "utils", "celltype-utils.R"))
+```
+
 
 ```{r file paths}
 # merged SCE file
@@ -158,7 +167,11 @@ nbatlas_ontology_file <- file.path(
   "nbatlas-ontology-ids.tsv"
 )
 
-validation_url <- "https://raw.githubusercontent.com/AlexsLemonade/OpenScPCA-analysis/refs/heads/main/analyses/cell-type-consensus/references/consensus-validation-groups.tsv"
+# marker genes from NBAtlas
+nbatlas_markers_file <- file.path(
+  ref_dir, 
+  "nbatlas-marker-genes.tsv"
+)
 ```
 
 
@@ -215,14 +228,14 @@ scanvi_df <- readr::read_tsv(
 Read additional helper files:
 
 ```{r}
-validation_df <- readr::read_tsv(validation_url)
-
 palette_df <- readr::read_tsv(palette_file)
 celltype_pal <- palette_df$hex_color
 names(celltype_pal) <- palette_df$NBAtlas_label
 
-nbatlas_label_map <- readr::read_tsv(nbatlas_label_map_file)
-nbatlas_ontology_ids <- readr::read_tsv(nbatlas_ontology_file)
+label_map_df <- readr::read_tsv(nbatlas_label_map_file)
+ontology_df <- readr::read_tsv(nbatlas_ontology_file)
+
+nbatlas_markers_df <- readr::read_tsv(nbatlas_markers_file)
 ```
 
 
@@ -231,13 +244,14 @@ Combine annotations into a single data frame:
 ```{r}
 celltype_df <- scuttle::makePerCellDF(
   merged_sce,
-  use.coldata = c("sample_id", "is_xenograft", "consensus_celltype_annotation")
+  use.coldata = c("sample_id", "is_xenograft", "consensus_celltype_annotation", "consensus_celltype_ontology")
 ) |>
   tibble::rownames_to_column("cell_id") |>
   tidyr::separate(cell_id, into = c("library_id", "cell_barcode"), remove = FALSE) |>
   # keep UMAP for eventual viz
   dplyr::rename(
     consensus = consensus_celltype_annotation, 
+    consensus_ontology = consensus_celltype_ontology,
     UMAP1 = UMAP.1, 
     UMAP2 = UMAP.2
   ) |>
@@ -255,66 +269,86 @@ rm(merged_sce)
 ```
 
 
-Define closely-related groups of cell types that will be used for resolving annotations:
-
-```{r}
-#### Vectors of closely-related NBAtlas immune cell types
-nbatlas_t_celltypes <- nbatlas_label_map |>
-  dplyr::filter(NBAtlas_label == "T cell") |>
-  dplyr::pull(NBAtlas_label_immune_zoom)
-
-nbatlas_nk_celltypes <- nbatlas_label_map |>
-  dplyr::filter(NBAtlas_label == "NK cell") |>
-  dplyr::pull(NBAtlas_label_immune_zoom)
-
-nbatlas_myeloid_celltypes <- nbatlas_label_map |>
-  dplyr::filter(NBAtlas_label == "Myeloid") |>
-  dplyr::pull(NBAtlas_label_immune_zoom)
-
-# Note that cDC and Monocyte are not direct labels in the disseminated NBAtlas object,
-# but these groupings are used in the paper's marker gene analysis.
-nbatlas_cdc_celltypes <- nbatlas_label_map |>
-  dplyr::filter(NBAtlas_label == "cDC") |>
-  dplyr::pull(NBAtlas_label_immune_zoom)
-
-nbatlas_monocyte_celltypes <- nbatlas_label_map |>
-  dplyr::filter(NBAtlas_label == "Monocyte") |>
-  dplyr::pull(NBAtlas_label_immune_zoom)
-
-#### Vectors of closely-related consensus cell types
-consensus_t_celltypes <- validation_df |> 
-  dplyr::filter(validation_group_annotation == "T cell") |>
-  dplyr::pull(consensus_annotation)
-
-consensus_endo_celltypes <- validation_df |> 
-  dplyr::filter(validation_group_annotation == "endothelial cell") |>
-  dplyr::pull(consensus_annotation)
-
-consensus_myeloid_celltypes <- validation_df |> 
-  dplyr::filter(
-    # consider only groups corresponding to what NBAtlas breaks up 
-    # the Myeloid group into in the tumor zoom
-    validation_group_annotation %in% c("myeloid", "monocyte", "macrophage")
-  )|>
-  dplyr::pull(consensus_annotation)
-```
-
-
 ## Annotate
 
 In this section, we'll derive the final annotations.
 
-First, we'll label any cells that have exactly matching `scANVI` and `SingleR` labels.
+```{r}
+ontology_slim_df <- ontology_df |>
+  dplyr::select(-CL_annotation)
+
+prep_for_annotation <- function(
+    df, 
+    annot_type, 
+    ontology_df, 
+    label_map_df) {
+  
+ df |>
+    dplyr::select(all_of(c("cell_id", annot_type))) |>
+    dplyr::rename(label = annot_type) |>
+    # Join the family labels
+    dplyr::left_join(label_map_df, by = c("label" = "NBAtlas_label_immune_zoom")) |>
+    dplyr::rename(family_label = NBAtlas_label) |>
+    # Ensure "Unknown" has a family label instead of NA for future-proofing
+    dplyr::mutate(family_label = ifelse(is.na(family_label), "Unknown", family_label)) |>
+    # Join in the ontology labels to match the **celltype** ontologies (label column)
+    dplyr::left_join(ontology_slim_df, by = c("label" = "NBAtlas_label")) |>
+    dplyr::rename(label_ontology = CL_ontology_id) |>
+    # Join in the ontology labels to match the **family** ontologies (family_label column)
+    dplyr::left_join(ontology_slim_df, by = c("family_label" = "NBAtlas_label")) |>
+    dplyr::rename(family_ontology = CL_ontology_id) |>
+    # We don't need the labels now that we have ontologies
+    dplyr::select(-label, -family_label) |>
+    # rename columns to start with `annot_type`
+    dplyr::rename_with(\(x) {paste(annot_type, x, sep = "_")}, -cell_id)
+}
+
+singler_annotation_df <- prep_for_annotation(celltype_df, "singler", ontology_slim_df, label_map_df)
+scanvi_annotation_df <- prep_for_annotation(celltype_df, "scanvi", ontology_slim_df, label_map_df)
+
+annotation_df <- celltype_df |>
+  dplyr::select(cell_id, consensus_ontology) |>
+  dplyr::left_join(singler_annotation_df, by = "cell_id") |>
+  dplyr::left_join(scanvi_annotation_df, by = "cell_id") |>
+  dplyr::select(cell_id, consensus_ontology, starts_with("singler"), starts_with("scanvi"))
+```
+
 
 ```{r}
-annotation_df <- celltype_df |>
-  dplyr::select(cell_id, consensus, singler, scanvi) |>
+annotation_df <- annotation_df |> 
   dplyr::mutate(
-    cell_type_assignment = ifelse(
-      scanvi == singler, scanvi, NA
+    CL_ontology_id = dplyr::case_when(
+      # Use directly matching label
+      scanvi_label_ontology == singler_label_ontology ~ scanvi_label_ontology, 
+      # Check for family agreement between SingleR/scANVI
+      scanvi_family_ontology == singler_family_ontology ~ scanvi_family_ontology,
+      # Now use agreement with consensus to assign a label: first by label, and then by family
+      singler_label_ontology == consensus_ontology ~ singler_label_ontology,
+      scanvi_label_ontology == consensus_ontology ~ scanvi_label_ontology,
+      singler_family_ontology == consensus_ontology ~ singler_family_ontology,
+      scanvi_family_ontology == consensus_ontology ~ scanvi_family_ontology,
+      # Everything else is NA
+      .default = NA_character_
     )
-  )
-```
+  ) |>
+  # keep only the final ontologies
+  dplyr::select(cell_id, CL_ontology_id)
+
+
+missing_cell_id <- annotation_df |>dplyr::filter(is.na(CL_ontology_id)) |>
+  dplyr::pull(cell_id)
+
+sjs_version <- readr::read_tsv(params$annotations_tsv)
+
+stephyes_allyno <- sjs_version |>
+  dplyr::filter(cell_id %in% missing_cell_id) |>
+  dplyr::filter(!is.na(CL_ontology_id)) |>
+  dplyr::pull(cell_id)
+
+celltype_df |>
+  dplyr::select(cell_id, singler, scanvi, consensus) |>
+  dplyr::filter(cell_id %in% stephyes_allyno)
+``` 
 
 
 Next, we'll get unified labels for any cells where at least two of three methods agree.
@@ -343,7 +377,7 @@ annotation_df <- annotation_df |>
 What fraction of cells have been annotated?
 
 ```{r}
-sum(!is.na(annotation_df$cell_type_assignment)) / nrow(annotation_df)
+sum(!is.na(annotation_df$CL_ontology_id)) / nrow(annotation_df)
 ```
 
 What fraction of cells have been annotated per library?
@@ -454,6 +488,20 @@ ggplot(umap_df) +
 guides(color = guide_legend(override.aes = list(size = 2, alpha = 1)))
 ```
 
+#### Faceted by cell type assignment
+
+This UMAP is the same as the previous one, except each facet highlights one specific cell type.
+
+
+```{r fig.width = 16, fig.height = 16}
+umap_df |>
+  faceted_umap(
+    annotation_column = cell_type_assignment,
+    celltype_colors = celltype_pal
+  )
+```
+
+
 #### Colored by tumor classification
 
 
@@ -474,6 +522,63 @@ ggplot(umap_df) +
   scale_color_brewer(palette = "Set1") +
   guides(color = guide_legend(override.aes = list(size = 2, alpha = 1)))
 ```
+
+
+### Dot plot
+
+This section shows dot plots of marker gene expression for the final annotations.
+Specifically, we show the top 5 highest `log2FC` marker genes per NBAtlas cell type for validation.
+Marker genes that are present in three or more cell types are not included.
+Marker genes are taken directly from the NBAtlas paper where they were identified with `Seurat::FindMarkers()`. 
+
+```{r}
+# data frame of top 5 upregulated genes per cell type
+top_nbatlas_markers_df <- subset_nbatlas_markers(nbatlas_markers_df, 5, "up") |>
+  # only markers in no more than 2 categories
+  # this is a good middle ground to ensure there are at least 2 markers per cell type
+  dplyr::add_count(ensembl_gene_id) |>
+  dplyr::filter(n < 3) |>
+  dplyr::select(-n) 
+```
+
+
+```{r, fig.width = 24, fig.height = 12}
+
+# get total number of cells per final annotation group and set up y_label
+total_cells_df <- full_celltype_df |>
+  dplyr::count(label, name = "total_cells") |>
+  # order so cell types are grouped
+  dplyr::inner_join(label_map_df, by = "label" ) |>
+  dplyr::mutate(
+    label_recoded = as.factor(label_recoded),
+    label_recoded = forcats::fct_relevel(label_recoded, levels(label_recoded_factor))
+  ) |>
+  dplyr::arrange(label_recoded) |>
+  dplyr::mutate(y_label = glue::glue("{label} ({total_cells})")) |>
+  # rename as expected for dotplot function - label_recoded needs to be the main column
+  dplyr::select(-label_recoded) |>
+  dplyr::rename(label_recoded = label)
+
+
+total_cells_df$y_label <- factor(total_cells_df$y_label, levels = rev(total_cells_df$y_label))
+nbatlas_bar_order <- total_cells_df$label_recoded
+```
+
+
+```{r, fig.width = 32, fig.height = 16}
+generate_dotplot(
+  merged_sce = merged_sce,
+  markers_df = top_nbatlas_markers_df,
+  # rename this after we've done all the wrangling
+  singler_df = full_celltype_df |> dplyr::rename(label_recoded = label),
+  total_cells_df = total_cells_df,
+  expressed_genes = expressed_genes,
+  bar_order = nbatlas_bar_order, 
+  celltype_palette = nbatlas_celltype_pal, 
+  min_cells = 0
+)
+```
+
 
 ## Export
 
