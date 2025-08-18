@@ -1,0 +1,28 @@
+NBAtlas_label	CL_ontology_id	CL_annotation
+B cell	CL:0000236	B cell
+Endothelial	CL:0000115	endothelial cell
+Fibroblast	CL:0000057	fibroblast
+Immune cycling	NA	NA
+cDC1	CL:0000990	conventional dendritic cell
+cDC2/DC3	CL:0000451	dendritic cell
+Migratory cDC	CL:047054	migratory dendtritic cell
+Classical monocyte	CL:0000860	classical monocyte
+Patrolling monocyte	CL:0000875	non-classical monocyte
+Macrophage	CL:0000235	macrophage
+Neutrophil	CL:0000775	neutrophil
+NE	CL:0000165	neuroendocrine cell
+NK cell	CL:0000623	natural killer cell
+Circulating NK cell	CL:0000623	natural killer cell
+Resident NK cell	CL:0000623	natural killer cell
+TOX2+/KIT+ NK cell	CL:0000623	natural killer cell
+pDC	CL:0000784	plasmacytoid dendritic cell
+Plasma	CL:0000786	plasma cell
+RBCs	CL:0000232	erythrocyte
+Schwann	CL:0002573	Schwann cell
+Stromal other	NA	NA
+T cell	CL:0000084	T cell
+CD4+ T cell	CL:0000624	CD4-positive, alpha-beta T cell
+CD8+ T cell	CL:0000625	CD8-positive, alpha-beta T cell
+NKT cell	CL:0000814	mature NK T cell
+Treg	CL:0000815	regulatory T cell
+Myeloid	CL:0000763	myeloid cell
