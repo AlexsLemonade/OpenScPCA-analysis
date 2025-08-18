@@ -1,4 +1,4 @@
-NBAtlas_label_immune_zoom	NBAtlas_label
+NBAtlas_label	NBAtlas_family
 B cell	B cell
 Endothelial	Endothelial
 Fibroblast	Fibroblast
@@ -8,8 +8,8 @@ cDC2/DC3	cDC
 Migratory cDC	cDC
 Classical monocyte	Monocyte
 Patrolling monocyte	Monocyte
-Macrophage	Myeloid
-Neutrophil	Myeloid
+Macrophage	Macrophage
+Neutrophil	Neutrophil
 NE	NE
 Circulating NK cell	NK cell
 Resident NK cell	NK cell
