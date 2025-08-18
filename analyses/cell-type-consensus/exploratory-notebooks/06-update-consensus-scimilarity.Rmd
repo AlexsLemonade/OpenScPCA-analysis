@@ -1,0 +1,445 @@
+---
+title: "Summary of cell type ontologies in reference files"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    code_folding: "hide"
+    df_print: "kable"
+---
+
+This notebook explores incorporating annotations from the `SCimilarity` foundational model to the consensus cell type reference. 
+The full list of cell type annotations possible for `SCimilarity` can be found in the [`cell-type-scimilarity` module](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/cell-type-scimilarity/references/scimilarity-mapped-ontologies.tsv).
+
+For the updated consensus cell types, we plan to assign a consensus cell type label if 2 of the 3 cell type annotations agree. 
+
+- First, all possible combinations of the three annotations are identified. 
+- Then we take all pairs for each combination and find the latest common ancestor (LCA) using the [`ontoProc::findCommonAncestors()` function](https://rdrr.io/bioc/ontoProc/man/findCommonAncestors.html).
+- The LCA will then be assigned to the consensus cell type label for that _pair_ if it meets a set of rules that we previously defined (total descendants <= 170 with some exceptions). 
+We will look at all cell type labels that are kept and discarded using our previous rules and identify if we need to make updates to the exceptions. 
+- Finally we will map the LCA for each possible pair back to the combinations of all three cell types. 
+If one possible LCA is identified, that will be used as the consensus cell type label. 
+If there are multiple possible LCAs, we will choose the most specific term as the label. 
+
+## Setup
+
+```{r packages}
+suppressPackageStartupMessages({
+  # load required packages
+  library(ggplot2)
+})
+
+# Set default ggplot theme
+theme_set(
+  theme_bw()
+)
+```
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The path to this module
+ref_dir <- file.path(repository_base, "analyses", "cell-type-consensus", "references")
+
+# path to ref files
+panglao_file <- file.path(ref_dir, "panglao-cell-type-ontologies.tsv")
+blueprint_file <- file.path(ref_dir, "blueprint-mapped-ontologies.tsv")
+scimilarity_file <- file.path(repository_base, "analyses", "cell-type-scimilarity", "references", "scimilarity-mapped-ontologies.tsv")
+```
+
+
+```{r}
+# grab obo file
+cl_ont <- ontologyIndex::get_ontology("http://purl.obolibrary.org/obo/cl/releases/2024-09-26/cl-basic.obo") 
+
+# set up the graph to use for assigning LCA terms 
+parent_terms <- cl_ont$parents
+cl_graph <- igraph::make_graph(rbind(unlist(parent_terms), rep(names(parent_terms), lengths(parent_terms))))
+```
+
+
+```{r, message=FALSE}
+# read in reference files
+panglao_df <- readr::read_tsv(panglao_file) |>
+  # rename columns to have panglao in them for easy joining later
+  dplyr::select(
+    panglao_ontology = "ontology_id",
+    panglao_annotation = "human_readable_value",
+    original_panglao_name = "panglao_cell_type" # keep original name since some map to the same ontology ID
+  ) |> 
+  # remove any cell types that don't have ontologies 
+  tidyr::drop_na() 
+
+# read in blueprint data 
+blueprint_df <- readr::read_tsv(blueprint_file)
+
+# read in scimilarity 
+scimilarity_df <- readr::read_tsv(scimilarity_file) |> 
+  dplyr::select(
+    scimilarity_ontology = "scimilarity_celltype_ontology",
+    scimilarity_annotation = "human_readable_value",
+    original_scimilarity_name = "scimilarity_celltype_annotation"
+  )
+```
+
+
+```{r, message=FALSE}
+# get total descendants for each term in CL  
+# turn cl_ont into data frame with one row per term
+cl_df <- data.frame(
+  cl_ontology = cl_ont$id,
+  cl_annotation = cl_ont$name
+) |>
+  dplyr::rowwise() |>
+  dplyr::mutate(
+    descendants = list(ontologyIndex::get_descendants(cl_ont, cl_ontology, exclude_roots = TRUE)),
+    total_descendants = length(descendants)
+  )
+```
+
+
+## Determine LCA for all possible pairs
+
+In this section we will first create a table of all possible combinations of the three cell type annotations (`SingleR`, `CellAssign`, and `SCimilarity`). 
+For each combination, we will get all possible pairs and compute the LCA. 
+
+```{r, warning=FALSE, message=FALSE}
+# get a data frame with all combinations of panglao, blueprint, and scimilarity terms
+# one row for each combination
+all_ref_df <- expand.grid(
+  panglao_ontology = panglao_df$panglao_ontology,
+  blueprint_ontology = blueprint_df$blueprint_ontology,
+  scimilarity_ontology = scimilarity_df$scimilarity_ontology
+) |> 
+  # remove any potentially redundant combinations based on ontology Ids 
+  dplyr::distinct() |> 
+  # create a column with all possible pairs between the three tools 
+  dplyr::mutate(pair_1 = glue::glue("{panglao_ontology};{blueprint_ontology}"),
+                pair_2 = glue::glue("{panglao_ontology};{scimilarity_ontology}"),
+                pair_3 = glue::glue("{blueprint_ontology};{scimilarity_ontology}")) |> 
+  tidyr::pivot_longer(cols = c(pair_1, pair_2, pair_3), names_to = "number", values_to = "pairs")
+
+# get all possible pairs from each combination and get lca for each pair that is unique 
+lca_pairs_df <- all_ref_df |> 
+  dplyr::select(pairs) |> 
+  dplyr::distinct() |> 
+  tidyr::separate(pairs, into = c("id1", "id2"), sep = ";") |> 
+  dplyr::rowwise() |>
+  dplyr::mutate(
+    # least common shared ancestor
+    lca = list(rownames(ontoProc::findCommonAncestors(id1, id2, g = cl_graph)))
+  )
+```
+
+
+```{r, warning=FALSE}
+# add lca and total number of descendants to data frame
+# expand to have one row per unique combo + unique lca
+# remember sometimes there are multiple LCA that will get returned 
+lca_df <- lca_pairs_df |>
+  dplyr::mutate(
+    total_lca = length(lca), # get total number for filtering later 
+    lca = paste0(lca, collapse = ",") # make it easier to split the lca terms
+  ) |>
+  # split each lca term into its own column
+  tidyr::separate(lca, into = c("lca_1", "lca_2", "lca_3"), sep = ",") |>
+  # transpose so that instead of lca being in a column there is one row per lca 
+  tidyr::pivot_longer(
+    cols = dplyr::starts_with("lca"),
+    names_to = "lca_number",
+    values_to = "lca"
+  ) |>
+  tidyr::drop_na() |>
+  dplyr::select(-lca_number) |> # don't need this column 
+  # account for any cases where the ontology IDs are exact matches
+  # r complains about doing this earlier since the lca column holds lists until now
+  dplyr::mutate(lca = dplyr::if_else(id1 == id2, id1, lca)) |> 
+  # join in information for each of the lca terms including name and number of descendants
+  dplyr::left_join(cl_df, by = c("lca" = "cl_ontology")) |> 
+  # add in legible names for id1/id2 pairs 
+  dplyr::mutate(
+    id1_annotation = cl_ont$name[id1],
+    id2_annotation = cl_ont$name[id2]
+  )
+
+```
+
+### Retained celltypes using existing rules 
+
+We previously excluded any LCA that had > 170 descendants or belonged to one of these cell types: "bone cell", "lining cell", "blood cell", "progenitor cell", "supporting cell". 
+
+Let's see what cell types we would keep if we kept these rules and see if any of them seem too "broad". 
+
+
+```{r}
+# vector of cell types that we want to exclude 
+celltypes_to_exclude <- c("bone cell", "lining cell", "blood cell", "progenitor cell", "supporting cell")
+
+# get only celltypes that remain after implementing the previous rules 
+lca_df |>
+  dplyr::filter(total_descendants <= 170 & !(cl_annotation %in% celltypes_to_exclude)) |>
+  dplyr::select(cl_annotation, total_descendants) |>
+  dplyr::arrange(desc(total_descendants)) |>
+  unique() |> 
+  # print out in a readable table
+  DT::datatable(rownames = FALSE)
+```
+
+There are a few cell types we might want to explore further that might seem too broad. 
+Let's print out a table that look at the possible matches that give rise to those cell types below. 
+
+```{r}
+celltypes_to_explore <- c(
+  "peptide hormone secreting cell",
+  "embryonic cell (metazoa)",
+  "biogenic amine secreting cell", 
+  "protein secreting cell",
+  "antibody secreting cell",
+  "extracellular matrix secreting cell",
+  "surfactant secreting cell"
+)
+
+# for all cell types we want to look at print out a table of the pairs that give rise to that cell type
+celltypes_to_explore |> 
+  purrr::map(
+    \(celltype){
+      lca_df |> 
+        dplyr::filter(cl_annotation == {{celltype}}) |> 
+        dplyr::select(id1_annotation, id2_annotation, total_lca, cl_annotation) |> 
+        unique() |> 
+        DT::datatable(rownames = FALSE)
+    }
+  )
+```
+
+Looking at these tables, I might get rid of "biogenic amine secreting cell", "protein secreting cell", and "extracellular matrix secreting cell". 
+These cell types arise because of matches from cells that have similar functions but are very different. 
+For example, platelets and mast cells are pretty different but give the LCA term "biogenic amine secreting cell". 
+
+I would keep the following: 
+
+- Matches that result in "peptide hormone secreting cell" all appear to be from the pancreas. 
+- Matches that result in "embryonic cell (metazoa)" are all developmental cell types that are found in the embryo and mirror some pediatric cancer cell types. 
+I think having that information could be useful. 
+- "Antibody secreting cell" refers to "A lymphocyte of B lineage" according to [Cell Ontology](https://www.ebi.ac.uk/ols4/ontologies/cl/classes/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FCL_0000946) and I think knowing that a cell is some sort of B cell is helpful.
+- "Surfactant secreting cell" is specific to the lung and both cell types that appear in matches are lung cell types. 
+
+One thing to note is that most of these have a total LCA count > 1 meaning there is at least one other match for those cell types. 
+Maybe we should consider removing anything with more than 1 LCA which is what we were doing previously when we only were matching Blueprint and Panglao. 
+
+```{r}
+# updated celltypes to exclude 
+celltypes_to_exclude <- c(celltypes_to_exclude, "biogenic amine secreting cell", "protein secreting cell", "extracellular matrix secreting cell")
+
+# create a df with just lca that meet the specified criteria so far 
+filtered_celltype_df <- lca_df |>
+  dplyr::filter(total_descendants <= 170  & !cl_annotation %in% celltypes_to_exclude)
+
+# print out all matches when total lca > 1
+filtered_celltype_df |> 
+  dplyr::filter(total_lca > 1) |> 
+  dplyr::select(cl_annotation) |> 
+  unique() |> 
+  DT::datatable(rownames = FALSE)
+```
+
+Previously when we looked at the LCA for pairs with moret than 1 match, we had seen only very broad cell types. 
+That doesn't seem to be the case here as we see things like "memory T cell". 
+
+Perhaps instead of just removing the pairs with multiple LCA, we first filter out the terms that don't meet our criteria. 
+Then if multiple LCA remain we find the LCA of all the remaining LCA's and if that new LCA meets our criteria we use that instead. 
+
+```{r, warning=FALSE, message=FALSE}
+# get the new LCA number after removing the non-specific terms 
+filtered_celltype_df <- filtered_celltype_df |> 
+  dplyr::group_by(id1, id2) |> 
+  dplyr::mutate(new_lca_pair = length(lca))
+
+# now pull out any pairs where only one of the LCA remains 
+# find the LCA between the remaining ones and then filter based on total descendants
+# are there any that are remaining that still have multiple LCA? 
+new_lca_df <- filtered_celltype_df |>
+  dplyr::filter(new_lca_pair > 1) |>
+  dplyr::group_by(id1, id2) |> 
+  dplyr::summarize(
+    updated_lca = list(unique(rownames(ontoProc::findCommonAncestors(lca, g = cl_graph))))
+    ) |> 
+  dplyr::rowwise() |> 
+  dplyr::mutate(
+    new_total_lca = length(updated_lca),
+    updated_lca = paste0(updated_lca, collapse = ","),
+    id1_annotation = cl_ont$name[id1],
+    id2_annotation = cl_ont$name[id2]
+  ) |> 
+  # split each lca term into its own column
+  tidyr::separate(updated_lca, into = c("updated_lca_1", "updated_lca_2", "updated_lca_3"), sep = ",") |>
+  # transpose so that instead of lca being in a column there is one row per lca 
+  tidyr::pivot_longer(
+    cols = dplyr::starts_with("updated_lca"),
+    names_to = "lca_number",
+    values_to = "updated_lca"
+  ) |>
+  tidyr::drop_na() |>
+  dplyr::select(-lca_number) |>
+   dplyr::left_join(cl_df, by = c("updated_lca" = "cl_ontology"))
+```
+ 
+First for any pairs that have LCA > 1, what are they? 
+```{r}
+new_lca_df |> 
+  dplyr::filter(new_total_lca > 1) |> 
+  dplyr::select(id1_annotation, id2_annotation, cl_annotation, total_descendants)
+```
+
+I think here we just want to keep "kidney tubule cell" if one of the LCA's includes that term. 
+In that case, there are three possible LCA but "kidney tubule cell" is the most specific (fewest descendants). 
+
+In the other cases, we should keep any possible LCA that meet the total descendants criteria and remove all others. 
+
+Now let's look at the remaining matches that give rise to 1 LCA and see what pairs pass the 170 total descendants threshold. 
+
+```{r}
+new_lca_df |> 
+  dplyr::filter(total_descendants <= 170 & new_total_lca == 1) |> 
+  dplyr::select(id1_annotation, id2_annotation, cl_annotation)
+```
+
+These all seem like reasonable assignments. 
+Let's create a dataframe with the pairs and final matches for these so we can update the whole assignment table later. 
+
+```{r}
+# firt get a dataframe of the matches we will keep that had multiple LCA and their final annotations
+multi_lca_keep_df <- new_lca_df |> 
+  dplyr::filter(total_descendants <= 170 & cl_annotation != "epithelial cell of nephron" | cl_annotation == "kidney tubule cell") |> 
+  dplyr::select(id1, id2, id1_annotation, id2_annotation, lca = updated_lca, cl_annotation, total_descendants) |> 
+  unique()
+```
+
+
+### Discarded cell types 
+
+Let's look at what possible cell types would be discarded if we used these rules. 
+Previously we were keeping "neuron" and "epithelial cell" even though they had a larger number of descendants. 
+Are there any other cell types that appear that we should include in that list? 
+
+```{r}
+lca_df |>
+  dplyr::filter(total_descendants > 170) |>
+  dplyr::select(cl_annotation, total_descendants) |>
+  dplyr::arrange(desc(total_descendants)) |>
+  unique() |> 
+  DT::datatable(rownames = FALSE)
+```
+
+We should probably also include "columnar/cuboidal epithelial cell" and "endo-epithelial cell". 
+Let's look at the matches that led to those LCA to see if there is any reason we should not include them. 
+
+```{r}
+lca_df |> 
+  dplyr::filter(cl_annotation == "columnar/cuboidal epithelial cell") |> 
+  dplyr::select(id1_annotation, id2_annotation, cl_annotation) |> 
+  unique() |> 
+  DT::datatable(rownames = FALSE)
+```
+
+```{r}
+lca_df |> 
+  dplyr::filter(cl_annotation == "endo-epithelial cell") |> 
+  dplyr::select(id1_annotation, id2_annotation, cl_annotation) |> 
+  unique() |> 
+  DT::datatable(rownames = FALSE)
+```
+
+I think we should add these two terms to our list of cell types to keep alongside "neuron" and "epithelial cell" when the total descendants is higher than 170. 
+
+## Updated consensus cell type pairs 
+
+Using the above exploration, we should update our rules for labeling the pairs with their LCA to fit one of the following criteria: 
+
+- A single LCA term with <= 170 total descendants
+- LCA term that is not one of: "bone cell", "lining cell", "blood cell", "progenitor cell", "supporting cell", "biogenic amine secreting cell", "protein secreting cell", or "extracellular matrix secreting cell"
+- LCA term that is "neuron" or "epithelial cell"
+- A secondary LCA term (LCA computed all LCAs returned from the initial pairing) that is a single LCA value with <= 170 total descendants or one of "epithelial cell", "kidney tubule cell", or "hematopoietic precursor cell" 
+
+```{r}
+# now filter to remove the multi LCA matches and add back in the updated assignments for them 
+filtered_lca_df <- lca_df |> 
+  # first set criteria to keep cell types, > 170, celltypes of interest 
+  dplyr::filter(total_descendants <= 170 & !(cl_annotation %in% celltypes_to_exclude) 
+                | (cl_annotation == "neuron"
+                   # only keep epithelial if not keratinocyte
+                | (cl_annotation == "epithelial cell" & id1_annotation != "keratinocyte" & id2_annotation != "keratinocyte"))) |> 
+  dplyr::group_by(id1, id2) |> 
+  # after filtering, see how many LCAs are left
+  dplyr::mutate(new_lca_pair = length(lca)) |> 
+   # everything with more than 1 lca gets removed with the exception of HSCs
+  dplyr::filter(new_lca_pair <=1 | cl_annotation == "hematopoietic precursor cell") |> 
+  dplyr::select(id1, id2, id1_annotation, id2_annotation, lca, cl_annotation, total_descendants) |> 
+  # add in pairs with multi LCA and their final match 
+  dplyr::bind_rows(multi_lca_keep_df) |> 
+  unique()
+```
+
+Let's make sure we only have unique combinations: 
+
+```{r}
+dup <- filtered_lca_df |> 
+  dplyr::select(id1, id2) |> 
+  duplicated()
+
+dim(filtered_lca_df[dup, ])[1]
+```
+
+
+## Obtaining the final consensus cell type 
+
+Now that we have the LCA to use for all possible pairs, we need to combine them back with the possible combinations of all three annotation methods to obtain the final consensus cell type. 
+For each combination there should be three possible LCA.
+
+- If they are all unknown and no LCA was assigned, then no consensus cell type will be assigned. 
+- If there is one unique LCA then that will be used as the consensus cell type. 
+- If there are more than one unique LCA, then we will need to decide how to assign the consensus cell type. 
+
+```{r}
+# combine lca with all combinations 
+combined_ref_df <- all_ref_df |> 
+  # split pairs to join with final lca assignment
+  tidyr::separate(col = "pairs", into = c("id1", "id2"), sep = ";") |> 
+  dplyr::left_join(filtered_lca_df, by = c("id1", "id2")) |> 
+  # get rid of any combinations that don't have any possible matches 
+  tidyr::drop_na()
+```
+
+
+Let's see how often we have a single unique match. 
+If there's only one match we'll use that, otherwise we need to figure out how to make the final assignment. 
+
+```{r}
+consensus_ref_df <- combined_ref_df |> 
+  dplyr::group_by(panglao_ontology, blueprint_ontology, scimilarity_ontology) |> 
+  dplyr::summarize(
+    total_matches = length(unique(lca)),
+    consensus_celltype_ontology = dplyr::case_when(
+      total_matches == 1 ~ lca,
+      total_matches > 1 ~ paste0(unique(lca), collapse = ",")
+    )
+  )
+
+table(consensus_ref_df$total_matches)
+```
+
+TODO: Figure out how to assign the LCA for ~ 16000 combinations that result in multiple LCAs 
+
+
+## Session info   
+
+
+```{r}
+sessionInfo()
+```
+
+
