@@ -19,10 +19,10 @@ Classical monocyte	#1CBE4F
 Neutrophil	#90AD1C
 Macrophage	#1C8356
 RBCs	#F6222E
-NK cell	#FDF07F
-Circulating NK cell	#FDF07F
-Resident NK cell	#FDF07F
-TOX2+/KIT+ NK cell	#FDF07F
+NK cell	#FCE300
+Circulating NK cell	#FCE300
+Resident NK cell	#FCE300
+TOX2+/KIT+ NK cell	#FCE300
 B cell	#AA0DFE
 Immune cycling	#FA0087
 pDC	#2ED9FF
