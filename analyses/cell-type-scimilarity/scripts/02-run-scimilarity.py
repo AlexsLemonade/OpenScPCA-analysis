@@ -79,8 +79,8 @@ def main() -> None:
     # Read and make sure object formatting is correct
     processed_anndata = anndata.read_h5ad(arg.processed_h5ad_file)
     
-    # counts should be stored as a layer and not in X
-    processed_anndata.layers['counts'] = processed_anndata.X
+    # counts should be stored as a layer
+    processed_anndata.layers['counts'] = processed_anndata.raw.X
     # rownames should correspond to gene symbols, not IDs
     processed_anndata.var_names = processed_anndata.var["gene_symbol"].astype(str)
     processed_anndata.var_names_make_unique()
