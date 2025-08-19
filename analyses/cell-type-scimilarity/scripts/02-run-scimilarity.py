@@ -30,7 +30,6 @@ def main() -> None:
     )
     parser.add_argument(
         "--predictions_tsv",
-        default="test.tsv",
         type=Path,
         required=True,
         help="Path to the output TSV file with cell type annotations",
