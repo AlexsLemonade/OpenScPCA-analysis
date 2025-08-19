@@ -62,6 +62,7 @@ scratch_dir="scratch"
 results_dir="results"
 mkdir -p $ref_dir
 mkdir -p $scratch_dir
+final_annotations_tsv="${results_dir}/SCPCP000004-annotations.tsv"
 
 ###################################################################
 ######################## Set up variables #########################
@@ -250,3 +251,15 @@ python ${script_dir}/03c_run-scanvi-label-transfer.py \
   --reference_scanvi_model_dir "${scanvi_ref_output}" \
   --predictions_tsv "${scanvi_predictions_tsv}" \
   ${test_flag}
+
+
+###################################################################
+##################### Derive final annotations ####################
+###################################################################
+
+Rscript -e "rmarkdown::render('final-annotation.Rmd',
+  params = list(
+      scanvi_pp_threshold = 0.75,
+      annotations_tsv = '${final_annotations_tsv}',
+      testing = ${testing}
+))"
