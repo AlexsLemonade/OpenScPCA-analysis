@@ -5,7 +5,12 @@
 This analysis module holds various analyses that explore approaches for using consensus cell types as a normal reference for `inferCNV`.
 Each analysis is described below.
 
-### Pooled references
+### Exploration of consensus cell types across diagnoses
+
+This module explores the distribution of consensus type groups across diagnoses and samples in ScPCA.
+
+
+### Pooled normal references
 
 One analysis this module holds is an exploration of using normal references pooled across samples for a given project.
 Project-specific scripts to run this analysis are available in [`pooled-workflows/`](./pooled-workflows) in this module.

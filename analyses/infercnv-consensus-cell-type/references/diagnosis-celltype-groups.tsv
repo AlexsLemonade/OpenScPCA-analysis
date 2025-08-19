@@ -1,0 +1,13 @@
+broad_diagnosis	validation_groups
+B cell leukemia	dendritic cell, macrophage, monocyte, myeloid, natural killer cell, T cell
+T cell leukemia	B cell, dendritic cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell
+Sarcoma	B cell, dendritic cell, hematopoietic precursor cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell, T cell
+Brain & CNS	B cell, dendritic cell, hematopoietic precursor cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell, T cell, endothelial cell, pericyte, fibroblast
+Adrenocortical carcinoma	B cell, dendritic cell, hematopoietic precursor cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell, T cell, endothelial cell, pericyte, fibroblast
+Gastrointestinal stromal tumor	B cell, dendritic cell, hematopoietic precursor cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell, T cell, endothelial cell, pericyte, fibroblast
+Germ cell tumor	B cell, dendritic cell, hematopoietic precursor cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell, T cell, endothelial cell, pericyte, fibroblast
+Hepatoblastoma	B cell, dendritic cell, hematopoietic precursor cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell, T cell, endothelial cell, pericyte, fibroblast
+Melanoma	B cell, dendritic cell, hematopoietic precursor cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell, T cell, endothelial cell, pericyte, fibroblast
+Rhabdoid tumor	B cell, dendritic cell, hematopoietic precursor cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell, T cell, endothelial cell, pericyte, fibroblast
+Wilms tumor	B cell, dendritic cell, hematopoietic precursor cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell, T cell, endothelial cell, pericyte, fibroblast
+Neuroblastoma	B cell, dendritic cell, hematopoietic precursor cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell, T cell, endothelial cell, pericyte, fibroblast
