@@ -1,5 +1,5 @@
 This directory contains exploratory notebooks that are not specifically run in the analysis pipeline.
-Notebooks are organized in directories named for which ScPCA project they analyze.
+Exploratory notebooks for pooled normal reference analyses are organized in directories named for the ScPCA project they analyze.
 
 
 ## `SCPCP000004`

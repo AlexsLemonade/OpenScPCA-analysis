@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# This script runs the module across projects
+# This script runs the the project-specific pooled workflows
 #
 # Usage:
 #
-# ./run-analysis.sh
+# ./run-pooled-workflows.sh
 #
 # When running in CI or with test data, use:
-# testing=1 ./run-analysis.sh
+# testing=1 ./run-pooled-workflows.sh
 
 set -euo pipefail
 
@@ -29,12 +29,12 @@ Rscript ${script_dir}/00-make-gene-order-file.R \
     --scratch_dir ${scratch_dir} \
     --local_ref_dir ${ref_dir}
 
-# Run individual projects through the module
+# Run individual projects
 # Each script prepares the project's normal references and runs inferCNV across relevant project samples
 
 # SCPCP000015: Ewing sarcoma samples
-testing=$testing ./project-workflows/run-SCPCP000015.sh
+testing=$testing ./pooled-workflows/run-SCPCP000015.sh
 
 # SCPCP000004: Neuroblastoma samples
-testing=$testing ./project-workflows/run-SCPCP000004.sh
-
+# In progress; does not run inferCNV at this time
+testing=$testing ./pooled-workflows/run-SCPCP000004.sh

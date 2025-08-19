@@ -1,4 +1,6 @@
-Results are organized by project as follows:
+## Pooled results
+
+Pooled analysis results are organized by project as follows:
 
 ```console
 └── {project id}
