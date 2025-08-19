@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 import anndata
-import pandas as pd
+import pandas
 from scimilarity import CellAnnotation
 from scimilarity.utils import align_dataset, lognorm_counts
 
@@ -30,6 +30,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--predictions_tsv",
+        default="test.tsv",
         type=Path,
         required=True,
         help="Path to the output TSV file with cell type annotations",
@@ -41,6 +42,9 @@ def main() -> None:
         help="Random seed to ensure reproducibility",
     )
     arg = parser.parse_args()
+    
+    # Set the seed
+    random.seed(arg.seed)
 
     ################################################
     ########### Input argument checks ##############
@@ -65,21 +69,21 @@ def main() -> None:
     if arg_error:
         sys.exit(1)
 
-    # Set seed for reproducibility
-    scvi.settings.seed = arg.seed  # inherited by numpy and torch
-
     ################################################
     ################ Prep input data ###############
     ################################################
 
     # Read in model 
-    scimlarity_model = CellAnnotation(model_path = arg.model_dir)
+    scimilarity_model = CellAnnotation(model_path = model_dir)
 
-    # Read and check that query object has expected columns
-    processed_anndata = anndata.read_h5ad(arg.processed_h5ad_file)
-
-    # Ensure anndata is using a sparse matrix for faster processing
-    processed_anndata.X = csr_matrix(processed_anndata.X)
+    # Read and make sure object formatting is correct
+    processed_anndata = anndata.read_h5ad(processed_h5ad_file)
+    
+    # counts should be stored as a layer and not in X
+    processed_anndata.layers['counts'] = processed_anndata.X
+    # rownames should correspond to gene symbols, not IDs
+    processed_anndata.var_names = processed_anndata.var["gene_symbol"].astype(str)
+    processed_anndata.var_names_make_unique()
 
     # Preprocess the data
     # Align the query dataset to the reference model
@@ -87,12 +91,12 @@ def main() -> None:
     # Log-normalize the counts
     processed_anndata = lognorm_counts(processed_anndata)
 
-    # compute embeddings
-    processed_anndata.obsm["X_scimilarity"] = scimlarity_model.get_embeddings(processed_anndata.X)
-
     ################################################
     ############### Run Scimilarity ###############
     ################################################
+    
+    # compute embeddings
+    processed_anndata.obsm["X_scimilarity"] = scimlarity_model.get_embeddings(processed_anndata.X)
 
     # Predict cell types
     predictions, nn_idxs, nn_dists, nn_stats = scimlarity_model.get_predictions_knn(
@@ -103,10 +107,12 @@ def main() -> None:
     ################ Export annotations ############
     ################################################
 
-    # prepare the predictions with posterior probabilities for export
-    predictions_df = predictions.values
-    min_dist_df = nn_dists.min(axis=1)
-    predictions_df = predictions_df.join(min_dist_df)
+    # prepare the predictions with min distance for export 
+    predictions_df = pandas.DataFrame({
+      "barcode": processed_anndata.obs_names.to_list(), 
+      "scimilarity_celltype_annotation": predictions.values, 
+      "min_dist": nn_stats["min_dist"]
+    })
 
     # export TSV
     predictions_df.to_csv(arg.predictions_tsv, sep="\t", index=False)
