@@ -78,6 +78,7 @@ harmonize_celltypes <- function(df, label_column, recoded_column) {
 #' @param annotation_column Column containing broad cell type annotation
 #' @param celltype_colors Named vector of colors to use for each broader validation group
 #' @param facet_type Whether to use facet_wrap or facet_grid
+#' @param facet_wrap_cols Number of columns if using facet_wrap
 #' @param annotation_type_column Additional column to use if facet_type is "grid"
 #'
 #' @return ggplot object containing a faceted UMAP where each cell type is a facet.
@@ -86,6 +87,7 @@ faceted_umap <- function(umap_df,
                          annotation_column,
                          celltype_colors,
                          facet_type = c("wrap", "grid"),
+                         facet_wrap_cols = 4,
                          annotation_type_column = NULL) {
   facet_type <- match.arg(facet_type)
 
@@ -99,7 +101,7 @@ faceted_umap <- function(umap_df,
       data = dplyr::select(
         umap_df, -{{ annotation_column }}
       ),
-      color = "gray90",
+      color = "gray95",
       alpha = 0.5,
       size = 0.5
     ) +
@@ -119,7 +121,7 @@ faceted_umap <- function(umap_df,
     faceted_umap <- faceted_umap +
       facet_wrap(
         vars({{ annotation_column }}),
-        ncol = 4
+        ncol = facet_wrap_cols
       )
   } else {
     faceted_umap <- faceted_umap +
@@ -142,7 +144,7 @@ faceted_umap <- function(umap_df,
 #' @param merged_sce Merged SCE object to plot with a `cell_id` column in the colData
 #' @param markers_df Data frame of marker genes for validation.
 #' This function expects columns `marker_gene_label` (cell types), `ensembl_gene_id`, and `gene_symbol`
-#' @param singler_df Data frame of singler annotations to plot.
+#' @param celltype_df Data frame of singler annotations to plot.
 #' This function expects columns called `label_recoded` (cell types) and `cell_id`.
 #' The `cell_id` values should match the `cell_id` colData in the merged_sce
 #' @param total_cells_df Data frame of cell counts and plot order.
@@ -156,7 +158,7 @@ faceted_umap <- function(umap_df,
 generate_dotplot <- function(
     merged_sce,
     markers_df,
-    singler_df,
+    celltype_df,
     total_cells_df,
     expressed_genes,
     bar_order,
@@ -181,7 +183,7 @@ generate_dotplot <- function(
     dplyr::mutate(detected = logcounts > 0)
 
   # Join with cell type results and marker gene info
-  all_info_df <- singler_df |>
+  all_info_df <- celltype_df |>
     dplyr::left_join(gene_exp_df, by = "cell_id") |>
     # account for the same gene being present in multiple cell types
     dplyr::left_join(markers_df, by = "ensembl_gene_id", relationship = "many-to-many")
@@ -248,7 +250,10 @@ generate_dotplot <- function(
       size = percent_exp
     ) +
     geom_point() +
-    scale_color_viridis_c(option = "magma") +
+    scale_color_viridis_c(
+      limits = c(0,6),
+      oob = scales::squish,
+      option = "magma") +
     facet_grid(cols = vars(marker_gene_label), scales = "free", space = "free") +
     theme_classic() +
     theme(
@@ -262,7 +267,7 @@ generate_dotplot <- function(
     ) +
     labs(
       x = "Validation marker genes",
-      y = "SingleR label",
+      y = "Cell type label",
       color = "Mean gene expression",
       size = "Percent cells expressed"
     )
