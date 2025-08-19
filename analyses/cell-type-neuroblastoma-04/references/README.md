@@ -2,7 +2,9 @@ This directory contains files with reference information used in the module
 
 * `nbatlas-marker-genes.tsv`: TSV file with marker genes for cell types validation taken from the `NBAtlas` paper (<https://doi.org/10.1016/j.celrep.2024.114804>).
 This file was created with `../scripts/setup/prepare-nbatlas-gene-lists.R`
-* `nbatlas-label-map.tsv`: TSV file mapping corresponding NBAtlas reference labels at different labels of organization between "immune zoom" labels and broader family groupings, where relevant.
+* `nbatlas-label-map.tsv`: TSV file mapping corresponding NBAtlas reference labels at different labels of organization between lower-level and broader family groupings, where relevant, to support cell type annotation and visualization.
+  * Families considered include `cDC`, `Monocytes`, `T cells`, and `NK cells`; for cell types which do not belong to a broader family, we specify the label
+  * If a cell type does not belong to a family, we use the label itself as its family
   * Broader family groupings are also mapped to themselves to support visualization code
 This file was manually created based on information in the NBAtlas manuscript
 * `nbatlas-ontology-ids.tsv`: TSV file with presumed Cell Ontology (`CL`) ontology IDs for labels in the `NBAtlas` reference.
