@@ -9,7 +9,8 @@ output:
     code_folding: hide
 params:
   scanvi_pp_threshold: 0.75    
-  annotations_tsv: "../results/SCPCP000004-annotations.tsv"
+  annotations_tsv: "results/SCPCP000004-annotations.tsv"
+  testing: FALSE
 ---
 
 In this analysis module, we have annotated cell types in `SCPCP000004` samples using two methods: `SingleR` and `scANVI/scArches`, both using the NBAtlas dataset as a reference.
@@ -17,25 +18,16 @@ In this notebook, we derive the final annotations using information from the `Si
 All final annotations use labels present in the NBAtlas dataset.
 
 We use the following approach to determine the final annotation.
-
-First, we prioritize inferences with `SingleR` and `scANVI/scArches`.
-If these methods returned the exact same label, we assign this label.
-
-Next, we compare labels across all three methods: if at least _two out of three_ methods agree, we assign the agreeing label.
-Note that this requires mapping consensus cell types to NBAtlas labels, which is only possible for these cell types: endothelial cells, fibroblasts, and immune cell types except for the NBAtlas labels `RBCs` and `pDC` which do not have corresponding consensus labels.
-
-In this approach, there are two ways that cell type annotations can agree, and we treat them as follows:
-
-* Cell type annotations can have directly corresponding labels. For example:
-  * If the consensus cell type is `endothelial cell` and at least one of the NBAtlas-derived annotations is `Endothelial`, we assign the label `Endothelial`.
-* Cell type annotations can differ but be in the same "family" of cell types. For example:
-  * If the consensus cell type is `mature T cell` and at least one of the NBAtlas-derived annotations is `CD4+ T cell`, we assign the broader label `T cell`.
-  * If one NBAtlas-derived annotation is `Patrolling monocyte` and the other is `Classical monocyte`, we assign the broader label `Monocyte`.
-
-We use CL ontology ids to determine agreement throughout. 
+Throughout, we use CL ontology ids to perform comparisons. 
 For more information about how these ontology ids were determined for NBAtlas labels, see `../references/README.md`.
 
-For the final exported TSV file, we further designate any cells labeled as `Neuroendocrine` as `tumor`, following how this label is interpreted in NBAtlas.
+1. If `SingleR` and `scANVI/scArches` labels exactly agree, we assign that label
+2. If broad label families (e.g., `T cell` would be the broad family for `CD4+ T cell`) for `SingleR` and `scANVI/scArches` labels agree, we assign the broad family label.
+  * See [`references/nbatlas-label-map.tsv`](references/nbatlas-label-map.tsv) and [`references/README.md`](references/README.md) for how labels were mapped to families.
+3. If `SingleR` and `scANVI/scArches` labels disagree, we then compare to the consensus cell type; if at least one inference agrees with the consensus cell type, we assign the inferred label.
+  * We perform this first at the label level and then at the broad family level.
+4. Finally, following the conclusions of Bonine et al. (2024), we designate any cell labeled as `Neuroendocrine` as a tumor cell.
+
 
 ## Setup
 
@@ -539,7 +531,7 @@ gene_sums <- rowData(merged_sce) |>
 expressed_genes <- names(gene_sums)[gene_sums > 0]
 ```
 
-```{r, fig.width = 32, fig.height = 16}
+```{r, fig.width = 32, fig.height = 16, eval = !params$testing}
 generate_dotplot(
   merged_sce = merged_sce,
   markers_df = top_nbatlas_markers_df,

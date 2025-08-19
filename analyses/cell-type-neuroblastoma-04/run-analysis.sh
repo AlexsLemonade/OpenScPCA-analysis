@@ -260,5 +260,6 @@ python ${script_dir}/03c_run-scanvi-label-transfer.py \
 Rscript -e "rmarkdown::render('final-annotation.Rmd',
   params = list(
       scanvi_pp_threshold = 0.75,
-      annotations_tsv = '${final_annotations_tsv}'
+      annotations_tsv = '${final_annotations_tsv}',
+      testing = ${testing}
 ))"
