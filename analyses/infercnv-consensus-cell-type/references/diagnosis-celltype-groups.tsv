@@ -1,6 +1,8 @@
-broad_diagnosis	validation_groups
-B cell leukemia	dendritic cell, macrophage, monocyte, myeloid, natural killer cell, T cell
-T cell leukemia	B cell, dendritic cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell
+broad_diagnosis	celltype_groups
+B cell leukemia	dendritic cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, T cell
+T cell leukemia	B cell, dendritic cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell
+AML	B cell, dendritic cell, innate lymphoid cell, macrophage, natural killer cell, plasma cell, T cell
+Mixed leukemia	dendritic cell, innate lymphoid cell, macrophage, natural killer cell
 Sarcoma	B cell, dendritic cell, hematopoietic precursor cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell, T cell
 Brain & CNS	B cell, dendritic cell, hematopoietic precursor cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell, T cell, endothelial cell, pericyte, fibroblast
 Adrenocortical carcinoma	B cell, dendritic cell, hematopoietic precursor cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell, T cell, endothelial cell, pericyte, fibroblast
