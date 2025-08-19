@@ -5,12 +5,12 @@ This directory contains reference information needed for analysis.
   * This file is created with `../scripts/00-make-gene-order-file.R` when running the analysis pipeline, but it is ignored from the repository due to its large size
 * `reference-cell-groups.tsv`: TSV file mapping consensus cell types into reference cell group categories to assist in creating normal references across projects
   * The exception to this is `SCPCP000015`, which was analyzed before this TSV file was created
-* `normal-references/`: Holds project-specific RDS files containing SCE objects for use as normal references with `inferCNV`.
+* `normal-references/`: Holds project-specific RDS files containing SCE objects for use as pooled normal references with `inferCNV`.
 More information about these files is provided below
 
-## Normal references
+## Pooled normal references
 
-Normal references for use with `inferCNV` are formatted as SCE files and are expected to have the following components:
+Pooled normal references for use with `inferCNV` are formatted as SCE files and are expected to have the following components:
 
 * A raw counts matrix
 * Column names (cell ids) formatted as `{library_id}-{barcode}`
