@@ -329,7 +329,7 @@ final_annotation_df <- annotation_df |>
       .default = "Unknown"
     )
   ) |>
-  # Now, we can bring map the final ontologies into the data frame
+  # Now, we can bring the final ontologies into the data frame
   dplyr::inner_join(
     ontology_df |> dplyr::rename(final_label = NBAtlas_label, final_id = CL_ontology_id), 
     by = "final_label"
@@ -418,7 +418,7 @@ Note that in the UMAP below, cell types in these same "family" each share a colo
 * Conventional dendritic cells
 * Monocytes
 
-```{r fig.width = 10, fig.height = 10}
+```{r fig.width = 8, fig.height = 8}
 ggplot(umap_df) +
   aes(x = UMAP1, y = UMAP2, color = final_label) +
   geom_point(alpha = 0.2, size = 0.3) +
@@ -451,7 +451,7 @@ umap_df |>
 #### Colored by tumor classification
 
 
-```{r fig.width = 8, fig.height = 8}
+```{r fig.width = 7, fig.height = 7}
 ggplot(umap_df) +
   aes(x = UMAP1, y = UMAP2, color = cell_class) +
   geom_point(alpha = 0.2, size = 0.3) +
@@ -462,7 +462,7 @@ ggplot(umap_df) +
 
 #### Colored by PDX status
 
-```{r fig.width = 8, fig.height = 8}
+```{r fig.width = 7, fig.height = 7}
 ggplot(umap_df) +
   aes(x = UMAP1, y = UMAP2, color = is_xenograft) +
   geom_point(alpha = 0.2, size = 0.3) +
@@ -479,11 +479,15 @@ Specifically, we show the top 5 highest `log2FC` marker genes per NBAtlas cell t
 Marker genes are taken directly from the NBAtlas paper where they were identified with `Seurat::FindMarkers()`. 
 
 Marker genes that are present in three or more cell types are not included.
+Only cell types with at least 10 detected cells are shown, and cells without an assigned label are not shown.
 In addition, the upper limit for the color scale has been censored to a maximum of 6 to ensure visibility of expression levels across all cell types.
 
 ```{r}
 input_dotplot_df <- final_annotation_df |>
   dplyr::filter(final_label != "Unknown") |>
+  # keep only cells that appear > 10 times
+  dplyr::add_count(final_label) |>
+  dplyr::filter(n > 10) |>
   # recode cell types to match what is present in NBAtlas marker genes
   dplyr::mutate(
     label_recoded = dplyr::case_when(
@@ -491,7 +495,7 @@ input_dotplot_df <- final_annotation_df |>
       stringr::str_detect(final_label, "cDC") ~ "cDC",
       .default = final_label
   )) |>
-  dplyr::select(cell_id, label_recoded)
+  dplyr::select(cell_id, label_recoded) 
 
 # data frame of top 5 upregulated genes per cell type
 top_nbatlas_markers_df <- subset_nbatlas_markers(nbatlas_markers_df, 5, "up") |>
@@ -531,18 +535,24 @@ gene_sums <- rowData(merged_sce) |>
 expressed_genes <- names(gene_sums)[gene_sums > 0]
 ```
 
-```{r, fig.width = 32, fig.height = 16, eval = !params$testing}
-generate_dotplot(
-  merged_sce = merged_sce,
-  markers_df = top_nbatlas_markers_df,
-  celltype_df = input_dotplot_df,
-  total_cells_df = total_cells_df,
-  expressed_genes = expressed_genes,
-  bar_order = nbatlas_bar_order, 
-  celltype_palette = celltype_pal, 
-  min_cells = 10 # only show cell types with at least 10 cells
-) +
-  theme(legend.position = "bottom")
+```{r, fig.width = 24, fig.height = 16}
+# placing this in eval in chunk settings makes the chunk
+# ignore width and height, so we use an if
+if (!(params$testing)) {
+  generate_dotplot(
+    merged_sce = merged_sce,
+    markers_df = top_nbatlas_markers_df,
+    celltype_df = input_dotplot_df,
+    total_cells_df = total_cells_df,
+    expressed_genes = expressed_genes,
+    bar_order = nbatlas_bar_order, 
+    celltype_palette = celltype_pal,
+    text_size = 22,
+    bar_text_size = 20
+  ) +
+    theme(legend.position = "bottom")
+}
+
 ```
 
 
