@@ -210,8 +210,7 @@ celltypes_to_explore |>
       lca_df |> 
         dplyr::filter(cl_annotation == {{celltype}}) |> 
         dplyr::select(id1_annotation, id2_annotation, total_lca, cl_annotation) |> 
-        unique() |> 
-        kable()
+        unique()
     }
   )
 ```
