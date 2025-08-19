@@ -219,7 +219,7 @@ generate_dotplot <- function(
     dplyr::mutate(percent_exp = (detected_count / total_cells) * 100) |>
     # add in validation group for marker genes
     # this includes all possible marker genes and all possible validation group assignments
-    dplyr::left_join(
+    dplyr::inner_join(
       markers_df,
       by = c("ensembl_gene_id", "marker_gene_label"),
       relationship = "many-to-many"
