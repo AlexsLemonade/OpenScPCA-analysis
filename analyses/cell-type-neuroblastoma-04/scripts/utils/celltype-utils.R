@@ -153,6 +153,8 @@ faceted_umap <- function(umap_df,
 #' @param bar_order Vector for the annotation bar order
 #' @param celltype_palette Named vector of colors for the annotation bar
 #' @param min_cells Only include genes present in at least this many cells
+#' @param text_size Main plot text size, default 14
+#' @param bar_text_size Text size for annotation bar, default is 12
 #'
 #' @returns Dotplot object
 generate_dotplot <- function(
@@ -163,7 +165,9 @@ generate_dotplot <- function(
     expressed_genes,
     bar_order,
     celltype_palette,
-    min_cells = 0) {
+    min_cells = 0,
+    text_size = 14,
+    bar_text_size = 12) {
   all_markers <- markers_df |>
     dplyr::pull(ensembl_gene_id) |>
     unique()
@@ -262,7 +266,7 @@ generate_dotplot <- function(
       strip.text.x = element_blank(),
       axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
       axis.ticks.x = element_blank(),
-      text = element_text(size = 14),
+      text = element_text(size = text_size),
       panel.spacing = unit(0.5, "lines") # adjust spacing and match with annotation bar
     ) +
     labs(
@@ -281,7 +285,7 @@ generate_dotplot <- function(
     ggmap::theme_nothing() +
     theme(
       strip.background = element_rect(fill = "transparent", color = NA),
-      strip.text.x = element_text(angle = 90, hjust = 0, vjust = 0.5, size = 12),
+      strip.text.x = element_text(angle = 90, hjust = 0, vjust = 0.5, size = bar_text_size),
       strip.placement = "outside",
       legend.position = "none",
       panel.spacing = unit(0.5, "lines"),
