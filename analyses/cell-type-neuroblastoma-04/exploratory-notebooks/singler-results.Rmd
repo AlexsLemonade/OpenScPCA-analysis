@@ -647,7 +647,7 @@ libraries_low_cells <- celltype_recoded_df |>
 libraries_low_cells
 ```
 
-### Distirbution of cell types
+### Distribution of cell types
 
 
 ```{r, fig.width = 10, fig.height = 4}
@@ -761,12 +761,12 @@ ggplot(celltype_recoded_wide_df) +
 ```
 
 PDX samples have, not unexpectedly, much less cell type diversity overall with most cells being tumor or similar and immune cells rarely present.
-This is consistent with expectations in general for the biology of PDX's.
+This is consistent with expectations in general for the biology of xenografts.
 
 
 ### Heatmap
 
-This section shows a heatmap compaing SingleR annotations to consensus cell types, for PDX samples only.
+This section shows a heatmap comparing SingleR annotations to consensus cell types, for PDX samples only.
 
 ```{r, fig.width = 8, fig.height = 8}
 make_jaccard_heatmap(

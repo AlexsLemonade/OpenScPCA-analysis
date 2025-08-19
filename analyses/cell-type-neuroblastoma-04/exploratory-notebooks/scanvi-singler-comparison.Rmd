@@ -153,7 +153,7 @@ singler_df <- singler_files |>
   dplyr::select(cell_id, singler, singler_delta_next = delta.next)
 ```
 
-Read and prepare scanvi results:
+Read and prepare scANVI results:
 
 ```{r}
 scanvi_full_df <- readr::read_tsv(
