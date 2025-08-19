@@ -42,7 +42,7 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
     scimilarity_predictions_file="${sample_results_dir}/${library_id}_scimilarity-predictions.tsv.gz"
     
     echo "Assigning cell types for ${library_id}"
-    python scripts/02-run-scimilarity.py \
+    python3 scripts/02-run-scimilarity.py \
       --model_dir $model_dir \
       --processed_h5ad_file $anndata_file \
       --predictions_tsv $scimilarity_predictions_file 

@@ -6,6 +6,7 @@
 import argparse
 import sys
 from pathlib import Path
+import random
 
 import anndata
 import pandas
@@ -73,10 +74,10 @@ def main() -> None:
     ################################################
 
     # Read in model 
-    scimilarity_model = CellAnnotation(model_path = model_dir)
+    scimilarity_model = CellAnnotation(model_path = arg.model_dir)
 
     # Read and make sure object formatting is correct
-    processed_anndata = anndata.read_h5ad(processed_h5ad_file)
+    processed_anndata = anndata.read_h5ad(arg.processed_h5ad_file)
     
     # counts should be stored as a layer and not in X
     processed_anndata.layers['counts'] = processed_anndata.X
@@ -86,7 +87,7 @@ def main() -> None:
 
     # Preprocess the data
     # Align the query dataset to the reference model
-    processed_anndata = align_dataset(processed_anndata, scimlarity_model.gene_order)
+    processed_anndata = align_dataset(processed_anndata, scimilarity_model.gene_order)
     # Log-normalize the counts
     processed_anndata = lognorm_counts(processed_anndata)
 
@@ -95,10 +96,10 @@ def main() -> None:
     ################################################
     
     # compute embeddings
-    processed_anndata.obsm["X_scimilarity"] = scimlarity_model.get_embeddings(processed_anndata.X)
+    processed_anndata.obsm["X_scimilarity"] = scimilarity_model.get_embeddings(processed_anndata.X)
 
     # Predict cell types
-    predictions, nn_idxs, nn_dists, nn_stats = scimlarity_model.get_predictions_knn(
+    predictions, nn_idxs, nn_dists, nn_stats = scimilarity_model.get_predictions_knn(
         processed_anndata.obsm["X_scimilarity"], weighting=True
     ) 
 
