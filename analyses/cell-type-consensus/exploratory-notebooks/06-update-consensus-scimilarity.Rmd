@@ -246,11 +246,11 @@ filtered_celltype_df |>
   DT::datatable(rownames = FALSE)
 ```
 
-Previously when we looked at the LCA for pairs with moret than 1 match, we had seen only very broad cell types. 
+Previously, when we looked at the LCA for pairs with more than 1 match, we had seen only very broad cell types. 
 That doesn't seem to be the case here as we see things like "memory T cell". 
 
 Perhaps instead of just removing the pairs with multiple LCA, we first filter out the terms that don't meet our criteria. 
-Then if multiple LCA remain we find the LCA of all the remaining LCA's and if that new LCA meets our criteria we use that instead. 
+Then, if multiple LCAs remain, we find the LCA of all the remaining LCAs, and if that new LCA meets our criteria, we use that instead. 
 
 ```{r, warning=FALSE, message=FALSE}
 # get the new LCA number after removing the non-specific terms 
@@ -311,7 +311,7 @@ These all seem like reasonable assignments.
 Let's create a dataframe with the pairs and final matches for these so we can update the whole assignment table later. 
 
 ```{r}
-# firt get a dataframe of the matches we will keep that had multiple LCA and their final annotations
+# first get a data frame of the matches we will keep that had multiple LCA and their final annotations
 multi_lca_keep_df <- new_lca_df |> 
   dplyr::filter(total_descendants <= 170 & cl_annotation != "epithelial cell of nephron" | cl_annotation == "kidney tubule cell") |> 
   dplyr::select(id1, id2, id1_annotation, id2_annotation, lca = updated_lca, cl_annotation, total_descendants) |> 
