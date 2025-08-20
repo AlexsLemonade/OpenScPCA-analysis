@@ -17,8 +17,8 @@ updated_diagnosis_map <- diagnosis_map |>
     diagnosis_group = dplyr::case_when(
       diagnosis_group == "Leukemia" & stringr::str_detect(human_readable_value, "T-cell") ~ "T-cell leukemia",
       diagnosis_group == "Leukemia" & stringr::str_detect(human_readable_value, "B-cell") ~ "B-cell leukemia",
-      diagnosis_group == "Leukemia" & stringr::str_detect(human_readable_value, "myeloid") ~ "Myeloid leukemia",
-      diagnosis_group == "Leukemia" & stringr::str_detect(human_readable_value, "Mixed") ~ "Mixed-type leukemia",
+      diagnosis_group == "Leukemia" & stringr::str_detect(human_readable_value, "myeloid") ~ "Acute myeloid leukemia",
+      diagnosis_group == "Leukemia" & stringr::str_detect(human_readable_value, "Mixed") ~ "Mixed phenotype acute leukemia",
       diagnosis_group == "Other solid tumors" ~ human_readable_value,
       .default = diagnosis_group
     )) |>
