@@ -7,7 +7,22 @@ The goal of this analysis module is to perform cell type annotation on samples f
 This module annotates cell types across samples in `SCPCP000004` using the [`NBAtlas` reference](https://doi.org/10.1016/j.celrep.2024.114804) (Bonine et al. 2024).
 
 * First, the module performs cell type annotation using [`SingleR`](https://doi.org/10.1016/j.celrep.2024.114804) (Aran et al. 2019)
-* [In progress] Second, the module performs cell type annotation using [`scANVI/scArches`](https://doi.org/10.1038/s41587-021-01001-7) (Lotfollahi et al. 2022)
+* Second, the module performs cell type annotation using [`scANVI/scArches`](https://doi.org/10.1038/s41587-021-01001-7) (Lotfollahi et al. 2022)
+* Third, the module uses these inferences, along with consensus cell types, to derive final annotations based on the NBAtlas reference using the following approach, as described below.
+
+### Annotation approach
+
+We assign final annotations based on `SingleR`, `scANVI/scArches`, and consensus cell type labels in `final-annotations.Rmd`.
+We use ontology ids to compare labels and determine the final assignment; see [`references/nbatlas-ontology-ids.tsv`](references/nbatlas-ontology-ids.tsv) and [`references/README.md`](references/README.md) for more information about how these ontology ids were determined.
+
+We used the following approach to assign final labels:
+* If `SingleR` and `scANVI/scArches` labels exactly agree, we assign that label
+* If broad label families (e.g., `T cell` would be the broad family for `CD4+ T cell`) for `SingleR` and `scANVI/scArches` labels agree, we assign the broad family label.
+See [`references/nbatlas-label-map.tsv`](references/nbatlas-label-map.tsv) and [`references/README.md`](references/README.md) for how labels were mapped to families.
+* If `SingleR` and `scANVI/scArches` labels disagree, we then compare to the consensus cell type; if at least one inference agrees with the consensus cell type, we assign the inferred label.
+We perform this first at the label level and then at the broad family level.
+* Finally, following the conclusions of Bonine et al. (2024), we designate any cell labeled as `Neuroendocrine` as a tumor cell.
+
 
 ## Usage
 
@@ -49,8 +64,8 @@ You must be logged into your AWS account to download these files.
 
 ## Output files
 
-The module outputs results to the `results` directory.
-Please see `results/README.md` for additional details.
+The module outputs results to the `results` directory, including the final annotations which are saved in `results/SCPCP000004-annotations.tsv`
+Please see `results/README.md` for additional details about all results.
 
 ## Software requirements
 
