@@ -48,9 +48,9 @@ MONDO:0010434	Synovial sarcoma	Synovial sarcoma	Sarcoma
 MONDO:0020661	Undifferentiated round cell sarcoma	Undifferentiated round cell sarcoma	Sarcoma
 MONDO:0006058	Wilms tumor	Wilms tumor	Wilms tumor
 MONDO:0004947	B-cell acute lymphoblastic leukemia	B-cell acute lymphoblastic leukemia	B-cell leukemia
-MONDO:0020743	Mixed phenotype acute leukemia	Mixed phenotype acute leukemia	Mixed-type leukemia
-MONDO:0020743	Mixed phenotype acute leukemia	T-myeloid mixed phenotype acute leukemia	Mixed-type leukemia
-MONDO:0018874	Acute myeloid leukemia	Acute myeloid leukemia	Myeloid leukemia
+MONDO:0020743	Mixed phenotype acute leukemia	Mixed phenotype acute leukemia	Mixed phenotype acute leukemia
+MONDO:0020743	Mixed phenotype acute leukemia	T-myeloid mixed phenotype acute leukemia	Mixed phenotype acute leukemia
+MONDO:0018874	Acute myeloid leukemia	Acute myeloid leukemia	Acute myeloid leukemia
 MONDO:0100291	Early T-cell progenitor acute lymphoblastic leukemia	Early T-cell precursor T-cell acute lymphoblastic leukemia	T-cell leukemia
 MONDO:0004963	T-cell acute lymphoblastic leukemia	Non-early T-cell precursor T-cell acute lymphoblastic leukemia	T-cell leukemia
 MONDO:0004963	T-cell acute lymphoblastic leukemia	T-cell acute lymphoblastic leukemia	T-cell leukemia
