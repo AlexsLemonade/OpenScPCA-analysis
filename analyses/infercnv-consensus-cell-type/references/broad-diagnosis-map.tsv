@@ -1,4 +1,5 @@
 ontology_id	human_readable_value	submitted_diagnosis	diagnosis_group
+MONDO:0006639	Adrenal cortex carcinoma	Adrenocortical carcinoma	Adrenal cortex carcinoma
 MONDO:0016684	Anaplastic astrocytoma	Anaplastic astrocytoma	Brain and CNS
 MONDO:0016700	Anaplastic ependymoma	Anaplastic ependymoma	Brain and CNS
 MONDO:0016734	Anaplastic ganglioglioma	Anaplastic ganglioglioma	Brain and CNS
@@ -26,21 +27,12 @@ MONDO:0000640	Central nervous system primitive neuroectodermal neoplasm	Primitiv
 MONDO:0008380	Retinoblastoma	Retinoblastoma	Brain and CNS
 MONDO:0002546	Schwannoma	Schwannoma	Brain and CNS
 MONDO:0007667	Subependymoma	Subependymoma	Brain and CNS
-MONDO:0018874	Acute myeloid leukemia	Acute myeloid leukemia	AML
-MONDO:0004947	B-cell acute lymphoblastic leukemia	B-cell acute lymphoblastic leukemia	B-cell leukemia
-MONDO:0100291	Early T-cell progenitor acute lymphoblastic leukemia	Early T-cell precursor T-cell acute lymphoblastic leukemia	T-cell leukemia
-MONDO:0020743	Mixed phenotype acute leukemia	Mixed phenotype acute leukemia	Mixed-type leukemia
-MONDO:0004963	T-cell acute lymphoblastic leukemia	Non-early T-cell precursor T-cell acute lymphoblastic leukemia	T-cell leukemia
-MONDO:0004963	T-cell acute lymphoblastic leukemia	T-cell acute lymphoblastic leukemia	T-cell leukemia
-MONDO:0020743	Mixed phenotype acute leukemia	T-myeloid mixed phenotype acute leukemia	Mixed-type leukemia
-MONDO:0006639	Adrenal cortex carcinoma	Adrenocortical carcinoma	Other solid tumors
-MONDO:0011719	Gastrointestinal stromal tumor	Gastrointestinal stromal tumor	Other solid tumors
-MONDO:0005040	Germ cell tumor	Germ cell tumor	Other solid tumors
-MONDO:0018666	Hepatoblastoma	Hepatoblastoma	Other solid tumors
-MONDO:0005105	Melanoma	Melanoma	Other solid tumors
-MONDO:0002728	Rhabdoid tumor	Rhabdoid tumor	Other solid tumors
-MONDO:0006058	Wilms tumor	Wilms tumor	Other solid tumors
-MONDO:0005072	Neuroblastoma	Neuroblastoma	Other solid tumors
+MONDO:0011719	Gastrointestinal stromal tumor	Gastrointestinal stromal tumor	Gastrointestinal stromal tumor
+MONDO:0005040	Germ cell tumor	Germ cell tumor	Germ cell tumor
+MONDO:0018666	Hepatoblastoma	Hepatoblastoma	Hepatoblastoma
+MONDO:0005105	Melanoma	Melanoma	Melanoma
+MONDO:0005072	Neuroblastoma	Neuroblastoma	Neuroblastoma
+MONDO:0002728	Rhabdoid tumor	Rhabdoid tumor	Rhabdoid tumor
 MONDO:0002926	Clear cell sarcoma	Clear cell sarcoma	Sarcoma
 MONDO:0005006	Clear cell sarcoma of the kidney	Clear cell sarcoma of the kidney	Sarcoma
 MONDO:0019373	Desmoplastic small round cell tumor	Desmoplastic small round cell tumor	Sarcoma
@@ -54,3 +46,11 @@ MONDO:0005212	Rhabdomyosarcoma	Rhabdomyosarcoma	Sarcoma
 MONDO:0002927	Spindle cell sarcoma	Spindle sarcoma	Sarcoma
 MONDO:0010434	Synovial sarcoma	Synovial sarcoma	Sarcoma
 MONDO:0020661	Undifferentiated round cell sarcoma	Undifferentiated round cell sarcoma	Sarcoma
+MONDO:0006058	Wilms tumor	Wilms tumor	Wilms tumor
+MONDO:0004947	B-cell acute lymphoblastic leukemia	B-cell acute lymphoblastic leukemia	B-cell leukemia
+MONDO:0020743	Mixed phenotype acute leukemia	Mixed phenotype acute leukemia	Mixed-type leukemia
+MONDO:0020743	Mixed phenotype acute leukemia	T-myeloid mixed phenotype acute leukemia	Mixed-type leukemia
+MONDO:0018874	Acute myeloid leukemia	Acute myeloid leukemia	Myeloid leukemia
+MONDO:0100291	Early T-cell progenitor acute lymphoblastic leukemia	Early T-cell precursor T-cell acute lymphoblastic leukemia	T-cell leukemia
+MONDO:0004963	T-cell acute lymphoblastic leukemia	Non-early T-cell precursor T-cell acute lymphoblastic leukemia	T-cell leukemia
+MONDO:0004963	T-cell acute lymphoblastic leukemia	T-cell acute lymphoblastic leukemia	T-cell leukemia
