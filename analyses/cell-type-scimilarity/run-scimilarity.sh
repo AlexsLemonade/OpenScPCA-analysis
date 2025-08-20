@@ -36,7 +36,7 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
   for anndata_file in $sample_dir/*_processed_rna.h5ad; do
 
     # define library ID
-    library_id=$(basename $anndata_file | sed 's/_processed_rna.h5ad$//')
+    library_id=$(basename ${anndata_file%_processed_rna.h5ad})
 
     # define output file
     scimilarity_predictions_file="${sample_results_dir}/${library_id}_scimilarity-predictions.tsv.gz"
