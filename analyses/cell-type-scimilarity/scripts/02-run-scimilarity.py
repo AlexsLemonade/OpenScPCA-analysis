@@ -10,8 +10,55 @@ import random
 
 import anndata
 import pandas
+import numpy
 from scimilarity import CellAnnotation
 from scimilarity.utils import align_dataset, lognorm_counts
+
+
+def format_scimilarity (adata: anndata.AnnData) -> anndata.AnnData:
+    """
+    Creates a new AnnData object formatted for running SCimilarity: 
+    
+    - Gene symbols, taken from the 'gene_symbol' column in 'adata.var' are used as var_names
+    If any duplicate gene symbols are found, they are collapsed by summing counts.
+    - The summed counts matrix is then stored in the 'counts' layer of the new AnnData object.
+
+    Parameters
+    ----------
+    adata : AnnData
+        Input AnnData object, with "gene_symbol" column in `adata.var`.
+
+    Returns
+    -------
+    AnnData
+        New AnnData object with gene symbols as var_names and counts stored in the 'counts' layer.
+    """
+
+    # Check that gene symbol column exists 
+    if not "gene_symbol" in adata.var.columns:
+        raise ValueError(
+            "The input AnnData object must have a 'gene_symbol' column in `adata.var`."
+        )
+    
+    # set gene symbols as var_names and make sure X has the raw counts
+    adata.var_names = adata.var["gene_symbol"].astype(str)
+    adata.X = adata.raw.X
+
+    # create a DataFrame with raw counts 
+    counts_df = adata.to_df()
+    # Collapse duplicates by summing
+    collapsed_df = counts_df.T.groupby(level=0).sum().T
+
+    # Build new AnnData with collapsed counts stored as layers and in X
+    # this is expected by SCimilarity
+    adata_collapsed = anndata.AnnData(
+        X=collapsed_df.values, 
+        var=pd.DataFrame(index=collapsed_df.columns),
+        layers={"counts": collapsed_df.values},
+    )
+
+    return adata_collapsed
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(
