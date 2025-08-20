@@ -15,6 +15,13 @@ This can be done by running the following command:
 ./setup-analysis.sh
 ```
 
+The `run-scimilarity.sh` script can then be used to annotate cells in all samples for a single ScPCA project with `SCimilarity`. 
+A project ID must be specified using the first argument. 
+
+```sh
+./run-scimilarity.sh SCPCP000001
+```
+
 
 ## Input files
 

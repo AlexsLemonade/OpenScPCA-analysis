@@ -10,8 +10,55 @@ import random
 
 import anndata
 import pandas
+from scipy.sparse import csr_matrix
 from scimilarity import CellAnnotation
 from scimilarity.utils import align_dataset, lognorm_counts
+
+
+def format_scimilarity (adata: anndata.AnnData) -> anndata.AnnData:
+    """
+    Creates a new AnnData object formatted for running SCimilarity: 
+    
+    - Gene symbols, taken from the 'gene_symbol' column in 'adata.var' are used as var_names
+    If any duplicate gene symbols are found, they are collapsed by summing counts.
+    - The summed counts matrix is then stored in the 'counts' layer of the new AnnData object.
+
+    Parameters
+    ----------
+    adata : AnnData
+        Input AnnData object, with "gene_symbol" column in `adata.var`.
+
+    Returns
+    -------
+    AnnData
+        New AnnData object with gene symbols as var_names and counts stored in the 'counts' layer.
+    """
+
+    # Check that gene symbol column exists 
+    if not "gene_symbol" in adata.var.columns:
+        raise ValueError(
+            "The input AnnData object must have a 'gene_symbol' column in `adata.var`."
+        )
+    
+    # set gene symbols as var_names and make sure X has the raw counts
+    adata.var_names = adata.var["gene_symbol"].astype(str)
+    adata.X = adata.raw.X
+
+    # create a DataFrame with raw counts, dropping anything that doesn't have a gene symbol 
+    counts_df = adata.to_df().drop(columns=['nan'])
+    # Collapse duplicates by summing and make sparse
+    collapsed_df = counts_df.T.groupby(level=0).sum().T
+
+    # Build new AnnData with collapsed counts stored as layers
+    # this is expected by SCimilarity
+    adata_collapsed = anndata.AnnData(
+        obs = pandas.DataFrame(index = collapsed_df.index), # original cell barcodes
+        var = pandas.DataFrame(index = collapsed_df.columns), # gene symbols after collapsing
+        layers = {"counts": csr_matrix(collapsed_df)},
+    )
+
+    return adata_collapsed
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -78,12 +125,7 @@ def main() -> None:
 
     # Read and make sure object formatting is correct
     processed_anndata = anndata.read_h5ad(arg.processed_h5ad_file)
-    
-    # counts should be stored as a layer
-    processed_anndata.layers['counts'] = processed_anndata.raw.X
-    # rownames should correspond to gene symbols, not IDs
-    processed_anndata.var_names = processed_anndata.var["gene_symbol"].astype(str)
-    processed_anndata.var_names_make_unique()
+    processed_anndata = format_scimilarity(processed_anndata)
 
     # Preprocess the data
     # Align the query dataset to the reference model
