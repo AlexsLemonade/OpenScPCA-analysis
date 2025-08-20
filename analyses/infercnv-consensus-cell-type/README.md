@@ -2,20 +2,33 @@
 
 ## Description
 
-The goal of this analysis module is to explore approaches for using normal consensus cell types as a normal reference for `inferCNV`.
+This analysis module holds various analyses that explore approaches for using consensus cell types as a normal reference for `inferCNV`.
+Each analysis is described below.
 
-## Usage
+### Exploration of consensus cell types across diagnoses
 
-To run the full analysis, use the following command:
+This module explores the distribution of consensus type groups across diagnoses and samples in ScPCA.
+
+
+### Pooled normal references
+
+One analysis this module holds is an exploration of using normal references pooled across samples for a given project.
+Project-specific scripts to run this analysis are available in [`pooled-workflows/`](./pooled-workflows) in this module.
+You can run them all with:
 
 ```sh
-./run-analysis.sh
+./run-pooled-workflows.sh
 ```
 
-This script will run all [project-specific workflows](./project-workflows/README.md) in this module.
-You can alternatively run a single project in the module using one of these project-specific scripts.
 
-## Input files
+#### Analysis results: Ewing sarcoma (`SCPCP000015`)
+
+* Among references `endo`, `immune`, `endo-immune`, the `endo`-only reference appears more able to distinguish between tumor and normal cells, as observed in [this exploratory notebook](exploratory-notebooks/02_ewings-reference-cnv.Rmd)
+  * Note that tumor cells were identified by the `cell-type-ewings` module
+* Pooled references appear to do a similar or slightly better job compared to internal references at distinguishing between tumor and normal cells, as observed in [this exploratory notebook](exploratory-notebooks/03_ewings-pooled-internal.Rmd)
+
+
+#### Input files
 
 * Results from the `cell-type-ewings` module
 * Processed SCEs and the merged SCE for project `SCPCP000015`
@@ -44,13 +57,3 @@ This module uses `renv` and `Docker` to manage software dependencies.
 ## Computational resources
 
 This module can be run with the resources of a standard personal laptop.
-
-## Analysis results
-
-This section provides brief conclusions for different projects which this module processed.
-
-### Ewing sarcoma (`SCPCP000015`)
-
-* Among references `endo`, `immune`, `endo-immune`, the `endo`-only reference appears more able to distinguish between tumor and normal cells, as observed in [this exploratory notebook](exploratory-notebooks/02_ewings-reference-cnv.Rmd)
-  * Note that tumor cells were identified by the `cell-type-ewings` module
-* Pooled references appear to do a similar or slightly better job compared to internal references at distinguishing between tumor and normal cells, as observed in [this exploratory notebook](exploratory-notebooks/03_ewings-pooled-internal.Rmd)
