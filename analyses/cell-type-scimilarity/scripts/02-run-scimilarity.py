@@ -10,7 +10,7 @@ import random
 
 import anndata
 import pandas
-import numpy
+from scipy.sparse import csr_matrix
 from scimilarity import CellAnnotation
 from scimilarity.utils import align_dataset, lognorm_counts
 
@@ -44,17 +44,18 @@ def format_scimilarity (adata: anndata.AnnData) -> anndata.AnnData:
     adata.var_names = adata.var["gene_symbol"].astype(str)
     adata.X = adata.raw.X
 
-    # create a DataFrame with raw counts 
-    counts_df = adata.to_df()
-    # Collapse duplicates by summing
+    # create a DataFrame with raw counts, dropping anything that doesn't have a gene symbol 
+    counts_df = adata.to_df().drop(columns=['nan'])
+    # Collapse duplicates by summing and make sparse
     collapsed_df = counts_df.T.groupby(level=0).sum().T
 
     # Build new AnnData with collapsed counts stored as layers and in X
     # this is expected by SCimilarity
     adata_collapsed = anndata.AnnData(
-        X=collapsed_df.values, 
-        var=pd.DataFrame(index=collapsed_df.columns),
-        layers={"counts": collapsed_df.values},
+        X = csr_matrix(collapsed_df), 
+        obs = pandas.DataFrame(index = collapsed_df.index), # original cell barcodes
+        var = pandas.DataFrame(index = collapsed_df.columns), # gene symbols after collapsing
+        layers = {"counts": csr_matrix(collapsed_df)},
     )
 
     return adata_collapsed
@@ -125,12 +126,7 @@ def main() -> None:
 
     # Read and make sure object formatting is correct
     processed_anndata = anndata.read_h5ad(arg.processed_h5ad_file)
-    
-    # counts should be stored as a layer
-    processed_anndata.layers['counts'] = processed_anndata.raw.X
-    # rownames should correspond to gene symbols, not IDs
-    processed_anndata.var_names = processed_anndata.var["gene_symbol"].astype(str)
-    processed_anndata.var_names_make_unique()
+    processed_anndata = format_scimilarity(processed_anndata)
 
     # Preprocess the data
     # Align the query dataset to the reference model
