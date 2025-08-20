@@ -2,7 +2,9 @@ This directory contains reference information needed for analysis.
 
 ## Consensus cell types across diagnoses
 
-* `diagnosis-celltype-groups.tsv`: TSV file mapping ScPCA diagnosis groups to broad consensus cell type groups that could serve as `inferCNV` normal reference cells for samples of that diagnosis
+* `broad-diagnosis-map.tsv`: TSV file mapping broad diagnosis groups to specific ScPCA diagnoses.
+This file was created by manually running the script `../scripts/prepare-diagnosis-map.R`
+* `diagnosis-celltype-groups.tsv`: TSV file mapping broad diagnosis groups to broad consensus cell type groups that could serve as `inferCNV` normal reference cells for samples of that diagnosis
   * TODO: This file will need to be updated once SCimilarity has been incorporated into consensus cell types
 
 
