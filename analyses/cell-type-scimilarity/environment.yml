@@ -7,7 +7,7 @@ platforms:
   - linux-64
   - osx-arm64
 dependencies:
-  - python=3.11
+  - python=3.10
   - awscli>=2.15
   - conda-lock>=2.5
   - anndata
