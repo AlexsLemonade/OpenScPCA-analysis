@@ -1,5 +1,6 @@
 This directory contains scripts used in the analysis.
 
+* `prepare-diagnosis-map.R` is manually run to prepare the TSV file mapping broad diagnosis groups to specific ScPCA diagnoses
 * `00-make-gene-order-file.R` prepares the input gene order file needed for `inferCNV`
 * `01_run-infercnv.R` runs `inferCNV` on a given ScPCA library using a specified normal reference
   * The normal reference can either be "pooled" (created from combining cells across project libraries) or "internal" (created from cells in the given library only)
