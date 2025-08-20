@@ -49,10 +49,9 @@ def format_scimilarity (adata: anndata.AnnData) -> anndata.AnnData:
     # Collapse duplicates by summing and make sparse
     collapsed_df = counts_df.T.groupby(level=0).sum().T
 
-    # Build new AnnData with collapsed counts stored as layers and in X
+    # Build new AnnData with collapsed counts stored as layers
     # this is expected by SCimilarity
     adata_collapsed = anndata.AnnData(
-        X = csr_matrix(collapsed_df), 
         obs = pandas.DataFrame(index = collapsed_df.index), # original cell barcodes
         var = pandas.DataFrame(index = collapsed_df.columns), # gene symbols after collapsing
         layers = {"counts": csr_matrix(collapsed_df)},
