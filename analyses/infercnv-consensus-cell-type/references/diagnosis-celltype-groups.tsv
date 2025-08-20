@@ -1,9 +1,9 @@
 diagnosis_group	celltype_groups
-B-cell leukemia	dendritic cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell, T cell
-T-cell leukemia	B cell, dendritic cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell
+B-cell leukemia	dendritic cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell, T cell, endothelial cell, pericyte
+T-cell leukemia	B cell, dendritic cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell, endothelial cell, pericyte
 Myeloid leukemia	B cell, dendritic cell, innate lymphoid cell, macrophage, natural killer cell, plasma cell, T cell
-Mixed-type leukemia	dendritic cell, innate lymphoid cell, macrophage, natural killer cell, plasma cell
-Sarcoma	B cell, dendritic cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell, T cell
+Mixed-type leukemia	dendritic cell, innate lymphoid cell, macrophage, natural killer cell, plasma cell, endothelial cell, pericyte
+Sarcoma	B cell, dendritic cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell, T cell, endothelial cell, pericyte
 Brain & CNS	B cell, dendritic cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell, T cell, endothelial cell, pericyte, fibroblast
 Adrenocortical carcinoma	B cell, dendritic cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell, T cell, endothelial cell, pericyte, fibroblast
 Gastrointestinal stromal tumor	B cell, dendritic cell, innate lymphoid cell, macrophage, monocyte, myeloid, natural killer cell, plasma cell, T cell
