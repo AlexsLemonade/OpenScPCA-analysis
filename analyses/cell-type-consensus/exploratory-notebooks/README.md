@@ -14,6 +14,8 @@ Prior to rendering this notebook results from the `cell-type-consensus` module i
 
 5. `05-marker-gene-validation.Rmd`: This notebook looks at marker gene expression of markers in [`references/validation-markers.tsv`](../references/validation-markers.tsv) across consensus cell types for `SCPCP000001`.
 
+6. `06-update-consensus-scimilarity.Rmd`: This notebook looks at updating the consensus cell type reference to incorporate all possible cell type annotations from using [`SCimilarity`](https://genentech.github.io/scimilarity/index.html). 
+
 ## Cell type validation notebooks
 
 The `cell-type-validation-notebooks` contains the rendered reports summarizing expression of cell type marker genes in the consensus cell types.
