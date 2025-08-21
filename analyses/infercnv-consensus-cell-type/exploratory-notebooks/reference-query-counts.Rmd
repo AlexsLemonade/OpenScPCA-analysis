@@ -16,6 +16,9 @@ We consider a threshold of at least `r params$n_reference_threshold` reference c
 ## Setup
 
 ```{r, warning = FALSE}
+library(ggplot2)
+theme_set(theme_bw())
+
 # settings
 options(
   dplyr.summarise.inform = FALSE, 
@@ -53,6 +56,9 @@ validation_file <- file.path(
   "consensus-validation-groups.tsv"
 )
 
+# validation palette
+palette_url <- "https://raw.githubusercontent.com/AlexsLemonade/scpca-paper-figures/refs/heads/main/palettes/validation-group-palette.tsv"
+
 # metadata files, for getting sample diagnoses
 metadata_files <- list.files(
   path = data_dir,
@@ -81,6 +87,10 @@ consensus_files <- list.files(
 diagnosis_map <- readr::read_tsv(diagnosis_map_file)
 diagnosis_celltype_map <- readr::read_tsv(diagnosis_celltype_map_file)
 validation_group_df <- readr::read_tsv(validation_file)
+palette_df <- readr::read_tsv(palette_url)
+celltype_pal <- palette_df$color |>
+  purrr::set_names(palette_df$validation_group_annotation)
+celltype_pal["query"] <- celltype_pal["unknown"]
 ```
 
 ```{r}
@@ -122,11 +132,11 @@ consensus_df <- consensus_files |>
 
 ### Prepare data for analysis
 
-Here, we map over each diagnosis group to count the number of reference and query cells for each sample in that group.
-We then combine into a single data frame of reference/query cell counts per sample.
+Here, we map over each diagnosis group to label each cell as `query` or `reference`.
+Then, we count the number of each category.
 
 ```{r}
-sample_counts_df <- unique(sample_diagnosis_df$diagnosis_group) |>
+query_reference_df <- unique(sample_diagnosis_df$diagnosis_group) |>
   purrr::map(
     \(broad_diagnosis) {
       
@@ -143,40 +153,37 @@ sample_counts_df <- unique(sample_diagnosis_df$diagnosis_group) |>
         dplyr::filter(diagnosis_group == broad_diagnosis) |>
         dplyr::pull(scpca_library_id)
       
-      count_df <- consensus_df |>
+      consensus_df |>
         dplyr::filter(scpca_library_id %in% library_ids) |>
         dplyr::mutate(
           cell_class = ifelse(
             consensus_annotation %in% reference_celltypes, 
-            "n_reference", 
-            "n_query"
-        )) |>
-        dplyr::count(scpca_library_id, cell_class) |>
-        tidyr::pivot_wider(
-          names_from = cell_class, 
-          values_from = n, 
-          values_fill = 0
-        ) |>
-        dplyr::inner_join(sample_diagnosis_df, by = "scpca_library_id") |>
-        dplyr::select(
-          scpca_project_id, 
-          scpca_library_id, 
-          diagnosis_group, 
-          diagnosis, 
-          # there may not be any n_reference, so this is more flexible
-          contains("n_")
-        )
-        
-      # Create n_reference if it doesn't exist
-      if (!("n_reference" %in% names(count_df))) {
-        count_df$n_reference <- 0
-      }
-      
-      return(count_df)
+            "reference", 
+            "query"
+        ))
   }) |>
   dplyr::bind_rows()
 ```
 
+
+```{r}
+sample_counts_df <- query_reference_df |>
+  dplyr::count(scpca_library_id, cell_class) |>
+  tidyr::pivot_wider(
+    names_from = cell_class, 
+    values_from = n, 
+    values_fill = 0
+  ) |>
+  dplyr::inner_join(sample_diagnosis_df, by = "scpca_library_id") |>
+  dplyr::select(
+    scpca_project_id, 
+    scpca_library_id, 
+    diagnosis_group, 
+    diagnosis, 
+    query, 
+    reference
+  )
+```
 
 ## Analysis
 
@@ -186,11 +193,12 @@ Using a threshold of needing at least `r params$n_reference_threshold` reference
 usable_df <- sample_counts_df |>
   dplyr::group_by(diagnosis_group) |>
   dplyr::summarize(
-    n_usable = sum(n_reference >= params$n_reference_threshold),
+    n_usable = sum(reference >= params$n_reference_threshold),
     total_group_samples = dplyr::n(), 
     frac_usable = round(n_usable / total_group_samples, 3) 
   ) |>
-  dplyr::arrange(desc(total_group_samples))
+  dplyr::arrange(desc(total_group_samples)) |>
+  dplyr::select(diagnosis_group, total_group_samples, n_usable, frac_usable)
 
 usable_df
 ```
@@ -208,7 +216,7 @@ It's not too surprising to see `Mixed phenotype acute leukemia` here since most 
 In total, this fraction of ScPCA samples have sufficient reference cells to run through `inferCNV`:
 
 ```{r}
-sum(sample_counts_df$n_reference >= params$n_reference_threshold) / nrow(sample_counts_df)
+sum(sample_counts_df$reference >= params$n_reference_threshold) / nrow(sample_counts_df)
 ```
 
 Of the samples with sufficient reference cells, do any have _fewer_ query than reference cells?
@@ -216,8 +224,8 @@ Of the samples with sufficient reference cells, do any have _fewer_ query than r
 ```{r}
 sample_counts_df |>
   # consider usable only
-  dplyr::filter(n_reference >= params$n_reference_threshold) |>
-  dplyr::filter(n_query < params$n_reference_threshold)
+  dplyr::filter(reference >= params$n_reference_threshold) |>
+  dplyr::filter(query < params$n_reference_threshold)
 ```
 
 There is one project about 7x as many reference as query cells; let's look more closely:
@@ -231,11 +239,66 @@ consensus_df |>
 
 This sample indeed is dominated by immune cell types with very low tumor purity, but it still seems to have enough query cells to not be a problem and should be ok to run.
 
+## Plots
+
+In this section, we plot the relative contributions of each cell type group in the samples we can run. 
+We show the relative proportions of consensus cell type groups in the _reference_, and we show all other query cells grouped together in gray.
+The x-axis is library ids, and the y-axis is the proportion of each cell type group. 
+
+```{r}
+usable_libraries <- sample_counts_df |>
+  dplyr::filter(reference >= params$n_reference_threshold) |>
+  dplyr::pull(scpca_library_id)
+
+plot_df <- query_reference_df |>
+  dplyr::filter(scpca_library_id %in% usable_libraries) |>
+  dplyr::left_join(validation_group_df, by = c("consensus_ontology", "consensus_annotation")) |>
+  dplyr::select(
+    scpca_project_id, 
+    scpca_library_id, 
+    barcodes, 
+    cell_class, 
+    validation_group_annotation
+  ) |>
+  dplyr::mutate(
+    label = ifelse(
+      cell_class == "query", 
+      "query",
+      validation_group_annotation
+    ),
+    # move "query" first
+    label = forcats::fct_relevel(label, "query", after = 0)
+  )
+```
+
+
+```{r fig.width = 16, fig.height = 14}
+ggplot(plot_df) + 
+  aes(x = scpca_library_id, fill = label) + 
+  geom_bar(position = "fill") +
+  scale_fill_manual(values = celltype_pal) + 
+  facet_wrap(
+    vars(scpca_project_id), 
+    scales = "free_x", 
+    ncol = 4
+  ) + 
+  ylab("proportion") +
+  theme(
+    axis.text.x = element_blank(), 
+    axis.text.y = element_text(size = 12),
+    axis.title = element_text(size = 14),
+    strip.text = element_text(size = 13),
+    legend.text = element_text(size = 12),
+    legend.position = "bottom"
+  )
+```
+
 
 ## Conclusions
 
 Currently, _before_ incorporating `SCimilarity` into our consensus cell types, we are able to run about 44% of samples through `inferCNV`. 
 Most broad diagnosis groups are represented, except `Mixed phenotype acute leukemia` and a handful of other solid tumors.
+All eligible projects except `SCPCP000011` (Retinoblastoma samples) are represented as well.
 
 ## Session Info
 
