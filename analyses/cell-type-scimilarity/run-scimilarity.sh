@@ -3,7 +3,7 @@
 # This script is used to annotate cell types with SCimilarity for all libraries in a single ScPCA project 
 # A single TSV file will be saved for every library with the annotations and min_dist reported by SCimilarity 
 
-# Prior to running this scrip, the model must be downloaded directly using the setup-analysis.sh script
+# Prior to running this scrip, the model must be downloaded directly the setup-analysis.sh script
 
 # Usage: ./run-scimilarity.sh SCPCP000001
 
