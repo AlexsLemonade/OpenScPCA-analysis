@@ -230,16 +230,20 @@ I think having that information could be useful.
 One thing to note is that most of these have a total LCA count > 1 meaning there is at least one other match for those cell types. 
 Maybe we should consider removing anything with more than 1 LCA which is what we were doing previously when we only were matching Blueprint and Panglao. 
 
+### Handling multiple LCA matches
+
+First, let's see what cell types have multiple matches. 
+
 ```{r}
 # updated celltypes to exclude 
 celltypes_to_exclude <- c(celltypes_to_exclude, "biogenic amine secreting cell", "protein secreting cell", "extracellular matrix secreting cell")
 
 # create a df with just lca that meet the specified criteria so far 
-filtered_celltype_df <- lca_df |>
+filtered_lca_df <- lca_df |>
   dplyr::filter(total_descendants <= 170  & !cl_annotation %in% celltypes_to_exclude)
 
 # print out all matches when total lca > 1
-filtered_celltype_df |> 
+filtered_lca_df |> 
   dplyr::filter(total_lca > 1) |> 
   dplyr::select(cl_annotation) |> 
   unique() |> 
@@ -249,19 +253,24 @@ filtered_celltype_df |>
 Previously, when we looked at the LCA for pairs with more than 1 match, we had seen only very broad cell types. 
 That doesn't seem to be the case here as we see things like "memory T cell". 
 
+#### Re-calculating the LCA
+
 Perhaps instead of just removing the pairs with multiple LCA, we first filter out the terms that don't meet our criteria. 
 Then, if multiple LCAs remain, we find the LCA of all the remaining LCAs, and if that new LCA meets our criteria, we use that instead. 
 
 ```{r, warning=FALSE, message=FALSE}
 # get the new LCA number after removing the non-specific terms 
-filtered_celltype_df <- filtered_celltype_df |> 
+filtered_lca_df <- filtered_lca_df |> 
   dplyr::group_by(id1, id2) |> 
   dplyr::mutate(new_lca_pair = length(lca))
+```
 
+
+```{r, warning=FALSE, message=FALSE}
 # now pull out any pairs where only one of the LCA remains 
 # find the LCA between the remaining ones and then filter based on total descendants
 # are there any that are remaining that still have multiple LCA? 
-new_lca_df <- filtered_celltype_df |>
+new_lca_df <- filtered_lca_df |>
   dplyr::filter(new_lca_pair > 1) |>
   dplyr::group_by(id1, id2) |> 
   dplyr::summarize(
@@ -318,6 +327,42 @@ multi_lca_keep_df <- new_lca_df |>
   unique()
 ```
 
+#### Choosing a single LCA
+
+Alternatively, we could identify some systematic approach to choose one of the possible LCAs. 
+Let's first look at some of the pairs and see if using the total descendants would be appropriate: 
+
+```{r}
+filtered_lca_df |> 
+  dplyr::filter(new_lca_pair > 1) |> 
+  dplyr::ungroup() |> 
+  dplyr::select(id1_annotation, id2_annotation, cl_annotation, total_descendants) |> 
+  DT::datatable(rownames = FALSE)
+```
+
+In looking at these pairs, for the most part we see one term that is obviously "more specific" than the other terms. 
+
+- A lot of matches give both "memory T cell" and "mature alpha-beta T cell". 
+In this case, "memory T cell" is more specific and has fewer descendants. 
+- We see "peptide hormone secreting cell" and another more specific term like "pancreatic endocrine cell" or "enteroendocrine cell" with fewer descendants. 
+- "glandular epithelial cell" and "epithelial cell of pancreas" also show up, where "epithelial cell of pancreas" has fewer descendants. 
+
+The exception to this is "mononuclear phagocyte" and "myeloid leukocyte" which to me are both equally vague. 
+"myeloid leukocyte" does have a fewer number of descendants though so if we use that rule, I do think it would be reasonable to choose "myeloid leukocyte". 
+
+Generally, I think we could choose the term with the fewest descendants as the appropriate LCA, which would be consistent with using the number of descendants in the first place to set our original cutoffs. 
+This approach seems more straight forward than recalculating the LCA as we did in the previous section. 
+
+```{r}
+filtered_lca_df <- filtered_lca_df |> 
+  dplyr::group_by(id1, id2) |> 
+  # get the cl_annotation with the minimum value in total_descendants column 
+  # discard all other rows that aren't the minimum value 
+  dplyr::slice_min(total_descendants, with_ties = FALSE) |> 
+  dplyr::ungroup()
+```
+
+
 
 ### Discarded cell types 
 
@@ -362,10 +407,10 @@ Using the above exploration, we should update our rules for labeling the pairs w
 - A single LCA term with <= 170 total descendants
 - LCA term that is not one of: "bone cell", "lining cell", "blood cell", "progenitor cell", "supporting cell", "biogenic amine secreting cell", "protein secreting cell", or "extracellular matrix secreting cell"
 - LCA term that is "neuron" or "epithelial cell"
-- A secondary LCA term (LCA computed all LCAs returned from the initial pairing) that is a single LCA value with <= 170 total descendants or one of "epithelial cell", "kidney tubule cell", or "hematopoietic precursor cell" 
+- The LCA term with the fewest descendants when multiple LCA terms are found that meet the above criteria
 
 ```{r}
-# now filter to remove the multi LCA matches and add back in the updated assignments for them 
+# create a table with all pairs and their LCA
 filtered_lca_df <- lca_df |> 
   # first set criteria to keep cell types, > 170, celltypes of interest 
   dplyr::filter(total_descendants <= 170 & !(cl_annotation %in% celltypes_to_exclude) 
@@ -373,14 +418,10 @@ filtered_lca_df <- lca_df |>
                    # only keep epithelial if not keratinocyte
                 | (cl_annotation == "epithelial cell" & id1_annotation != "keratinocyte" & id2_annotation != "keratinocyte")) |> 
   dplyr::group_by(id1, id2) |> 
-  # after filtering, see how many LCAs are left
-  dplyr::mutate(new_lca_pair = length(lca)) |> 
-   # everything with more than 1 lca gets removed with the exception of HSCs
-  dplyr::filter(new_lca_pair <=1 | cl_annotation == "hematopoietic precursor cell") |> 
-  dplyr::select(id1, id2, id1_annotation, id2_annotation, lca, cl_annotation, total_descendants) |> 
-  # add in pairs with multi LCA and their final match 
-  dplyr::bind_rows(multi_lca_keep_df) |> 
-  unique()
+  # get the cl_annotation with the minimum value in total_descendants column 
+  # discard all other rows that aren't the minimum value 
+  dplyr::slice_min(total_descendants, with_ties = FALSE) |> 
+  dplyr::ungroup()
 ```
 
 Let's make sure we only have unique combinations: 
@@ -393,6 +434,15 @@ dup <- filtered_lca_df |>
 dim(filtered_lca_df[dup, ])[1]
 ```
 
+Now what cell types are we retaining: 
+
+```{r}
+filtered_lca_df |> 
+  dplyr::select(cl_annotation, total_descendants) |> 
+  dplyr::arrange(desc(total_descendants)) |> 
+  dplyr::distinct() |> 
+  DT::datatable(rownames = FALSE)
+```
 
 ## Obtaining the final consensus cell type 
 
@@ -421,18 +471,93 @@ If there's only one match we'll use that, otherwise we need to figure out how to
 consensus_ref_df <- combined_ref_df |> 
   dplyr::group_by(panglao_ontology, blueprint_ontology, scimilarity_ontology) |> 
   dplyr::summarize(
-    total_matches = length(unique(lca)),
-    consensus_celltype_ontology = dplyr::case_when(
-      total_matches == 1 ~ lca,
-      total_matches > 1 ~ paste0(unique(lca), collapse = ",")
+    total_matches = length(unique(cl_annotation)),
+    consensus_celltype_annotation = dplyr::case_when(
+      total_matches == 1 ~ cl_annotation,
+      total_matches > 1 ~ paste0(unique(cl_annotation), collapse = ";")
+    ),
+    # aggregate total_descendants for the unique annotations only
+    total_descendants = paste0(
+      unique(total_descendants[match(unique(cl_annotation), cl_annotation)]),
+      collapse = ";"
     )
-  )
+    
+  ) |> 
+  dplyr::distinct()
 
 table(consensus_ref_df$total_matches)
 ```
 
-TODO: Figure out how to assign the LCA for ~ 16000 combinations that result in multiple LCAs 
+```{r}
+multi_lca_df <- consensus_ref_df |> 
+  dplyr::ungroup() |> 
+  dplyr::filter(total_matches > 1) |> 
+  dplyr::select(consensus_celltype_annotation, total_descendants) |> 
+  dplyr::distinct()
 
+multi_lca_df |> 
+  DT::datatable(rownames = FALSE)
+  
+```
+
+Generally speaking it looks like there are terms that are of the same lineage which makes sense. 
+I think we could just stick with our previous guidelines of choosing the label with the fewest descendants or is the most specific term. 
+
+The only problem we might have is when terms have an equivalent number of descendants. 
+Let's see how many cases that applies too. 
+
+```{r}
+# first get a dataframe of the minimum descendants, keeping all ties 
+final_df <- combined_ref_df |> 
+  # first get rid of any cases where more than one pair gives the same lca term 
+  dplyr::select(panglao_ontology, blueprint_ontology, scimilarity_ontology, lca, cl_annotation, total_descendants) |> 
+  dplyr::distinct() |> 
+  # now select the lca term with the minimum total descendants 
+  dplyr::group_by(panglao_ontology, blueprint_ontology, scimilarity_ontology) |> 
+  dplyr::slice_min(total_descendants)
+```
+
+```{r}
+# are there any cases where we have ties? 
+dup <- final_df |> 
+  dplyr::select(panglao_ontology, blueprint_ontology, scimilarity_ontology) |> 
+  duplicated()
+
+final_df[dup, ] |> 
+  DT::datatable(rownames = FALSE)
+```
+
+It looks like there are occassions where the lca term is both `hematopoietic precursor cell` and `stem cell`. 
+These terms both have the same number of total descendants. 
+Manually looking at the Cell Ontology, they also both only have 2 ancestors. 
+I think I would favor choosing `hematopoietic precursor cell` over `stem cell` since that specifically refers to a cell in the blood lineage. 
+Also glancing at the terms from blueprint here, they all appear to be from the HSC lineage. 
+Let's double check that. 
+
+```{r}
+final_df[dup, ] |> 
+  dplyr::pull(blueprint_ontology) |> 
+  as.character() |> 
+  unique()
+```
+
+These terms correspond to `megakaryocyte-erythroid progenitor cell`,  `hematopoietic stem cell`, `hematopoietic multipotent progenitor cell`, `common lymphoid progenitor`, `granulocyte monoctye progenitor cell`, and `common myeloid progenitor`. 
+
+For this case, we should choose `hematopoietic precursor cell` over `stem cell`. 
+
+## Conclusions 
+
+Combining all the information from this notebook, we should use the following set of rules to create the consensus cell type reference: 
+
+Identify the LCA for all possible pairs of annotations and keep the LCA if the following criteria are met: 
+
+- LCA has <= 170 total descendants or belongs to `neuron`, `epithelial cell`, `columnar/cuboidal epithelial cell`, or `endo-epithelial cell`
+- LCA term that is not one of: "bone cell", "lining cell", "blood cell", "progenitor cell", "supporting cell", "biogenic amine secreting cell", "protein secreting cell", or "extracellular matrix secreting cell"
+- If multiple LCAs are found that meet the above criteria, the LCA term with the fewest descendants is retained
+
+For all possible combinations of the three annotations, if at least one pair has an LCA that meet the above criteria, a consensus cell type is assigned using the LCA with the fewest descendants. 
+The only exception to this rule is if the annotations return both `hematopoietic precursor cell` and `stem cell` as possible LCAs.
+In this case, `hematopoietic precursor cell` is assigned as the consensus cell type. 
 
 ## Session info   
 
