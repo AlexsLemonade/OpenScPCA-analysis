@@ -7,7 +7,7 @@ params:
   n_reference_threshold: 100
 ---
 
-The goal of this notebook is to look at cell type distributions across samples to determine how many samples could be run through `inferCNV`.
+The goal of this notebook is to look at cell type distributions across libraries to determine how many could be run through `inferCNV`.
 Specifically, we are interested in seeing the relative numbers of cells intended as `inferCNV` reference vs. query.
 Cell types were determined to be reference or query based on the sample's diagnosis, as mapped out in `../references/broad-diagnosis-map.tsv`.
 We consider a threshold of at least `r params$n_reference_threshold` reference cells needed to run `inferCNV`.
@@ -94,20 +94,21 @@ celltype_pal["query"] <- celltype_pal["unknown"]
 ```
 
 ```{r}
-all_sample_diagnosis_df <- metadata_files |>
+ all_library_diagnosis_df <- metadata_files |>
   purrr::map(
     \(file) {
-      readr::read_tsv(file) |>
-        dplyr::select(contains("scpca"), diagnosis, is_cell_line, is_multiplexed)
+      df <- readr::read_tsv(file) |>
+        dplyr::select(scpca_project_id, scpca_library_id, diagnosis, is_cell_line, is_multiplexed) |>
+        # have to join here because of multiplexed; inner_join also removes normals
+        dplyr::inner_join(diagnosis_map, by = c("diagnosis" = "submitted_diagnosis")) |>
+        dplyr::select(-diagnosis, -ontology_id, -human_readable_value) |>
+        dplyr::distinct()
   }) |>
-  dplyr::bind_rows() |>
-  # use inner_join to remove normals
-  dplyr::inner_join(diagnosis_map, by = c("diagnosis" = "submitted_diagnosis")) |>
-  dplyr::select(-ontology_id, -human_readable_value)
+  dplyr::bind_rows() 
 
-total_samples <- nrow(all_sample_diagnosis_df) # needed for later math
+total_libraries <- nrow(all_library_diagnosis_df) # needed for later math
 
-sample_diagnosis_df <- all_sample_diagnosis_df |>
+library_diagnosis_df <- all_library_diagnosis_df |>
   # don't consider cell line (or multiplexed?)
   # for now at least, we are retaining multiplexed
   dplyr::filter(!is_cell_line)
@@ -115,8 +116,8 @@ sample_diagnosis_df <- all_sample_diagnosis_df |>
 
 ```{r}
 consensus_df <- consensus_files |>
-  # only keep samples in sample_diagnosis_df
-  purrr::keep_at(sample_diagnosis_df$scpca_library_id) |>
+  # only keep libraries in scpca_project_id_diagnosis_df
+  purrr::keep_at(library_diagnosis_df$scpca_library_id) |>
   purrr::imap(
     \(file, id) {
     
@@ -124,7 +125,6 @@ consensus_df <- consensus_files |>
       readr::read_tsv(file, guess_max = 15000) |>
        dplyr::select(
          scpca_project_id = project_id,
-         scpca_sample_id = sample_id,
          scpca_library_id = library_id,
          barcodes,
          consensus_annotation,
@@ -141,7 +141,7 @@ Here, we map over each diagnosis group to label each cell as `query` or `referen
 Then, we count the number of each category.
 
 ```{r}
-query_reference_df <- unique(sample_diagnosis_df$diagnosis_group) |>
+query_reference_df <- unique(library_diagnosis_df$diagnosis_group) |>
   purrr::map(
     \(broad_diagnosis) {
       
@@ -154,7 +154,7 @@ query_reference_df <- unique(sample_diagnosis_df$diagnosis_group) |>
         dplyr::filter(validation_group_annotation %in% celltype_groups) |>
         dplyr::pull(consensus_annotation)
       
-      library_ids <- sample_diagnosis_df |>
+      library_ids <- library_diagnosis_df |>
         dplyr::filter(diagnosis_group == broad_diagnosis) |>
         dplyr::pull(scpca_library_id)
       
@@ -172,19 +172,18 @@ query_reference_df <- unique(sample_diagnosis_df$diagnosis_group) |>
 
 
 ```{r}
-sample_counts_df <- query_reference_df |>
+library_counts_df <- query_reference_df |>
   dplyr::count(scpca_library_id, cell_class) |>
   tidyr::pivot_wider(
     names_from = cell_class, 
     values_from = n, 
     values_fill = 0
   ) |>
-  dplyr::inner_join(sample_diagnosis_df, by = "scpca_library_id") |>
+  dplyr::inner_join(library_diagnosis_df, by = "scpca_library_id") |>
   dplyr::select(
     scpca_project_id, 
     scpca_library_id, 
     diagnosis_group, 
-    diagnosis, 
     query, 
     reference
   )
@@ -192,42 +191,42 @@ sample_counts_df <- query_reference_df |>
 
 ## Analysis
 
-Using a threshold of needing at least `r params$n_reference_threshold` reference cells, how many samples could be run through `inferCNV`?
+Using a threshold of needing at least `r params$n_reference_threshold` reference cells, how many libraries could be run through `inferCNV`?
 
 ```{r}
-usable_df <- sample_counts_df |>
+usable_df <- library_counts_df |>
   dplyr::group_by(diagnosis_group) |>
   dplyr::summarize(
     n_usable = sum(reference >= params$n_reference_threshold),
-    total_group_samples = dplyr::n(), 
-    frac_usable = round(n_usable / total_group_samples, 3) 
+    total_group_libs = dplyr::n(), 
+    frac_usable = round(n_usable / total_group_libs, 3) 
   ) |>
-  dplyr::arrange(desc(total_group_samples)) |>
-  dplyr::select(diagnosis_group, total_group_samples, n_usable, frac_usable)
+  dplyr::arrange(desc(total_group_libs)) |>
+  dplyr::select(diagnosis_group, total_group_libs, n_usable, frac_usable)
 
 usable_df
 ```
-All of our broad diagnosis groups are represented, which is nice to see. 
+Except for a handful of "other solid tumors," our broad diagnosis groups are well-represented, which is nice to see. 
 
-Which diagnosis groups have _no samples_ with sufficient reference cells?
+Which diagnosis groups have _no libraries_ with sufficient reference cells?
 
 ```{r}
 usable_df |>
   dplyr::filter(frac_usable == 0)
 ```
-It's not too surprising to see `Mixed phenotype acute leukemia` here since most immune cell types can't be included in the reference, and the other groups comprise very small numbers of samples.
+It's not too surprising to see `Mixed phenotype acute leukemia` here since most immune cell types can't be included in the reference, and the other groups comprise very small numbers of libraries.
 
 
-In total, this fraction of ScPCA samples have sufficient reference cells to run through `inferCNV`:
+In total, this fraction of ScPCA libraries have sufficient reference cells to run through `inferCNV`:
 
 ```{r}
-sum(sample_counts_df$reference >= params$n_reference_threshold) / total_samples
+sum(library_counts_df$reference >= params$n_reference_threshold) / total_libraries
 ```
 
-Of the samples with sufficient reference cells, do any have _fewer_ query than reference cells?
+Of the libraries with sufficient reference cells, do any have _fewer_ query than reference cells?
 
 ```{r}
-sample_counts_df |>
+library_counts_df |>
   # consider usable only
   dplyr::filter(reference >= params$n_reference_threshold) |>
   dplyr::filter(query < params$n_reference_threshold)
@@ -242,16 +241,16 @@ consensus_df |>
   dplyr::arrange(n)
 ```
 
-This sample indeed is dominated by immune cell types with very low tumor purity, but it still seems to have enough query cells to not be a problem and should be ok to run.
+This library indeed is dominated by immune cell types with very low tumor purity, but it still seems to have enough query cells to not be a problem and should be ok to run.
 
 ## Plots
 
-In this section, we plot the relative contributions of each cell type group in the samples we can run. 
+In this section, we plot the relative contributions of each cell type group in the libraries we can run. 
 We show the relative proportions of consensus cell type groups in the _reference_, and we show all other query cells grouped together in gray.
 The x-axis is library ids, and the y-axis is the proportion of each cell type group. 
 
 ```{r}
-usable_libraries <- sample_counts_df |>
+usable_libraries <- library_counts_df |>
   dplyr::filter(reference >= params$n_reference_threshold) |>
   dplyr::pull(scpca_library_id)
 
@@ -301,7 +300,7 @@ ggplot(plot_df) +
 
 ## Conclusions
 
-Currently, _before_ incorporating `SCimilarity` into our consensus cell types, we are able to run about 44% of samples through `inferCNV`. 
+Currently, _before_ incorporating `SCimilarity` into our consensus cell types, we are able to run about 44% of libraries through `inferCNV`. 
 Most broad diagnosis groups are represented, except `Mixed phenotype acute leukemia` and a handful of other solid tumors.
 All eligible projects except `SCPCP000011` (Retinoblastoma samples) are represented as well.
 
