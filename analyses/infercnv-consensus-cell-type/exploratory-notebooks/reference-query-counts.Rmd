@@ -94,18 +94,23 @@ celltype_pal["query"] <- celltype_pal["unknown"]
 ```
 
 ```{r}
-sample_diagnosis_df <- metadata_files |>
+all_sample_diagnosis_df <- metadata_files |>
   purrr::map(
     \(file) {
       readr::read_tsv(file) |>
-        # don't consider multiplexed or cell line
-        dplyr::filter(!is_multiplexed, !is_cell_line) |>
-        dplyr::select(contains("scpca"), diagnosis)
+        dplyr::select(contains("scpca"), diagnosis, is_cell_line, is_multiplexed)
   }) |>
   dplyr::bind_rows() |>
   # use inner_join to remove normals
   dplyr::inner_join(diagnosis_map, by = c("diagnosis" = "submitted_diagnosis")) |>
   dplyr::select(-ontology_id, -human_readable_value)
+
+total_samples <- nrow(all_sample_diagnosis_df) # needed for later math
+
+sample_diagnosis_df <- all_sample_diagnosis_df |>
+  # don't consider cell line (or multiplexed?)
+  # for now at least, we are retaining multiplexed
+  dplyr::filter(!is_cell_line)
 ```
 
 ```{r}
@@ -216,7 +221,7 @@ It's not too surprising to see `Mixed phenotype acute leukemia` here since most 
 In total, this fraction of ScPCA samples have sufficient reference cells to run through `inferCNV`:
 
 ```{r}
-sum(sample_counts_df$reference >= params$n_reference_threshold) / nrow(sample_counts_df)
+sum(sample_counts_df$reference >= params$n_reference_threshold) / total_samples
 ```
 
 Of the samples with sufficient reference cells, do any have _fewer_ query than reference cells?
