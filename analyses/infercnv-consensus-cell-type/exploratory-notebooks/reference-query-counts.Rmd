@@ -80,7 +80,7 @@ consensus_files <- list.files(
 ```{r}
 diagnosis_map <- readr::read_tsv(diagnosis_map_file)
 diagnosis_celltype_map <- readr::read_tsv(diagnosis_celltype_map_file)
-validation_group_df <- readr::read_tsv(validation_url)
+validation_group_df <- readr::read_tsv(validation_file)
 ```
 
 ```{r}
@@ -196,7 +196,16 @@ usable_df
 ```
 All of our broad diagnosis groups are represented, which is nice to see. 
 
-In total, we can run this fraction of ScPCA samples:
+Which diagnosis groups have _no samples_ with sufficient reference cells?
+
+```{r}
+usable_df |>
+  dplyr::filter(frac_usable == 0)
+```
+It's not too surprising to see `Mixed phenotype acute leukemia` here since most immune cell types can't be included in the reference, and the other groups comprise very small numbers of samples.
+
+
+In total, this fraction of ScPCA samples have sufficient reference cells to run through `inferCNV`:
 
 ```{r}
 sum(sample_counts_df$n_reference >= params$n_reference_threshold) / nrow(sample_counts_df)
@@ -220,14 +229,13 @@ consensus_df |>
   dplyr::arrange(n)
 ```
 
-This sample indeed is dominated by immune cell types.
-This sample may just have very low tumor purity, but I think it's still fine to run through `inferCNV`.
+This sample indeed is dominated by immune cell types with very low tumor purity, but it still seems to have enough query cells to not be a problem and should be ok to run.
 
 
 ## Conclusions
 
 Currently, _before_ incorporating `SCimilarity` into our consensus cell types, we are able to run about 44% of samples through `inferCNV`. 
-All broad diagnosis groups are represented.
+Most broad diagnosis groups are represented, except `Mixed phenotype acute leukemia` and a handful of other solid tumors.
 
 ## Session Info
 
