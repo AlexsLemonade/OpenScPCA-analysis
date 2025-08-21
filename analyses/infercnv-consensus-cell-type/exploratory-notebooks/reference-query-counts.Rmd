@@ -228,7 +228,7 @@ sample_counts_df |>
   dplyr::filter(query < params$n_reference_threshold)
 ```
 
-There is one project about 7x as many reference as query cells; let's look more closely:
+There is one library with about 7x as many reference as query cells; let's look more closely:
 
 ```{r}
 consensus_df |>
