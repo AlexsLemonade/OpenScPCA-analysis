@@ -74,7 +74,7 @@ jobs:
           projects=$(basename -a data/current/SCPCP*)
 
           cd ${MODULE_PATH}
-          setup-analysis.sh
+          annotation_only=1 ./setup-analysis.sh
           
           for project in $projects; do
               ./run-scimilarity.sh $project
