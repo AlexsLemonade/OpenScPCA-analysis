@@ -58,7 +58,7 @@ if [[ ! -d $scimilarity_model_dir && $annotation_only -eq 0 ]]; then
   
   echo "Model downloaded and unzipped"
   
-else if [[ ! -d $scimilarity_model_dir && $annotation_only -eq 1 ]]
+elif [[ ! -d $scimilarity_model_dir && $annotation_only -eq 1 ]]; then
 
   echo "Downloading only the annotation SCimilarity model from s3"
   s3_model='s3://scpca-references/celltype/scimilarity_references/model_v1.1'
