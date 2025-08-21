@@ -65,8 +65,8 @@ jobs:
 
       # Update this step as needed to download the desired data
       # pick a few random projects for now
-       - name: Download test data
-         run: |
+      - name: Download test data
+        run: |
           ./download-data.py --test-data --format AnnData --project SCPCP000001,SCPCP000005,SCPCP000010,SCPCP000015
 
       - name: Run analysis module
