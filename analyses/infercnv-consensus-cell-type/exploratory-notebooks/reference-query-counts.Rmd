@@ -1,0 +1,237 @@
+---
+title: "Diagnoses and cell types"
+author: "Stephanie J. Spielman"
+date: "`r Sys.Date()`"
+output: html_notebook
+params:
+  n_reference_threshold: 100
+---
+
+The goal of this notebook is to look at cell type distributions across samples to determine how many samples could be run through `inferCNV`.
+Specifically, we are interested in seeing the relative numbers of cells intended as `inferCNV` reference vs. query.
+Cell types were determined to be reference or query based on the sample's diagnosis, as mapped out in `../references/broad-diagnosis-map.tsv`.
+We consider a threshold of at least `r params$n_reference_threshold` reference cells needed to run `inferCNV`.
+
+
+## Setup
+
+```{r, warning = FALSE}
+# settings
+options(
+  dplyr.summarise.inform = FALSE, 
+  readr.show_col_types = FALSE
+)
+```
+
+### Paths
+
+Define directories:
+
+```{r}
+module_dir <- rprojroot::find_root(rprojroot::is_renv_project)
+repository_base <- file.path(module_dir, "..", "..")
+
+ref_dir <- file.path(module_dir, "references")
+data_dir <- file.path(repository_base, "data", "current")
+consensus_dir <- file.path(repository_base, "data", "current", "results", "cell-type-consensus")
+consensus_module_dir <- file.path(repository_base, "analyses", "cell-type-consensus")
+```
+
+Define paths to input files to read in:
+
+```{r}
+# map broad to submitted diagnoses
+diagnosis_map_file <- file.path(ref_dir, "broad-diagnosis-map.tsv")
+
+# map broad diagnoses to cell type groups
+diagnosis_celltype_map_file <- file.path(ref_dir, "diagnosis-celltype-groups.tsv")
+
+# map cell type groups to constituent cell types
+validation_file <- file.path(
+  consensus_module_dir, 
+  "references", 
+  "consensus-validation-groups.tsv"
+)
+
+# metadata files, for getting sample diagnoses
+metadata_files <- list.files(
+  path = data_dir,
+  pattern = "single_cell_metadata\\.tsv$",
+  recursive = TRUE,
+  full.names = TRUE
+)
+
+# TSVs of consensus cell types
+consensus_files <- list.files(
+  path = consensus_dir,
+  pattern = "_processed_consensus-cell-types\\.tsv\\.gz$",
+  recursive = TRUE,
+  full.names = TRUE
+) |>
+  # set names to filter on later so we don't read files we don't need
+  purrr::set_names(\(x) {
+    stringr::str_split_i(basename(x), "_", 1)
+  })
+```
+
+### Read input data 
+
+
+```{r}
+diagnosis_map <- readr::read_tsv(diagnosis_map_file)
+diagnosis_celltype_map <- readr::read_tsv(diagnosis_celltype_map_file)
+validation_group_df <- readr::read_tsv(validation_url)
+```
+
+```{r}
+sample_diagnosis_df <- metadata_files |>
+  purrr::map(
+    \(file) {
+      readr::read_tsv(file) |>
+        # don't consider multiplexed or cell line
+        dplyr::filter(!is_multiplexed, !is_cell_line) |>
+        dplyr::select(contains("scpca"), diagnosis)
+  }) |>
+  dplyr::bind_rows() |>
+  # use inner_join to remove normals
+  dplyr::inner_join(diagnosis_map, by = c("diagnosis" = "submitted_diagnosis")) |>
+  dplyr::select(-ontology_id, -human_readable_value)
+```
+
+```{r}
+consensus_df <- consensus_files |>
+  # only keep samples in sample_diagnosis_df
+  purrr::keep_at(sample_diagnosis_df$scpca_library_id) |>
+  purrr::imap(
+    \(file, id) {
+    
+      # bump guess_max to kill problems() warnings
+      readr::read_tsv(file, guess_max = 15000) |>
+       dplyr::select(
+         scpca_project_id = project_id,
+         scpca_sample_id = sample_id,
+         scpca_library_id = library_id,
+         barcodes,
+         consensus_annotation,
+         consensus_ontology
+       )
+  }) |>
+  dplyr::bind_rows()
+```
+
+
+### Prepare data for analysis
+
+Here, we map over each diagnosis group to count the number of reference and query cells for each sample in that group.
+We then combine into a single data frame of reference/query cell counts per sample.
+
+```{r}
+sample_counts_df <- unique(sample_diagnosis_df$diagnosis_group) |>
+  purrr::map(
+    \(broad_diagnosis) {
+      
+      celltype_groups <- diagnosis_celltype_map |>
+        dplyr::filter(diagnosis_group == broad_diagnosis) |>
+        tidyr::separate_rows(celltype_groups, sep = ", ") |>
+        dplyr::pull(celltype_groups)
+
+      reference_celltypes <- validation_group_df |>
+        dplyr::filter(validation_group_annotation %in% celltype_groups) |>
+        dplyr::pull(consensus_annotation)
+      
+      library_ids <- sample_diagnosis_df |>
+        dplyr::filter(diagnosis_group == broad_diagnosis) |>
+        dplyr::pull(scpca_library_id)
+      
+      count_df <- consensus_df |>
+        dplyr::filter(scpca_library_id %in% library_ids) |>
+        dplyr::mutate(
+          cell_class = ifelse(
+            consensus_annotation %in% reference_celltypes, 
+            "n_reference", 
+            "n_query"
+        )) |>
+        dplyr::count(scpca_library_id, cell_class) |>
+        tidyr::pivot_wider(
+          names_from = cell_class, 
+          values_from = n, 
+          values_fill = 0
+        ) |>
+        dplyr::inner_join(sample_diagnosis_df, by = "scpca_library_id") |>
+        dplyr::select(
+          scpca_project_id, 
+          scpca_library_id, 
+          diagnosis_group, 
+          diagnosis, 
+          # there may not be any n_reference, so this is more flexible
+          contains("n_")
+        )
+        
+      # Create n_reference if it doesn't exist
+      if (!("n_reference" %in% names(count_df))) {
+        count_df$n_reference <- 0
+      }
+      
+      return(count_df)
+  }) |>
+  dplyr::bind_rows()
+```
+
+
+## Analysis
+
+Using a threshold of needing at least `r params$n_reference_threshold` reference cells, how many samples could be run through `inferCNV`?
+
+```{r}
+usable_df <- sample_counts_df |>
+  dplyr::group_by(diagnosis_group) |>
+  dplyr::summarize(
+    n_usable = sum(n_reference >= params$n_reference_threshold),
+    total_group_samples = dplyr::n(), 
+    frac_usable = round(n_usable / total_group_samples, 3) 
+  ) |>
+  dplyr::arrange(desc(total_group_samples))
+
+usable_df
+```
+All of our broad diagnosis groups are represented, which is nice to see. 
+
+In total, we can run this fraction of ScPCA samples:
+
+```{r}
+sum(sample_counts_df$n_reference >= params$n_reference_threshold) / nrow(sample_counts_df)
+```
+
+Of the samples with sufficient reference cells, do any have _fewer_ query than reference cells?
+
+```{r}
+sample_counts_df |>
+  # consider usable only
+  dplyr::filter(n_reference >= params$n_reference_threshold) |>
+  dplyr::filter(n_query < params$n_reference_threshold)
+```
+
+There is one project about 7x as many reference as query cells; let's look more closely:
+
+```{r}
+consensus_df |>
+  dplyr::filter(scpca_library_id == "SCPCL000021") |>
+  dplyr::count(consensus_annotation) |>
+  dplyr::arrange(n)
+```
+
+This sample indeed is dominated by immune cell types.
+This sample may just have very low tumor purity, but I think it's still fine to run through `inferCNV`.
+
+
+## Conclusions
+
+Currently, _before_ incorporating `SCimilarity` into our consensus cell types, we are able to run about 44% of samples through `inferCNV`. 
+All broad diagnosis groups are represented.
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
