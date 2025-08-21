@@ -488,6 +488,9 @@ consensus_ref_df <- combined_ref_df |>
 table(consensus_ref_df$total_matches)
 ```
 
+It looks like we have ~7500 cases where there is more than one unique LCA identified. 
+What are the possible LCAs for those scenarios? 
+
 ```{r}
 multi_lca_df <- consensus_ref_df |> 
   dplyr::ungroup() |> 
@@ -501,7 +504,7 @@ multi_lca_df |>
 ```
 
 Generally speaking it looks like there are terms that are of the same lineage which makes sense. 
-I think we could just stick with our previous guidelines of choosing the label with the fewest descendants or is the most specific term. 
+I think we could just stick with our previous guidelines of choosing the label with the fewest descendants or the most specific term. 
 
 The only problem we might have is when terms have an equivalent number of descendants. 
 Let's see how many cases that applies too. 
