@@ -44,7 +44,7 @@ if [[ ! -d $scimilarity_model_dir && $zenodo -eq 0 ]]; then
 
   echo "Downloading only the annotation SCimilarity model from s3"
   s3_model='s3://scpca-references/celltype/scimilarity_references/model_v1.1'
-  aws s3 cp $s3_model $scimilarity_model_dir --exclude "cellsearch/*" --recursive --no-sign-request
+  aws s3 cp $s3_model $scimilarity_model_dir --exclude "cellsearch/*" --recursive --no-sign-request --no-progress
   
 
 elif [[ ! -d $scimilarity_model_dir && $zenodo -eq 1 ]]; then
