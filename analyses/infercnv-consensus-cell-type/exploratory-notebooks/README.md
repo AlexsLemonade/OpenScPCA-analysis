@@ -2,6 +2,9 @@ This directory contains exploratory notebooks that are not specifically run in t
 Exploratory notebooks for pooled normal reference analyses are organized in directories named for the ScPCA project they analyze.
 
 
+* `reference-query-counts.Rmd`: This sample looks at the distribution of reference-intended cells to determine how many samples could be run through `inferCNV`
+TODO: This notebook will need to be updated once `SCimilarity` annotations are incorported into consensus cell types.
+
 ## `SCPCP000004`
 
 * `01_nb-consensus-cell-types.Rmd` explores the distribution of normal cells across samples in `SCPCP000004` to determine approaches for creating a pooled normal reference
