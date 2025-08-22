@@ -2,7 +2,7 @@
 
 # This script is used to set up files needed to run SCimilarity 
 
-# Step 1: The SCimilarity model is downloaded from zenodo (https://zenodo.org/records/10685499) and saved to models/model_v1.1
+# Step 1: The SCimilarity model is downloaded saved to models/model_v1.1
 # Step 2: A reference TSV file is created that includes all possible SCimilarity annotations and associated ontology IDs
 
 # Usage:
@@ -10,11 +10,10 @@
 # ./setup-analysis.sh
 #
 
-# By default the full model will be downloaded from zenodo
-# To save space, `annotation_only=1` can be used
-# This will download only the files needed for CellAnnotation from s3://scpca-references/celltype/scimilarity_references/model_v1.1
+# By default this will download only the files needed for CellAnnotation from s3://scpca-references/celltype/scimilarity_references/model_v1.1
+# If you would like to download the full model directly from zenodo (https://zenodo.org/records/10685499) use: 
 
-# annotation_only=1 ./setup-analysis.sh
+# zenodo=1 ./setup-analysis.sh
 
 set -euo pipefail
 
@@ -27,8 +26,8 @@ scripts_dir="scripts"
 ref_dir="references"
 
 # Define argument defaults
-# default is to grab the full model from zenodo, otherwise only the annotation folder is grabbed from S3
-annotation_only=${annotation_only:-0}
+# default is to grab the annotation only model from s3, otherwise the full model from zenodo can be downloaded 
+zenodo=${zenodo:-0}
 
 ###################################################################
 ################## Download SCimilarity model #####################
@@ -41,7 +40,14 @@ mkdir -p $model_dir
 # compressed output file and final model directory
 scimilarity_model_dir="${model_dir}/model_v1.1"
 
-if [[ ! -d $scimilarity_model_dir && $annotation_only -eq 0 ]]; then
+if [[ ! -d $scimilarity_model_dir && $zenodo -eq 0 ]]; then
+
+  echo "Downloading only the annotation SCimilarity model from s3"
+  s3_model='s3://scpca-references/celltype/scimilarity_references/model_v1.1'
+  aws s3 cp $s3_model $scimilarity_model_dir --exclude "cellsearch/*" --recursive --no-sign-request
+  
+
+elif [[ ! -d $scimilarity_model_dir && $zenodo -eq 1 ]]; then
 
   # define the url to the model
   scimilarity_model_url="https://zenodo.org/records/10685499/files/model_v1.1.tar.gz?download=1"
@@ -57,12 +63,6 @@ if [[ ! -d $scimilarity_model_dir && $annotation_only -eq 0 ]]; then
   rm $compressed_scimilarity_model
   
   echo "Model downloaded and unzipped"
-  
-elif [[ ! -d $scimilarity_model_dir && $annotation_only -eq 1 ]]; then
-
-  echo "Downloading only the annotation SCimilarity model from s3"
-  s3_model='s3://scpca-references/celltype/scimilarity_references/model_v1.1'
-  aws s3 cp $s3_model $scimilarity_model_dir --exclude "cellsearch/*" --recursive --no-sign-request
   
 else
   echo "SCimilarity model already exists"
