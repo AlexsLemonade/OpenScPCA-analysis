@@ -304,6 +304,9 @@ Currently, _before_ incorporating `SCimilarity` into our consensus cell types, w
 Most broad diagnosis groups are represented, except `Mixed phenotype acute leukemia` and a handful of other solid tumors.
 All eligible projects except `SCPCP000011` (Retinoblastoma samples) are represented as well.
 
+Note that we are including multiplexed libraries from project `SCPCP000009` here as well; 11 libraries from that project from are eligible, most of which are multiplexed.
+These libraries would effectively be using pooled references in `inferCNV`, since we did not demultiplex libraries.
+
 ## Session Info
 
 ```{r session info}
