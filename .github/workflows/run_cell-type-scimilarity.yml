@@ -46,6 +46,7 @@ jobs:
       # pick a few random projects for now
       - name: Download test data
         run: |
+          conda activate openscpca-cell-type-scimilarity
           ./download-data.py --test-data --format AnnData --project SCPCP000001,SCPCP000005,SCPCP000010,SCPCP000015
 
       - name: Run analysis module
