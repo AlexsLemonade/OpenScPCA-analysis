@@ -64,12 +64,18 @@ jobs:
           conda-lock install --name test ${MODULE_PATH}/conda-lock.yml
 
       # Update this step as needed to download the desired data
-      # - name: Download test data
-      #   run: ./download-data.py --test-data --format AnnData
+      # pick a few random projects for now
+      - name: Download test data
+        run: |
+          ./download-data.py --test-data --format AnnData --project SCPCP000001,SCPCP000005,SCPCP000010,SCPCP000015
 
       - name: Run analysis module
         run: |
+          projects=$(basename -a data/current/SCPCP*)
+
           cd ${MODULE_PATH}
-          # run module script(s) here
-          # TODO: Create a test mode of this script to avoid downloading the full ~30 GB model 
-          # bash setup-analysis.sh
+          ./setup-analysis.sh
+          
+          for project in $projects; do
+              ./run-scimilarity.sh $project
+          done

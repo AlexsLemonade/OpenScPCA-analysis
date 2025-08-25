@@ -13,22 +13,22 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - "analyses/cell-type-scimilarity/Dockerfile"
-  #     - "analyses/cell-type-scimilarity/.dockerignore"
-  #     - "analyses/cell-type-scimilarity/renv.lock"
-  #     - "analyses/cell-type-scimilarity/conda-lock.yml"
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - "analyses/cell-type-scimilarity/Dockerfile"
-  #     - "analyses/cell-type-scimilarity/.dockerignore"
-  #     - "analyses/cell-type-scimilarity/renv.lock"
-  #     - "analyses/cell-type-scimilarity/conda-lock.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "analyses/cell-type-scimilarity/Dockerfile"
+      - "analyses/cell-type-scimilarity/.dockerignore"
+      - "analyses/cell-type-scimilarity/renv.lock"
+      - "analyses/cell-type-scimilarity/conda-lock.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "analyses/cell-type-scimilarity/Dockerfile"
+      - "analyses/cell-type-scimilarity/.dockerignore"
+      - "analyses/cell-type-scimilarity/renv.lock"
+      - "analyses/cell-type-scimilarity/conda-lock.yml"
   workflow_dispatch:
     inputs:
       push-ecr:
