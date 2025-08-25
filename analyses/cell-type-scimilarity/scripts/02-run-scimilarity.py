@@ -77,6 +77,12 @@ def main() -> None:
         help="Path to the processed AnnData object stored as an h5ad file",
     )
     parser.add_argument(
+      "--ontology_map_file",
+      type=Path,
+      required=True,
+      help="Path to TSV file containing Cell Ontology identifiers for annotation terms"
+    )
+    parser.add_argument(
         "--predictions_tsv",
         type=Path,
         required=True,
@@ -111,6 +117,12 @@ def main() -> None:
             file=sys.stderr,
         )
         arg_error = True
+    if not arg.ontology_map_file.is_file():
+        print(
+            f"The ontology map file could not be found at: {arg.ontology_map_file}.",
+            file=sys.stderr,
+        )
+        arg_error = True
 
      # Exit if error(s)
     if arg_error:
@@ -122,6 +134,9 @@ def main() -> None:
 
     # Read in model 
     scimilarity_model = CellAnnotation(model_path = arg.model_dir)
+    
+    # read in ontology identifiers 
+    ontology_map = pandas.read_csv(arg.ontology_map_file, sep="\t")
 
     # Read and make sure object formatting is correct
     processed_anndata = anndata.read_h5ad(arg.processed_h5ad_file)
@@ -155,6 +170,8 @@ def main() -> None:
       "scimilarity_celltype_annotation": predictions.values, 
       "min_dist": nn_stats["min_dist"]
     })
+    # add in ontology IDs
+    predictions_df = predictions_df.join(ontology_map.set_index('scimilarity_celltype_annotation'), on='scimilarity_celltype_annotation')
 
     # export TSV
     predictions_df.to_csv(arg.predictions_tsv, sep="\t", index=False)

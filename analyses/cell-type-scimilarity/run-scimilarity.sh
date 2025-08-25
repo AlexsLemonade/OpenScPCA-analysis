@@ -23,6 +23,9 @@ mkdir -p ${scimilarity_results_dir}
 # define path to input model 
 model_dir="models/model_v1.1"
 
+# path to ontology map 
+ontology_map_file="references/scimilarity-mapped-ontologies.tsv"
+
 for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
 
   # grab sample id
@@ -45,6 +48,7 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
     python3 scripts/02-run-scimilarity.py \
       --model_dir $model_dir \
       --processed_h5ad_file $anndata_file \
+      --ontology_map_file $ontology_map_file \
       --predictions_tsv $scimilarity_predictions_file 
 
   done 
