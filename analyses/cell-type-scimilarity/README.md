@@ -37,7 +37,28 @@ You must be logged into your AWS account to download these files.
 
 ## Output files
 
-TBD
+Running the `run-scimilarity.sh` script will generate a single TSV file for each library with the assigned annotations.
+Output files will be in `results/scimilarity` and organized as follows: 
+
+```
+results
+└── scimilarity
+    └── <project id>
+        └── <sample id>
+            └── <library id>_scimilarity-predictions.tsv.gz
+
+```
+
+The `<library id>_scimilarity-predictions.tsv.gz` file contains cell type annotations for all cells in a single library with the following columns: 
+
+| | |
+| --- | --- | 
+| `barcodes` | cell barcode |
+| `scimilarity_celltype_annotation` | Cell type annotation assigned by `SCimilarity`; this term is the original term found in the `SCimilarity` foundational model  | 
+| `scimilarity_celltype_ontology` | Cell type ontology term associated with the annotation from `SCimilarity` | 
+| `cl_annotation` | Name associated with cell type ontology term assigned by `SCimilarity` | 
+| `min_dist` | The minimum distance between the query cell and all cells in the training set as reported by `SCimilarity`  |
+
 
 ## Software requirements
 
