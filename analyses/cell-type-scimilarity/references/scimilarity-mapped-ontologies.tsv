@@ -1,4 +1,4 @@
-scimilarity_celltype_annotation	human_readable_value	scimilarity_celltype_ontology
+scimilarity_celltype_annotation	cl_annotation	scimilarity_celltype_ontology
 progenitor cell	progenitor cell	CL:0011026
 native cell	cell	CL:0000000
 oligodendrocyte precursor cell	oligodendrocyte precursor cell	CL:0002453
