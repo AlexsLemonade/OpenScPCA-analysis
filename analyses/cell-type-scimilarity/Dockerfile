@@ -14,7 +14,7 @@ ENV OPENSCPCA_DOCKER=TRUE
 # Disable the renv cache to install packages directly into the R library
 ENV RENV_CONFIG_CACHE_ENABLED=FALSE
 # set a name for the conda environment
-ARG ENV_NAME=openscpca-cell-type-scmilarity
+ARG ENV_NAME=openscpca-cell-type-scimilarity
 
 # set environment variables to install conda
 ENV PATH="/opt/conda/bin:${PATH}"
