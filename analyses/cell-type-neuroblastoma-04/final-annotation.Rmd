@@ -23,10 +23,11 @@ For more information about how these ontology ids were determined for NBAtlas la
 
 1. If `SingleR` and `scANVI/scArches` labels exactly agree, we assign that label
 2. If broad label families (e.g., `T cell` would be the broad family for `CD4+ T cell`) for `SingleR` and `scANVI/scArches` labels agree, we assign the broad family label.
-  * See [`references/nbatlas-label-map.tsv`](references/nbatlas-label-map.tsv) and [`references/README.md`](references/README.md) for how labels were mapped to families.
+    * See [`references/nbatlas-label-map.tsv`](references/nbatlas-label-map.tsv) and [`references/README.md`](references/README.md) for how labels were mapped to families.
 3. If `SingleR` and `scANVI/scArches` labels disagree, we then compare to the consensus cell type; if at least one inference agrees with the consensus cell type, we assign the inferred label.
-  * We perform this first at the label level and then at the broad family level.
-4. Finally, following the conclusions of Bonine et al. (2024), we designate any cell labeled as `Neuroendocrine` as a tumor cell.
+    * We perform this first at the label level and then at the broad family level.
+4. If the consensus cell type is `Unknown` and one of `SingleR` or `scANVI/scArches` labels is `Neuroendocrine` and the other label is one of `Schwann cell`, `Stromal other` or `fibroblast`, we assign the `Neuroendocrine` label
+5. Finally, following the conclusions of Bonine et al. (2024), we designate any cell labeled as `Neuroendocrine` as a tumor cell.
 
 
 ## Setup
@@ -298,6 +299,12 @@ scanvi_annotation_df <- prep_for_annotation(
   label_map_df
 )
 
+# Define vector of tumor-like cell types
+tumorlike_cells <- c("Schwann", "Stromal other", "Fibroblast")
+
+# pull out NE ontology for assignment code
+ne_ontology <- ontology_slim_df$CL_ontology_id[ontology_slim_df$NBAtlas_label == "Neuroendocrine"]
+
 annotation_df <- celltype_df |>
   dplyr::select(cell_id, consensus, consensus_ontology) |>
   dplyr::left_join(singler_annotation_df, by = "cell_id") |>
@@ -325,6 +332,10 @@ final_annotation_df <- annotation_df |>
       !is.na(consensus_ontology) & scanvi_label_ontology   == consensus_ontology ~ scanvi_label,
       !is.na(consensus_family_ontology) & singler_family_ontology == consensus_family_ontology ~ singler_family,
       !is.na(consensus_family_ontology) & scanvi_family_ontology  == consensus_family_ontology ~ scanvi_family,
+      ########## Assign Neuroendocrine where possible; for this step, we refer to NBAtlas labels directly since
+      # the `tumorlike_cells` don't all have ontology ids
+      is.na(consensus_ontology) & singler_label == "Neuroendocrine" & scanvi_label %in% tumorlike_cells ~ "Neuroendocrine",
+      is.na(consensus_ontology) & scanvi_label == "Neuroendocrine" & singler_label %in% tumorlike_cells ~ "Neuroendocrine",
       # Everything else is Unknown
       .default = "Unknown"
     )
