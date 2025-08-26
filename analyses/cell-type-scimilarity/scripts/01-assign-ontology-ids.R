@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 # This script is used to match cell types present in the SCimilarity model to cell ontology IDs
-# The output is a TSV file that contains `scimilarity_celltype_ontology`, `scimilarity_celltype_annotation`, and `human_readable_value`
+# The output is a TSV file that contains `scimilarity_celltype_ontology`, `scimilarity_celltype_annotation`, and `cl_annotation`
 
 # running this script requires downloading and unzipping the model from zenodo (https://zenodo.org/records/10685499)
 # the path to the annotation/reference_labels.tsv inside the unzipped model directory should be provided with the `--model_annotations_file` argument.
@@ -37,7 +37,7 @@ opts <- parse_args(OptionParser(option_list = option_list))
 
 # check that annotations exist
 stopifnot(
-  "--model_dir is missing annotation/reference_labels.tsv" = file.exists(opts$model_annotations_file),
+  "--model_annotations_file does not exist" = file.exists(opts$model_annotations_file),
   "--missing_ontology_tsv does not exist" = file.exists(opts$missing_ontology_tsv)
 )
 
@@ -59,17 +59,17 @@ labels <- rols::termLabel(terms)
 # data frame of id and human readable value
 ontology_labels_df <- data.frame(
   ontology_id = names(labels),
-  human_readable_value = labels
+  cl_annotation = labels
 )
 
 # Add ontology IDs to annotation labels ----------------------------------------
 
 labels_df <- scimilarity_labels_df |>
   dplyr::left_join(missing_df, by = "scimilarity_celltype_annotation") |>
-  dplyr::mutate(human_readable_value = dplyr::if_else(is.na(human_readable_value),
-                                                      scimilarity_celltype_annotation,
-                                                      human_readable_value)) |>
-  dplyr::left_join(ontology_labels_df, by = "human_readable_value") |>
+  dplyr::mutate(cl_annotation = dplyr::if_else(is.na(cl_annotation),
+                                               scimilarity_celltype_annotation,
+                                               cl_annotation)) |>
+  dplyr::left_join(ontology_labels_df, by = "cl_annotation") |>
   dplyr::rename(scimilarity_celltype_ontology = ontology_id)
 
 # check that all labels have an ontology id
