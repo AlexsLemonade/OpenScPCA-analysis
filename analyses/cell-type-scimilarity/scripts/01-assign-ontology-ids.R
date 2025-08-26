@@ -37,7 +37,7 @@ opts <- parse_args(OptionParser(option_list = option_list))
 
 # check that annotations exist
 stopifnot(
-  "--model_annotations_file is missing annotation/reference_labels.tsv" = file.exists(opts$model_annotations_file),
+  "--model_annotations_file does not exist" = file.exists(opts$model_annotations_file),
   "--missing_ontology_tsv does not exist" = file.exists(opts$missing_ontology_tsv)
 )
 

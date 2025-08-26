@@ -136,7 +136,7 @@ def main() -> None:
     scimilarity_model = CellAnnotation(model_path = arg.model_dir)
     
     # read in ontology identifiers 
-    ontology_map = pandas.read_csv(arg.ontology_map_file, sep="\t")
+    ontology_map = pandas.read_csv(arg.ontology_map_file, sep="\t", index_col = "scimilarity_celltype_annotation")
 
     # Read and make sure object formatting is correct
     processed_anndata = anndata.read_h5ad(arg.processed_h5ad_file)
@@ -171,7 +171,7 @@ def main() -> None:
       "min_dist": nn_stats["min_dist"]
     })
     # add in ontology IDs
-    predictions_df = predictions_df.join(ontology_map.set_index('scimilarity_celltype_annotation'), on='scimilarity_celltype_annotation')
+    predictions_df = predictions_df.join(ontology_map, on="scimilarity_celltype_annotation", validate="many_to_one")
 
     # export TSV
     predictions_df.to_csv(arg.predictions_tsv, sep="\t", index=False)
