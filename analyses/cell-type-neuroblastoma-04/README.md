@@ -21,6 +21,7 @@ We used the following approach to assign final labels:
 See [`references/nbatlas-label-map.tsv`](references/nbatlas-label-map.tsv) and [`references/README.md`](references/README.md) for how labels were mapped to families.
 * If `SingleR` and `scANVI/scArches` labels disagree, we then compare to the consensus cell type; if at least one inference agrees with the consensus cell type, we assign the inferred label.
 We perform this first at the label level and then at the broad family level.
+* If the consensus cell type is `Unknown` and one of `SingleR` or `scANVI/scArches` labels is `Neuroendocrine` and the other label is one of `Schwann`, `Stromal other` or `Fibroblast`, we assign the `Neuroendocrine` label
 * Finally, following the conclusions of Bonine et al. (2024), we designate any cell labeled as `Neuroendocrine` as a tumor cell.
 
 
