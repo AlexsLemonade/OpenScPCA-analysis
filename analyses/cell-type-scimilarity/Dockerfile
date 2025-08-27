@@ -56,6 +56,8 @@ RUN conda-lock install -n ${ENV_NAME} conda-lock.yml \
 
 # Activate conda environment on bash launch
 RUN echo "conda activate ${ENV_NAME}" >> ~/.bashrc
+# add to path to ensure its used by default (helpful for running python in nextflow)
+ENV PATH="/opt/conda/envs/${ENV_NAME}/bin:${PATH}"
 
 # Copy the renv.lock file from the host environment to the image
 COPY renv.lock renv.lock
