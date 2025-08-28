@@ -14,7 +14,7 @@ Ontology terms and labels along with the `cell type` label from the reference fi
 The terms and names are saved to a new file, `references/blueprint-mapped-ontologies.tsv`.
 
 4. `03-prepare-consensus-reference.R`: This script is used to create a table with all consensus cell types. 
-The output table will contain one row for each combination of cell types in `PanglaoDB` and `BlueprintEncodeData` from `celldex` where a consensus cell type was identified.  
+The output table will contain one row for each combination of cell types in `PanglaoDB`, `BlueprintEncodeData` from `celldex`, and `SCimilarity` where a consensus cell type was identified.  
 If the combination is not included in the reference file, then no consensus cell type is assigned and can be set to "Unknown". 
 
 5. `04-assign-consensus-celltypes.R`: This script is used to grab the existing cell type annotations from the `colData` of an individual processed SCE object and assign the appropriate consensus cell type based on the `singler_celltype_ontology` (`BlueprintEncodeData`) and the `cellassign_celltype_ontology` (`PanglaoDB`). 
