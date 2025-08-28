@@ -201,16 +201,24 @@ final_consensus_df <- combined_ref_df |>
     # make sure the pair id is before annotation or ontology 
     names_glue = "{pair_id}_{.value}"
   ) |> 
-  dplyr::left_join(consensus_label_df, by = c("panglao_ontology", "blueprint_ontology", "scimilarity_ontology"))
-
-# final check for dups to be sure we didn't make a mistake 
-dup <- final_consensus_df |> 
-  dplyr::select(panglao_ontology, blueprint_ontology, scimilarity_ontology) |> 
-  duplicated()
-
-if(sum(dup)) {
-  stop("Duplicate cell type combinations were found after assigning consensus cell type labels!")
-}
+  dplyr::left_join(consensus_label_df, by = c("panglao_ontology", "blueprint_ontology", "scimilarity_ontology")) |> 
+  # add back in original annotations for panglao, blueprint, and scimilarity 
+  # account for ontologies showing up multiple times 
+  dplyr::left_join(blueprint_df, by = "blueprint_ontology", relationship = "many-to-many") |>
+  dplyr::left_join(panglao_df, by = "panglao_ontology", relationship = "many-to-many") |>
+  dplyr::left_join(scimilarity_df, by = "scimilarity_ontology", relationship = "many-to-many") |> 
+  # make sure all the cell types are grouped together and come before consensus 
+  dplyr::relocate(c(
+    panglao_ontology,
+    panglao_annotation,
+    original_panglao_name,
+    blueprint_ontology,
+    blueprint_annotation_cl,
+    scimilarity_ontology,
+    scimilarity_annotation,
+    original_scimilarity_name
+  ), .before = 0
+  )
 
 # export table
 readr::write_tsv(final_consensus_df, consensus_ref_file)
