@@ -135,7 +135,12 @@ celltypes_to_exclude <- c(
   "supporting cell", 
   "biogenic amine secreting cell", 
   "protein secreting cell", 
-  "extracellular matrix secreting cell"
+  "extracellular matrix secreting cell",
+  "serotonin secreting cell", # platelets and neurons
+  "peptide hormone secreting cell", # parathyroid and peancreatic cells
+  "exocrine cell", # mucus and pancreatic cells
+  "sensory receptor cell", # retinal rod and taste or olfactory cells 
+  "interstitial cell" #kidney and leydig (testis) cells
   )
 
 # create a table with all pairs and their LCA
