@@ -21,7 +21,7 @@ We used the following criteria to assign a consensus cell type for each possible
 - If the LCA has greater than 170 descendants, no consensus label is set, with some exceptions: 
   - When the LCA is `neuron`, `neuron` is used as the consensus label. 
   - When the LCA is `epithelial cell`, `columnar/cuboidal epithelial cell` or `endo-epithelial cell` and the annotation from `BlueprintEncodeData` is `Epithelial cells`, then the LCA is used as the consensus label. 
-  - If the LCA is `bone cell`, `lining cell`, `blood cell`, `progenitor cell`, `supporting cell`, `biogenic amine secreting cell`, `protein secreting cell`, or `extracellular matrix secreting cell` no consensus label is defined. 
+  - If the LCA is `bone cell`, `lining cell`, `blood cell`, `progenitor cell`, `supporting cell`, `biogenic amine secreting cell`, `protein secreting cell`, `extracellular matrix secreting cell`, `serotonin secreting cell`, `peptide hormone secreting cell`, `exocrine cell`, `sensory receptor cell`, or `interstitial cell` no consensus label is defined. 
 - If the terms share more than 1 LCA, then the LCA with the fewest descendants is kept and all others are discarded. 
 
 The final consensus cell type between `SingleR`, `CellAssign`, and `SCimilarity` is assigned if 2 out of 3 methods have an LCA that meets the above criteria. 
