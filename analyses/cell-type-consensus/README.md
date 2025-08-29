@@ -1,7 +1,7 @@
 # Identifying consensus cell types
 
 This module explores creating rules that can be used to identify a consensus cell type label.
-Specifically, the cell type annotations obtained from both `SingleR` and `CellAssign` will be used to create a single cell type label in an ontology aware manner.
+Specifically, the cell type annotations obtained from `SingleR`, `CellAssign`, and `SCimilarity` will be used to create a single cell type label in an ontology aware manner.
 
 ## Creating a reference for consensus cell types 
 
@@ -10,22 +10,28 @@ This module performs a series of steps to accomplish that goal:
 
 1. The cell type annotations present in the `PanglaoDB` reference file were assigned to an ontology term identifier, when possible.
 See [`references/README.md`](./references/README.md) for a full description on how we completed assignments.  
-2. We looked at all possible combinations of cell type labels between the `PanglaoDB` reference (used with `CellAssign`) and the `BlueprintEncodeData` reference (used with `SingleR`). 
-We then explored using a set of rules used to define consensus cell types in [`exploratory-notebooks/01-reference-exploration.Rmd`](./exploratory-notebooks/01-reference-exploration.Rmd). 
+2. We looked at all possible combinations of cell type labels between the `PanglaoDB` reference (used with `CellAssign`), the `BlueprintEncodeData` reference (used with `SingleR`), and the `SCimilarity` model used with `SCimilarity`. 
+We then explored using a set of rules used to define consensus cell types in [`exploratory-notebooks/06-update-consensus-scimilarity.Rmd`](./exploratory-notebooks/06-update-consensus-scimilarity.Rmd). 
 3. We created a [reference table](./references/consensus-cell-type-reference.tsv) containing all combinations for which we were able to identify a consensus cell type label.  
-The consensus cell type label corresponds to the [latest common ancestor (LCA)](https://rdrr.io/bioc/ontoProc/man/findCommonAncestors.html) between the `PanglaoDB` and `BlueprintEncodeData` terms. 
+The consensus cell type label is assigned if 2 out of 3 terms have an [latest common ancestor (LCA)](https://rdrr.io/bioc/ontoProc/man/findCommonAncestors.html) that meets a set of criteria outlined below. 
+The reference file includes both the final consensus cell type label and the LCA for each pair, where the LCA for a given pair can be used as the consensus cell type label if only 2 methods have been used for annotation. 
 
-When creating the consensus cell type labels we implemented the following rules: 
+We used the following criteria to assign a consensus cell type for each possible pair of annotations: 
 
-- If the terms share more than 1 LCA, no consensus label is set. 
-The only exception is if one of the LCA terms corresponds to `hematopoietic precursor cells`. 
-If that is the case all other LCA terms are removed and `hematopoietic precursor cell` is used as the consensus label. 
 - If the LCA has greater than 170 descendants, no consensus label is set, with some exceptions: 
   - When the LCA is `neuron`, `neuron` is used as the consensus label. 
-  - When the LCA is `epithelial cell` and the annotation from `BlueprintEncodeData` is `Epithelial cells`, then `epithelial cell` is used as the consensus label. 
-  - If the LCA is `bone cell`, `lining cell`, `blood cell`, `progenitor cell`, or `supporting cell`, no consensus label is defined. 
+  - When the LCA is `epithelial cell`, `columnar/cuboidal epithelial cell` or `endo-epithelial cell` and the annotation from `BlueprintEncodeData` is `Epithelial cells`, then the LCA is used as the consensus label. 
+  - If the LCA is `bone cell`, `lining cell`, `blood cell`, `progenitor cell`, `supporting cell`, `biogenic amine secreting cell`, `protein secreting cell`, or `extracellular matrix secreting cell` no consensus label is defined. 
+- If the terms share more than 1 LCA, then the LCA with the fewest descendants is kept and all others are discarded. 
+
+The final consensus cell type between `SingleR`, `CellAssign`, and `SCimilarity` is assigned if 2 out of 3 methods have an LCA that meets the above criteria. 
+If more than one possible LCA is identified, meaning there is agreement between all 3 methods, the LCA with the fewest descendants is used as the consensus cell type. 
 
 See the [`scripts/README.md`](./scripts/README.md) for instructions on running the individual scripts used to generate the reference. 
+
+Note that the original implementation of this module assigned consensus cell types only between `SingleR` and `CellAssign`. 
+The rules defined for that original implementation were used as a baseline for assigning consensus cell types between all three annotation methods.  
+The original notebook used to define those rules can be found in [`exploratory-notebooks/01-reference-exploration.Rmd`](./exploratory-notebooks/01-reference-exploration.Rmd). 
 
 ## Assigning consensus cell types for ScPCA samples
 
