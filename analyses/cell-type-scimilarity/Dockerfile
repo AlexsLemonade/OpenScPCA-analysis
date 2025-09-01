@@ -70,5 +70,8 @@ RUN Rscript -e 'renv::restore()' && \
   rm -rf /tmp/Rtmp*
 
 # Set ENTRYPOINT to activate the environment for any commands
-ENTRYPOINT [ "conda", "run", "--no-capture-output", "-n", "${ENV_NAME}" ]
+RUN echo "#!/bin/bash --login \n conda activate ${ENV_NAME}" > /.entrypoint.sh
+RUN echo 'exec "$@"' >> /.entrypoint.sh
+RUN chmod +x /.entrypoint.sh
+ENTRYPOINT [ "/.entrypoint.sh" ]
 CMD ["/bin/bash"]
