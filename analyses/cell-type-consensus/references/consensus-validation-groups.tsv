@@ -142,13 +142,13 @@ CL:0000737	striated muscle cell	CL:0000187	muscle cell
 CL:0000746	cardiac muscle cell	CL:0000187	muscle cell
 CL:0000359	vascular associated smooth muscle cell	CL:0000187	muscle cell
 CL:0019019	tracheobronchial smooth muscle cell	CL:0000187	muscle cell
-CL:0000766	myeloid leukocyte	CL:0000763	myeloid
-CL:0000094	granulocyte	CL:0000763	myeloid
-CL:0000775	neutrophil	CL:0000763	myeloid
-CL:0000113	mononuclear phagocyte	CL:0000763	myeloid
-CL:0000764	erythroid lineage cell	CL:0000763	myeloid
-CL:0000556	megakaryocyte	CL:0000763	myeloid
-CL:0000771	eosinophil	CL:0000763	myeloid
+CL:0000766	myeloid leukocyte	CL:0000763	myeloid cell
+CL:0000094	granulocyte	CL:0000763	myeloid cell
+CL:0000775	neutrophil	CL:0000763	myeloid cell
+CL:0000113	mononuclear phagocyte	CL:0000763	myeloid cell
+CL:0000764	erythroid lineage cell	CL:0000763	myeloid cell
+CL:0000556	megakaryocyte	CL:0000763	myeloid cell
+CL:0000771	eosinophil	CL:0000763	myeloid cell
 CL:0000233	platelet	CL:0000763	myeloid cell
 CL:0000232	erythrocyte	CL:0000763	myeloid cell
 CL:0000097	mast cell	CL:0000763	myeloid cell
