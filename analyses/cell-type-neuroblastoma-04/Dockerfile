@@ -61,9 +61,6 @@ RUN conda-lock install -n ${ENV_NAME} conda-lock.yml \
 # Activate conda environment on bash launch
 RUN echo "conda activate ${ENV_NAME}" >> ~/.bashrc
 
-# add to path to ensure its used by default (helpful for running python in nextflow)
-ENV PATH="/opt/conda/envs/${ENV_NAME}/bin:${PATH}"
-
 ### Setup the R environment ###
 
 # Install renv to enable later package installation
@@ -87,5 +84,9 @@ RUN Rscript -e "proc <- basilisk::basiliskStart(env = zellkonverter::zellkonvert
   basilisk::basiliskStop(proc); \
   basilisk.utils::cleanConda()"
 
-# Set CMD to bash to activate the environment for any commands
+# Set ENTRYPOINT to activate the environment for any commands
+RUN echo "#!/bin/bash --login \n conda activate ${ENV_NAME}" > /.entrypoint.sh
+RUN echo 'exec "$@"' >> /.entrypoint.sh
+RUN chmod +x /.entrypoint.sh
+ENTRYPOINT [ "/.entrypoint.sh" ]
 CMD ["/bin/bash"]
