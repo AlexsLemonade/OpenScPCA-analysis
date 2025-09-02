@@ -43,7 +43,11 @@ RUN conda-lock install -n ${ENV_NAME} conda-lock.yml \
 # Activate conda environment on bash launch
 RUN echo "conda activate ${ENV_NAME}" >> ~/.bashrc
 
+# Disable the renv cache to install packages directly into the R library
 ENV RENV_CONFIG_CACHE_ENABLED=FALSE
+# Install Basilisk python packages in the system library
+ARG BASILISK_USE_SYSTEM_DIR=1
+
 RUN Rscript -e "install.packages(c('remotes', 'renv'))"
 
 WORKDIR /usr/local/renv
@@ -53,12 +57,6 @@ RUN Rscript -e "renv::restore()" && \
   rm -rf ~/.local/share/renv && \
   rm -rf /tmp/downloaded_packages && \
   rm -rf /tmp/Rtmp*
-
-# Complete installation of zellkonverter conda env
-ENV BASILISK_EXTERNAL_DIR=/usr/local/renv/basilisk
-RUN Rscript -e "proc <- basilisk::basiliskStart(env = zellkonverter::zellkonverterAnnDataEnv(), testload = 'anndata'); \
-  basilisk::basiliskStop(proc)"
-
 
 
 # set final workdir for commands
