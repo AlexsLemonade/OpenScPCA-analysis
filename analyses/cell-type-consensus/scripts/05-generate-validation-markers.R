@@ -46,6 +46,8 @@ create_top_markers_table <- function(
     dplyr::left_join(total_tissues_df) |> 
     dplyr::mutate(
       # get the total percent of tissues that have that marker gene in that cell type 
+      # number_of_tissues is how many tissues express the marker gene in the specified cell type
+      # celltype_total_tissues is how many tissues contain the specified cell type, regardless if the marker gene is found
       percent_tissues = round((number_of_tissues/celltype_total_tissues) * 100, 2)
     ) |> 
     # get the top 10 for each group, if there's a tie all will be saved
