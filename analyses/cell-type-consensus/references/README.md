@@ -94,7 +94,7 @@ The top 10 genes (sometimes more if there is a tie in the frequency) are include
 `consensus-markers.tsv` contains marker genes for each of the consensus cell types in `consensus-validation-groups.tsv`. 
 In some cases, the ontology ID for the consensus cell type or validation group was not included in `CellMarker2.0`, so these cell types are not included in the marker gene files.
 
-The table includes the following columns: 
+The tables include the following columns: 
 
 |  |   |
 | --- | --- |
@@ -109,4 +109,4 @@ The table includes the following columns:
 To generate these files follow these steps:
 
 - Download the original reference file with `00-download-cellmarker-ref.sh`.
-- Generate the tables of marker genes with `05-generate-validation-markers.sh`.
+- Generate the tables of marker genes with `05-generate-validation-markers.R`.

@@ -4,7 +4,7 @@
 # markers are obtained from CellMarker2.0 for Human 
 # Prior to running this script, the CellMarker file must be downloaded using 00-download-cellmarker-ref.sh
 
-# the outputs are the `consensus-markers.tsv` and `validation-markerts.tsv` file s
+# the outputs are the `consensus-markers.tsv` and `validation-markers.tsv` files
 # that contains a list of the top 10 marker genes for each cell ontology ID, one for consensus cell types and one for broad validation groups
 # top marker genes are based on the frequency that marker gene shows up in the total tissues that cell type was found in 
 # for some cell types the marker gene list is longer than 10 and includes any genes with equivalent percentage to the 10th gene in the list 
