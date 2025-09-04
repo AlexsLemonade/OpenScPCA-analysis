@@ -1,7 +1,11 @@
 #!/usr/bin/env Rscript
 
 # This script is used to grab the existing cell type annotations from a processed SCE object
-# and assign consensus cell types based on previous annotations from SingleR and CellAssign
+# and assign consensus cell types based on previous annotations from SingleR, CellAssign, and SCimilarity 
+
+# Note that SCimilarity annotations are not yet part of processed objects so must be read in separately 
+# These are available as output from the cell-type-scimilarity module
+# If they don't exist for a library then the consensus cell type will be computed using just SingleR and CellAssign
 
 # The previous annotations and consensus label will be saved to a TSV file with the following annotation columns:
 # singler_celltype_ontology: Original ontology label from SingleR
@@ -10,6 +14,9 @@
 # panglao_ontology: CL term assigned to panglao term
 # panglao_annotation: human readable value associated with the CL term for panglao term
 # blueprint_annotation_cl: human readable value associated with the CL term for singler_celltype_ontology
+# scimilarity_celltype_ontology: Original ontology label from SCimilarity 
+# scimilarity_celltype_annotation: Original cell type name from SCimilarity 
+# scimilarity_annotation_cl: human readable value associated with the CL term for scimilarity 
 # consensus_annotation: human readable name associated with the consensus label
 # consensus_ontology: CL ontology term for the consensus cell type
 
@@ -30,6 +37,12 @@ option_list <- list(
     type = "character",
     help = "Path to RDS file containing a processed SingleCellExperiment object from scpca-nf"
   ),
+  make_option(
+    opt_str = c("--scimilarity_annotations_file"),
+    type = "character",
+    default = "",
+    help = "Path to TSV file containing the annotations output from SCimilarity"
+  ), 
   make_option(
     opt_str = c("--blueprint_ref_file"),
     type = "character",
@@ -154,6 +167,31 @@ if (is_cell_line) {
     )
 }
 
+# minimal columns to join for assigning cell types
+join_columns <- c("singler_celltype_ontology", "cellassign_celltype_annotation", "panglao_ontology")
+# by default use the lca between cellassign and singler as the consensus cell type
+consensus_column_prefix <- "cellassign_singler_pair"
+
+# if the library has scimilarity annotations add them in to the coldata
+if(file.exists(opt$scimilarity_annotations_file)) {
+  scimilarity_df <- readr::read_tsv(opt$scimilarity_annotations_file) |> 
+    dplyr::select(
+      barcodes = barcode,
+      # match columns to the 
+      scimilarity_celltype_ontology,
+      scimilarity_celltype_annotation,
+      scimilarity_annotation_cl = cl_annotation
+    )
+  
+  celltype_df <- celltype_df |> 
+    dplyr::left_join(scimilarity_df, by = "barcodes")
+  
+  # if scimilarity exists, include it when joining 
+  join_columns <- c(join_columns, "scimilarity_celltype_ontology")
+  
+  # and use the main consensus column 
+  consensus_column_prefix <- "consensus"
+}
 
 # Prep references --------------------------------------------------------------
 
@@ -162,38 +200,41 @@ panglao_ref_df <- readr::read_tsv(opt$panglao_ref_file) |>
   dplyr::rename(
     panglao_ontology = ontology_id,
     panglao_annotation = human_readable_value,
-    original_panglao_name = panglao_cell_type
+    cellassign_celltype_annotation = panglao_cell_type
   )
 
 consensus_ref_df <- readr::read_tsv(opt$consensus_ref_file) |>
   # select columns to use for joining and consensus assigmments
+  # first select all options and make sure the names match what we expect
   dplyr::select(
     panglao_ontology,
-    original_panglao_name,
-    blueprint_ontology,
-    consensus_annotation,
-    consensus_ontology
-  )
+    cellassign_celltype_annotation = original_panglao_name,
+    singler_celltype_ontology = blueprint_ontology,
+    scimilarity_celltype_ontology = scimilarity_ontology,
+    starts_with(consensus_column_prefix)
+  ) |> 
+  # now just filter to join columns and get unique combinations
+  dplyr::select(all_of(join_columns), starts_with("consensus")) |> 
+  dplyr::distinct() |> 
+  # make sure the columns used to get the consensus cell type actually have the consensus_ prefix
+  dplyr::rename_with(~ stringr::str_replace(.x,consensus_column_prefix, "consensus"), starts_with(consensus_column_prefix))
 
 # grab blueprint ref 
-blueprint_df <- readr::read_tsv(opt$blueprint_ref_file)
+blueprint_df <- readr::read_tsv(opt$blueprint_ref_file) |> 
+  dplyr::rename(singler_celltype_ontology = blueprint_ontology)
 
 # Create consensus TSV ---------------------------------------------------------
 
 all_assignments_df <- celltype_df |> 
   # add columns for panglao ontology and consensus
   # first add panglao ontology
-  dplyr::left_join(panglao_ref_df, by = c("cellassign_celltype_annotation" = "original_panglao_name")) |>
+  dplyr::left_join(panglao_ref_df, by = "cellassign_celltype_annotation") |>
   # now add in all the blueprint columns
-  dplyr::left_join(blueprint_df, by = c("singler_celltype_ontology" = "blueprint_ontology")) |>
+  dplyr::left_join(blueprint_df, by = "singler_celltype_ontology") |>
   # then add consensus labels
   dplyr::left_join(
     consensus_ref_df,
-    by = c(
-      "singler_celltype_ontology" = "blueprint_ontology",
-      "cellassign_celltype_annotation" = "original_panglao_name",
-      "panglao_ontology"
-    )
+    by = join_columns
   ) |>
   # use unknown for NA annotation but keep ontology ID as NA
   # if the sample type is cell line, keep as NA
