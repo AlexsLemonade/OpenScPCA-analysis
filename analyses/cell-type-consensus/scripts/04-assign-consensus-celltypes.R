@@ -21,7 +21,7 @@
 # consensus_ontology: CL ontology term for the consensus cell type
 
 # An additional TSV file containing the expression for a set of marker genes is saved
-# the `logcounts` for all genes in `ensembl_gene_id` column of the `marker_gene_file` will be saved to the output file
+# the `logcounts` for all genes in `ensembl_gene_id` column of the `validation_marker_gene_file` and `consensus_marker_gene_file` will be saved to the output file
 
 # output TSV columns
 # library_id
@@ -59,9 +59,15 @@ option_list <- list(
     help = "Path to file containing the reference for assigning consensus cell type labels"
   ),
   make_option(
-    opt_str = c("--marker_gene_file"),
+    opt_str = c("--validation_marker_gene_file"),
     type = "character",
-    help = "Path to file containing a table of marker genes.
+    help = "Path to file containing a table of marker genes for validation groups.
+     The logcounts for all genes in the `ensembl_gene_id` column that are expressed in the input SCE will be saved." 
+  ),
+  make_option(
+    opt_str = c("--consensus_marker_gene_file"),
+    type = "character",
+    help = "Path to file containing a table of marker genes for all consensus cell type groups.
      The logcounts for all genes in the `ensembl_gene_id` column that are expressed in the input SCE will be saved." 
   ),
   make_option(
@@ -89,7 +95,8 @@ stopifnot(
   "blueprint reference file does not exist" = file.exists(opt$blueprint_ref_file),
   "panglao reference file does not exist" = file.exists(opt$panglao_ref_file),
   "cell type consensus reference file does not exist" = file.exists(opt$consensus_ref_file),
-  "marker gene file does not exist" = file.exists(opt$marker_gene_file),
+  "validation marker gene file does not exist" = file.exists(opt$validation_marker_gene_file),
+  "consensus marker gene file does not exist" = file.exists(opt$consensus_marker_gene_file),
   "consensus output file must end in `.tsv` or `.tsv.gz`" = stringr::str_ends(opt$consensus_output_file, "\\.tsv(\\.gz)?"),
   "gene expression output file must end in `.tsv` or `.tsv.gz`" = stringr::str_ends(opt$gene_exp_output_file, "\\.tsv(\\.gz)?")
 )
@@ -100,11 +107,13 @@ suppressPackageStartupMessages({
 })
 
 # read in file
-markers_df <- readr::read_tsv(opt$marker_gene_file)
+validation_markers_df <- readr::read_tsv(opt$validation_marker_gene_file)
+consensus_markers_df <- readr::read_tsv(opt$consensus_marker_gene_file)
 
 #check that ensembl gene id is present
 stopifnot(
-  "ensembl_gene_id column is missing from marker gene file" = "ensembl_gene_id" %in% colnames(markers_df)
+  "ensembl_gene_id column is missing from validation marker gene file" = "ensembl_gene_id" %in% colnames(validation_markers_df),
+  "ensembl_gene_id column is missing from consensus marker gene file" = "ensembl_gene_id" %in% colnames(consensus_markers_df)
 )
 
 # Extract colData --------------------------------------------------------------
@@ -247,8 +256,15 @@ readr::write_tsv(all_assignments_df, opt$consensus_output_file)
 
 
 # list of all marker genes
-all_markers <- markers_df |> 
+validation_markers <- validation_markers_df |> 
   dplyr::pull(ensembl_gene_id) |> 
+  unique()
+
+consensus_markers <- consensus_markers_df |> 
+  dplyr::pull(ensembl_gene_id) |> 
+  unique()
+
+all_markers <- c(validation_markers, consensus_markers) |> 
   unique()
 
 # we only care about if that gene is expressed otherwise we won't waste memory and include it

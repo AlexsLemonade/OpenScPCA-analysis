@@ -27,6 +27,7 @@ consensus_ref_file="references/consensus-cell-type-reference.tsv"
 
 # marker gene file to use for validation 
 validation_markers_file="references/validation-markers.tsv"
+consensus_markers_file="references/consensus-markers.tsv"
 
 # scimilarity results directory 
 scimilarity_results_dir="${data_dir}/results/cell-type-scimilarity/${project_id}"
@@ -63,7 +64,8 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
       --blueprint_ref_file $blueprint_ref_file\
       --panglao_ref_file $panglao_ref_file \
       --consensus_ref_file $consensus_ref_file \
-      --marker_gene_file $validation_markers_file \
+      --validation_marker_gene_file $validation_markers_file \
+      --consensus_marker_gene_file $consensus_markers_file \
       --consensus_output_file $consensus_output_file \
       --gene_exp_output_file $gene_exp_output_file \
       $scimilarity_arg
