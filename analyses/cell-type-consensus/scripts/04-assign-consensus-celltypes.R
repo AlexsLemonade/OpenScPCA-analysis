@@ -223,7 +223,7 @@ consensus_ref_df <- readr::read_tsv(opt$consensus_ref_file) |>
     starts_with(consensus_column_prefix)
   ) |> 
   # now just filter to join columns and get unique combinations
-  dplyr::select(all_of(join_columns), starts_with("consensus")) |> 
+  dplyr::select(all_of(join_columns), starts_with(consensus_column_prefix)) |> 
   dplyr::distinct() |> 
   # make sure the columns used to get the consensus cell type actually have the consensus_ prefix
   dplyr::rename_with(~ stringr::str_replace(.x,consensus_column_prefix, "consensus"), starts_with(consensus_column_prefix))
