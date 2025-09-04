@@ -86,23 +86,27 @@ The table includes the following columns:
 
 #### Cell type validation marker genes
 
-The `validation-markers.tsv` file contains a list of potential marker genes to aid in validating consensus cell types. 
+The `validation-markers.tsv` and `consensus-markers.tsv` files each contain a list of potential marker genes to aid in validating consensus cell types. 
 These markers were obtained by grabbing the most frequently observed markers for each cell type included in `consensus-validation-groups.tsv` from the [`CellMarker2.0` list of human marker genes](http://117.50.127.228/CellMarker/CellMarker_download.html). 
 The top 10 genes (sometimes more if there is a tie in the frequency) are included for each cell type. 
 
-The table includes the following columns: 
+`validation-markers.tsv` contains marker genes for each of the validation groups in `consensus-validation-groups.tsv`.
+`consensus-markers.tsv` contains marker genes for each of the consensus cell types in `consensus-validation-groups.tsv`. 
+In some cases, the ontology ID for the consensus cell type or validation group was not included in `CellMarker2.0`, so these cell types are not included in the marker gene files.
+
+The tables include the following columns: 
 
 |  |   |
 | --- | --- |
-| `validation_group_ontology` | Cell type ontology term for broader cell type group used for validation |
-| `consensus_annotation` | Human readable name for broader cell type group used for validation |
+| `validation_group_ontology` or `consensus_ontology`| Cell type ontology term for broader cell type group used for validation or original consensus cell type |
+| `validation_group_annotation` or `consensus_annotation` | Human readable name associated with the Cell Ontology identifer |
 | `ensembl_gene_id` | Ensembl gene identifier for the marker gene |
 | `gene_symbol` | Gene symbol for the marker gene |
 | `number_of_tissues` | Total number of tissues that express that marker gene in the specified cell type | 
 | `celltype_total_tissues` | Total number of tissues that contained the specified cell type | 
 | `percent_tissues` | Percentage of tissues that express the marker gene in the specified cell type | 
 
-To generate this file follow these steps:
+To generate these files follow these steps:
 
 - Download the original reference file with `00-download-cellmarker-ref.sh`.
-- Generate a table of marker genes with `05-generate-validation-markers.sh`.
+- Generate the tables of marker genes with `05-generate-validation-markers.R`.
