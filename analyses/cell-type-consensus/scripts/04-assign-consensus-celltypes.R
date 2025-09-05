@@ -186,7 +186,6 @@ if(file.exists(opt$scimilarity_annotations_file)) {
   scimilarity_df <- readr::read_tsv(opt$scimilarity_annotations_file) |> 
     dplyr::select(
       barcodes = barcode,
-      # match columns to the 
       scimilarity_celltype_ontology,
       scimilarity_celltype_annotation,
       scimilarity_annotation_cl = cl_annotation
