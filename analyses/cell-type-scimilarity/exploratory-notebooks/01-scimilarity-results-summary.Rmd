@@ -1,0 +1,287 @@
+---
+title: "Explore SCimilarity cell type annotations"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+---
+
+This notebook summarizes the findings from assigning cell type labels to all ScPCA samples using `SCimilarity`. 
+
+Running this notebook requires the results from the `cell-type-consensus` and `cell-type-scimilarity` module in `OpenScPCA-nf` to be saved to `OpenScPCA-analysis/data/current/results`. 
+
+```{r packages}
+suppressPackageStartupMessages({
+  # load required packages
+  library(ggplot2)
+})
+
+# Set default ggplot theme
+theme_set(
+  theme_classic()
+)
+
+# Define color ramp for shared use in the heatmaps
+heatmap_col_fun <- circlize::colorRamp2(c(0, 1), colors = c("white", "darkslateblue"))
+# Set heatmap padding option
+ComplexHeatmap::ht_opt(TITLE_PADDING = grid::unit(0.6, "in"))
+
+# settings
+options(
+  dplyr.summarise.inform = FALSE, 
+  readr.show_col_types = FALSE
+)
+
+
+```
+
+## Functions
+
+
+```{r}
+# function to read in both scimilarity and consensus results and combine into a single data frame 
+prep_data <- function(library_id, scimilarity_file, consensus_file){
+  
+  scimilarity_df <- readr::read_tsv(scimilarity_file)
+  consensus_df <- readr::read_tsv(consensus_file)
+  
+  annotation_df <- consensus_df |> 
+    dplyr::left_join(scimilarity_df, by = c("barcodes" = "barcode")) |> 
+    dplyr::mutate(
+      cell_id = glue::glue("{library_id}-{barcodes}"), 
+      total_cells_per_library = dplyr::n()
+    )
+  
+  return(annotation_df)
+  
+}
+```
+
+```{r}
+# Copied from scpca-nf template report 
+#' Format DT datatables
+#'
+#' @param df Data frame to format
+#'
+#' @return DT datatable
+format_datatable <- function(df, caption) {
+  df |>
+    DT::datatable(
+      rownames = FALSE,
+      extensions = "Scroller",
+      caption = caption,
+      options = list(
+        scroller = TRUE,
+        deferRender = TRUE,
+        scrollX = TRUE,
+        scrollY = 400,
+        scrollCollapse = TRUE,
+        language = list(search = "Filter:"),
+        columnDefs = list(list(
+          # render missing values as "NA" rather than blanks in the table
+          targets = "_all",
+          render = DT::JS(
+            "function(data, type, row, meta) {",
+            "return data === null ? 'NA' : data;",
+            "}"
+          )
+        ))
+      )
+    )
+}
+```
+
+
+
+## Data setup
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+# results directory with cell-type-consensus 
+results_dir <- file.path(repository_base, "data", "current", "results")
+consensus_results_dir <- file.path(results_dir, "cell-type-consensus")
+scimilarity_results_dir <- file.path(results_dir, "cell-type-scimilarity")
+
+# diagnoses table used for labeling plots from cell-type-consensus module
+diagnoses_file <- file.path(repository_base, "analyses", "cell-type-consensus", "sample-info", "project-diagnoses.tsv")
+```
+
+```{r}
+# use the jaccard functions from cell-type-neuroblastoma-04 module
+jaccard_functions <- file.path(repository_base, "analyses", "cell-type-neuroblastoma-04", "scripts", "utils", "jaccard-utils.R")
+source(jaccard_functions)
+```
+
+
+```{r}
+# list all results files 
+consensus_results_files <- list.files(consensus_results_dir, pattern = "_processed_consensus-cell-types\\.tsv.\\gz$", recursive = TRUE, full.names = TRUE)
+consensus_files_df <- data.frame(
+  library_id = stringr::word(basename(consensus_results_files), 1, sep = "_"),
+  consensus_file = consensus_results_files
+)
+
+scimilarity_results_files <- list.files(scimilarity_results_dir, pattern = "_processed_scimilarity-celltype-assignments\\.tsv.\\gz$", recursive = TRUE, full.names = TRUE)
+scimilarity_files_df <- data.frame(
+  library_id = stringr::word(basename(scimilarity_results_files), 1, sep = "_"),
+  scimilarity_file = scimilarity_results_files
+)
+
+all_files_df <- scimilarity_files_df |> 
+  dplyr::left_join(consensus_files_df, by = "library_id")
+
+
+# define cell line projects to remove
+cell_line_projects <- c("SCPCP000020", "SCPCP000024")
+```
+
+```{r}
+# check that everything has a matching consensus file 
+# we joined the consensus into the scimilarity so only libraries with scimilarity are included 
+if(sum(is.na(all_files_df$consensus_file)) > 0){
+  stop("Missing matching consensus cell type file for all libraries")
+}
+```
+
+
+```{r, message=FALSE, warning=FALSE}
+# read in diagnoses
+diagnoses_df <- readr::read_tsv(diagnoses_file)
+
+# read in all results as a single dataframe
+results_df <- all_files_df |> 
+  purrr::pmap(prep_data) |> 
+  dplyr::bind_rows() |> 
+  # remove cell line projects
+  dplyr::filter(!project_id %in% cell_line_projects) |> 
+  # add in diagnoses 
+  dplyr::left_join(diagnoses_df, by = "project_id") |> 
+  dplyr::mutate(
+    # create a label for plotting
+    project_label = glue::glue("{project_id}:{diagnosis}")
+  )
+```
+
+## `SCimilarity` results 
+
+Below we will summarize the results from `SCimilarity` on all ScPCA projects. 
+
+### Table of all cell types in ScPCA 
+
+First, we just look at the cell types identified and see if any of the cells are not assigned. 
+
+```{r}
+sum(is.na(results_df$scimilarity_celltype_annotation))
+```
+
+It looks like every cell gets a cell type, so that's something to keep in mind when looking at these results. 
+
+Let's see what cell types are presented in our data? 
+
+```{r}
+results_df |> 
+  dplyr::ungroup() |> 
+  dplyr::count(scimilarity_celltype_annotation, name = "total_cells") |> 
+  dplyr::arrange(desc(total_cells)) |> 
+      format_datatable(caption = "All samples")
+```
+
+So it looks like we have a lot of "native cell" labels which really just means the cell is a cell and didn't align with anything else in the reference. 
+This label is probably similar to our "other" label in `CellAssign`. 
+
+Also, most of our cells are progenitor cells or hematopoietic stem cells, which either means a lot of the cells are tumor cells and show stem and progenitor like properties or these are from the blood tumors which make up a large part of our atlas.
+Either way, we have cell types! 
+
+### Table of cell types per project 
+
+This section shows a table of all cell types identified in each project. 
+Each project will have its own table. 
+
+```{r}
+# get all the unique labels
+project_labels <- unique(results_df$project_label)
+
+tables <- project_labels |> 
+  purrr::map(\(label) {
+    
+    results_df |> 
+      dplyr::filter(project_label == label) |> 
+      dplyr::group_by(scimilarity_celltype_annotation) |> 
+      dplyr::summarise(
+        total_cells = dplyr::n()
+      ) |> 
+      dplyr::arrange(desc(total_cells)) |> 
+      format_datatable(caption = label)
+    
+  })
+
+htmltools::tagList(tables)
+```
+
+### Comparison to existing consensus cell types 
+
+In this section, we compare the top 15 `SCimilarity` cell type annotations to the consensus cell types determined using only `CellAssign` and `SingleR` annotations for all libraries in a single project. 
+The rows correspond to consensus cell types and the columns correspond to `SCimilarity` annotations. 
+All other cell types not in the top 10 represented cell types in a project are grouped into the "All remaining cell types" category. 
+
+```{r}
+results_df <- results_df |> 
+    dplyr::group_by(project_id) |> 
+    dplyr::mutate(
+      # get most frequently observed cell types across libraries in that project 
+      scimilarity_celltype_lumped = forcats::fct_lump_n(scimilarity_celltype_annotation, 15, other_level = "All remaining cell types", ties.method = "first") |> 
+        # sort by frequency 
+        forcats::fct_infreq() |> 
+        # make sure all remaining and unknown are last, use this to assign colors in specific order
+        forcats::fct_relevel("All remaining cell types", after = Inf) |> 
+        as.character()
+    )
+```
+
+
+```{r, fig.height = 10, fig.width = 10}
+project_labels |> 
+  purrr::walk(\(label){
+    
+    results_df |> 
+      dplyr::filter(project_label == label) |> 
+      make_jaccard_heatmap(
+        annotation_col1 = "scimilarity_celltype_lumped",
+        annotation_col2 = "consensus_annotation",
+        label1 = glue::glue("{label} \nSCimilarity"),
+        label2 = "Consensus"
+      )
+    
+  })
+```
+
+As expected there is some direct agreement or places where more broad consensus cell types are split up across more granular cell types in `SCimilarity`. 
+A few notable examples: 
+
+- `SCPCP000001`: Cells labeled as macrophages in consensus are split between glial and microglial cells in `SCimilarity`. 
+Natural killer cells match up between consensus and `SCimilarity`. 
+- `SCPCP000006`: Endothelial cells match up between consensus and `SCimilarity`. 
+The unknown cells in consensus correspond to mesenchymal stem cells and a variety of kidney cells. 
+- `SCPCP000007`: Mature T cell in consensus is split between CD4 and CD8 T cells in `SCimilarity`. 
+
+We also see places where there is not agreement, which is to be expected.
+
+## Conclusions
+
+Of the 203 possible cell types in `SCimilarity`, 191 of them are represented in ScPCA samples. 
+There are quite a few scenarios where consensus cell types "agree" with `SCimilarity`. 
+It will be informative to look at the new consensus cell types and how they change with the addition of the `SCimilarity` annotations, but in general the addition of `SCimilarity` seems quite useful!
+
+## Session info 
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
+
+
