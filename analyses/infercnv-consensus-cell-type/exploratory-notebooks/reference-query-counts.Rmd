@@ -147,8 +147,9 @@ query_reference_df <- unique(library_diagnosis_df$diagnosis_group) |>
       
       celltype_groups <- diagnosis_celltype_map |>
         dplyr::filter(diagnosis_group == broad_diagnosis) |>
-        tidyr::separate_rows(celltype_groups, sep = ", ") |>
-        dplyr::pull(celltype_groups)
+        tidyr::separate_rows(celltype_groups, sep = ",") |>
+        dplyr::pull(celltype_groups) |>
+        stringr::str_trim()
 
       reference_celltypes <- validation_group_df |>
         dplyr::filter(validation_group_annotation %in% celltype_groups) |>
