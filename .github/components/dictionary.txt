@@ -28,6 +28,7 @@ benchmarking
 Bhasin
 Bioconda
 Bioconductor
+biogenic
 bioinformatics
 Biostars
 blastema
@@ -60,8 +61,10 @@ CRediT
 Cresswell
 Crompton
 Ctrl
+cuboidal
 cytoband
 cxds
+demultiplex
 demultiplexing
 dendogram
 dendritic
@@ -84,11 +87,13 @@ DSRCT
 ECM
 ECR
 embeddings
+endo
 endothelia
 endothelial
 endothelium
 enforceability
 Ensembl
+enteroendocrine
 enure
 epithelia
 epithelialize
@@ -145,6 +150,7 @@ JSON
 Jupyter
 karyotyping
 LCA
+LCA's
 leiden
 leptomeningeal
 leukocytes
@@ -177,6 +183,7 @@ metacells
 metanephric
 microenvironment
 microglia
+microglial
 microRNA
 midline
 Miniconda
@@ -266,6 +273,7 @@ SaaS
 scANVI
 scDblFinder
 SCE
+SCimilarity
 ScPCA
 SCPCL
 SCPCP
@@ -296,6 +304,7 @@ subfolders
 sublicensable
 subtypes
 subunits
+Surfactant
 symlink
 symlinked
 synched
