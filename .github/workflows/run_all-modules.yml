@@ -39,9 +39,18 @@ jobs:
 
   cell-type-nonETP-ALL-03:
       uses: ./.github/workflows/run_cell-type-nonETP-ALL-03.yml
+  
+  cell-type-neuroblastoma-04:
+    uses: ./.github/workflows/run_cell-type-neuroblastoma-04.yml
+
+  cell-type-scimilarity:
+      uses: ./.github/workflows/run_cell-type-scimilarity.yml
 
   cell-type-consensus:
       uses: ./.github/workflows/run_cell-type-consensus.yml
+
+  infercnv-consensus-cell-type:
+      uses: ./.github/workflows/run_infercnv-consensus-cell-type.yml
 
   seurat-conversion:
       uses: ./.github/workflows/run_seurat-conversion.yml
@@ -58,7 +67,10 @@ jobs:
       - cell-type-wilms-14
       - cell-type-ETP-ALL-03
       - cell-type-nonETP-ALL-03
+      - cell-type-neuroblastoma-04
+      - cell-type-scimilarity
       - cell-type-consensus
+      - infercnv-consensus-cell-type
       - seurat-conversion
     runs-on: ubuntu-latest
     steps:
