@@ -27,6 +27,10 @@ consensus_ref_file="references/consensus-cell-type-reference.tsv"
 
 # marker gene file to use for validation 
 validation_markers_file="references/validation-markers.tsv"
+consensus_markers_file="references/consensus-markers.tsv"
+
+# scimilarity results directory 
+scimilarity_results_dir="${data_dir}/results/cell-type-scimilarity/${project_id}"
 
 for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
 
@@ -42,6 +46,13 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
 
     # define library ID
     library_id=$(basename $sce_file | sed 's/_processed.rds$//')
+    
+    # get scimilarity file if it exists, otherwise don't provide it
+    scimilarity_arg=""
+    scimilarity_results_file="${scimilarity_results_dir}/${sample_id}/${library_id}__processed_scimilarity-celltype-assignments.tsv.gz"
+    if [[ -f $scimilarity_results_file ]]; then
+      scimilarity_arg="--scimilarity_annotations_file ${scimilarity_results_file}"
+    fi
 
     # define output files
     consensus_output_file="${sample_results_dir}/${library_id}_consensus-cell-type-assignments.tsv.gz"
@@ -53,9 +64,11 @@ for sample_dir in ${data_dir}/${project_id}/SCPCS*; do
       --blueprint_ref_file $blueprint_ref_file\
       --panglao_ref_file $panglao_ref_file \
       --consensus_ref_file $consensus_ref_file \
-      --marker_gene_file $validation_markers_file \
+      --validation_marker_gene_file $validation_markers_file \
+      --consensus_marker_gene_file $consensus_markers_file \
       --consensus_output_file $consensus_output_file \
-      --gene_exp_output_file $gene_exp_output_file
+      --gene_exp_output_file $gene_exp_output_file \
+      $scimilarity_arg
 
   done 
 

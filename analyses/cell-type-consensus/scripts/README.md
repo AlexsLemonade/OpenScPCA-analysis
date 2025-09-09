@@ -17,14 +17,16 @@ The terms and names are saved to a new file, `references/blueprint-mapped-ontolo
 The output table will contain one row for each combination of cell types in `PanglaoDB`, `BlueprintEncodeData` from `celldex`, and `SCimilarity` where a consensus cell type was identified.  
 If the combination is not included in the reference file, then no consensus cell type is assigned and can be set to "Unknown". 
 
-5. `04-assign-consensus-celltypes.R`: This script is used to grab the existing cell type annotations from the `colData` of an individual processed SCE object and assign the appropriate consensus cell type based on the `singler_celltype_ontology` (`BlueprintEncodeData`) and the `cellassign_celltype_ontology` (`PanglaoDB`). 
+5. `04-assign-consensus-celltypes.R`: This script is used to assign a consensus cell type using the existing cell type annotations from the `colData` of an individual processed SCE object and the cell type annotations from `cell-type-scimilarity`, if present.
+If `SCimilarity` is present, the appropriate consensus cell type is assigned based on the `singler_celltype_ontology` (`BlueprintEncodeData`), `cellassign_celltype_ontology` (`PanglaoDB`), and `scimilarity_celltype_ontology` (`SCimilarity`), otherwise only `singler_celltype_ontology` and `cellassign_celltype_ontology` are used.
 All annotations, including the consensus annotation, are then saved to a TSV file. 
-An additional TSV file containing the gene expression for all marker genes found in `references/validation-markers.tsv` will also be saved. 
+An additional TSV file containing the gene expression for all marker genes found in `references/validation-markers.tsv` and `references/consensus-markers.tsv` will also be saved. 
 
 6. `00-download-cellmarker-ref.sh`: This script is used to download the [marker genes for all Human tissues from `CellMarker2.0`](http://117.50.127.228/CellMarker/CellMarker_download.html). 
 This file will be stored in `references/Cell_markers_Human.xlsx`. 
 
-7. `05-generate-validation-markers.R`: This script is used to create a table of top marker genes for each cell types represented in the consensus cell type labels. 
+7. `05-generate-validation-markers.R`: This script is used to create two tables of top marker genes for each cell types represented in the consensus cell type labels. 
 Prior to running this script, the marker gene file from `CellMarker2.0` must be downloaded with `00-download-cellmarker-ref.sh`. 
-The output includes the top observed marker genes for all cell types in the `validation_group_ontology` column of `references/consensus-validation-groups.tsv`. 
+The `validation-markers.tsv` output includes the top observed marker genes for all cell types in the `validation_group_ontology` column of `references/consensus-validation-groups.tsv`. 
+The `consensus-markers.tsv` output includes the top observed marker genes for all cell types in the `consensus_ontology` column of `references/consensus-validation-groups.tsv`.
 Marker genes are ranked based on how frequently they are observed in all tissues present in `CellMarker2.0`. 
