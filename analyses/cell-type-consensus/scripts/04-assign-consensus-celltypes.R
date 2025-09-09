@@ -144,7 +144,7 @@ coldata_df <- colData(sce) |>
     sample_id = sample_id,
     library_id = library_id,
     # add in sample type to make sure we don't assign consensus cell types to cell lines
-    sample_type = sample_type
+    sample_type = paste0(sample_type, collapse = ", ") # account for multiple sample types
   )
 
 # only select sample info and cell type info, we don't need the rest of the coldata
