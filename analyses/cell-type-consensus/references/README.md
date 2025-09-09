@@ -99,7 +99,7 @@ The tables include the following columns:
 |  |   |
 | --- | --- |
 | `validation_group_ontology` or `consensus_ontology`| Cell type ontology term for broader cell type group used for validation or original consensus cell type |
-| `validation_group_annotation` or `consensus_annotation` | Human readable name associated with the Cell Ontology identifer |
+| `validation_group_annotation` or `consensus_annotation` | Human readable name associated with the Cell Ontology identifier |
 | `ensembl_gene_id` | Ensembl gene identifier for the marker gene |
 | `gene_symbol` | Gene symbol for the marker gene |
 | `number_of_tissues` | Total number of tissues that express that marker gene in the specified cell type | 
