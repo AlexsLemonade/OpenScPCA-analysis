@@ -50,7 +50,7 @@ jobs:
       - name: Download test data and results
         env:
           # Use the full project for testing unless this is triggered by a PR, in which case only use a subset of samples for faster testing
-          data: ${{ github.event_name != 'pull_request' && '--project SCPCP000004,SCPCP000015' || '--project SCPCP000004,SCPCP000015' }}
+          data: ${{ github.event_name != 'pull_request' && '--project SCPCP000004,SCPCP000015' || '--samples SCPCS000490,SCPCS000492,SCPCS000750,SCPCL000118,SCPCL000119,SCPCL000120' }}
         run: |
           ./download-results.py --module cell-type-ewings --test-data ${data}
           ./download-results.py --module merge-sce --project SCPCP000004,SCPCP000015 --test-data
