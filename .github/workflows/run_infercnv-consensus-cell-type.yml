@@ -66,4 +66,4 @@ jobs:
 
         run: |
           cd ${MODULE_PATH}
-          testing=${testing} bash run-pooled-workflows.sh
+          testing=0 bash run-pooled-workflows.sh
