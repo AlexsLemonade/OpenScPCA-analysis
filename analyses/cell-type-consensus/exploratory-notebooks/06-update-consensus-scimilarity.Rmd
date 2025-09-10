@@ -168,7 +168,7 @@ lca_df <- lca_pairs_df |>
 
 ```
 
-### Retained celltypes using existing rules 
+### Retained cell types using existing rules 
 
 We previously excluded any LCA that had > 170 descendants or belonged to one of these cell types: "bone cell", "lining cell", "blood cell", "progenitor cell", "supporting cell". 
 
@@ -530,7 +530,7 @@ final_df[dup, ] |>
   DT::datatable(rownames = FALSE)
 ```
 
-It looks like there are occassions where the lca term is both `hematopoietic precursor cell` and `stem cell`. 
+It looks like there are occasions where the LCA term is both `hematopoietic precursor cell` and `stem cell`. 
 These terms both have the same number of total descendants. 
 Manually looking at the Cell Ontology, they also both only have 2 ancestors. 
 I think I would favor choosing `hematopoietic precursor cell` over `stem cell` since that specifically refers to a cell in the blood lineage. 

@@ -280,7 +280,7 @@ sample_metadata <- celltype_df |>
 
 ## Annotate
 
-Firt we prepare the data frame for annotation.
+First we prepare the data frame for annotation.
 
 ```{r, warning = FALSE}
 ontology_slim_df <- ontology_df |>

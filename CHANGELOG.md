@@ -9,6 +9,27 @@ Add new release notes in reverse numerical order (newest first) below this comme
 You may want to add temporary notes here for tracking as features are added, before a new release is ready.
 -->
 
+## v0.2.3
+
+The following includes the following new modules developed by the Data Lab:  
+
+- `infercnv-consensus-cell-type`: a module for exploring different strategies to use consensus cell types as a normal reference when running [`InferCNV`](https://github.com/broadinstitute/inferCNV/wiki) 
+- `cell-type-neuroblastoma-04`: a module for annotating the Neuroblastoma samples in `SCPCP000004`
+- `cell-type-scimilarity`: a module for annotating cells using [`SCimilarity`](https://genentech.github.io/scimilarity/index.html)
+
+The `cell-type-consensus` module was updated to now incorporate annotations from the `cell-type-scimilarity` module such that consensus cell types are now assigned if 2 out of 3 methods agree (`SingleR`, `CellAssign`, and `SCimilarity`). 
+
+This release includes minor updates to the following modules: 
+
+- `cell-type-wilms-06` 
+- `cell-type-ETP-ALL-03`
+- `cell-type-nonETP-ALL-03`
+- `cell-type-ewings`
+
+The following community-contributed analysis modules have been initiated and are in active development: 
+
+- `cell-type-osteosarcoma-23`
+
 ## v0.2.2
 
 This release includes minor updates to the following modules: 
