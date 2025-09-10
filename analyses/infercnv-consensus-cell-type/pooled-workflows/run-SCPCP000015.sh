@@ -76,6 +76,7 @@ Rscript ${script_dir}/build-reference-SCPCP000015.R \
 # Run inferCNV with all samples across references of interest
 for sample_id in $sample_ids; do
 
+    echo "=======================================Processing sample ${sample_id}"
     # There is only one library per sample for this project, so we can right away define the SCE
     sce_file=`ls ${data_dir}/${sample_id}/*_processed.rds`
 
@@ -94,7 +95,7 @@ for sample_id in $sample_ids; do
 
     # Loop over normal references of interest
     for normal_ref in "${normal_refs[@]}"; do
-
+            echo "=======================================Running with ${normal_ref}"
         ####### First, run with the pooled reference #######
 
         # add _pooled suffix for output directory
