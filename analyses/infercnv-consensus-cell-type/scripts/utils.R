@@ -15,10 +15,6 @@ prepare_internal_reference_annotations <- function(
     annotation_file,
     library_id,
     testing) {
-  reference_celltypes <- readr::read_tsv(reference_celltype_tsv) |>
-    dplyr::filter(reference_name == reference_group) |>
-    dplyr::pull(consensus_celltype)
-  stopifnot("Could not find any cell types to include in the specified internal reference." = length(reference_celltypes) > 0)
 
   # TODO: currently the code assumes this contains columns `ewing_annotation` and `consensus_annotation`
   celltype_df <- readr::read_tsv(celltype_tsv)
@@ -35,6 +31,12 @@ prepare_internal_reference_annotations <- function(
         )
       )
   } else {
+    reference_celltypes <- readr::read_tsv(reference_celltype_tsv) |>
+      dplyr::filter(reference_name == reference_group) |>
+      dplyr::pull(consensus_celltype)
+    stopifnot("Could not find any cell types to include in the specified internal reference." = 
+                length(reference_celltypes) > 0)
+    
     annotation_df <- celltype_df |>
       # add indicator for cell types intended for the reference
       dplyr::mutate(annotation = ifelse(
