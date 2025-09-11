@@ -49,8 +49,8 @@ mkdir -p ${normal_ref_dir}
 # Define pooled normal reference files
 ref_celltypes_tsv="${normal_ref_dir}/reference-celltypes.tsv"
 immune_ref_file="${normal_ref_dir}/immune.rds"
-endo_ref_file="${normal_ref_dir}/endo.rds"
-endo_immune_ref_file="${normal_ref_dir}/endo-immune.rds"
+endo_ref_file="${normal_ref_dir}/endothelial.rds"
+endo_immune_ref_file="${normal_ref_dir}/endothelial-immune.rds"
 
 # Combine into an array of files to loop over
 normal_ref_files=($immune_ref_file $endo_ref_file $endo_immune_ref_file)
