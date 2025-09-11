@@ -231,7 +231,8 @@ if (opts$reference_type == "pooled") {
   prepare_pooled_reference_annotations(
     colnames(raw_counts_matrix), # all cell ids in the matrix
     colnames(ref_sce), # reference names specifically
-    opts$annotation_file # output file
+    opts$annotation_file, # output file
+    opts$testing # logical if we're running with test data
   )
 } else {
   # Create input matrix for inferCNV as the input counts matrix

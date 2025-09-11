@@ -1,5 +1,26 @@
 # This file contains functions consumed by scripts in this module.
 
+
+#' Generate a reference table when testing
+#'
+#' Creates a data frame sufficient reference/unknown cells to run with test data
+#' 
+#' @param celltype_df Data frame of cell types
+#'
+#' @returns annotations data frame
+generate_test_annotation_df <- function(celltype_df){
+  ncells <- floor(nrow(celltype_df) * 0.2)
+  
+  celltype_df |>
+    dplyr::mutate(
+      row_index = dplyr::row_number(),
+      annotation = ifelse(
+        row_index <= ncells, "reference", "unknown"
+      )
+    )
+}
+
+
 #' Prepare and export an internal reference inferCNV annotation file
 #'
 #' @param reference_name Reference name to create, as recorded in the reference_celltype_tsv
@@ -22,14 +43,7 @@ prepare_internal_reference_annotations <- function(
   # Determine set of reference cells and save to annotation file
   # If we're testing, assign 20% of cells to the reference. Otherwise, use cell types categories appropriately
   if (testing) {
-    ncells <- floor(nrow(celltype_df) * 0.2)
-    annotation_df <- celltype_df |>
-      dplyr::mutate(
-        row_index = dplyr::row_number(),
-        annotation = ifelse(
-          row_index <= ncells, "reference", "unknown"
-        )
-      )
+    annotation_df <- generate_test_annotation_df(celltype_df)
   } else {
     reference_celltypes <- readr::read_tsv(reference_celltype_tsv) |>
       dplyr::filter(reference_name == reference_group) |>
@@ -61,16 +75,22 @@ prepare_internal_reference_annotations <- function(
 #' @param all_cell_ids All cell ids present in the inferCNV input
 #' @param reference_cell_ids Cell ids present in the reference set of cells
 #' @param annotation_file Path to export inferCNV annotations file
+#' @param testing Logical for whether we are running with test data
 prepare_pooled_reference_annotations <- function(
     all_cell_ids,
     reference_cell_ids,
-    annotation_file) {
-  # "unknown" cells are uncharacterized, and "reference" cells are in the reference
-  data.frame(cell_id = all_cell_ids) |>
-    dplyr::mutate(annotations = dplyr::if_else(
-      cell_id %in% reference_cell_ids, "reference", "unknown"
-    )) |>
-    readr::write_tsv(annotation_file, col_names = FALSE)
+    annotation_file, 
+    testing) {
+  if (testing) {
+    annotation_df <- generate_test_annotation_df(celltype_df)
+  } else {
+    # "unknown" cells are uncharacterized, and "reference" cells are in the reference
+    annotation_df <- data.frame(cell_id = all_cell_ids) |>
+      dplyr::mutate(annotations = dplyr::if_else(
+        cell_id %in% reference_cell_ids, "reference", "unknown"
+      ))
+  }
+  readr::write_tsv(annotation_df, annotation_file, col_names = FALSE)
 }
 
 
