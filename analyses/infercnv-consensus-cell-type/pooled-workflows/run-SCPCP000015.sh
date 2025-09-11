@@ -34,7 +34,7 @@ fi
 
 # Define input directories and files
 # These should all be relative to `../`
-top_data_dir="test-data"
+top_data_dir="../../data/current"
 data_dir="${top_data_dir}/${project_id}"
 script_dir="scripts"
 notebook_dir="template-notebooks"
