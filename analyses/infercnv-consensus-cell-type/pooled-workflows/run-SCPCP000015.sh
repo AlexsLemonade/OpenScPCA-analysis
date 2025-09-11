@@ -18,7 +18,7 @@ project_id="SCPCP000015"
 # Define library to exclude from analysis
 exclude_library="SCPCL001111"
 
-# Whether to use a subset of references with inferCNV
+# Whether we are running in test mode
 testing=${testing:-0}
 
 # inferCNV settings
@@ -34,8 +34,8 @@ fi
 
 # Define input directories and files
 # These should all be relative to `../`
-top_data_dir="../../data/current"
-data_dir="../../data/current/${project_id}"
+top_data_dir="test-data"
+data_dir="${top_data_dir}/${project_id}"
 script_dir="scripts"
 notebook_dir="template-notebooks"
 results_dir="results/${project_id}"
@@ -73,6 +73,7 @@ Rscript ${script_dir}/build-reference-SCPCP000015.R \
 
 # Run inferCNV with all samples across references of interest
 for sample_id in $sample_ids; do
+    echo "======================================$sample_id======================="
 
     # There is only one library per sample for this project, so we can right away define the SCE
     sce_file=`ls ${data_dir}/${sample_id}/*_processed.rds`
@@ -95,7 +96,8 @@ for sample_id in $sample_ids; do
         ref_name="$(basename $normal_ref_file | sed 's/.rds$//')"
         ref_name_pooled="${ref_name}_pooled"
         ref_name_internal="${ref_name}_internal"
-
+        echo "======================================$ref_name======================="
+        echo "======================================pooled=========================="
         ####### First, run with the pooled reference #######
 
         # create sample results directory
@@ -123,6 +125,7 @@ for sample_id in $sample_ids; do
         ####### Second, run with the internal reference #######
         # See https://github.com/AlexsLemonade/OpenScPCA-analysis/issues/1125
         if [[ $sample_id == "SCPCS000490" || $sample_id == "SCPCS000492" || $sample_id == "SCPCS000750" ]]; then
+        echo "======================================internal=========================="
 
             # Only run SCPCS000750 with the endo reference; continue otherwise
             if [[ ${sample_id} == "SCPCS000750" && ${ref_name} != "endo" ]]; then
