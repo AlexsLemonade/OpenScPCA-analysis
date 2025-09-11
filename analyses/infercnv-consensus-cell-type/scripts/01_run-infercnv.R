@@ -2,7 +2,7 @@
 # This script runs inferCNV on an SCE object using either a pooled reference previously created, or an internal reference using cells in the input SCE
 
 project_root <- here::here()
-
+options(scipen = 100) # recommended when running analysis_mode="subclusters" which is the default we use
 suppressPackageStartupMessages({
   library(SingleCellExperiment)
   library(optparse)
