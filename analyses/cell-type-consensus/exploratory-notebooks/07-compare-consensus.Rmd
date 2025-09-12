@@ -99,15 +99,15 @@ grouped_df <- all_results_df |>
     dplyr::group_by(library_id) |> 
     dplyr::mutate(
       total_cells_per_library = dplyr::n(),
-      num_old_celltypes = length(unique(consensus_annotation)),
-      num_new_celltypes = length(unique(existing_consensus_celltype_annotation))
+      num_old_celltypes = length(unique(existing_consensus_celltype_annotation)),
+      num_new_celltypes = length(unique(consensus_annotation))
     ) |>
     dplyr::ungroup()
   
 # get stats for old consensus cell types
 old_consensus_df <- grouped_df |> 
     dplyr::group_by(project_id, project_label, diagnosis, library_id, sample_type, existing_consensus_celltype_annotation, existing_consensus_celltype_ontology) |> 
-    dplyr::summarize(num_celltypes = unique(num_new_celltypes), # constant for each library
+    dplyr::summarize(num_celltypes = unique(num_old_celltypes), # constant for each library
                      total_cells_per_annotation = dplyr::n(),
                      total_cells_per_library = unique(total_cells_per_library)) |>
     dplyr::mutate(
@@ -119,7 +119,7 @@ old_consensus_df <- grouped_df |>
 # stats for new consensus cell types
 new_consensus_df <- grouped_df |> 
     dplyr::group_by(project_id, project_label, diagnosis, library_id, sample_type, consensus_annotation, consensus_ontology) |> 
-    dplyr::summarize(num_celltypes = unique(num_old_celltypes), # constant for each library
+    dplyr::summarize(num_celltypes = unique(num_new_celltypes), # constant for each library
                      total_cells_per_annotation = dplyr::n(),
                      total_cells_per_library = unique(total_cells_per_library)) |>
     dplyr::mutate(
