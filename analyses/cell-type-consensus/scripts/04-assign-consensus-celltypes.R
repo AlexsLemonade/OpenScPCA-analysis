@@ -213,14 +213,12 @@ panglao_ref_df <- readr::read_tsv(opt$panglao_ref_file) |>
 
 consensus_ref_df <- readr::read_tsv(opt$consensus_ref_file) |>
   # select columns to use for joining and consensus assigmments
-  # first select all options and make sure the names match what we expect
-  dplyr::select(
-    panglao_ontology,
+  # first make sure the names match what we expect
+  dplyr::rename(
     cellassign_celltype_annotation = original_panglao_name,
     singler_celltype_ontology = blueprint_ontology,
-    scimilarity_celltype_ontology = scimilarity_ontology,
-    starts_with(consensus_column_prefix)
-  ) |> 
+    scimilarity_celltype_ontology = scimilarity_ontology
+  ) |>
   # now just filter to join columns and get unique combinations
   dplyr::select(all_of(join_columns), starts_with(consensus_column_prefix)) |> 
   dplyr::distinct() |> 
@@ -246,7 +244,7 @@ all_assignments_df <- celltype_df |>
   ) |>
   # use unknown for NA annotation but keep ontology ID as NA
   # if the sample type is cell line, keep as NA
-  dplyr::mutate(consensus_annotation = dplyr::if_else(is.na(consensus_annotation) & (sample_type != "cell line"), "Unknown", consensus_annotation))
+  dplyr::mutate(consensus_annotation = dplyr::if_else(is.na(consensus_annotation) & (!stringr::str_detect(sample_type, "cell line")), "Unknown", consensus_annotation))
 
 # export file
 readr::write_tsv(all_assignments_df, opt$consensus_output_file)
