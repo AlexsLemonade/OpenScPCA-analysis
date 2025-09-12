@@ -50,7 +50,7 @@ jobs:
       - name: Download test data and results
         env:
           # Use the full project for testing unless this is triggered by a PR, in which case only use a subset of samples for faster testing
-          data: ${{ github.event_name != 'pull_request' && '--project SCPCP000004,SCPCP000015' || '--samples SCPCS000490,SCPCS000492,SCPCS000750,SCPCL000118,SCPCL000119,SCPCL000120' }}
+          data: ${{ github.event_name != 'pull_request' && '--project SCPCP000004,SCPCP000015' || '--samples SCPCS000490,SCPCS000492,SCPCS000750,SCPCS000101,SCPCS000102,SCPCS000103' }}
         run: |
           ./download-results.py --module cell-type-ewings --test-data ${data}
           ./download-results.py --module merge-sce --project SCPCP000004,SCPCP000015 --test-data
@@ -58,12 +58,6 @@ jobs:
           ./download-data.py --test-data --metadata-only
 
       - name: Run analysis module
-        env:
-          # To save cycles, when running this from a PR we run with a subset of normal references only.
-          # The full set of normal references is used otherwise.
-          # `testing=1` will run a subset of normal references and `testing=0` will run with all normal references
-          testing: ${{ github.event_name == 'pull_request' && 1 || 0 }}
-
         run: |
           cd ${MODULE_PATH}
-          testing=${testing} bash run-pooled-workflows.sh
+          testing=1 bash run-pooled-workflows.sh
