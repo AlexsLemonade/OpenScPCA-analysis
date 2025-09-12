@@ -16,6 +16,8 @@ Prior to rendering this notebook results from the `cell-type-consensus` module i
 
 6. `06-update-consensus-scimilarity.Rmd`: This notebook looks at updating the consensus cell type reference to incorporate all possible cell type annotations from using [`SCimilarity`](https://genentech.github.io/scimilarity/index.html). 
 
+7. `07-compare-consensus.Rmd`: This notebook compares the consensus cell type labels assigned without `SCimilarity` to the newer consensus cell types assigned using input from `SCimilarity`. 
+
 ## Cell type validation notebooks
 
 The `cell-type-validation-notebooks` contains the rendered reports summarizing expression of cell type marker genes in the consensus cell types.
