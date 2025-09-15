@@ -153,6 +153,7 @@ LCA
 LCA's
 leiden
 leptomeningeal
+leukemias
 leukocytes
 LGBTQ
 LGG
