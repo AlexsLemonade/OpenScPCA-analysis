@@ -114,9 +114,8 @@ gene_exp_df <- duckplyr::read_csv_duckdb(gene_exp_files, options = list(sep = "\
 
 ```{r, results='asis'}
 # check for if the project is a cell line project or not 
-# explicitly skip project 24 since the current processed data doesn't have the updated combination of PDX and cell line
-is_cell_line <- all(consensus_df$sample_type == "cell line") | params$project_id == "SCPCP000024"
-
+is_cell_line <- params$project_id %in% c("SCPCP000020", "SCPCP000024")
+              
 if(is_cell_line){
   glue::glue("
     <div class=\"alert alert-info\">
@@ -194,7 +193,9 @@ group_stats_df <- consensus_df |>
       # account for NA/unknowns and set axes order
       broad_celltype_group = tidyr::replace_na(broad_celltype_group, "unknown") |>
         factor(levels = c(unique(markers_df$validation_group_annotation), "unknown"))
-    )
+    ) |> 
+  # remove any marker genes that don't have an assigned validation group
+  tidyr::drop_na()
 
 # no longer need this and it takes up space 
 rm(consensus_df)
