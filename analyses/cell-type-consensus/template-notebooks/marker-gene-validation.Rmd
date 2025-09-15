@@ -8,7 +8,7 @@ output:
     toc_depth: 3
     code_folding: hide
 params:
-  project_id: "SCPCP000001"
+  project_id: "SCPCP000006"
 ---
 
 This notebook looks at marker gene expression for consensus cell types in `r params$project_id`. 
@@ -43,7 +43,7 @@ suppressMessages(duckplyr::methods_overwrite())
 module_base <- rprojroot::find_root(rprojroot::is_renv_project)
 
 # path to results directory
-results_dir <- file.path(module_base, "results", "cell-type-consensus", params$project_id)
+results_dir <- file.path(module_base, "..", "..", "data", "current", "results", "cell-type-consensus", params$project_id)
 ```
 
 ```{r}
@@ -272,7 +272,7 @@ dotplot <- ggplot(dotplot_df, aes(y = forcats::fct_rev(y_label), x = gene_symbol
   geom_point() +
   scale_color_viridis_c(option = "magma") +
   theme(
-    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
   ) +
   labs(
     x = "",
