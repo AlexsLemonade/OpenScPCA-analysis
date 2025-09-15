@@ -8,7 +8,7 @@ output:
     toc_depth: 3
     code_folding: hide
 params:
-  project_id: "SCPCP000006"
+  project_id: "SCPCP000001"
 ---
 
 This notebook looks at marker gene expression for consensus cell types in `r params$project_id`. 
