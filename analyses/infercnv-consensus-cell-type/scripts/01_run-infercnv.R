@@ -2,7 +2,7 @@
 # This script runs inferCNV on an SCE object using either a pooled reference previously created, or an internal reference using cells in the input SCE
 
 project_root <- here::here()
-
+options(scipen = 100) # recommended when running analysis_mode="subclusters" which is the default we use
 suppressPackageStartupMessages({
   library(SingleCellExperiment)
   library(optparse)
@@ -103,12 +103,6 @@ option_list <- list(
       Columns are: Ensembl gene id, chr, start, stop."
   ),
   make_option(
-    opt_str = "--annotation_file",
-    type = "character",
-    default = file.path(project_root, "scratch", "infercnv_annotation.txt"),
-    help = "Path to annotation file for inferCNV input"
-  ),
-  make_option(
     opt_str = c("--scratch_dir"),
     type = "character",
     default = file.path(project_root, "scratch", "infercnv"),
@@ -140,7 +134,6 @@ opts <- parse_args(OptionParser(option_list = option_list))
 stopifnot(
   "sce_file does not exist" = file.exists(opts$sce_file),
   "gene_order_file does not exist" = file.exists(opts$gene_order_file),
-  "annotation_file not provided" = !is.null(opts$annotation_file),
   "reference_type must be one of 'pooled' or 'internal'" = opts$reference_type %in% c("pooled", "internal"),
   "reference_celltype_group not provided." = !is.null(opts$reference_celltype_group),
   "hmm_model not properly specified" = opts$hmm_model %in% c("i3", "i6")
@@ -188,8 +181,7 @@ if (dir.exists(scratch_dir)) {
 # ensure directories we need exist
 fs::dir_create(c(
   opts$output_dir,
-  scratch_dir,
-  dirname(opts$annotation_file)
+  scratch_dir
 ))
 
 # define output metadata file
@@ -228,10 +220,11 @@ if (opts$reference_type == "pooled") {
   stopifnot("Duplicate cells present in input to inferCNV" = !all(duplicated(colnames(raw_counts_matrix))))
 
   # Export annotations file
-  prepare_pooled_reference_annotations(
+  annotation_df <- prepare_pooled_reference_annotations(
     colnames(raw_counts_matrix), # all cell ids in the matrix
     colnames(ref_sce), # reference names specifically
-    opts$annotation_file # output file
+    opts$annotation_file, # output file
+    opts$testing # logical if we're running with test data
   )
 } else {
   # Create input matrix for inferCNV as the input counts matrix
@@ -239,11 +232,10 @@ if (opts$reference_type == "pooled") {
 
   # TODO: Currently this function is specific to SCPCP000015
   # In the future this may need to be updated as a wrapper function to call individual project functions
-  prepare_internal_reference_annotations(
+  annotation_df <- prepare_internal_reference_annotations(
     opts$reference_celltype_group, # cell type groups to include in reference
     opts$reference_celltype_tsv, # map between reference groups and consensus cell types
     opts$celltype_tsv, # consensus cell type annotations
-    opts$annotation_file, # annotations file to export
     library_id, # SCE of interest library id
     opts$testing # logical if we're running with test data
   )
@@ -254,7 +246,7 @@ if (opts$reference_type == "pooled") {
 # create the infercnv object
 infercnv_obj <- infercnv::CreateInfercnvObject(
   raw_counts_matrix = raw_counts_matrix,
-  annotations_file = opts$annotation_file,
+  annotations_file = annotation_df,
   delim = "\t",
   gene_order_file = opts$gene_order_file,
   ref_group_name = "reference" # we use the label "reference" to designate reference cells

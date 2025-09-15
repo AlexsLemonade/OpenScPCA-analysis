@@ -1,0 +1,327 @@
+---
+title: "Compare consensus cell types with SCimilarity to consensus cell types without SCimilarity"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+---
+
+This notebook compares the results from assigning consensus cell types with `SCimilarity` to the previous consensus cell types without `SCimilarity`. 
+All results from the `cell-type-consensus` module in `OpenScPCA-nf` must be saved to `results` prior to rendering this notebook. 
+
+Note that any multiplexed libraries have been excluded from this notebook as `SCimilarity` is not run on those libraries when using the `OpenScPCA-nf` module. 
+
+```{r packages}
+suppressPackageStartupMessages({
+  # load required packages
+  library(ggplot2)
+})
+
+# Set default ggplot theme
+theme_set(
+  theme_classic()
+)
+
+# Define color ramp for shared use in the heatmaps
+heatmap_col_fun <- circlize::colorRamp2(c(0, 1), colors = c("white", "darkslateblue"))
+# Set heatmap padding option
+ComplexHeatmap::ht_opt(TITLE_PADDING = grid::unit(0.6, "in"))
+
+# settings
+options(
+  dplyr.summarise.inform = FALSE, 
+  readr.show_col_types = FALSE
+)
+```
+
+
+## Data setup
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+module_base <- file.path(repository_base, "analyses", "cell-type-consensus")
+
+# results directory with cell-type-consensus 
+results_dir <- file.path(module_base, "results", "cell-type-consensus")
+
+# diagnoses table used for labeling plots 
+diagnoses_file <- file.path(module_base, "sample-info", "project-diagnoses.tsv")
+```
+
+```{r}
+# use the jaccard functions from cell-type-neuroblastoma-04 module
+jaccard_functions <- file.path(repository_base, "analyses", "cell-type-neuroblastoma-04", "scripts", "utils", "jaccard-utils.R")
+source(jaccard_functions)
+```
+
+```{r}
+# list all results files 
+results_files <- list.files(results_dir, pattern = "_consensus-cell-types\\.tsv.\\gz$", recursive = TRUE, full.names = TRUE)
+
+# define cell line projects to remove
+cell_line_projects <- c("SCPCP000020", "SCPCP000024")
+```
+
+
+```{r, message=FALSE, warning=FALSE}
+# read in diagnoses
+diagnoses_df <- readr::read_tsv(diagnoses_file)
+
+# read in results and prep data frame for plotting 
+all_results_df <- results_files |> 
+  purrr::map(readr::read_tsv, col_types = "c")|> 
+  dplyr::bind_rows() |> 
+  # remove cell line projects
+  dplyr::filter(!project_id %in% cell_line_projects,
+                # remove multiplexed libraries since we didn't run scimilarity on them
+                !stringr::str_detect(sample_id, ";")) |> 
+  # add in diagnoses 
+  dplyr::left_join(diagnoses_df, by = "project_id") |> 
+  dplyr::mutate(
+    # create a label for plotting
+    project_label = glue::glue("{project_id}:{diagnosis}")
+  )
+```
+
+
+```{r, message=FALSE, warning=FALSE}
+# Turn into a dataframe with one row per library per celltype
+# Make a table for each consensus method separately and then stack by consensus cell type old/new 
+# one row for old and one row for each cell type
+
+# first add columns for total cells per library, number of new and old cell types
+grouped_df <- all_results_df |> 
+    dplyr::group_by(library_id) |> 
+    dplyr::mutate(
+      total_cells_per_library = dplyr::n(),
+      num_old_celltypes = length(unique(existing_consensus_celltype_annotation)),
+      num_new_celltypes = length(unique(consensus_annotation))
+    ) |>
+    dplyr::ungroup()
+  
+# get stats for old consensus cell types
+old_consensus_df <- grouped_df |> 
+    dplyr::group_by(project_id, project_label, diagnosis, library_id, sample_type, existing_consensus_celltype_annotation, existing_consensus_celltype_ontology) |> 
+    dplyr::summarize(num_celltypes = unique(num_old_celltypes), # constant for each library
+                     total_cells_per_annotation = dplyr::n(),
+                     total_cells_per_library = unique(total_cells_per_library)) |>
+    dplyr::mutate(
+      # add percentage 
+      percent_cells_annotation = round((total_cells_per_annotation / total_cells_per_library) * 100, 2)
+    ) |> 
+    dplyr::ungroup()
+
+# stats for new consensus cell types
+new_consensus_df <- grouped_df |> 
+    dplyr::group_by(project_id, project_label, diagnosis, library_id, sample_type, consensus_annotation, consensus_ontology) |> 
+    dplyr::summarize(num_celltypes = unique(num_new_celltypes), # constant for each library
+                     total_cells_per_annotation = dplyr::n(),
+                     total_cells_per_library = unique(total_cells_per_library)) |>
+    dplyr::mutate(
+      # add percentage 
+      percent_cells_annotation = round((total_cells_per_annotation / total_cells_per_library) * 100, 2)
+    ) |> 
+    dplyr::ungroup()
+
+# combine into a single df and add a column to indiciate old/new 
+df_list <- list(old_consensus_df, new_consensus_df) |> 
+  purrr::set_names(c("no_scimilarity", "with_scimilarity"))
+
+all_grouped_df <- dplyr::bind_rows(df_list, .id = "consensus_type")
+```
+
+## Number of unknown cells
+
+The plot below shows the number of cells annotated as unknown for each library using old (without `SCimilarity`) vs. new (with `SCimilarity`) consensus annotations. 
+The red bar indicates the median percentage of cells. 
+
+```{r, fig.height=7}
+# only get the unknown cells
+unknown_only <- all_grouped_df |> 
+  dplyr::filter(consensus_annotation == "Unknown" | existing_consensus_celltype_annotation == "Unknown")
+
+# compare the distribution of unknown with and without scimilarity
+ggplot(unknown_only, aes(x = consensus_type, y = percent_cells_annotation)) +
+  ggforce::geom_sina(size = 0.1) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+        plot.margin = margin(10,10,10,10)) +
+  labs(
+    x = "", 
+    y = "Percent of cells annotated as Unknown"
+  ) +
+  stat_summary(fun=median, geom="crossbar" , color = "red", linewidth = 0.2)
+  
+```
+
+As expected, the percentage of cells annotated as unknown is lower when `SCimilarity` is incorporated, suggesting we are able to annotate more cells with a meaningful label that is not unknown. 
+
+## Number of cell types observed
+
+Below we look at the number of cell types observed in each project for all samples. 
+
+```{r, fig.height=15, fig.width=10}
+num_celltypes_df <- all_grouped_df |> 
+  # add a new line for facet labels 
+  dplyr::mutate(facet_label = glue::glue("{project_id}\n{diagnosis}")) |>
+  dplyr::select(facet_label, library_id, num_celltypes, consensus_type) |> 
+  unique()
+
+ggplot(num_celltypes_df, 
+       aes(x = consensus_type, y = num_celltypes, group = library_id)) +
+  geom_point(aes(color = consensus_type)) +
+  geom_line(aes(group = library_id), color = "gray60", alpha = 0.7) +
+  facet_wrap(vars(facet_label), ncol = 3) +
+  labs(
+    x = "Consensus cell type",
+    y = "Number of cell types"
+  ) +
+  theme_bw()
+
+```
+
+As expected, we see that the number of cell types identified increases with the addition of `SCimilarity`. 
+
+## Heatmaps comparing old and new consensus cell types
+
+In this section, we compare the top 15 cell type annotations for consensus cell types with `SCimilarity` (rows) to consensus cell types without `SCimilarity` (columns). 
+All other cell types not in the top 15 represented cell types in a project are grouped into the "All remaining cell types" category. 
+
+Note that in some cases, there are fewer than 15 unique cell types. 
+
+```{r, warning=FALSE}
+all_results_df <- all_results_df |> 
+    dplyr::group_by(project_id) |> 
+    dplyr::mutate(
+      # get most frequently observed cell types across libraries in that project 
+      existing_consensus_celltype_lumped = forcats::fct_lump_n(existing_consensus_celltype_annotation, 15, other_level = "All remaining cell types", ties.method = "first") |> 
+        # sort by frequency 
+        forcats::fct_infreq() |> 
+        # make sure all remaining and unknown are last, use this to assign colors in specific order
+        forcats::fct_relevel("All remaining cell types", after = Inf) |> 
+        as.character(), 
+      # do the same thing for the new consensus cell types
+      consensus_celltype_lumped = forcats::fct_lump_n(consensus_annotation, 15, other_level = "All remaining cell types", ties.method = "first") |> 
+        # sort by frequency 
+        forcats::fct_infreq() |> 
+        # make sure all remaining and unknown are last, use this to assign colors in specific order
+        forcats::fct_relevel("All remaining cell types", after = Inf) |> 
+        as.character(), 
+      # jaccard functions expect a cell id column
+      cell_id = glue::glue("{library_id}-{barcodes}")
+    )
+
+project_labels <- unique(all_results_df$project_label)
+```
+
+
+```{r, fig.height = 10, fig.width = 10}
+project_labels |> 
+  purrr::walk(\(label){
+    
+    all_results_df |> 
+      dplyr::filter(project_label == label) |> 
+      make_jaccard_heatmap(
+        annotation_col1 = "existing_consensus_celltype_lumped",
+        annotation_col2 = "consensus_celltype_lumped",
+        label1 = glue::glue("{label} \nNo Scimilarity"),
+        label2 = "With SCimilarity"
+      )
+    
+  })
+```
+
+
+In general we see a fair amount of agreement in the overall cell types are defined with a bit more granularity in the cell types assigned with `SCimilarity`. 
+
+## Distribution of new consensus cell types 
+
+Now we look at the distribution of the cell types in each sample. 
+For these plots, we will pull out the top 9 cell types for each project. 
+All other cells will be labeled with "All remaining cell types". 
+
+The top cell types are determined by counting how many libraries each cell type is found in within a project and taking the most frequent types. 
+
+```{r, warning=FALSE}
+plot_df <- all_grouped_df |> 
+  dplyr::group_by(project_id) |> 
+  # remove the old results from plotting
+  dplyr::select(-c(existing_consensus_celltype_annotation, existing_consensus_celltype_ontology)) |> 
+  tidyr::drop_na(consensus_annotation) |> 
+  dplyr::mutate(
+    # get most frequently observed cell types across libraries in that project 
+    top_celltypes = forcats::fct_lump_n(consensus_annotation, 9, other_level = "All remaining cell types", ties.method = "first") |> 
+      # sort by frequency 
+      forcats::fct_infreq() |> 
+      # make sure all remaining and unknown are last, use this to assign colors in specific order
+      forcats::fct_relevel("All remaining cell types", "Unknown", after = Inf)
+  ) |> 
+  dplyr::ungroup()
+
+# get all unique cell types ordered by frequency 
+unique_celltypes <- plot_df |> 
+  dplyr::filter(!top_celltypes %in% c("All remaining cell types", "Unknown")) |> 
+  dplyr::pull(top_celltypes) |> 
+  unique() |>
+  sort() |> 
+  as.character()
+
+# get color palette
+colors <- c(
+  colorRampPalette(RColorBrewer::brewer.pal(12, "Paired"))(length(unique_celltypes)),
+  "grey60", # all remaining
+  "grey95" # unknown
+)
+names(colors) <- c(unique_celltypes, "All remaining cell types", "Unknown")
+```
+
+
+```{r, fig.height=60, fig.width=10}
+# stacked bar chart showing the distribution of the top 9 cell types for each project, including Unknown
+project_labels |> 
+  purrr::map(\(label){
+    
+    project_df <- plot_df |> 
+      dplyr::filter(project_label == label) |> 
+      dplyr::mutate(
+        # relevel factors for specific project 
+        top_celltypes = forcats::fct_infreq(top_celltypes) |> 
+          forcats::fct_relevel("All remaining cell types", "Unknown", after = Inf)
+      )
+    
+    # make a stacked bar chart with top cell types 
+    ggplot(project_df) + 
+      aes(
+        x = library_id, 
+        y = percent_cells_annotation, 
+        fill = top_celltypes
+      ) +
+      geom_col() + 
+      # split samples based on sample type, patient tissue or pdx 
+      facet_wrap(vars(sample_type), scales ="free") +
+      scale_y_continuous(expand = c(0,0)) +
+      scale_fill_manual(values = colors, name = "cell type") +
+      ggtitle(label) +
+      theme(axis.text.x = element_blank())
+  
+    }) |>
+  patchwork::wrap_plots(ncol = 1)
+```
+
+
+We are definitely labeling more cells than we were previously and in some cases we may be assigning a "normal" cell type to tumor cells. 
+This is not totally surprising as many solid tumors have cells that resemble fibroblasts and muscle cells. 
+We also see various progenitors and HSCs being labeled in the leukemias which reflect how leukemia cells resemble those cell types. 
+Overall, I think adding in `SCimilarity` is giving us a lot more information than without it. 
+
+## Session info 
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
+
