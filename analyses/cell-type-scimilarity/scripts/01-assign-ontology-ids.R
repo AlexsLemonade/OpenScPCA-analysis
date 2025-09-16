@@ -50,16 +50,13 @@ missing_df <- readr::read_tsv(opts$missing_ontology_tsv)
 
 # Prep ontology terms ----------------------------------------------------------
 
-# get uberon ontology terms and ids
-ol <- rols::Ontologies()
-cell_ontology <- ol[["cl"]]
-terms <- rols::Terms(cell_ontology)
-labels <- rols::termLabel(terms)
+# get ontology terms and ids
+cl_ont <- ontologyIndex::get_ontology("http://purl.obolibrary.org/obo/cl/releases/2024-09-26/cl-basic.obo") 
 
 # data frame of id and human readable value
 ontology_labels_df <- data.frame(
-  ontology_id = names(labels),
-  cl_annotation = labels
+  ontology_id = cl_ont$id,
+  cl_annotation = cl_ont$name
 )
 
 # Add ontology IDs to annotation labels ----------------------------------------
