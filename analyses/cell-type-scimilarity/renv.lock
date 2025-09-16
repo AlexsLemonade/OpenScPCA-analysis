@@ -32,47 +32,6 @@
     "Version": "3.19"
   },
   "Packages": {
-    "Biobase": {
-      "Package": "Biobase",
-      "Version": "2.64.0",
-      "Source": "Bioconductor",
-      "Title": "Biobase: Base functions for Bioconductor",
-      "Description": "Functions that are needed by many other packages or which replace R functions.",
-      "biocViews": "Infrastructure",
-      "URL": "https://bioconductor.org/packages/Biobase",
-      "BugReports": "https://github.com/Bioconductor/Biobase/issues",
-      "License": "Artistic-2.0",
-      "Authors@R": "c( person(\"R.\", \"Gentleman\", role=\"aut\"), person(\"V.\", \"Carey\", role = \"aut\"), person(\"M.\", \"Morgan\", role=\"aut\"), person(\"S.\", \"Falcon\", role=\"aut\"), person(\"Haleema\", \"Khan\", role = \"ctb\", comment = \"'esApply' and 'BiobaseDevelopment' vignette translation from Sweave to Rmarkdown / HTML\" ), person(\"Bioconductor Package Maintainer\", role = \"cre\", email = \"maintainer@bioconductor.org\" ))",
-      "Suggests": [
-        "tools",
-        "tkWidgets",
-        "ALL",
-        "RUnit",
-        "golubEsets",
-        "BiocStyle",
-        "knitr",
-        "limma"
-      ],
-      "Depends": [
-        "R (>= 2.10)",
-        "BiocGenerics (>= 0.27.1)",
-        "utils"
-      ],
-      "Imports": [
-        "methods"
-      ],
-      "VignetteBuilder": "knitr",
-      "LazyLoad": "yes",
-      "Collate": "tools.R strings.R environment.R vignettes.R packages.R AllGenerics.R VersionsClass.R VersionedClasses.R methods-VersionsNull.R methods-VersionedClass.R DataClasses.R methods-aggregator.R methods-container.R methods-MIAxE.R methods-MIAME.R methods-AssayData.R methods-AnnotatedDataFrame.R methods-eSet.R methods-ExpressionSet.R methods-MultiSet.R methods-SnpSet.R methods-NChannelSet.R anyMissing.R rowOp-methods.R updateObjectTo.R methods-ScalarObject.R zzz.R",
-      "git_url": "https://git.bioconductor.org/packages/Biobase",
-      "git_branch": "RELEASE_3_19",
-      "git_last_commit": "a3b75b7",
-      "git_last_commit_date": "2024-04-30",
-      "Repository": "Bioconductor 3.19",
-      "NeedsCompilation": "yes",
-      "Author": "R. Gentleman [aut], V. Carey [aut], M. Morgan [aut], S. Falcon [aut], Haleema Khan [ctb] ('esApply' and 'BiobaseDevelopment' vignette translation from Sweave to Rmarkdown / HTML), Bioconductor Package Maintainer [cre]",
-      "Maintainer": "Bioconductor Package Maintainer <maintainer@bioconductor.org>"
-    },
     "BiocGenerics": {
       "Package": "BiocGenerics",
       "Version": "0.50.0",
@@ -590,31 +549,6 @@
       "NeedsCompilation": "yes",
       "Author": "Hervé Pagès [aut, cre], Michael Lawrence [aut], Patrick Aboyoun [aut], Aaron Lun [ctb], Beryl Kanali [ctb] (Converted vignettes from Sweave to RMarkdown)",
       "Maintainer": "Hervé Pagès <hpages.on.github@gmail.com>"
-    },
-    "askpass": {
-      "Package": "askpass",
-      "Version": "1.2.1",
-      "Source": "Repository",
-      "Type": "Package",
-      "Title": "Password Entry Utilities for R, Git, and SSH",
-      "Authors@R": "person(\"Jeroen\", \"Ooms\", role = c(\"aut\", \"cre\"),  email = \"jeroenooms@gmail.com\", comment = c(ORCID = \"0000-0002-4035-0289\"))",
-      "Description": "Cross-platform utilities for prompting the user for credentials or a  passphrase, for example to authenticate with a server or read a protected key. Includes native programs for MacOS and Windows, hence no 'tcltk' is required.  Password entry can be invoked in two different ways: directly from R via the  askpass() function, or indirectly as password-entry back-end for 'ssh-agent'  or 'git-credential' via the SSH_ASKPASS and GIT_ASKPASS environment variables. Thereby the user can be prompted for credentials or a passphrase if needed  when R calls out to git or ssh.",
-      "License": "MIT + file LICENSE",
-      "URL": "https://r-lib.r-universe.dev/askpass",
-      "BugReports": "https://github.com/r-lib/askpass/issues",
-      "Encoding": "UTF-8",
-      "Imports": [
-        "sys (>= 2.1)"
-      ],
-      "RoxygenNote": "7.2.3",
-      "Suggests": [
-        "testthat"
-      ],
-      "Language": "en-US",
-      "NeedsCompilation": "yes",
-      "Author": "Jeroen Ooms [aut, cre] (<https://orcid.org/0000-0002-4035-0289>)",
-      "Maintainer": "Jeroen Ooms <jeroenooms@gmail.com>",
-      "Repository": "https://packagemanager.posit.co/cran/latest"
     },
     "base64enc": {
       "Package": "base64enc",
@@ -1171,40 +1105,6 @@
       "Author": "Joe Cheng [aut], Carson Sievert [aut, cre] (ORCID: <https://orcid.org/0000-0002-4958-2844>), Posit Software, PBC [cph, fnd], jQuery Foundation [cph] (jQuery library and jQuery UI library), jQuery contributors [ctb, cph] (jQuery library; authors listed in inst/www/shared/jquery-AUTHORS.txt), Mark Otto [ctb] (Bootstrap library), Jacob Thornton [ctb] (Bootstrap library), Bootstrap contributors [ctb] (Bootstrap library), Twitter, Inc [cph] (Bootstrap library), Brian Reavis [ctb, cph] (selectize.js library), Kristopher Michael Kowal [ctb, cph] (es5-shim library), es5-shim contributors [ctb, cph] (es5-shim library), Denis Ineshin [ctb, cph] (ion.rangeSlider library), Sami Samhuri [ctb, cph] (Javascript strftime library)",
       "Maintainer": "Carson Sievert <carson@posit.co>",
       "Repository": "https://packagemanager.posit.co/cran/latest"
-    },
-    "curl": {
-      "Package": "curl",
-      "Version": "6.4.0",
-      "Source": "Repository",
-      "Type": "Package",
-      "Title": "A Modern and Flexible Web Client for R",
-      "Authors@R": "c( person(\"Jeroen\", \"Ooms\", role = c(\"aut\", \"cre\"), email = \"jeroenooms@gmail.com\", comment = c(ORCID = \"0000-0002-4035-0289\")), person(\"Hadley\", \"Wickham\", role = \"ctb\"), person(\"Posit Software, PBC\", role = \"cph\"))",
-      "Description": "Bindings to 'libcurl' <https://curl.se/libcurl/> for performing fully configurable HTTP/FTP requests where responses can be processed in memory, on disk, or streaming via the callback or connection interfaces. Some knowledge of 'libcurl' is recommended; for a more-user-friendly web client see the  'httr2' package which builds on this package with http specific tools and logic.",
-      "License": "MIT + file LICENSE",
-      "SystemRequirements": "libcurl (>= 7.73): libcurl-devel (rpm) or libcurl4-openssl-dev (deb)",
-      "URL": "https://jeroen.r-universe.dev/curl",
-      "BugReports": "https://github.com/jeroen/curl/issues",
-      "Suggests": [
-        "spelling",
-        "testthat (>= 1.0.0)",
-        "knitr",
-        "jsonlite",
-        "later",
-        "rmarkdown",
-        "httpuv (>= 1.4.4)",
-        "webutils"
-      ],
-      "VignetteBuilder": "knitr",
-      "Depends": [
-        "R (>= 3.0.0)"
-      ],
-      "RoxygenNote": "7.3.2.9000",
-      "Encoding": "UTF-8",
-      "Language": "en-US",
-      "NeedsCompilation": "yes",
-      "Author": "Jeroen Ooms [aut, cre] (ORCID: <https://orcid.org/0000-0002-4035-0289>), Hadley Wickham [ctb], Posit Software, PBC [cph]",
-      "Maintainer": "Jeroen Ooms <jeroenooms@gmail.com>",
-      "Repository": "CRAN"
     },
     "digest": {
       "Package": "digest",
@@ -1950,64 +1850,6 @@
       "Maintainer": "Carson Sievert <carson@posit.co>",
       "Repository": "RSPM"
     },
-    "httr2": {
-      "Package": "httr2",
-      "Version": "1.2.1",
-      "Source": "Repository",
-      "Title": "Perform HTTP Requests and Process the Responses",
-      "Authors@R": "c( person(\"Hadley\", \"Wickham\", , \"hadley@posit.co\", role = c(\"aut\", \"cre\")), person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\")), person(\"Maximilian\", \"Girlich\", role = \"ctb\") )",
-      "Description": "Tools for creating and modifying HTTP requests, then performing them and processing the results. 'httr2' is a modern re-imagining of 'httr' that uses a pipe-based interface and solves more of the problems that API wrapping packages face.",
-      "License": "MIT + file LICENSE",
-      "URL": "https://httr2.r-lib.org, https://github.com/r-lib/httr2",
-      "BugReports": "https://github.com/r-lib/httr2/issues",
-      "Depends": [
-        "R (>= 4.1)"
-      ],
-      "Imports": [
-        "cli (>= 3.0.0)",
-        "curl (>= 6.4.0)",
-        "glue",
-        "lifecycle",
-        "magrittr",
-        "openssl",
-        "R6",
-        "rappdirs",
-        "rlang (>= 1.1.0)",
-        "vctrs (>= 0.6.3)",
-        "withr"
-      ],
-      "Suggests": [
-        "askpass",
-        "bench",
-        "clipr",
-        "covr",
-        "docopt",
-        "httpuv",
-        "jose",
-        "jsonlite",
-        "knitr",
-        "later (>= 1.4.0)",
-        "nanonext",
-        "paws.common",
-        "promises",
-        "rmarkdown",
-        "testthat (>= 3.1.8)",
-        "tibble",
-        "webfakes (>= 1.4.0)",
-        "xml2"
-      ],
-      "VignetteBuilder": "knitr",
-      "Config/Needs/website": "tidyverse/tidytemplate",
-      "Config/testthat/edition": "3",
-      "Config/testthat/parallel": "true",
-      "Config/testthat/start-first": "resp-stream, req-perform",
-      "Encoding": "UTF-8",
-      "RoxygenNote": "7.3.2",
-      "NeedsCompilation": "no",
-      "Author": "Hadley Wickham [aut, cre], Posit Software, PBC [cph, fnd], Maximilian Girlich [ctb]",
-      "Maintainer": "Hadley Wickham <hadley@posit.co>",
-      "Repository": "RSPM"
-    },
     "isoband": {
       "Package": "isoband",
       "Version": "0.2.7",
@@ -2526,38 +2368,29 @@
       "Maintainer": "R Core Team <R-core@R-project.org>",
       "Repository": "CRAN"
     },
-    "openssl": {
-      "Package": "openssl",
-      "Version": "2.3.3",
+    "ontologyIndex": {
+      "Package": "ontologyIndex",
+      "Version": "2.12",
       "Source": "Repository",
       "Type": "Package",
-      "Title": "Toolkit for Encryption, Signatures and Certificates Based on OpenSSL",
-      "Authors@R": "c(person(\"Jeroen\", \"Ooms\", role = c(\"aut\", \"cre\"), email = \"jeroenooms@gmail.com\", comment = c(ORCID = \"0000-0002-4035-0289\")), person(\"Oliver\", \"Keyes\", role = \"ctb\"))",
-      "Description": "Bindings to OpenSSL libssl and libcrypto, plus custom SSH key parsers. Supports RSA, DSA and EC curves P-256, P-384, P-521, and curve25519. Cryptographic signatures can either be created and verified manually or via x509 certificates.  AES can be used in cbc, ctr or gcm mode for symmetric encryption; RSA for asymmetric (public key) encryption or EC for Diffie Hellman. High-level envelope functions  combine RSA and AES for encrypting arbitrary sized data. Other utilities include key generators, hash functions (md5, sha1, sha256, etc), base64 encoder, a secure random number generator, and 'bignum' math methods for manually performing crypto  calculations on large multibyte integers.",
-      "License": "MIT + file LICENSE",
-      "URL": "https://jeroen.r-universe.dev/openssl",
-      "BugReports": "https://github.com/jeroen/openssl/issues",
-      "SystemRequirements": "OpenSSL >= 1.0.2",
-      "VignetteBuilder": "knitr",
-      "Imports": [
-        "askpass"
+      "Title": "Reading Ontologies into R",
+      "Encoding": "UTF-8",
+      "Date": "2024-02-20",
+      "Author": "Daniel Greene <dg333@cam.ac.uk>",
+      "Maintainer": "Daniel Greene <dg333@cam.ac.uk>",
+      "Description": "Functions for reading ontologies into R as lists and manipulating sets of ontological terms - 'ontologyX: A suite of R packages for working with ontological data', Greene et al 2017 <doi:10.1093/bioinformatics/btw763>.",
+      "License": "GPL (>= 2)",
+      "Depends": [
+        "R (>= 3.5.0)"
       ],
       "Suggests": [
-        "curl",
-        "testthat (>= 2.1.0)",
-        "digest",
         "knitr",
-        "rmarkdown",
-        "jsonlite",
-        "jose",
-        "sodium"
+        "rmarkdown"
       ],
-      "RoxygenNote": "7.3.2",
-      "Encoding": "UTF-8",
-      "NeedsCompilation": "yes",
-      "Author": "Jeroen Ooms [aut, cre] (ORCID: <https://orcid.org/0000-0002-4035-0289>), Oliver Keyes [ctb]",
-      "Maintainer": "Jeroen Ooms <jeroenooms@gmail.com>",
-      "Repository": "CRAN"
+      "VignetteBuilder": "knitr",
+      "RoxygenNote": "7.3.1",
+      "NeedsCompilation": "no",
+      "Repository": "RSPM"
     },
     "optparse": {
       "Package": "optparse",
@@ -3106,50 +2939,6 @@
       "Maintainer": "Yihui Xie <xie@yihui.name>",
       "Repository": "CRAN"
     },
-    "rols": {
-      "Package": "rols",
-      "Version": "3.0.0",
-      "Source": "Bioconductor",
-      "Type": "Package",
-      "Title": "An R interface to the Ontology Lookup Service",
-      "Authors@R": "c(person(given = \"Laurent\", family = \"Gatto\", email = \"laurent.gatto@uclouvain.be\", comment = c(ORCID = \"0000-0002-1520-2268\"), role = c(\"aut\",\"cre\")), person(given = \"Tiage\", family = \"Chedraoui Silva\", role = \"ctb\"), person(given = \"Andrew\",family = \"Clugston\", role = \"ctb\"))",
-      "Description": "The rols package is an interface to the Ontology Lookup Service (OLS) to access and query hundred of ontolgies directly from R.",
-      "Depends": [
-        "methods"
-      ],
-      "Imports": [
-        "httr2",
-        "jsonlite",
-        "utils",
-        "Biobase",
-        "BiocGenerics (>= 0.23.1)"
-      ],
-      "Suggests": [
-        "GO.db",
-        "knitr (>= 1.1.0)",
-        "BiocStyle (>= 2.5.19)",
-        "testthat",
-        "lubridate",
-        "DT",
-        "rmarkdown"
-      ],
-      "biocViews": "ImmunoOncology, Software, Annotation, MassSpectrometry, GO",
-      "VignetteBuilder": "knitr",
-      "License": "GPL-2",
-      "Encoding": "UTF-8",
-      "URL": "http://lgatto.github.io/rols/",
-      "BugReports": "https://github.com/lgatto/rols/issues",
-      "Collate": "AllClasses.R AllGenerics.R utils.R Ontologies.R Terms.R cvparam.R OlsSearch.R Properties.R zzz.R",
-      "RoxygenNote": "7.3.1",
-      "git_url": "https://git.bioconductor.org/packages/rols",
-      "git_branch": "RELEASE_3_19",
-      "git_last_commit": "a4f4505",
-      "git_last_commit_date": "2024-04-30",
-      "Repository": "Bioconductor 3.19",
-      "NeedsCompilation": "no",
-      "Author": "Laurent Gatto [aut, cre] (<https://orcid.org/0000-0002-1520-2268>), Tiage Chedraoui Silva [ctb], Andrew Clugston [ctb]",
-      "Maintainer": "Laurent Gatto <laurent.gatto@uclouvain.be>"
-    },
     "rprojroot": {
       "Package": "rprojroot",
       "Version": "2.1.0",
@@ -3358,30 +3147,6 @@
       "Author": "Hadley Wickham [aut, cre, cph], Posit Software, PBC [cph, fnd]",
       "Maintainer": "Hadley Wickham <hadley@posit.co>",
       "Repository": "RSPM"
-    },
-    "sys": {
-      "Package": "sys",
-      "Version": "3.4.3",
-      "Source": "Repository",
-      "Type": "Package",
-      "Title": "Powerful and Reliable Tools for Running System Commands in R",
-      "Authors@R": "c(person(\"Jeroen\", \"Ooms\", role = c(\"aut\", \"cre\"),  email = \"jeroenooms@gmail.com\", comment = c(ORCID = \"0000-0002-4035-0289\")), person(\"Gábor\", \"Csárdi\", , \"csardi.gabor@gmail.com\", role = \"ctb\"))",
-      "Description": "Drop-in replacements for the base system2() function with fine control and consistent behavior across platforms. Supports clean interruption, timeout,  background tasks, and streaming STDIN / STDOUT / STDERR over binary or text  connections. Arguments on Windows automatically get encoded and quoted to work  on different locales.",
-      "License": "MIT + file LICENSE",
-      "URL": "https://jeroen.r-universe.dev/sys",
-      "BugReports": "https://github.com/jeroen/sys/issues",
-      "Encoding": "UTF-8",
-      "RoxygenNote": "7.1.1",
-      "Suggests": [
-        "unix (>= 1.4)",
-        "spelling",
-        "testthat"
-      ],
-      "Language": "en-US",
-      "NeedsCompilation": "yes",
-      "Author": "Jeroen Ooms [aut, cre] (<https://orcid.org/0000-0002-4035-0289>), Gábor Csárdi [ctb]",
-      "Maintainer": "Jeroen Ooms <jeroenooms@gmail.com>",
-      "Repository": "https://packagemanager.posit.co/cran/latest"
     },
     "tibble": {
       "Package": "tibble",
