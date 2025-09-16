@@ -23,13 +23,15 @@ suppressPackageStartupMessages({
   # load required packages
   library(ggplot2)
   library(patchwork)
-  library(data.table)
 })
 
 # Set default ggplot theme
 theme_set(
   theme_classic()
 )
+
+# Use DuckDB for dplyr functions
+suppressMessages(duckplyr::methods_overwrite())
 ```
 
 
@@ -69,10 +71,10 @@ glue::glue("
 
 ```{r, warning=FALSE}
 # get consensus results 
-consensus_results_files <- list.files(results_dir, pattern = "_processed_consensus-cell-types\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE) 
+consensus_results_files <- list.files(results_dir, pattern = "_consensus-cell-types\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE) 
 
 # get gene expression files 
-gene_exp_files <- list.files(results_dir, pattern = "_processed_marker-gene-expression\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+gene_exp_files <- list.files(results_dir, pattern = "_marker-gene-expression\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
 
 # check that consensus results exist
 stopifnot(
@@ -92,31 +94,28 @@ validation_groups_file <- file.path(module_base, "references", "consensus-valida
 
 
 ```{r, message=FALSE, warning=FALSE}
-# read in consensus and gene expression results 
-# use vroom and data.table to try and be more memory-efficient
-consensus_dt <- consensus_results_files |> 
-  purrr::map(fread) |> 
-  data.table::rbindlist(fill = TRUE, use.names = TRUE) 
-
-gene_exp_dt <- gene_exp_files |> 
-  purrr::map(fread) |> 
-  data.table::rbindlist(fill = TRUE, use.names = TRUE)
-
 # read in validation markers as data.tables
-markers_dt <- fread(validation_markers_file)
+markers_df <- duckplyr::read_csv_duckdb(validation_markers_file) |> 
+  duckplyr::as_duckdb_tibble()
 
-validation_groups_dt <- fread(validation_groups_file) |> 
+validation_groups_df <- duckplyr::read_csv_duckdb(validation_groups_file) |> 
   # rename final assigned group to avoid conflicts when merging in marker gene expression 
   # we want to separate the marker gene group from the actual cell type annotation
-  dplyr::select(consensus_annotation, broad_celltype_group = validation_group_annotation)
+  dplyr::select(consensus_annotation, broad_celltype_group = validation_group_annotation) |> 
+  duckplyr::as_duckdb_tibble()
+
+# read in files directly to duckdb tables
+  # specify all varchar for consensus to avoid parsing error
+consensus_df <- duckplyr::read_csv_duckdb(consensus_results_files, options = list(sep = "\t", union_by_name = TRUE)) 
+
+gene_exp_df <- duckplyr::read_csv_duckdb(gene_exp_files, options = list(sep = "\t", union_by_name = TRUE))
 ```
 
 
 ```{r, results='asis'}
 # check for if the project is a cell line project or not 
-# explicitly skip project 24 since the current processed data doesn't have the updated combination of PDX and cell line
-is_cell_line <- all(consensus_dt$sample_type == "cell line") | params$project_id == "SCPCP000024"
-
+is_cell_line <- params$project_id %in% c("SCPCP000020", "SCPCP000024")
+              
 if(is_cell_line){
   glue::glue("
     <div class=\"alert alert-info\">
@@ -134,19 +133,16 @@ if(is_cell_line){
 # combine into one data frame that has all marker genes
 # one row for each cell/marker gene combination (total rows= total cells x total marker genes)
 # includes original consensus annotation, braod cell type group, marker gene id, logcounts, validation group annotation, information regarding expression of marker gene in CellMarker tissues 
-consensus_dt <- consensus_dt |> 
+consensus_df <- consensus_df |> 
   # add in broad cell type group which is used for plotting
   # groups similar cell types together 
-  dplyr::left_join(validation_groups_dt, by = "consensus_annotation") |> 
-  dplyr::left_join(gene_exp_dt, by = c("barcodes", "library_id")) |> 
+  dplyr::left_join(validation_groups_df, by = "consensus_annotation") |> 
+  dplyr::left_join(gene_exp_df, by = c("barcodes", "library_id")) |>
   # add marker gene information (associated validation group annotation, gene observed count, percent tissues)
   # account for the same gene being present in multiple cell types 
-  dplyr::left_join(markers_dt, by = "ensembl_gene_id", relationship = "many-to-many") |> 
+  # we only want genes that are in both and throw out extra consensus genes 
+  dplyr::left_join(markers_df, by = "ensembl_gene_id", relationship = "many-to-many") |> 
   dplyr::mutate(detected = logcounts > 0)
-
-
-# remove the extra data table 
-rm(gene_exp_dt)
 ```
 
 ## Plot setup
@@ -154,7 +150,7 @@ rm(gene_exp_dt)
 ```{r, eval=!is_cell_line}
 # prep for plots 
 # get total number of cells per final annotation group 
-total_cells_df <- consensus_dt |> 
+total_cells_df <- consensus_df |> 
   dplyr::select(library_id, barcodes, broad_celltype_group) |> 
   dplyr::distinct() |> 
   dplyr::count(broad_celltype_group, name = "total_cells") 
@@ -167,17 +163,17 @@ total_cells_df <- consensus_dt |>
 # then get the mean gene expression and total percentage of cells that express each marker gene across all cells in that group
 # do this for every possible marker gene/ validation group assignment 
 # second we calculate the mean expression and mean percentage of all marker genes in a given validation group (this value is used only in the second section of the report)
-group_stats_df <- consensus_dt |> 
+group_stats_df <- consensus_df |> 
   # for each assigned cell type/marker gene combo get total detected and mean expression
   # group by both broad group and validation group to account for genes that are expressed in more than one cell type
-  dplyr::group_by(broad_celltype_group, ensembl_gene_id, validation_group_annotation) |>
   dplyr::summarize(
+    .by = c("broad_celltype_group", "ensembl_gene_id", "validation_group_annotation"),
     detected_count = sum(detected),
     mean_exp = mean(logcounts)
   ) |> 
   # add in validation group for marker genes
   # this includes all possible marker genes and all possible validation group assignments 
-  dplyr::left_join(markers_dt, by = c("ensembl_gene_id", "validation_group_annotation"), relationship = "many-to-many") |>
+  dplyr::left_join(markers_df, by = c("ensembl_gene_id", "validation_group_annotation"), relationship = "many-to-many") |>
   # now get the mean expression/ mean percentage across all marker genes for a given validation group
   # here the broad_celltype_group is the final assigned annotation for that group of cells 
   # the validation_group_annotation refers to the cell type that marker gene is associated with 
@@ -190,18 +186,19 @@ group_stats_df <- consensus_dt |>
   dplyr::left_join(total_cells_df, by = c("broad_celltype_group")) |> 
   # for plotting we're only going to look at any cell types with > 50 cells otherwise these plots can get wild 
   dplyr::filter(total_cells > 50) |> 
-  dplyr::rowwise() |> 
   dplyr::mutate(
-    # get total percent expressed
-    percent_exp = (detected_count/total_cells) * 100,
-    all_markers_percent_exp = (all_markers_detected_count/total_cells) * 100, 
-    # account for NA/unknowns and set axes order
-    broad_celltype_group = tidyr::replace_na(broad_celltype_group, "unknown") |> 
-      factor(levels =  c(unique(markers_dt$validation_group_annotation), "unknown"))
-  ) 
+      # get total percent expressed
+      percent_exp = (detected_count / total_cells) * 100,
+      all_markers_percent_exp = (all_markers_detected_count/total_cells) * 100,
+      # account for NA/unknowns and set axes order
+      broad_celltype_group = tidyr::replace_na(broad_celltype_group, "unknown") |>
+        factor(levels = c(unique(markers_df$validation_group_annotation), "unknown"))
+    ) |> 
+  # remove any marker genes that don't have an assigned validation group
+  tidyr::drop_na()
 
 # no longer need this and it takes up space 
-rm(consensus_dt)
+rm(consensus_df)
 
 # make a data frame that just has the unique genes 
 # unique genes are those that are only observed in one cell type based on observance in Cell Marker 
@@ -219,7 +216,7 @@ celltype_groups <- group_stats_df |>
   as.character()
 
 # assign colors to use in annotation bars 
-celltype_colors <- palette.colors(palette = "alphabet")[1:length(celltype_groups)]
+celltype_colors <-  colorRampPalette(RColorBrewer::brewer.pal(12, "Paired"))(length(celltype_groups))
 names(celltype_colors) <- celltype_groups
 ```
 
@@ -238,7 +235,7 @@ Only genes that have mean expression > 0 and are expressed in at least 5% of cel
 # we will only plot the marker genes for cell types that are part of the assigned broad validation group for this project
 # we don't care about plotting marker genes for cell types that aren't present here 
 # note that we will use this for both the dotplot and the heatmap
-filtered_markers_df <- markers_dt |> 
+filtered_markers_df <- markers_df |> 
   dplyr::filter(validation_group_annotation %in% celltype_groups,
                 gene_symbol %in% group_stats_df$gene_symbol)
 
@@ -255,7 +252,7 @@ marker_gene_order <- unique_markers_df |>
 celltype_order <- unique(unique_markers_df$validation_group_annotation)
 ```
 
-```{r, eval=!is_cell_line, fig.height=10, fig.width=15}
+```{r, eval=!is_cell_line, fig.height=15, fig.width=25}
 # filter out low expressed genes
 dotplot_df <- unique_gene_df |> 
   dplyr::filter(mean_exp > 0, percent_exp > 5) |> 
@@ -275,7 +272,7 @@ dotplot <- ggplot(dotplot_df, aes(y = forcats::fct_rev(y_label), x = gene_symbol
   geom_point() +
   scale_color_viridis_c(option = "magma") +
   theme(
-    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
   ) +
   labs(
     x = "",
@@ -286,15 +283,23 @@ dotplot <- ggplot(dotplot_df, aes(y = forcats::fct_rev(y_label), x = gene_symbol
 
 
 # add annotation bar aligning marker genes with validation group 
-color_bar <- ggplot(dotplot_df, aes(x = gene_symbol, y = 1, fill = validation_group_annotation)) + 
-  geom_tile() + 
+color_bar <- ggplot(dotplot_df, aes(x = gene_symbol, y = 1, fill = validation_group_annotation)) +
+  geom_tile() +
+  facet_grid(cols = vars(validation_group_annotation), scales = "free", space = "free") +
   scale_fill_manual(values = celltype_colors, breaks = levels(dotplot_df$validation_group_annotation)) +
   ggmap::theme_nothing() +
-  theme(legend.position = "bottom") +
+  theme(
+    strip.background = element_rect(fill = "transparent", color = NA),
+    strip.text.x = element_text(angle = 90, hjust = 0, vjust = 0.5, size = 12),
+    strip.placement = "outside",
+    legend.position = "none",
+    panel.spacing = unit(0.5, "lines"),
+    strip.clip = "off"
+  ) +
   labs(fill = "")
 
-dotplot + color_bar +
-  patchwork::plot_layout(ncol = 1, heights = c(4, 0.1)) 
+color_bar / dotplot +
+  patchwork::plot_layout(ncol = 1, heights = c(0.1, 4))
 ```
 
 The heatmap shows the mean expression of each marker gene across all cells assigned to a given cell type group. 
