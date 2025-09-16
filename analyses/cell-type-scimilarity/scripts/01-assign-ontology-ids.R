@@ -51,7 +51,8 @@ missing_df <- readr::read_tsv(opts$missing_ontology_tsv)
 # Prep ontology terms ----------------------------------------------------------
 
 # get ontology terms and ids
-cl_ont <- ontologyIndex::get_ontology("http://purl.obolibrary.org/obo/cl/releases/2024-09-26/cl-basic.obo") 
+# use the release that matches the release we grabbed when previously using rols
+cl_ont <- ontologyIndex::get_ontology("http://purl.obolibrary.org/obo/cl/releases/2025-07-30/cl-basic.obo") 
 
 # data frame of id and human readable value
 ontology_labels_df <- data.frame(
