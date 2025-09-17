@@ -46,6 +46,7 @@ jobs:
           - seurat-conversion
           - infercnv-consensus-cell-type
           - cell-type-neuroblastoma-04
+          - cell-type-scimilarity
     uses: ./.github/workflows/build-push-docker-module.yml
     if: github.repository_owner == 'AlexsLemonade'
     with:
