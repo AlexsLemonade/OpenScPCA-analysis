@@ -7,6 +7,8 @@
 # the path to the annotation/reference_labels.tsv inside the unzipped model directory should be provided with the `--model_annotations_file` argument.
 # default is `models/model_v1.1/annotation/reference_labels.tsv`
 
+# uses the latest release at the time of creating this script for Ontology assignment 2025-07-30
+
 library(optparse)
 project_root <- here::here()
 
