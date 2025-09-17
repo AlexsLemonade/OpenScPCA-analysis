@@ -7,6 +7,8 @@
 # the path to the annotation/reference_labels.tsv inside the unzipped model directory should be provided with the `--model_annotations_file` argument.
 # default is `models/model_v1.1/annotation/reference_labels.tsv`
 
+# uses the latest release at the time of creating this script for Ontology assignment 2025-07-30
+
 library(optparse)
 project_root <- here::here()
 
@@ -50,16 +52,14 @@ missing_df <- readr::read_tsv(opts$missing_ontology_tsv)
 
 # Prep ontology terms ----------------------------------------------------------
 
-# get uberon ontology terms and ids
-ol <- rols::Ontologies()
-cell_ontology <- ol[["cl"]]
-terms <- rols::Terms(cell_ontology)
-labels <- rols::termLabel(terms)
+# get ontology terms and ids
+# use the release that matches the release we grabbed when previously using rols
+cl_ont <- ontologyIndex::get_ontology("http://purl.obolibrary.org/obo/cl/releases/2025-07-30/cl-basic.obo") 
 
 # data frame of id and human readable value
 ontology_labels_df <- data.frame(
-  ontology_id = names(labels),
-  cl_annotation = labels
+  ontology_id = cl_ont$id,
+  cl_annotation = cl_ont$name
 )
 
 # Add ontology IDs to annotation labels ----------------------------------------
