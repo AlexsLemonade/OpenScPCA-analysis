@@ -195,7 +195,7 @@ library_counts_df <- query_reference_df |>
 Using a threshold of needing at least `r params$n_reference_threshold` reference cells, how many libraries could be run through `inferCNV`?
 
 ```{r}
-usable_df <- library_counts_df |>
+usable_counts_df <- library_counts_df |>
   dplyr::group_by(diagnosis_group) |>
   dplyr::summarize(
     n_usable = sum(reference >= params$n_reference_threshold),
@@ -205,14 +205,14 @@ usable_df <- library_counts_df |>
   dplyr::arrange(desc(total_group_libs)) |>
   dplyr::select(diagnosis_group, total_group_libs, n_usable, frac_usable)
 
-usable_df
+usable_counts_df
 ```
 Except for a handful of "other solid tumors," our broad diagnosis groups are well-represented, which is nice to see. 
 
 Which diagnosis groups have _no libraries_ with sufficient reference cells?
 
 ```{r}
-usable_df |>
+usable_counts_df |>
   dplyr::filter(frac_usable == 0)
 ```
 It's not too surprising to see `Mixed phenotype acute leukemia` here since most immune cell types can't be included in the reference, and the other groups comprise very small numbers of libraries.
@@ -227,36 +227,45 @@ sum(library_counts_df$reference >= params$n_reference_threshold) / total_librari
 Of the libraries with sufficient reference cells, do any have _fewer_ query than reference cells?
 
 ```{r}
-library_counts_df |>
-  # consider usable only
-  dplyr::filter(reference >= params$n_reference_threshold) |>
+usable_libraries_df <- library_counts_df |>
+  dplyr::filter(reference >= params$n_reference_threshold) 
+
+fewer_query_df <- usable_libraries_df |>
   dplyr::filter(query < params$n_reference_threshold)
+
+fewer_query_df
 ```
 
-There is one library with about 7x as many reference as query cells; let's look more closely:
+There are five library with an order of magnitude more  7x as many reference as query cells; let's look more closely at the validation groups present to get a sense.
 
 ```{r}
 consensus_df |>
-  dplyr::filter(scpca_library_id == "SCPCL000021") |>
-  dplyr::count(consensus_annotation) |>
-  dplyr::arrange(n)
+  dplyr::filter(scpca_library_id %in% fewer_query_df$scpca_library_id) |>
+  dplyr::left_join(validation_group_df, by = c("consensus_ontology", "consensus_annotation")) |>
+  dplyr::count(scpca_library_id, validation_group_annotation) |>
+  dplyr::arrange(scpca_library_id)
 ```
 
-This library indeed is dominated by immune cell types with very low tumor purity, but it still seems to have enough query cells to not be a problem and should be ok to run.
+These librares are dominated by immune cell types with very few Unknown/tumor cells, but it's still worth running them through `inferCNV` while being aware that we _may_ experience issues with these samples.
 
-## Plots
+We should also check the eligible `SCPCP000009` libraries to see if they are multiplexed:
+
+```{r}
+library_diagnosis_df |>
+  dplyr::filter(scpca_project_id == "SCPCP000009", scpca_library_id %in% usable_libraries_df$scpca_library_id) |>
+  dplyr::count(is_multiplexed)
+```
+
+
+## Plot cell types
 
 In this section, we plot the relative contributions of each cell type group in the libraries we can run. 
 We show the relative proportions of consensus cell type groups in the _reference_, and we show all other query cells grouped together in gray.
 The x-axis is library ids, and the y-axis is the proportion of each cell type group. 
 
 ```{r}
-usable_libraries <- library_counts_df |>
-  dplyr::filter(reference >= params$n_reference_threshold) |>
-  dplyr::pull(scpca_library_id)
-
 plot_df <- query_reference_df |>
-  dplyr::filter(scpca_library_id %in% usable_libraries) |>
+  dplyr::filter(scpca_library_id %in% usable_libraries_df$scpca_library_id) |>
   dplyr::left_join(validation_group_df, by = c("consensus_ontology", "consensus_annotation")) |>
   dplyr::select(
     scpca_project_id, 
@@ -301,11 +310,12 @@ ggplot(plot_df) +
 
 ## Conclusions
 
-Currently, _before_ incorporating `SCimilarity` into our consensus cell types, we are able to run about 44% of libraries through `inferCNV`. 
-Most broad diagnosis groups are represented, except `Mixed phenotype acute leukemia` and a handful of other solid tumors.
-All eligible projects except `SCPCP000011` (Retinoblastoma samples) are represented as well.
+We are able to run about 51% of libraries through `inferCNV`, based on consensus cell types derived from `SingleR`, `CellAssign`, and `SCimilarity` labels.
+Most broad diagnosis groups are represented, except `Mixed phenotype acute leukemia` (n=18) and a handful of other solid tumors (n=3 among Gastrointestinal stromal tumor and Hepatoblastoma).
+All eligible projects are represented as well.
 
-Note that we are including multiplexed libraries from project `SCPCP000009` here as well; 11 libraries from that project from are eligible, most of which are multiplexed.
+
+Note that we are including multiplexed libraries from project `SCPCP000009` here as well; 12 libraries from that project from are eligible, and all but of of those are multiplexed.
 These libraries would effectively be using pooled references in `inferCNV`, since we did not demultiplex libraries.
 
 ## Session Info
