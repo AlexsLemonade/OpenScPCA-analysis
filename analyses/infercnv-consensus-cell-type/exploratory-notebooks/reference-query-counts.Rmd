@@ -315,7 +315,7 @@ Most broad diagnosis groups are represented, except `Mixed phenotype acute leuke
 All eligible projects are represented as well.
 
 
-Note that we are including multiplexed libraries from project `SCPCP000009` here as well; 12 libraries from that project from are eligible, and all but of of those are multiplexed.
+Note that we are including multiplexed libraries from project `SCPCP000009` here as well; 12 libraries from that project from are eligible, and all but one of those are multiplexed.
 These libraries would effectively be using pooled references in `inferCNV`, since we did not demultiplex libraries.
 
 ## Session Info
