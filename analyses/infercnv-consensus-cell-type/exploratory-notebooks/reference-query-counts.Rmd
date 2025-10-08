@@ -109,10 +109,11 @@ celltype_pal["query"] <- celltype_pal["unknown"]
 total_libraries <- nrow(all_library_diagnosis_df) # needed for later math
 
 library_diagnosis_df <- all_library_diagnosis_df |>
-  # don't consider cell line (or multiplexed?)
-  # for now at least, we are retaining multiplexed
-  dplyr::filter(!is_cell_line)
+  # don't consider cell line or multiplexed in this notebook
+  # the multiplexed samples were not processed with SCimilarity in OpenScPCA-nf
+  dplyr::filter(!is_cell_line, !is_multiplexed)
 ```
+
 
 ```{r}
 consensus_df <- consensus_files |>
@@ -122,8 +123,13 @@ consensus_df <- consensus_files |>
     \(file, id) {
     
       # bump guess_max to kill problems() warnings
-      readr::read_tsv(file, guess_max = 15000) |>
-       dplyr::select(
+      consensus_df <- readr::read_tsv(file, guess_max = 15000)
+      
+      # ensure we have the most up-to-date files - aka, with SCimilarity
+      stopifnot("Missing SCimilarity in the consensus files" = "scimilarity_celltype_annotation" %in% colnames(consensus_df))
+      
+      consensus_df |>
+        dplyr::select(
          scpca_project_id = project_id,
          scpca_library_id = library_id,
          barcodes,
@@ -248,14 +254,6 @@ consensus_df |>
 
 These librares are dominated by immune cell types with very few Unknown/tumor cells, but it's still worth running them through `inferCNV` while being aware that we _may_ experience issues with these samples.
 
-We should also check the eligible `SCPCP000009` libraries to see if they are multiplexed:
-
-```{r}
-library_diagnosis_df |>
-  dplyr::filter(scpca_project_id == "SCPCP000009", scpca_library_id %in% usable_libraries_df$scpca_library_id) |>
-  dplyr::count(is_multiplexed)
-```
-
 
 ## Plot cell types
 
@@ -310,13 +308,12 @@ ggplot(plot_df) +
 
 ## Conclusions
 
-We are able to run about 51% of libraries through `inferCNV`, based on consensus cell types derived from `SingleR`, `CellAssign`, and `SCimilarity` labels.
+We are able to run about 50\% of libraries through `inferCNV`, based on consensus cell types derived from `SingleR`, `CellAssign`, and `SCimilarity` labels.
 Most broad diagnosis groups are represented, except `Mixed phenotype acute leukemia` (n=18) and a handful of other solid tumors (n=3 among Gastrointestinal stromal tumor and Hepatoblastoma).
 All eligible projects are represented as well.
 
-
-Note that we are including multiplexed libraries from project `SCPCP000009` here as well; 12 libraries from that project from are eligible, and all but one of those are multiplexed.
-These libraries would effectively be using pooled references in `inferCNV`, since we did not demultiplex libraries.
+Note that it was not possible to fully assess multiplexed libraries here since they did not undergo `SCimilarity` (and hence their consensus cell types are not updated) inference in `OpenScPCA-nf`. 
+They will be included when running through `scpca-nf`, however, assuming they have sufficient reference cells; it is important to bear in mind that these libraries would effectively be using pooled references in `inferCNV`, since we did not demultiplex libraries.
 
 ## Session Info
 
