@@ -242,7 +242,7 @@ fewer_query_df <- usable_libraries_df |>
 fewer_query_df
 ```
 
-There are five library with an order of magnitude more reference than query cells; let's look more closely at the validation groups present to get a sense.
+There are five libraries with an order of magnitude more reference than query cells; let's look more closely at the validation groups present to get a sense.
 
 ```{r}
 consensus_df |>
