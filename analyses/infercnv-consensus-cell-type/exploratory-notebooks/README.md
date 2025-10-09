@@ -3,7 +3,6 @@ Exploratory notebooks for pooled normal reference analyses are organized in dire
 
 
 * `reference-query-counts.Rmd`: This sample looks at the distribution of reference-intended cells to determine how many samples could be run through `inferCNV`
-TODO: This notebook will need to be updated once `SCimilarity` annotations are incorporated into consensus cell types.
 
 ## `SCPCP000004`
 
