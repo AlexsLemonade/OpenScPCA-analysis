@@ -252,7 +252,7 @@ consensus_df |>
   dplyr::arrange(scpca_library_id)
 ```
 
-These librares are dominated by immune cell types with very few Unknown/tumor cells, but it's still worth running them through `inferCNV` while being aware that we _may_ experience issues with these samples.
+These libraries are dominated by immune cell types with very few Unknown/tumor cells, but it's still worth running them through `inferCNV` while being aware that we _may_ experience issues with these samples.
 
 
 ## Plot cell types
