@@ -45,7 +45,7 @@ jobs:
           df -h
           # Software to remove
           # see https://mathio28.medium.com/squeezing-disk-space-from-github-actions-runners-an-engineers-guide-d5fbe4443692
-          sudo rm -rf \
+          rm -rf \
             /usr/lib/jvm \
             /usr/share/dotnet \
             /usr/share/swift \
