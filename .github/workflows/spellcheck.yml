@@ -10,8 +10,8 @@ on:
       - "*.md"
       - .github/components/dictionary.txt
   workflow_dispatch:
-  schedule:
-    - cron: "0 0 15 * *" # 15th of every month at midnight
+  schedule: # run quarterly (Dec/Mar/Jun/Sep), the month before the periodic release issue is filed, on the 15th
+    - cron: 0 0 15 3,6,9,12 *
 
 concurrency:
   # only one run per branch at a time
