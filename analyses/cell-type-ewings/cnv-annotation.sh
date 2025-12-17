@@ -19,9 +19,9 @@ Do this for any samples you would like to run through this workflow.
 
 The following arguments are optional and can be used to run this workflow on additional samples (Default sample is "SCPCS000490"):
 
-sample_id: Unique sample ID (name of folder containing libray data)
+sample_id: Unique sample ID (name of folder containing library data)
 normal_celltypes: Comma separated list of cell types annotated with either `SingleR` or `CellAssign` to use as a reference list of normal cells.
-tumor_celltypes: Comma separated list of cell typs annotated with either `SingleR` or `CellAssign` that are expected to align with tumor cells.
+tumor_celltypes: Comma separated list of cell types annotated with either `SingleR` or `CellAssign` that are expected to align with tumor cells.
 Any cell types used here will be used for comparing to tumor cells annotated in this workflow.
 data_dir: Directory containing SCE and AnnData objects to use for a given project.
 This is the full path to the project folder.
@@ -70,7 +70,7 @@ mkdir -p $cellassign_results_dir
 annotation_dir="$sample_results_dir/annotations"
 mkdir -p $annotation_dir
 
-# define output directory for refrence matrix files
+# define output directory for reference matrix files
 ref_dir="${module_directory}/references"
 
 # cellassign refs
