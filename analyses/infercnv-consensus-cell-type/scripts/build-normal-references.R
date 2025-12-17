@@ -40,7 +40,7 @@ option_list <- list(
     type = "character",
     default = "",
     help = "Comma-separated list of reference group names to build references for.
-      Use the string 'normal' to include a combined set of normal cell types, which can be further specifed with the `normal_reference_groups` argument."
+      Use the string 'normal' to include a combined set of normal cell types, which can be further specified with the `normal_reference_groups` argument."
   ),
   make_option(
     opt_str = "--normal_reference_groups",

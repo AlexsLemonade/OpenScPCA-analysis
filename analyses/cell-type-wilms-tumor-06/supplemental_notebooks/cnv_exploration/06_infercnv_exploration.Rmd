@@ -117,12 +117,12 @@ The function `Do_CNV_score` returns the `Seurat` object with an additional metad
 
 
 ```{r}
-Do_CNV_score <- function(seurat_oject, infercnv_obj, reference_value) {
+Do_CNV_score <- function(seurat_object, infercnv_obj, reference_value) {
   score <- apply(infercnv_obj@expr.data, 2, function(x) {
     sum(x < 0.95 | x > 1.05) / length(x)
   })
 
-  seurat_obj <- AddMetaData(seurat_oject, score, col.name = glue::glue("CNV-score_", reference_value))
+  seurat_obj <- AddMetaData(seurat_object, score, col.name = glue::glue("CNV-score_", reference_value))
   return(seurat_obj)
 }
 ```

@@ -48,7 +48,7 @@ for (sample_id in sample_upfront_resection) {
 # merge all normal cells in one `Seurat` object
 srat_normal <- base::merge(s[[1]], y = s[2:length(s)])
 
-# we only keep as nornal cells immune and endothelial cells with a high mapping score
+# we only keep as normal cells immune and endothelial cells with a high mapping score
 srat_normal <- subset(srat_normal, subset = fetal_kidney_predicted.compartment.score > score_threshold)
 
 # save the `Seurat` object

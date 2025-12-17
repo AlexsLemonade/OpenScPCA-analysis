@@ -313,10 +313,10 @@ We expect that good marker genes will be expressed in tumor cells but not normal
 
 ```{r, fig.height=10, fig.width=10, eval=has_marker_gene_exp}
 marker_plot_df <- celltype_df |>
-  dplyr::mutate(gene_expresed = dplyr::if_else(transformed_gene_expression > 0, TRUE, FALSE)) |>
-  dplyr::select(gene_symbol, gene_expresed, sum_classification)
+  dplyr::mutate(gene_expressed = dplyr::if_else(transformed_gene_expression > 0, TRUE, FALSE)) |>
+  dplyr::select(gene_symbol, gene_expressed, sum_classification)
 
-ggplot(marker_plot_df, aes(x = sum_classification, fill = gene_expresed)) +
+ggplot(marker_plot_df, aes(x = sum_classification, fill = gene_expressed)) +
   geom_bar(stat = "count") +
   facet_grid(rows = vars(gene_symbol)) +
   scale_fill_manual(values = c("grey", "blue")) +

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script first identfies tumor cells using AUCell for all samples in SCPCP000015
+# This script first identifies tumor cells using AUCell for all samples in SCPCP000015
 # Cells that are identified as tumor cells using AUCell are used to create a
 # combined tumor cell reference to use with SingleR
 # SingleR is then run on all samples using the combined tumor cell reference and

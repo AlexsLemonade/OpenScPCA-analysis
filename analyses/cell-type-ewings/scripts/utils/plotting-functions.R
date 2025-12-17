@@ -45,7 +45,7 @@ expression_umap <- function(
 
 #' Density plot showing expression across clusters
 #'
-#' @param df Data frame with clusters for each cell and expresion values to be plotted 
+#' @param df Data frame with clusters for each cell and expression values to be plotted 
 #'   Must contain the `cluster` column 
 #' @param expression_columns Vector of columns present in the data frame that contain some
 #'   expression value to show on the x-axis of the density plot, such as AUC values or mean expression

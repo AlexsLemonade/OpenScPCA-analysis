@@ -66,7 +66,7 @@ def run_seacells(
         An AnnData object containing the data to run the SEACells algorithm on.
     cell_ratio : float
         The ratio of cells to metacells to use; i.e. number of cells per metacell
-        Default is 75, based on recommentations in https://github.com/dpeerlab/SEACells/blob/3462c624ffae0df6d3930490f345f00196c3503e/notebooks/SEACell_computation.ipynb
+        Default is 75, based on recommendations in https://github.com/dpeerlab/SEACells/blob/3462c624ffae0df6d3930490f345f00196c3503e/notebooks/SEACell_computation.ipynb
     min_cells : int
         The minimum number of cells for the SEACells algorithm to run,
         and the minimum number of metacells to create

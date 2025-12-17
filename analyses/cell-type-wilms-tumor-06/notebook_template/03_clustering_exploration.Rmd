@@ -6,7 +6,7 @@ params:
   scpca_project_id: "SCPCP000006"
   sample_id: "SCPCS000176"
   seed: 12345
-  padj_thershold: 0.05  # Threshold for adjusted p-value
+  padj_threshold: 0.05  # Threshold for adjusted p-value
   lfc_threshold: 1      # Threshold for log fold change
   rate1_threshold: 0.5  # Threshold for rate (percentage) of cells expressing the marker genes in group1
   testing: 0            # When testing, certain parameter values have to be changed, and certain chunks are skipped
@@ -443,7 +443,7 @@ Of note, we won't use it for annotation, this is just here to get an idea!
 feature_conversion <- srat@assays$RNA@meta.data
 de_results <- DElegate::FindAllMarkers2(srat, group_column = "seurat_clusters")
 # filter the most relevant markers
-s.markers <- de_results[de_results$padj < params$padj_thershold & de_results$log_fc > params$lfc_threshold & de_results$rate1 > params$rate1_threshold, ]
+s.markers <- de_results[de_results$padj < params$padj_threshold & de_results$log_fc > params$lfc_threshold & de_results$rate1 > params$rate1_threshold, ]
 # add gene symbol for easiest interpretation of the result
 s.markers$gene_ids <- s.markers$feature
 s.markers <- left_join(s.markers, feature_conversion, by = c("gene_ids"))

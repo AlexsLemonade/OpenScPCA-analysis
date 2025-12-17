@@ -59,7 +59,7 @@ sce <- readr::read_rds(opt$sce_file)
 # get library id to use as prefix for all output file names
 library_id <- metadata(sce)$library_id
 
-# contstruct and create output folder if not already present
+# construct and create output folder if not already present
 fs::dir_create(opt$results_dir)
 
 # define scratch directory
