@@ -315,7 +315,6 @@ TBD
 Tirode
 trainings
 transcriptional
-transferrable
 transphobic
 Treg
 triaged
