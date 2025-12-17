@@ -4,13 +4,24 @@ extend-exclude = [
    "**/*.tsv",
 ]
 
+
 [default.extend-words]
-enure="enure" # legal terms
-CNA="CNA"
-thr="thr"
-Thr="Thr"
+enure="enure" # legal
+CNA="CNA" # actually copy-number alteration
+
 
 [default.extend-identifiers]
-abd58442="abd58442" # this is a Jupyter notebook id that appears in the template Jupyter notebook, so it appears across the repo
 glmGamPoi="glmGamPoi"
 NBAltas="NBAltas"
+abd58442="abd58442" # A Jupyter notebook id that appears in the template Jupyter notebook, so it appears across the repo
+24dbe4e6="24dbe4e6" # Another Jupyter notebook id that it wants to correct
+
+[default]
+extend-ignore-re = [
+  # various variables in cell-type-wilms-tumor-06, and we don't want to ignore "thr"
+  '\baucThr\b',
+  '\bpred\.thr\b',
+  '\bcnv\.thr\.lower\b',
+  '\bcnv\.thr\.upper\b',
+  '\bpredicted\.score_thr\b'
+]
