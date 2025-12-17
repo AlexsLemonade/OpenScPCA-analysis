@@ -1,0 +1,16 @@
+[files]
+extend-exclude = [
+  "**/*.html",
+   "**/*.tsv",
+]
+
+[default.extend-words]
+enure="enure" # legal terms
+CNA="CNA"
+thr="thr"
+Thr="Thr"
+
+[default.extend-identifiers]
+abd58442="abd58442" # this is a Jupyter notebook id that appears in the template Jupyter notebook, so it appears across the repo
+glmGamPoi="glmGamPoi"
+NBAltas="NBAltas"
