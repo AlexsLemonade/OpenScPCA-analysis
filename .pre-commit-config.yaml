@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - name: General file size limit
         id: check-added-large-files
@@ -23,7 +23,7 @@ repos:
       - id: check-case-conflict
       - id: check-merge-conflict
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.20.1
+    rev: v8.30.0
     hooks:
       - id: gitleaks
   - repo: local
@@ -33,6 +33,10 @@ repos:
         entry: Environment directories for conda, virtualenv, or renv should not be included in commits
         language: fail
         files: "(conda-meta|pyvenv.cfg|renv/library)"
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.40.0
+    hooks:
+      - id: typos
 ci:
   autofix_prs: false
   autoupdate_schedule: quarterly
