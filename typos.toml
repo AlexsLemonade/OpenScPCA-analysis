@@ -1,8 +1,10 @@
 [files]
 extend-exclude = [
-  "**/*.html",
-   "**/*.tsv",
+  "**.html",
+  "**.tsv",
+  "docs/policies/*md", # ignore legal
 ]
+
 
 
 [default.extend-words]
