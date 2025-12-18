@@ -19,6 +19,9 @@ jobs:
   hello-python:
     uses: ./.github/workflows/run_hello-python.yml
 
+  hello-clusters:
+    uses: ./.github/workflows/run_hello-clusters.yml
+
   doublet-detection:
     uses: ./.github/workflows/run_doublet-detection.yml
 
