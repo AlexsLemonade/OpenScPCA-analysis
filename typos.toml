@@ -12,9 +12,6 @@ CNA="CNA" # actually copy-number alteration
 
 [default.extend-identifiers]
 glmGamPoi="glmGamPoi"
-abd58442="abd58442" # A Jupyter notebook id that appears in the template Jupyter notebook, so it appears across the repo
-24dbe4e6="24dbe4e6" # Another Jupyter notebook id that it wants to correct
-
 
 [default]
 extend-ignore-re = [
@@ -24,4 +21,10 @@ extend-ignore-re = [
   '\bcnv\.thr\.lower\b',
   '\bcnv\.thr\.upper\b',
   '\bpredicted\.score_thr\b'
+]
+
+[type.ipynb]
+extend-glob = ["**.ipynb"]
+extend-ignore-re = [
+  '"id": "\w{8}"'  # ignore Jupyter notebook ids
 ]
