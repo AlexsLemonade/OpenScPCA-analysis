@@ -12,9 +12,9 @@ CNA="CNA" # actually copy-number alteration
 
 [default.extend-identifiers]
 glmGamPoi="glmGamPoi"
-aucThr="aucThr" # ewings module
-pred_thr="pred_thr" # cell-type-wilms-06 module
-
+aucThr="aucThr" # cell-type-ewings module
+pred_thr="pred_thr"  # cell-type-wilms-06 module
+score_thr="score_thr" # cell-type-wilms-06 module
 
 [type.ipynb]
 extend-glob = ["**.ipynb"]
