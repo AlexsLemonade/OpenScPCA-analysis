@@ -245,7 +245,7 @@ label_map_df |>
   dplyr::arrange(label_recoded) |>
   dplyr::rename(
     "Label shown in figures" = label_recoded,
-    "Underlying NBAltas label(s)" = all_labels
+    "Underlying NBAtlas label(s)" = all_labels
   )
 ```
 
