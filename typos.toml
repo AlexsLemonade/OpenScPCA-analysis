@@ -6,17 +6,15 @@ extend-exclude = [
 ]
 
 
-
 [default.extend-words]
-enure="enure" # legal
 CNA="CNA" # actually copy-number alteration
 
 
 [default.extend-identifiers]
 glmGamPoi="glmGamPoi"
-NBAltas="NBAltas"
 abd58442="abd58442" # A Jupyter notebook id that appears in the template Jupyter notebook, so it appears across the repo
 24dbe4e6="24dbe4e6" # Another Jupyter notebook id that it wants to correct
+
 
 [default]
 extend-ignore-re = [
