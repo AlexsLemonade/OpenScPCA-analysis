@@ -12,16 +12,9 @@ CNA="CNA" # actually copy-number alteration
 
 [default.extend-identifiers]
 glmGamPoi="glmGamPoi"
+aucThr="aucThr" # ewings module
+pred_thr="pred_thr" # cell-type-wilms-06 module
 
-[default]
-extend-ignore-re = [
-  # various variables in cell-type-wilms-tumor-06, and we don't want to ignore "thr"
-  '\baucThr\b',
-  '\bpred\.thr\b',
-  '\bcnv\.thr\.lower\b',
-  '\bcnv\.thr\.upper\b',
-  '\bpredicted\.score_thr\b'
-]
 
 [type.ipynb]
 extend-glob = ["**.ipynb"]
