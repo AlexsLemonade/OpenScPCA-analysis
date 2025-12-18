@@ -3,12 +3,12 @@ extend-exclude = [
   "**.html",
   "**.tsv",
   "docs/policies/*md", # ignore legal
+  ".github/components/dictionary.txt", # don't check the spellecheck dictionary
 ]
 
 
 [default.extend-words]
 CNA="CNA" # actually copy-number alteration
-
 
 [default.extend-identifiers]
 glmGamPoi="glmGamPoi"
