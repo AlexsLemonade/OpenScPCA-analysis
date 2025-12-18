@@ -1950,7 +1950,7 @@
       "RemoteUsername": "AlexsLemonade",
       "RemoteRepo": "rOpenScPCA",
       "RemoteRef": "main",
-      "RemoteSha": "042410600a0a0ea90f5461091b7a60216a995dab",
+      "RemoteSha": "a24fb759b68816507485d0ff85931296242027b5",
       "RemoteHost": "api.github.com",
       "Requirements": [
         "BiocParallel",
@@ -1963,10 +1963,11 @@
         "methods",
         "pdfCluster",
         "purrr",
+        "scuttle",
         "tibble",
         "tidyr"
       ],
-      "Hash": "349a17666ebbe75d89cfd1c8275d6c91"
+      "Hash": "98941e4ae056ca108ef6a68c24ba5bee"
     },
     "rappdirs": {
       "Package": "rappdirs",
@@ -2161,6 +2162,29 @@
         "rlang"
       ],
       "Hash": "0242402f321be0246fb67cf8c63b3572"
+    },
+    "scuttle": {
+      "Package": "scuttle",
+      "Version": "1.14.0",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.19",
+      "Requirements": [
+        "BiocGenerics",
+        "BiocParallel",
+        "DelayedArray",
+        "DelayedMatrixStats",
+        "GenomicRanges",
+        "Matrix",
+        "Rcpp",
+        "S4Vectors",
+        "SingleCellExperiment",
+        "SummarizedExperiment",
+        "beachmat",
+        "methods",
+        "stats",
+        "utils"
+      ],
+      "Hash": "6d94b72071aefd6e8b041c34ee83ebd0"
     },
     "shiny": {
       "Package": "shiny",
