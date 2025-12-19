@@ -30,6 +30,7 @@ We have set up some pre-commit hooks to manage basic code security and catch oth
 - Large data files that should not be committed to the repository
 - [Merge conflicts](../../contributing-to-analyses/creating-pull-requests/resolve-merge-conflicts.md) that have not yet been resolved
 - Credential files and other sensitive information
+- Check for and correct common typos
 
 
 ## Setting up pre-commit
@@ -98,7 +99,7 @@ You can add these hooks by adding the following code to your `.pre-commit-local.
 ```yaml
   # ruff formatter for Python
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.3
+    rev: v0.14.9
     hooks:
       - id: ruff-format
   # code styling with the {styler} package for R
@@ -118,7 +119,7 @@ If you would like to use a code linter, we recommend using [`ruff`](https://docs
 ```yaml
   # ruff linter for Python
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.3
+    rev: v0.14.9
     hooks:
       - id: ruff
   # code linting with the {lintr} package for R
@@ -126,21 +127,6 @@ If you would like to use a code linter, we recommend using [`ruff`](https://docs
     rev: v0.4.0
     hooks:
       - id: lintr
-```
-
-#### Spell checking
-
-Spell checking is another useful class of tools that can be added as a pre-commit hook.
-Because biological and computational words are often not in default dictionaries, it is most helpful to use a spell checker that looks for common errors rather than one that checks every word against a dictionary.
-
-One such tool is [`typos`](https://github.com/crate-ci/typos), which runs quickly to check both text and code for common mistakes.
-`typos` can be installed as a pre-commit hook with the following code added to the `.pre-commit-local.yaml` file:
-
-```yaml
-  - repo: https://github.com/crate-ci/typos
-    rev: v1.18.2
-    hooks:
-      - id: typos
 ```
 
 #### Other pre-commit hooks

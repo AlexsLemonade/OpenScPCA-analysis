@@ -25,7 +25,7 @@ pre_seuratobj <- function(obj, nfeatures = 500, run_harmony = TRUE, reduction = 
     obj <- harmony::RunHarmony(obj, group.by.vars = "library_id")
   }
   
-  ######## Clustering and dimentional reduction
+  ######## Clustering and dimensional reduction
   obj <- Seurat::FindNeighbors(obj, dims = 1:ndims, reduction = reduction)
   obj <- Seurat::FindClusters(obj, resolution = 0.8, algorithm = 1)
   obj <- Seurat::RunUMAP(obj, dims = 1:ndims, reduction = reduction)

@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-# This script is used to generate a table of reference cells for a given ScPCA libray that are annotated by
+# This script is used to generate a table of reference cells for a given ScPCA library that are annotated by
 # SingleR and/or CellAssign to have a specific label
 # The output is a table that contains columns for barcodes, reference cell class,
 # and then columns for each of the original cell type annotations for that cell

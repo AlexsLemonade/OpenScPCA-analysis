@@ -10,7 +10,7 @@
 #'
 #' @param nbatlas_markers_df Unmanipulated data frame of NBAtlas markers
 #' @param n_genes Number of marker genes to keep per cell type
-#' @param directon Whether up or downregulated genes should be considered; default is "up"
+#' @param direction Whether up or downregulated genes should be considered; default is "up"
 #'
 #' @returns Data frame with columns `marker_gene_label`, `gene_symbol`, and `ensembl_gene_id`
 subset_nbatlas_markers <- function(nbatlas_markers_df, n_genes, direction = c("up", "down")) {

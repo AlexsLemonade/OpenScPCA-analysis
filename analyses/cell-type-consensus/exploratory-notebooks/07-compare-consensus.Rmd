@@ -128,7 +128,7 @@ new_consensus_df <- grouped_df |>
     ) |> 
     dplyr::ungroup()
 
-# combine into a single df and add a column to indiciate old/new 
+# combine into a single df and add a column to indicate old/new 
 df_list <- list(old_consensus_df, new_consensus_df) |> 
   purrr::set_names(c("no_scimilarity", "with_scimilarity"))
 

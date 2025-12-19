@@ -42,20 +42,20 @@ The analysis can be summarized as the following:
 
 | first level annotation | second level annotation | selection of the cells | marker genes for validation | CNV validation |
 |----|----|----|----|----|
-| normal | endothelial | `compartment == "endothelium" & predicted.score > pred.thr` | *VWF* | no CNV |
-| normal | immune | `compartment == "immune" & predicted.score > pred.thr` | *PTPRC*, *CD163*, *CD68* | no CNV |
-| normal | kidney | `compartment == "fetal_nephron" & predicted.score > pred.thr & cnv_score < cnv.thr.lower` | *CDH1*, *PODXL*, *LTL* | no CNV |
-| normal | stroma | `compartment == "stroma" & predicted.score > pred.thr & cnv_score < cnv.thr.upper` | *VIM* | no CNV |
-| cancer | stroma | `compartment == "stroma" & cnv_score > cnv.thr.upper` | *VIM* | `proportion_cnv_chr: 1, 4, 11, 16, 17, 18` |
-| cancer | blastema | `compartment == "fetal_nephron" & cell_type == "mesenchymal cell" & cnv_score > cnv.thr.upper` | *CITED1* | `proportion_cnv_chr: 1, 4, 11, 16, 17, 18` |
-| cancer | epithelial | `compartment == "fetal_nephron" & cell_type != "mesenchymal cell" & cnv_score > cnv.thr.upper` | *CDH1* | `proportion_cnv_chr: 1, 4, 11, 16, 17, 18` |
+| normal | endothelial | `compartment == "endothelium" & predicted.score > pred_thr` | *VWF* | no CNV |
+| normal | immune | `compartment == "immune" & predicted.score > pred_thr` | *PTPRC*, *CD163*, *CD68* | no CNV |
+| normal | kidney | `compartment == "fetal_nephron" & predicted.score > pred_thr & cnv_score < cnv_threshold_low` | *CDH1*, *PODXL*, *LTL* | no CNV |
+| normal | stroma | `compartment == "stroma" & predicted.score > pred_thr & cnv_score < cnv_threshold_upper` | *VIM* | no CNV |
+| cancer | stroma | `compartment == "stroma" & cnv_score > cnv_threshold_upper` | *VIM* | `proportion_cnv_chr: 1, 4, 11, 16, 17, 18` |
+| cancer | blastema | `compartment == "fetal_nephron" & cell_type == "mesenchymal cell" & cnv_score > cnv_threshold_upper` | *CITED1* | `proportion_cnv_chr: 1, 4, 11, 16, 17, 18` |
+| cancer | epithelial | `compartment == "fetal_nephron" & cell_type != "mesenchymal cell" & cnv_score > cnv_threshold_upper` | *CDH1* | `proportion_cnv_chr: 1, 4, 11, 16, 17, 18` |
 | unknown | \- | the rest of the cells | \- | \- |
 
 with the defined parameters:
 
-- `pred.thr` = `r params$predicted.celltype.threshold`
-- `cnv.thr.lower` = `r params$cnv_threshold_low`
-- `cnv.thr.upper` = `r params$cnv_threshold_high`
+- `pred_thr` = `r params$predicted.celltype.threshold`
+- `cnv_threshold_low` = `r params$cnv_threshold_low`
+- `cnv_threshold_upper` = `r params$cnv_threshold_high`
 
 ### Packages
 

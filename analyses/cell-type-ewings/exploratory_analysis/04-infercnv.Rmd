@@ -480,7 +480,7 @@ I think with using the combination of marker gene expression and CNVs, the botto
 
 - If we have a known group of normal cells, `InferCNV` can be helpful in identifying cells that could be tumor cells, e.g., cells that have a high number of CNVs. 
 - Using `InferCNV` without a group of normal cells does not seem feasible for this particular sample since all tumor cells appear to have the same set of CNVs with little variation. 
-- We can define tumor cells by setting a cutoff for the number of CNVs that must be present in a cell, but I'm not sure how transferrable this is to other samples. 
+- We can define tumor cells by setting a cutoff for the number of CNVs that must be present in a cell, but I'm not sure how transferable this is to other samples. 
 - `InferCNV` can be helpful in looking at specific CNVs that are expected in a tumor type, something that is harder to look at in a tool like `CopyKAT`. 
 
 ## Session Info

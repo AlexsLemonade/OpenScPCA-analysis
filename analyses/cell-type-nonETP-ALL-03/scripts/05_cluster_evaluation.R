@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-## Calculates silhouette score and purity for each cluster and evalutes their stability,
+## Calculates silhouette score and purity for each cluster and evaluates their stability,
 ## using the functions available in evaluate-cluster.R (on OpenscPCA portal)
 ## But this script is calling evaluate-cluster.R in the same directory (not sure how to call from OpenscPCA portal)
 

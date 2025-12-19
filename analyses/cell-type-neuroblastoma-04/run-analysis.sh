@@ -26,7 +26,7 @@
 # - `separate_tumor_singler` (Default value: 0)
 #   - Use `separate_tumor_singler=1` to specify that cells in the NBAtlas "tumor zoom" should considered separately from other
 #     Neuroendocrine cells during SingleR annotation.
-#     By defaut, all Neuroendocrine cells are considered together.
+#     By default, all Neuroendocrine cells are considered together.
 #   - Example usage: separate_tumor_singler=1 ./run-analysis.sh
 # - `filter_genes_singler` (Default value: 0)
 #   - Use `filter_genes_singler=1` to specify that mitochondrial and ribosomal genes should be removed from NBAtlas
