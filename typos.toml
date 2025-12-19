@@ -2,8 +2,8 @@
 extend-exclude = [
   "**.html",
   "**.tsv",
-  "docs/policies/*md", # ignore legal
-  ".github/components/dictionary.txt", # don't check the spellecheck dictionary
+  "docs/policies/*.md", # ignore legal
+  ".github/components/dictionary.txt", # don't check the spellcheck dictionary
 ]
 
 
