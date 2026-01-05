@@ -2,11 +2,11 @@
 
 This analysis module will -
 
-- Conduct cell typing for all 52 samples in Group ID SCPCAB0027, Project SCPCP000023
+- Conduct cell typing for all 52 samples in Group ID `SCPCAB0027`, Project `SCPCP000023`
 - Run InferCNV iteratively on each sample -
-  - Using the Gene order file from Genome Reference Consortium Human Build 38 patch release 13 (GRCh38.p13)
+  - Using the Gene order file from Genome Reference Consortium Human Build 38 patch release 13 (`GRCh38.p13`)
   - Using the latest consensus cell type annotation, and the validation groups to construct normal references
-  - Use KMeans clustering algorithm to computationally cluster cells based on CNV score into "tumor" and "normal"
+  - Use k-means clustering algorithm to computationally cluster cells based on CNV score into "tumor" and "normal"
   - Update the dataset with this annotation for each sample
 
 ## Usage
