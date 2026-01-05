@@ -145,6 +145,7 @@ indicia
 inferCNV
 InferCNV
 intra
+iteratively
 Jaccard
 Jitter
 JSON
