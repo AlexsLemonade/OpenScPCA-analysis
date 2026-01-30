@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 # This script is used to create the reference table used for assigning consensus cell types 
-# the table will contain one row for each cell type combination between panglao and celldex
+# the table will contain one row for each cell type combination between panglao, celldex, and SCimilarity
 # where a consensus label was assigned 
 
 # Paths ------------------------------------------------------------------------
@@ -38,10 +38,21 @@ panglao_df <- readr::read_tsv(panglao_ref_file) |>
     original_panglao_name = "panglao_cell_type" # keep original name since some map to the same ontology ID
   ) |> 
   # remove any cell types that don't have ontologies 
-  tidyr::drop_na() 
+  tidyr::drop_na() |> 
+  # add one row for other/NA which is possible in CellAssign
+  dplyr::bind_rows(data.frame(
+    panglao_ontology = NA_character_,
+    panglao_annotation = "other",
+    original_panglao_name = "other"
+  ))
 
 # read in blueprint data 
-blueprint_df <- readr::read_tsv(blueprint_ref_file)
+blueprint_df <- readr::read_tsv(blueprint_ref_file) |> 
+  # add one row for NA annotation in SingleR
+  dplyr::bind_rows(data.frame(
+    blueprint_ontology = NA_character_,
+    blueprint_annotation_cl = "unknown"
+  ))
 
 
 # read in scimilarity 
@@ -84,9 +95,11 @@ all_ref_df <- expand.grid(
 
 # get all possible pairs from each combination and get lca for each pair that is unique 
 lca_pairs_df <- all_ref_df |> 
+  # first, get rid of a pair if one of the LCA is NA
+  tidyr::drop_na() |> 
   dplyr::select(pairs) |> 
   dplyr::distinct() |> 
-  tidyr::separate(pairs, into = c("id1", "id2"), sep = ";") |> 
+  tidyr::separate(pairs, into = c("id1", "id2"), sep = ";") |>
   dplyr::rowwise() |>
   dplyr::mutate(
     # least common shared ancestor
@@ -174,8 +187,11 @@ combined_ref_df <- all_ref_df |>
   # split pairs to join with final lca assignment
   tidyr::separate(col = "pairs", into = c("id1", "id2"), sep = ";") |> 
   dplyr::left_join(filtered_lca_df, by = c("id1", "id2")) |> 
+  # drop rows where both panglao and blueprint are NA
+  dplyr::filter(!(is.na(panglao_ontology) & is.na(blueprint_ontology))) |> 
   # get rid of any combinations that don't have any possible matches 
-  tidyr::drop_na()
+  # but keep the NA options in panglao and blueprint
+  tidyr::drop_na(-c(panglao_ontology, blueprint_ontology))
 
 # first get a dataframe of the minimum descendants, keeping all ties 
 consensus_label_df <- combined_ref_df |> 
