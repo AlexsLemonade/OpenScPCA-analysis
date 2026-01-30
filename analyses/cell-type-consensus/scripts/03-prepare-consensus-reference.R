@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 # This script is used to create the reference table used for assigning consensus cell types 
-# the table will contain one row for each cell type combination between panglao and celldex
+# the table will contain one row for each cell type combination between panglao, celldex, and SCimilarity
 # where a consensus label was assigned 
 
 # Paths ------------------------------------------------------------------------
