@@ -9,6 +9,11 @@ Add new release notes in reverse numerical order (newest first) below this comme
 You may want to add temporary notes here for tracking as features are added, before a new release is ready.
 -->
 
+## v0.2.4
+
+This release includes a minor update to the `cell-type-consensus` module. 
+The [reference used to assign consensus cell types](https://github.com/AlexsLemonade/OpenScPCA-analysis/blob/main/analyses/cell-type-consensus/references/consensus-cell-type-reference.tsv) has been updated to now assign a consensus cell type when two of the three automated cell type methods (`SingleR`, `CellAssign`, and `SCimilarity`) agree, but the third method is unable to classify a cell. 
+
 ## v0.2.3
 
 The following includes the following new modules developed by the Data Lab:  
