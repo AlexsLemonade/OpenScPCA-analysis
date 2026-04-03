@@ -41,6 +41,14 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Debug R environment
+        run: |
+          Rscript -e ".libPaths()"
+          Rscript -e "find.package('xfun')"
+          Rscript -e "packageVersion('xfun')"
+          echo "R_LIBS_USER: $R_LIBS_USER"
+          echo "R_LIBS: $R_LIBS"
+          echo "R_LIBS_SITE: $R_LIBS_SITE"        
         
   #    - name: Download test data in SCE format
   #      env:
