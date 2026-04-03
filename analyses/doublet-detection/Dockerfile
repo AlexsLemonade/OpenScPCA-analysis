@@ -59,8 +59,6 @@ RUN echo "conda activate ${ENV_NAME}" >> ~/.bashrc
 # Copy the renv.lock file from the host environment to the image
 COPY renv.lock renv.lock
 
-# Install Rhtslib first to prevent package installation errors
-RUN Rscript -e 'BiocManager::install("Rhtslib")'
 
 # restore from renv.lock file and clean up to reduce image size
 RUN Rscript -e 'renv::restore()' \
