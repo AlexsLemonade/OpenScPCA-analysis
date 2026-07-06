@@ -2759,14 +2759,14 @@
     },
     "globals": {
       "Package": "globals",
-      "Version": "0.16.3",
+      "Version": "0.19.1",
       "Source": "Repository",
-      "Repository": "RSPM",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "codetools"
       ],
-      "Hash": "2580567908cafd4f187c1e5a91e98b7f"
+      "Hash": "7ccd5e4cffcdc6ab901626110b203584"
     },
     "glue": {
       "Package": "glue",
