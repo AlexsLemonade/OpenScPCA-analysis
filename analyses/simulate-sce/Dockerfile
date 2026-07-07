@@ -1,5 +1,5 @@
 # Docker image for the simulate-sce analysis module
-FROM bioconductor/r-ver:3.19
+FROM bioconductor/r-ver:3.20
 
 # Labels following the Open Containers Initiative (OCI) recommendations
 # For more information, see https://specs.opencontainers.org/image-spec/annotations/?v=v1.0.1
