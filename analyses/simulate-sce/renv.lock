@@ -281,7 +281,7 @@
     },
     "HDF5Array": {
       "Package": "HDF5Array",
-      "Version": "1.32.1",
+      "Version": "1.32.0",
       "Source": "Bioconductor",
       "Repository": "Bioconductor 3.19",
       "Requirements": [
@@ -300,7 +300,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "420012f82591a2a20156ef65d4aa210a"
+      "Hash": "b10ddb24baf506cf7b4bc868ae65b984"
     },
     "IRanges": {
       "Package": "IRanges",
@@ -455,20 +455,6 @@
         "methods"
       ],
       "Hash": "f6baa1e06fb6c3724f601a764266cb0d"
-    },
-    "RcppArmadillo": {
-      "Package": "RcppArmadillo",
-      "Version": "14.6.3-1",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Requirements": [
-        "R",
-        "Rcpp",
-        "methods",
-        "stats",
-        "utils"
-      ],
-      "Hash": "46b265783c8e3feb9c0c817a66bfe529"
     },
     "RcppEigen": {
       "Package": "RcppEigen",
