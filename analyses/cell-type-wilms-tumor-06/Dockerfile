@@ -24,7 +24,7 @@ RUN Rscript -e 'install.packages("renv")'
 # Install Rhtslib first to prevent package installation errors
 RUN Rscript -e 'BiocManager::install("Rhtslib")'
 
-# Install SeuratObject before installing from renv, to ensure fetusref installs
+# Install SeuratObject before installing from renv so that fetusref installs
 RUN Rscript -e 'install.packages("SeuratObject")'
 
 # Copy the renv.lock file from the host environment to the image
