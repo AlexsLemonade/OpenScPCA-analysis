@@ -15,8 +15,8 @@ ENV OPENSCPCA_DOCKER=TRUE
 # Disable the renv cache to install packages directly into the R library
 ENV RENV_CONFIG_CACHE_ENABLED=FALSE
 
-# ensure ca-certificates are up to date to avoid SSL errors
-RUN update-ca-certificates
+# ensure ca-certificates are up to date to avoid SSL errors when curling
+RUN apt-get update && apt-get install -y --reinstall ca-certificates
 
 # Install renv
 RUN Rscript -e 'install.packages("renv")'
