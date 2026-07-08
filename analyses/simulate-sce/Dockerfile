@@ -49,7 +49,12 @@ RUN Rscript -e "install.packages(c('remotes', 'renv'))"
 WORKDIR /usr/local/renv
 COPY renv.lock renv.lock
 # install packages with renv and remove caches
-RUN Rscript -e "renv::restore()" && \
+RUN Rscript -e "install.packages('renv')"
+
+WORKDIR /usr/local/renv
+COPY renv.lock renv.lock
+# install packages with renv and remove caches
+RUN Rscript -e "options(renv.config.install.remotes = FALSE); renv::restore()" && \
   rm -rf ~/.local/share/renv && \
   rm -rf /tmp/downloaded_packages && \
   rm -rf /tmp/Rtmp*
