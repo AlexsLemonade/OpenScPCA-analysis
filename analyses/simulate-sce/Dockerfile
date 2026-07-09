@@ -1,5 +1,5 @@
 # Docker image for the simulate-sce analysis module
-FROM bioconductor/r-ver:3.19
+FROM bioconductor/r-ver:3.20
 
 # Labels following the Open Containers Initiative (OCI) recommendations
 # For more information, see https://specs.opencontainers.org/image-spec/annotations/?v=v1.0.1
@@ -49,7 +49,12 @@ RUN Rscript -e "install.packages(c('remotes', 'renv'))"
 WORKDIR /usr/local/renv
 COPY renv.lock renv.lock
 # install packages with renv and remove caches
-RUN Rscript -e "renv::restore()" && \
+RUN Rscript -e "install.packages('renv')"
+
+WORKDIR /usr/local/renv
+COPY renv.lock renv.lock
+# install packages with renv and remove caches
+RUN Rscript -e "options(renv.config.install.remotes = FALSE); renv::restore()" && \
   rm -rf ~/.local/share/renv && \
   rm -rf /tmp/downloaded_packages && \
   rm -rf /tmp/Rtmp*
