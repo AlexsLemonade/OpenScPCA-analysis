@@ -68,29 +68,35 @@
     },
     "Azimuth": {
       "Package": "Azimuth",
-      "Version": "0.5.0",
+      "Version": "0.5.1",
       "Source": "GitHub",
       "RemoteType": "github",
-      "Remotes": "immunogenomics/presto, satijalab/seurat-data, mojaveazure/seurat-disk",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "azimuth",
       "RemoteUsername": "satijalab",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "243ee5db80fcbffa3452c944254a325a3da2ef9e",
+      "RemoteRepo": "Azimuth",
+      "RemoteRef": "master",
+      "RemoteSha": "ad5929686e005ae91d8452187a3a1d8c0563fdd5",
+      "Remotes": "immunogenomics/presto, satijalab/seurat-data, mojaveazure/seurat-disk",
       "Requirements": [
         "BSgenome.Hsapiens.UCSC.hg38",
+        "BiocGenerics",
         "DT",
         "EnsDb.Hsapiens.v86",
+        "GenomeInfoDb",
+        "GenomicRanges",
+        "IRanges",
         "JASPAR2020",
         "Matrix",
         "R",
         "Rcpp",
+        "S4Vectors",
         "Seurat",
         "SeuratData",
         "SeuratDisk",
         "SeuratObject",
         "Signac",
         "TFBSTools",
+        "data.table",
         "future",
         "ggplot2",
         "glmGamPoi",
@@ -103,6 +109,7 @@
         "patchwork",
         "plotly",
         "presto",
+        "rhdf5",
         "rlang",
         "scales",
         "shiny",
@@ -115,7 +122,7 @@
         "utils",
         "withr"
       ],
-      "Hash": "59d0a6084aa8b75b77a5da511d0786f6"
+      "Hash": "ea97200f6e21a56f4d3d2cefb4a80f79"
     },
     "BH": {
       "Package": "BH",
@@ -309,9 +316,9 @@
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "DElegate",
       "RemoteUsername": "cancerbits",
-      "RemoteRef": "HEAD",
+      "RemoteRepo": "DElegate",
+      "RemoteRef": "main",
       "RemoteSha": "43591860dfdaf6b6f9d03907e37ae6c7c84b030e",
       "Requirements": [
         "Matrix",
@@ -321,7 +328,7 @@
         "rlang",
         "tibble"
       ],
-      "Hash": "c3762bb10e8aeeee633df34436463f95"
+      "Hash": "d2b12dbb439335c1375a3edc598ad8b6"
     },
     "DOSE": {
       "Package": "DOSE",
@@ -1047,9 +1054,9 @@
     },
     "Seurat": {
       "Package": "Seurat",
-      "Version": "5.1.0",
+      "Version": "5.5.1",
       "Source": "Repository",
-      "Repository": "RSPM",
+      "Repository": "CRAN",
       "Requirements": [
         "KernSmooth",
         "MASS",
@@ -1084,7 +1091,6 @@
         "igraph",
         "irlba",
         "jsonlite",
-        "leiden",
         "lifecycle",
         "lmtest",
         "matrixStats",
@@ -1095,7 +1101,6 @@
         "plotly",
         "png",
         "progressr",
-        "purrr",
         "reticulate",
         "rlang",
         "scales",
@@ -1110,39 +1115,43 @@
         "utils",
         "uwot"
       ],
-      "Hash": "aa2040fec3d03e3e598e0b406a84a104"
+      "Hash": "c72519b8853c7dfd7b6c076508ac2899"
     },
     "SeuratData": {
       "Package": "SeuratData",
-      "Version": "0.2.2.9001",
+      "Version": "0.2.2.9002",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "seurat-data",
       "RemoteUsername": "satijalab",
-      "RemoteSha": "4dc08e022f51c324bc7bf785b1b5771d2742701d",
+      "RemoteRepo": "seurat-data",
+      "RemoteRef": "main",
+      "RemoteSha": "3e51f44303069b64f5dc4d68e6a3d4a343f55c39",
       "Requirements": [
+        "Matrix",
         "R",
+        "Seurat",
         "SeuratObject",
         "cli",
         "crayon",
+        "methods",
         "rappdirs",
         "stats",
         "utils"
       ],
-      "Hash": "d4671ad1dc5b2a049a4e3dd79ce80a5e"
+      "Hash": "2952c15a340d5d0cee227bd64e7d7a50"
     },
     "SeuratDisk": {
       "Package": "SeuratDisk",
       "Version": "0.0.0.9021",
       "Source": "GitHub",
       "RemoteType": "github",
-      "Remotes": "satijalab/seurat-data",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "seurat-disk",
       "RemoteUsername": "mojaveazure",
-      "RemoteRef": "HEAD",
+      "RemoteRepo": "seurat-disk",
+      "RemoteRef": "master",
       "RemoteSha": "877d4e18ab38c686f5db54f8cd290274ccdbe295",
+      "Remotes": "satijalab/seurat-data",
       "Requirements": [
         "Matrix",
         "R",
@@ -1160,13 +1169,13 @@
         "utils",
         "withr"
       ],
-      "Hash": "d9eddfd211bbe8278b1805fe08ffd523"
+      "Hash": "4f1dcd3f315b0c62788c0e1660c145c1"
     },
     "SeuratObject": {
       "Package": "SeuratObject",
-      "Version": "5.0.2",
+      "Version": "5.4.0",
       "Source": "Repository",
-      "Repository": "RSPM",
+      "Repository": "CRAN",
       "Requirements": [
         "Matrix",
         "R",
@@ -1187,11 +1196,11 @@
         "tools",
         "utils"
       ],
-      "Hash": "e9b70412b7e04571b46101f5dcbaacad"
+      "Hash": "c81ed37c403c81239aa0603de1c5c669"
     },
     "Signac": {
       "Package": "Signac",
-      "Version": "1.14.0",
+      "Version": "1.17.1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1201,6 +1210,7 @@
         "IRanges",
         "Matrix",
         "R",
+        "RSpectra",
         "Rcpp",
         "RcppRoll",
         "Rsamtools",
@@ -1213,13 +1223,13 @@
         "future.apply",
         "ggplot2",
         "grid",
-        "irlba",
         "lifecycle",
         "methods",
         "patchwork",
         "pbapply",
         "rlang",
         "scales",
+        "sparseMatrixStats",
         "stats",
         "stringi",
         "tidyr",
@@ -1227,7 +1237,7 @@
         "utils",
         "vctrs"
       ],
-      "Hash": "1e2e62de9bd6318d6730852c3e6dffbf"
+      "Hash": "8e34c806a59a8cbbbd9cde062e757805"
     },
     "SingleCellExperiment": {
       "Package": "SingleCellExperiment",
@@ -1857,14 +1867,14 @@
     },
     "copykat": {
       "Package": "copykat",
-      "Version": "1.1.0",
+      "Version": "1.2.5",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "navinlabcode",
       "RemoteRepo": "copykat",
       "RemoteRef": "master",
-      "RemoteSha": "d7d6569ae9e30bf774908301af312f626de4cbd5",
+      "RemoteSha": "01924c0999bb660064da8d3e1561615ac6efb76f",
       "Requirements": [
         "MCMCpack",
         "RColorBrewer",
@@ -1873,9 +1883,12 @@
         "gplots",
         "mixtools",
         "parallel",
-        "parallelDist"
+        "parallelDist",
+        "stats",
+        "transport",
+        "utils"
       ],
-      "Hash": "be634c76aad6f3f5bc87d075b41e956b"
+      "Hash": "3efa2d46ed2337cf26f9cd218fad2495"
     },
     "cowplot": {
       "Package": "cowplot",
@@ -2759,14 +2772,14 @@
     },
     "globals": {
       "Package": "globals",
-      "Version": "0.16.3",
+      "Version": "0.19.1",
       "Source": "Repository",
-      "Repository": "RSPM",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "codetools"
       ],
-      "Hash": "2580567908cafd4f187c1e5a91e98b7f"
+      "Hash": "7ccd5e4cffcdc6ab901626110b203584"
     },
     "glue": {
       "Package": "glue",
@@ -2962,9 +2975,9 @@
     },
     "hdf5r": {
       "Package": "hdf5r",
-      "Version": "1.3.11",
+      "Version": "1.3.12",
       "Source": "Repository",
-      "Repository": "RSPM",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "R6",
@@ -2972,7 +2985,7 @@
         "methods",
         "utils"
       ],
-      "Hash": "8f066454d3c306fa34e2885fbbfd4e1c"
+      "Hash": "697780d27f201a778615764861718401"
     },
     "here": {
       "Package": "here",
@@ -3677,15 +3690,15 @@
     },
     "parallelly": {
       "Package": "parallelly",
-      "Version": "1.38.0",
+      "Version": "1.48.0",
       "Source": "Repository",
-      "Repository": "RSPM",
+      "Repository": "CRAN",
       "Requirements": [
         "parallel",
         "tools",
         "utils"
       ],
-      "Hash": "6e8b139c1904f5e9e14c69db64453bbe"
+      "Hash": "a21defc75d66882933d80b7ae824a7b1"
     },
     "patchwork": {
       "Package": "patchwork",
@@ -3859,10 +3872,10 @@
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "presto",
       "RemoteUsername": "immunogenomics",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "7636b3d0465c468c35853f82f1717d3a64b3c8f6",
+      "RemoteRepo": "presto",
+      "RemoteRef": "master",
+      "RemoteSha": "a24772a135c7895a8183b007376050556c60a05b",
       "Requirements": [
         "Matrix",
         "R",
@@ -3878,7 +3891,7 @@
         "tidyr",
         "utils"
       ],
-      "Hash": "c682f57757230a29913ad71f22aef990"
+      "Hash": "aed0a2e6a727b920a42f9fd2e8ce7937"
     },
     "prettyunits": {
       "Package": "prettyunits",
@@ -5273,6 +5286,23 @@
         "utils"
       ],
       "Hash": "5c715954112b45499fb1dadc6ee6ee3e"
+    },
+    "transport": {
+      "Package": "transport",
+      "Version": "0.15-4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp",
+        "RcppEigen",
+        "data.table",
+        "grDevices",
+        "graphics",
+        "methods",
+        "stats"
+      ],
+      "Hash": "e366138500c85a56253c547d5f36b453"
     }
   }
 }
