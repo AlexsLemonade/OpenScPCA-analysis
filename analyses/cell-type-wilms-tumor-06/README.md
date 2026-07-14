@@ -1,4 +1,4 @@
-**Note: This module was last run with the [`openscpca/cell-type-wilms-tumor-06`](public.ecr.aws/openscpca/cell-type-wilms-tumor-06:v0.2.2) Docker tag `v0.2.2`.**
+**Note: This module was last run with the [`openscpca/cell-type-wilms-tumor-06`](https://gallery.ecr.aws/openscpca/cell-type-wilms-tumor-06) Docker image at tag `v0.2.2`.**
 Results may differ if you run this module with the current `latest` Docker image tag.
 
 # Wilms Tumor Dataset Annotation (SCPCP000006)
