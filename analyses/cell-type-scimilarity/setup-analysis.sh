@@ -10,7 +10,7 @@
 # ./setup-analysis.sh
 #
 
-# By default this will download only the files needed for CellAnnotation from s3://scpca-references/celltype/scimilarity_references/model_v1.1
+# By default this will download only the files needed for CellAnnotation from s3://scpca-nf-references/celltype/scimilarity_references/model_v1.1
 # If you would like to download the full model directly from zenodo (https://zenodo.org/records/10685499) use: 
 
 # zenodo=1 ./setup-analysis.sh
@@ -43,7 +43,7 @@ scimilarity_model_dir="${model_dir}/model_v1.1"
 if [[ ! -d $scimilarity_model_dir && $zenodo -eq 0 ]]; then
 
   echo "Downloading only the annotation SCimilarity model from s3"
-  s3_model='s3://scpca-references/celltype/scimilarity_references/model_v1.1'
+  s3_model='s3://scpca-nf-references/celltype/scimilarity_references/model_v1.1'
   aws s3 cp $s3_model $scimilarity_model_dir --exclude "cellsearch/*" --recursive --no-sign-request --no-progress
   
 
