@@ -10,7 +10,7 @@ option_list <- list(
   make_option(
     opt_str = c("--gtf_file"),
     type = "character",
-    default = "s3://scpca-references/homo_sapiens/ensembl-104/annotation/Homo_sapiens.GRCh38.104.gtf.gz",
+    default = "s3://scpca-nf-references/homo_sapiens/ensembl-104/annotation/Homo_sapiens.GRCh38.104.gtf.gz",
     help = "URI to gtf file to create gene order file."
   ),
   make_option(
