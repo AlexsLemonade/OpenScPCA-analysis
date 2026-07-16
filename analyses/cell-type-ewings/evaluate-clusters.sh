@@ -1,5 +1,8 @@
 #!/bin/bash
 
+## THIS WORKFLOW IS NO LONGER USED IN THE CELL TYPE ANNOTATION ANALYSIS. ##
+## THIS WORKFLOW HAS BEEN REMOVED FROM CI AND IS NO LONGER BEING MAINTAINED ##
+
 # This script is used to evaluate clustering with varying parameters for all samples in SCPCP000015
 # Clusters are calculated using the following parameters: 
 

@@ -186,6 +186,8 @@ Note that `SingleR` does take up to 1 hour to run with 4 CPUs for some samples i
 
 ## Clustering workflow 
 
+**NOTE:** This workflow is no longer used in the cell type annotation analysis, has been removed from CI, and is no longer maintained! 
+
 The clustering workflow (`evaluate-clusters.sh`) can be used to perform and evaluate clusters across a range of parameters. 
 For all processed `SingleCellExperiment` objects that are part of `SCPCP000015`, clustering is performed using the following options: 
 
