@@ -1,0 +1,130 @@
+---
+title: "Confirm SCPCP000023 sample overlap with OsteoCar"
+author: "Stephanie J. Spielman"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+---
+
+Samples from `SCPCP000023` are included in the `OsteoCar` reference.
+This exploratory notebook confirms/assesses the extent of sample overlap to determine how to proceed.
+
+## Setup
+
+```{r, warning = FALSE}
+# settings
+options(
+  dplyr.summarise.inform = FALSE, 
+  readr.show_col_types = FALSE
+)
+```
+
+
+### Paths
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+module_dir <- file.path(repository_base, "analyses", "cell-type-osteosarcoma")
+ref_dir <- file.path(module_dir, "references")
+data_dir <- file.path(repository_base, "data", "current", "SCPCP000023")
+```
+
+## Analysis
+
+First, we'll read in the sample metadata for `SCPCP000023`.
+
+```{r}
+dat <- readr::read_tsv(file.path(data_dir, "single_cell_metadata.tsv"))
+
+nrow(dat)
+```
+
+These samples comprise both primary and metastatic samples:
+
+```{r}
+table(dat$primary_or_metastasis)
+```
+
+
+Next, we'll read in the `OsteoCar` sample details, specifically grabbing the samples from St. Jude.
+For this, we'll read in the actual references themselves to compare sample ids.
+
+```{r}
+mets_object <- qs2::qs_read(file.path(ref_dir, "patient_mets.qs2"))
+met_ids <- mets_object@meta.data |>
+  dplyr::distinct(sample_name) |>
+  dplyr::filter(stringr::str_starts(sample_name, "SJOS")) |>
+  dplyr::pull(sample_name)
+
+
+
+prim_object <- qs2::qs_read(file.path(ref_dir, "patient_prim.qs2"))
+prim_ids <- prim_object@meta.data |>
+  dplyr::distinct(sample_name) |>
+  dplyr::filter(stringr::str_starts(sample_name, "SJOS")) |>
+  dplyr::pull(sample_name)
+```
+
+
+How many are there?
+
+```{r}
+met_ids
+```
+
+
+```{r}
+prim_ids
+```
+
+Let's see how many of our samples are present in the reference.
+
+First, metastatic samples:
+
+```{r}
+intersect(
+  dat$submitter_id, 
+  met_ids
+)
+```
+
+All of the metastatic samples are present.
+
+Next, primary samples:
+
+
+```{r}
+intersect(
+  dat$submitter_id, 
+  prim_ids
+)
+```
+Of the 12 St. Jude ids in the `prim_met`, 11 are in `SCPCP000023`.
+
+
+To confirm, how many `SCPCP000023` ids are _not_ `OsteoCar`?
+
+```{r}
+setdiff(
+  dat$submitter_id,
+  c(met_ids, prim_ids)
+)
+```
+
+It looks like we probably have a xenograft (`SJOS013768_X1`) of a sample that is in present in `prim_ids` (`SJOS013768_D1_repB`), so this is the one difference for `prim_ids`.
+
+Ultimately, this means most samples in `SCPCP000023` are _not_ represented in `OsteoCar`, so we should indeed include this project.
+We will determine how to handle the samples that also exist in the reference a bit later in this module's development, specifically by comparing their annotations for those samples to ours.
+This will be useful for helping us gauge the performance of our annotation approach more generally.
+
+## Session Info
+
+```{r session info}
+# record the versions of the packages used in this analysis and other environment information
+sessionInfo()
+```
