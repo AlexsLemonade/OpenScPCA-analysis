@@ -34,6 +34,11 @@ ref_dir <- file.path(module_dir, "references")
 data_dir <- file.path(repository_base, "data", "current", "SCPCP000023")
 ```
 
+```{r}
+output_file <- file.path(ref_dir, "SCPCP000023-osteocar-samples.tsv")
+```
+
+
 ## Analysis
 
 First, we'll read in the sample metadata for `SCPCP000023`.
@@ -82,10 +87,11 @@ Let's see how many of our samples are present in the reference.
 
 
 ```{r}
-intersect(
+shared_ids <- intersect(
   dat$submitter_id, 
   osteocar_ids
 )
+shared_ids
 ```
 
 ScPCA contains 37/38 of these samples.
@@ -102,6 +108,16 @@ setdiff(
 This means most samples in `SCPCP000023` are represented in `OsteoCar`.
 We will determine how to handle the samples that also exist in the reference a bit later in this module's development, specifically by comparing their annotations for those samples to ours.
 This will be useful for helping us gauge the performance of our annotation approach more generally.
+
+To conclude, we'll export the IDs that are overlapping which will come in handy later when we run this evaluation.
+
+
+```{r}
+dat |> 
+  dplyr::filter(submitter_id %in% shared_ids) |>
+  dplyr::select(contains("scpca"), submitter_id) |>
+  readr::write_tsv(output_file)
+```
 
 ## Session Info
 
