@@ -12,6 +12,16 @@ As described in [this GitHub Discussion](https://github.com/AlexsLemonade/OpenSc
 
 ## Usage
 
+The module can be run with the `run-analysis.sh` script:
+
+```sh
+# run full analysis
+./run-analysis.sh
+
+# run with test data
+testing=1 ./run-analysis.sh
+```
+
 ## Input files
 
 This module requires the processed `SCE` objects for projects `SCPCP0000{17,18,23}`.
