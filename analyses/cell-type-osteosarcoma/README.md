@@ -40,9 +40,16 @@ TBD
 
 ## Software requirements
 
-This module will both `renv` and `conda` to manage R and Python software environments, respectively.
+This module will use both `renv` and `conda` to manage R and Python software environments, respectively.
 
-Actual environments are forthcoming. 
+The `conda` environment is forthcoming. 
+
+
+To set up the `renv` environment, launch `R` from the module directory and run:
+
+```sh
+renv::restore()
+```
 
 ## Computational resources
 
