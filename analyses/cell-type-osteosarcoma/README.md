@@ -12,6 +12,16 @@ As described in [this GitHub Discussion](https://github.com/AlexsLemonade/OpenSc
 
 ## Usage
 
+The module can be run with the `run-analysis.sh` script:
+
+```sh
+# run full analysis
+./run-analysis.sh
+
+# run with test data
+testing=1 ./run-analysis.sh
+```
+
 ## Input files
 
 This module requires the processed `SCE` objects for projects `SCPCP0000{17,18,23}`.
@@ -30,9 +40,16 @@ TBD
 
 ## Software requirements
 
-This module will both `renv` and `conda` to manage R and Python software environments, respectively.
+This module will use both `renv` and `conda` to manage R and Python software environments, respectively.
 
-Actual environments are forthcoming. 
+The `conda` environment is forthcoming. 
+
+
+To set up the `renv` environment, launch `R` from the module directory and run:
+
+```sh
+renv::restore()
+```
 
 ## Computational resources
 
