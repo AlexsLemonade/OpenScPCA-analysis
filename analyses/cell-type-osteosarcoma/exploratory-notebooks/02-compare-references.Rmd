@@ -15,9 +15,9 @@ For example, `OsteoCar` has patient primary and metastatic (lung only) reference
 The goal of this notebook is to lightly compare some of the references using `SingleR`:
 * patient primary vs metastatic (lung only) references
 * xenograft primary vs metastatic references
-As these references are quite large, they have to be aggregated before use.
 
 We compare the references to one another to see how similar the cell type distributions and expression signatures are.
+As these references are quite large, they have to be aggregated before use, but we'll also explore their raw data too.
 
 ## Setup
 
@@ -25,6 +25,8 @@ We compare the references to one another to see how similar the cell type distri
 suppressPackageStartupMessages({
   library(SingleR)
   library(SingleCellExperiment)
+  library(ggplot2)
+  library(patchwork)
 })
 bp_param <- BiocParallel::MulticoreParam(6)
 set.seed(2026)
@@ -38,15 +40,58 @@ ref_dir <- file.path(module_dir, "references")
 ```
 
 
+## Functions
 
-## Analysis
+```{r}
+make_barplot <- function(prim_coldata, mets_coldata, facet = TRUE) {
+    
+  prim_table <- prim_coldata |>
+    as.data.frame() |>
+    dplyr::count(Ann_Level1, Ann_Level2) |>
+    dplyr::mutate(ref = "primary")
+  
+  full_table <- mets_coldata |>
+    as.data.frame() |>
+    dplyr::count(Ann_Level1, Ann_Level2) |>
+    dplyr::mutate(ref = "metastasis") |>
+    dplyr::bind_rows(prim_table) |>
+    dplyr::group_by(ref) |>
+    dplyr::mutate(prop = n / sum(n)) |>
+    dplyr::ungroup()
+  
+  p_counts <- ggplot(full_table) + 
+    aes(x = Ann_Level2, y = n, fill = ref) + 
+    geom_col(position = position_dodge()) +
+    scale_fill_brewer(palette = "Set1") +
+    ggtitle("Counts") +
+    theme_bw() + 
+    theme(axis.text.x = element_text(angle = 30, hjust = 1))
+  
+  p_props <- ggplot(full_table) + 
+    aes(x = Ann_Level2, y = prop, fill = ref) + 
+    geom_col(position = position_dodge()) +
+    scale_fill_brewer(palette = "Set1") +
+    ggtitle("Proportions") +
+    theme_bw() + 
+    theme(axis.text.x = element_text(angle = 30, hjust = 1))
+  
+  if (facet) {
+    p_counts <- p_counts + facet_wrap(vars(Ann_Level1), scales = "free", nrow=3)
+    p_props <- p_props + facet_wrap(vars(Ann_Level1), scales = "free", nrow=3)
+  }
+  
+  list(p_counts, p_props)
+  
+}
+```
 
-We'll compare `Ann_Level2` between primary and metastatic references by first aggregating them and then running `SingleR::matchReferences()` and plotting the resulting heatmap.
-This will tell us where cell types overlap/differ between references.
 
-Note that we read in references when we use them and remove them promptly after aggregation, to save memory.
+## Patient reference analysis
 
-### Primary references
+
+### Read references
+
+We'll read in and aggregate, extract `colData` so we can ditch these objects as soon as possible.
 
 ```{r}
 patient_prim <- readr::read_rds(file.path(ref_dir, "patient_prim_sce.rds"))
@@ -57,7 +102,9 @@ patient_prim_aggr <- SingleR::trainSingleR(
   aggr.ref = TRUE,
   BPPARAM = bp_param
 )
+prim_coldata <- colData(patient_prim)
 rm(patient_prim)
+
 
 patient_mets <- readr::read_rds(file.path(ref_dir, "patient_mets_sce.rds"))
 patient_mets_aggr <- SingleR::trainSingleR(
@@ -67,13 +114,66 @@ patient_mets_aggr <- SingleR::trainSingleR(
   aggr.ref = TRUE,
   BPPARAM = bp_param
 )
+mets_coldata <- colData(patient_mets)
 rm(patient_mets)
 
 gc()
 ```
 
 
-In the heatmap below, the primary reference is columns and the metastasis reference is rows.
+### Reference cell types
+
+First, where do cell type labels overlap or not?
+
+The primary reference uniquely has these cell types, both of which are mesenchymal:
+
+```{r}
+setdiff(
+  unique(prim_coldata$Ann_Level2), unique(mets_coldata$Ann_Level2)
+)
+```
+
+The metastasis reference uniquely has these cell types, across several categories.
+
+```{r}
+setdiff(
+  unique(mets_coldata$Ann_Level2), unique(prim_coldata$Ann_Level2)
+)
+```
+
+The majority of cell types, including all classes of tumor cells, appear to be shared, but this does not guarantee they have similar expression.
+
+```{r}
+shared <- intersect(
+  unique(mets_coldata$Ann_Level2), unique(prim_coldata$Ann_Level2)
+)
+shared
+```
+
+
+We'll visualize this as well with barplots, faceted by cell type category, of cell type counts and proportions for these references for complementary views on their distributions.
+
+```{r}
+#| fig.height: 8
+#| fig.width: 10
+make_barplot(prim_coldata, mets_coldata) |>
+  wrap_plots(ncol=2, guides = "collect")
+```
+
+We see:
+
+* Relatively more endothelial in mets, and no epithelial in primary
+* Same immune lymphoid cell types but primary has relatively more T cells in the reference
+* Similar immune myeloid distributions but primary has relatively more TAMs
+* Most differences fall out in the mesenchymal cell types
+* Same sets of tumor cells, but some different enrichments between references
+
+### Heatmap 
+
+We'll make a heatmap comparing expression across references.
+
+We'll compare `Ann_Level2` between primary and metastatic references by first aggregating them and then running `SingleR::matchReferences()` and plotting the resulting heatmap.
+This will tell us where cell type expression patterns overlap/differ between references.
 
 ```{r}
 matched <- matchReferences(
@@ -82,6 +182,11 @@ matched <- matchReferences(
   patient_mets_aggr$labels$full, 
   patient_prim_aggr$labels$full 
 )
+```
+
+First, we'll show all cell types:
+
+```{r}
 pheatmap::pheatmap(
   matched, 
   col=viridis::magma(500), 
@@ -90,15 +195,34 @@ pheatmap::pheatmap(
 )
 ```
 
-We see that many of the immune cell types as well as endothelial cells match up between references, although with some noise for some of the cell types.
-But, a substantial proportion of cell types don't have a clear match in the other reference which tells us that these references generally have distinct profiles.
+Now, only the cell types shared between the references:
+
+```{r}
+shared_matched <- matched[shared, shared]
+pheatmap::pheatmap(
+  shared_matched, 
+  col=viridis::magma(500), 
+  cluster_rows = FALSE, 
+  cluster_cols = FALSE
+)
+```
+
+It is clear that while most cell type labels are in both references, many of them have distinct expression patterns.
+Aside from TAMs, immune cells appear largely consistent, but many of the tumor cells are not (COMA, Interactive, MP_progenitor, Fibrogenic).
+But, even cell types with a clearly visible diagnoal are not necessarily the highest on the color scale, which suggests differences are common.
+This means if we were to combine references, we want to still distinguish cell types by their source.
 
 
 
-### Xenograft references
+## Xenograft reference analysis
 
+Next, we'll do the same analysis with xenograft references.
 Note that there are many fewer cell types here, because the reference considers only human-derived tumor cells.
-Also note, `Ann_Level2` and `Ann_Level3` are the same for the xenograft references, so this is the most fine-grained we can achieve.
+`Ann_Level<0/1>` are the same (all "Tumor") and `Ann_Level<2/3>` are the same for the xenograft references, so `Ann_Level2` is the most fine-grained we can achieve.
+
+### Read references
+
+We'll read in and aggregate, extract `colData` so we can ditch these objects as soon as possible.
 
 ```{r}
 xeno_prim <- readr::read_rds(file.path(ref_dir, "xeno_prim_sce.rds"))
@@ -109,7 +233,9 @@ xeno_prim_aggr <- SingleR::trainSingleR(
   aggr.ref = TRUE,
   BPPARAM = bp_param
 )
+prim_coldata <- colData(xeno_prim)
 rm(xeno_prim)
+
 
 xeno_mets <- readr::read_rds(file.path(ref_dir, "xeno_mets_sce.rds"))
 xeno_mets_aggr <- SingleR::trainSingleR(
@@ -119,13 +245,31 @@ xeno_mets_aggr <- SingleR::trainSingleR(
   aggr.ref = TRUE,
   BPPARAM = bp_param
 )
+mets_coldata <- colData(xeno_mets)
 rm(xeno_mets)
 
 gc()
 ```
 
 
-In the heatmap below, the primary reference is columns and the metastasis reference is rows.
+
+### Reference cell types
+
+What are the cell types within each reference?
+We'll again make barplots of the counts and proportions for complementary views; there are few enough cell types that we don't need a table.
+
+```{r}
+make_barplot(prim_coldata, mets_coldata) |>
+  wrap_plots(ncol=2, guides = "collect")
+```
+
+
+Distributions are not terribly different, though the primary reference has a bit more basal progenitor and fibrogenic cells, and the metastasis reference has more mp progenitor stressed cells.
+Interactive and proliferative have similar proportions.
+
+### Heatmap
+
+Now we'll compare expression patterns of the cell types, which have the same labels in both references.
 
 ```{r}
 matched <- matchReferences(
@@ -134,6 +278,10 @@ matched <- matchReferences(
   xeno_mets_aggr$labels$full, 
   xeno_prim_aggr$labels$full 
 )
+```
+
+
+```{r}
 pheatmap::pheatmap(
   matched, 
   col=viridis::magma(500), 
@@ -142,13 +290,15 @@ pheatmap::pheatmap(
 )
 ```
 
+
 There's a 1:1 match of proliferative here only, but the noise around other cell types suggests that there are distinct expression profiles between shared cell types across these references.
 What is not clear is how much of that is signal vs noise. 
-The `Interactive` profile also appears to be completely distinct between these.
+The `Interactive` profile also appears to be completely distinct between these, which is not inconsistent with the fact that this is the least frequent cell type in both references.
 
 ## Conclusions
 
 Given the differences between primary/metastasis references for both patients and xenografts, it seems worth doing some initial exploration of annotation performance with `SingleR` next.
+
 
 ## Session Info
 
