@@ -21,6 +21,7 @@ module_dir=$(dirname "${BASH_SOURCE[0]}")
 cd ${module_dir}
 
 # Define and create directories
+script_dir="scripts"
 ref_dir="references"
 mkdir -p $ref_dir
 
@@ -54,3 +55,16 @@ download_file $figshare_mets_url $mets_qs2
 download_file $figshare_prim_url $prim_qs2
 download_file $figshare_xeno_mets_url $xeno_mets_qs2
 download_file $figshare_xeno_prim_url $xeno_prim_qs2
+
+
+# Convert OsteoCar to SCE (TODO: and later, also AnnData)
+mets_sce="${ref_dir}/patient_mets_sce.rds"
+prim_sce="${ref_dir}/patient_prim_sce.rds"
+xeno_mets_sce="${ref_dir}/xeno_mets_sce.rds"
+xeno_prim_sce="${ref_dir}/xeno_prim_sce.rds"
+
+
+Rscript ${script_dir}/convert-osteocar.R --input_ref_file $mets_qs2 --output_sce_file $mets_sce
+Rscript ${script_dir}/convert-osteocar.R --input_ref_file $prim_qs2 --output_sce_file $prim_sce
+Rscript ${script_dir}/convert-osteocar.R --input_ref_file $xeno_mets_qs2 --output_sce_file $xeno_mets_sce
+Rscript ${script_dir}/convert-osteocar.R --input_ref_file $xeno_prim_qs2 --output_sce_file $xeno_prim_sce
