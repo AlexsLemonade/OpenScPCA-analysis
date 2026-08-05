@@ -3,7 +3,7 @@
 # Export SCE reference versions
 
 # sets limit to 48 GB, needed for reading in the qs2 files
-mem.maxVSize(48000)  
+mem.maxVSize(48000)
 
 library(optparse)
 
@@ -32,23 +32,20 @@ suppressPackageStartupMessages({
   library(SingleCellExperiment)
 })
 
+# read input file
+osteocar_seurat <- qs2::qs_read(opts$input_ref_file)
 
-# export reformatted object if requested
-if (!is.null(opts$output_sce_file)) {
-  # read input files and determine relevant cell ids
-  osteocar_seurat <- qs2::qs_read(opts$input_ref_file)
+# convert to SCE, using `as` to avoid CI error
+# the clean up up for memory right away
+osteocar_sce <- as.SingleCellExperiment(osteocar_seurat)
+rm(osteocar_seurat)
+gc()
 
-  # convert to SCE, using `as` to avoid CI error
-  osteocar_sce <- as.SingleCellExperiment(osteocar_seurat)
-  rm(osteocar_seurat)
-  gc()
+# remove unneeded items from object
+reducedDims(osteocar_sce) <- NULL
 
-  # remove unneeded items from object
-  reducedDims(osteocar_sce) <- NULL
-
-  readr::write_rds(
-    osteocar_sce,
-    opts$output_sce_file,
-    compress = "gz"
-  )
-}
+readr::write_rds(
+  osteocar_sce,
+  opts$output_sce_file,
+  compress = "gz"
+)
