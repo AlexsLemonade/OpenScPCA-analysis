@@ -34,7 +34,7 @@ suppressPackageStartupMessages({
 
 
 # export reformatted object if requested
-if (!is.null(opts$output_sce_file) && !file.exists(opts$output_sce_file)) {
+if (!is.null(opts$output_sce_file)) {
   # read input files and determine relevant cell ids
   osteocar_seurat <- qs2::qs_read(opts$input_ref_file)
 
