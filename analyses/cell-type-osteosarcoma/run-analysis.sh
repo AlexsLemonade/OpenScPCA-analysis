@@ -35,11 +35,18 @@ figshare_mets_url="https://api.figshare.com/v2/file/download/65376111"
 figshare_prim_url="https://api.figshare.com/v2/file/download/65375988"
 figshare_xeno_mets_url="https://api.figshare.com/v2/file/download/65375973"
 figshare_xeno_prim_url="https://api.figshare.com/v2/file/download/65375976"
-mets_qs2="${ref_dir}/patient_mets.qs2"
-prim_qs2="${ref_dir}/patient_prim.qs2"
-xeno_mets_qs2="${ref_dir}/xeno_mets.qs2"
-xeno_prim_qs2="${ref_dir}/xeno_prim.qs2"
-
+ref_urls=(
+  $figshare_mets_url
+  $figshare_prim_url
+  $figshare_xeno_mets_url
+  $figshare_xeno_prim_url
+)
+ref_prefixes=(
+  "${ref_dir}/patient_mets"
+  "${ref_dir}/patient_prim"
+  "${ref_dir}/xeno_mets"
+  "${ref_dir}/xeno_prim"
+)
 # First, download the object with a helper function
 # This function takes two arguments in order, the URL and the filename to save to
 download_file() {
@@ -49,22 +56,18 @@ download_file() {
     curl -Lo $file_name $url
   fi
 }
-
+  
 # Download OsteoCar reference files
-download_file $figshare_mets_url $mets_qs2
-download_file $figshare_prim_url $prim_qs2
-download_file $figshare_xeno_mets_url $xeno_mets_qs2
-download_file $figshare_xeno_prim_url $xeno_prim_qs2
+for i in "${!ref_urls[@]}"; do
+  download_file "${ref_urls[$i]}" "${ref_prefixes[$i]}.qs2"
+done
+
+# Convert to SCE (and later AnnData)
+for i in "${!ref_prefixes[@]}"; do
+  Rscript "${script_dir}/convert-osteocar.R" \
+    --input_ref_file "${ref_prefixes[$i]}.qs2" \
+    --output_sce_file "${ref_prefixes[$i]}_sce.rds"
+done
 
 
-# Convert OsteoCar to SCE (TODO: and later, also AnnData)
-mets_sce="${ref_dir}/patient_mets_sce.rds"
-prim_sce="${ref_dir}/patient_prim_sce.rds"
-xeno_mets_sce="${ref_dir}/xeno_mets_sce.rds"
-xeno_prim_sce="${ref_dir}/xeno_prim_sce.rds"
 
-
-Rscript ${script_dir}/convert-osteocar.R --input_ref_file $mets_qs2 --output_sce_file $mets_sce
-Rscript ${script_dir}/convert-osteocar.R --input_ref_file $prim_qs2 --output_sce_file $prim_sce
-Rscript ${script_dir}/convert-osteocar.R --input_ref_file $xeno_mets_qs2 --output_sce_file $xeno_mets_sce
-Rscript ${script_dir}/convert-osteocar.R --input_ref_file $xeno_prim_qs2 --output_sce_file $xeno_prim_sce
