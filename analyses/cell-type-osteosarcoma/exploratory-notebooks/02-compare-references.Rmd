@@ -209,7 +209,7 @@ pheatmap::pheatmap(
 
 It is clear that while most cell type labels are in both references, many of them have distinct expression patterns.
 Aside from TAMs, immune cells appear largely consistent, but many of the tumor cells are not (COMA, Interactive, MP_progenitor, Fibrogenic).
-But, even cell types with a clearly visible diagnoal are not necessarily the highest on the color scale, which suggests differences are common.
+But, even cell types with a clearly visible diagonal are not necessarily the highest on the color scale, which suggests differences are common.
 This means if we were to combine references, we want to still distinguish cell types by their source.
 
 
