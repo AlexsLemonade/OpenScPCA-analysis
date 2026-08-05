@@ -1,0 +1,157 @@
+---
+title: "Compare OsteoCar references"
+author: "Stephanie J. Spielman"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+---
+
+There are several different references in `OsteoCar`, and while we can generally map them to our sample propertoes, we have some sample which don't neatly line up.
+For example, `OsteoCar` has patient primary and metastatic (lung only) references, but we have a sample from metastatic tissue in bone which differs from the metastatic reference. 
+
+The goal of this notebook is to lightly compare some of the references using `SingleR`:
+* patient primary vs metastatic (lung only) references
+* xenograft primary vs metastatic references
+As these references are quite large, they have to be aggregated before use.
+
+We compare the references to one another to see how similar the cell type distributions and expression signatures are.
+
+## Setup
+
+```{r}
+suppressPackageStartupMessages({
+  library(SingleR)
+  library(SingleCellExperiment)
+})
+bp_param <- BiocParallel::MulticoreParam(6)
+set.seed(2026)
+```
+
+```{r}
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+module_dir <- file.path(repository_base, "analyses", "cell-type-osteosarcoma")
+ref_dir <- file.path(module_dir, "references")
+```
+
+
+
+## Analysis
+
+We'll compare `Ann_Level2` between primary and metastatic references by first aggregating them and then running `SingleR::matchReferences()` and plotting the resulting heatmap.
+This will tell us where cell types overlap/differ between references.
+
+Note that we read in references when we use them and remove them promptly after aggregation, to save memory.
+
+### Primary references
+
+```{r}
+patient_prim <- readr::read_rds(file.path(ref_dir, "patient_prim_sce.rds"))
+patient_prim_aggr <- SingleR::trainSingleR(
+  ref = patient_prim,
+  labels = patient_prim$Ann_Level2,
+  de.method = "wilcox",
+  aggr.ref = TRUE,
+  BPPARAM = bp_param
+)
+rm(patient_prim)
+
+patient_mets <- readr::read_rds(file.path(ref_dir, "patient_mets_sce.rds"))
+patient_mets_aggr <- SingleR::trainSingleR(
+  ref = patient_mets,
+  labels = patient_mets$Ann_Level2,
+  de.method = "wilcox",
+  aggr.ref = TRUE,
+  BPPARAM = bp_param
+)
+rm(patient_mets)
+
+gc()
+```
+
+
+In the heatmap below, the primary reference is columns and the metastasis reference is rows.
+
+```{r}
+matched <- matchReferences(
+  patient_mets_aggr$ref, 
+  patient_prim_aggr$ref, 
+  patient_mets_aggr$labels$full, 
+  patient_prim_aggr$labels$full 
+)
+pheatmap::pheatmap(
+  matched, 
+  col=viridis::magma(500), 
+  cluster_rows = FALSE, 
+  cluster_cols = FALSE
+)
+```
+
+We see that many of the immune cell types as well as endothelial cells match up between references, although with some noise for some of the cell types.
+But, a substantial proportion of cell types don't have a clear match in the other reference which tells us that these references generally have distinct profiles.
+
+
+
+### Xenograft references
+
+Note that there are many fewer cell types here, because the reference considers only human-derived tumor cells.
+Also note, `Ann_Level2` and `Ann_Level3` are the same for the xenograft references, so this is the most fine-grained we can achieve.
+
+```{r}
+xeno_prim <- readr::read_rds(file.path(ref_dir, "xeno_prim_sce.rds"))
+xeno_prim_aggr <- SingleR::trainSingleR(
+  ref = xeno_prim,
+  labels = xeno_prim$Ann_Level2,
+  de.method = "wilcox",
+  aggr.ref = TRUE,
+  BPPARAM = bp_param
+)
+rm(xeno_prim)
+
+xeno_mets <- readr::read_rds(file.path(ref_dir, "xeno_mets_sce.rds"))
+xeno_mets_aggr <- SingleR::trainSingleR(
+  ref = xeno_mets,
+  labels = xeno_mets$Ann_Level2,
+  de.method = "wilcox",
+  aggr.ref = TRUE,
+  BPPARAM = bp_param
+)
+rm(xeno_mets)
+
+gc()
+```
+
+
+In the heatmap below, the primary reference is columns and the metastasis reference is rows.
+
+```{r}
+matched <- matchReferences(
+  xeno_mets_aggr$ref, 
+  xeno_prim_aggr$ref, 
+  xeno_mets_aggr$labels$full, 
+  xeno_prim_aggr$labels$full 
+)
+pheatmap::pheatmap(
+  matched, 
+  col=viridis::magma(500), 
+  cluster_rows = FALSE, 
+  cluster_cols = FALSE
+)
+```
+
+There's a 1:1 match of proliferative here only, but the noise around other cell types suggests that there are distinct expression profiles between shared cell types across these references.
+What is not clear is how much of that is signal vs noise. 
+The `Interactive` profile also appears to be completely distinct between these.
+
+## Conclusions
+
+Given the differences between primary/metastasis references for both patients and xenografts, it seems worth doing some initial exploration of annotation performance with `SingleR` next.
+
+## Session Info
+
+```{r session info}
+sessionInfo()
+```
