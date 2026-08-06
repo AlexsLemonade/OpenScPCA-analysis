@@ -9,10 +9,11 @@ output:
     code_folding: hide
 ---
 
-There are several different references in `OsteoCar`, and while we can generally map them to our sample propertoes, we have some sample which don't neatly line up.
-For example, `OsteoCar` has patient primary and metastatic (lung only) references, but we have a sample from metastatic tissue in bone which differs from the metastatic reference. 
+There are several different references in `OsteoCar`, and while we can generally map them to our sample properties, we have some samples which don't neatly line up.
+For example, `OsteoCar` has patient primary and metastatic (lung only) references, but we have several samples from metastatic tissue in bone, which differs from the metastatic reference. 
 
-The goal of this notebook is to lightly compare some of the references using `SingleR`:
+The goal of this notebook is to lightly compare some of the references:
+
 * patient primary vs metastatic (lung only) references
 * xenograft primary vs metastatic references
 
@@ -43,7 +44,7 @@ ref_dir <- file.path(module_dir, "references")
 ## Functions
 
 ```{r}
-make_barplot <- function(prim_coldata, mets_coldata, facet = TRUE) {
+make_barplot <- function(prim_coldata, mets_coldata) {
     
   prim_table <- prim_coldata |>
     as.data.frame() |>
@@ -64,6 +65,7 @@ make_barplot <- function(prim_coldata, mets_coldata, facet = TRUE) {
     geom_col(position = position_dodge()) +
     scale_fill_brewer(palette = "Set1") +
     ggtitle("Counts") +
+    facet_wrap(vars(Ann_Level1), scales = "free", nrow=3) +
     theme_bw() + 
     theme(axis.text.x = element_text(angle = 30, hjust = 1))
   
@@ -72,13 +74,9 @@ make_barplot <- function(prim_coldata, mets_coldata, facet = TRUE) {
     geom_col(position = position_dodge()) +
     scale_fill_brewer(palette = "Set1") +
     ggtitle("Proportions") +
+    facet_wrap(vars(Ann_Level1), scales = "free", nrow=3) +
     theme_bw() + 
     theme(axis.text.x = element_text(angle = 30, hjust = 1))
-  
-  if (facet) {
-    p_counts <- p_counts + facet_wrap(vars(Ann_Level1), scales = "free", nrow=3)
-    p_props <- p_props + facet_wrap(vars(Ann_Level1), scales = "free", nrow=3)
-  }
   
   list(p_counts, p_props)
   
@@ -120,10 +118,23 @@ rm(patient_mets)
 gc()
 ```
 
+These reference cell types are organized into several levels of annotations, and the two we'll use are `Ann_Level1` (broad annotation), and `Ann_Level2` (finer annotation).
+
+As we can see, the primary and metastasis references have the same `Ann_Level1` values. 
+
+```{r}
+unique(prim_coldata$Ann_Level1)
+```
+
+```{r}
+unique(mets_coldata$Ann_Level1)
+```
+
+
 
 ### Reference cell types
 
-First, where do cell type labels overlap or not?
+Let's now look at the `Ann_Level2` cell types to see which labels are shared.
 
 The primary reference uniquely has these cell types, both of which are mesenchymal:
 
@@ -174,6 +185,9 @@ We'll make a heatmap comparing expression across references.
 
 We'll compare `Ann_Level2` between primary and metastatic references by first aggregating them and then running `SingleR::matchReferences()` and plotting the resulting heatmap.
 This will tell us where cell type expression patterns overlap/differ between references.
+In particular, this function can help identify cases when different labels between references effectively point to the same cell type.
+As such, it does not just compare references with matching labels - it attempt to reconcile labels between references.
+
 
 ```{r}
 matched <- matchReferences(
@@ -184,7 +198,7 @@ matched <- matchReferences(
 )
 ```
 
-First, we'll show all cell types:
+First, we'll show all cell types to help see if there is any correspondence between cell types in general between references, regardless of whether the label is shared:
 
 ```{r}
 pheatmap::pheatmap(
@@ -293,7 +307,7 @@ pheatmap::pheatmap(
 
 There's a 1:1 match of proliferative here only, but the noise around other cell types suggests that there are distinct expression profiles between shared cell types across these references.
 What is not clear is how much of that is signal vs noise. 
-The `Interactive` profile also appears to be completely distinct between these, which is not inconsistent with the fact that this is the least frequent cell type in both references.
+The Interactive cell type also appears to be completely distinct between these, which is not inconsistent with the fact that this is the least frequent cell type in both references.
 
 ## Conclusions
 
