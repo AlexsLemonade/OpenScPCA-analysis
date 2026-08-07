@@ -1,0 +1,470 @@
+---
+title: "Compare patient OsteoCar references"
+author: "Stephanie J. Spielman"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+---
+
+In this notebook, we'll do some cursory runs of `SingleR` on a couple osteosarcoma samples of varying metadata and compare results when using:
+
+* the primary reference
+* the metastasis reference
+* both references provided to `SingleR`
+* a concatenated version of these references with cell types between them kept distinct
+
+This is obviously not a comprehensive look at our osteosarcoma samples, but it may still help guide decisions.
+Note that this notebook does not consider any xenograft references or xenograft samples.
+
+We particularly explore samples with a mismatch from the reference:
+
+* We have several non-lung metastasis samples, but the `OsteoCar` metastasis reference was 
+
+## Setup
+
+```{r}
+options(readr.show_col_types = FALSE)
+suppressPackageStartupMessages({
+  library(SingleR)
+  library(SingleCellExperiment)
+  library(ggplot2)
+  library(patchwork)
+})
+bp_param <- BiocParallel::MulticoreParam(6)
+set.seed(2026)
+mem.maxVSize(48000) # seems to sometimes be needed for reading in the big files
+```
+
+```{r}
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+module_dir <- file.path(repository_base, "analyses", "cell-type-osteosarcoma")
+data_dir <- file.path(repository_base, "data", "current")
+ref_dir <- file.path(module_dir, "references")
+```
+
+## Read and prepare references
+
+Read in the SCE-formatted references: 
+
+```{r}
+# Read and remove unused counts assay to save a little space
+patient_prim <- readr::read_rds(file.path(ref_dir, "patient_prim_sce.rds"))
+patient_mets <- readr::read_rds(file.path(ref_dir, "patient_mets_sce.rds"))
+```
+
+Aggregate immediately:
+
+
+```{r}
+prim_aggr <- SingleR::aggregateReference(
+  ref = patient_prim,
+  labels = patient_prim$Ann_Level2,
+  ntop = 2000, # use 2000 genes for PCA
+  BPPARAM = bp_param
+)
+mets_aggr <- SingleR::aggregateReference(
+  ref = patient_mets,
+  labels = patient_mets$Ann_Level2,
+  ntop = 2000, # use 2000 genes for PCA
+  BPPARAM = bp_param
+)
+
+prim_aggr$label <- glue::glue("prim_{prim_aggr$label}")
+mets_aggr$label <- glue::glue("mets_{mets_aggr$label}")
+
+shared_genes <- intersect(
+  rownames(prim_aggr),
+  rownames(mets_aggr)
+)
+
+merged_aggr <- cbind(
+  prim_aggr[shared_genes, ],
+  mets_aggr[shared_genes, ]
+)
+```
+
+Clean up immediately:
+
+```{r}
+rm(patient_prim)
+rm(mets_prim)
+gc()
+```
+
+## Read and prepare SCEs
+
+
+### Input
+
+First, we'll read in the sample metadata files for projects of interest.
+
+```{r}
+cols_to_keep <- c(
+  "scpca_project_id", 
+  "scpca_sample_id", 
+  "scpca_library_id",
+  "organism",
+  "primary_or_metastasis",
+  "tissue_location",
+  "is_xenograft"
+)
+
+sample_df <- dplyr::bind_rows(
+  readr::read_tsv(file.path(data_dir, "SCPCP000017", "single_cell_metadata.tsv")),
+  readr::read_tsv(file.path(data_dir, "SCPCP000018", "single_cell_metadata.tsv")) |>
+    # rename to match
+    dplyr::rename(primary_or_metastasis = disease_timing), 
+  readr::read_tsv(file.path(data_dir, "SCPCP000023", "single_cell_metadata.tsv"))
+) |>
+  dplyr::select(all_of(cols_to_keep))
+```
+
+Let's grab the weird ones.
+We'd also like to test a couple libraries as controls here, as a way to get a sense of merged vs. both. 
+For this, I picked out a couple libraries using sample metadata from the Portal - namely the number of processed cells - to have good samples.
+I have one primary bone and one lung metastasis with large numbers of cells to add to the list: `SCPCS000531` and `SCPCS000526`.
+
+
+
+```{r}
+controls <- c("SCPCS000531", "SCPCS000524")
+samples_to_test <- sample_df |>
+  dplyr::filter(
+    scpca_sample_id %in% controls |
+    (
+      !is_xenograft & primary_or_metastasis == "Metastasis" & !stringr::str_detect(tolower(tissue_location), "lung")
+    )
+  ) |>
+  dplyr::mutate(
+    sce_path = file.path(data_dir, scpca_project_id, scpca_sample_id, glue::glue("{scpca_library_id}_processed.rds")), 
+    type = ifelse(scpca_sample_id %in% controls, "control", "test"),
+    id = glue::glue("{scpca_library_id}_{type}_{tissue_location}")
+  ) |>
+  # arrange so controls are at the top
+  dplyr::arrange(type == "test") |>
+  dplyr::select(sce_path, id) 
+```
+
+Which libraries, and what's the location?
+
+```{r}
+samples_to_test$id
+```
+
+```{r}
+#| message: false
+
+sce_list <- samples_to_test$sce_path |>
+  purrr::set_names(samples_to_test$id) |>
+  purrr::map(
+    \(f) {
+      readr::read_rds(f) |>
+        rOpenScPCA::sce_to_symbols(reference = "sce")
+    }
+  )
+```
+
+
+Here are the total number of cells in each:
+
+```{r}
+sce_list |>
+  purrr::map(ncol)
+
+names(sce_list)
+```
+
+
+## Analysis
+
+In this section, we'll run `SingleR` for on give SCE objects representing different types of samples using four references:
+
+* patient primary
+* patient metastasis
+* "both": for this, I provide both to `SingleR` in the same call
+* "merged": for this, I merge the aggregated references and provided this single reference to `SingleR`.
+Cell type labels are not merged but were renamed so they reflect the originating reference.
+
+For each dataset, I make three plots:
+
+1. A barplot showing cell types inferred with each reference
+2. A Jaccard index heatmap comparing the primary to metastasis reference.
+This will be helpful for understanding how similarities or differences between labels in these references play out.
+3. A Jaccard index heatmap comparing the "merged" and "both" references. 
+This will be helpful for understanding which approach may be more robust for our needs
+
+Plots only show the top ten cell types inferred from each reference for visual ease.
+Note that this means heatmaps may not be exactly diagonals, since there's no guarantee the top ten annotations from each reference have matching labels.
+In addition, all plots show only the pruned labels from `SingleR`.
+
+For this, we'll define a bunch of helper functions.
+
+```{r}
+# Function to run SingleR for a given SCE for each type of reference we are evaluating here
+run_singler <- function(
+    sce, 
+    plot_title,
+    prim = prim_aggr, 
+    mets = mets_aggr, 
+    merged = merged_aggr
+  ) {
+    
+  restrict_genes <- intersect(rownames(prim), rownames(sce))
+  res_prim <- SingleR::SingleR(
+    sce,
+    prim,
+    labels = prim$label,
+    aggr.ref = TRUE,
+    restrict = restrict_genes,
+    BPPARAM = bp_param
+  )$pruned.labels
+  
+  restrict_genes <- intersect(rownames(mets), rownames(sce))
+  res_mets <- SingleR::SingleR(
+    sce,
+    mets,
+    labels = mets$label,
+    aggr.ref = TRUE,
+    restrict = restrict_genes,
+    BPPARAM = bp_param
+  )$pruned.labels
+  
+  restrict_genes <- intersect(rownames(merged), rownames(sce)) 
+  res_both <- SingleR::SingleR(
+    sce,
+    ref = list(prim=prim, mets=mets), 
+    labels = list(prim$label, mets$label),
+    aggr.ref = TRUE,
+    restrict = restrict_genes,
+    BPPARAM = bp_param
+  )$pruned.labels
+  
+  res_merged <- SingleR::SingleR(
+    sce,
+    ref = merged, 
+    labels = merged$label,
+    aggr.ref = TRUE,
+    restrict = restrict_genes,
+    BPPARAM = bp_param
+  )$pruned.labels
+  
+  results <- list(
+    "prim" = res_prim,
+    "mets" = res_mets,
+    "both" = res_both,
+    "merged" = res_merged
+  )
+
+  return(results)
+}
+```
+
+
+
+
+```{r}
+# function to plot annotation counts for top 10 recovered cell types
+make_labels_barplot <- function(res, plot_title, top_n = 10) {
+  counts_df <- data.frame(
+    "prim"   = res$prim,
+    "mets"   = res$mets,
+    "both"   = res$both,
+    "merged" = res$merged
+  ) |>
+  tidyr::pivot_longer(
+    everything(), 
+    names_to = "category", 
+    values_to = "pruned.labels"
+  ) |>
+  dplyr::count(category, pruned.labels) |>
+  dplyr::slice_max(n = top_n, order_by = n, by = category)
+  
+  ggplot(counts_df) + 
+    aes(x = n, y = tidytext::reorder_within(pruned.labels, n, category)) +
+    geom_col(fill = "cornflowerblue", color = "grey20", linewidth = 0.25) +
+    facet_wrap(vars(category), scales = "free") +
+    tidytext::scale_y_reordered() +
+    labs(x = "count", y = "pruned label", title = plot_title) +
+    theme_bw()
+}
+```
+
+
+
+```{r}
+# calculate Jaccard, excluding NAs which might be present in the pruned labels
+jaccard <- function(a, b) {
+  a <- a[!is.na(a)]
+  b <- b[!is.na(b)]
+  length(intersect(a, b)) / length(union(a, b))
+}
+
+
+# Make a data frame of jaccard indices that we can use for a ggplot heatmap
+make_jaccard_df <- function(labels1, labels2, top_n = 10) {
+  stopifnot(length(labels1) == length(labels2))
+  
+  ids <- seq_along(labels1)
+  
+  labels1 <- ifelse(is.na(labels1), "Unknown", labels1)
+  labels2 <- ifelse(is.na(labels2), "Unknown", labels2)
+  
+  id1_list <- split(ids, labels1)
+  id2_list <- split(ids, labels2)
+  
+  sizes1 <- lengths(id1_list)
+  sizes2 <- lengths(id2_list)
+  
+  top1 <- names(head(sort(sizes1, decreasing = TRUE), top_n))
+  top2 <- names(head(sort(sizes2, decreasing = TRUE), top_n))
+  
+  id1_list <- id1_list[top1]
+  id2_list <- id2_list[top2]
+  
+  cross_df <- tidyr::expand_grid(id1 = names(id1_list), id2 = names(id2_list))
+  
+  cross_df |>
+    dplyr::mutate(
+      jaccard = purrr::pmap_dbl(
+        cross_df,
+        \(id1, id2) jaccard(id1_list[[id1]], id2_list[[id2]])
+      ),
+      id1_label = glue::glue("{id1} (n={sizes1[id1]})"),
+      id2_label = glue::glue("{id2} (n={sizes2[id2]})"),
+      # order labels largest-first, using the already-sorted top1/top2 order
+      id1_label = factor(id1_label, levels = glue::glue("{top1} (n={sizes1[top1]})")),
+      id2_label = factor(id2_label, levels = glue::glue("{top2} (n={sizes2[top2]})"))
+    )
+}
+
+plot_jaccard_heatmap <- function(df, title) {
+  ggplot(df) +
+    aes(
+      x = id2_label,
+      y = forcats::fct_rev(id1_label),
+      fill = jaccard
+    ) +
+    geom_tile(color = "grey80") +
+    scale_fill_distiller(palette = "RdBu", direction = -1, limits = c(0, 1)) +
+    labs(title = title, x = "", y = "", fill = "Jaccard") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 30, hjust = 1))
+}
+```
+
+
+```{r}
+plot_results <- function(label_list, title, top_n = 10) {
+  
+  p1 <- make_labels_barplot(label_list, title, top_n)
+  p2 <- make_jaccard_df(label_list$mets, label_list$prim, top_n) |>
+    plot_jaccard_heatmap("Metastasis (rows) vs. primary (cols) reference")
+  p3 <- make_jaccard_df(label_list$merged, label_list$both, top_n) |>
+    plot_jaccard_heatmap("Merged (rows) references vs. both provided (cols)")
+  
+  p1 / p2 / p3
+}
+```
+
+
+Now, we can run `SingleR`:
+
+
+```{r}
+result_list <- sce_list |>
+  purrr::imap(run_singler)
+```
+
+And make a huge number of plots:
+
+
+```{r}
+#| fig.height: 12
+#| fig.width: 8
+result_list |>
+  purrr::imap(plot_results)
+```
+
+
+## Conclusions
+
+### Control lung mets sample
+
+* This did not return a straightforward answer that suggests to use the mets reference - it seems that many primary reference cell types are coming back from each of the "merged" and "both" strategies and these results do not fully agree with the results from mets alone.
+* Importantly, `Fibroblasts` is _only_ a cell type in the mets reference, not the prim, but we only see this dominating in the results when mets is used. 
+When either of the both/merged is used, cell types from the prim reference seem to become much more prominent, in particular CAFs and Endothelial cells, and fibroblasts tends to lose out to those options.
+
+For this one, it's helpful to also look at the mets vs. both heatmap:
+
+```{r}
+make_jaccard_df(result_list$SCPCL000856_control_Lung$mets, result_list$SCPCL000856_control_Lung$both) |>
+  plot_jaccard_heatmap("Metastasis (rows) vs. both provided (cols)")
+```
+Indeed, a lot of primary cell types are coming back that map to mets cell types, but are similarly labeled (although there's a lot of back and forth with CAFs/pericytes).
+This is maybe indeed a vote for just the mets reference.
+
+
+
+### Control femur primary sample
+
+* We see pretty good correspondence between "both"/"merged" here, and in general this sample seems to have 
+* From this sample, we see something also reflected in the control lung, that there may be some expression overlap between the prim CAFs and the mets Fibroblasts, but this isn't something we necessarily observed in `02-compare-references.Rmd`.
+It seems though that `SingleR` tends to find mets Fibroblasts as a substitute for prim CAFs
+
+### Paraspinal metastasis
+
+* Reasonably consistent results between the mets reference and both/merged, which themselves are fairly consistent as well
+* Interestingly, we don't really see mets neuronal, only prim neuronal, and I might expect to see this cell type for a paraspinal sample!
+A combined reference might be helpful here
+
+
+### Kidney metastasis
+
+* No surprise, this is a good case for mets because primary doesn't have epithelial cells in it
+* We see more NAs here too, which isn't surprising because kidney is a rather different tissue from what the references capture
+
+
+### Thigh metastasis
+
+* Highly similar cell types are coming back regardless of the reference, and very similar results between merged/both
+* Osteoblasts (albeit very small number) seem to only get returned for prim and merged, but not both
+
+### Femur metastasis
+
+* Fairly similar distributions across both/merged/mets, but less 1:1 between mets and prim cell types
+* This one shows a lot of interplay across fibrogenic/neuronal/mp_progenitor - two of which are tumor but neuronal is classified in the mesenchymal higher-level annotation
+
+For this one, it's helpful to also look at the mets vs. both heatmap:
+
+```{r}
+make_jaccard_df(result_list$SCPCL001146_test_Femur$mets, result_list$SCPCL001146_test_Femur$both) |>
+  plot_jaccard_heatmap("Metastasis (rows) vs. both provided (cols)")
+```
+Again cell types tend to match up well between references, which is nice to see but there is still some fibrogenic/neuronal/mp_progenitor blending.
+
+
+
+## Deciding which references to use
+
+We clearly see from this exploration that, between mets and prim references, some shared cell type labels have shared expression patterns but other shared labels do not. 
+This echoes observations from heatmaps in `02-compare-references.Rmd`, and suggests that a joint reference approach may be preferable in general especially if it is not very _contradictory_ with using a single reference for a well-matched case.
+The question remains, which approach should we use to combine references?
+In cases where we might want to use both references, which approach should we use?
+This exploration was not definitive either way, since the results from these two combined approaches are similar but certainly not identical.
+But, we can think about the methods we'll be using:
+
+* `SingleR` generally suggests to use the "both" strategy (don't merge them but send them in together), and it uses its own algorithm for deciding between them
+* But, over in `scANVI`, we don't have an apples-to-apples version of that; we would instead have to concatenate references and that project samples on top of that joint projection
+
+Of course the underlying algorithms are fairly distinct here, but to retain a shared approach it may be best to indeed concatenate (the "merged" strategy here) references for `SingleR`. 
+
+
+## Session Info
+
+```{r session info}
+sessionInfo()
+```
