@@ -19,9 +19,7 @@ In this notebook, we'll do some cursory runs of `SingleR` on a couple osteosarco
 This is obviously not a comprehensive look at our osteosarcoma samples, but it may still help guide decisions.
 Note that this notebook does not consider any xenograft references or xenograft samples.
 
-We particularly explore samples with a mismatch from the reference:
-
-* We have several non-lung metastasis samples, but the `OsteoCar` metastasis reference was 
+We particularly explore samples with a mismatch from the reference: We have severalnon-lung metastasis samples, but the `OsteoCar` metastasis reference was built from only lung tissue, so it's not immediately clear which reference is the best match.
 
 ## Setup
 
@@ -149,7 +147,7 @@ samples_to_test <- sample_df |>
   dplyr::select(sce_path, id) 
 ```
 
-Which libraries, and what's the location?
+Which libraries, and what's the tissue location?
 
 ```{r}
 samples_to_test$id
