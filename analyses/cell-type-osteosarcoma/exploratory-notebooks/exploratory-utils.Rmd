@@ -49,7 +49,7 @@ run_singler <- function(
   )
 
   # return list of results
-  # this syntac allows the string that main_title hold to be used as the name
+  # this syntax allows the string that main_title hold to be used as the name
   results <- setNames(
     list(res_main, res_harmonized, res_concatenated),
     c(ref_title, "Harmonized reference", "Concatenated reference")

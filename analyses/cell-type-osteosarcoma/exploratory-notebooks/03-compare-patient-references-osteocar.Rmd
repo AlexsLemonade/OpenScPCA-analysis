@@ -217,7 +217,7 @@ results <- run_singler(
 
 ### Annotated cell types 
 
-The following plots show the distribution of cell types annotated for each refernce as well as distributions of the `delta.next` scores.
+The following plots show the distribution of cell types annotated for each reference as well as distributions of the `delta.next` scores.
 
 ```{r}
 #| fig.width: 6
