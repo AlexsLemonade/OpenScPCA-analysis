@@ -47,7 +47,13 @@ ref_dir <- file.path(module_dir, "references")
 ```
 
 
-Source functions which are separated into their own file for both legibility and re-use:
+Source functions which are separated into their own file for both legibility and re-use. 
+The functions include:
+
+* `run_singler()`, which runs `SingleR` using several references over an SCE object and returns a named list of results
+* `get_top_n()`, a helper function to downsample a DataFrame to only the top `n` cell types in 
+* `plot_results`(), which plots both a barplot of cell type annotation counts as well as a ridge plot of `delta.next` scores for a given `SingleR` result DataFrame
+* `jaccard()`, `make_jaccard_df()`, and `plot_jaccard_heatmap()` which are used to prepare a data frame of Jaccard similarity index values between two sets of results and plot this in a heatmap
 
 ```{r child='exploratory-utils.Rmd'}
 ```
