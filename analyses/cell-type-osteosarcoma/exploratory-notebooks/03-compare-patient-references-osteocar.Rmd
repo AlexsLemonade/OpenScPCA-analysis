@@ -332,7 +332,7 @@ purrr::imap(results, plot_results) |>
 For all references, TAMs always come back as the most prevalent cell type, and it's nice to see that the median `delta.next` for these calls is decently above 0.
 When the primary reference is included whether either the harmonized or concatenated strategy, we see that basal progenitors get picked up as a major cell type, and we end up with somewhat fewer proliferative cells.
 
-For `delta.next` in general, the immune and epithelial cell types (and endothelial when detected) are coming back with higher medians compared to all other cell tyopes which are quite close to 0, suggesting challenges in confidently resolving these. 
+For `delta.next` in general, the immune and epithelial cell types (and endothelial when detected) are coming back with higher medians compared to all other cell types which are quite close to 0, suggesting challenges in confidently resolving the individual tumor cell types. 
 
 
 ### SingleR heatmaps
