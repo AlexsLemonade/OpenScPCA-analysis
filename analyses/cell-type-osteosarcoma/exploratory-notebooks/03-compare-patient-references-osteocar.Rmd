@@ -18,7 +18,7 @@ In this notebook, we'll do some cursory runs of `SingleR` on a couple osteosarco
 
 Note that we don't explore here the approach of providing both references to `SingleR`, because the way that approach works necessarily does not return a `delta.next` value which we would really like here for diagnostic purposes.
 
-We'll specifically explore a two samples which appear in ScPCA _and_ OsteoCar, since this represents the closest we can get to "ground truth," - one primary and one metastasis.
+We'll specifically explore two samples which appear in ScPCA _and_ OsteoCar, since this represents the closest we can get to "ground truth," - one primary and one metastasis.
 These samples were manually chosen from the sample list in `references/SCPCP000023-osteocar-samples.tsv`, compared to the sample table shown on the ScPCA portal which tells us the number of processed cells since we would like samples with a high number of cells here. 
 
 
@@ -338,7 +338,7 @@ purrr::imap(results, plot_results) |>
 For all references, TAMs always come back as the most prevalent cell type, and it's nice to see that the median `delta.next` for these calls is decently above 0.
 When the primary reference is included whether either the harmonized or concatenated strategy, we see that basal progenitors get picked up as a major cell type, and we end up with somewhat fewer proliferative cells.
 
-For `delta.next` in general, the immune and epithelial cell types (and endothelial when detected) are coming back with higher medians compared to all other cell tyopes which are quite close to 0, suggesting challenges in confidently resolving these. 
+For `delta.next` in general, the immune and epithelial cell types (and endothelial when detected) are coming back with higher medians compared to all other cell types which are quite close to 0, suggesting challenges in confidently resolving the individual tumor cell types. 
 
 
 ### SingleR heatmaps
