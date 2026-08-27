@@ -104,7 +104,8 @@ run_singler <- function(
 Next we'll source some utility functions:
 
 * `get_top_n()`, a helper function to downsample a `SingleR` results DataFrame to only the top `n` cell types in 
-* `plot_results`(), which plots both a barplot of cell type annotation counts as well as a ridge plot of `delta.next` scores for a given `SingleR` result DataFrame
+* `plot_results()`, which plots both a barplot of cell type annotation counts as well as a ridge plot of `delta.next` scores for a `SingleR` result DataFrame
+* `plot_delta_next_per_reference()`, which plots the distribution of `delta.next` scores for matching labels across references from a named list of `SingleR` results.
 * `jaccard()`, `make_jaccard_df()`, and `plot_jaccard_heatmap()` which are used to prepare a data frame of Jaccard similarity index values between two sets of results and plot this in a heatmap
 
 ```{r child='exploratory-utils.Rmd'}
@@ -315,12 +316,31 @@ Labels for the concatenated reference tend to be primary, not metastasis.
 The key here is also the `delta.next` scores, whose medians tend to be very close to 0 with the exception of endothelial cells.
 This suggests that there are challenges to calling the specific tumor cell type, although maybe not in calling tumor in first place.
 
-One question is what those cell types next in line actually are. 
-This isn't something we can precisely determine from the scores `SingleR` returns because of fine-tuning, but `SingleR` heatmaps will be able to give us a sense of which cell types seem similarly viable for each cell.
+
+Next, we'll plot the distributions of `delta.next` scores shown for cells which have the same annotation (ignoring the primary/mets source!) across all three references.
+The plot considers only the top 10 cell types (if there are that many in common), and only plots cell types with at least 3 cells per reference.
+This will show us if any of the references is more confidently assigning these cell types.
+
+
+```{r}
+#| fig.width: 4
+#| fig.height: 5
+#| message: false
+
+plot_delta_next_per_reference(results)
+```
+
+There are few cell types here with shared labels across all references.
+The standalone patient primary reference seems to have a bit higher scores for some of these cell types, but the difference is not dramatic.
+There is no strong evidence here that one reference is more confident.
+
 
 ### SingleR heatmaps
 
-This doesn't render great with `purrr::map()`, so one at a time:
+One question is what the "second best" cell types actually are. 
+This isn't something we can precisely determine from the scores `SingleR` returns because of fine-tuning, but `SingleR` heatmaps will be able to give us a sense of which cell types seem similarly viable for each cell.
+
+Note that these don't render great with `purrr::map()`, so we plot one at a time:
 
 ```{r}
 SingleR::plotScoreHeatmap(results$`Primary patient reference`, main = "Primary patient reference")
@@ -406,7 +426,7 @@ ggplot(mets_ground_truth) +
   labs(x = "count", y = "Ann_Level2 cell type")
 ```
 
-Nearly all the SCE cells are in OsteoCAR, most of which are annotated as immune myeloid, epithilial, and tumor cells.
+Nearly all the SCE cells are in OsteoCAR, most of which are annotated as immune myeloid, epithilial, or tumor cells.
 
 
 ```{r}
@@ -439,6 +459,21 @@ When the primary reference is included whether either the harmonized or concaten
 
 For `delta.next` in general, the immune and epithelial cell types (and endothelial when detected) are coming back with higher medians compared to all other cell types which are quite close to 0, suggesting challenges in confidently resolving the individual tumor cell types. 
 
+
+Next, we'll plot the distributions of `delta.next` scores shown for the top 10 cell types which have the same annotation (ignoring the primary/mets source!) across all three references.
+This will show us if any of the references is more confidently assigning these cell types.
+
+
+```{r}
+#| fig.width: 4
+#| fig.height: 7.5
+#| message: false
+
+plot_delta_next_per_reference(results)
+```
+
+Certain cell types (DC, profilerative, T cells, TAMs) seem to have higher scores for the metastasis (matched) reference and possibly also the harmonized reference, but these differences have a very small effect size. 
+There is no strong evidence here that one reference is more confident.
 
 ### SingleR heatmaps
 
@@ -482,7 +517,7 @@ results |>
   patchwork::wrap_plots(ncol = 1)
 ```
 
-On the whole, this is a much cleaner result compared to the primary sample we explored in the previous section, but we also have many more cells being compared here!
+On the whole, this is a much cleaner result compared to the primary sample we explored in the previous section, but we also have many more cell types being compared here!
 The metastasis (matched) and harmonized references seem to do well, and from the concatenated reference we can see that when a "primary" label is coming back, it generally matches the cell type we expect based on ground truth.
 For example, see the ground truth for monocytes - this is largely split between mets and primary monocytes.
 
@@ -490,9 +525,11 @@ For example, see the ground truth for monocytes - this is largely split between 
 
 There appears to be a decent match between ground truth and `SingleR` labels for many of the references explored here.
 We see (in particular for primary patient sample) that there tends to be ambiguity among the tumor cell types, as the `SingleR` heatmaps emphasize.
+Overall, it does not seem that matched vs combined references are more confident in their labels either. 
 One limitation here is that the primary sample doesn't have a ton of cell type diversity besides tumor cells.
 
 Based on this exploration, the harmonized reference (where we combine aggregated references and _merge the labels_) seems like a decent bet, but it would also be worthwhile to explore using the coarser-grained `Ann_Level1` to see what we would gain vs lose compared to `Ann_Level2`.
+It would also be worthwhile to explore different approaches for creating a harmonized reference, e.g. by downsampling the raw SCE references to combine them _before_ aggregating with `SingleR`.
 
 
 ## Session info
