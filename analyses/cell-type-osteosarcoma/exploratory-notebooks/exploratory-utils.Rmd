@@ -63,9 +63,9 @@ plot_results <- function(res_dataframe, plot_title, top_n = 10) {
   
   patchwork::wrap_plots(barplot, deltanext_plot)
 }
-```
 
-```{r}
+# function to plot the delta.next scores for the top_n cell types for
+# cells that have the same annotation across references
 plot_delta_next_per_reference <- function(result_list, top_n = 10) {
   combined_results <- result_list |>
     purrr::map(\(res) {
