@@ -10,26 +10,26 @@ It is generally not meant to be run standalone.
 Functions to plot and wrangle the output from `SingleR`:
 
 ```{r}
-# Convert the DataFrame to a data.frame with only the top_n pruned.labels
-get_top_n <- function(res_dataframe, top_n = 10) {
+# Convert the DataFrame to a data.frame with only the top_n labels in the given label_col
+get_top_n <- function(res_dataframe, label_col, top_n = 10) {
   df <- res_dataframe |> 
     as.data.frame() 
   
   # subset to top_n most frequent labels
   top_labels <- df |> 
-    dplyr::count(pruned.labels, sort = TRUE) |> 
+    dplyr::count({{label_col}}, sort = TRUE) |> 
     dplyr::slice_head(n = top_n) |> 
-    dplyr::pull(pruned.labels)
+    dplyr::pull({{label_col}})
   
   # return
   df |> 
-    dplyr::filter(pruned.labels %in% top_labels)
+    dplyr::filter({{label_col}} %in% top_labels)
   
 }
 
 # function to plot annotation counts and delta next scores for top n recovered cell types
 plot_results <- function(res_dataframe, plot_title, top_n = 10) {
-  df <- get_top_n(res_dataframe)
+  df <- get_top_n(res_dataframe, pruned.labels, top_n)
   
   barplot <- ggplot(df) + 
     aes(y = forcats::fct_infreq(pruned.labels)) + 
@@ -64,6 +64,67 @@ plot_results <- function(res_dataframe, plot_title, top_n = 10) {
   patchwork::wrap_plots(barplot, deltanext_plot)
 }
 ```
+
+```{r}
+plot_delta_next_per_reference <- function(result_list, top_n = 10) {
+  combined_results <- result_list |>
+    purrr::map(\(res) {
+      res |>
+        as.data.frame() |>
+        tibble::rownames_to_column("barcode") |>
+        dplyr::select(barcode, delta.next, pruned.labels) |>
+        # for this comparison strip out the prefix
+        dplyr::mutate(
+          pruned.labels_noprefix = stringr::str_remove(pruned.labels, "^prim_") |>
+            stringr::str_remove("^mets_")
+        )
+    }) |>
+    purrr::list_rbind(names_to = "reference") |>
+    get_top_n(pruned.labels_noprefix, top_n)
+  
+  
+  same_label_barcodes <- combined_results |>
+    dplyr::count(barcode, pruned.labels_noprefix) |>
+    dplyr::filter(n == 3) |>
+    dplyr::pull(barcode)
+  
+  # only keep if there are at least times the label appears per reference though
+  labels_to_plot <- combined_results |>
+    dplyr::filter(barcode %in% same_label_barcodes) |>
+    dplyr::count(reference, pruned.labels_noprefix) |>
+    dplyr::filter(n >= 3) |>
+    dplyr::pull(pruned.labels_noprefix)
+  
+  combined_results |>
+    dplyr::filter(
+      barcode %in% same_label_barcodes, 
+      pruned.labels_noprefix %in% labels_to_plot
+    ) |> 
+    ggplot() + 
+    aes(x = delta.next, y = reference) + 
+    ggridges::geom_density_ridges(
+      fill = "lemonchiffon", 
+      alpha = 0.5, 
+      linewidth = 0.25,
+      scale = 0.95,
+      # show median line
+      quantile_lines = TRUE, 
+      quantiles = 2, 
+      # add rug
+      jittered_points = TRUE,
+      position = ggridges::position_points_jitter(width = 0, height = 0), # Removes vertical jitter if for a true rug
+      point_shape = "|", 
+      point_size = 0.5, 
+      point_colour = "chocolate3"
+    ) +
+    facet_grid(vars(pruned.labels_noprefix)) + 
+    theme(
+      axis.text =  element_text(size = 6),
+      strip.text = element_text(size = 6)
+    )
+}
+```
+
 
 Functions to create Jaccard similarity heatmaps:
 
