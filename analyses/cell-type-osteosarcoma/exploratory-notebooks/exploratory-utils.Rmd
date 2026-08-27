@@ -7,58 +7,6 @@ This notebook defines some functions that are used to explore references.
 It is generally not meant to be run standalone.
 
 
-Function to run `SingleR` across a few references:
-
-```{r}
-# Function to run SingleR for a given SCE for each type of reference we are evaluating here
-run_singler <- function(
-    sce, 
-    ref_main,
-    ref_title,
-    ref_harmonized = harmonized_aggr,
-    ref_concatenated = concatenated_aggr
-  ) {
-    
-  # Reference that matches this sample
-  res_main <- SingleR::SingleR(
-    sce,
-    ref_main,
-    labels = ref_main$label,
-    restrict = intersect(rownames(ref_main), rownames(sce)),
-    BPPARAM = bp_param
-  )
-  
-  shared_genes <- intersect(rownames(ref_harmonized), rownames(sce))
-
-  # Harmonized reference
-  res_harmonized <- SingleR::SingleR(
-    sce,
-    ref_harmonized,
-    labels = ref_harmonized$label,
-    restrict = shared_genes,
-    BPPARAM = bp_param
-  )
-  
-  # Concatenated reference
-  res_concatenated <- SingleR::SingleR(
-    sce,
-    ref_concatenated,
-    labels = ref_concatenated$label,
-    restrict = shared_genes,
-    BPPARAM = bp_param
-  )
-
-  # return list of results
-  # this syntax allows the string that main_title hold to be used as the name
-  results <- setNames(
-    list(res_main, res_harmonized, res_concatenated),
-    c(ref_title, "Harmonized reference", "Concatenated reference")
-  )
-  return(results)
-}
-```
-
-
 Functions to plot and wrangle the output from `SingleR`:
 
 ```{r}

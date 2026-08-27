@@ -33,6 +33,7 @@ suppressPackageStartupMessages({
   library(ggplot2)
   library(patchwork)
 })
+theme_set(theme_bw())
 bp_param <- BiocParallel::MulticoreParam(6)
 set.seed(2026)
 mem.maxVSize(48000) # seems to sometimes be needed for reading in the big files
@@ -47,17 +48,69 @@ ref_dir <- file.path(module_dir, "references")
 ```
 
 
-Source functions which are separated into their own file for both legibility and re-use. 
-The functions include:
+### Functions
 
-* `run_singler()`, which runs `SingleR` using several references over an SCE object and returns a named list of results
-* `get_top_n()`, a helper function to downsample a DataFrame to only the top `n` cell types in 
+First we define the `run_singler()` function, which runs `SingleR` over a given matched reference as well as the two kinds of combined references and returns them in a list.
+
+```{r}
+# Function to run SingleR for a given SCE for each type of reference we are evaluating here
+run_singler <- function(
+    sce, 
+    ref_main,
+    ref_title,
+    ref_harmonized = harmonized_aggr,
+    ref_concatenated = concatenated_aggr
+  ) {
+    
+  # Reference that matches this sample
+  res_main <- SingleR::SingleR(
+    sce,
+    ref_main,
+    labels = ref_main$label,
+    restrict = intersect(rownames(ref_main), rownames(sce)),
+    BPPARAM = bp_param
+  )
+  
+  shared_genes <- intersect(rownames(ref_harmonized), rownames(sce))
+
+  # Harmonized reference
+  res_harmonized <- SingleR::SingleR(
+    sce,
+    ref_harmonized,
+    labels = ref_harmonized$label,
+    restrict = shared_genes,
+    BPPARAM = bp_param
+  )
+  
+  # Concatenated reference
+  res_concatenated <- SingleR::SingleR(
+    sce,
+    ref_concatenated,
+    labels = ref_concatenated$label,
+    restrict = shared_genes,
+    BPPARAM = bp_param
+  )
+
+  # return list of results
+  # this syntax allows the string that main_title hold to be used as the name
+  results <- setNames(
+    list(res_main, res_harmonized, res_concatenated),
+    c(ref_title, "Harmonized reference", "Concatenated reference")
+  )
+  return(results)
+}
+```
+
+Next we'll source some utility functions:
+
+* `get_top_n()`, a helper function to downsample a `SingleR` results DataFrame to only the top `n` cell types in 
 * `plot_results`(), which plots both a barplot of cell type annotation counts as well as a ridge plot of `delta.next` scores for a given `SingleR` result DataFrame
 * `jaccard()`, `make_jaccard_df()`, and `plot_jaccard_heatmap()` which are used to prepare a data frame of Jaccard similarity index values between two sets of results and plot this in a heatmap
 
 ```{r child='exploratory-utils.Rmd'}
 ```
 
+## Define control samples
 
 We'll define the samples we're using here.
 These were chosen based on manual inspection of how many cells are present and how many barcodes overlap with `OsteoCAR` to be able to get some decent signal here.
@@ -104,7 +157,6 @@ patient_mets <- readr::read_rds(file.path(ref_dir, "patient_mets_sce.rds"))
 Before we aggregate, we'll grab the ground truth cell types we're interested in for comparison from the raw reference files.
 
 ```{r}
-
 extract_ground_truth <- function(ref, submitter_id) {
   colData(ref) |>
     as.data.frame() |>
@@ -116,7 +168,7 @@ extract_ground_truth <- function(ref, submitter_id) {
         stringr::str_remove("^_") |>
         stringr::str_remove("-1$")) |>
     dplyr::filter(original_sample_id == submitter_id) |>
-    dplyr::select(original_sample_id, barcode, ground_truth_label = Ann_Level2) |>
+    dplyr::select(original_sample_id, barcode, ground_truth_label = Ann_Level2, ground_truth_ann_level1 = Ann_Level1) |>
     # nicer printing for dev
     tibble::as_tibble()
 }
@@ -202,6 +254,28 @@ sce <- readRDS(
 
 sce
 ```
+
+
+Before we run `SingleR`, we'll ask:
+
+What fraction of cells in the SCE are present in OsteoCAR?
+
+```{r}
+nrow(prim_ground_truth) / ncol(sce)
+```
+
+
+What are the cell types as recorded in OsteoCAR?
+
+```{r}
+ggplot(prim_ground_truth) +
+  aes(y = forcats::fct_infreq(ground_truth_label)) + 
+  geom_bar(fill = "darksalmon", color = "grey20") + 
+  facet_wrap(vars(ground_truth_ann_level1), scales = "free") +
+  labs(x = "count", y = "Ann_Level2 cell type")
+```
+
+75% of the SCE cells are in OsteoCAR, and the vast majority of them are types of tumor cells.
 
 
 Next, we'll run `SingleR`:
@@ -308,6 +382,31 @@ sce <- readRDS(
 
 sce
 ```
+
+
+Before we run `SingleR`, we'll ask:
+
+What fraction of cells in the SCE are present in OsteoCAR?
+
+```{r}
+nrow(mets_ground_truth) / ncol(sce)
+```
+
+
+What are the cell types as recorded in OsteoCAR?
+
+```{r}
+#| fig.width: 8
+#| fig.height: 4
+
+ggplot(mets_ground_truth) +
+  aes(y = forcats::fct_infreq(ground_truth_label)) + 
+  geom_bar(fill = "lightgreen", color = "grey20") + 
+  facet_wrap(vars(ground_truth_ann_level1), scales = "free") +
+  labs(x = "count", y = "Ann_Level2 cell type")
+```
+
+Nearly all the SCE cells are in OsteoCAR, most of which are annotated as immune myeloid, epithilial, and tumor cells.
 
 
 ```{r}
