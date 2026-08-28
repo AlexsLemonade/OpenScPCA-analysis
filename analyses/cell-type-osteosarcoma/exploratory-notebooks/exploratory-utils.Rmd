@@ -1,0 +1,191 @@
+---
+title: "Exploratory functions"
+output: html_notebook
+---
+
+This notebook defines some functions that are used to explore references.
+It is generally not meant to be run standalone.
+
+
+Functions to plot and wrangle the output from `SingleR`:
+
+```{r}
+# Convert the DataFrame to a data.frame with only the top_n labels in the given label_col
+get_top_n <- function(res_dataframe, label_col, top_n = 10) {
+  df <- res_dataframe |> 
+    as.data.frame() 
+  
+  # subset to top_n most frequent labels
+  top_labels <- df |> 
+    dplyr::count({{label_col}}, sort = TRUE) |> 
+    dplyr::slice_head(n = top_n) |> 
+    dplyr::pull({{label_col}})
+  
+  # return
+  df |> 
+    dplyr::filter({{label_col}} %in% top_labels)
+  
+}
+
+# function to plot annotation counts and delta next scores for top n recovered cell types
+plot_results <- function(res_dataframe, plot_title, top_n = 10) {
+  df <- get_top_n(res_dataframe, pruned.labels, top_n)
+  
+  barplot <- ggplot(df) + 
+    aes(y = forcats::fct_infreq(pruned.labels)) + 
+    geom_bar(fill = "cornflowerblue", color = "grey20", linewidth = 0.25) +
+    # put the title here instead of shared via patchwork since apparently that
+    # gets overridden when I call plot_annotation() again to wrap all of these
+    labs(x = "number of cells", y = "pruned label", title = plot_title) +
+    theme_bw(base_size = 8) + 
+    theme(plot.title = element_text(size = 8))
+  
+
+  deltanext_plot <- ggplot(df) + 
+    aes(x = delta.next, y = forcats::fct_infreq(pruned.labels)) + 
+    ggridges::geom_density_ridges(
+      fill = "darkslategray", 
+      alpha = 0.5, 
+      linewidth = 0.25,
+      scale = 0.95,
+      # show median line
+      quantile_lines = TRUE, 
+      quantiles = 2, 
+      # add rug
+      jittered_points = TRUE,
+      position = ggridges::position_points_jitter(width = 0, height = 0), # Removes vertical jitter if for a true rug
+      point_shape = "|", 
+      point_size = 0.2, 
+      point_colour = "firebrick"
+    ) +
+    labs(x = "delta next", y = "pruned label") +
+    theme_bw(base_size = 8)
+  
+  patchwork::wrap_plots(barplot, deltanext_plot)
+}
+
+# function to plot the delta.next scores for the top_n cell types for
+# cells that have the same annotation across references
+plot_delta_next_per_reference <- function(result_list, top_n = 10) {
+  combined_results <- result_list |>
+    purrr::map(\(res) {
+      res |>
+        as.data.frame() |>
+        tibble::rownames_to_column("barcode") |>
+        dplyr::select(barcode, delta.next, pruned.labels) |>
+        # for this comparison strip out the prefix
+        dplyr::mutate(
+          pruned.labels_noprefix = stringr::str_remove(pruned.labels, "^prim_") |>
+            stringr::str_remove("^mets_")
+        )
+    }) |>
+    purrr::list_rbind(names_to = "reference") |>
+    get_top_n(pruned.labels_noprefix, top_n)
+  
+  
+  same_label_barcodes <- combined_results |>
+    dplyr::count(barcode, pruned.labels_noprefix) |>
+    dplyr::filter(n == 3) |>
+    dplyr::pull(barcode)
+  
+  # only keep if there are at least times the label appears per reference though
+  labels_to_plot <- combined_results |>
+    dplyr::filter(barcode %in% same_label_barcodes) |>
+    dplyr::count(reference, pruned.labels_noprefix) |>
+    dplyr::filter(n >= 3) |>
+    dplyr::pull(pruned.labels_noprefix)
+  
+  combined_results |>
+    dplyr::filter(
+      barcode %in% same_label_barcodes, 
+      pruned.labels_noprefix %in% labels_to_plot
+    ) |> 
+    ggplot() + 
+    aes(x = delta.next, y = reference) + 
+    ggridges::geom_density_ridges(
+      fill = "lemonchiffon", 
+      alpha = 0.5, 
+      linewidth = 0.25,
+      scale = 0.95,
+      # show median line
+      quantile_lines = TRUE, 
+      quantiles = 2, 
+      # add rug
+      jittered_points = TRUE,
+      position = ggridges::position_points_jitter(width = 0, height = 0), # Removes vertical jitter if for a true rug
+      point_shape = "|", 
+      point_size = 0.5, 
+      point_colour = "chocolate3"
+    ) +
+    facet_grid(vars(pruned.labels_noprefix)) + 
+    theme(
+      axis.text =  element_text(size = 6),
+      strip.text = element_text(size = 6)
+    )
+}
+```
+
+
+Functions to create Jaccard similarity heatmaps:
+
+```{r}
+jaccard <- function(a, b) {
+  length(intersect(a, b)) / length(union(a, b))
+}
+
+
+# Make a data frame of jaccard indices that we can use for a ggplot heatmap
+make_jaccard_df <- function(labels1, labels2) {
+  stopifnot(length(labels1) == length(labels2))
+  
+  ids <- seq_along(labels1)
+  
+  labels1 <- ifelse(is.na(labels1), "Unknown", labels1)
+  labels2 <- ifelse(is.na(labels2), "Unknown", labels2)
+  
+  id1_list <- split(ids, labels1)
+  id2_list <- split(ids, labels2)
+  
+  sizes1 <- lengths(id1_list)
+  sizes2 <- lengths(id2_list)
+  
+  cross_df <- tidyr::expand_grid(id1 = names(id1_list), id2 = names(id2_list))
+  
+  cross_df |>
+    dplyr::mutate(
+      jaccard = purrr::pmap_dbl(
+        cross_df,
+        \(id1, id2) jaccard(id1_list[[id1]], id2_list[[id2]])
+      ),
+      id1_label = glue::glue("{id1} (n={sizes1[id1]})"),
+      id2_label = glue::glue("{id2} (n={sizes2[id2]})")
+    )
+}
+
+plot_jaccard_heatmap <- function(labels1, labels2, labels1_lab, labels2_lab) {
+  
+  jaccard_df <- make_jaccard_df(labels1, labels2)
+  
+  ggplot(jaccard_df) +
+    aes(
+      x = forcats::fct_rev(id1_label),
+      y = id2_label,
+      fill = jaccard
+    ) +
+    geom_tile(color = "grey80") +
+    scale_fill_distiller(palette = "RdBu", direction = -1, limits = c(0, 1)) +
+    labs(x = labels1_lab, y = labels2_lab, fill = "Jaccard") +
+    theme_minimal(base_size = 8) +
+    theme(axis.text.x = element_text(angle = 30, hjust = 1))
+}
+
+compare_to_ground_truth <- function(res_dataframe, ground_truth_df) {
+  res_dataframe |>
+    as.data.frame() |>
+    tibble::rownames_to_column("barcode") |>
+    dplyr::inner_join(ground_truth_df, by = "barcode") |>
+    dplyr::select(pruned.labels, ground_truth_label)
+}
+```
+
+
