@@ -269,11 +269,14 @@ nrow(prim_ground_truth) / ncol(sce)
 What are the cell types as recorded in OsteoCAR?
 
 ```{r}
+#| fig.height: 5
+
 ggplot(prim_ground_truth) +
   aes(y = forcats::fct_infreq(ground_truth_label)) + 
   geom_bar(fill = "darksalmon", color = "grey20") + 
-  facet_wrap(vars(ground_truth_ann_level1), scales = "free") +
-  labs(x = "count", y = "Ann_Level2 cell type")
+  facet_grid(vars(ground_truth_ann_level1), scales = "free") +
+  labs(x = "count", y = "Ann_Level2 cell type") + 
+  theme(strip.text = element_text(size = 7))
 ```
 
 75% of the SCE cells are in OsteoCAR, and the vast majority of them are types of tumor cells.
@@ -416,14 +419,14 @@ nrow(mets_ground_truth) / ncol(sce)
 What are the cell types as recorded in OsteoCAR?
 
 ```{r}
-#| fig.width: 8
-#| fig.height: 4
+#| fig.height: 6
 
 ggplot(mets_ground_truth) +
   aes(y = forcats::fct_infreq(ground_truth_label)) + 
   geom_bar(fill = "lightgreen", color = "grey20") + 
-  facet_wrap(vars(ground_truth_ann_level1), scales = "free") +
-  labs(x = "count", y = "Ann_Level2 cell type")
+  facet_grid(vars(ground_truth_ann_level1), scales = "free") +
+  labs(x = "count", y = "Ann_Level2 cell type") +
+  theme(strip.text = element_text(size = 7))
 ```
 
 Nearly all the SCE cells are in OsteoCAR, most of which are annotated as immune myeloid, epithilial, or tumor cells.
