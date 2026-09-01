@@ -161,8 +161,9 @@ counts(patient_mets) <- NULL
 Before we aggregate, we'll grab the ground truth cell types we're interested in for comparison from the raw reference files.
 In this case, we're interested in:
 
-- All tumor and mesenchymal from level 1 combined into a single label each
-- Other labels take from level 1
+- All tumor and mesenchymal as defined in `Ann_Level1`.
+This means all such cells are, respectively, labeled as just "Tumor" and "Mesenchymal"
+- All other labels are taken from `Ann_Level2`, which is more fine-grained
 
 ```{r}
 extract_ground_truth <- function(ref, submitter_id) {
@@ -445,7 +446,7 @@ Here are the ground truth cell types:
 
 ```{r}
 #| fig.width: 6
-#| fig.height: 4
+#| fig.height: 6
 
 ggplot(mets_ground_truth) +
   aes(y = forcats::fct_infreq(ground_truth_label)) + 
