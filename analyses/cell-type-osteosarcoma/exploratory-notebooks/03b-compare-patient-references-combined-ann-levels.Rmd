@@ -1,0 +1,567 @@
+---
+title: "Compare OsteoCar references for two control patient samples"
+author: "Stephanie J. Spielman"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+---
+
+
+In this notebook, we'll do some cursory runs of `SingleR` on a couple osteosarcoma samples of varying metadata and compare results when using:
+
+* the reference that matches its type
+* a concatenated version of these references with cell types between them kept distinct ("concatenated")
+* a concatenated version of these references with cell types between them _merged_ where they share a label ("harmonized")
+
+This notebook is therefore very similar to `03a-compare-patient-references-ann-level2.Rmd`, except based on observations from that analysis we change the labels we use:
+
+* We use `Ann_Level1` annotations for `Tumor` and `Mesenchymal` groups, whose cell types we observed that `SingleR` struggled to differentiate 
+* We use `Ann_Level2` annotations for the other groups (`Epithelial_Endothelial`, `Immune_Lymphoid`, `Immune_Myeloid`)
+
+We again compare the same two samples, one primary and one metastasis, which each appear in ScPCA _and_ OsteoCar, since this represents the closest we can get to "ground truth."
+
+## Setup
+
+```{r}
+options(readr.show_col_types = FALSE)
+suppressPackageStartupMessages({
+  library(SingleR)
+  library(SingleCellExperiment)
+  library(ggplot2)
+  library(patchwork)
+})
+theme_set(theme_bw())
+bp_param <- BiocParallel::MulticoreParam(6)
+set.seed(2026)
+mem.maxVSize(48000) # seems to sometimes be needed for reading in the big files
+```
+
+```{r}
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+module_dir <- file.path(repository_base, "analyses", "cell-type-osteosarcoma")
+data_dir <- file.path(repository_base, "data", "current")
+ref_dir <- file.path(module_dir, "references")
+```
+
+
+### Functions
+
+First we define the `run_singler()` function, which runs `SingleR` over a given matched reference as well as the two kinds of combined references and returns them in a list.
+
+```{r}
+# Function to run SingleR for a given SCE for each type of reference we are evaluating here.
+# Should operate on `label_combined`
+run_singler <- function(
+    sce, 
+    ref_main,
+    ref_title,
+    ref_harmonized = harmonized_aggr,
+    ref_concatenated = concatenated_aggr
+  ) {
+    
+  # Reference that matches this sample
+  res_main <- SingleR::SingleR(
+    sce,
+    ref_main,
+    labels = ref_main$label_combined,
+    restrict = intersect(rownames(ref_main), rownames(sce)),
+    BPPARAM = bp_param
+  )
+  
+  shared_genes <- intersect(rownames(ref_harmonized), rownames(sce))
+
+  # Harmonized reference
+  res_harmonized <- SingleR::SingleR(
+    sce,
+    ref_harmonized,
+    labels = ref_harmonized$label_combined,
+    restrict = shared_genes,
+    BPPARAM = bp_param
+  )
+  
+  # Concatenated reference
+  res_concatenated <- SingleR::SingleR(
+    sce,
+    ref_concatenated,
+    labels = ref_concatenated$label_combined,
+    restrict = shared_genes,
+    BPPARAM = bp_param
+  )
+
+  # return list of results
+  # this syntax allows the string that main_title hold to be used as the name
+  results <- setNames(
+    list(res_main, res_harmonized, res_concatenated),
+    c(ref_title, "Harmonized reference", "Concatenated reference")
+  )
+  return(results)
+}
+```
+
+Next we'll source some utility functions:
+
+* `get_top_n()`, a helper function to downsample a `SingleR` results DataFrame to only the top `n` cell types in 
+* `plot_results()`, which plots both a barplot of cell type annotation counts as well as a ridge plot of `delta.next` scores for a `SingleR` result DataFrame
+* `plot_delta_next_per_reference()`, which plots the distribution of `delta.next` scores for matching labels across references from a named list of `SingleR` results.
+* `jaccard()`, `make_jaccard_df()`, and `plot_jaccard_heatmap()` which are used to prepare a data frame of Jaccard similarity index values between two sets of results and plot this in a heatmap
+
+```{r child='exploratory-utils.Rmd'}
+```
+
+## Define control samples
+
+We'll define the samples we're using here.
+These were chosen based on manual inspection of how many cells are present and how many barcodes overlap with `OsteoCAR` to be able to get some decent signal here.
+
+```{r}
+prim_sample <- "SCPCS000813"
+mets_sample <- "SCPCS000785"
+
+test_samples <- readr::read_tsv(
+  file.path(ref_dir, "SCPCP000023-osteocar-samples.tsv")
+) |>
+  dplyr::filter(scpca_sample_id %in% c(prim_sample, mets_sample)) |>
+  dplyr::mutate(
+    rds_file = file.path(
+      data_dir, scpca_project_id, scpca_sample_id, glue::glue("{scpca_library_id}_processed.rds")
+    )
+  )
+test_samples
+```  
+
+
+## Read and prepare references
+
+We prepare these references:
+
+* `prim_aggr`: Patient primary
+* `mets_aggr`: Patient metastasis
+* `harmonized_aggr`: Merged references, where cell type labels are retained. 
+In other words, if both references have T cells, we end up with only a single T cell label in `harmonized_aggr`
+* `concatenated_aggr`: Merged references, where cell type labels are prefixed with `mets_` and `prim_`.
+In other words, if both references have T cells, we end up with two labels in `concatenated_aggr`, e.g. `mets_tcell` and `prim_tcell`
+
+Note that the `harmonized_aggr` and `concatenated_aggr` are created from `prim_aggr` and `mets_aggr`, because of memory.
+In other words, the raw references could not be combined on their own.
+
+Read in the SCE-formatted references: 
+
+```{r}
+# Read and remove unused counts assay to save a little space
+patient_prim <- readr::read_rds(file.path(ref_dir, "patient_prim_sce.rds"))
+patient_mets <- readr::read_rds(file.path(ref_dir, "patient_mets_sce.rds"))
+counts(patient_prim) <- NULL
+counts(patient_mets) <- NULL
+```
+
+Before we aggregate, we'll grab the ground truth cell types we're interested in for comparison from the raw reference files.
+In this case, we're interested in:
+
+- All tumor and mesenchymal as defined in `Ann_Level1`.
+This means all such cells are, respectively, labeled as just "Tumor" and "Mesenchymal"
+- All other labels are taken from `Ann_Level2`, which is more fine-grained
+
+```{r}
+extract_ground_truth <- function(ref, submitter_id) {
+  colData(ref) |>
+    as.data.frame() |>
+    tibble::rownames_to_column("cell_id") |>
+    # extract the barcode
+    dplyr::mutate(
+      original_sample_id = stringr::str_remove(cell_id, "_[ACGT]+-1"), 
+      barcode = stringr::str_remove(cell_id, original_sample_id) |>
+        stringr::str_remove("^_") |>
+        stringr::str_remove("-1$")) |>
+    dplyr::filter(original_sample_id == submitter_id) |>
+    dplyr::mutate(
+      ground_truth_label = ifelse(
+        Ann_Level1 == "Tumor", 
+        "Tumor", 
+        Ann_Level2
+      ), 
+      ground_truth_label = ifelse(
+        Ann_Level1 == "Mesenchymal", 
+        "Mesenchymal", 
+        ground_truth_label
+      )
+    ) |>
+    dplyr::select(original_sample_id, barcode, ground_truth_label, ground_truth_ann_level1 = Ann_Level1) |>
+    # nicer printing for dev
+    tibble::as_tibble()
+}
+
+
+# Define data frames with "ground truth" cell types
+prim_ground_truth <- extract_ground_truth(
+  patient_prim, 
+  test_samples$submitter_id[test_samples$scpca_sample_id == prim_sample]
+)
+
+mets_ground_truth <- extract_ground_truth(
+  patient_mets, 
+  test_samples$submitter_id[test_samples$scpca_sample_id == mets_sample]
+)
+```
+
+
+Aggregate references:
+
+```{r}
+prim_aggr <- SingleR::aggregateReference(
+  ref = patient_prim,
+  labels = patient_prim$Ann_Level2,
+  ntop = 2000, # use 2000 genes for PCA
+  BPPARAM = bp_param
+)
+mets_aggr <- SingleR::aggregateReference(
+  ref = patient_mets,
+  labels = patient_mets$Ann_Level2,
+  ntop = 2000,
+  BPPARAM = bp_param
+)
+```
+
+Now we'll combine the Tumor and Mesenchymal each into one category in the aggregated references.
+The reason we change these labels after aggregating instead of before is to preserve diversity among those original cell labels and ensure they make equal contributions towards the overall grouping, which would not necessarily be the case if we collapsed the labels before aggregating.
+That said, this is an analysis choice and exploring its consequences further may be merited.
+
+```{r}
+# all cell types are the same for tumor, but not mesenchymal
+label_subtypes <- list(
+  "Tumor" = patient_prim$Ann_Level2[patient_prim$Ann_Level1 == "Tumor"] |> unique(), 
+  "Mesenchymal" = c(
+    patient_prim$Ann_Level2[patient_prim$Ann_Level1 == "Mesenchymal"] |> unique(),
+    patient_mets$Ann_Level2[patient_mets$Ann_Level1 == "Mesenchymal"] |> unique()
+  ) |> unique()
+)
+
+
+# Helper function to rename the aggregated reference, including both the labels and colnames
+# The final label ends up in colData `label_combined`
+rename_aggr <- function(ref_aggr, subtype_list = label_subtypes) {
+  
+  # for loop to modify ref_aggr
+  ref_aggr$label_combined <- ref_aggr$label
+  for (big_label in names(subtype_list)) {
+    ref_aggr$label_combined <- ifelse(
+      ref_aggr$label %in% subtype_list[[big_label]],
+      big_label,
+      ref_aggr$label_combined
+    )
+  }
+  
+  colnames(ref_aggr) <- paste0(
+    ref_aggr$label_combined, 
+    1:length(ref_aggr$label_combined)
+  )
+  
+  ref_aggr
+}
+prim_aggr <- rename_aggr(prim_aggr)
+mets_aggr <- rename_aggr(mets_aggr)
+```
+
+Clean up immediately for memory:
+
+```{r}
+rm(patient_prim)
+rm(patient_mets)
+gc()
+```
+
+Create the combined references: 
+
+```{r}
+shared_genes <- intersect(
+  rownames(prim_aggr),
+  rownames(mets_aggr)
+)
+
+harmonized_aggr <- cbind(
+  prim_aggr[shared_genes, ],
+  mets_aggr[shared_genes, ]
+)
+
+prim_aggr$label_combined <- glue::glue("prim_{prim_aggr$label_combined}")
+mets_aggr$label_combined <- glue::glue("mets_{mets_aggr$label_combined}")
+concatenated_aggr <- cbind(
+  prim_aggr[shared_genes, ],
+  mets_aggr[shared_genes, ]
+)
+
+# Undo the re-labeling after created the reference above
+prim_aggr$label_combined <- stringr::str_remove(prim_aggr$label_combined, "^prim_")
+mets_aggr$label_combined <- stringr::str_remove(mets_aggr$label_combined, "^mets_")
+```
+
+
+## Primary patient sample
+
+This section will explore how references perform when annotating the patient primary sample.
+
+First, read in the SCE and convert row names to gene symbols to play nicely with `OsteoCAR`:
+
+```{r}
+#| message: false
+
+sce <- readRDS(
+  test_samples$rds_file[test_samples$scpca_sample_id == prim_sample]
+) |>
+  rOpenScPCA::sce_to_symbols(reference = "sce")
+
+sce
+```
+
+As a reminder, what are the cell types as recorded in OsteoCAR?
+
+```{r}
+ggplot(prim_ground_truth) +
+  aes(y = forcats::fct_infreq(ground_truth_label)) + 
+  geom_bar(fill = "darksalmon", color = "grey20") + 
+  facet_grid(vars(ground_truth_ann_level1), scales = "free") +
+  labs(x = "count", y = "cell type") +
+  theme(strip.text = element_text(size = 7))
+```
+
+75% of the SCE cells are in OsteoCAR, and the vast majority of them are types of tumor cells.
+
+
+Next, we'll run `SingleR`:
+
+```{r}
+results <- run_singler(
+  sce,
+  ref_main = prim_aggr,
+  ref_title = "Primary patient reference"
+) |>
+  # convert the NA label to Unknown
+  purrr::map(
+    \(res) {
+      res$pruned.labels[is.na(res$pruned.labels)] <- "Unknown"
+      res
+    }
+  )
+```
+
+### Annotated cell types 
+
+The following plots show the distribution of cell types annotated for each reference as well as distributions of the `delta.next` scores.
+
+```{r}
+#| fig.width: 6
+#| fig.height: 6
+purrr::imap(results, plot_results) |>
+  patchwork::wrap_plots(nrow = 3) + patchwork::plot_annotation(title = "Primary patient sample") 
+```
+
+
+We see that the Tumor `delta.next` scores are all much higher than what we previously observed in the `03a` notebook, suggesting that combining this into a single category is giving us higher confidence to label malignant cells.
+But, it is notable that the Mesenchymal category still has low associated `delta.next` values.
+Endothelial and TAMs are bimodal, suggesting some labels are more confident than others.
+More interestingly, mesenchymal cells are only really coming back for the harmonized reference, and _not_ for the matched primary or the concatenated reference. 
+This reference is also able to detect a handful of epithelial cells, which aren't seen for the matched primary reference because that cell type isn't in the primary reference!
+
+Next, we'll plot the distributions of `delta.next` scores shown for cells which have the same annotation (ignoring the primary/mets source!) across all three references.
+The plot considers only the top 10 cell types (if there are that many in common), and only plots cell types with at least 3 cells per reference.
+This will show us if any of the references is more confidently assigning these cell types.
+
+
+```{r}
+#| fig.width: 4
+#| fig.height: 5
+#| message: false
+
+plot_delta_next_per_reference(results)
+```
+
+The Tumor cell `delta.next` values tend to be higher for the matched (primary) reference, and also with a long right tail and is not bimodal with a set of lower-confidence calls.
+This actually points towards using the primary reference only.
+
+
+### SingleR heatmaps
+
+
+```{r}
+SingleR::plotScoreHeatmap(results$`Primary patient reference`, main = "Primary patient reference")
+```
+
+```{r}
+SingleR::plotScoreHeatmap(results$`Harmonized reference`, main = "Harmonized reference")
+```
+
+```{r}
+SingleR::plotScoreHeatmap(results$`Concatenated reference`, main = "Concatenated reference")
+```
+
+The same general pattern is present all around: Tumor is the clear main label for all references, and there is decent signal for both Mesenchymal and Endothelial cells throughout as well.
+The signal for Mesenchymal cells is much stronger for the combined references.
+
+### Jaccard heatmaps for ground truth comparisons
+
+Next, we'll look at some comparisons between these calls and the "ground truth" labels, which are the labels that the overlapping barcodes have in these inferences and in the `OsteoCAR` reference itself.
+We'll make some Jaccard heatmaps, where the `OsteoCAR` annotations are shown on the x-axis.
+
+```{r}
+#| fig.height: 7
+#| fig.width: 5
+
+results |>
+  purrr::imap(
+    \(res, res_name) {
+      compare_df <- compare_to_ground_truth(res, prim_ground_truth)
+      plot_jaccard_heatmap(
+        compare_df$ground_truth_label,
+        compare_df$pruned.labels, 
+        "",
+        res_name
+      )
+    }
+  ) |>
+  patchwork::wrap_plots(ncol = 1)
+```
+
+These heatmaps show some pretty good agreement with tumor cell and endothelial cells, but less so mesenchymal cells. 
+Even for the harmonized reference where these cells are identified, it's not a very good match to the ground truth labels, so it's not clear if it's actually a "good" thing that those labels were assigned.
+
+## Metastasis patient sample
+
+We'll do the same analyses we performed above, but for a patient metastasis sample.
+
+```{r}
+#| message: false
+
+sce <- readRDS(
+  test_samples$rds_file[test_samples$scpca_sample_id == mets_sample]
+) |>
+  rOpenScPCA::sce_to_symbols(reference = "sce")
+
+sce
+```
+
+Here are the ground truth cell types:
+
+```{r}
+#| fig.width: 6
+#| fig.height: 6
+
+ggplot(mets_ground_truth) +
+  aes(y = forcats::fct_infreq(ground_truth_label)) + 
+  geom_bar(fill = "lightgreen", color = "grey20") + 
+  facet_grid(vars(ground_truth_ann_level1), scales = "free") +
+  labs(x = "count", y = "cell type") + 
+  theme(strip.text = element_text(size = 7))
+
+```
+
+Nearly all the SCE cells are in OsteoCAR, most of which are annotated as immune myeloid, epithelial, or tumor cells.
+
+
+```{r}
+results <- run_singler(
+  sce,
+  ref_main = mets_aggr,
+  ref_title = "Metastasis patient reference"
+) |>
+  # convert the NA label to Unknown before jaccard calculations
+  purrr::map(
+    \(res) {
+      res$pruned.labels[is.na(res$pruned.labels)] <- "Unknown"
+      res
+    }
+  )
+```
+
+
+### Annotated cell types 
+
+```{r}
+#| fig.width: 6
+#| fig.height: 6
+purrr::imap(results, plot_results) |>
+  patchwork::wrap_plots(nrow = 3) + patchwork::plot_annotation(title = "Metastasis patient sample") 
+```
+
+We see a flip here between the matched metastasis reference and the combined references: for the matched reference, most cells are mesenchymal, then TAMs, and then tumor.
+For the combined references, we see most are Tumor, then TAMs, and far fewer mesenchymal.
+
+Looking at the `delta.next` scores, these seem to be generally higher for the matched metastasis reference compared to the combined references.
+
+
+Next, we'll plot the distributions of `delta.next` scores shown for the top 10 cell types which have the same annotation (ignoring the primary/mets source!) across all three references.
+This will show us if any of the references is more confidently assigning these cell types.
+
+
+```{r}
+#| fig.width: 4
+#| fig.height: 7.5
+#| message: false
+
+plot_delta_next_per_reference(results)
+```
+
+There's not much of a strong trend here; median values look about the same for each set of `delta.next` distributions, but it's worth noting that the mesenchymal `delta.next` appears larger for the matched metastasis reference vs the combined. 
+We also see a couple cases where concatenated `delta.next` values might be a bit lower, but again it's not a strong or definitive trend.
+
+### SingleR heatmaps
+
+```{r}
+SingleR::plotScoreHeatmap(results$`Metastasis patient reference`, main = "Metastasis patient reference")
+```
+
+```{r}
+SingleR::plotScoreHeatmap(results$`Harmonized reference`, main = "Harmonized reference")
+```
+
+```{r}
+#| fig.height: 6
+SingleR::plotScoreHeatmap(results$`Concatenated reference`, main = "Concatenated reference")
+```
+
+Across all references, tumor and mesenchymal categories are coming back with high scores for the same groups of cells, which is expected from earlier plots.
+Importantly, TAMs does not have interplay with either of those cell types (which makes sense biologically!).
+
+
+### Jaccard heatmaps for ground truth comparisons
+
+Next, we'll ask how these results compare to ground truth.
+
+```{r}
+#| fig.height: 12
+#| fig.width: 8
+
+results |>
+  purrr::imap(
+    \(res, res_name) {
+      compare_df <- compare_to_ground_truth(res, mets_ground_truth)
+      plot_jaccard_heatmap(
+        compare_df$ground_truth_label,
+        compare_df$pruned.labels, 
+        "",
+        res_name
+      )
+    }
+  ) |>
+  patchwork::wrap_plots(ncol = 1)
+```
+
+Cells that are mesenchymal in the ground truth are generally called as tumor cells in the metastasis reference, but they tend to be more accurately called as mesenchymal for the combined references.
+
+## Conclusions
+
+Based on these results, it seems reasonable to proceed with a harmonized reference (aka, labels fully combined between references). 
+The main item pointing against that was the higher tumor `delta.next` for the primary reference, but tumor annotations were fairly consistent across references so this is not an argument _against_ using a harmonized reference.
+But, we will likely want to dig deeper into the precise construction of that reference, including:
+
+* Whether we should downsample and combine before aggregating
+* Whether we should be summarizing cell types into broad "mesenchymal" and "tumor" categories before or after aggregating
+
+## Session info
+
+```{r}
+sessionInfo()
+```
+

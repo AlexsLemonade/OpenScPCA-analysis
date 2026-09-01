@@ -429,7 +429,7 @@ ggplot(mets_ground_truth) +
   theme(strip.text = element_text(size = 7))
 ```
 
-Nearly all the SCE cells are in OsteoCAR, most of which are annotated as immune myeloid, epithilial, or tumor cells.
+Nearly all the SCE cells are in OsteoCAR, most of which are annotated as immune myeloid, epithelial, or tumor cells.
 
 
 ```{r}
@@ -475,7 +475,7 @@ This will show us if any of the references is more confidently assigning these c
 plot_delta_next_per_reference(results)
 ```
 
-Certain cell types (DC, profilerative, T cells, TAMs) seem to have higher scores for the metastasis (matched) reference and possibly also the harmonized reference, but these differences have a very small effect size. 
+Certain cell types (DC, proliferative, T cells, TAMs) seem to have higher scores for the metastasis (matched) reference and possibly also the harmonized reference, but these differences have a very small effect size. 
 There is no strong evidence here that one reference is more confident.
 
 ### SingleR heatmaps
