@@ -1,0 +1,8 @@
+# Ignore everything by default
+*
+
+# Include specific files in the docker environment
+!/renv.lock
+!/requirements.txt
+!/environment.yml
+!/conda-lock.yml
