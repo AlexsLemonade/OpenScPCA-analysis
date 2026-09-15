@@ -104,7 +104,7 @@ metaprograms_to_plot <- c(
 )
 
 # make a faceted plot for the specified metaprograms
-metaprograms_to_plot |>
+metaprogram_plot <- metaprograms_to_plot |>
   purrr::imap(\(mp, mp_name){
 
     ggplot(coldata_df,
@@ -117,8 +117,12 @@ metaprograms_to_plot |>
         y = "UMAP2",
         title = mp_name
       ) +
-      theme(text = element_text(size = 12), 
-            aspect.ratio = 1)
+      theme(
+        text = element_text(size = 12), 
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        aspect.ratio = 1
+      )
 
   }) |>
   wrap_plots()
@@ -159,7 +163,7 @@ ora_ht <- ComplexHeatmap::Heatmap(
   cluster_columns = FALSE,
   col = circlize::colorRamp2(c(0, 20), colors = c("gray95", "darkslateblue")),
   rect_gp = grid::gpar(col = "white", lwd = 2), # add some white lines around each box
-  row_names_gp = grid::gpar(fontsize = 12),
+  row_names_gp = grid::gpar(fontsize = 12, lineheight = 1),
   column_names_gp = grid::gpar(fontsize = 16),
   border = TRUE,
   heatmap_legend_param = list(
