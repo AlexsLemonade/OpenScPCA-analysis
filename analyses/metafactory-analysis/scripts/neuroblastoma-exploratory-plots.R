@@ -5,7 +5,7 @@
 # These cells are then integrated using Harmony
 # Metaprogram scores for 4 programs are plot on a UMAP
 
-# The metaproggram object is used to extract the ORA results table to make a heatmap
+# The metaprogram object is used to extract the ORA results table to make a heatmap
 # This script uses the output from running Neuroblastoma samples through `ews-nf` 
 # specifying only to include Neuroendocrine cells (possible tumor cells)
 
@@ -103,15 +103,23 @@ metaprograms_to_plot <- c(
   "Cycling" = "MP06"
 )
 
+# palettes to use for each metaprogram
+mp_palettes <- c(
+  "MP02" = "Blues",
+  "MP04" = "Greens",
+  "MP05" = "Oranges",
+  "MP06" = "Purples"
+)
+
 # make a faceted plot for the specified metaprograms
 metaprogram_plot <- metaprograms_to_plot |>
   purrr::imap(\(mp, mp_name){
 
     ggplot(coldata_df,
            aes(x = UMAP_harmony.1, y = UMAP_harmony.2, color = .data[[mp]])) +
-      geom_point(size = 0.1) +
+      geom_point(size = 0.01, alpha = 0.5) +
       theme_classic() +
-      scale_color_viridis_c(option = "turbo") +
+      scale_color_distiller(palette = mp_palettes[[mp]], direction = 1) +
       labs(
         x = "UMAP1",
         y = "UMAP2",
@@ -128,7 +136,7 @@ metaprogram_plot <- metaprograms_to_plot |>
   wrap_plots()
 
 # save to a png file
-ggsave(umap_file, height = 7, width = 7)
+ggsave(umap_file, metaprogram_plot, height = 7, width = 7)
 
 # Heatmap of ORA results -------------------------------------------------------
 # grab the ora results df
