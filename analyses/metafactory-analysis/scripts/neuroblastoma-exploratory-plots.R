@@ -171,7 +171,7 @@ ora_ht <- ComplexHeatmap::Heatmap(
   cluster_columns = FALSE,
   col = circlize::colorRamp2(c(0, 20), colors = c("gray95", "darkslateblue")),
   rect_gp = grid::gpar(col = "white", lwd = 2), # add some white lines around each box
-  row_names_gp = grid::gpar(fontsize = 12, lineheight = 1),
+  row_names_gp = grid::gpar(fontsize = 12, lineheight = 0.8),
   column_names_gp = grid::gpar(fontsize = 16),
   border = TRUE,
   heatmap_legend_param = list(
