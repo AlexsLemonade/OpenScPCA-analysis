@@ -16,6 +16,9 @@ ENV RENV_CONFIG_CACHE_ENABLED=FALSE
 # set a name for the conda environment
 ARG ENV_NAME=openscpca-cell-type-scimilarity
 
+# ensure hndswlib doesn't use machine-specific compilers
+ENV HNSWLIB_NO_NATIVE=1
+
 # set environment variables to install conda
 ENV PATH="/opt/conda/bin:${PATH}"
 
