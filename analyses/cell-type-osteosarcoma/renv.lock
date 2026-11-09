@@ -8,23 +8,23 @@
       },
       {
         "Name": "BioCsoft",
-        "URL": "https://bioconductor.org/packages/3.20/bioc"
+        "URL": "https://bioconductor.org/packages/3.23/bioc"
       },
       {
         "Name": "BioCann",
-        "URL": "https://bioconductor.org/packages/3.20/data/annotation"
+        "URL": "https://bioconductor.org/packages/3.23/data/annotation"
       },
       {
         "Name": "BioCexp",
-        "URL": "https://bioconductor.org/packages/3.20/data/experiment"
+        "URL": "https://bioconductor.org/packages/3.23/data/experiment"
       },
       {
         "Name": "BioCworkflows",
-        "URL": "https://bioconductor.org/packages/3.20/workflows"
+        "URL": "https://bioconductor.org/packages/3.23/workflows"
       },
       {
         "Name": "BioCbooks",
-        "URL": "https://bioconductor.org/packages/3.20/books"
+        "URL": "https://bioconductor.org/packages/3.23/books"
       }
     ]
   },
@@ -1106,6 +1106,45 @@
       "Maintainer": "Thomas Nagler <mail@tnagler.com>",
       "Repository": "CRAN"
     },
+    "Rhdf5lib": {
+      "Package": "Rhdf5lib",
+      "Version": "2.0.0",
+      "Source": "Bioconductor",
+      "Type": "Package",
+      "Title": "hdf5 library as an R package",
+      "Authors@R": "c( person( \"Mike\", \"Smith\", role = \"ctb\", comment = c(ORCID = \"0000-0002-7800-3848\") ), person( \"Hugo\", \"Gruson\", role = \"cre\", email = \"hugo.gruson@embl.de\", comment = c(ORCID = \"0000-0002-4094-1476\")) , person( given = \"The HDF Group\", role = \"cph\" ) )",
+      "Description": "Provides C and C++ hdf5 libraries.",
+      "License": "Artistic-2.0",
+      "Copyright": "vendor/hdf5/COPYING",
+      "LazyLoad": "true",
+      "VignetteBuilder": "knitr",
+      "Depends": [
+        "R (>= 4.2.0)"
+      ],
+      "Suggests": [
+        "BiocStyle",
+        "knitr",
+        "rmarkdown",
+        "tinytest",
+        "mockery"
+      ],
+      "URL": "https://github.com/Huber-group-EMBL/Rhdf5lib",
+      "BugReports": "https://github.com/Huber-group-EMBL/Rhdf5lib/issues",
+      "LinkingTo": [
+        "biocmake"
+      ],
+      "NeedsCompilation": "yes",
+      "Encoding": "UTF-8",
+      "biocViews": "Infrastructure",
+      "RoxygenNote": "7.3.3",
+      "git_url": "https://git.bioconductor.org/packages/Rhdf5lib",
+      "git_branch": "RELEASE_3_23",
+      "git_last_commit": "21f3087",
+      "git_last_commit_date": "2026-04-28",
+      "Repository": "Bioconductor 3.23",
+      "Author": "Mike Smith [ctb] (ORCID: <https://orcid.org/0000-0002-7800-3848>), Hugo Gruson [cre] (ORCID: <https://orcid.org/0000-0002-4094-1476>), The HDF Group [cph]",
+      "Maintainer": "Hugo Gruson <hugo.gruson@embl.de>"
+    },
     "Rtsne": {
       "Package": "Rtsne",
       "Version": "0.17",
@@ -1812,6 +1851,66 @@
       "Author": "Tony Plate [aut, cre], Richard Heiberger [aut]",
       "Repository": "CRAN"
     },
+    "anndataR": {
+      "Package": "anndataR",
+      "Version": "1.2.3",
+      "Source": "Bioconductor",
+      "Title": "AnnData interoperability in R",
+      "Authors@R": "c( person(\"Robrecht\", \"Cannoodt\", , \"rcannood@gmail.com\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0003-3641-729X\", github = \"rcannood\")), person(\"Luke\", \"Zappia\", , \"luke@lazappi.id.au\", role = \"aut\", comment = c(ORCID = \"0000-0001-7744-8565\", github = \"lazappi\")), person(\"Martin\", \"Morgan\", , \"mtmorgan.bioc@gmail.com\", role = \"aut\", comment = c(ORCID = \"0000-0002-5874-8148\", github = \"mtmorgan\")), person(\"Louise\", \"Deconinck\", , \"louise.deconinck@gmail.com\", role = \"aut\", comment = c(ORCID = \"0000-0001-8100-6823\", github = \"LouiseDck\")), person(\"Danila\", \"Bredikhin\", , \"danila.bredikhin@embl.de\", role = \"ctb\", comment = c(ORCID = \"0000-0001-8089-6983\", github = \"gtca\")), person(\"Isaac\", \"Virshup\", role = \"ctb\", comment = c(ORCID = \"0000-0002-1710-8945\", github = \"ivirshup\")), person(\"Brian\", \"Schilder\", , \"brian_schilder@alumni.brown.edu\", role = \"ctb\", comment = c(ORCID = \"0000-0001-5949-2191\", github = \"bschilder\")), person(\"Chananchida\", \"Sang-aram\", role = \"ctb\", comment = c(ORCID = \"0000-0002-0922-0822\", github = \"csangara\")), person(\"Artür\", \"Manukyan\", role = \"ctb\", comment = c(ORCID = \"0000-0002-0441-9517\", github = \"Artur-man\")), person(\"Hugo\", \"Gruson\", role = \"ctb\", comment = c(ORCID = \"0000-0002-4094-1476\", github = \"Bisaloo\")), person(\"Data Intuitive\", , , \"info@data-intuitive.com\", role = \"fnd\"), person(\"Chan Zuckerberg Initiative\", role = \"fnd\"), person(\"scverse consortium\", role = \"spn\") )",
+      "Description": "Bring the power and flexibility of AnnData to the R ecosystem, allowing you to effortlessly manipulate and analyse your single-cell data. This package lets you work with backed h5ad and zarr files, directly access various slots (e.g. X, obs, var), or convert the data into SingleCellExperiment and Seurat objects.",
+      "License": "MIT + file LICENSE",
+      "URL": "https://anndataR.scverse.org/, https://github.com/scverse/anndataR",
+      "BugReports": "https://github.com/scverse/anndataR/issues",
+      "Depends": [
+        "R (>= 4.5.0)"
+      ],
+      "Imports": [
+        "cli",
+        "lifecycle",
+        "Matrix",
+        "methods",
+        "purrr",
+        "R6 (>= 2.4.0)",
+        "reticulate (>= 1.41.1)",
+        "rlang",
+        "stats"
+      ],
+      "Suggests": [
+        "BiocFileCache",
+        "BiocStyle",
+        "knitr",
+        "processx",
+        "rhdf5 (>= 2.52.1)",
+        "Rarr (>= 1.11.12)",
+        "rmarkdown",
+        "S4Vectors",
+        "Seurat",
+        "SeuratObject",
+        "SingleCellExperiment",
+        "spelling",
+        "SummarizedExperiment",
+        "testthat (>= 3.0.0)",
+        "vctrs",
+        "withr",
+        "yaml"
+      ],
+      "VignetteBuilder": "knitr",
+      "biocViews": "SingleCell, DataImport, DataRepresentation",
+      "Config/Needs/website": "pkgdown, tibble, knitr, rprojroot, stringr, readr, purrr, dplyr, tidyr, rmarkdown",
+      "Config/testthat/edition": "3",
+      "Encoding": "UTF-8",
+      "Roxygen": "list(markdown = TRUE, r6 = TRUE)",
+      "RoxygenNote": "7.3.3",
+      "Language": "en-GB",
+      "git_url": "https://git.bioconductor.org/packages/anndataR",
+      "git_branch": "RELEASE_3_23",
+      "git_last_commit": "89fad23",
+      "git_last_commit_date": "2026-10-22",
+      "Repository": "Bioconductor 3.23",
+      "NeedsCompilation": "no",
+      "Author": "Robrecht Cannoodt [aut, cre] (ORCID: <https://orcid.org/0000-0003-3641-729X>, github: rcannood), Luke Zappia [aut] (ORCID: <https://orcid.org/0000-0001-7744-8565>, github: lazappi), Martin Morgan [aut] (ORCID: <https://orcid.org/0000-0002-5874-8148>, github: mtmorgan), Louise Deconinck [aut] (ORCID: <https://orcid.org/0000-0001-8100-6823>, github: LouiseDck), Danila Bredikhin [ctb] (ORCID: <https://orcid.org/0000-0001-8089-6983>, github: gtca), Isaac Virshup [ctb] (ORCID: <https://orcid.org/0000-0002-1710-8945>, github: ivirshup), Brian Schilder [ctb] (ORCID: <https://orcid.org/0000-0001-5949-2191>, github: bschilder), Chananchida Sang-aram [ctb] (ORCID: <https://orcid.org/0000-0002-0922-0822>, github: csangara), Artür Manukyan [ctb] (ORCID: <https://orcid.org/0000-0002-0441-9517>, github: Artur-man), Hugo Gruson [ctb] (ORCID: <https://orcid.org/0000-0002-4094-1476>, github: Bisaloo), Data Intuitive [fnd], Chan Zuckerberg Initiative [fnd], scverse consortium [spn]",
+      "Maintainer": "Robrecht Cannoodt <rcannood@gmail.com>"
+    },
     "askpass": {
       "Package": "askpass",
       "Version": "1.2.1",
@@ -1931,6 +2030,41 @@
       "git_last_commit_date": "2026-04-28",
       "Repository": "Bioconductor 3.23",
       "Author": "Aaron Lun [aut, cre], Hervé Pagès [aut], Mike Smith [aut]",
+      "Maintainer": "Aaron Lun <infinite.monkeys.with.keyboards@gmail.com>"
+    },
+    "biocmake": {
+      "Package": "biocmake",
+      "Version": "1.4.0",
+      "Source": "Bioconductor",
+      "Date": "2025-11-22",
+      "Title": "CMake for Bioconductor",
+      "Description": "Manages the installation of CMake for building Bioconductor packages. This avoids the need for end-users to manually install CMake on their system. No action is performed if a suitable version of CMake is already available.",
+      "Authors@R": "person(\"Aaron\", \"Lun\", role=c(\"cre\", \"aut\"), email=\"infinite.monkeys.with.keyboards@gmail.com\")",
+      "License": "MIT + file LICENSE",
+      "Encoding": "UTF-8",
+      "VignetteBuilder": "knitr",
+      "Imports": [
+        "utils",
+        "tools",
+        "dir.expiry"
+      ],
+      "Suggests": [
+        "knitr",
+        "rmarkdown",
+        "BiocStyle",
+        "testthat"
+      ],
+      "biocViews": "Infrastructure",
+      "URL": "https://github.com/LTLA/biocmake",
+      "BugReports": "https://github.com/LTLA/biocmake/issues",
+      "RoxygenNote": "7.3.2",
+      "git_url": "https://git.bioconductor.org/packages/biocmake",
+      "git_branch": "RELEASE_3_23",
+      "git_last_commit": "6b43087",
+      "git_last_commit_date": "2026-04-28",
+      "Repository": "Bioconductor 3.23",
+      "NeedsCompilation": "no",
+      "Author": "Aaron Lun [cre, aut]",
       "Maintainer": "Aaron Lun <infinite.monkeys.with.keyboards@gmail.com>"
     },
     "bit": {
@@ -2662,6 +2796,38 @@
       "Maintainer": "Dirk Eddelbuettel <edd@debian.org>",
       "Repository": "CRAN"
     },
+    "dir.expiry": {
+      "Package": "dir.expiry",
+      "Version": "1.20.0",
+      "Source": "Bioconductor",
+      "Date": "2024-10-17",
+      "Title": "Managing Expiration for Cache Directories",
+      "Description": "Implements an expiration system for access to versioned directories. Directories that have not been accessed by a registered function within a certain time frame are deleted. This aims to reduce disk usage by eliminating obsolete caches generated by old versions of packages.",
+      "Authors@R": "person(\"Aaron\", \"Lun\", role=c(\"aut\", \"cre\"), email=\"infinite.monkeys.with.keyboards@gmail.com\")",
+      "License": "GPL-3",
+      "Imports": [
+        "utils",
+        "filelock"
+      ],
+      "Suggests": [
+        "rmarkdown",
+        "knitr",
+        "testthat",
+        "BiocStyle"
+      ],
+      "biocViews": "Software, Infrastructure",
+      "VignetteBuilder": "knitr",
+      "RoxygenNote": "7.3.2",
+      "Encoding": "UTF-8",
+      "git_url": "https://git.bioconductor.org/packages/dir.expiry",
+      "git_branch": "RELEASE_3_23",
+      "git_last_commit": "b9df09a",
+      "git_last_commit_date": "2026-04-28",
+      "Repository": "Bioconductor 3.23",
+      "NeedsCompilation": "no",
+      "Author": "Aaron Lun [aut, cre]",
+      "Maintainer": "Aaron Lun <infinite.monkeys.with.keyboards@gmail.com>"
+    },
     "dotCall64": {
       "Package": "dotCall64",
       "Version": "1.2",
@@ -2950,6 +3116,33 @@
       "Author": "Winston Chang [aut, cre], Posit Software, PBC [cph, fnd], Tessil [cph] (hopscotch_map library)",
       "Maintainer": "Winston Chang <winston@posit.co>",
       "Repository": "RSPM"
+    },
+    "filelock": {
+      "Package": "filelock",
+      "Version": "1.0.3",
+      "Source": "Repository",
+      "Title": "Portable File Locking",
+      "Authors@R": "c( person(\"Gábor\", \"Csárdi\", , \"csardi.gabor@gmail.com\", role = c(\"aut\", \"cre\")), person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\")) )",
+      "Description": "Place an exclusive or shared lock on a file. It uses 'LockFile' on Windows and 'fcntl' locks on Unix-like systems.",
+      "License": "MIT + file LICENSE",
+      "URL": "https://r-lib.github.io/filelock/, https://github.com/r-lib/filelock",
+      "BugReports": "https://github.com/r-lib/filelock/issues",
+      "Depends": [
+        "R (>= 3.4)"
+      ],
+      "Suggests": [
+        "callr (>= 2.0.0)",
+        "covr",
+        "testthat (>= 3.0.0)"
+      ],
+      "Config/Needs/website": "tidyverse/tidytemplate",
+      "Config/testthat/edition": "3",
+      "Encoding": "UTF-8",
+      "RoxygenNote": "7.2.3",
+      "NeedsCompilation": "yes",
+      "Author": "Gábor Csárdi [aut, cre], Posit Software, PBC [cph, fnd]",
+      "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
+      "Repository": "CRAN"
     },
     "fitdistrplus": {
       "Package": "fitdistrplus",
@@ -5744,7 +5937,7 @@
     },
     "renv": {
       "Package": "renv",
-      "Version": "1.1.8",
+      "Version": "1.3.1",
       "Source": "Repository",
       "Type": "Package",
       "Title": "Project Environments",
@@ -5773,6 +5966,7 @@
         "modules",
         "packrat",
         "pak",
+        "pkgload",
         "R6",
         "remotes",
         "reticulate",
@@ -5786,13 +5980,13 @@
         "webfakes"
       ],
       "Encoding": "UTF-8",
-      "RoxygenNote": "7.3.3",
       "VignetteBuilder": "knitr",
-      "NeedsCompilation": "yes",
       "Config/Needs/website": "tidyverse/tidytemplate",
       "Config/testthat/edition": "3",
       "Config/testthat/parallel": "true",
       "Config/testthat/start-first": "bioconductor,python,install,restore,snapshot,retrieve,remotes",
+      "Config/roxygen2/version": "8.0.0",
+      "NeedsCompilation": "no",
       "Author": "Kevin Ushey [aut, cre] (ORCID: <https://orcid.org/0000-0003-2880-7407>), Hadley Wickham [aut] (ORCID: <https://orcid.org/0000-0003-4757-117X>), Posit Software, PBC [cph, fnd]",
       "Maintainer": "Kevin Ushey <kevin@rstudio.com>",
       "Repository": "CRAN"
@@ -5881,6 +6075,93 @@
       "Author": "Tomasz Kalinowski [aut, cre], Kevin Ushey [aut], JJ Allaire [aut], RStudio [cph, fnd], Yuan Tang [aut, cph] (ORCID: <https://orcid.org/0000-0001-5243-233X>), Dirk Eddelbuettel [ctb, cph], Bryan Lewis [ctb, cph], Sigrid Keydana [ctb], Ryan Hafen [ctb, cph], Marcus Geelnard [ctb, cph] (TinyThread library, http://tinythreadpp.bitsnbites.eu/)",
       "Maintainer": "Tomasz Kalinowski <tomasz@posit.co>",
       "Repository": "CRAN"
+    },
+    "rhdf5": {
+      "Package": "rhdf5",
+      "Version": "2.56.1",
+      "Source": "Bioconductor",
+      "Type": "Package",
+      "Title": "R Interface to HDF5",
+      "Authors@R": "c( person(\"Bernd\", \"Fischer\", role = \"aut\"), person(\"Mike\", \"Smith\", role = \"aut\", comment = c(ORCID = \"0000-0002-7800-3848\", \"Maintainer from 2017 to 2025\")), person(\"Gregoire\", \"Pau\", role = \"aut\"), person(\"Martin\", \"Morgan\", role = \"ctb\"), person(\"Daniel\", \"van Twisk\", role = \"ctb\"), person(\"Hugo\", \"Gruson\", , \"hugo.gruson@embl.de\", role = \"cre\", comment = c(ORCID = \"0000-0002-4094-1476\")), person(\"German Network for Bioinformatics Infrastructure - de.NBI\", role = \"fnd\") )",
+      "Description": "This package provides an interface between HDF5 and R. HDF5's main features are the ability to store and access very large and/or complex datasets and a wide variety of metadata on mass storage (disk) through a completely portable file format. The rhdf5 package is thus suited for the exchange of large and/or complex datasets between R and other software package, and for letting R applications work on datasets that are larger than the available RAM.",
+      "License": "Artistic-2.0",
+      "URL": "https://huber-group-embl.github.io/rhdf5/, https://github.com/Huber-group-EMBL/rhdf5",
+      "BugReports": "https://github.com/Huber-group-EMBL/rhdf5/issues",
+      "Depends": [
+        "methods",
+        "R (>= 4.0.0)"
+      ],
+      "Imports": [
+        "rhdf5filters (>= 1.15.5)",
+        "Rhdf5lib (>= 1.33.3)"
+      ],
+      "Suggests": [
+        "bench",
+        "BiocParallel",
+        "BiocStyle",
+        "bit64",
+        "curl",
+        "dplyr",
+        "ggplot2",
+        "knitr",
+        "rmarkdown",
+        "testthat",
+        "withr"
+      ],
+      "LinkingTo": [
+        "Rhdf5lib"
+      ],
+      "VignetteBuilder": "knitr",
+      "biocViews": "Infrastructure, DataImport",
+      "Encoding": "UTF-8",
+      "LazyLoad": "true",
+      "Roxygen": "list(markdown = TRUE)",
+      "RoxygenNote": "7.3.3",
+      "SystemRequirements": "GNU make",
+      "Config/pak/sysreqs": "make",
+      "Repository": "Bioconductor 3.23",
+      "RemoteUrl": "https://github.com/bioc/rhdf5",
+      "RemoteRef": "RELEASE_3_23",
+      "RemoteSha": "c642b602292a361ff1ebd371101556585f2f5bd0",
+      "NeedsCompilation": "yes",
+      "Author": "Bernd Fischer [aut], Mike Smith [aut] (ORCID: <https://orcid.org/0000-0002-7800-3848>, Maintainer from 2017 to 2025), Gregoire Pau [aut], Martin Morgan [ctb], Daniel van Twisk [ctb], Hugo Gruson [cre] (ORCID: <https://orcid.org/0000-0002-4094-1476>), German Network for Bioinformatics Infrastructure - de.NBI [fnd]",
+      "Maintainer": "Hugo Gruson <hugo.gruson@embl.de>"
+    },
+    "rhdf5filters": {
+      "Package": "rhdf5filters",
+      "Version": "1.24.1",
+      "Source": "Bioconductor",
+      "Type": "Package",
+      "Title": "HDF5 Compression Filters",
+      "Authors@R": "c( person(\"Mike\", \"Smith\", role = c(\"aut\", \"ccp\"), comment = c(ORCID = \"0000-0002-7800-3848\") ), person(\"Hugo\", \"Gruson\", role = \"cre\", email = \"hugo.gruson@embl.de\", comment = c(ORCID = \"0000-0002-4094-1476\") ) )",
+      "Description": "Provides a collection of additional compression filters for HDF5 datasets. The package is intended to provide seamless integration with rhdf5, however the compiled filters can also be used with external applications.",
+      "License": "BSD_2_clause + file LICENSE",
+      "LazyLoad": "true",
+      "VignetteBuilder": "knitr",
+      "Suggests": [
+        "BiocStyle",
+        "knitr",
+        "rmarkdown",
+        "testthat",
+        "rhdf5 (>= 2.47.7)"
+      ],
+      "SystemRequirements": "GNU make",
+      "URL": "https://github.com/Huber-group-EMBL/rhdf5filters",
+      "BugReports": "https://github.com/Huber-group-EMBL/rhdf5filters/issues",
+      "LinkingTo": [
+        "Rhdf5lib"
+      ],
+      "RoxygenNote": "7.3.2",
+      "Encoding": "UTF-8",
+      "biocViews": "Infrastructure, DataImport",
+      "Config/pak/sysreqs": "make",
+      "Repository": "Bioconductor 3.23",
+      "RemoteUrl": "https://github.com/bioc/rhdf5filters",
+      "RemoteRef": "RELEASE_3_23",
+      "RemoteSha": "997ad765fb2694e99a8c201359df7f00e41afb59",
+      "NeedsCompilation": "yes",
+      "Author": "Mike Smith [aut, ccp] (ORCID: <https://orcid.org/0000-0002-7800-3848>), Hugo Gruson [cre] (ORCID: <https://orcid.org/0000-0002-4094-1476>)",
+      "Maintainer": "Hugo Gruson <hugo.gruson@embl.de>"
     },
     "rlang": {
       "Package": "rlang",
@@ -6165,9 +6446,9 @@
     },
     "scran": {
       "Package": "scran",
-      "Version": "1.34.0",
+      "Version": "1.40.0",
       "Source": "Bioconductor",
-      "Date": "2024-09-05",
+      "Date": "2026-04-07",
       "Title": "Methods for Single-Cell RNA-Seq Data Analysis",
       "Description": "Implements miscellaneous functions for interpretation of single-cell RNA-seq data. Methods are provided for assignment of cell cycle phase, detection of highly variable and significantly correlated genes, identification of marker genes, and other common tasks in routine single-cell analysis workflows.",
       "Authors@R": "c(person(\"Aaron\", \"Lun\", role = c(\"aut\", \"cre\"), email = \"infinite.monkeys.with.keyboards@gmail.com\"),  person(\"Karsten\", \"Bach\", role = \"aut\"), person(\"Jong Kyoung\", \"Kim\", role = \"ctb\"),  person(\"Antonio\", \"Scialdone\", role=\"ctb\"))",
@@ -6211,7 +6492,8 @@
         "ScaledMatrix",
         "DESeq2",
         "pheatmap",
-        "scater"
+        "scater",
+        "scrapper"
       ],
       "biocViews": "ImmunoOncology, Normalization, Sequencing, RNASeq, Software, GeneExpression, Transcriptomics, SingleCell, Clustering",
       "LinkingTo": [
@@ -6225,14 +6507,14 @@
       "NeedsCompilation": "yes",
       "VignetteBuilder": "knitr",
       "SystemRequirements": "C++11",
-      "RoxygenNote": "7.3.2",
+      "RoxygenNote": "7.3.3",
       "URL": "https://github.com/MarioniLab/scran/",
       "BugReports": "https://github.com/MarioniLab/scran/issues",
       "git_url": "https://git.bioconductor.org/packages/scran",
-      "git_branch": "RELEASE_3_20",
-      "git_last_commit": "a517459",
-      "git_last_commit_date": "2024-10-29",
-      "Repository": "Bioconductor 3.20",
+      "git_branch": "RELEASE_3_23",
+      "git_last_commit": "24a6fe7",
+      "git_last_commit_date": "2026-04-28",
+      "Repository": "Bioconductor 3.23",
       "Author": "Aaron Lun [aut, cre], Karsten Bach [aut], Jong Kyoung Kim [ctb], Antonio Scialdone [ctb]",
       "Maintainer": "Aaron Lun <infinite.monkeys.with.keyboards@gmail.com>"
     },
