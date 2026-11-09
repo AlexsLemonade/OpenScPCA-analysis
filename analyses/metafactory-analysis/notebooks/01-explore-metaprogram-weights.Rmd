@@ -35,29 +35,415 @@ mp_results_dir <- file.path(module_dir, "scratch", "SCPCP000001")
 mp_results_file <- file.path(mp_results_dir, "k-8_metaprograms.rds")
 ```
 
+```{r parameters}
+# Order used for all method comparisons throughout the notebook
+method_levels <- c("top_200", "top_50", "kneedle", "mad_outliers")
+
+# Number of MADs above the median used to call outlier genes
+n_mads <- 3
+
+# Adjusted p-value cutoff for calling a Hallmark pathway significant in ORA
+padj_cutoff <- 0.05
+```
+
+## Functions
+
+```{r functions}
+# Weights -> tibble ----------------------------------------------------------
+
+# Convert a named vector of gene weights into a tibble sorted by weight,
+# with the rank of each gene (1 = highest weight)
+weights_to_tibble <- function(weights) {
+  sorted <- sort(weights, decreasing = TRUE)
+  tibble::tibble(
+    gene = names(sorted),
+    rank = seq_along(sorted),
+    weight = unname(sorted)
+  )
+}
+
+# Cutoff methods -------------------------------------------------------------
+# Every method returns the NUMBER of top genes to keep (N), so gene sets can
+# be pulled the same way for every method with get_top_genes()
+
+# Kneedle (offline, single knee):
+#  - Use only positive weights, sorted from highest to lowest
+#  - Scale x (rank) and y (weight) to [0, 1]
+#  - The sorted curve is convex and decreasing, so the straight line from the
+#    first point to the last point is y = 1 - x
+#  - The elbow is the point where the curve sits farthest below that line,
+#    i.e. where (1 - x) - y is largest
+# NOTE: we don't smooth the curve or use a sensitivity parameter, since we
+# only want one knee per curve. Here kneedle reduces to the max of the
+# difference curve.
+find_kneedle_n <- function(weights) {
+  positive_weights <- sort(weights[weights > 0], decreasing = TRUE)
+  n <- length(positive_weights)
+  stopifnot("Need at least 3 positive weights to find an elbow" = n >= 3)
+
+  x_norm <- (seq_len(n) - 1) / (n - 1)
+  y_norm <- (positive_weights - min(positive_weights)) /
+    (max(positive_weights) - min(positive_weights))
+
+  difference_curve <- (1 - x_norm) - y_norm
+  as.integer(unname(which.max(difference_curve)))
+}
+
+# Outlier detection with MAD:
+#  - Median and MAD are taken over ALL genes (not just positive ones), so the
+#    "background" is defined by the full gene distribution
+#  - We only keep the upper tail, since we want genes with high weights
+#  - stats::mad() uses the default constant (1.4826), so the MAD is on the same
+#    scale as a standard deviation for normally distributed data
+find_mad_cutoff <- function(weights, n_mads = 3) {
+  mad_value <- stats::mad(weights)
+  if (mad_value == 0) {
+    warning("MAD is 0, so every gene above the median will be called an outlier.")
+  }
+  stats::median(weights) + n_mads * mad_value
+}
+
+find_log_mad_n <- function(weights, n_mads = 3) {
+  log_weights <- log10(weights[weights > 0])
+  cutoff <- stats::median(log_weights) + n_mads * stats::mad(log_weights)
+  sum(log_weights > cutoff)
+}
+
+# Pull the top n genes by weight
+# function to extract the top genes from each MP
+# takes a list of named gene weight vectors and returns a list of gene id vectors,
+# ordered by decreasing weight, with `num_genes` genes for each MP
+extract_top_genes <- function(mp_list, num_genes){
+
+  # get the top X number of genes for each MP
+  mp_top_list <- mp_list |>
+    purrr::map(function(weights){
+      weights |>
+        sort(decreasing = TRUE) |>
+        head(n = num_genes) |>
+        names() # return gene ids not weights
+    })
+
+  return(mp_top_list)
+}
+
+# Set similarity -------------------------------------------------------------
+
+# Jaccard index; NA when both sets are empty (e.g., no significant pathways)
+jaccard_index <- function(a, b) {
+  union_size <- length(union(a, b))
+  if (union_size == 0) return(NA_real_)
+  length(intersect(a, b)) / union_size
+}
+
+# Overlap coefficient = |A ∩ B| / min(|A|, |B|)
+# Useful because the sets are nested (e.g., top_50 is always inside top_200).
+# Jaccard is pulled down just by the size difference; overlap says whether
+# the smaller set is contained in the larger one.
+overlap_coefficient <- function(a, b) {
+  min_size <- min(length(a), length(b))
+  if (min_size == 0) return(NA_real_)
+  length(intersect(a, b)) / min_size
+}
+
+# All pairwise similarities for a named list of sets
+calculate_pairwise_similarity <- function(set_list, similarity_fn) {
+  tidyr::expand_grid(set_1 = names(set_list), set_2 = names(set_list)) |>
+    dplyr::mutate(
+      value = purrr::map2_dbl(set_1, set_2, \(a, b) similarity_fn(set_list[[a]], set_list[[b]]))
+    )
+}
+
+# Pairwise similarity within each group of a data frame
+#  - group_col: column to compare within (e.g., "mp" to compare methods)
+#  - name_col: column that names each set (e.g., "method")
+#  - set_col: list column holding the sets
+calculate_similarity_by_group <- function(df, group_col, name_col, set_col, similarity_fn) {
+  df |>
+    tidyr::nest(.by = dplyr::all_of(group_col)) |>
+    dplyr::mutate(similarity = purrr::map(data, \(group_df) {
+      set_list <- purrr::set_names(group_df[[set_col]], as.character(group_df[[name_col]]))
+      calculate_pairwise_similarity(set_list, similarity_fn)
+    })) |>
+    dplyr::select(-data) |>
+    tidyr::unnest(similarity)
+}
+
+# Heatmap of pairwise similarity, one facet per group
+plot_similarity_heatmap <- function(similarity_df, facet_col, set_levels, fill_label, title) {
+  similarity_df |>
+    dplyr::mutate(
+      set_1 = factor(set_1, levels = set_levels),
+      set_2 = factor(set_2, levels = set_levels)
+    ) |>
+    ggplot(aes(set_1, set_2, fill = value)) +
+    geom_tile() +
+    geom_text(aes(label = round(value, 2)), size = 2.5, na.rm = TRUE) +
+    scale_fill_viridis_c(limits = c(0, 1), na.value = "grey90") +
+    facet_wrap(vars(.data[[facet_col]])) +
+    labs(x = NULL, y = NULL, fill = fill_label, title = title) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+}
+
+# ORA ------------------------------------------------------------------------
+
+# Hallmark ORA with clusterProfiler
+# pvalueCutoff/qvalueCutoff are set to 1 so ALL tested pathways come back.
+# We filter on p.adjust later, so we keep the full results.
+run_hallmark_ora <- function(genes, universe, term2gene) {
+  result <- clusterProfiler::enricher(
+    gene = genes,
+    universe = universe,
+    TERM2GENE = term2gene,
+    pvalueCutoff = 1,
+    qvalueCutoff = 1
+  )
+  # enricher() returns NULL when no genes map to any gene set
+  if (is.null(result)) return(tibble::tibble())
+  tibble::as_tibble(result@result)
+}
+
+# Convert "a/b" ratio strings (GeneRatio, BgRatio) to numbers
+ratio_to_numeric <- function(ratio) {
+  stringr::str_split(ratio, "/") |>
+    purrr::map_dbl(\(x) as.numeric(x[1]) / as.numeric(x[2]))
+}
+}
+```
+
+## Read in data
 
 ```{r}
 mp_obj <- readr::read_rds(mp_results_file)
 mp_list <- mp_obj$metaprogram_list
+
+# long tibble of sorted weights for all MPs, reused for all weight-by-rank plots
+mp_weights_df <- mp_list |>
+  purrr::map(weights_to_tibble) |>
+  purrr::list_rbind(names_to = "mp")
 ```
 
 ```{r}
-mp_list |>
-  purrr::map(\(w) {
-    sorted <- sort(w, decreasing = TRUE)
-    tibble::tibble(rank = seq_along(sorted), weight = sorted) |> 
-      dplyr::filter(weight > 0)
-  }) |>
-  purrr::list_rbind(names_to = "mp") |>
+mp_weights_df |>
   ggplot(aes(rank, weight)) +
   geom_point(size = 0.5) +
-  facet_wrap(~mp, scales = "free_y") +
-  xlim(c(0,200))
+  facet_wrap(vars(mp), scales = "free_y")
 ```
 
-Try to look at more than 3 MADS above a background distribution, identify outlier approach rather than keeping everything 
+```{r}
+# now repeat the same plot but only zoom into the top 200 which is what we are currently using as the cutoff
+mp_weights_df |>
+  ggplot(aes(rank, weight)) +
+  geom_point(size = 0.5) +
+  facet_wrap(vars(mp), scales = "free_y") +
+  xlim(c(0, 200))
+```
 
-Use only the positive weights to get an elbow 
+It looks like even in the top 200 we have a fair amount of genes that are at the same weight with no real contribution over the background.
 
-Implement a floor and a cap? Minimum of 20 genes but maximum of 200? 
+```{r}
+filtered_weights_df <- mp_weights_df |> 
+  dplyr::filter(weight > 0)
+```
 
+
+## Identify cutoffs
+
+All four methods are written as "keep the top N genes," so we get N for each method and metaprogram first, then pull gene sets with the same function.
+
+### Approach #1: Kneedle
+
+Use the kneedle algorithm to identify the elbow using all positive weights as input
+
+- Identify the elbow point for each metaprogram
+- Make a table of the number of genes that are left above the elbow for each metaprogram
+
+```{r}
+kneedle_df <- filtered_weights_df |> 
+  dplyr::filter(weight > 0) |> 
+  dplyr::summarize(
+    kneedle = find_kneedle_n(weight),
+    total_pos_genes = dplyr::n_distinct(rank),
+    .by = mp
+  )
+
+kneedle_df
+```
+
+I think that's way too many genes... 
+
+```{r}
+# Kneedle difference curve, optionally on just the top `max_genes` positive weights
+calculate_difference_curve <- function(weights, max_genes = Inf) {
+  positive_weights <- sort(weights[weights > 0], decreasing = TRUE) |>
+    head(max_genes)
+  n <- length(positive_weights)
+  stopifnot("Need at least 3 positive weights to find an elbow" = n >= 3)
+
+  x_norm <- (seq_len(n) - 1) / (n - 1)
+  y_norm <- (positive_weights - min(positive_weights)) /
+    (max(positive_weights) - min(positive_weights))
+  (1 - x_norm) - y_norm
+}
+
+# Elbow = rank where the difference curve peaks
+find_kneedle_n <- function(weights, max_genes = Inf) {
+  calculate_difference_curve(weights, max_genes) |>
+    which.max() |>
+    unname() |>
+    as.integer()
+}
+
+caps <- c(100, 150, 200, 300, 500)
+
+kneedle_cap_df <- tidyr::expand_grid(mp = names(mp_list), max_genes = caps) |>
+  dplyr::mutate(
+    kneedle = purrr::map2_int(mp, max_genes, \(m, cap) find_kneedle_n(mp_list[[m]], cap)),
+    knee_strength = purrr::map2_dbl(mp, max_genes, \(m, cap) max(calculate_difference_curve(mp_list[[m]], cap)))
+  )
+
+kneedle_cap_df |>
+  ggplot(aes(max_genes, kneedle, color = mp)) +
+  geom_line() +
+  geom_point() +
+  labs(x = "Kneedle input cap (top N positive genes)", y = "Elbow (number of genes kept)") +
+  scale_color_brewer(palette = "Dark2")
+```
+
+```{r}
+kneedle_cap_df |> 
+  dplyr::filter(max_genes == 200)
+```
+
+
+### Approach #2: Outlier detection
+
+Identify the number of genes that is 3 MADs outside the median gene weight to get outliers
+
+- Identify the outliers for each metaprogram
+- Make a table of the number of genes that are included when using the 3 MAD cutoff
+
+```{r}
+filtered_weights_df |> 
+  dplyr::summarise(
+    mad_cutoff_weight = find_mad_cutoff(weight),
+    mad_outliers = find_log_mad_n(weight),
+    .by = "mp"
+  )
+```
+
+### Cumulative weight cutoff 
+
+```{r}
+# Gini coefficient of positive weights (sorted ascending for the formula)
+calculate_gini <- function(weights) {
+  w <- sort(weights[weights > 0])
+  n <- length(w)
+  sum((2 * seq_len(n) - n - 1) * w) / (n * sum(w))
+}
+
+purrr::map_dbl(mp_list, calculate_gini)
+
+```
+
+```{r}
+cumulative_weights_df <- filtered_weights_df |>
+  dplyr::arrange(mp, rank) |>
+  dplyr::mutate(cumulative_frac = cumsum(weight) / sum(weight), .by = mp)
+
+cumulative_weights_df |>
+  ggplot(aes(rank, cumulative_frac)) +
+  geom_line() +
+  geom_hline(yintercept = c(0.1, 0.25, 0.5), linetype = "dashed", color = "grey50") +
+  geom_vline(xintercept = 200, color = "red") +  # current cutoff
+  scale_x_log10() +
+  facet_wrap(vars(mp), scales = "free_x") +
+  labs(x = "Rank (log10)", y = "Cumulative fraction of positive weight")
+```
+
+```{r}
+# Smallest N whose top genes capture at least `frac` of the total positive weight
+find_cumulative_n <- function(weights, frac = 0.25) {
+  positive_weights <- sort(weights[weights > 0], decreasing = TRUE)
+  cumulative_frac <- cumsum(positive_weights) / sum(positive_weights)
+  as.integer(which(cumulative_frac >= frac)[1])
+}
+
+tidyr::expand_grid(mp = names(mp_list), frac = c(0.1, 0.25, 0.5)) |>
+  dplyr::mutate(n_genes = purrr::map2_int(mp, frac, \(m, f) find_cumulative_n(mp_list[[m]], f))) |>
+  tidyr::pivot_wider(names_from = frac, values_from = n_genes, names_prefix = "frac_")
+```
+
+## ORA 
+
+
+```{r}
+# Pull the top n genes by weight
+# function to extract the top genes from each MP
+# takes a list of named gene weight vectors and returns a list of gene id vectors,
+# ordered by decreasing weight, with `num_genes` genes for each MP
+extract_top_genes <- function(mp_list, num_genes){
+
+  # get the top X number of genes for each MP
+  mp_top_list <- mp_list |>
+    purrr::map(function(weights){
+      weights |>
+        sort(decreasing = TRUE) |>
+        head(n = num_genes) |>
+        names() # return gene ids not weights
+    })
+
+  return(mp_top_list)
+}
+
+# function for running ORA with clusterProfiler::enricher on each metaprogram
+# returns a df with all gene sets for each metaprogram with p.adjust <= 0.05
+run_ora <- function(mp_top_list, gene_universe, term2gene_df){
+  
+  # run ORA using the top genes
+  ora_results <- mp_top_list |> 
+    purrr::map(\(genes){
+      clusterProfiler::enricher(
+        gene = genes,
+        universe = gene_universe,
+        TERM2GENE = term2gene_df
+      )
+    })
+  
+  # combine ora results into a single dataframe
+  # only include genesets with pvalue < 0.05, the default by enricher 
+  ora_results_df <- ora_results |> 
+    purrr::map(\(ora) ora@result ) |> 
+    purrr::list_rbind(names_to = "metaprogram") |>
+    dplyr::filter(p.adjust <= 0.05) 
+  
+  return(ora_results_df)
+  
+}
+```
+
+```{r}
+# grab hallmarks and reactome to use in addition to the custom and Ews specific gene lists 
+hallmarks_msigdb_df <- msigdbr::msigdbr(
+  species = "Homo sapiens", 
+  collection = "H"
+  ) |> 
+  dplyr::select(gs_name, ensembl_gene)
+```
+
+```{r}
+top200_mp_list <- extract_top_genes(mp_list, 200)
+top50_mp_list <- extract_top_genes(mp_list, 50)
+gene_universe <- mp_obj$gene_universe
+```
+
+```{r}
+top200_ora_results <- run_ora(top200_mp_list, gene_universe, hallmarks_msigdb_df)
+```
+
+
+## Session info
+
+```{r}
+sessionInfo()
+```
