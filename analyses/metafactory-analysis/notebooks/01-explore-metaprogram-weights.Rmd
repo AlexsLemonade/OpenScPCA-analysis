@@ -1,0 +1,63 @@
+---
+title: "Exploration of using metaprogram weights to define the number of genes per metaprogram"
+author: Ally Hawkins
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    code_folding: "hide"
+---
+
+## Setup
+
+```{r packages}
+suppressPackageStartupMessages({
+  library(ggplot2)
+})
+
+# Set default ggplot theme
+theme_set(
+  theme_bw()
+)
+```
+
+
+```{r base paths}
+# The base path for the OpenScPCA repository, found by its (hidden) .git directory
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+
+# The path to this module
+module_dir <- file.path(repository_base, "analyses", "metafactory-analysis")
+
+# path to metaprograms results for SCPCP000001
+mp_results_dir <- file.path(module_dir, "scratch", "SCPCP000001")
+mp_results_file <- file.path(mp_results_dir, "k-8_metaprograms.rds")
+```
+
+
+```{r}
+mp_obj <- readr::read_rds(mp_results_file)
+mp_list <- mp_obj$metaprogram_list
+```
+
+```{r}
+mp_list |>
+  purrr::map(\(w) {
+    sorted <- sort(w, decreasing = TRUE)
+    tibble::tibble(rank = seq_along(sorted), weight = sorted) |> 
+      dplyr::filter(weight > 0)
+  }) |>
+  purrr::list_rbind(names_to = "mp") |>
+  ggplot(aes(rank, weight)) +
+  geom_point(size = 0.5) +
+  facet_wrap(~mp, scales = "free_y") +
+  xlim(c(0,200))
+```
+
+Try to look at more than 3 MADS above a background distribution, identify outlier approach rather than keeping everything 
+
+Use only the positive weights to get an elbow 
+
+Implement a floor and a cap? Minimum of 20 genes but maximum of 200? 
+
