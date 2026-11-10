@@ -86,7 +86,7 @@ if (!is.null(opts$output_anndata_file)) {
   # - remove logcounts
   gene_var <- scrapper::modelGeneVariances(
     logcounts(osteocar_sce),
-    block = osteocar_sce$Sample
+    block = osteocar_sce$sample_name
   )
   hv_index <- scrapper::chooseHighlyVariableGenes(
     gene_var$statistics$residuals,
