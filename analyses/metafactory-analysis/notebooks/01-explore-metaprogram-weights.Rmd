@@ -7,7 +7,29 @@ output:
     toc: true
     toc_depth: 3
     code_folding: "hide"
+    df_print: paged
 ---
+
+## Introduction
+
+This notebook explores whether we can use the gene weights from each metaprogram output by `metafactory` to choose how many genes define it, instead of using a fixed cutoff of the top 200 genes.
+All analyses use the k = 8 metaprograms from SCPCP000001.
+
+We first look at the distribution of gene weights by rank.
+Many genes in the top 200 have weights that sit close to background, which suggests a fixed cutoff may include genes that contribute little to the metaprogram.
+
+We then test two data-driven approaches for choosing the number of genes:
+
+- **Kneedle:** Here we use the kneedle algorithm to identify the elbow both across all positive gene weights and then by capping at different numbers of top genes. 
+- **Outlier detection (median + MAD):** We use an outlier approach to try and identify the top genes. 
+
+To see how much information a more stringent cutoff loses, we compare the total weight captured by each method to the weight captured by the top 200 genes.
+
+Finally, we compare the top 200 and kneedle gene lists in terms of biological signal:
+
+- **Gene overlap between metaprograms:** We look at the overlap in the genes that are identified in each of the top list to identify potential shared genes.
+- **Over-representation analysis (Hallmark and Reactome):** We run ORA on the top 200 genes, the kneedle genes, and the genes dropped by the kneedle approach.
+
 
 ## Setup
 
@@ -49,8 +71,6 @@ padj_cutoff <- 0.05
 ## Functions
 
 ```{r functions}
-# Weights -> tibble ----------------------------------------------------------
-
 # Convert a named vector of gene weights into a tibble sorted by weight,
 # with the rank of each gene (1 = highest weight)
 weights_to_tibble <- function(weights) {
@@ -62,20 +82,14 @@ weights_to_tibble <- function(weights) {
   )
 }
 
-# Cutoff methods -------------------------------------------------------------
-# Every method returns the NUMBER of top genes to keep (N), so gene sets can
-# be pulled the same way for every method with get_top_genes()
-
-# Kneedle (offline, single knee):
+# Kneedle difference curve (offline, single knee):
 #  - Use only positive weights, sorted from highest to lowest
 #  - Scale x (rank) and y (weight) to [0, 1]
 #  - The sorted curve is convex and decreasing, so the straight line from the
 #    first point to the last point is y = 1 - x
-#  - The elbow is the point where the curve sits farthest below that line,
-#    i.e. where (1 - x) - y is largest
+#  - The difference curve is how far the weight curve sits below that line
 # NOTE: we don't smooth the curve or use a sensitivity parameter, since we
-# only want one knee per curve. Here kneedle reduces to the max of the
-# difference curve.
+# only want one knee per curve, so kneedle reduces to the max of this curve.
 find_kneedle_n <- function(weights) {
   positive_weights <- sort(weights[weights > 0], decreasing = TRUE)
   n <- length(positive_weights)
@@ -84,130 +98,49 @@ find_kneedle_n <- function(weights) {
   x_norm <- (seq_len(n) - 1) / (n - 1)
   y_norm <- (positive_weights - min(positive_weights)) /
     (max(positive_weights) - min(positive_weights))
-
-  difference_curve <- (1 - x_norm) - y_norm
-  as.integer(unname(which.max(difference_curve)))
+  
+  diff_curve <- (1 - x_norm) - y_norm
+  
+  # Elbow = rank where the difference curve peaks (number of genes kept)
+  kneedle <- which.max(diff_curve) |> 
+    unname() |> 
+    as.integer()
+  
+  return(kneedle)
 }
 
-# Outlier detection with MAD:
-#  - Median and MAD are taken over ALL genes (not just positive ones), so the
-#    "background" is defined by the full gene distribution
-#  - We only keep the upper tail, since we want genes with high weights
-#  - stats::mad() uses the default constant (1.4826), so the MAD is on the same
-#    scale as a standard deviation for normally distributed data
-find_mad_cutoff <- function(weights, n_mads = 3) {
-  mad_value <- stats::mad(weights)
+
+# Upper outlier cutoff: median + n_mads * MAD
+# stats::mad() uses the default constant (1.4826), so the MAD is on the same
+# scale as a standard deviation for normally distributed data
+find_mad_cutoff <- function(values, n_mads = 3) {
+  mad_value <- stats::mad(values)
   if (mad_value == 0) {
-    warning("MAD is 0, so every gene above the median will be called an outlier.")
+    warning("MAD is 0, so every value above the median will be called an outlier.")
   }
-  stats::median(weights) + n_mads * mad_value
+  stats::median(values) + n_mads * mad_value
 }
 
-find_log_mad_n <- function(weights, n_mads = 3) {
-  log_weights <- log10(weights[weights > 0])
-  cutoff <- stats::median(log_weights) + n_mads * stats::mad(log_weights)
-  sum(log_weights > cutoff)
-}
 
-# Pull the top n genes by weight
-# function to extract the top genes from each MP
-# takes a list of named gene weight vectors and returns a list of gene id vectors,
-# ordered by decreasing weight, with `num_genes` genes for each MP
-extract_top_genes <- function(mp_list, num_genes){
-
-  # get the top X number of genes for each MP
-  mp_top_list <- mp_list |>
-    purrr::map(function(weights){
-      weights |>
-        sort(decreasing = TRUE) |>
-        head(n = num_genes) |>
-        names() # return gene ids not weights
-    })
-
-  return(mp_top_list)
-}
-
-# Set similarity -------------------------------------------------------------
-
-# Jaccard index; NA when both sets are empty (e.g., no significant pathways)
-jaccard_index <- function(a, b) {
-  union_size <- length(union(a, b))
-  if (union_size == 0) return(NA_real_)
-  length(intersect(a, b)) / union_size
-}
-
-# Overlap coefficient = |A ∩ B| / min(|A|, |B|)
-# Useful because the sets are nested (e.g., top_50 is always inside top_200).
-# Jaccard is pulled down just by the size difference; overlap says whether
-# the smaller set is contained in the larger one.
-overlap_coefficient <- function(a, b) {
-  min_size <- min(length(a), length(b))
-  if (min_size == 0) return(NA_real_)
-  length(intersect(a, b)) / min_size
-}
-
-# All pairwise similarities for a named list of sets
-calculate_pairwise_similarity <- function(set_list, similarity_fn) {
-  tidyr::expand_grid(set_1 = names(set_list), set_2 = names(set_list)) |>
-    dplyr::mutate(
-      value = purrr::map2_dbl(set_1, set_2, \(a, b) similarity_fn(set_list[[a]], set_list[[b]]))
-    )
-}
-
-# Pairwise similarity within each group of a data frame
-#  - group_col: column to compare within (e.g., "mp" to compare methods)
-#  - name_col: column that names each set (e.g., "method")
-#  - set_col: list column holding the sets
-calculate_similarity_by_group <- function(df, group_col, name_col, set_col, similarity_fn) {
-  df |>
-    tidyr::nest(.by = dplyr::all_of(group_col)) |>
-    dplyr::mutate(similarity = purrr::map(data, \(group_df) {
-      set_list <- purrr::set_names(group_df[[set_col]], as.character(group_df[[name_col]]))
-      calculate_pairwise_similarity(set_list, similarity_fn)
-    })) |>
-    dplyr::select(-data) |>
-    tidyr::unnest(similarity)
-}
-
-# Heatmap of pairwise similarity, one facet per group
-plot_similarity_heatmap <- function(similarity_df, facet_col, set_levels, fill_label, title) {
-  similarity_df |>
-    dplyr::mutate(
-      set_1 = factor(set_1, levels = set_levels),
-      set_2 = factor(set_2, levels = set_levels)
-    ) |>
-    ggplot(aes(set_1, set_2, fill = value)) +
-    geom_tile() +
-    geom_text(aes(label = round(value, 2)), size = 2.5, na.rm = TRUE) +
-    scale_fill_viridis_c(limits = c(0, 1), na.value = "grey90") +
-    facet_wrap(vars(.data[[facet_col]])) +
-    labs(x = NULL, y = NULL, fill = fill_label, title = title) +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
-}
-
-# ORA ------------------------------------------------------------------------
-
-# Hallmark ORA with clusterProfiler
-# pvalueCutoff/qvalueCutoff are set to 1 so ALL tested pathways come back.
-# We filter on p.adjust later, so we keep the full results.
-run_hallmark_ora <- function(genes, universe, term2gene) {
-  result <- clusterProfiler::enricher(
+# function for running ORA with clusterProfiler::enricher on a single list of genes
+# returns a tibble of all gene sets with p.adjust <= padj_cutoff
+# returns an empty tibble if there are no genes or no genes map to any gene set
+run_ora <- function(genes, gene_universe, term2gene_df, padj_cutoff = 0.05){
+  
+  if (length(genes) == 0) return(tibble::tibble())
+  
+  ora <- clusterProfiler::enricher(
     gene = genes,
-    universe = universe,
-    TERM2GENE = term2gene,
-    pvalueCutoff = 1,
-    qvalueCutoff = 1
+    universe = gene_universe,
+    TERM2GENE = term2gene_df
   )
+  
   # enricher() returns NULL when no genes map to any gene set
-  if (is.null(result)) return(tibble::tibble())
-  tibble::as_tibble(result@result)
-}
-
-# Convert "a/b" ratio strings (GeneRatio, BgRatio) to numbers
-ratio_to_numeric <- function(ratio) {
-  stringr::str_split(ratio, "/") |>
-    purrr::map_dbl(\(x) as.numeric(x[1]) / as.numeric(x[2]))
-}
+  if (is.null(ora)) return(tibble::tibble())
+  
+  ora@result |> 
+    tibble::as_tibble() |> 
+    dplyr::filter(p.adjust <= padj_cutoff)
 }
 ```
 
@@ -221,7 +154,16 @@ mp_list <- mp_obj$metaprogram_list
 mp_weights_df <- mp_list |>
   purrr::map(weights_to_tibble) |>
   purrr::list_rbind(names_to = "mp")
+
+# only positive weights, used for all cutoff methods
+# genes are sorted by weight, so rank among positive genes is unchanged
+filtered_weights_df <- mp_weights_df |>
+  dplyr::filter(weight > 0)
 ```
+
+## Explore weights by rank
+
+First we will just look at the weights of each metaprogram by rank. 
 
 ```{r}
 mp_weights_df |>
@@ -229,6 +171,9 @@ mp_weights_df |>
   geom_point(size = 0.5) +
   facet_wrap(vars(mp), scales = "free_y")
 ```
+
+It looks like we have a fair amount of 0 weights and a long tail of weights that are around 0. 
+We probably can't use the elbow on this distribution alone, so let's zoom in. 
 
 ```{r}
 # now repeat the same plot but only zoom into the top 200 which is what we are currently using as the cutoff
@@ -241,206 +186,375 @@ mp_weights_df |>
 
 It looks like even in the top 200 we have a fair amount of genes that are at the same weight with no real contribution over the background.
 
-```{r}
-filtered_weights_df <- mp_weights_df |> 
-  dplyr::filter(weight > 0)
-```
-
-
 ## Identify cutoffs
 
-All four methods are written as "keep the top N genes," so we get N for each method and metaprogram first, then pull gene sets with the same function.
+We will use both a kneedle and outlier approach to attempt to identify the top genes for each metaprogram rather than a strict cutoff.
 
 ### Approach #1: Kneedle
 
-Use the kneedle algorithm to identify the elbow using all positive weights as input
+#### Kneedle using all positive weights
 
-- Identify the elbow point for each metaprogram
-- Make a table of the number of genes that are left above the elbow for each metaprogram
+First, we find the elbow using every gene with a positive weight as input.
 
 ```{r}
-kneedle_df <- filtered_weights_df |> 
-  dplyr::filter(weight > 0) |> 
+kneedle_all_df <- filtered_weights_df |>
   dplyr::summarize(
+    total_pos_genes = dplyr::n(),
     kneedle = find_kneedle_n(weight),
-    total_pos_genes = dplyr::n_distinct(rank),
     .by = mp
   )
 
-kneedle_df
+kneedle_all_df
 ```
 
-I think that's way too many genes... 
+This keeps far too many genes.
+Kneedle scales rank to [0, 1] across the whole input, so when the input includes thousands of genes with near-background weights, the reference line is dominated by that long tail.
+The elbow then ends up where the curve flattens out into background, rather than where the drop-off among the top genes happens.
+
+#### Kneedle on a capped number of genes
+
+To focus the elbow on the top of the curve, we restrict the input to the top N positive genes before running kneedle.
+Because the elbow is defined relative to the input, it will depend on the cap we choose, so we first check how sensitive the elbow is to the cap.
 
 ```{r}
-# Kneedle difference curve, optionally on just the top `max_genes` positive weights
-calculate_difference_curve <- function(weights, max_genes = Inf) {
-  positive_weights <- sort(weights[weights > 0], decreasing = TRUE) |>
-    head(max_genes)
-  n <- length(positive_weights)
-  stopifnot("Need at least 3 positive weights to find an elbow" = n >= 3)
+# define caps on the number of genes to use when determining the kneedle
+kneedle_caps <- c(100, 150, 200, 300, 500, 1000)
 
-  x_norm <- (seq_len(n) - 1) / (n - 1)
-  y_norm <- (positive_weights - min(positive_weights)) /
-    (max(positive_weights) - min(positive_weights))
-  (1 - x_norm) - y_norm
-}
-
-# Elbow = rank where the difference curve peaks
-find_kneedle_n <- function(weights, max_genes = Inf) {
-  calculate_difference_curve(weights, max_genes) |>
-    which.max() |>
-    unname() |>
-    as.integer()
-}
-
-caps <- c(100, 150, 200, 300, 500)
-
-kneedle_cap_df <- tidyr::expand_grid(mp = names(mp_list), max_genes = caps) |>
-  dplyr::mutate(
-    kneedle = purrr::map2_int(mp, max_genes, \(m, cap) find_kneedle_n(mp_list[[m]], cap)),
-    knee_strength = purrr::map2_dbl(mp, max_genes, \(m, cap) max(calculate_difference_curve(mp_list[[m]], cap)))
+# find the kneedle across each of the caps
+kneedle_cap_df <- filtered_weights_df |>
+  dplyr::cross_join(tibble::tibble(max_genes = kneedle_caps)) |>
+  dplyr::filter(rank <= max_genes) |>
+  dplyr::summarize(
+    kneedle = find_kneedle_n(weight),
+    .by = c(mp, max_genes)
   )
+```
 
+If the elbow reflects a real feature of the weight curve, it should stay roughly the same as the cap increases.
+If it grows with the cap, the elbow is being driven by the length of the input rather than by the weights themselves.
+
+```{r}
 kneedle_cap_df |>
   ggplot(aes(max_genes, kneedle, color = mp)) +
   geom_line() +
   geom_point() +
-  labs(x = "Kneedle input cap (top N positive genes)", y = "Elbow (number of genes kept)") +
+  labs(
+    x = "Kneedle input cap (top N positive genes)",
+    y = "Elbow (number of genes kept)",
+    color = "Metaprogram"
+  ) +
   scale_color_brewer(palette = "Dark2")
 ```
 
+It looks like that for some programs the elbow is consistent as you increase the number of genes to use when calculating the kneedle, but for others this is not the case. 
+However, even going up to 1000 genes the maximum values for the elbows would include around 200 genes. 
+
+#### Kneedle on the top 1000 genes
+
+We use a cap of 1000 genes going forward since most programs will have 200 genes or fewer which is consistent with our current approach.
+
 ```{r}
-kneedle_cap_df |> 
-  dplyr::filter(max_genes == 200)
+kneedle_cap <- 1000
+
+kneedle_1000_df <- kneedle_cap_df |>
+  dplyr::filter(max_genes == kneedle_cap) |>
+  dplyr::select(mp, kneedle)
+
+kneedle_1000_df
 ```
 
+```{r}
+# top 1000 weights with the elbow marked in red
+filtered_weights_df |>
+  dplyr::filter(rank <= kneedle_cap) |>
+  ggplot(aes(rank, weight)) +
+  geom_point(size = 0.5) +
+  geom_vline(data = kneedle_1000_df, aes(xintercept = kneedle), color = "red") +
+  facet_wrap(vars(mp), scales = "free_y") +
+  labs(x = "Rank", y = "Weight")
+```
+
+As expected, some metaprograms have very obvious elbows (eg., MP01 and MP03) and using this approach selects only the top ~50 genes, while others have more gradual slopes so using this approach keeps the number of genes around ~200 total which is similar to what we are already doing. 
+
+One option is to implement something like this and include a maximum number of genes so that no metaprogram has more than 200 genes selected. 
 
 ### Approach #2: Outlier detection
 
-Identify the number of genes that is 3 MADs outside the median gene weight to get outliers
+Here we call genes as outliers if their weight is more than `r n_mads` MADs above the median weight, using all positive weights as the background.
 
-- Identify the outliers for each metaprogram
-- Make a table of the number of genes that are included when using the 3 MAD cutoff
+We do this on log10-transformed weights rather than raw weights.
+Median + MAD is robust to outliers, but it still assumes the bulk of the distribution is roughly symmetric.
+The raw weights are strongly right-skewed: most genes are piled up near zero and a small number of genes have weights spread across orders of magnitude.
+On the raw scale the MAD is therefore very small, so the cutoff sits only slightly above background and a large fraction of genes get called outliers (and if the MAD is 0, every gene above the median would be called an outlier).
+After a log transform the distribution is closer to symmetric, so the cutoff reflects genes that are far above background on a fold-change scale, which is how we think about differences in weight anyway.
+
+Below we calculate both versions to show the difference.
 
 ```{r}
-filtered_weights_df |> 
-  dplyr::summarise(
-    mad_cutoff_weight = find_mad_cutoff(weight),
-    mad_outliers = find_log_mad_n(weight),
-    .by = "mp"
+mad_df <- filtered_weights_df |>
+  dplyr::summarize(
+    raw_cutoff = find_mad_cutoff(weight, n_mads),
+    log_cutoff = find_mad_cutoff(log10(weight), n_mads),
+    mad_raw = sum(weight > raw_cutoff),
+    mad_outliers = sum(log10(weight) > log_cutoff),
+    .by = mp
+  )
+
+mad_df
+```
+
+Honestly, I don't think either of these approaches is going to be helpful. 
+Having thousands of genes seems like too much and will be hard to interpret, while having less than 10 genes or even 0 would give you no information. 
+
+## Weight captured by each cutoff
+
+Being more stringent gives us smaller, more specific gene sets, but we may lose information about the metaprogram.
+To get a sense of how much, we calculate the total weight contributed by the top 200 genes and evaluate the following for each method:
+
+- `pct_top200_weight`: The percentage of weight from the top 200 genes that is retained in the new gene set.
+- `pct_method_weight`: The percentage of weight from the specific method being tested. 
+- `weight_lost:` The percentage of weight that is lost from using a specific method compared to using the full 200 genes.
+
+```{r}
+# number of genes kept by each method for each metaprogram
+n_genes_df <- kneedle_1000_df |>
+  dplyr::select(mp, kneedle) |>
+  dplyr::left_join(dplyr::select(mad_df, mp, mad_outliers), by = "mp") |>
+  # add number of genes for top 200 and top 50
+  dplyr::mutate(
+    top_200 = 200L,
+    top_50 = 50L
+  ) |>
+  tidyr::pivot_longer(-mp, names_to = "method", values_to = "n_genes") |> 
+  # cap the number of genes to be max 200
+  dplyr::mutate(
+    n_genes = dplyr::if_else(n_genes > 200, 200, n_genes)
+  )
+
+weight_summary_df <- filtered_weights_df |>
+  dplyr::inner_join(n_genes_df, by = "mp", relationship = "many-to-many") |>
+  dplyr::summarize(
+    n_genes = dplyr::first(n_genes),
+    method_weight = sum(weight[rank <= n_genes]),
+    total_weight = sum(weight),
+    .by = c(mp, method)
+  ) |>
+  dplyr::mutate(
+    top_200_weight = method_weight[method == "top_200"],
+    .by = mp
+  ) |>
+  dplyr::mutate(
+    pct_method_weight = method_weight / total_weight,
+    pct_top200_weight = top_200_weight / total_weight,
+    weight_lost = 1 - pct_method_weight / pct_top200_weight,
+    method = factor(method, levels = method_levels)
+  ) |>
+  dplyr::arrange(mp, method)
+
+weight_summary_df |>
+  dplyr::select(mp, method, n_genes, pct_method_weight, pct_top200_weight, weight_lost) |>
+  dplyr::mutate(dplyr::across(c(pct_method_weight, pct_top200_weight, weight_lost), \(x) round(x*100, 3)))
+```
+
+Let's look specifically at the weight lost for choosing the top 200 vs the kneedle approach with a cap at 1000 and max number of genes of 200. 
+
+```{r}
+weight_summary_df |> 
+  dplyr::filter(method %in% c("top_200", "kneedle")) |> 
+  dplyr::select(mp, method, weight_lost, n_genes) |> 
+  tidyr::pivot_wider(id_cols = mp, names_from = method, values_from = c(weight_lost, n_genes)) |> 
+  dplyr::select(-weight_lost_top_200) |> 
+  dplyr::arrange(weight_lost_kneedle)
+```
+
+It looks like the weight lost is directly proportional to the number of genes that are retained which makes this not a meaningful comparison. 
+
+## Biological signal 
+
+What we really want to know is if we pick a smaller set of genes are we enhancing biological signal and removing noise. 
+For the reaminder of the notebook, we'll just focus on either the top 200 or the kneedle approach. 
+We'll try to answer two questions: 
+
+1. First, how many of the genes are found in more than one metaprogram's top gene list when we use these different approaches? 
+2. If we run ORA on the kneedle genes only vs the genes we lose when using the kneedle approach are there gene sets that get picked up that are specific to the genes that we dropped? 
+
+### Overlap of top genes 
+
+```{r}
+# make a tibble of top genes that are kept for each of these two methods 
+# n_genes_df already has the kneedle capped at a max of 200 genes
+top_genes_df <- filtered_weights_df |>
+  dplyr::inner_join(
+    dplyr::filter(n_genes_df, method %in% c("top_200", "kneedle")),
+    by = "mp",
+    relationship = "many-to-many"
+  ) |>
+  dplyr::filter(rank <= n_genes) |>
+  dplyr::select(mp, method, gene, rank, weight)
+
+# number of metaprograms each gene is selected in, for each method
+gene_mp_counts_df <- top_genes_df |>
+  dplyr::summarize(
+    n_mps = dplyr::n_distinct(mp),
+    .by = c(method, gene)
   )
 ```
 
-### Cumulative weight cutoff 
+For each method, we count the number of unique genes selected across all metaprograms and how many of those are selected in more than one metaprogram.
 
 ```{r}
-# Gini coefficient of positive weights (sorted ascending for the formula)
-calculate_gini <- function(weights) {
-  w <- sort(weights[weights > 0])
-  n <- length(w)
-  sum((2 * seq_len(n) - n - 1) * w) / (n * sum(w))
-}
-
-purrr::map_dbl(mp_list, calculate_gini)
-
+# print out how many genes are shared in more than one metaprogram with the top 200 vs. the kneedle
+gene_mp_counts_df |>
+  dplyr::summarize(
+    total_unique_genes = dplyr::n(),
+    shared_genes = sum(n_mps > 1),
+    prop_shared = round(shared_genes / total_unique_genes, 3),
+    max_mps_per_gene = max(n_mps),
+    .by = method
+  )
 ```
 
-```{r}
-cumulative_weights_df <- filtered_weights_df |>
-  dplyr::arrange(mp, rank) |>
-  dplyr::mutate(cumulative_frac = cumsum(weight) / sum(weight), .by = mp)
+We can also look at this per metaprogram, i.e., what fraction of each metaprogram's selected genes are also selected in at least one other metaprogram.
 
-cumulative_weights_df |>
-  ggplot(aes(rank, cumulative_frac)) +
-  geom_line() +
-  geom_hline(yintercept = c(0.1, 0.25, 0.5), linetype = "dashed", color = "grey50") +
-  geom_vline(xintercept = 200, color = "red") +  # current cutoff
-  scale_x_log10() +
-  facet_wrap(vars(mp), scales = "free_x") +
-  labs(x = "Rank (log10)", y = "Cumulative fraction of positive weight")
+```{r}
+top_genes_df |>
+  dplyr::left_join(gene_mp_counts_df, by = c("method", "gene")) |>
+  dplyr::summarize(
+    n_genes = dplyr::n(),
+    n_shared = sum(n_mps > 1),
+    prop_shared = round(n_shared / n_genes, 3),
+    .by = c(mp, method)
+  ) |>
+  tidyr::pivot_wider(
+    id_cols = mp,
+    names_from = method,
+    values_from = c(n_genes, n_shared, prop_shared)
+  ) |>
+  dplyr::arrange(mp)
 ```
 
-```{r}
-# Smallest N whose top genes capture at least `frac` of the total positive weight
-find_cumulative_n <- function(weights, frac = 0.25) {
-  positive_weights <- sort(weights[weights > 0], decreasing = TRUE)
-  cumulative_frac <- cumsum(positive_weights) / sum(positive_weights)
-  as.integer(which(cumulative_frac >= frac)[1])
-}
+It looks like generally there is not a lot of overlap in the genes that are shared regardless of the method. 
+This seems good considering how much effort we put into identifying biologically unique and interpretable metaprograms. 
 
-tidyr::expand_grid(mp = names(mp_list), frac = c(0.1, 0.25, 0.5)) |>
-  dplyr::mutate(n_genes = purrr::map2_int(mp, frac, \(m, f) find_cumulative_n(mp_list[[m]], f))) |>
-  tidyr::pivot_wider(names_from = frac, values_from = n_genes, names_prefix = "frac_")
-```
+### ORA
 
-## ORA 
+We run ORA with the Hallmark and Reactome gene sets on three gene lists for each metaprogram:
 
+- `top_200`: the top 200 genes
+- `kneedle`: the genes kept by the kneedle approach
+- `dropped`: genes in the top 200 but not kept by the kneedle approach
+
+Metaprograms where the kneedle keeps all 200 genes have no dropped genes, so no ORA is run for those.
 
 ```{r}
-# Pull the top n genes by weight
-# function to extract the top genes from each MP
-# takes a list of named gene weight vectors and returns a list of gene id vectors,
-# ordered by decreasing weight, with `num_genes` genes for each MP
-extract_top_genes <- function(mp_list, num_genes){
-
-  # get the top X number of genes for each MP
-  mp_top_list <- mp_list |>
-    purrr::map(function(weights){
-      weights |>
-        sort(decreasing = TRUE) |>
-        head(n = num_genes) |>
-        names() # return gene ids not weights
-    })
-
-  return(mp_top_list)
-}
-
-# function for running ORA with clusterProfiler::enricher on each metaprogram
-# returns a df with all gene sets for each metaprogram with p.adjust <= 0.05
-run_ora <- function(mp_top_list, gene_universe, term2gene_df){
-  
-  # run ORA using the top genes
-  ora_results <- mp_top_list |> 
-    purrr::map(\(genes){
-      clusterProfiler::enricher(
-        gene = genes,
-        universe = gene_universe,
-        TERM2GENE = term2gene_df
-      )
-    })
-  
-  # combine ora results into a single dataframe
-  # only include genesets with pvalue < 0.05, the default by enricher 
-  ora_results_df <- ora_results |> 
-    purrr::map(\(ora) ora@result ) |> 
-    purrr::list_rbind(names_to = "metaprogram") |>
-    dplyr::filter(p.adjust <= 0.05) 
-  
-  return(ora_results_df)
-  
-}
-```
-
-```{r}
-# grab hallmarks and reactome to use in addition to the custom and Ews specific gene lists 
+# grab hallmarks and reactome to use for ORA
 hallmarks_msigdb_df <- msigdbr::msigdbr(
   species = "Homo sapiens", 
   collection = "H"
   ) |> 
   dplyr::select(gs_name, ensembl_gene)
-```
+reactome_msigdb_df <- msigdbr::msigdbr(
+  species = "Homo sapiens", 
+  collection = "C2",
+  subcollection = "CP:REACTOME"
+  ) |> 
+  dplyr::select(gs_name, ensembl_gene)
 
-```{r}
-top200_mp_list <- extract_top_genes(mp_list, 200)
-top50_mp_list <- extract_top_genes(mp_list, 50)
+all_term_df <- dplyr::bind_rows(hallmarks_msigdb_df, reactome_msigdb_df)
+
+# define the gene universe
 gene_universe <- mp_obj$gene_universe
+
+# modify the table of gene lists to add another "method" 
+# this method is the list of genes that are in the top 200 but NOT in the kneedle 
+dropped_genes_df <- top_genes_df |>
+  dplyr::filter(method == "top_200") |>
+  dplyr::anti_join(
+    dplyr::filter(top_genes_df, method == "kneedle"),
+    by = c("mp", "gene")
+  ) |>
+  dplyr::mutate(method = "dropped")
+
+ora_genes_df <- dplyr::bind_rows(top_genes_df, dropped_genes_df)
+
+# split the dataframe with the genes selected for each mp and each method
+# run ORA on every gene list and combine results for all mps and all methods
+ora_results_df <- ora_genes_df |>
+  dplyr::group_split(mp, method) |>
+  purrr::map(\(gene_df) {
+    run_ora(gene_df$gene, gene_universe, all_term_df, padj_cutoff) |>
+      dplyr::mutate(
+        mp = unique(gene_df$mp),
+        method = unique(gene_df$method),
+        .before = 1
+      )
+  }) |>
+  dplyr::bind_rows()
+```
+
+
+```{r}
+# make a table for each metaprogram that lists the gene sets for each method including one column for the genes in top 200 but not in kneedle
+# each cell is the adjusted p-value for that gene set, NA if not significant
+ora_wide_df <- ora_results_df |>
+  dplyr::mutate(method = factor(method, levels = c("top_200", "kneedle", "dropped"))) |>
+  dplyr::select(mp, ID, method, p.adjust) |>
+  tidyr::pivot_wider(
+    names_from = method,
+    values_from = p.adjust,
+    names_expand = TRUE
+  ) |>
+  dplyr::arrange(mp, ID)
+
+ora_wide_df |> 
+  dplyr::mutate(dplyr::across(c(top_200, kneedle, dropped), \(x) signif(x, 3)))
+```
+
+Gene sets that are significant in the dropped genes but not in the kneedle genes are the ones we would potentially lose by switching to the kneedle approach.
+
+```{r}
+ora_wide_df |>
+  dplyr::filter(!is.na(dropped), is.na(kneedle), !is.na(top_200)) |>
+  dplyr::mutate(dplyr::across(c(top_200, kneedle, dropped), \(x) signif(x, 3)))
 ```
 
 ```{r}
-top200_ora_results <- run_ora(top200_mp_list, gene_universe, hallmarks_msigdb_df)
+# rename n genes so we can add it in to the ORA results
+kneedle_1000_df <- kneedle_1000_df |> 
+  dplyr::rename("n_genes" = kneedle)
+
+# percentage of total gene sets that are in the dropped set AND the full 200 but NOT in the gene sets 
+# for each mp 
+ora_wide_df |>
+  dplyr::left_join(kneedle_1000_df, by = "mp") |> 
+  dplyr::summarize(
+    n_genes = unique(n_genes), 
+    total_genesets = dplyr::n(),
+    dropped_genesets = sum(is.na(kneedle) & !is.na(top_200) & !is.na(dropped)),
+    pct_dropped_genesets = 100 * (dropped_genesets / total_genesets),
+    .by = mp
+  )
+
 ```
 
+
+Generally the metaprograms with dropped gene sets are those with much fewer genes in the kneedle approach which mostly reflects that we are including a larger gene list when running ORA so more gene sets are going to be significant. 
+This does not actually tell us if we see any meaningful biology in those gene sets that are dropped. 
+
+## Conclusions
+
+* The kneedle approach might be usable but in some metaprograms the elbow is dependent on the number of genes included in the calculation. 
+* The outlier approach is not very useful or informative. 
+* The weight lost and the lost gene sets are directly related to having fewer genes and don't actually tell us if we are gaining or losing meaningful signal. 
+
+This is a fairly preliminary analysis and we need more specific metrics to measure how much biological signal we are gaining/losing and this only uses one set of results.
+That being said, I don't feel that the kneedle approach is all that helpful compared to just choosing a cutoff of 200 genes (or even lower) across all metaprograms. 
+We also don't consider the impact on cell scores here which could be useful in deciding how much of the score is being impacted by the genes that get dropped when using kneedle. 
+However that was outside the scope of this very preliminary notebook. 
+
+Ultimately I think we should move on from these approaches and try the GeneNMF approach to see if we get any more meaningful gene lists. 
+That approach combines the weight with specificity of genes to create gene lists and may be more promising. 
+Alternatively we just leave things as is and continue with the top X number of genes. 
 
 ## Session info
 
