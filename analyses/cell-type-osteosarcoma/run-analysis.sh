@@ -63,7 +63,6 @@ for i in "${!ref_urls[@]}"; do
 done
 
 # Convert to SCE and AnnData -----------------------------------------------
-# Convert to SCE and  AnnData
 for i in "${!ref_prefixes[@]}"; do
   Rscript "${script_dir}/convert-osteocar.R" \
     --input_ref_file "${ref_prefixes[$i]}.qs2" \
