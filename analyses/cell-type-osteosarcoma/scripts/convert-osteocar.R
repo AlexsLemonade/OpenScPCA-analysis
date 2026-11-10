@@ -5,9 +5,6 @@
 # sets limit to 48 GB, needed for reading in the qs2 files
 mem.maxVSize(48000)
 
-# rhdf5 is required by anndataR to write H5AD files
-stopifnot("rhdf5 is required to write H5AD files" = requireNamespace("rhdf5", quietly = TRUE))
-
 
 library(optparse)
 
@@ -80,10 +77,13 @@ if (!is.null(opts$output_sce_file)) {
   )
 }
 
+# rhdf5 is required by anndataR to write H5AD files
+
 if (!is.null(opts$output_anndata_file)) {
   # Pare the object down to save space:
   # - subset to top 2000 HVG (batch-aware)
   # - remove logcounts
+  stopifnot("rhdf5 is required to write H5AD files" = requireNamespace("rhdf5", quietly = TRUE))
   gene_var <- scrapper::modelGeneVariances(
     logcounts(osteocar_sce),
     block = osteocar_sce$sample_name
