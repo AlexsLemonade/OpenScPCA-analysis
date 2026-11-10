@@ -26,15 +26,10 @@ option_list <- list(
     help = "Path to output H5AD file to hold an AnnData version of the OsteoCAR object. If not provided, the AnnData object will not be saved."
   ),
   make_option(
-    opt_str = c("--output_hvg_file"),
-    type = "character",
-    help = "Path to output text file listing the HVGs used for the AnnData object. Required if --output_anndata_file is provided."
-  ),
-  make_option(
     opt_str = c("--seed"),
     type = "integer",
     default = 2025,
-    help = "Random seed used to subset OsteoCAR when --testing is specified"
+    help = "Random seed used for reproducibility of selecting HVGs"
   )
 )
 
@@ -44,10 +39,6 @@ opts <- parse_args(OptionParser(option_list = option_list))
 # Check that input and output arguments are valid
 stopifnot("input_ref_file does not exist" = file.exists(opts$input_ref_file))
 
-# Check that output_hvg_file is provided if output_anndata_file is specified
-if (!is.null(opts$output_anndata_file)) {
-  stopifnot("output_hvg_file is required when output_anndata_file is provided" = !is.null(opts$output_hvg_file))
-}
 
 # load the bigger libraries after passing checks
 suppressPackageStartupMessages({
@@ -77,13 +68,11 @@ if (!is.null(opts$output_sce_file)) {
   )
 }
 
-# rhdf5 is required by anndataR to write H5AD files
 
 if (!is.null(opts$output_anndata_file)) {
   # Pare the object down to save space:
   # - subset to top 2000 HVG (batch-aware)
   # - remove logcounts
-  stopifnot("rhdf5 is required to write H5AD files" = requireNamespace("rhdf5", quietly = TRUE))
   gene_var <- scrapper::modelGeneVariances(
     logcounts(osteocar_sce),
     block = osteocar_sce$sample_name
@@ -107,6 +96,4 @@ if (!is.null(opts$output_anndata_file)) {
     mode = "w"
   )
 
-  # export text file with the HVGs
-  readr::write_lines(hv_genes, opts$output_hvg_file)
 }

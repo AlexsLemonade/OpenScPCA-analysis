@@ -62,13 +62,13 @@ for i in "${!ref_urls[@]}"; do
   download_file "${ref_urls[$i]}" "${ref_prefixes[$i]}.qs2"
 done
 
-# Convert to SCE (and later AnnData)
+# Convert to SCE and AnnData -----------------------------------------------
+# Convert to SCE and  AnnData
 for i in "${!ref_prefixes[@]}"; do
   Rscript "${script_dir}/convert-osteocar.R" \
     --input_ref_file "${ref_prefixes[$i]}.qs2" \
     --output_sce_file "${ref_prefixes[$i]}_sce.rds" \
-    --output_anndata_file "${ref_prefixes[$i]}_adata.h5ad" \
-    --output_hvg_file "${ref_prefixes[$i]}_hvg.txt" 
+    --output_anndata_file "${ref_prefixes[$i]}_adata.h5ad" 
 done
 
 
