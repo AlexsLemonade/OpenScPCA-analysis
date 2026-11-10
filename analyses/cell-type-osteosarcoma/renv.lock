@@ -282,57 +282,6 @@
       "Author": "Jiefei Wang [aut, cre], Martin Morgan [aut], Valerie Obenchain [aut], Michel Lang [aut], Ryan Thompson [aut], Nitesh Turaga [aut], Aaron Lun [ctb], Henrik Bengtsson [ctb], Madelyn Carlson [ctb] (Translated 'Random Numbers' vignette from Sweave to RMarkdown / HTML.), Phylis Atieno [ctb] (Translated 'Introduction to BiocParallel' vignette from Sweave to Rmarkdown / HTML.), Sergio Oller [ctb] (Improved bpmapply() efficiency., ORCID: <https://orcid.org/0000-0002-8994-1549>)",
       "Maintainer": "Jiefei Wang <jiefei0804@gmail.com>"
     },
-    "BiocSingular": {
-      "Package": "BiocSingular",
-      "Version": "1.28.1",
-      "Source": "Bioconductor",
-      "Date": "2026-10-08",
-      "Title": "Singular Value Decomposition for Bioconductor Packages",
-      "Authors@R": "c(person(\"Aaron\", \"Lun\", role=c(\"aut\", \"cre\", \"cph\"), email=\"infinite.monkeys.with.keyboards@gmail.com\"))",
-      "Imports": [
-        "BiocGenerics",
-        "S4Vectors",
-        "Matrix",
-        "methods",
-        "utils",
-        "DelayedArray",
-        "BiocParallel",
-        "ScaledMatrix",
-        "irlba",
-        "rsvd",
-        "Rcpp",
-        "beachmat (>= 2.25.1)"
-      ],
-      "Suggests": [
-        "testthat",
-        "BiocStyle",
-        "knitr",
-        "rmarkdown",
-        "ResidualMatrix"
-      ],
-      "biocViews": "Software, DimensionReduction, PrincipalComponent",
-      "Description": "Implements exact and approximate methods for singular value decomposition and principal components analysis, in a framework that allows them to be easily switched within Bioconductor packages or workflows. Where possible, parallelization is achieved using the BiocParallel framework.",
-      "License": "GPL-3",
-      "LinkingTo": [
-        "Rcpp",
-        "beachmat",
-        "assorthead"
-      ],
-      "VignetteBuilder": "knitr",
-      "SystemRequirements": "C++17",
-      "RoxygenNote": "7.3.3",
-      "Encoding": "UTF-8",
-      "BugReports": "https://github.com/LTLA/BiocSingular/issues",
-      "URL": "https://github.com/LTLA/BiocSingular",
-      "Config/pak/sysreqs": "zlib1g-dev",
-      "Repository": "Bioconductor 3.23",
-      "RemoteUrl": "https://github.com/bioc/BiocSingular",
-      "RemoteRef": "RELEASE_3_23",
-      "RemoteSha": "6f819465dbf5b279d176240786186a8c9a54750d",
-      "NeedsCompilation": "yes",
-      "Author": "Aaron Lun [aut, cre, cph]",
-      "Maintainer": "Aaron Lun <infinite.monkeys.with.keyboards@gmail.com>"
-    },
     "BiocVersion": {
       "Package": "BiocVersion",
       "Version": "3.23.1",
@@ -1145,6 +1094,40 @@
       "Author": "Mike Smith [ctb] (ORCID: <https://orcid.org/0000-0002-7800-3848>), Hugo Gruson [cre] (ORCID: <https://orcid.org/0000-0002-4094-1476>), The HDF Group [cph]",
       "Maintainer": "Hugo Gruson <hugo.gruson@embl.de>"
     },
+    "Rigraphlib": {
+      "Package": "Rigraphlib",
+      "Version": "1.4.0",
+      "Source": "Bioconductor",
+      "Type": "Package",
+      "Date": "2025-12-07",
+      "Title": "igraph library as an R package",
+      "License": "GPL-3",
+      "Authors@R": "person(\"Aaron\", \"Lun\", role=c(\"cre\", \"aut\"), email=\"infinite.monkeys.with.keyboards@gmail.com\")",
+      "Description": "Vendors the igraph C source code and builds it into a static library. Other Bioconductor packages can link to libigraph.a in their own C/C++ code. This is intended for packages wrapping C/C++ libraries that depend on the igraph C library and cannot be easily adapted to use the igraph R package.",
+      "LinkingTo": [
+        "biocmake"
+      ],
+      "Suggests": [
+        "BiocStyle",
+        "knitr",
+        "rmarkdown",
+        "testthat"
+      ],
+      "VignetteBuilder": "knitr",
+      "biocViews": "Clustering, GraphAndNetwork",
+      "NeedsCompilation": "yes",
+      "URL": "https://github.com/libscran/Rigraphlib",
+      "BugReports": "https://github.com/libscran/Rigraphlib/issues",
+      "Encoding": "UTF-8",
+      "RoxygenNote": "7.3.3",
+      "git_url": "https://git.bioconductor.org/packages/Rigraphlib",
+      "git_branch": "RELEASE_3_23",
+      "git_last_commit": "f37a2ce",
+      "git_last_commit_date": "2026-04-28",
+      "Repository": "Bioconductor 3.23",
+      "Author": "Aaron Lun [cre, aut]",
+      "Maintainer": "Aaron Lun <infinite.monkeys.with.keyboards@gmail.com>"
+    },
     "Rtsne": {
       "Package": "Rtsne",
       "Version": "0.17",
@@ -1302,43 +1285,6 @@
       "Author": "Object-Oriented Programming Working Group [cph], Davis Vaughan [aut], Jim Hester [aut] (ORCID: <https://orcid.org/0000-0002-2739-7082>), Tomasz Kalinowski [aut], Will Landau [aut], Michael Lawrence [aut], Martin Maechler [aut] (ORCID: <https://orcid.org/0000-0002-8685-9910>), Luke Tierney [aut], Hadley Wickham [aut, cre] (ORCID: <https://orcid.org/0000-0003-4757-117X>)",
       "Maintainer": "Hadley Wickham <hadley@posit.co>",
       "Repository": "CRAN"
-    },
-    "ScaledMatrix": {
-      "Package": "ScaledMatrix",
-      "Version": "1.20.0",
-      "Source": "Bioconductor",
-      "Date": "2024-02-29",
-      "Title": "Creating a DelayedMatrix of Scaled and Centered Values",
-      "Authors@R": "person(\"Aaron\", \"Lun\", role=c(\"aut\", \"cre\", \"cph\"), email=\"infinite.monkeys.with.keyboards@gmail.com\")",
-      "Imports": [
-        "methods",
-        "Matrix",
-        "S4Vectors",
-        "DelayedArray"
-      ],
-      "Suggests": [
-        "testthat",
-        "BiocStyle",
-        "knitr",
-        "rmarkdown",
-        "BiocSingular",
-        "DelayedMatrixStats"
-      ],
-      "biocViews": "Software, DataRepresentation",
-      "Description": "Provides delayed computation of a matrix of scaled and centered values. The result is equivalent to using the scale() function but avoids explicit  realization of a dense matrix during block processing. This permits greater efficiency in common operations, most notably matrix multiplication.",
-      "License": "GPL-3",
-      "VignetteBuilder": "knitr",
-      "RoxygenNote": "7.3.1",
-      "BugReports": "https://github.com/LTLA/ScaledMatrix/issues",
-      "URL": "https://github.com/LTLA/ScaledMatrix",
-      "git_url": "https://git.bioconductor.org/packages/ScaledMatrix",
-      "git_branch": "RELEASE_3_23",
-      "git_last_commit": "94df0ea",
-      "git_last_commit_date": "2026-04-28",
-      "Repository": "Bioconductor 3.23",
-      "NeedsCompilation": "no",
-      "Author": "Aaron Lun [aut, cre, cph]",
-      "Maintainer": "Aaron Lun <infinite.monkeys.with.keyboards@gmail.com>"
     },
     "Seqinfo": {
       "Package": "Seqinfo",
@@ -2955,52 +2901,6 @@
       "Author": "Ralf Stubner [aut, cre] (<https://orcid.org/0009-0009-1908-106X>), daqana GmbH [cph], David Blackman [cph] (Xoroshiro / Xoshiro family), Melissa O'Neill [cph] (PCG family), Sebastiano Vigna [cph] (Xoroshiro / Xoshiro family), Aaron Lun [ctb], Kyle Butts [ctb], Henrik Sloot [ctb], Philippe Grosjean [ctb] (<https://orcid.org/0000-0002-2694-9471>)",
       "Maintainer": "Ralf Stubner <ralf.stubner@gmail.com>",
       "Repository": "RSPM"
-    },
-    "edgeR": {
-      "Package": "edgeR",
-      "Version": "4.10.7",
-      "Source": "Bioconductor",
-      "Date": "2026-10-17",
-      "Title": "Empirical Analysis of Digital Gene Expression Data in R",
-      "Description": "Differential expression analysis of sequence count data. Implements a range of statistical methodology based on the negative binomial distributions, including empirical Bayes estimation, exact tests, generalized linear models, quasi-likelihood, and gene set enrichment. Can perform differential analyses of any type of omics data that produces read counts, including RNA-seq, ChIP-seq, ATAC-seq, Bisulfite-seq, SAGE, CAGE, metabolomics, or proteomics spectral counts. RNA-seq analyses can be conducted at the gene or isoform level, and tests can be conducted for differential exon or transcript usage.",
-      "Author": "Yunshun Chen, Lizhong Chen, Aaron TL Lun, Davis J McCarthy, Pedro Baldoni, Matthew E Ritchie, Belinda Phipson, Yifang Hu, Xiaobei Zhou, Mark D Robinson, Gordon K Smyth",
-      "Maintainer": "Yunshun Chen <yuchen@wehi.edu.au>, Gordon Smyth <smyth@wehi.edu.au>, Aaron Lun <infinite.monkeys.with.keyboards@gmail.com>, Mark Robinson <mark.robinson@imls.uzh.ch>",
-      "License": "GPL (>=2)",
-      "Depends": [
-        "R (>= 3.6.0)",
-        "limma (>= 3.63.6)"
-      ],
-      "Imports": [
-        "methods",
-        "graphics",
-        "stats",
-        "utils",
-        "locfit"
-      ],
-      "Suggests": [
-        "jsonlite",
-        "knitr",
-        "Matrix",
-        "nanoparquet",
-        "readr",
-        "rhdf5",
-        "SeuratObject",
-        "splines",
-        "AnnotationDbi",
-        "Biobase",
-        "BiocStyle",
-        "org.Hs.eg.db",
-        "S4Vectors",
-        "SummarizedExperiment"
-      ],
-      "VignetteBuilder": "knitr",
-      "URL": "https://bioinf.wehi.edu.au/edgeR/, https://bioconductor.org/packages/edgeR",
-      "biocViews": "AlternativeSplicing, BatchEffect, Bayesian, BiomedicalInformatics, CellBiology, ChIPSeq, Clustering, Coverage, DifferentialExpression, DifferentialMethylation, DifferentialSplicing, DNAMethylation, Epigenetics, FunctionalGenomics, GeneExpression, GeneSetEnrichment, Genetics, Genetics, ImmunoOncology, MultipleComparison, Normalization, Pathways, Proteomics, QualityControl, Regression, RNASeq, SAGE, Sequencing, SingleCell, SystemsBiology, TimeCourse, Transcription, Transcriptomics",
-      "NeedsCompilation": "yes",
-      "Repository": "Bioconductor 3.23",
-      "RemoteUrl": "https://github.com/bioc/edgeR",
-      "RemoteRef": "RELEASE_3_23",
-      "RemoteSha": "27ba7b39d819e68df2ecdea9f32a4b6039b2a0b5"
     },
     "evaluate": {
       "Package": "evaluate",
@@ -4659,54 +4559,6 @@
       "Maintainer": "Lionel Henry <lionel@posit.co>",
       "Repository": "CRAN"
     },
-    "limma": {
-      "Package": "limma",
-      "Version": "3.68.5",
-      "Source": "Bioconductor",
-      "Date": "2026-08-10",
-      "Title": "Linear Models for Microarray and Omics Data",
-      "Description": "Data analysis, linear models and differential expression for omics data.",
-      "Authors@R": "c(person(given = \"Gordon\", family = \"Smyth\", role = c(\"cre\", \"aut\"), email = \"smyth@wehi.edu.au\", comment = c(ORCID = \"0000-0001-9221-2892\")), person(given = \"Yifang\", family = \"Hu\", role = \"ctb\"), person(given = \"Matthew\", family = \"Ritchie\", role = \"ctb\"), person(given = \"Jeremy\", family = \"Silver\", role = \"ctb\"), person(given = \"James\", family = \"Wettenhall\", role = \"ctb\"), person(given = \"Davis\", family = \"McCarthy\", role = \"ctb\"), person(given = \"Di\", family = \"Wu\", role = \"ctb\"), person(given = \"Wei\", family = \"Shi\", role = \"ctb\"), person(given = \"Belinda\", family = \"Phipson\", role = \"ctb\"), person(given = \"Aaron\", family = \"Lun\", role = \"ctb\"), person(given = \"Natalie\", family = \"Thorne\", role = \"ctb\"), person(given = \"Alicia\", family = \"Oshlack\", role = \"ctb\"), person(given = \"Carolyn\", family = \"de Graaf\", role = \"ctb\"), person(given = \"Yunshun\", family = \"Chen\", role = \"ctb\"), person(given = \"Goknur\", family = \"Giner\", role = \"ctb\"), person(given = \"Mette\", family = \"Langaas\", role = \"ctb\"), person(given = \"Egil\", family = \"Ferkingstad\", role = \"ctb\"), person(given = \"Marcus\", family = \"Davy\", role = \"ctb\"), person(given = \"Francois\", family = \"Pepin\", role = \"ctb\"), person(given = \"Dongseok\", family = \"Choi\", role = \"ctb\"), person(given = \"Charity\", family = \"Law\", role = \"ctb\"), person(given = \"Mengbo\", family = \"Li\", role = \"ctb\"), person(given = \"Lizhong\", family = \"Chen\", role = \"ctb\", comment = c(ORCID = \"0000-0002-8326-6781\")) )",
-      "License": "GPL (>=2)",
-      "Depends": [
-        "R (>= 3.6.0)"
-      ],
-      "Imports": [
-        "grDevices",
-        "graphics",
-        "stats",
-        "utils",
-        "methods",
-        "statmod"
-      ],
-      "Suggests": [
-        "BiasedUrn",
-        "ellipse",
-        "gplots",
-        "knitr",
-        "locfit",
-        "MASS",
-        "splines",
-        "affy",
-        "AnnotationDbi",
-        "Biobase",
-        "BiocStyle",
-        "GO.db",
-        "illuminaio",
-        "org.Hs.eg.db",
-        "vsn"
-      ],
-      "VignetteBuilder": "knitr",
-      "URL": "https://bioinf.wehi.edu.au/limma/",
-      "biocViews": "ExonArray, GeneExpression, Transcription, AlternativeSplicing, DifferentialExpression, DifferentialSplicing, GeneSetEnrichment, DataImport, Bayesian, Clustering, Regression, TimeCourse, Microarray, MicroRNAArray, mRNAMicroarray, OneChannel, ProprietaryPlatforms, TwoChannel, Sequencing, RNASeq, BatchEffect, MultipleComparison, Normalization, Preprocessing, QualityControl, BiomedicalInformatics, CellBiology, Cheminformatics, Epigenetics, FunctionalGenomics, Genetics, ImmunoOncology, Metabolomics, Proteomics, SystemsBiology, Transcriptomics",
-      "Repository": "Bioconductor 3.23",
-      "RemoteUrl": "https://github.com/bioc/limma",
-      "RemoteRef": "RELEASE_3_23",
-      "RemoteSha": "825d1c8330d024adb6c54af66d79b0f4ec258530",
-      "NeedsCompilation": "yes",
-      "Author": "Gordon Smyth [cre, aut] (ORCID: <https://orcid.org/0000-0001-9221-2892>), Yifang Hu [ctb], Matthew Ritchie [ctb], Jeremy Silver [ctb], James Wettenhall [ctb], Davis McCarthy [ctb], Di Wu [ctb], Wei Shi [ctb], Belinda Phipson [ctb], Aaron Lun [ctb], Natalie Thorne [ctb], Alicia Oshlack [ctb], Carolyn de Graaf [ctb], Yunshun Chen [ctb], Goknur Giner [ctb], Mette Langaas [ctb], Egil Ferkingstad [ctb], Marcus Davy [ctb], Francois Pepin [ctb], Dongseok Choi [ctb], Charity Law [ctb], Mengbo Li [ctb], Lizhong Chen [ctb] (ORCID: <https://orcid.org/0000-0002-8326-6781>)",
-      "Maintainer": "Gordon Smyth <smyth@wehi.edu.au>"
-    },
     "linprog": {
       "Package": "linprog",
       "Version": "0.9-6",
@@ -4784,31 +4636,6 @@
       "NeedsCompilation": "yes",
       "Author": "Torsten Hothorn [aut] (<https://orcid.org/0000-0001-8301-0471>), Achim Zeileis [aut, cre] (<https://orcid.org/0000-0003-0918-3766>), Richard W. Farebrother [aut] (pan.f), Clint Cummins [aut] (pan.f), Giovanni Millo [ctb], David Mitchell [ctb]",
       "Maintainer": "Achim Zeileis <Achim.Zeileis@R-project.org>",
-      "Repository": "CRAN"
-    },
-    "locfit": {
-      "Package": "locfit",
-      "Version": "1.5-9.12",
-      "Source": "Repository",
-      "Title": "Local Regression, Likelihood and Density Estimation",
-      "Date": "2025-03-05",
-      "Authors@R": "c(person(\"Catherine\", \"Loader\", role = \"aut\"), person(\"Jiayang\", \"Sun\", role = \"ctb\"), person(\"Lucent Technologies\", role = \"cph\"), person(\"Andy\", \"Liaw\", role = \"cre\",  email=\"andy_liaw@merck.com\"))",
-      "Author": "Catherine Loader [aut], Jiayang Sun [ctb], Lucent Technologies [cph], Andy Liaw [cre]",
-      "Maintainer": "Andy Liaw <andy_liaw@merck.com>",
-      "Description": "Local regression, likelihood and density estimation methods as described in the 1999 book by Loader.",
-      "Depends": [
-        "R (>= 4.1.0)"
-      ],
-      "Imports": [
-        "lattice"
-      ],
-      "Suggests": [
-        "interp",
-        "gam"
-      ],
-      "License": "GPL (>= 2)",
-      "SystemRequirements": "USE_C17",
-      "NeedsCompilation": "yes",
       "Repository": "CRAN"
     },
     "lpSolve": {
@@ -4938,43 +4765,6 @@
       "Author": "Hadley Wickham [aut], Jim Hester [aut], Winston Chang [aut, cre], Kirill Müller [aut], Daniel Cook [aut], Mark Edmondson [ctb]",
       "Maintainer": "Winston Chang <winston@rstudio.com>",
       "Repository": "RSPM"
-    },
-    "metapod": {
-      "Package": "metapod",
-      "Version": "1.20.0",
-      "Source": "Bioconductor",
-      "Date": "2026-02-18",
-      "Title": "Meta-Analyses on P-Values of Differential Analyses",
-      "Authors@R": "person(\"Aaron\", \"Lun\", role=c(\"aut\", \"cre\"), email = \"infinite.monkeys.with.keyboards@gmail.com\")",
-      "Imports": [
-        "Rcpp"
-      ],
-      "Suggests": [
-        "testthat",
-        "knitr",
-        "BiocStyle",
-        "rmarkdown"
-      ],
-      "LinkingTo": [
-        "Rcpp"
-      ],
-      "biocViews": "MultipleComparison, DifferentialPeakCalling",
-      "Description": "Implements a variety of methods for combining p-values in differential analyses of genome-scale datasets. Functions can combine p-values across different tests in the same analysis (e.g., genomic windows in ChIP-seq, exons in RNA-seq) or for corresponding tests across separate analyses (e.g., replicated comparisons, effect of different treatment conditions). Support is provided for handling log-transformed input p-values, missing values and weighting where appropriate.",
-      "License": "GPL-3",
-      "URL": "https://github.com/LTLA/metapod",
-      "BugReports": "https://github.com/LTLA/metapod/issues",
-      "NeedsCompilation": "yes",
-      "SystemRequirements": "C++11",
-      "VignetteBuilder": "knitr",
-      "RoxygenNote": "7.3.3",
-      "Encoding": "UTF-8",
-      "git_url": "https://git.bioconductor.org/packages/metapod",
-      "git_branch": "RELEASE_3_23",
-      "git_last_commit": "fccdc7f",
-      "git_last_commit_date": "2026-04-28",
-      "Repository": "Bioconductor 3.23",
-      "Author": "Aaron Lun [aut, cre]",
-      "Maintainer": "Aaron Lun <infinite.monkeys.with.keyboards@gmail.com>"
     },
     "mime": {
       "Package": "mime",
@@ -6304,37 +6094,6 @@
       "Maintainer": "Kirill Müller <kirill@cynkra.com>",
       "Repository": "RSPM"
     },
-    "rsvd": {
-      "Package": "rsvd",
-      "Version": "2.0.0",
-      "Source": "Repository",
-      "Type": "Package",
-      "Title": "Randomized Singular Value Decomposition",
-      "Authors@R": "c(person(\"N. Benjamin\", \"Erichson\", role = c(\"aut\", \"cre\"), email = \"erichson@icsi.berkeley.edu\"))",
-      "Author": "N. Benjamin Erichson [aut, cre]",
-      "Maintainer": "N. Benjamin Erichson <erichson@icsi.berkeley.edu>",
-      "Description": "Computes low-rank matrix approximations for dimension reduction, data analysis, and compression. Randomized algorithms use random weighted combinations of the input to find a small subspace, then factorize the projected matrix. This can reduce the work when the requested rank is small relative to the matrix dimensions and the input has a useful low-rank approximation. Methods include singular value decomposition, principal component analysis, QB factorization, and interpolative and CUR decompositions. Robust principal component analysis separates a matrix into low-rank and entrywise sparse components. Selected routines support sparse matrices, including principal component analysis with implicit centering and scaling. Plotting functions display scores, loadings, and explained variance. See Erichson et al. (2019) <doi:10.18637/jss.v089.i11> for the algorithms and examples of their use.",
-      "Depends": [
-        "R (>= 4.4.0)"
-      ],
-      "Imports": [
-        "Matrix (>= 1.7-0)",
-        "methods"
-      ],
-      "License": "GPL (>= 3)",
-      "LazyData": "TRUE",
-      "LazyDataCompression": "xz",
-      "URL": "https://github.com/erichson/rSVD",
-      "BugReports": "https://github.com/erichson/rSVD/issues",
-      "Suggests": [
-        "ggplot2",
-        "testthat (>= 3.0.0)"
-      ],
-      "NeedsCompilation": "no",
-      "Encoding": "UTF-8",
-      "Config/roxygen2/version": "8.1.1",
-      "Repository": "CRAN"
-    },
     "sass": {
       "Package": "sass",
       "Version": "0.4.10",
@@ -6444,79 +6203,62 @@
       "Maintainer": "Mirek Kratochvil <exa.exa@gmail.com>",
       "Repository": "RSPM"
     },
-    "scran": {
-      "Package": "scran",
-      "Version": "1.40.0",
+    "scrapper": {
+      "Package": "scrapper",
+      "Version": "1.6.3",
       "Source": "Bioconductor",
-      "Date": "2026-04-07",
-      "Title": "Methods for Single-Cell RNA-Seq Data Analysis",
-      "Description": "Implements miscellaneous functions for interpretation of single-cell RNA-seq data. Methods are provided for assignment of cell cycle phase, detection of highly variable and significantly correlated genes, identification of marker genes, and other common tasks in routine single-cell analysis workflows.",
-      "Authors@R": "c(person(\"Aaron\", \"Lun\", role = c(\"aut\", \"cre\"), email = \"infinite.monkeys.with.keyboards@gmail.com\"),  person(\"Karsten\", \"Bach\", role = \"aut\"), person(\"Jong Kyoung\", \"Kim\", role = \"ctb\"),  person(\"Antonio\", \"Scialdone\", role=\"ctb\"))",
-      "Depends": [
-        "SingleCellExperiment",
-        "scuttle"
-      ],
+      "Date": "2026-05-19",
+      "Authors@R": "person(\"Aaron\", \"Lun\", role=c(\"cre\", \"aut\"), email=\"infinite.monkeys.with.keyboards@gmail.com\")",
+      "Title": "Bindings to C++ Libraries for Single-Cell Analysis",
+      "Description": "Implements R bindings to C++ code for analyzing single-cell (expression) data, mostly from various libscran libraries. Each function performs an individual step in the single-cell analysis workflow, ranging from quality control to clustering and marker detection. Additional wrappers are provided for easy construction of end-to-end workflows involving Bioconductor objects like SingleCellExperiments.",
+      "License": "MIT + file LICENSE",
       "Imports": [
-        "SummarizedExperiment",
-        "S4Vectors",
-        "BiocGenerics",
-        "BiocParallel",
-        "Rcpp",
-        "stats",
         "methods",
-        "utils",
-        "Matrix",
-        "edgeR",
-        "limma",
-        "igraph",
-        "statmod",
-        "MatrixGenerics",
-        "S4Arrays",
+        "Rcpp",
+        "beachmat (>= 2.25.1)",
+        "S4Vectors",
+        "SparseArray",
         "DelayedArray",
-        "BiocSingular",
-        "bluster",
-        "metapod",
-        "dqrng",
-        "beachmat"
+        "BiocNeighbors (>= 1.99.0)",
+        "parallel"
       ],
       "Suggests": [
         "testthat",
-        "BiocStyle",
         "knitr",
         "rmarkdown",
-        "DelayedMatrixStats",
-        "HDF5Array",
+        "BiocStyle",
+        "Matrix",
+        "IRanges",
+        "SummarizedExperiment",
+        "SingleCellExperiment",
         "scRNAseq",
-        "dynamicTreeCut",
-        "ResidualMatrix",
-        "ScaledMatrix",
-        "DESeq2",
-        "pheatmap",
+        "org.Mm.eg.db",
         "scater",
-        "scrapper"
+        "igraph"
       ],
-      "biocViews": "ImmunoOncology, Normalization, Sequencing, RNASeq, Software, GeneExpression, Transcriptomics, SingleCell, Clustering",
       "LinkingTo": [
         "Rcpp",
+        "assorthead (>= 1.5.16)",
         "beachmat",
-        "BH",
-        "dqrng",
-        "scuttle"
+        "BiocNeighbors",
+        "Rigraphlib"
       ],
-      "License": "GPL-3",
-      "NeedsCompilation": "yes",
+      "biocViews": "Normalization, RNASeq, Software, GeneExpression, Transcriptomics, SingleCell, BatchEffect, QualityControl, DifferentialExpression, FeatureExtraction, PrincipalComponent, Clustering",
+      "SystemRequirements": "C++17, GNU make",
+      "URL": "https://github.com/libscran/scrapper",
+      "BugReports": "https://github.com/libscran/scrapper/issues",
       "VignetteBuilder": "knitr",
-      "SystemRequirements": "C++11",
+      "Encoding": "UTF-8",
       "RoxygenNote": "7.3.3",
-      "URL": "https://github.com/MarioniLab/scran/",
-      "BugReports": "https://github.com/MarioniLab/scran/issues",
-      "git_url": "https://git.bioconductor.org/packages/scran",
-      "git_branch": "RELEASE_3_23",
-      "git_last_commit": "24a6fe7",
-      "git_last_commit_date": "2026-04-28",
-      "Repository": "Bioconductor 3.23",
-      "Author": "Aaron Lun [aut, cre], Karsten Bach [aut], Jong Kyoung Kim [ctb], Antonio Scialdone [ctb]",
-      "Maintainer": "Aaron Lun <infinite.monkeys.with.keyboards@gmail.com>"
+      "Config/pak/sysreqs": "make zlib1g-dev",
+      "Repository": "https://bioc-release.r-universe.dev",
+      "NeedsCompilation": "yes",
+      "Author": "Aaron Lun [cre, aut]",
+      "Maintainer": "Aaron Lun <infinite.monkeys.with.keyboards@gmail.com>",
+      "RemoteType": "repository",
+      "RemoteUrl": "https://github.com/bioc/scrapper",
+      "RemoteRef": "RELEASE_3_23",
+      "RemoteSha": "c1b691a3ca5c90cced62bb375f7afce0fcf22b7b"
     },
     "sctransform": {
       "Package": "sctransform",
@@ -7100,31 +6842,6 @@
       "ByteCompile": "true",
       "BugReports": "https://github.com/spatstat/spatstat.utils/issues",
       "Author": "Adrian Baddeley [aut, cre] (ORCID: <https://orcid.org/0000-0001-9499-8382>), Rolf Turner [aut] (ORCID: <https://orcid.org/0000-0001-5521-5218>), Ege Rubak [aut] (ORCID: <https://orcid.org/0000-0002-6675-533X>)",
-      "Repository": "CRAN"
-    },
-    "statmod": {
-      "Package": "statmod",
-      "Version": "1.5.2",
-      "Source": "Repository",
-      "Date": "2026-05-17",
-      "Title": "Statistical Modeling",
-      "Authors@R": "c(person(given = \"Gordon\", family = \"Smyth\", role = c(\"cre\", \"aut\"), email = \"smyth@wehi.edu.au\"), person(given = \"Lizhong\", family = \"Chen\", role = \"aut\"), person(given = \"Yifang\", family = \"Hu\", role = \"ctb\"), person(given = \"Peter\", family = \"Dunn\", role = \"ctb\"), person(given = \"Belinda\", family = \"Phipson\", role = \"ctb\"), person(given = \"Yunshun\", family = \"Chen\", role = \"ctb\"))",
-      "Maintainer": "Gordon Smyth <smyth@wehi.edu.au>",
-      "Depends": [
-        "R (>= 3.0.0)"
-      ],
-      "Imports": [
-        "stats",
-        "graphics"
-      ],
-      "Suggests": [
-        "MASS",
-        "tweedie"
-      ],
-      "Description": "A collection of algorithms and functions to aid statistical modeling. Includes limiting dilution analysis (aka ELDA), growth curve comparisons, mixed linear models, heteroscedastic regression, inverse-Gaussian probability calculations, Gauss quadrature and a secure convergence algorithm for nonlinear models. Also includes advanced generalized linear model functions including Tweedie and Digamma distributional families, secure convergence and exact distributional calculations for unit deviances.",
-      "License": "GPL-2 | GPL-3",
-      "NeedsCompilation": "yes",
-      "Author": "Gordon Smyth [cre, aut], Lizhong Chen [aut], Yifang Hu [ctb], Peter Dunn [ctb], Belinda Phipson [ctb], Yunshun Chen [ctb]",
       "Repository": "CRAN"
     },
     "stringi": {
