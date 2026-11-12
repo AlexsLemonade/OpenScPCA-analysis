@@ -70,5 +70,13 @@ for i in "${!ref_prefixes[@]}"; do
     --output_anndata_file "${ref_prefixes[$i]}_adata.h5ad" 
 done
 
-
-
+# Create harmonized, aggregated SingleR references -------------------------
+# The primary and metastasis references are combined into one reference with
+# harmonized labels. This is done separately for patient and xenograft references.
+for ref_type in patient xeno; do
+  Rscript "${script_dir}/create-reference.R" \
+    --prim_sce_file "${ref_dir}/${ref_type}_prim_sce.rds" \
+    --mets_sce_file "${ref_dir}/${ref_type}_mets_sce.rds" \
+    --output_ref_file "${ref_dir}/${ref_type}_harmonized_aggr_ref.rds" \
+    --threads $threads
+done
