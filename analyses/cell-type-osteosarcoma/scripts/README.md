@@ -1,2 +1,3 @@
-* `convert-osteocar.R` converts a given input Seurat reference object to an SCE object.
-    * TODO: This will be expanded to also convert to AnnData in subsequent PRs
+* `convert-osteocar.R` converts a given input Seurat reference object to SCE and AnnData objects.
+
+* `create-reference.R` takes the primary and metastasis OsteoCAR references (SCE objects) and creates a single harmonized reference with one level of annotation where Tumor and Mesenchymal labels come from Ann_Level1, and all other (normal) cell type labels come from Ann_Level2. Labels are harmonized across both references
