@@ -6,7 +6,7 @@
 set -euo pipefail
 
 # navigate to where script lives
-cd $(dirname "$0")
+cd "$(dirname "${BASH_SOURCE[0]}")"
 
 # AWS profile 
 profile="${AWS_PROFILE:-default}"
