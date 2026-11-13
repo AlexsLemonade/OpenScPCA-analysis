@@ -181,10 +181,11 @@ mp_weights_df |>
   ggplot(aes(rank, weight)) +
   geom_point(size = 0.5) +
   facet_wrap(vars(mp), scales = "free_y") +
-  xlim(c(0, 200))
+  xlim(c(0, 5000))
 ```
 
-It looks like even in the top 200 we have a fair amount of genes that are at the same weight with no real contribution over the background.
+It looks like even in the top 5000 we have a fair amount of genes that are at the same weight with no real contribution over the background.
+The elbow for all of these appears to be somewhere in the first 500 genes.
 
 ## Identify cutoffs
 
@@ -218,7 +219,7 @@ Because the elbow is defined relative to the input, it will depend on the cap we
 
 ```{r}
 # define caps on the number of genes to use when determining the kneedle
-kneedle_caps <- c(100, 150, 200, 300, 500, 1000)
+kneedle_caps <- c(100, 150, 200, 300, 500, 1000, 5000)
 
 # find the kneedle across each of the caps
 kneedle_cap_df <- filtered_weights_df |>
@@ -246,12 +247,16 @@ kneedle_cap_df |>
   scale_color_brewer(palette = "Dark2")
 ```
 
-It looks like that for some programs the elbow is consistent as you increase the number of genes to use when calculating the kneedle, but for others this is not the case. 
-However, even going up to 1000 genes the maximum values for the elbows would include around 200 genes. 
+In general, it looks like the elbow increases as you increase the cap although the slope is higher in some metaprograms than others. 
+There are four metaprograms that seem slightly more stable with a steady elbow through 1000 genes but then that jumps as we include up to 5000 genes. 
+The rest of the metaprograms increase in gene number as the cap increases pretty much from the beginning. 
+
+I don't know that we want to go up to 5000 genes though since including 800 genes per metaprogram seems like it's too much. 
+For the less sensitive metaprograms they only get up to around 200-300 genes which seems more reasonable, but is also no different than the approach we are currently using.
+
+Because of this we will keep the cap at 1000 genes, find the elbow and then have a gene set size maximum of 200 to easily compare to our existing approach.
 
 #### Kneedle on the top 1000 genes
-
-We use a cap of 1000 genes going forward since most programs will have 200 genes or fewer which is consistent with our current approach.
 
 ```{r}
 kneedle_cap <- 1000
