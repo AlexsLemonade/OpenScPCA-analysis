@@ -104,17 +104,6 @@ prepare_ref <- function(sce_file, level1_labels) {
   sce[, !is.na(sce$combined_label)]
 }
 
-# Aggregate a reference on `combined_label` and give it unique column names
-aggregate_ref <- function(sce, ntop, bp_param) {
-  ref_aggr <- SingleR::aggregateReference(
-    ref = sce,
-    labels = sce$combined_label,
-    ntop = ntop,
-    BPPARAM = bp_param
-  )
-}
-
-
 # Read and prepare references --------------------------------------------------
 
 prim_sce <- prepare_ref(opts$prim_sce_file, level1_labels)
@@ -148,12 +137,22 @@ gc()
 
 # Aggregate each reference separately ------------------------------------------
 
-prim_aggr <- aggregate_ref(prim_sce, opts$ntop, bp_param)
-rm(prim_sce)
-gc()
+sce_list <- list(
+  "prim" = prim_sce,
+  "mets" = mets_sce
+)
+rm(prim_sce, mets_sce)
 
-mets_aggr <- aggregate_ref(mets_sce, opts$ntop, bp_param)
-rm(mets_sce)
+aggr_refs <- sce_list |>
+  purrr::map(\(sce) {
+    SingleR::aggregateReference(
+      ref = sce,
+      labels = sce$combined_label,
+      ntop = opts$ntop,
+      BPPARAM = bp_param
+    )
+  })
+rm(sce_list)
 gc()
 
 
@@ -161,18 +160,10 @@ gc()
 
 stopifnot(
   "Gene order differs between aggregated references" =
-    identical(rownames(prim_aggr), rownames(mets_aggr))
+    identical(rownames(aggr_refs$prim), rownames(aggr_refs$mets))
 )
 
-harmonized_ref <- cbind(prim_aggr, mets_aggr)
-
-# Name columns using the harmonized label plus an index, so names are
-# unique without distinguishing primary vs metastasis (e.g. T_cell_1, T_cell_2)
-colnames(harmonized_ref) <- paste(
-  harmonized_ref$label,
-  seq_len(ncol(harmonized_ref)),
-  sep = "_"
-)
+harmonized_ref <- cbind(aggr_refs$prim, aggr_refs$mets)
 
 # Export the harmonized reference; use `harmonized_ref$label` as labels in SingleR
 readr::write_rds(

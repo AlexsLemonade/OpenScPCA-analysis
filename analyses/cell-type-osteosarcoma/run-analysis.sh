@@ -73,7 +73,7 @@ done
 # Create harmonized, aggregated SingleR references -------------------------
 # The primary and metastasis references are combined into one reference with
 # harmonized labels. This is done separately for patient and xenograft references.
-for ref_type in patient xeno; do
+for ref_type in patient; do
   Rscript "${script_dir}/create-reference.R" \
     --prim_sce_file "${ref_dir}/${ref_type}_prim_sce.rds" \
     --mets_sce_file "${ref_dir}/${ref_type}_mets_sce.rds" \
