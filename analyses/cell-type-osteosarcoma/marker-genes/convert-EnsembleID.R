@@ -1,23 +1,8 @@
 # Read file containing marker genes for osteosarcoma
 marker_file <- "marker-genes/osteosarcoma-markers.tsv"
 
-# Make sure the file has the correct format (tabs)
-# read the lines, skipping the header, and split each one on any whitespace
-lines <- readr::read_lines(marker_file)[-1]
-parts <- strsplit(trimws(lines), "\\s+")
-
-markers <- data.frame(
-  cell_type = purrr::map_chr(parts, 1),
-  gene_symbol = purrr::map_chr(parts, 2),
-  ensembl_gene_id = NA,
-  source = purrr::map_chr(parts, 3)
-)
-
-# check before saving
-head(markers)
-
-# save the file with the updated format
-readr::write_tsv(markers, marker_file, na = "")
+# Read the existing marker table, preserving its source citations.
+markers <- readr::read_tsv(marker_file, show_col_types = FALSE)
 
 # map each gene symbol to its Ensembl gene ID(s)
 ensembl_ids <- AnnotationDbi::mapIds(
