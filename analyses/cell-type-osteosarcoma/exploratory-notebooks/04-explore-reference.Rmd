@@ -1,0 +1,225 @@
+---
+title: "Explore the harmonized OsteoCAR reference"
+author: "Karla Paniagua"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 3
+    code_folding: hide
+---
+
+```{css, echo=FALSE}
+a {
+  overflow-wrap: anywhere;
+}
+```
+
+## Introduction
+
+This notebook checks the harmonized, aggregated OsteoCAR reference created by `scripts/create-reference.R`.
+The reference combines the primary and metastasis OsteoCAR references into one reference for `SingleR` with a single level of annotation:
+
+- Tumor and Mesenchymal labels come from `Ann_Level1`
+- All other (normal) cell type labels come from `Ann_Level2`
+
+Labels are harmonized across the two references, so e.g. T cells from both the primary and metastasis references are labeled `T_cells`.
+
+Here we check that the resulting reference looks as expected:
+
+1. The object has the expected structure, labels, and values
+2. Known marker genes are most highly expressed in their expected cell types
+
+## Setup
+
+```{r packages}
+# Load libraries
+suppressPackageStartupMessages({
+  library(SingleCellExperiment)
+})
+```
+
+### Paths
+
+```{r paths}
+# find the module root, which contains the renv.lock file
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+module_base <- file.path(repository_base, "analyses/cell-type-osteosarcoma")
+ref_dir <- file.path(module_base, "references")
+
+# reference type to explore: "patient".
+ref_type <- "patient"
+ref_file <- file.path(ref_dir, glue::glue("{ref_type}_harmonized_aggr_ref.rds"))
+
+# stop early if the reference file does not exist
+stopifnot("Reference file does not exist" = file.exists(ref_file))
+
+# read the marker gene table: one row per gene, with its cell type and source
+marker_file <- file.path(module_base, "marker-genes", "osteosarcoma-markers.tsv")
+marker_df <- readr::read_tsv(marker_file, show_col_types = FALSE)
+```
+
+### Read the reference
+
+```{r read ref}
+# read the aggregated reference RDS file, where each column is a pseudobulk sample for a cell type
+ref <- readr::read_rds(ref_file)
+ref
+```
+
+## Structure checks
+
+### Labels
+
+Each label should appear once, with no `primary_`/`metastasis_` prefixes and no `NA` values.
+The number of pseudobulk samples per label is shown:
+
+```{r labels}
+# number of pseudobulk samples per label
+table(ref$label, useNA = "ifany")
+```
+
+### Expression values
+
+The `logcounts` should have no missing values, should not be negative, and no pseudobulk sample should be all zeros.
+
+```{r values}
+# extract the logcounts matrix from the reference
+mat <- assay(ref, "logcounts")
+
+# summarise the expression values for quality checks
+data.frame(
+  check = c("Any NA values", "Minimum value", "Maximum value", "Any all-zero columns"),
+  result = c(
+    anyNA(mat),
+    round(min(mat), 3),
+    round(max(mat), 3),
+    any(colSums(mat) == 0)
+  )
+)
+```
+
+### Average expression per cell type
+
+To compare cell types, we average the pseudobulk samples within each label.
+This gives a matrix with one row per gene and one column per cell type.
+
+```{r label average}
+# average expression of each gene across the pseudobulk samples for each cell type
+label_avg <- split(seq_len(ncol(mat)), ref$label) |>
+  purrr::map(\(cols) {
+    rowMeans(mat[, cols, drop = FALSE])
+  }) |>
+  do.call(what = cbind)
+dim(label_avg)
+```
+
+### Top expressed genes per cell type
+
+The ten most highly expressed genes in each cell type.
+Housekeeping genes (e.g., ribosomal genes and _MALAT1_) are expected to be near the top for all cell types.
+
+```{r top genes}
+# top expressed genes for each cell type
+apply(label_avg, 2, \(x) names(sort(x, decreasing = TRUE))[1:10])
+```
+
+## Marker gene heatmap
+
+We define four known markers for each cell type in the reference.
+
+```{r markers}
+# cell type order for the heatmap, as listed in the table
+cell_types <- unique(marker_df$cell_type)
+
+# check that every cell type in the table is a label in the reference
+stopifnot(
+  "Marker cell types do not match reference labels" =
+    all(cell_types %in% colnames(label_avg))
+)
+```
+
+Some markers may not be present in the reference, either because they were not in the original OsteoCAR references or because they were not shared between the primary and metastasis references.
+These markers are missing and will be left out of the heatmap:
+
+```{r missing markers}
+# print markers that are not in the reference
+setdiff(marker_df$gene_symbol, rownames(label_avg))
+
+# keep only markers present in the reference
+marker_df <- marker_df |> 
+  dplyr::filter(gene_symbol %in% rownames(label_avg))
+```
+
+Expression is scaled across cell types for each gene.
+
+```{r heatmap, fig.height=10, fig.width=8}
+# average expression values for each marker gene across cell types
+# with rows as genes and columns as cell types
+plot_mat <- label_avg[marker_df$gene_symbol, cell_types]
+
+marker_heatmap <- pheatmap::pheatmap(
+  plot_mat,
+  scale = "row",
+  cluster_rows = FALSE,
+  cluster_cols = FALSE,
+  # color bar showing which cell type each gene belongs to
+  annotation_row = data.frame(
+    cell_type = marker_df$cell_type,
+    row.names = marker_df$gene_symbol
+  ),
+  # add a gap between groups of genes belonging to different cell types
+  gaps_row = cumsum(table(factor(marker_df$cell_type, levels = cell_types))),
+  angle_col = 45,
+  # build the heatmap without drawing it yet
+  silent = TRUE
+)
+
+# add padding (top, right, bottom, left) so rotated labels are not cut off
+marker_heatmap$gtable <- gtable::gtable_add_padding(
+  marker_heatmap$gtable,
+  grid::unit(c(0, 0, 0.5, 2), "cm")
+)
+# draw the heatmap with added padding
+grid::grid.newpage()
+grid::grid.draw(marker_heatmap$gtable)
+```
+
+## Conclusions
+
+- Marker genes for every cell type are most highly expressed in their expected label, so the aggregated reference profiles are consistent with known biology.
+- Some markers are absent from the reference and were not plotted: _MS4A1_ (B cells), _MS4A2_ (Mast), and _CLEC9A_ (DC).
+  B cells are therefore represented by only two markers (_CD79A_, _CD79B_), though both are specific.
+- Expected overlaps between related cell types are visible:
+  - **Tumor and Mesenchymal** share some signal: Mesenchymal cells express osteoblastic markers (_RUNX2_, _IBSP_), and Tumor cells express Mesenchymal markers (_DCN_, _LUM_, _PDGFRB_).
+  - **Myeloid cell types** (Monocytes, DC, TAMs, Alv_Macrophages) share markers such as _CD14_, _LYZ_, and _C1QA_/_C1QB_.
+    This is expected because they come from a common myeloid lineage, and monocytes can differentiate into macrophages and DCs.
+    As a result, misassignments among these cell types are more likely than between distant lineages.
+  - **T cells and NK cells** share some signal (_NKG7_ in T cells), as expected for cytotoxic lymphocytes.
+  - _FCER1A_ is expressed in both DC and Mast cells, which is known biology.
+
+## References
+- Budhathoki Y, et al. (2026). OsteoCAR: a single-cell atlas for osteosarcoma (preprint). <https://doi.org/10.64898/2026.01.13.698472>
+- Chen LH, et al. (2021). Complement C1q (C1qA, C1qB, and C1qC) may be a potential prognostic factor and an index of tumor microenvironment remodeling in osteosarcoma. _Frontiers in Oncology_ 11:642144. <https://doi.org/10.3389/fonc.2021.642144>
+- Cheng S, et al. (2021). A pan-cancer single-cell transcriptional atlas of tumor infiltrating myeloid cells. _Cell_ 184(3):792–809. <https://doi.org/10.1016/j.cell.2021.01.010>
+- Gudgeon J, Marín-Rubio JL, Trost M (2022). The role of macrophage scavenger receptor 1 (MSR1) in inflammatory disorders and cancer. _Frontiers in Immunology_ 13:1012002. <https://doi.org/10.3389/fimmu.2022.1012002>
+- Hu S, et al. (2026). Lactylation-driven metabolic reprogramming promotes osteosarcoma malignancy via HDGF-mediated proliferation and immune modulation. _Frontiers in Immunology_ 17:1836254. <https://doi.org/10.3389/fimmu.2026.1836254>
+- Liu Y, et al. (2021). Single-cell transcriptomics reveals the complexity of the tumor microenvironment of treatment-naive osteosarcoma. _Frontiers in Oncology_ 11:709210. <https://doi.org/10.3389/fonc.2021.709210>
+- Palecanda A, et al. (1999). Role of the scavenger receptor MARCO in alveolar macrophage binding of unopsonized environmental particles. _Journal of Experimental Medicine_ 189(9):1497–1506. <https://doi.org/10.1084/jem.189.9.1497>
+- Schupp JC, et al. (2021). Integrated single-cell atlas of endothelial cells of the human lung. _Circulation_. <https://doi.org/10.1161/CIRCULATIONAHA.120.052318>
+- Smith MR, Standiford TJ, Reddy RC (2007). PPARs in alveolar macrophage biology. _PPAR Research_ 2007:23812. <https://doi.org/10.1155/2007/23812>
+- Song X, et al. (2025). Single-cell transcriptomics reveals the heterogeneity and function of mast cells in human ccRCC. _Frontiers in Immunology_. <https://doi.org/10.3389/fimmu.2024.1494025>
+- Tang F, et al. (2023). A pan-cancer single-cell panorama of human natural killer cells. _Cell_ 186(19):4235–4251. <https://doi.org/10.1016/j.cell.2023.07.034>
+- Travaglini KJ, et al. (2020). A molecular cell atlas of the human lung from single-cell RNA sequencing. _Nature_ 587:619–625. <https://doi.org/10.1038/s41586-020-2922-4>
+- Villani AC, et al. (2017). Single-cell RNA-seq reveals new types of human blood dendritic cells, monocytes, and progenitors. _Science_ 356:eaah4573. <https://doi.org/10.1126/science.aah4573>
+- Xiao J, et al. (2025). Comprehensive analysis of KRT18 as a novel prognostic biomarker and potential target in lung adenocarcinoma. _Clinical and Experimental Medicine_ 25:312. <https://doi.org/10.1007/s10238-025-01855-0>
+- Xie Z, et al. (2023). Single-cell analysis unveils activation of mast cells in colorectal cancer microenvironment. _Cell & Bioscience_ 13:217. <https://doi.org/10.1186/s13578-023-01144-x>
+- Xiong F, et al. (2022). Keratin 8 is an inflammation-induced and prognosis-related marker for pancreatic adenocarcinoma. _Disease Markers_ 2022:8159537. <https://doi.org/10.1155/2022/8159537>
+- Zhou Y, et al. (2020). Single-cell RNA landscape of intratumoral heterogeneity and immunosuppressive microenvironment in advanced osteosarcoma. _Nature Communications_ 11:6322. <https://doi.org/10.1038/s41467-020-20059-6>
+- Sun HJ et al. (2026). HERC4 downregulates KRT19 to promote lung adenocarcinoma, migration, invasion and EMT. _Translational Oncology_ 63:102593. <https://doi.org/10.1016/j.tranon.2025.102593> (PMID: 41192149)
+
+## Session info
+
+```{r session info}
+sessionInfo()
+```
