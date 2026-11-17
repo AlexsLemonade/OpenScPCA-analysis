@@ -42,6 +42,7 @@ You must be logged into your AWS account to download these files.
   Labels are harmonized across both references, using `Ann_Level1` labels for Tumor and Mesenchymal cells and `Ann_Level2` labels for all other cell types.
   When using this reference with `SingleR`, use the `label` column as the reference labels.
 **Note:** in the xenograft references, all cells are labeled `Tumor` in `Ann_Level1`, so this reference has a single `Tumor` label and should not be used on its own for cell typing with `SingleR`.
+Because of this, we do not currently build this reference.
 
 ## Software requirements
 

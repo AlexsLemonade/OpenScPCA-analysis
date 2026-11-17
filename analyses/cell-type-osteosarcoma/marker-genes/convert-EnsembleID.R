@@ -1,5 +1,6 @@
 # Read file containing marker genes for osteosarcoma
-marker_file <- "marker-genes/osteosarcoma-markers.tsv"
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+marker_file <- file.path(repository_base, "analyses/cell-type-osteosarcoma/marker-genes/osteosarcoma-markers.tsv")
 
 # Read the existing marker table, preserving its source citations.
 markers <- readr::read_tsv(marker_file, show_col_types = FALSE)

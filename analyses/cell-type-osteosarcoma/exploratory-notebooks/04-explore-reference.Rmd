@@ -43,7 +43,8 @@ suppressPackageStartupMessages({
 
 ```{r paths}
 # find the module root, which contains the renv.lock file
-module_base <- rprojroot::find_root(rprojroot::is_renv_project)
+repository_base <- rprojroot::find_root(rprojroot::is_git_root)
+module_base <- file.path(repository_base, "analyses/cell-type-osteosarcoma")
 ref_dir <- file.path(module_base, "references")
 
 # reference type to explore: "patient".
@@ -94,7 +95,7 @@ data.frame(
 )
 ```
 
-## Average expression per cell type
+### Average expression per cell type
 
 To compare cell types, we average the pseudobulk samples within each label.
 This gives a matrix with one row per gene and one column per cell type.
@@ -146,7 +147,8 @@ These markers are missing and will be left out of the heatmap:
 setdiff(marker_df$gene_symbol, rownames(label_avg))
 
 # keep only markers present in the reference
-marker_df <- marker_df[marker_df$gene_symbol %in% rownames(label_avg), ]
+marker_df <- marker_df |> 
+  dplyr::filter(gene_symbol %in% rownames(label_avg))
 ```
 
 Expression is scaled across cell types for each gene.
