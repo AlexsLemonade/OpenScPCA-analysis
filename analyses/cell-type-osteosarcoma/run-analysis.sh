@@ -64,7 +64,7 @@ done
 
 # Convert to SCE and AnnData -----------------------------------------------
 for i in "${!ref_prefixes[@]}"; do
-  Rscript "${script_dir}/convert-osteocar.R" \
+  Rscript "${script_dir}/01-convert-osteocar.R" \
     --input_ref_file "${ref_prefixes[$i]}.qs2" \
     --output_sce_file "${ref_prefixes[$i]}_sce.rds" \
     --output_anndata_file "${ref_prefixes[$i]}_adata.h5ad" 
@@ -73,7 +73,7 @@ done
 # Create harmonized, aggregated SingleR references -------------------------
 # The primary and metastasis references are combined into one reference with
 # harmonized labels. This is currently only done for the patient references.
-Rscript "${script_dir}/create-reference.R" \
+Rscript "${script_dir}/02-create-reference.R" \
   --prim_sce_file "${ref_dir}/patient_prim_sce.rds" \
   --mets_sce_file "${ref_dir}/patient_mets_sce.rds" \
   --output_ref_file "${ref_dir}/patient_harmonized_aggr_ref.rds" \
