@@ -16,7 +16,7 @@ This folder contains a table of marker genes for the cell types in the aggregate
 To add or update the Ensembl gene IDs, run the script from the module directory:
 
 ```sh
-Rscript marker-genes/convert-EnsembleID.R
+Rscript marker-genes/convert-Ensembl-ID.R
 ```
 
 The script prints any gene symbols that match no Ensembl ID or more than one, so those can be checked manually.
