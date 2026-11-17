@@ -4,8 +4,8 @@
 # - Manual trigger
 # - On pull requests where code in the module has changed
 # - As a reusable workflow called from a separate workflow which periodically runs all modules
-#
-# At initialization, only the manual trigger is active
+
+
 
 name: Run cell-type-osteosarcoma analysis module
 env:
@@ -19,20 +19,21 @@ concurrency:
 
 on:
   workflow_dispatch:
-  # workflow_call:
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - analyses/cell-type-osteosarcoma/**
-  #     - "!analyses/cell-type-osteosarcoma/Dockerfile"
-  #     - "!analyses/cell-type-osteosarcoma/.dockerignore"
-  #     - .github/workflows/run_cell-type-osteosarcoma.yml
+  workflow_call:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - analyses/cell-type-osteosarcoma/**
+      - "!analyses/cell-type-osteosarcoma/Dockerfile"
+      - "!analyses/cell-type-osteosarcoma/.dockerignore"
+      - .github/workflows/run_cell-type-osteosarcoma.yml
 
 jobs:
   run-module:
     if: github.repository_owner == 'AlexsLemonade'
     runs-on: ubuntu-latest
+    container: public.ecr.aws/openscpca/cell-type-osteosarcoma:latest
     defaults:
       run:
         shell: bash -el {0}
@@ -41,22 +42,16 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up conda
-        # Note that this creates and activates an environment named 'test' by default
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          miniforge-version: latest
-
-      - name: Install and activate locked conda environment
+      - name: Install aws-cli
         run: |
-          conda install conda-lock
-          conda-lock install --name test ${MODULE_PATH}/conda-lock.yml
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          ./aws/install
 
-      # Update this step as needed to download the desired data
       - name: Download test data
-        run: ./download-data.py --test-data --format SCE
+        run: ./download-data.py --test-data --format SCE --projects SCPCP000017,SCPCP000018,SCPCP000023
 
       - name: Run analysis module
         run: |
           cd ${MODULE_PATH}
-          # run module script(s) here
+          bash run-analysis.sh
