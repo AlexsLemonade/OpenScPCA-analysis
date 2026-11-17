@@ -13,22 +13,22 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - "analyses/cell-type-osteosarcoma/Dockerfile"
-  #     - "analyses/cell-type-osteosarcoma/.dockerignore"
-  #     - "analyses/cell-type-osteosarcoma/renv.lock"
-  #     - "analyses/cell-type-osteosarcoma/conda-lock.yml"
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - "analyses/cell-type-osteosarcoma/Dockerfile"
-  #     - "analyses/cell-type-osteosarcoma/.dockerignore"
-  #     - "analyses/cell-type-osteosarcoma/renv.lock"
-  #     - "analyses/cell-type-osteosarcoma/conda-lock.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "analyses/cell-type-osteosarcoma/Dockerfile"
+      - "analyses/cell-type-osteosarcoma/.dockerignore"
+      - "analyses/cell-type-osteosarcoma/renv.lock"
+      - "analyses/cell-type-osteosarcoma/conda-lock.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "analyses/cell-type-osteosarcoma/Dockerfile"
+      - "analyses/cell-type-osteosarcoma/.dockerignore"
+      - "analyses/cell-type-osteosarcoma/renv.lock"
+      - "analyses/cell-type-osteosarcoma/conda-lock.yml"
   workflow_dispatch:
     inputs:
       push-ecr:
