@@ -59,4 +59,7 @@ renv::restore()
 
 ## Computational resources
 
-TBD
+Running the full analysis (`run-analysis.sh`) requires a large amount of memory.
+If you are running the analysis in the module's Docker container, allocate at least 48 GB of memory to Docker.
+
+To change Docker's memory limit in Docker Desktop, go to **Settings → Resources → Memory** and click **Apply & restart**.
