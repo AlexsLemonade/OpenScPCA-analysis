@@ -53,6 +53,10 @@ ref_file <- file.path(ref_dir, glue::glue("{ref_type}_harmonized_aggr_ref.rds"))
 
 # stop early if the reference file does not exist
 stopifnot("Reference file does not exist" = file.exists(ref_file))
+
+# read the marker gene table: one row per gene, with its cell type and source
+marker_file <- file.path(module_base, "marker-genes", "osteosarcoma-markers.tsv")
+marker_df <- readr::read_tsv(marker_file, show_col_types = FALSE)
 ```
 
 ### Read the reference
@@ -125,10 +129,6 @@ apply(label_avg, 2, \(x) names(sort(x, decreasing = TRUE))[1:10])
 We define four known markers for each cell type in the reference.
 
 ```{r markers}
-# read the marker gene table: one row per gene, with its cell type and source
-marker_file <- file.path(module_base, "marker-genes", "osteosarcoma-markers.tsv")
-marker_df <- readr::read_tsv(marker_file, show_col_types = FALSE)
-
 # cell type order for the heatmap, as listed in the table
 cell_types <- unique(marker_df$cell_type)
 
