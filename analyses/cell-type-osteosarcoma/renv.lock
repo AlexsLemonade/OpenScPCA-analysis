@@ -622,6 +622,40 @@
       "Author": "Patrick Aboyoun [aut], Hervé Pagès [aut, cre], Michael Lawrence [aut], Sonali Arora [ctb], Martin Morgan [ctb], Kayla Morrell [ctb], Valerie Obenchain [ctb], Marcel Ramos [ctb], Lori Shepherd [ctb], Dan Tenenbaum [ctb], Daniel van Twisk [ctb]",
       "Maintainer": "Hervé Pagès <hpages.on.github@gmail.com>"
     },
+    "HGNChelper": {
+      "Package": "HGNChelper",
+      "Version": "0.8.16",
+      "Source": "Repository",
+      "Maintainer": "Levi Waldron <lwaldron.research@gmail.com>",
+      "Depends": [
+        "R (>= 4.1.0)",
+        "methods",
+        "utils"
+      ],
+      "Authors@R": "c(person(\"Sehyun\", \"Oh\", email = \"sehyun.oh@sph.cuny.edu\", role = c(\"aut\")), person(\"Ayush\", \"Aggarwal\", email = \"ayush.aggarwal@igib.in\", role = c(\"aut\")), person(\"Markus\", \"Riester\", email = \"Markus.riester@novartis.com\", role = c(\"aut\")), person(\"Levi\", \"Waldron\", email = \"lwaldron.research@gmail.com\", role = c(\"aut\", \"cre\")))",
+      "Date": "2026-11-01",
+      "License": "GPL (>= 2.0)",
+      "Title": "Identify and Correct Invalid HGNC Human Gene Symbols and MGI Mouse Gene Symbols",
+      "Description": "Contains functions for identifying and correcting HGNC human gene symbols and MGI mouse gene symbols  which have been converted to date format by Excel, withdrawn, or aliased. Also contains functions for reversibly converting between HGNC symbols and valid R names.",
+      "URL": "https://github.com/waldronlab/HGNChelper, https://waldronlab.io/HGNChelper/",
+      "BugReports": "https://github.com/waldronlab/HGNChelper/issues",
+      "LazyData": "TRUE",
+      "Encoding": "UTF-8",
+      "Imports": [
+        "splitstackshape"
+      ],
+      "Suggests": [
+        "testthat",
+        "knitr",
+        "rmarkdown",
+        "markdown"
+      ],
+      "VignetteBuilder": "knitr",
+      "Config/roxygen2/version": "8.0.0",
+      "NeedsCompilation": "no",
+      "Author": "Sehyun Oh [aut], Ayush Aggarwal [aut], Markus Riester [aut], Levi Waldron [aut, cre]",
+      "Repository": "CRAN"
+    },
     "IRanges": {
       "Package": "IRanges",
       "Version": "2.46.0",
@@ -7165,6 +7199,36 @@
       "BugReports": "https://github.com/spatstat/spatstat.utils/issues",
       "Author": "Adrian Baddeley [aut, cre] (ORCID: <https://orcid.org/0000-0001-9499-8382>), Rolf Turner [aut] (ORCID: <https://orcid.org/0000-0001-5521-5218>), Ege Rubak [aut] (ORCID: <https://orcid.org/0000-0002-6675-533X>)",
       "Repository": "CRAN"
+    },
+    "splitstackshape": {
+      "Package": "splitstackshape",
+      "Version": "1.4.8.1",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Stack and Reshape Datasets After Splitting Concatenated Values",
+      "Date": "2019-04-21",
+      "Authors@R": "person(given = \"Ananda\", family = \"Mahto\", role = c(\"aut\", \"cre\"), email = \"mrdwab@gmail.com\")",
+      "Description": "Online data collection tools like Google Forms often export multiple-response questions with data concatenated in cells. The concat.split (cSplit) family of functions splits such data into separate  cells. The package also includes functions to stack groups of columns and  to reshape wide data, even when the data are \"unbalanced\"---something  which reshape (from base R) does not handle, and which melt and dcast from  reshape2 do not easily handle.",
+      "License": "GPL-3",
+      "LazyData": "TRUE",
+      "LazyLoad": "yes",
+      "Depends": [
+        "R (>= 2.10)"
+      ],
+      "Imports": [
+        "data.table (>= 1.9.4)"
+      ],
+      "URL": "http://github.com/mrdwab/splitstackshape",
+      "BugReports": "http://github.com/mrdwab/splitstackshape/issues",
+      "RoxygenNote": "6.1.1",
+      "Suggests": [
+        "covr",
+        "testthat"
+      ],
+      "NeedsCompilation": "no",
+      "Repository": "CRAN",
+      "Author": "Ananda Mahto [aut, cre]",
+      "Maintainer": "Ananda Mahto <mrdwab@gmail.com>"
     },
     "stringi": {
       "Package": "stringi",
