@@ -33,6 +33,7 @@ You must be logged into your AWS account to download these files.
 # Download processed SCE objects
 ./download-data.py --projects SCPCP000017,SCPCP000018,SCPCP000023 --format SCE
 ```
+`run-analysis.sh` also uses one processed `SCE` object from `SCPCP000017` to define the gene symbols in ScPCA data.
 
 ## Output files
 
@@ -43,6 +44,12 @@ You must be logged into your AWS account to download these files.
   When using this reference with `SingleR`, use the `label` column as the reference labels.
 **Note:** in the xenograft references, all cells are labeled `Tumor` in `Ann_Level1`, so this reference has a single `Tumor` label and should not be used on its own for cell typing with `SingleR`.
 Because of this, we do not currently build this reference.
+
+`run-analysis.sh` creates the following files in the `scratch` directory:
+
+* `patient_singler_model.rds`: a `SingleR` model trained on `patient_harmonized_aggr_ref.rds`.
+  The model expects query `SCE` objects with gene symbols as row names, so query objects must be converted with `rOpenScPCA::sce_to_symbols(reference = "sce")` before classification.
+
 
 ## Software requirements
 

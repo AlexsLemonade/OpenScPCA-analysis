@@ -23,11 +23,24 @@ cd ${module_dir}
 # Define and create directories
 script_dir="scripts"
 ref_dir="references"
+scratch_dir="scratch"
 mkdir -p $ref_dir
+mkdir -p $scratch_dir
+
+
+# ScPCA data for the osteosarcoma project
+# Any processed SCE works here: all ScPCA libraries share the same genes,
+# so this one is only used to define the gene symbols the query data will have
+data_dir="../../data/current"
+project_id="SCPCP000017"
+scpca_sce_file=$(find "${data_dir}/${project_id}" -name "*_processed.rds" | sort | head -n 1)
 
 # Define argument defaults
 testing=${testing:-0} # default is not testing
 threads=${threads:-4} # default 4 threads
+
+# Define argument defaults
+singler_model_file=${singler_model_file:-"${scratch_dir}/singler-model_osteocar.rds"} # default singler model file is scratch/singler-model_osteocar.rds
 
 
 # Download OsteoCar reference ----------------------------------------------
@@ -76,5 +89,14 @@ done
 Rscript "${script_dir}/02-create-reference.R" \
   --prim_sce_file "${ref_dir}/patient_prim_sce.rds" \
   --mets_sce_file "${ref_dir}/patient_mets_sce.rds" \
+  --scpca_sce_file "${scpca_sce_file}" \
   --output_ref_file "${ref_dir}/patient_harmonized_aggr_ref.rds" \
+  --threads $threads
+
+# Train SingleR model ------------------------------------------------------
+# The ScPCA SCE defines the genes the model expects in query data
+Rscript "${script_dir}/03-train-singler-model.R" \
+  --ref_file "${ref_dir}/patient_harmonized_aggr_ref.rds" \
+  --sce_file "${scpca_sce_file}" \
+  --singler_model_file "${singler_model_file}" \
   --threads $threads
