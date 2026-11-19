@@ -48,7 +48,7 @@ Because of this, we do not currently build this reference.
 `run-analysis.sh` creates the following files in the `scratch` directory:
 
 * `singler-model_osteocar.rds`: a `SingleR` model trained on `patient_harmonized_aggr_ref.rds`.
-  The model expects query `SCE` objects with gene symbols as row names, so query objects must be converted with `rOpenScPCA::sce_to_symbols(reference = "sce")` before classification.
+  The model expects query `SCE` objects with gene symbols as row names, so query objects must be converted with `rOpenScPCA::sce_to_symbols(reference = "10x2020")` before classification.
 
 
 ## Software requirements
