@@ -33,7 +33,7 @@ mkdir -p $scratch_dir
 # so this one is only used to define the gene symbols the query data will have
 data_dir="../../data/current"
 project_id="SCPCP000017"
-scpca_sce_file=$(find "${data_dir}/${project_id}" -name "*_processed.rds" | sort | head -n 1)
+scpca_sce_file="${data_dir}/${project_id}/SCPCS000246/SCPCL000338_processed.rds"
 
 # Define argument defaults
 testing=${testing:-0} # default is not testing
@@ -89,7 +89,6 @@ done
 Rscript "${script_dir}/02-create-reference.R" \
   --prim_sce_file "${ref_dir}/patient_prim_sce.rds" \
   --mets_sce_file "${ref_dir}/patient_mets_sce.rds" \
-  --scpca_sce_file "${scpca_sce_file}" \
   --output_ref_file "${ref_dir}/patient_harmonized_aggr_ref.rds" \
   --threads $threads
 

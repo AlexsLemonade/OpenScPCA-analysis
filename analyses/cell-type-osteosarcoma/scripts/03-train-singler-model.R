@@ -5,8 +5,9 @@
 # The reference is created by the script '02-create-reference.R' ,
 # which also updates outdated gene symbols to match ScPCA. The reference is already
 # aggregated with SingleR::aggregateReference(), so no further aggregation is done here.
-# An ScPCA SCE object is used to define the genes the model expects in the query data:
-#  Its rownames are converted to gene symbols with rOpenScPCA::sce_to_symbols(),
+# An ScPCA SCE object is used to define the genes the model expects in query data:
+# its rownames are converted to the gene symbols used in the OsteoCAR reference
+# with rOpenScPCA::sce_to_symbols(reference = "10x2020"),
 # so query SCEs must be converted the same way before classification.
 
 suppressWarnings({
@@ -46,17 +47,28 @@ option_list <- list(
     type = "integer",
     default = 4,
     help = "Number of threads for SingleR to use"
+  ),
+  make_option(
+    opt_str = c("--seed"),
+    type = "integer",
+    default = 2025,
+    help = "Random seed, used for the clustering in SingleR::aggregateReference()"
   )
 )
 
 # Parse options and check arguments
 opts <- parse_args(OptionParser(option_list = option_list))
+
 stopifnot(
   "ref_file does not exist" = file.exists(opts$ref_file),
   "sce_file does not exist" = file.exists(opts$sce_file),
   "singler_model_file is required" = opts$singler_model_file != ""
 )
 
+# Set random seed for reproducibility
+set.seed(opts$seed)
+
+# Set up parallelization for SingleR
 if (opts$threads > 1) {
   bp_param <- BiocParallel::MulticoreParam(opts$threads)
 } else {
@@ -76,8 +88,12 @@ stopifnot(
 # Gene symbols in the ScPCA SCE ------------------------------------------------
 
 # ScPCA SCE rownames are Ensembl IDs, and the reference uses gene symbols.
-# Convert the SCE rownames to symbols with rOpenScPCA::sce_to_symbols(), using
-# the gene_symbol column in the SCE; genes without a symbol keep their Ensembl ID.
+# The OsteoCAR reference was built with the 10x Genomics reference
+# refdata-cellranger-arc-GRCh38-2020-A-2.0.0 (Ensembl v98), while ScPCA uses
+# Ensembl v104, so many gene symbols differ between the two (e.g., YARS vs. YARS1).
+# To match the reference, convert the SCE rownames to the gene symbols used in the
+# 10x 2020 reference with rOpenScPCA::sce_to_symbols(reference = "10x2020").
+# Genes without a symbol in that reference keep their Ensembl ID.
 # Query SCEs must be converted the same way before classification,
 # so their rownames match `test_genes`.
 test_genes <- readr::read_rds(opts$sce_file) |>
@@ -129,7 +145,9 @@ osteocar_trained <- SingleR::trainSingleR(
 )
 
 # Print the labels in the trained model
-message("Labels in the trained model: ", paste(sort(unique(osteocar_trained$labels$unique)), collapse = ", "))
+message("Labels in the trained model: ", paste(sort(osteocar_trained$labels$unique),
+  collapse = ", "
+))
 
 # Write the trained model to the specified file
 readr::write_rds(osteocar_trained, opts$singler_model_file)
