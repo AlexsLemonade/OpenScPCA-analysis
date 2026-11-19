@@ -81,7 +81,7 @@ stopifnot(
 # Query SCEs must be converted the same way before classification,
 # so their rownames match `test_genes`.
 test_genes <- readr::read_rds(opts$sce_file) |>
-  rOpenScPCA::sce_to_symbols(reference = "sce") |>
+  rOpenScPCA::sce_to_symbols(reference = "10x2020") |>
   rownames()
 
 
