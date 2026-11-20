@@ -96,7 +96,16 @@ for i in "${!ref_prefixes[@]}"; do
     --output_sce_file "${ref_prefixes[$i]}_sce.rds" \
     --output_anndata_file "${ref_prefixes[$i]}_adata.h5ad"
 done
- 
+
+# Stop here for xenograft references ---------------------------------------
+# All xenograft cells are labeled Tumor in Ann_Level1, so a harmonized xenograft
+# reference would have a single label and can't be used on its own with SingleR.
+# TODO: decide how to handle cell typing with the xenograft references in the future
+if [[ $sample_type == "xeno" ]]; then
+  echo "Cell typing with xenografts is not currently supported. References have been downloaded and converted but cell typing is skipped."
+  exit 0
+fi
+
 # Create harmonized, aggregated SingleR reference --------------------------
 # The primary and metastasis references are combined into one reference with
 # harmonized labels.
