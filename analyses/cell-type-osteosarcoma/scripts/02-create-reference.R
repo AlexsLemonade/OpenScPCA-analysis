@@ -8,8 +8,7 @@
 # - All other (normal) cell type labels come from Ann_Level2
 # Labels are harmonized across both references, so e.g. tumor cells in the
 # primary and metastasis references receive the same label.
-
-
+#
 # sets limit to 48 GB, needed for reading in the large SCE files
 mem.maxVSize(48000)
 
@@ -104,6 +103,7 @@ prepare_ref <- function(sce_file, level1_labels) {
   sce[, !is.na(sce$combined_label)]
 }
 
+
 # Read and prepare references --------------------------------------------------
 
 prim_sce <- prepare_ref(opts$prim_sce_file, level1_labels)
@@ -165,7 +165,7 @@ stopifnot(
 
 harmonized_ref <- cbind(aggr_refs$prim, aggr_refs$mets)
 
-# Export the harmonized reference; use `harmonized_ref$label` as labels in SingleR
+# Export the aggregated reference; use `harmonized_ref$label` as labels in SingleR
 readr::write_rds(
   harmonized_ref,
   opts$output_ref_file,

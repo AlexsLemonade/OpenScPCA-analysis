@@ -18,9 +18,15 @@ The module can be run with the `run-analysis.sh` script:
 # run full analysis
 ./run-analysis.sh
 
+# run full analysis with the xenograft references
+sample_type=xeno ./run-analysis.sh
+
 # run with test data
 testing=1 ./run-analysis.sh
 ```
+The `sample_type` variable sets which `OsteoCAR` references are used, either `patient` (default) or `xeno`.
+Only the references for that sample type are downloaded and processed.
+To run the analysis for both sample types, run the script once for each.
 
 ## Input files
 
@@ -33,16 +39,22 @@ You must be logged into your AWS account to download these files.
 # Download processed SCE objects
 ./download-data.py --projects SCPCP000017,SCPCP000018,SCPCP000023 --format SCE
 ```
+`run-analysis.sh` also uses one processed `SCE` object from `SCPCP000017` to define the gene symbols in ScPCA data.
 
 ## Output files
 
-`run-analysis.sh` creates the following files in the `references` directory:
+`run-analysis.sh` creates the following files in the `references` directory, where `<sample_type>` is `patient` (default) or `xeno`:
 
-* `patient_harmonized_aggr_ref.rds`: an aggregated reference for annotating samples with `SingleR`, created from the patient primary and metastasis `OsteoCAR` references.
+* `<sample_type>_harmonized_aggr_ref.rds`: an aggregated reference for annotating samples with `SingleR`, created from the primary and metastasis `OsteoCAR` references for that sample type.
   Labels are harmonized across both references, using `Ann_Level1` labels for Tumor and Mesenchymal cells and `Ann_Level2` labels for all other cell types.
   When using this reference with `SingleR`, use the `label` column as the reference labels.
-**Note:** in the xenograft references, all cells are labeled `Tumor` in `Ann_Level1`, so this reference has a single `Tumor` label and should not be used on its own for cell typing with `SingleR`.
-Because of this, we do not currently build this reference.
+
+**Note:** in the xenograft references, all cells are labeled `Tumor` in `Ann_Level1`, so `xeno_harmonized_aggr_ref.rds` has a single `Tumor` label and should not be used on its own for cell typing with `SingleR`.
+
+`run-analysis.sh` creates the following files in the `scratch` directory:
+
+* `<sample_type>_singler-model_osteocar.rds`: a `SingleR` model trained on `<sample_type>_harmonized_aggr_ref.rds`.
+  The model expects query `SCE` objects (the ScPCA SCEs to annotate) with gene symbols as row names, so they must be converted with `rOpenScPCA::sce_to_symbols(reference = "10x2020")` before classification.
 
 ## Software requirements
 
