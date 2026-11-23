@@ -12,30 +12,6 @@ suppressWarnings({
   })
 })
 
-# Functions --------------------------------------------------------------------
-
-# Annotate an ScPCA SCE object with a trained SingleR model
-#
-# Inputs:
-#   sce: SingleCellExperiment object from ScPCA, with Ensembl ids as row names
-#   singler_model: trained SingleR model
-#   bp_param: BiocParallel parameter object for SingleR to use
-#
-# Output: SingleR result DataFrame
-annotate_with_singler <- function(sce, singler_model, bp_param = BiocParallel::SerialParam()) {
-  # Convert Ensembl ids to gene symbols so they match the model.
-  # The OsteoCAR reference uses 10x 2020 (Ensembl v98) symbols, so we map
-  #  with the same reference used when training the model.
-  # Note that ids that don't map will retain Ensembl ids.
-  sce <- rOpenScPCA::sce_to_symbols(sce, reference = "10x2020")
-  # Perform the annotation using the provided model and parallelization parameter
-  SingleR::classifySingleR(
-    sce,
-    singler_model,
-    BPPARAM = bp_param
-  )
-}
-
 # Options ----------------------------------------------------------------------
 
 option_list <- list(
@@ -107,7 +83,13 @@ fs::dir_create(dirname(opts$singler_output_rds))
 singler_model <- readRDS(opts$singler_model_file)
 sce <- readRDS(opts$sce_file)
 #  Annotate the SCE object with the SingleR model
-singler_result <- annotate_with_singler(sce, singler_model, bp_param)
+sce <- rOpenScPCA::sce_to_symbols(sce, reference = "10x2020")
+  # Perform the annotation using the provided model and parallelization parameter
+singler_result <- SingleR::classifySingleR(
+    sce,
+    singler_model,
+    BPPARAM = bp_param
+  )
 
 # Export -----------------------------------------------------------------------
 # Extract TSV to save separately
