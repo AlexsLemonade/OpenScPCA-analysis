@@ -118,5 +118,5 @@ singler_df <- singler_result |>
   tibble::rownames_to_column("barcodes")
 
 # Export the results to RDS and TSV files
-readr::write_rds(singler_result, opts$singler_output_rds)
+readr::write_rds(singler_result, opts$singler_output_rds, compress = "gz")
 readr::write_tsv(singler_df, opts$singler_output_tsv)
