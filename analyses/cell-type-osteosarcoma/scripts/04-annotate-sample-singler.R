@@ -83,7 +83,11 @@ stopifnot(
   "sce_file does not exist" = file.exists(opts$sce_file),
   "singler_model_file does not exist" = file.exists(opts$singler_model_file),
   "singler_output_tsv must be provided" = opts$singler_output_tsv != "",
-  "singler_output_rds must be provided" = opts$singler_output_rds != ""
+  "singler_output_tsv must end in .tsv or .tsv.gz" =
+    stringr::str_detect(opts$singler_output_tsv, "\\.tsv(\\.gz)?$"),
+  "singler_output_rds must be provided" = opts$singler_output_rds != "",
+  "singler_output_rds must end in .rds" =
+    stringr::str_detect(opts$singler_output_rds, "\\.rds$")
 )
 set.seed(opts$seed)
 
