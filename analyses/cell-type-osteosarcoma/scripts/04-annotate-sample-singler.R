@@ -87,7 +87,7 @@ stopifnot(
 )
 set.seed(opts$seed)
 
-# Set up parallelization parameters for SingleR 
+# Set up parallelization parameters for SingleR
 if (opts$threads == 1) {
   bp_param <- BiocParallel::SerialParam()
 } else {
@@ -102,7 +102,7 @@ fs::dir_create(dirname(opts$singler_output_rds))
 #  Read in the SingleR model and the SCE object
 singler_model <- readRDS(opts$singler_model_file)
 sce <- readRDS(opts$sce_file)
-#  Annotate the SCE object with the SingleR model 
+#  Annotate the SCE object with the SingleR model
 singler_result <- annotate_with_singler(sce, singler_model, bp_param)
 
 # Export -----------------------------------------------------------------------
@@ -116,4 +116,3 @@ singler_df <- singler_result |>
 # Export the results to RDS and TSV files
 readr::write_rds(singler_result, opts$singler_output_rds)
 readr::write_tsv(singler_df, opts$singler_output_tsv)
-
