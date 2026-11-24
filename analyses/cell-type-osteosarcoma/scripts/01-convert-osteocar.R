@@ -30,6 +30,12 @@ option_list <- list(
     type = "integer",
     default = 2025,
     help = "Random seed used for reproducibility of selecting HVGs"
+  ),
+  make_option(
+    opt_str = c("--testing"),
+    action = "store_true",
+    default = FALSE,
+    help = "Subset the reference to a small number of cells per cell type, to reduce memory use in CI"
   )
 )
 
@@ -50,6 +56,21 @@ set.seed(opts$seed)
 
 # read input file
 osteocar_seurat <- qs2::qs_read(opts$input_ref_file)
+
+# in testing mode, subset to a small number of cells per cell type
+# before any conversion, so all downstream steps use less memory.
+# Ann_Level2 is the finest label used in the harmonized reference,
+# so sampling by it keeps every label present for SingleR
+if (opts$testing) {
+  n_cells_per_type <- 100
+  cell_labels <- osteocar_seurat$Ann_Level2
+  keep_cells <- split(colnames(osteocar_seurat), cell_labels) |>
+    lapply(\(cells) sample(cells, min(length(cells), n_cells_per_type))) |>
+    unlist(use.names = FALSE)
+
+  osteocar_seurat <- subset(osteocar_seurat, cells = keep_cells)
+  gc()
+}
 
 # convert to SCE, using `as` to avoid CI error
 # the clean up up for memory right away
