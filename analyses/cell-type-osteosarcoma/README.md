@@ -14,7 +14,6 @@ As described in [this GitHub Discussion](https://github.com/AlexsLemonade/OpenSc
 
 The module can be run with the `run-analysis.sh` script:
 
-
 ```sh
 # run full analysis
 ./run-analysis.sh
@@ -28,12 +27,6 @@ testing=1 ./run-analysis.sh
 The `sample_type` variable sets which `OsteoCAR` references are used, either `patient` (default) or `xeno`.
 Only the references for that sample type are downloaded and processed.
 To run the analysis for both sample types, run the script once for each.
-
-The `testing` variable runs the module in testing mode, which is used when running the module in GitHub Actions.
-In testing mode, the primary and metastasis `OsteoCAR` references are subset to 100 cells per `Ann_Level2` cell type right after they are read in, so that all cell types are still present for building the `SingleR` reference while using less memory.
-Loading the full reference files still requires a large amount of memory (the metastasis reference alone uses ~19 GB once read into R).
-Run the module without `testing` to build the references with the full data.
-
 
 ## Input files
 
