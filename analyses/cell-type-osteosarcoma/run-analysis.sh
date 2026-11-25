@@ -34,6 +34,13 @@ if [[ $sample_type != "patient" && $sample_type != "xeno" ]]; then
   echo "sample_type must be either 'patient' or 'xeno'"
   exit 1
 fi
+
+# In testing mode, the reference conversion script subsets the references
+if [[ $testing -eq 1 ]]; then
+  testing_flag="--testing"
+else
+  testing_flag=""
+fi
  
 # Define and create directories
 script_dir="scripts"
@@ -94,7 +101,8 @@ for i in "${!ref_prefixes[@]}"; do
   Rscript "${script_dir}/01-convert-osteocar.R" \
     --input_ref_file "${ref_prefixes[$i]}.qs2" \
     --output_sce_file "${ref_prefixes[$i]}_sce.rds" \
-    --output_anndata_file "${ref_prefixes[$i]}_adata.h5ad"
+    --output_anndata_file "${ref_prefixes[$i]}_adata.h5ad" \
+    $testing_flag
 done
 
 # Stop here for xenograft references ---------------------------------------
@@ -105,6 +113,7 @@ if [[ $sample_type == "xeno" ]]; then
   echo "Cell typing with xenografts is not currently supported. References have been downloaded and converted but cell typing is skipped."
   exit 0
 fi
+
 
 # Create harmonized, aggregated SingleR reference --------------------------
 # The primary and metastasis references are combined into one reference with
