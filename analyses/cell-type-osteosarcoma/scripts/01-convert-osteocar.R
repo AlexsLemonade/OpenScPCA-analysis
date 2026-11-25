@@ -63,10 +63,12 @@ osteocar_seurat <- qs2::qs_read(opts$input_ref_file)
 # so sampling by it keeps every label present for SingleR
 if (opts$testing) {
   n_cells_per_type <- 100
-  cell_labels <- osteocar_seurat$Ann_Level2
-  keep_cells <- split(colnames(osteocar_seurat), cell_labels) |>
-    lapply(\(cells) sample(cells, min(length(cells), n_cells_per_type))) |>
-    unlist(use.names = FALSE)
+  keep_cells <- data.frame(
+    cell = colnames(osteocar_seurat),
+    label = osteocar_seurat$Ann_Level2
+  ) |>
+    dplyr::slice_sample(n = n_cells_per_type, by = label) |>
+    dplyr::pull(cell)
 
   osteocar_seurat <- subset(osteocar_seurat, cells = keep_cells)
   gc()
@@ -116,5 +118,4 @@ if (!is.null(opts$output_anndata_file)) {
     compression = "gzip",
     mode = "w"
   )
-
 }
